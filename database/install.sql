@@ -633,38 +633,6 @@ INSERT INTO `users` VALUES (1,'Filip Jankoski','filip@agmedia.hr',NULL,'$2y$10$6
 UNLOCK TABLES;
 
 --
--- Table structure for table `widget_groups`
---
-
-DROP TABLE IF EXISTS `widget_groups`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `widget_groups` (
-  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
-  `template` varchar(191) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
-  `type` varchar(191) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `title` varchar(191) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
-  `slug` varchar(191) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
-  `width` varchar(191) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `status` tinyint(3) unsigned NOT NULL DEFAULT '0',
-  `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL,
-  PRIMARY KEY (`id`),
-  KEY `widget_groups_template_index` (`template`)
-) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `widget_groups`
---
-
-LOCK TABLES `widget_groups` WRITE;
-/*!40000 ALTER TABLE `widget_groups` DISABLE KEYS */;
-INSERT INTO `widget_groups` VALUES (1,'product_carousel',NULL,'Izdvojeno iz ponude','izdvojeno-iz-ponude','12',1,'2023-05-22 12:21:30','2023-05-22 12:21:30'),(2,'simple_card',NULL,'Dodatno u ponudi','dodatno-u-ponudi','12',1,'2023-07-31 09:15:41','2023-07-31 09:31:34'),(3,'page_carousel',NULL,'ODABERI SVOJE ŠTIVO','odaberi-svoje-stivo','12',1,'2023-08-01 12:08:45','2023-08-01 12:08:45'),(4,'page_carousel',NULL,'Popularni izdavači','popularni-izdavaci','12',1,'2023-08-01 14:36:04','2023-08-01 14:36:04'),(5,'product_carousel',NULL,'Novo u ponudi','novo-u-ponudi','12',1,'2023-08-01 14:52:02','2023-08-01 14:52:02');
-/*!40000 ALTER TABLE `widget_groups` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
 -- Table structure for table `widgets`
 --
 
