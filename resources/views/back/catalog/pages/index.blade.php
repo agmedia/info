@@ -20,8 +20,7 @@
     <!-- Page Content -->
     <div class="content content-full">
     @include('back.layouts.partials.session')
-
-
+        
         <!-- Posts -->
         <div class="block">
             <div class="block-header block-header-default">
@@ -77,9 +76,7 @@
                                 <a class="btn btn-sm btn-alt-secondary" href="{{ route('pages.edit', ['page' => $page]) }}">
                                     <i class="fa fa-fw fa-pencil-alt"></i>
                                 </a>
-                                @if ( ! in_array($page->slug, ['homepage']))
-                                    <button class="btn btn-sm btn-alt-danger" onclick="event.preventDefault(); deleteItem({{ $page->id }}, '{{ route('pages.destroy.api') }}');"><i class="fa fa-fw fa-trash-alt"></i></button>
-                                @endif
+                                <button class="btn btn-sm btn-alt-danger" onclick="event.preventDefault(); deleteItem({{ $page->id }}, '{{ route('pages.destroy.api') }}');"><i class="fa fa-fw fa-trash-alt"></i></button>
                             </td>
                         </tr>
                     @empty

@@ -251,6 +251,10 @@ class Page extends Model
             $pages->where('subgroup', $request->group);
         }
 
+        if ( ! $request->has('group')) {
+            $pages->where('subgroup', '!=', 'special');
+        }
+
         return $pages;
     }
 }
