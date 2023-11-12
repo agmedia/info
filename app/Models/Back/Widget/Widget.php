@@ -113,7 +113,7 @@ class Widget extends Model
         ];
 
         if ($this->request->data) {
-            $filepath = Helper::resolveViewFilepath(Str::slug($this->request->title), 'widgets');
+            $filepath = Helper::resolveViewFilepath($this->setSlug(), 'widgets');
 
             Storage::disk('view')->put($filepath, $this->request->data);
 
