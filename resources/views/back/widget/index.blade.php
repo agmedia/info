@@ -53,7 +53,7 @@
                                     <td>
                                         <a href="{{ route('widget.edit', ['widget' => $widget]) }}">{{ $widget->title }}</a>
                                     </td>
-                                    <td class="font-size-sm">++{{ \Illuminate\Support\Str::slug($widget->title) }}++</td>
+                                    <td class="font-size-sm">++{{ $widget->slug }}++</td>
                                     <td class="text-center">
                                         {{ \Illuminate\Support\Carbon::make($widget->created_at)->format('d.m.Y') }}
                                     </td>

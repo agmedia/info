@@ -10,6 +10,7 @@ use App\Http\Controllers\Back\Settings\FileManagerController;
 use App\Http\Controllers\Back\Settings\HistoryController;
 use App\Http\Controllers\Back\Settings\QuickMenuController;
 use App\Http\Controllers\Back\Settings\SettingsController;
+use App\Http\Controllers\Back\Settings\System\ApplicationController;
 use App\Http\Controllers\Back\UserController;
 use App\Http\Controllers\Back\Widget\WidgetController;
 use App\Http\Controllers\Back\Widget\WidgetGroupController;
@@ -78,6 +79,11 @@ Route::middleware(['auth:sanctum', 'verified', 'no.customers'])->prefix('admin')
 
     // POSTAVKE
     Route::prefix('settings')->group(function () {
+        // SISTEM
+        Route::prefix('system')->group(function () {
+            // APPLICATION SETTINGS
+            Route::get('application', [ApplicationController::class, 'index'])->name('application.settings');
+        });
         // FAQ
         Route::get('faqs', [FaqController::class, 'index'])->name('faqs');
         Route::get('faq/create', [FaqController::class, 'create'])->name('faqs.create');
@@ -122,6 +128,14 @@ Route::prefix('api/v2')->group(function () {
     Route::post('/pages/destroy/api', [PageController::class, 'destroyApi'])->name('pages.destroy.api');
     // SETTINGS
     Route::prefix('settings')->group(function () {
+        // SYSTEM
+        Route::prefix('system')->group(function () {
+            // APPLICATION
+            Route::prefix('application')->group(function () {
+                Route::post('basic/store', [ApplicationController::class, 'basicInfoStore'])->name('api.application.basic.store');
+                Route::post('maps-api/store', [ApplicationController::class, 'storeGoogleMapsApiKey'])->name('api.application.google-api.store.key');
+            });
+        });
         // FRONT SETTINGS LIST
         Route::get('/get', [SettingsController::class, 'get']);
         // WIDGET

@@ -112,6 +112,23 @@
                         <span class="nav-main-link-name">Postavke</span>
                     </a>
                     <ul class="nav-main-submenu">
+                        <li class="nav-main-item{{ request()->is(['admin/settings/system/*']) ? ' open' : '' }}">
+                            <a class="nav-main-link nav-main-link-submenu" data-toggle="submenu" aria-haspopup="true" aria-expanded="false" href="#">
+                                <span class="nav-main-link-name">Sistem</span>
+                            </a>
+                            <ul class="nav-main-submenu">
+                                <li class="nav-main-item">
+                                    <a class="nav-main-link{{ request()->routeIs(['application', 'application.*']) ? ' active' : '' }}" href="{{ route('application.settings') }}">
+                                        <span class="nav-main-link-name">Aplikacija</span>
+                                    </a>
+                                </li>
+{{--                                <li class="nav-main-item">--}}
+{{--                                    <a class="nav-main-link{{ request()->routeIs(['history', 'history.*']) ? ' active' : '' }}" href="{{ route('history') }}">--}}
+{{--                                        <span class="nav-main-link-name">History log</span>--}}
+{{--                                    </a>--}}
+{{--                                </li>--}}
+                            </ul>
+                        </li>
                         <li class="nav-main-item">
                             <a class="nav-main-link{{ request()->routeIs(['faqs', 'faqs.*']) ? ' active' : '' }}" href="{{ route('faqs') }}">
                                 <span class="nav-main-link-name">FAQ</span>

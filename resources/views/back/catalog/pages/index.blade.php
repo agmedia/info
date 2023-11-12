@@ -20,7 +20,7 @@
     <!-- Page Content -->
     <div class="content content-full">
     @include('back.layouts.partials.session')
-        
+
         <!-- Posts -->
         <div class="block">
             <div class="block-header block-header-default">
