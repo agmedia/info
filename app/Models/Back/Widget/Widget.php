@@ -102,14 +102,12 @@ class Widget extends Model
      */
     private function getModelArray(bool $insert = true): array
     {
-        $resource_data = $this->setResourceData();
-
         $response = [
             'resource'      => $this->request->group,
-            'resource_data' => $resource_data,
+            'resource_data' => $this->setResourceData(),
             'title'         => $this->request->title,
             'subtitle'      => '',
-            'slug'          => Str::slug($this->request->title),
+            'slug'          => $this->setSlug(),
             'status'        => (isset($this->request->status) and $this->request->status == 'on') ? 1 : 0,
             'updated_at'    => Carbon::now()
         ];
@@ -127,6 +125,19 @@ class Widget extends Model
         }
 
         return $response;
+    }
+
+
+    /**
+     * @return string
+     */
+    private function setSlug(): string
+    {
+        if ( ! $this->request->slug || $this->request->slug == '') {
+            return Str::slug($this->request->title);
+        }
+
+        return $this->request->slug;
     }
 
 

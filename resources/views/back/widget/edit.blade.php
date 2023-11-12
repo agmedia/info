@@ -83,6 +83,14 @@
                                     </div>
                                 </div>
                             </div>
+
+                            <div class="form-group row items-push mt-3">
+                                <div class="col-md-12">
+                                    <label for="title-input">Oznaka</label>
+                                    <input type="text" class="form-control" id="slug-input" name="slug" placeholder="Upišite oznaku widgeta" value="{{ isset($widget) ? $widget->slug : old('slug') }}">
+                                </div>
+                            </div>
+
                         </div>
 
                         <div class="col-lg-5">
