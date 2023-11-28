@@ -81,7 +81,7 @@
                         </tr>
                     @empty
                         <tr class="text-center">
-                            <td colspan="3">Nema info stranica...</td>
+                            <td colspan="5">Nema info stranica...</td>
                         </tr>
                     @endforelse
                     </tbody>

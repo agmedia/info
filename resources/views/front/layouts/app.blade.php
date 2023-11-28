@@ -1,68 +1,133 @@
 <!DOCTYPE html>
 <html lang="{{ config('app.locale') }}">
 <head>
-    <meta charset="utf-8">
-    <title> @yield('title') </title>
-    <!-- SEO Meta Tags-->
-    <meta name="description" content="@yield('description')">
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+    <meta http-equiv="x-ua-compatible" content="IE=edge">
     <meta name="author" content="@yield('title')">
-    @stack('meta_tags')
-    <!-- Viewport-->
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-    <!-- Favicon and Touch Icons-->
-    <link rel="apple-touch-icon" sizes="180x180" href="{{ config('settings.images_domain') . 'favicon-32x32.png' }}">
-    <link rel="icon" type="image/png" sizes="32x32" href="{{ config('settings.images_domain') . 'favicon-32x32.png' }}">
-    <link rel="icon" type="image/png" sizes="16x16" href="{{ config('settings.images_domain') . 'favicon-16x16.png' }}">
-    <link rel="mask-icon" href="{{ config('settings.images_domain') . 'safari-pinned-tab.svg' }}" color="#18326d">
-    <meta name="msapplication-TileColor" content="#ffffff">
-    <meta name="theme-color" content="#ffffff">
+    <meta name="description" content="@yield('description')">
+
     <!-- Font Imports -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@100;400;700&family=Inter:wght@100;400;700&display=swap" rel="stylesheet">
 
-    <link rel="stylesheet" media="screen" href="{{ asset('css/koros.css') }}">
-    <link rel="stylesheet" media="screen" href="{{ asset('css/font-icons.css?v=1.0') }}">
-    <style>
-        [v-cloak] { display:none !important; }
-    </style>
+    <!-- Favicon -->
+    <link rel="manifest" href="{{ asset('img/favicon/manifest.webmanifest') }}">
+    <link rel="icon" href="{{ asset('img/favicon/favicon.ico') }}" sizes="any">
+    <link rel="icon" href="{{ asset('img/favicon/icon.svg') }}" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="{{ asset('img/favicon/apple-touch-icon.png') }}">
+
+    <!-- Core Style -->
+    <link rel="stylesheet" href="{{ asset('style.css') }}">
+
+    <!-- Font Icons -->
+    <link rel="stylesheet" href="{{ asset('css/font-icons.css') }}">
+
+    <!-- Plugins/Components CSS -->
+    <link rel="stylesheet" href="{{ asset('css/swiper.css') }}">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- Document Title -->
+    <title>@yield('title')</title>
+
 </head>
 <!-- Body-->
-<body class="stretched search-overlay dark">
+<body class="stretched">
 
 <div id="agapp">
-    <div id="wrapper" class="clearfix">
+    <div id="wrapper">
         @include('front.layouts.widgets.header')
         @yield('content')
         @include('front.layouts.widgets.footer')
     </div>
 </div>
 
-<!-- Back To Top Button-->
-<div id="gotoTop" class="uil uil-angle-up"></div>
-
-<script src="{{ asset('js/jquery.js') }}"></script>
+<!-- JavaScripts
+	============================================= -->
 <script src="{{ asset('js/plugins.min.js') }}"></script>
 <script src="{{ asset('js/functions.bundle.js') }}"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.8.3/modernizr.min.js"></script>
+
 
 <script>
-    jQuery(document).ready( function(){
-        $('#search-input').on('keyup', (e) => {
-            if (e.keyCode == 13) {
-                e.preventDefault();
-                $('search-form').submit();
-            }
-        });
+    jQuery(window).on('load', function () {
+        jQuery('.primary-menu').each(function () {
+            let menuEl  = jQuery(this),
+                marker  = menuEl.find('.morph-marker'),
+                current = menuEl.find('.current');
 
-        $('input[type="file"]').change(function(e){
-            var fileName = e.target.files[0].name;
-            $('.custom-file-label').html(fileName);
-        });
+            // Initialize the marker position and the active class
+            current.addClass('active');
 
-        $(function(){
-            if(window.location.hash) {
-                var hash = window.location.hash;
-                $(hash).modal('toggle');
+            marker.css({
+                // Place the marker in the middle of the border
+                bottom: -(marker.height() / 2),
+                left:   current.position().left,
+                width:  current.outerWidth(),
+            });
+
+
+            if (Modernizr.csstransitions) {
+                // console.log("using css3 transitions");
+                menuEl.find('.menu-item').mouseover(function () {
+                    var self       = jQuery(this),
+                        offsetLeft = self.position().left,
+
+                        // Use the element under the pointer OR the current page item
+                        width      = self.outerWidth() || current.outerWidth(),
+                        // Ternary operator, because if using OR when offsetLeft is 0, it is considered a falsy value, thus causing a bug for the first element.
+                        left       = offsetLeft == 0 ? 0 : offsetLeft || current.position().left;
+                    // Play with the active class
+                    menuEl.find('.active').removeClass('active');
+                    self.addClass('active');
+                    marker.css({
+                        left:  left,
+                        width: width,
+                    });
+                });
+
+                // When the mouse leaves the menu
+                menuEl.find('.menu-container').mouseleave(function () {
+                    // remove all active classes, add active class to the current page item
+                    menuEl.find('.active').removeClass('active');
+                    current.addClass('active');
+                    // reset the marker to the current page item position and width
+                    marker.css({
+                        left:  current.position().left,
+                        width: current.outerWidth()
+                    });
+                });
+
+            } else {
+
+                menuEl.find('.menu-item').mouseover(function () {
+                    var self       = jQuery(this),
+                        offsetLeft = self.position().left,
+                        // Use the element under the pointer OR the current page item
+                        width      = self.outerWidth() || current.outerWidth(),
+                        // Ternary operator, because if using OR when offsetLeft is 0, it is considered a falsy value, thus causing a bug for the first element.
+                        left       = offsetLeft == 0 ? 0 : offsetLeft || current.position().left;
+                    // Play with the active class
+                    menuEl.find('.active').removeClass('active');
+                    self.addClass('active');
+                    marker.stop().animate({
+                        left:  left,
+                        width: width,
+                    }, 300);
+                });
+
+                // When the mouse leaves the menu
+                menuEl.find('.menu-container').mouseleave(function () {
+                    // remove all active classes, add active class to the current page item
+                    menuEl.find('.active').removeClass('active');
+                    current.addClass('active');
+                    // reset the marker to the current page item position and width
+                    marker.stop().animate({
+                        left:  current.position().left,
+                        width: current.outerWidth()
+                    }, 300);
+                });
             }
         });
     });

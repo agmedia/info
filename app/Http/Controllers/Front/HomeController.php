@@ -148,11 +148,13 @@ class HomeController extends Controller
     {
         Log::info($request->toArray());
 
+        return response()->json(['success' => 'Vaša poruka je uspješno poslana.! Odgovoriti ćemo vam uskoro.']);
+
         $request->validate([
-            'name'    => 'required',
-            'email'   => 'required|email',
-            'phone'   => 'required',
-            'message' => 'required',
+            'template-contactform-name'    => 'required',
+            'template-contactform-email'   => 'required|email',
+            'template-contactform-phone'   => 'required',
+            'template-contactform-message' => 'required',
         ]);
 
         // Recaptcha

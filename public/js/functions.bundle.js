@@ -550,7 +550,7 @@ if( typeof jQuery !== 'undefined' ) {
 
 					var moving = false;
 					var pos = target.scrollTop;
-					 var frame = target === document.body
+					var frame = target === document.body
 							  && document.documentElement
 							  ? document.documentElement
 							  : target; // safari is the new IE
@@ -706,22 +706,20 @@ if( typeof jQuery !== 'undefined' ) {
 			},
 
 			topScrollOffset: function() {
-				var topOffsetScroll = 0;
+				var headerHeight = 0;
 				var pageMenuOffset = vars.elPageMenu?.querySelector('#page-menu-wrap')?.offsetHeight || 0;
 
 				if( vars.elBody.classList.contains('is-expanded-menu') ) {
 					if( vars.elHeader?.classList.contains('sticky-header') ) {
-						topOffsetScroll = vars.elHeaderWrap.offsetHeight;
+						headerHeight = vars.elHeaderWrap.offsetHeight;
 					}
 
-					if( vars.elPageMenu?.classList.contains('dots-menu') ) {
+					if( vars.elPageMenu?.classList.contains('dots-menu') || !vars.elPageMenu?.classList.contains('sticky-page-menu') ) {
 						pageMenuOffset = 0;
 					}
 				}
 
-				topOffsetScroll = topOffsetScroll + pageMenuOffset;
-
-				Core.getVars.topScrollOffset = topOffsetScroll + options.scrollOffset;
+				Core.getVars.topScrollOffset = headerHeight + pageMenuOffset + options.scrollOffset;
 			},
 		};
 	}();
@@ -1064,6 +1062,10 @@ if( typeof jQuery !== 'undefined' ) {
 				CNVS.Hover3D && CNVS.Hover3D.init(element ? element : '.hover-3d');
 			},
 
+			buttons: function(element) {
+				CNVS.Buttons && CNVS.Buttons.init(element ? element : '.button-text-effect');
+			},
+
 			bsComponents: function(element) {
 				CNVS.BSComponents && CNVS.BSComponents.init(element ? element : '[data-bs-toggle="tooltip"],[data-bs-toggle="popover"],[data-bs-toggle="tab"],[data-bs-toggle="pill"],.style-msg');
 			}
@@ -1120,7 +1122,6 @@ if( typeof jQuery !== 'undefined' ) {
 				Core.run(vars.resizers);
 
 				Custom.onResize();
-
 				Core.addEvent( window, 'cnvsResize' );
 			}
 		};
@@ -1603,7 +1604,7 @@ if( typeof jQuery !== 'undefined' ) {
 						});
 
 						onClickMenuCurrent?.forEach( function(current) {
-							current.classList.add('current');
+							current?.classList.add('current');
 						});
 					}
 
@@ -1621,7 +1622,7 @@ if( typeof jQuery !== 'undefined' ) {
 						});
 
 						onClickTopMenuCurrent?.forEach( function(current) {
-							current.classList.add('current');
+							current?.classList.add('current');
 						});
 					}
 				}, false);
@@ -1684,6 +1685,15 @@ if( typeof jQuery !== 'undefined' ) {
 				});
 			};
 
+			var _withIcon = function() {
+				document.querySelectorAll('.mega-menu-content, .sub-menu-container').forEach( function(subMenu) {
+					subMenu.querySelectorAll('.menu-item').forEach( function(item) {
+						var link = item.querySelector('.menu-link');
+						link?.querySelector('i') && link.querySelector('span')?.classList.add('menu-subtitle-icon-offset');
+					});
+				});
+			};
+
 			var _arrows = function() {
 				var addArrow = function(menuItemDiv) {
 					if( menuItemDiv && !menuItemDiv.querySelector('.sub-menu-indicator') ) {
@@ -1721,14 +1731,18 @@ if( typeof jQuery !== 'undefined' ) {
 			var _invert = function(subMenuEl) {
 				var subMenus = subMenuEl || document.querySelectorAll( '.mega-menu-content, .sub-menu-container, .top-links-section' );
 
-				if( !__core.getVars.elBody.classList.contains('is-expanded-menu') ) {
+				// if( !__core.getVars.elBody.classList.contains('is-expanded-menu') ) {
+				// 	return false;
+				// }
+
+				if( subMenus.length < 1 ) {
 					return false;
 				}
 
-				var primaryMenu;
+				var primaryMenus;
 
 				subMenus.forEach( function(el) {
-					primaryMenu = el.closest('.primary-menu');
+					primaryMenus = el.closest('.header-row')?.querySelectorAll('.primary-menu');
 					el.classList.remove('menu-pos-invert');
 					var elChildren = el.querySelectorAll(':scope > *');
 
@@ -1765,7 +1779,43 @@ if( typeof jQuery !== 'undefined' ) {
 					el.style.display = '';
 				});
 
-				primaryMenu?.classList.add('primary-menu-init');
+				primaryMenus?.forEach( function(pMenu){
+					pMenu.classList.add('primary-menu-init');
+				});
+			};
+
+			var _hover = function() {
+				if( !__core.getVars.elBody.classList.contains('is-expanded-menu') ) {
+					return true;
+				}
+
+				var menuHoverDelay = getComputedStyle(__core.getVars.elHeader).getPropertyValue('--cnvs-primary-menu-submenu-display-speed') || 666;
+
+				if( !isNaN(menuHoverDelay.split('ms')[0]) ) {
+					menuHoverDelay = menuHoverDelay.split('ms')[0];
+				} else if( !isNaN(menuHoverDelay.split('s')[0]) ) {
+					menuHoverDelay = menuHoverDelay.split('s')[0] * 1000;
+				}
+
+				[].slice.call(__core.getVars.elPrimaryMenus).filter( function(elem) {
+					return !elem.matches('.on-click');
+				}).forEach( function(pMenu) {
+					pMenu.querySelectorAll('.sub-menu').forEach( function(item){
+						var _t;
+
+						item.addEventListener('mouseenter', function() {
+							clearTimeout(_t);
+							item.classList.add('menu-item-hover');
+							_invert(item.querySelectorAll('.mega-menu-content, .sub-menu-container'));
+						});
+
+						item.addEventListener('mouseleave', function() {
+							_t = setTimeout( function(){
+								item.classList.remove('menu-item-hover');
+							}, Number(menuHoverDelay));
+						});
+					});
+				});
 			};
 
 			var _functions = function() {
@@ -1790,36 +1840,6 @@ if( typeof jQuery !== 'undefined' ) {
 				document.querySelectorAll(subMenuTriggerSel).forEach( function(el) {
 					el.classList.remove('icon-rotate-90')
 				});
-
-				// Menu Item hover functionality
-				if( body.contains('is-expanded-menu') ) {
-					var menuHoverDelay = getComputedStyle(__core.getVars.elHeader).getPropertyValue('--cnvs-primary-menu-submenu-display-speed') || 666;
-
-					if( !isNaN(menuHoverDelay.split('ms')[0]) ) {
-						menuHoverDelay = menuHoverDelay.split('ms')[0];
-					} else if( !isNaN(menuHoverDelay.split('s')[0]) ) {
-						menuHoverDelay = menuHoverDelay.split('s')[0] * 1000;
-					}
-
-					[].slice.call(__core.getVars.elPrimaryMenus).filter( function(elem) {
-						return !elem.matches('.on-click');
-					}).forEach( function(pMenu) {
-						pMenu.querySelectorAll(subMenuSel).forEach( function(item){
-							var _t;
-
-							item.addEventListener('mouseenter', function() {
-								clearTimeout(_t);
-								item.classList.add('menu-item-hover');
-							}, false);
-
-							item.addEventListener('mouseleave', function() {
-								_t = setTimeout( function(){
-									item.classList.remove('menu-item-hover');
-								}, Number(menuHoverDelay));
-							}, false);
-						});
-					});
-				}
 
 				/**
 				 * Mobile Menu Functionality
@@ -2088,8 +2108,10 @@ if( typeof jQuery !== 'undefined' ) {
 
 					_init();
 					_reset();
+					_withIcon();
 					_arrows();
 					_invert();
+					_hover();
 					_functions();
 					_trigger();
 					_fullWidth();
@@ -2369,6 +2391,10 @@ if( typeof jQuery !== 'undefined' ) {
 						return true;
 					}
 
+					if( !__core.getVars.elBody.classList.contains('is-expanded-menu') ) {
+						return true;
+					}
+
 					_swiper();
 					_revolution();
 					__base.setBSTheme();
@@ -2400,7 +2426,7 @@ if( typeof jQuery !== 'undefined' ) {
 						return true;
 					}
 
-					searchForm.closest('.header-row').classList.add( 'top-search-parent' );
+					searchForm.closest('.header-row')?.classList.add( 'top-search-parent' );
 
 					var topSearchParent = document.querySelector('.top-search-parent'),
 						timeout;
@@ -2417,10 +2443,10 @@ if( typeof jQuery !== 'undefined' ) {
 						__core.getVars.recalls.menureset();
 
 						if( __core.getVars.elBody.classList.contains('top-search-open') ) {
-							topSearchParent.classList.add('position-relative');
+							topSearchParent?.classList.add('position-relative');
 						} else {
 							timeout = setTimeout( function() {
-								topSearchParent.classList.remove('position-relative');
+								topSearchParent?.classList.remove('position-relative');
 							}, 500);
 						}
 
@@ -2436,7 +2462,7 @@ if( typeof jQuery !== 'undefined' ) {
 						if (!e.target.closest('.top-search-form')) {
 							__core.getVars.elBody.classList.remove('top-search-open');
 							timeout = setTimeout( function() {
-								topSearchParent.classList.remove('position-relative');
+								topSearchParent?.classList.remove('position-relative');
 							}, 500);
 						}
 					}, false);
@@ -3081,7 +3107,7 @@ if( typeof jQuery !== 'undefined' ) {
 						__core.initFunction({ class: 'has-plugin-lazyload', event: 'pluginlazyLoadReady' });
 
 						window.lazyLoadInstance = new LazyLoad({
-							threshold: 150,
+							threshold: 0,
 							elements_selector: '.lazy:not(.lazy-loaded)',
 							class_loading: 'lazy-loading',
 							class_loaded: 'lazy-loaded',
@@ -3788,6 +3814,10 @@ if( typeof jQuery !== 'undefined' ) {
 		 * --------------------------------------------------------------------------
 		 */
 		Grid: function() {
+			var _reLayout = function(el) {
+				el.filter('.has-init-isotope').isotope('layout');
+			};
+
 			return {
 				init: function(selector) {
 					if( __core.getSelector(selector, false, false).length < 1 ){
@@ -3817,12 +3847,14 @@ if( typeof jQuery !== 'undefined' ) {
 								elOriginLeft = true,
 								elGrid;
 
+								_reLayout(element);
+
 							if( __core.getVars.isRTL ) {
 								elOriginLeft = false;
 							}
 
 							if( element.hasClass('portfolio') || element.hasClass('post-timeline') ){
-								elGrid = element.isotope({
+								elGrid = element.filter(':not(.has-init-isotope)').isotope({
 									layoutMode: elLayoutMode,
 									isOriginLeft: elOriginLeft,
 									transitionDuration: elTransition,
@@ -3833,7 +3865,7 @@ if( typeof jQuery !== 'undefined' ) {
 									}
 								});
 							} else {
-								elGrid = element.isotope({
+								elGrid = element.filter(':not(.has-init-isotope)').isotope({
 									layoutMode: elLayoutMode,
 									isOriginLeft: elOriginLeft,
 									transitionDuration: elTransition,
@@ -3846,22 +3878,26 @@ if( typeof jQuery !== 'undefined' ) {
 								element.addClass('has-init-isotope');
 							}
 
-							var elementInterval = setInterval( function() {
+							var int = setInterval( function() {
 								if( element.find('.lazy.lazy-loaded').length == element.find('.lazy').length ) {
 									setTimeout( function() {
-										element.filter('.has-init-isotope').isotope('layout');
+										_reLayout(element);
 									}, 666);
 
-									clearInterval( elementInterval );
+									clearInterval(int);
 								}
 							}, 1000);
 
-							jQuery(window).on( 'lazyLoadLoaded', function() {
-								element.filter('.has-init-isotope').isotope('layout');
+							window.addEventListener( 'lazyLoadLoaded', function() {
+								_reLayout(element);
+							});
+
+							window.addEventListener( 'load', function() {
+								_reLayout(element);
 							});
 
 							__core.getVars.resizers.isotope = function() {
-								element.filter('.has-init-isotope').isotope('layout');
+								_reLayout(element);
 							};
 						});
 					});
@@ -4433,8 +4469,8 @@ if( typeof jQuery !== 'undefined' ) {
 								elVideo = element.attr('data-video'),
 								elPagi = element.attr('data-pagi'),
 								elArrows = element.attr('data-arrows'),
-								elArrowLeft = element.attr('data-arrow-left') || 'uil uil-angle-left-b',
-								elArrowRight = element.attr('data-arrow-right') || 'uil uil-angle-right-b',
+								elArrowLeft = element.attr('data-arrow-left') || 'fa-solid fa-lg fa-chevron-left',
+								elArrowRight = element.attr('data-arrow-right') || 'fa-solid fa-lg fa-chevron-right',
 								elThumbs = element.attr('data-thumbs'),
 								elHover = element.attr('data-hover'),
 								elSheight = element.attr('data-smooth-height'),
@@ -5275,6 +5311,265 @@ if( typeof jQuery !== 'undefined' ) {
 		}(),
 		// Progress Functions End
 
+		/**
+		 * --------------------------------------------------------------------------
+		 * Twitter Functions Start
+		 * --------------------------------------------------------------------------
+		 */
+		Twitter: function() {
+			var _build = function(tweet, element, username) {
+				var elFontClass = element.getAttribute('data-font-class') || 'font-body';
+
+				var status = tweet.text.replace(/((https?|s?ftp|ssh)\:\/\/[^"\s\<\>]*[^.,;'">\:\s\<\>\)\]\!])/g, function(url) {
+					return '<a href="'+url+'" target="_blank">'+url+'</a>';
+				}).replace(/\B@([_a-z0-9]+)/ig, function(reply) {
+					return reply.charAt(0)+'<a href="https://twitter.com/'+reply.substring(1)+'" target="_blank">'+reply.substring(1)+'</a>';
+				});
+
+				if( element.classList.contains('fslider') ) {
+					var slide = document.createElement('div');
+					slide.classList.add('slide');
+					slide.innerHTML += '<p class="mb-3 '+elFontClass+'">'+status+'</p><small class="d-block"><a href="https://twitter.com/'+username+'/statuses/'+tweet.id_str+'" target="_blank">'+_time(tweet.created_at)+'</a></small>';
+					element.querySelector('.slider-wrap').append(slide);
+				} else {
+					element.innerHTML += '<li><i class="fa-brands fa-twitter"></i><div><span>'+status+'</span><small><a href="https://twitter.com/'+username+'/statuses/'+tweet.id_str+'" target="_blank">'+_time(tweet.created_at)+'</a></small></div></li>';
+				}
+			}
+
+			var _time = function(time_value) {
+				var parsed_date = new Date(time_value);
+				var relative_to = new Date();
+				var delta = parseInt((relative_to.getTime() - parsed_date) / 1000);
+				delta = delta + (relative_to.getTimezoneOffset() * 60);
+
+				if (delta < 60) {
+					return 'less than a minute ago';
+				} else if(delta < 120) {
+					return 'about a minute ago';
+				} else if(delta < (60*60)) {
+					return (parseInt(delta / 60)).toString() + ' minutes ago';
+				} else if(delta < (120*60)) {
+					return 'about an hour ago';
+				} else if(delta < (24*60*60)) {
+					return 'about ' + (parseInt(delta / 3600)).toString() + ' hours ago';
+				} else if(delta < (48*60*60)) {
+					return '1 day ago';
+				} else {
+					return (parseInt(delta / 86400)).toString() + ' days ago';
+				}
+			}
+
+			return {
+				init: function(selector) {
+					if( __core.getSelector(selector, false, false).length < 1 ){
+						return true;
+					}
+
+					__core.initFunction({ class: 'has-plugin-twitter', event: 'pluginTwitterFeedReady' });
+
+					selector = __core.getSelector( selector, false, false );
+					if( selector.length < 1 ){
+						return true;
+					}
+
+					selector.forEach( function(element) {
+						var elUser = element.getAttribute('data-username') || 'twitter',
+							elCount = element.getAttribute('data-count') || 3,
+							elLoader = element.getAttribute('data-loader') || 'include/twitter/tweets.php',
+							elFetch = element.getAttribute('data-fetch-message') || 'Fetching Tweets from Twitter...';
+
+						var alert = element.querySelector('.twitter-widget-alert');
+
+						if( !alert ) {
+							alert = document.createElement('div');
+							alert.classList.add( 'alert', 'alert-warning', 'twitter-widget-alert', 'text-center' );
+							element.prepend(alert);
+							alert.innerHTML = '<div class="spinner-grow spinner-grow-sm me-2" role="status"><span class="visually-hidden">Loading...</span></div> ' + elFetch;
+						}
+
+						fetch( elLoader + '?username='+ elUser ).then( function(response) {
+							return response.json();
+						}).then( function(tweets) {
+							if( typeof tweets === 'object' && !tweets.isArray() ) {
+								return false;
+							}
+
+							alert.remove();
+							var i = 0;
+							tweets?.some( function(tw) {
+								if( i == Number(elCount) ) {
+									return;
+								}
+
+								_build(tw, element, elUser);
+								i++;
+							});
+
+							if( element.classList.contains('fslider') ) {
+								var timer = setInterval( function() {
+									if( element.querySelectorAll('.slide').length > 1 ) {
+										element.classList.remove('customjs');
+
+										setTimeout( function() {
+											__modules.flexSlider();
+											jQuery(element).find( '.flexslider .slide' ).resize();
+										}, 500);
+
+										clearInterval(timer);
+									}
+								}, 1000);
+							}
+						}).catch( function(err) {
+							console.log(err);
+							alert.classList.remove( 'alert-warning' );
+							alert.classList.add( 'alert-danger' );
+							alert.innerHTML = 'Could not fetch Tweets from Twitter API. Please try again later.';
+						});
+					});
+				}
+			};
+		}(),
+		// Twitter Functions End
+
+		/**
+		 * --------------------------------------------------------------------------
+		 * Flickr Functions Start
+		 * --------------------------------------------------------------------------
+		 */
+		Flickr: function() {
+			return {
+				init: function(selector) {
+					if( __core.getSelector(selector, false, false).length < 1 ){
+						return true;
+					}
+
+					__core.isFuncTrue( function() {
+						return typeof jQuery !== 'undefined' && jQuery().jflickrfeed;
+					}).then( function(cond) {
+						if( !cond ) {
+							return false;
+						}
+
+						__core.initFunction({ class: 'has-plugin-flickr', event: 'pluginFlickrFeedReady' });
+
+						selector = __core.getSelector( selector, true, false );
+						if( selector.length < 1 ){
+							return true;
+						}
+
+						selector.each(function() {
+							var element = jQuery(this),
+								elID = element.attr('data-id'),
+								elCount = element.attr('data-count') || 9,
+								elType = element.attr('data-type'),
+								elTypeGet = 'photos_public.gne';
+
+							if( elType == 'group' ) { elTypeGet = 'groups_pool.gne'; }
+
+							element.jflickrfeed({
+								feedapi: elTypeGet,
+								limit: Number(elCount),
+								qstrings: {
+									id: elID
+								},
+								itemTemplate: '<a class="grid-item" href="{{image_b}}" title="{{title}}" data-lightbox="gallery-item">' +
+													'<img src="{{image_s}}" alt="{{title}}" />' +
+											  '</a>'
+							}, function(data) {
+								element.removeClass('customjs');
+								__core.imagesLoaded(element[0]);
+								__modules.lightbox();
+
+								element[0].addEventListener( 'CanvasImagesLoaded', function() {
+									__modules.gridInit();
+									__modules.masonryThumbs();
+								});
+							});
+						});
+					});
+				}
+			};
+		}(),
+		// Flickr Functions End
+
+		/**
+		 * --------------------------------------------------------------------------
+		 * Instagram Functions Start
+		 * --------------------------------------------------------------------------
+		 */
+		Instagram: function() {
+			var _get = function(element, loader, limit, fetchAlert) {
+				var alert = element.closest('.instagram-widget-alert');
+
+				if( !alert ) {
+					alert = document.createElement('div');
+					alert.classList.add( 'alert', 'alert-warning', 'instagram-widget-alert', 'text-center' );
+					element.insertAdjacentElement( 'beforebegin', alert );
+					alert.innerHTML = '<div class="spinner-grow spinner-grow-sm me-2" role="status"><span class="visually-hidden">Loading...</span></div> ' + fetchAlert;
+				}
+
+				fetch(loader).then( function(response) {
+					return response.json();
+				}).then( function(images) {
+					if( images.length > 0 ) {
+						alert.remove();
+						for (var i = 0; i < limit; i++) {
+							if ( i === limit )
+								continue;
+
+							var photo = images[i],
+								thumb = photo.media_url;
+							if( photo.media_type === 'VIDEO' ) {
+								thumb = photo.thumbnail_url;
+							}
+
+							element.innerHTML += '<a class="grid-item" href="'+ photo.permalink +'" target="_blank"><img src="'+ thumb +'" alt="Image"></a>';
+						}
+					}
+
+					element.classList.remove('customjs');
+					__core.imagesLoaded(element);
+
+					element.addEventListener( 'CanvasImagesLoaded', function() {
+						__modules.masonryThumbs();
+						__modules.lightbox();
+					});
+				}).catch( function(err) {
+					console.log(err);
+					alert.classList.remove( 'alert-warning' );
+					alert.classList.add( 'alert-danger' );
+					alert.innerHTML = 'Could not fetch Photos from Instagram API. Please try again later.';
+				});
+			};
+
+			return {
+				init: function(selector) {
+					if( __core.getSelector(selector, false, false).length < 1 ){
+						return true;
+					}
+
+					__core.initFunction({ class: 'has-plugin-instagram', event: 'pluginInstagramReady' });
+
+					selector = __core.getSelector( selector, false, false );
+					if( selector.length < 1 ){
+						return true;
+					}
+
+					selector.forEach( function(element) {
+						var elLimit = element.getAttribute('data-count') || 12,
+							elLoader = element.getAttribute('data-loader') || 'include/instagram/instagram.php',
+							elFetch = element.getAttribute('data-fetch-message') || 'Fetching Photos from Instagram...';
+
+						if( Number( elLimit ) > 12 ) {
+							elLimit = 12;
+						}
+
+						_get(element, elLoader, elLimit, elFetch);
+					});
+				}
+			};
+		}(),
+		// Instagram Functions End
 
 		/**
 		 * --------------------------------------------------------------------------
@@ -5383,8 +5678,8 @@ if( typeof jQuery !== 'undefined' ) {
 								elAnimateOut = element.attr('data-animate-out'),
 								elAutoWidth = element.attr('data-auto-width'),
 								elNav = element.attr('data-nav'),
-								elNavPrev = element.attr('data-nav-prev') || '<i class="uil uil-angle-left-b"></i>',
-								elNavNext = element.attr('data-nav-next') || '<i class="uil uil-angle-right-b"></i>',
+								elNavPrev = element.attr('data-nav-prev') || '<i class="fa-solid fa-lg fa-chevron-left"></i>',
+								elNavNext = element.attr('data-nav-next') || '<i class="fa-solid fa-lg fa-chevron-right"></i>',
 								elPagi = element.attr('data-pagi'),
 								elMargin = element.attr('data-margin') || 20,
 								elStage = element.attr('data-stage-padding') || 0,
@@ -5840,7 +6135,7 @@ if( typeof jQuery !== 'undefined' ) {
 						el.onclick = function(e) {
 							e.preventDefault();
 
-							_scroller( el, 'scrollTo' );
+							_scroller( el, 'scrollTo', true );
 						};
 					});
 				}
@@ -5857,7 +6152,7 @@ if( typeof jQuery !== 'undefined' ) {
 							el.onclick = function(e) {
 								e.preventDefault();
 
-								_scroller( el, 'onePage' );
+								_scroller( el, 'onePage', true );
 							};
 						});
 					});
@@ -5925,21 +6220,28 @@ if( typeof jQuery !== 'undefined' ) {
 				}, 1000);
 			};
 
-			var _scroller = function(el, type) {
+			var _scroller = function(el, type, clicker = false) {
 				var section = _getSection(el, type),
-					sectionId = section.getAttribute('id');
+					sectionId = section.getAttribute('id'),
+					settings;
 
 				if( !section ) {
 					return false;
 				}
 
-				var settings = JSON.parse( section.getAttribute('data-onepage-settings') );
+				if( clicker == true ) {
+					settings = _settings(section, el, false);
+				} else {
+					settings = JSON.parse(section.getAttribute('data-onepage-settings'));
+				}
 
 				if( type != 'scrollTo' && __core.getVars.elOnePageActiveOnClick == 'true' ) {
 					parent = el.closest('.one-page-menu');
+
 					parent.querySelectorAll(__core.getVars.elOnePageParentSelector).forEach( function(el) {
 						el.classList.remove( __core.getVars.elOnePageActiveClass );
 					});
+
 					parent.querySelector('a[data-href="#' + sectionId + '"]').closest(__core.getVars.elOnePageParentSelector).classList.add( __core.getVars.elOnePageActiveClass );
 				}
 
@@ -5986,7 +6288,7 @@ if( typeof jQuery !== 'undefined' ) {
 
 					if( settings ) {
 						var h = __core.offset(el).top - settings.offset - 5,
-							y = window.pageYOffset;
+							y = window.scrollY;
 
 						if( ( y >= h ) && ( y < h + el.offsetHeight ) && el.getAttribute('id') != currentOnePageSection && el.getAttribute('id') ) {
 							currentOnePageSection = el.getAttribute('id');
@@ -5997,18 +6299,18 @@ if( typeof jQuery !== 'undefined' ) {
 				return currentOnePageSection;
 			};
 
-			var _settings = function(section, element) {
+			var _settings = function(section, element, json=true) {
 				var body = __core.getVars.elBody.classList;
 
 				if( typeof section === 'undefined' || element.length < 1 ) {
 					return true;
 				}
 
-				if( section.hasAttribute('data-onepage-settings') ) {
+				if( section.hasAttribute('data-onepage-settings') && json ) {
 					return true;
 				}
 
-				var options = {
+				var defaults = {
 					offset: __core.getVars.topScrollOffset,
 					speed: 1250,
 					easing: false
@@ -6018,9 +6320,9 @@ if( typeof jQuery !== 'undefined' ) {
 					parentSettings = {},
 					parent = element.closest( '.one-page-menu' );
 
-				parentSettings.offset = parent?.getAttribute( 'data-offset' ) || options.offset;
-				parentSettings.speed = parent?.getAttribute( 'data-speed' ) || options.speed;
-				parentSettings.easing = parent?.getAttribute( 'data-easing' ) || options.easing;
+				parentSettings.offset = parent?.getAttribute( 'data-offset' ) || defaults.offset;
+				parentSettings.speed = parent?.getAttribute( 'data-speed' ) || defaults.speed;
+				parentSettings.easing = parent?.getAttribute( 'data-easing' ) || defaults.easing;
 
 				var elementSettings = {
 					offset: element.getAttribute( 'data-offset' ) || parentSettings.offset,
@@ -6073,8 +6375,8 @@ if( typeof jQuery !== 'undefined' ) {
 					elementSettings.offset = elOffsetXXL;
 				}
 
-				settings.offset = elementSettings.offset;
-				settings.speed = elementSettings.speed;
+				settings.offset = Number(elementSettings.offset);
+				settings.speed = Number(elementSettings.speed);
 				settings.easing = elementSettings.easing;
 
 				return settings;
@@ -6715,6 +7017,10 @@ if( typeof jQuery !== 'undefined' ) {
 								shape = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 140" preserveAspectRatio="none"><path class="shape-divider-fill" d="M1280 140V0H0l1280 140z" opacity="0.5"></path><path class="shape-divider-fill" d="M1280 98V0H0l1280 98z"></path></svg>';
 								break;
 
+							case 'slant-4':
+								shape = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2600 250" preserveAspectRatio="none"><path class="shape-divider-fill" d="M0,0L2600,0L2600,125L0,0Z"/><path class="shape-divider-fill" d="M0,0L2600,0L2600,37.691L0,184.55L0,0Z" style="fill-opacity:0.75;"/><path class="shape-divider-fill" d="M2600,0L0,0L0,250L2600,37.691L2600,0Z" style="fill-opacity:0.5;"/></svg>';
+								break;
+
 							case 'rounded':
 								shape = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 100" preserveAspectRatio="none"><path class="shape-divider-fill" d="M1000,4.3V0H0v4.3C0.9,23.1,126.7,99.2,500,100S1000,22.7,1000,4.3z"></path></svg>';
 								break;
@@ -7177,8 +7483,6 @@ if( typeof jQuery !== 'undefined' ) {
 						}
 
 						var elTriggerEl = element.querySelector(elTrigger);
-
-						// console.log( (element.getBoundingClientRect().top + document.body.scrollTop - __core.getVars.topScrollOffset) );
 
 						elTriggerEl.onclick = function(e) {
 							e.preventDefault();
@@ -8268,6 +8572,48 @@ if( typeof jQuery !== 'undefined' ) {
 			};
 		}(),
 		// Hover3D Functions End
+
+		/**
+		 * --------------------------------------------------------------------------
+		 * Buttons Functions Start
+		 * --------------------------------------------------------------------------
+		 */
+		Buttons: function() {
+			return {
+				init: function(selector) {
+					if( __core.getSelector(selector, false, false).length < 1 ){
+						return true;
+					}
+
+					__core.initFunction({ class: 'has-plugin-buttons', event: 'pluginButtonsReady' });
+
+					selector = __core.getSelector( selector, false );
+					if( selector.length < 1 ){
+						return true;
+					}
+
+					selector.forEach( function(el){
+						var text = el.innerHTML;
+						el.innerHTML = '';
+
+						var inner = document.createElement('div');
+						inner.classList.add('button-inner');
+
+						var span = document.createElement('span');
+
+						span.innerHTML = text;
+
+						inner.append(span);
+
+						var span2 = span.cloneNode(true);
+						span.after(span2);
+
+						el.append(inner);
+					});
+				}
+			};
+		}(),
+		// Buttons Functions End
 
 		/**
 		 * --------------------------------------------------------------------------

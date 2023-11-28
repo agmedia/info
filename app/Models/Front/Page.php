@@ -203,6 +203,10 @@ class Page extends Model
                     return Page::query()->special()->where('slug', 'kontakt')->first();
                 }
 
+                if (in_array($page->slug, ['who-are-we', 'what-we-offer', 'contact-us'])) {
+                    return Page::query()->special()->where('slug', $page->slug)->first();
+                }
+
                 return Page::query()->special()->where('slug', 'stranica')->first();
             }
         }
