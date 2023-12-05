@@ -4,22 +4,23 @@
 
             <div class="row justify-content-between col-mb-30">
                 <div class="col-lg-5">
-                    <h1 class="mb-3 display-1 mb-xl-5" data-animate="fadeInDownSmall">Contact us</h1>
-                    <p class="text-larger" data-animate="fadeInUpSmall">Lorem ipsum dolor sit amet consectetur adipisicing elit. Commodi similique autem rerum corporis totam consectetur beatae maiores obcaecati harum eligendi.</p>
+                    <h1 class="mb-3 fs-3 font-heading lh-base ls-3 mb-xl-5" data-animate="fadeInDownSmall">Contact us</h1>
+                    <p class="fs-5" data-animate="fadeInUpSmall">Have a question, a project idea, or just want to send good vibes our way?
+                        <strong>We're all ears! </strong></p>
+                    <p class="fs-5" data-animate="fadeInUpSmall">Reach out using the form below, or connect with us via email or phone. Let's bring your ideas to life! Can't wait to hear from you!</p>
 
                     <div data-animate="fadeInUpSmall">
-                        <p class="d-flex mb-3" ><i class="me-3 mt-1 fa-solid fa-phone"></i> <a href="#" class="text-larger text-contrast-1000 fw-medium"> 00353838731575</a></p>
-                        <p class="d-flex mb-3"><i class="me-3 mt-1 fa-solid fa-envelope"></i> <a href="#" class="text-larger text-contrast-1000 fw-medium">Info@focusbranding.ie</a></p>
-                        <p class="d-flex mb-4"><i class="me-3 mt-1 fa-solid fa-location-dot"></i> <a href="#" class="text-larger text-contrast-1000 fw-medium">659 Leonard C Taylor Pkwy<br>Green Cove, State 32043</a></p>
+                        <p class="d-flex mb-3" ><i class="me-3 mt-1 fa-solid fa-phone"></i> <a href="#" class="text-larger text-contrast-1000 fw-medium"> +353  83 873 1575</a></p>
+                        <p class="d-flex mb-4"><i class="me-3 mt-1 fa-solid fa-location-dot"></i> <a href="#" class="text-larger text-contrast-1000 fw-medium">76 Grosvenos Square, Rathmines, Dublin</a></p>
+                        <p class="d-flex mb-3"><i class="me-3 mt-1 fa-solid fa-envelope"></i> <a href="#" class="text-larger text-contrast-1000 fw-medium"><strong>General enquiries:</strong> info@focusbranding.ie</a></p>
+                        <p class="d-flex mb-3"><i class="me-3 mt-1 fa-solid fa-envelope"></i> <a href="#" class="text-larger text-contrast-1000 fw-medium"><strong>Sales:</strong>ivan@focusbranding.ie</a></p>
                     </div>
                 </div>
 
                 <div class="col-lg-6" data-animate="fadeInRightSmall" data-delay="150">
                     <div class="card bg-contrast-0 border-0 shadow">
                         <div class="card-body p-5">
-
                             <div class="form-widget">
-
                                 <div class="form-result">@include('front.layouts.partials.session')</div>
 
                                 <form class="mb-0" action="{{ route('poruka') }}" method="post">
@@ -83,7 +84,6 @@
 
                                 </form>
                             </div>
-
                         </div>
                     </div>
                 </div>
@@ -93,3 +93,5 @@
 
     </div>
 </section>
+
+++put-your-workplace-spotlight++

@@ -17,7 +17,7 @@
                     <div class="box-line-styled box-line-styled--hero bottom z-n1" data-animate="zoomIn"
                          data-delay="400"></div>
 
-                    <h1 class="mb-0 fw-bold display-1 ls-1 z-10 text-center text-secondary" data-animate="fadeInDownSmall" data-delay="800">
+                    <h1 class="mb-0 fw-bold display-6 font-heading lh-base ls-3 z-10 text-center text-secondary" data-animate="fadeInDownSmall" data-delay="800">
                         What we offer
                     </h1>
 
@@ -54,36 +54,36 @@
                         <ul class="list-group list-group-flush fs-4">
                             <li class="list-group-item bg-transparent d-flex align-items-start lh-sm">
                                 <img class="me-3 orange-svg" style="width: 27px;" src="{{ asset('img/icons/signs-post.svg') }}"
-                                     alt="Architectural Signage" /> Architectural Signage
+                                     alt="Architectural Signage"/> Architectural Signage
                             </li>
 
                             <li class="list-group-item bg-transparent d-flex align-items-start lh-sm">
                                 <img class="me-3 orange-svg" style="width: 27px;"
-                                     src="{{ asset('img/icons/window-maximize.svg') }}" alt="" />
+                                     src="{{ asset('img/icons/window-maximize.svg') }}" alt=""/>
                                 Wall graphics and Glass manifestations
                             </li>
 
                             <li class="list-group-item bg-transparent d-flex align-items-start lh-sm">
                                 <img class="me-3 orange-svg" style="width: 27px;"
-                                     src="{{ asset('img/icons/block-brick.svg') }}" alt="" />
+                                     src="{{ asset('img/icons/block-brick.svg') }}" alt=""/>
                                 Wall coverings
                             </li>
 
                             <li class="list-group-item bg-transparent d-flex align-items-start lh-sm">
                                 <img class="me-3 orange-svg" style="width: 27px;"
-                                     src="{{ asset('img/icons/grid-round-4.svg') }}" alt="" />
+                                     src="{{ asset('img/icons/grid-round-4.svg') }}" alt=""/>
                                 Acoustic solutions
                             </li>
 
                             <li class="list-group-item bg-transparent d-flex align-items-start lh-sm">
                                 <img class="me-3 orange-svg" style="width: 27px;"
-                                     src="{{ asset('img/icons/pen-paintbrush.svg') }}" alt="" />
+                                     src="{{ asset('img/icons/pen-paintbrush.svg') }}" alt=""/>
                                 Custom design services
                             </li>
 
                             <li class="list-group-item bg-transparent d-flex align-items-start lh-sm">
                                 <img class="me-3 orange-svg" style="width: 27px;"
-                                     src="{{ asset('img/icons/screwdriver-wrench.svg') }}" alt="" />
+                                     src="{{ asset('img/icons/screwdriver-wrench.svg') }}" alt=""/>
                                 Professional installation
                             </li>
                         </ul>
@@ -189,8 +189,6 @@
                     </div>
 
 
-
-
                 </div>
             </div>
 
@@ -235,17 +233,17 @@
                                 </div>
                             </div>
 
-                            <div class="col-md-7 col-lg-6 mt-6 mt-lg-0 order-1 order-lg-2">
+                            <div class="col-md-7 col-lg-6 mt-6 mt-md-0 order-1 order-lg-2">
 
-                                <h2 class="display-1 fw-bold ls-1 mt-4 mt-md-6 mt-lg-3 ms-lg-3 pt-lg-6" data-animate="fadeInDownSmall">Signage</h2>
+                                <h2 class="font-heading lh-base fs-services-title-v2 ls-3 fw-bold mt-4 mt-md-6 mt-lg-3 ms-lg-3 pt-lg-6 ms-md-n4" data-animate="fadeInDownSmall">Signage</h2>
 
                                 <div class="ms-lg-6 ps-lg-1">
-                                    <p class="lead fs-3 lh-sm" data-animate="fadeInUp">Transform your brand presence and enhance
+                                    <p class="lead fs-4 lh-sm" data-animate="fadeInUp">Transform your brand presence and enhance
                                                                                        navigation through our diverse signage solutions.</p>
-                                    <p class="lead fs-3 lh-sm" data-animate="fadeInUp">Our offerings encompass a wide spectrum, from
+                                    <p class="lead fs-4 lh-sm" data-animate="fadeInUp">Our offerings encompass a wide spectrum, from
                                                                                        compliant and bespoke signage to cater to your unique needs.</p>
 
-                                    <p class="lead fs-3 lh-sm" data-animate="fadeInUp"> Whether
+                                    <p class="lead fs-4 lh-sm" data-animate="fadeInUp"> Whether
                                                                                         you're looking to guide clients and staff with clear wayfinding signs or
                                                                                         make a lasting impression with prominent office branding, we've got you
                                                                                         covered.</p>
@@ -265,18 +263,18 @@
 
                         <div class="col-12 symbol symbol-with-lines my-6" data-animate="fadeIn">
                             <img class="img-fluid" src="{{ asset('img/symbols/symbol-simple.svg') }}"
-                                 alt="Focus branding symbol" data-animate="fadeIn" data-delay="250" />
+                                 alt="Focus branding symbol" data-animate="fadeIn" data-delay="250"/>
                         </div>
 
                         <!-- Wall & Glass Graphics -->
                         <div class="row">
 
-                            <div class="col-md-7 col-lg-6">
+                            <div class="col-md-7 col-lg-6 z-1">
 
-                                <div class="me-lg-6 pe-lg-1 text-md-end">
-                                    <h2 class="display-1 fw-bold ls-1 mt-md-7 mt-lg-6 ms-lg-3 pt-lg-5 text-md-end me-lg-n6"
-                                        data-animate="fadeInDownSmall">Wall Coverings</h2>
-                                    <p class="lead fs-3 lh-sm" data-animate="fadeInUp">Wall graphics, Glass manifestations, <br /> Wall paper,
+                                <div class="me-lg-6 pe-lg-1 text-lg-end">
+                                    <h2 class="font-heading lh-base text-indent-hack-wall-coverings fs-services-title-v2 ls-3 mt-md-5 mt-lg-6 ms-lg-3 pt-lg-5 text-lg-start text-xl-end text-xl-end ms-md-n4 ms-lg-n1 me-xl-n6"
+                                        data-animate="fadeInDownSmall">Wall CoveringS</h2>
+                                    <p class="lead fs-3 lh-sm" data-animate="fadeInUp">Wall graphics, Glass manifestations, <br/> Wall paper,
                                                                                        Murals and Graffiti.</p>
 
                                     <p class="fs-5 lh-base" data-animate="fadeInUp">Unlock the full potential of your walls and Glass surfaces
@@ -301,7 +299,6 @@
                                 </div>
 
                             </div>
-
 
 
                             <div class="col-md-5 col-lg-6" data-animate="fadeInRightSmall" data-delay="150">
@@ -348,7 +345,7 @@
 
                         <div class="col-12 symbol symbol-with-lines my-6" data-animate="fadeIn">
                             <img class="img-fluid" src="{{ asset('img/symbols/symbol-simple.svg') }}"
-                                 alt="Focus branding symbol" data-animate="fadeIn" data-delay="250" />
+                                 alt="Focus branding symbol" data-animate="fadeIn" data-delay="250"/>
                         </div>
 
                         <!-- Acoustic -->
@@ -376,30 +373,28 @@
                                 </div>
                             </div>
 
-                            <div class="col-md-7 col-lg-6 mb-md-6 order-1 order-lg-2">
+                            <div class="col-md-7 col-lg-6 mb-md-6 pt-lg-3 order-1 order-lg-2 z-1">
 
-                                <h2 class="display-1 fw-bold ls-1 mt-md-7 mt-lg-6 ms-lg-3 pt-lg-5" data-animate="fadeInDownSmall">Acoustics</h2>
+                                <h2 class="font-heading lh-base fs-services-title-v2 ls-3 mt-md-5 mt-lg-6 ms-lg-3 pt-lg-5 ms-md-n4" data-animate="fadeInDownSmall">AcouSticS</h2>
 
                                 <div class="ms-lg-6 ps-lg-1">
-                                    <p class="lead fs-3 lh-sm" data-animate="fadeInUp">A noisy office can negatively impact productivity, mood, and the overall work experience of employees.</p>
-                                    <p class="lead fs-3 lh-sm" data-animate="fadeInUp"> We offer a diverse selection of acoustic solutions that not only effectively address noise issues, but also enhance the look and feel of your workspace.</p>
+                                    <p class="lead fs-4 lh-sm" data-animate="fadeInUp">A noisy office can negatively impact productivity, mood, and the overall work experience of employees.</p>
+                                    <p class="lead fs-4 lh-sm" data-animate="fadeInUp"> We offer a diverse selection of acoustic solutions that not only effectively address noise issues, but also enhance the look and feel of your workspace.</p>
 
 
                                     <h3 class="fs-5 lh-sm mb-3" data-animate="fadeInUp">Our selection of internally used acoustic solutions includes:</h3>
 
 
-
-
-                                    <h4 class="fs-5 fw-light ls-1 mb-0" data-animate="fadeInUp">Ceiling and wall treatments</h4>
+                                    <h4 class="fs-4 fw-light ls-1 mb-0" data-animate="fadeInUp">Ceiling and wall treatments</h4>
                                     <p class="lh-base" data-animate="fadeInUp">From acoustic panels and tiles to fabric-covered systems, we offer a range of options to suit your aesthetic and performance needs.</p>
 
-                                    <h4 class="fs-5 fw-light ls-1 mb-0" data-animate="fadeInUp">Acoustic panels</h4>
+                                    <h4 class="fs-4 fw-light ls-1 mb-0" data-animate="fadeInUp">Acoustic panels</h4>
                                     <p class="lh-base" data-animate="fadeInUp">Designed to reduce noise and reverberation, our acoustic panels come in a variety of styles and finishes to blend seamlessly with your decor.</p>
 
-                                    <h4 class="fs-5 fw-light ls-1 mb-0" data-animate="fadeInUp">Desk screens and partitions</h4>
+                                    <h4 class="fs-4 fw-light ls-1 mb-0" data-animate="fadeInUp">Desk screens and partitions</h4>
                                     <p class="lh-base" data-animate="fadeInUp">Create a quieter and more focused workspace with our desk screens and partitions, which reduce noise and distractions while adding privacy and visual interest.</p>
 
-                                    <h4 class="fs-5 fw-light ls-1 mb-0" data-animate="fadeInUp">Sound masking systems</h4>
+                                    <h4 class="fs-4 fw-light ls-1 mb-0" data-animate="fadeInUp">Sound masking systems</h4>
                                     <p class="lh-base" data-animate="fadeInUp">Ideal for open-plan offices and other high-noise environments, our sound masking systems use advanced technology to create a more pleasant and productive work environment.</p>
 
 
@@ -542,7 +537,7 @@
                     </div>
 
 
-                    <div class="shape-divider" data-shape="slant-2" data-position="bottom"></div>
+                    <!-- <div class="shape-divider" data-shape="slant-2" data-position="bottom"></div> -->
 
 
                 </div>
@@ -552,7 +547,8 @@
         </div>
 
 
-
     </div>
 
 </article>
+
+++put-your-workplace-spotlight++
