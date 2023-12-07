@@ -3,15 +3,14 @@
 <head>
     <meta http-equiv="content-type" content="text/html; charset=utf-8">
     <meta http-equiv="x-ua-compatible" content="IE=edge">
+    <meta name="author" content="Focus Branding">
 
     @if (isset($page) && ! empty($page))
-        <title>{{ isset($page->meta_title) ? $page->meta_title : '' }}</title>
-        <meta name="author" content="{{ isset($page->meta_title) ? $page->meta_title : '' }}">
         <meta name="description" content="{{ isset($page->meta_description) ? $page->meta_description : '' }}">
+        <title>{{ isset($page->meta_title) ? $page->meta_title : '' }}</title>
     @else
-        <title>Focus Branding</title>
-        <meta name="author" content="Focus Branding">
         <meta name="description" content="Focus Branding">
+        <title>Focus Branding</title>
     @endif
 
     <!-- Font Imports -->
