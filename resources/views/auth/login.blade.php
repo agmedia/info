@@ -2,7 +2,7 @@
 
 @section('content')
 
-    <div class="row no-gutters justify-content-center bg-white bckimagelogin" >
+    <div class="row no-gutters justify-content-center bg-white bckimagelogin" style="background: url({{ asset('img/symbols/symbol-pattern-footer.png') }}) repeat-x bottom center">
 
         @if (session('status'))
             <div class="mb-4 font-medium text-sm text-green-600">
@@ -18,10 +18,10 @@
                         <div class="block-content block-content-full px-lg-5 py-md-5 py-lg-6">
                             <!-- Header -->
                             <div class="mb-2 text-center">
-                                <a class="link-fx font-w700 font-size-h2" href="{{ route('index') }}">
-                                    <span class="text-dark">Focus</span> <span class="text-primary">Branding</span>
+                                <a class="" href="{{ route('index') }}">
+                                    <img src="{{ asset('img/logo/logo.svg') }}" style="max-width:300px" alt="Focus branding logo">
                                 </a>
-                                <p class="text-uppercase font-w700 font-size-sm text-muted">LOGIN</p>
+                                <p class="text-uppercase font-w700 font-size-sm text-muted text-left">LOGIN</p>
                             </div>
                             <form method="POST" action="{{ route('login') }}">
                                 @csrf

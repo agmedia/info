@@ -6,8 +6,8 @@
 
         <title>Focus Branding</title>
 
-        <meta name="description" content="Plava Krava">
-        <meta name="author" content="pixelcave">
+        <meta name="description" content="Focus Branding">
+        <meta name="author" content="agmedia.hr">
         <meta name="robots" content="noindex, nofollow">
 
         <!-- CSRF Token -->

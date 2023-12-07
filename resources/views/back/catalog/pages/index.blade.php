@@ -9,9 +9,9 @@
     <div class="bg-body-light">
         <div class="content content-full">
             <div class="d-flex flex-column flex-sm-row justify-content-sm-between align-items-sm-center">
-                <h1 class="flex-sm-fill font-size-h2 font-w400 mt-2 mb-0 mb-sm-2">Stranice</h1>
+                <h1 class="flex-sm-fill font-size-h2 font-w400 mt-2 mb-0 mb-sm-2">Pages</h1>
                 <a class="btn btn-hero-success my-2" href="{{ route('pages.create') }}">
-                    <i class="far fa-fw fa-plus-square"></i><span class="d-none d-sm-inline ml-1"> Nova stranica</span>
+                    <i class="far fa-fw fa-plus-square"></i><span class="d-none d-sm-inline ml-1"> New page</span>
                 </a>
             </div>
         </div>
@@ -24,7 +24,7 @@
         <!-- Posts -->
         <div class="block">
             <div class="block-header block-header-default">
-                <h3 class="block-title">Objave</h3>
+                <h3 class="block-title">Pages</h3>
                 <div class="block-options">
                     <!-- Search Form -->
                     <form id="query_form" action="{{ route('pages') }}" method="GET">
@@ -37,10 +37,10 @@
                             </select>
                         </div>
                         <div class="block-options-item">
-                            <input type="text" class="form-control" id="search-input" name="search" placeholder="Pretraži stranice..." value="{{ request()->query('search') }}">
+                            <input type="text" class="form-control" id="search-input" name="search" placeholder="Search pages..." value="{{ request()->query('search') }}">
                         </div>
                         <div class="block-options-item">
-                            <a href="{{ route('pages') }}" class="btn btn-hero-sm btn-secondary"><i class="fa fa-search-minus"></i> Očisti</a>
+                            <a href="{{ route('pages') }}" class="btn btn-hero-sm btn-secondary"><i class="fa fa-search-minus"></i> Clear</a>
                         </div>
                     </form>
                 </div>
@@ -50,10 +50,10 @@
                     <thead class="thead-light">
                     <tr>
                         <th style="width: 5%;" class="text-center">#</th>
-                        <th>Naziv</th>
-                        <th>Grupa</th>
+                        <th>Title</th>
+                        <th>Group</th>
                         <th class="text-center">Status</th>
-                        <th style="width: 100px;" class="text-center">Uredi</th>
+                        <th style="width: 100px;" class="text-center">Edit</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -81,7 +81,7 @@
                         </tr>
                     @empty
                         <tr class="text-center">
-                            <td colspan="5">Nema info stranica...</td>
+                            <td colspan="5">No Pages...</td>
                         </tr>
                     @endforelse
                     </tbody>
@@ -101,7 +101,7 @@
     <script>
         $(() => {
             $('#group-select').select2({
-                placeholder: 'Odaberite grupu...',
+                placeholder: 'Select group...',
                 minimumResultsForSearch: Infinity
             });
 

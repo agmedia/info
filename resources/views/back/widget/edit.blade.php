@@ -15,9 +15,9 @@
             <h2 class="content-heading"> <a href="{{ route('widgets') }}" class="mr-2 text-gray font-size-h4"><i class="si si-action-undo"></i></a>
                 @if (isset($widget))
                     {{ method_field('PATCH') }}
-                    Uredi Widget <small class="text-primary pl-4">{{ $widget->title }}</small>
+                    Edit Widget <small class="text-primary pl-4">{{ $widget->title }}</small>
                 @else
-                    Napravi Novi Widget
+                    Create New Widget
                 @endif
                 <button type="submit" class="btn btn-primary btn-sm float-right"><i class="fa fa-save mr-2"></i> Snimi</button>
             </h2>
@@ -26,11 +26,11 @@
                 <div class="block-content">
                     <div class="row items-push">
                         <div class="col-lg-7">
-                            <h5 class="text-black mb-0 mt-20">Generalne Informacije
+                            <h5 class="text-black mb-0 mt-20">Generel Info
                                 <div class="form-group float-right mr-3">
                                     <div class="custom-control custom-switch custom-control-success">
                                         <input type="checkbox" class="custom-control-input" id="status-switch" name="status" @if (isset($widget) and $widget->status) checked @endif>
-                                        <label class="custom-control-label" for="status-switch">Status widgeta</label>
+                                        <label class="custom-control-label" for="status-switch">Widget status</label>
                                     </div>
                                 </div>
                             </h5>
@@ -38,11 +38,11 @@
 
                             <div class="form-group row items-push mb-3">
                                 <div class="col-md-8">
-                                    <label for="title-input">Naziv widgeta @include('back.layouts.partials.required-star')</label>
-                                    <input type="text" class="form-control" id="title-input" name="title" placeholder="Upišite naziv widgeta" value="{{ isset($widget) ? $widget->title : old('title') }}">
+                                    <label for="title-input">Widget Title @include('back.layouts.partials.required-star')</label>
+                                    <input type="text" class="form-control" id="title-input" name="title" placeholder="Enter widget title" value="{{ isset($widget) ? $widget->title : old('title') }}">
                                 </div>
                                 <div class="col-md-4">
-                                    <label for="resource-select">Grupa stavki @include('back.layouts.partials.required-star')</label>
+                                    <label for="resource-select">Widget Group @include('back.layouts.partials.required-star')</label>
                                     <select class="form-control" id="resource-select" name="resource">
                                         <option></option>
                                         @foreach ($resources as $key => $resource)
@@ -52,7 +52,7 @@
                                 </div>
                             </div>
 
-                            <h5 class="text-black mb-0 mt-20">Detalji Widgeta</h5>
+                         <!--   <h5 class="text-black mb-0 mt-20">Options</h5>
                             <hr class="mb-30">
 
                             <div class="block">
@@ -82,11 +82,11 @@
                                         </div>
                                     </div>
                                 </div>
-                            </div>
+                            </div> -->
 
                             <div class="form-group row items-push mt-3">
                                 <div class="col-md-12">
-                                    <label for="title-input">Oznaka</label>
+                                    <label for="title-input">Widget id</label>
                                     <input type="text" class="form-control" id="slug-input" name="slug" placeholder="Upišite oznaku widgeta" value="{{ isset($widget) ? $widget->slug : old('slug') }}">
                                 </div>
                             </div>
@@ -94,7 +94,7 @@
                         </div>
 
                         <div class="col-lg-5">
-                            <h5 class="text-black mb-0 mt-20">Stavke Widgeta</h5>
+                            <h5 class="text-black mb-0 mt-20">Widget Items</h5>
                             <hr class="mb-30">
 
                             @if (isset($widget))
@@ -129,7 +129,7 @@
 
                 <div class="block-content block-content-full block-content-sm bg-body-light font-size-sm text-right">
                     <button type="submit" class="btn btn-primary">
-                        <i class="fa fa-save mr-2"></i> Snimi
+                        <i class="fa fa-save mr-2"></i> Save
                     </button>
                 </div>
             </div>

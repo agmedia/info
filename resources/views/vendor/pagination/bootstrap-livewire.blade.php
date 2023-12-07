@@ -39,11 +39,11 @@
                     {{-- Next Page Link --}}
                     @if ($paginator->hasMorePages())
                         <li class="page-item">
-                            <a class="page-link" href="{{ $paginator->nextPageUrl() }}" rel="next" aria-label="@lang('pagination.next')">Sljedeća<i class="ci-arrow-right ms-2"></i></a>
+                            <a class="page-link" href="{{ $paginator->nextPageUrl() }}" rel="next" aria-label="@lang('pagination.next')">Next<i class="ci-arrow-right ms-2"></i></a>
                         </li>
                     @else
                         <li class="page-item disabled" aria-disabled="true" aria-label="@lang('pagination.next')">
-                            <span class="page-link" aria-hidden="true">Sljedeća<i class="ci-arrow-right ms-2"></i></span>
+                            <span class="page-link" aria-hidden="true">Next<i class="ci-arrow-right ms-2"></i></span>
                         </li>
                     @endif
                 </ul>
@@ -52,13 +52,13 @@
 
         <div class="col-md-12 d-flex justify-content-center mt-0">
             <p class="text-sm text-gray-700 leading-5">
-                Prikazano
+               Showing
                 <span class="font-weight-bold">{{ $paginator->firstItem() }}</span>
-                do
+                to
                 <span class="font-weight-bold">{{ $paginator->lastItem() }}</span>
-                od
+                from
                 <span class="font-weight-bold">{{ $paginator->total() }}</span>
-                rezultata
+                results
             </p>
         </div>
     </div>

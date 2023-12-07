@@ -42,45 +42,73 @@
 
         <!-- Quick Overview -->
         <div class="row row-deck">
-            <div class="col-6 col-lg-6">
-                <a class="block block-rounded block-link-shadow text-center" href="{{ route('pages') }}">
-                    <div class="block-content py-5">
-                        <div class="font-size-h3 font-w600 text-warning mb-1"></div>
-                        <p class="font-w600 font-size-sm text-muted text-uppercase mb-0">
-                           Pages
-                        </p>
-                    </div>
-                </a>
-            </div>
-            <div class="col-6 col-lg-6">
+
+            <div class="col-6 col-lg-3">
                 <a class="block block-rounded block-link-shadow text-center" href="{{ route('blogs') }}">
                     <div class="block-content py-5">
                         <div class="font-size-h3 font-w600 text-success mb-1"></div>
-                        <p class="font-w600 font-size-sm text-muted text-uppercase mb-0">
+                        <div class="item rounded-3 bg-body mx-auto my-3">
+                            <i class="far fa-file-alt fa-lg text-primary"></i>
+                        </div>
+                        <p class="font-w600  text-muted  mb-0">
                             Blog
                         </p>
                     </div>
                 </a>
             </div>
-         <!--   <div class="col-6 col-lg-4">
-                <a class="block block-rounded block-link-shadow text-center" href="{{ route('galleries') }}">
+
+            <div class="col-6 col-lg-3">
+                <a class="block block-rounded block-link-shadow text-center" href="{{ route('pages') }}">
                     <div class="block-content py-5">
-                        <div class="font-size-h3 text-success font-w600 mb-1"></div>
-                        <p class="font-w600 font-size-sm text-muted text-uppercase mb-0">
-                            Galerija
+                        <div class="font-size-h3 font-w600 text-warning mb-1"></div>
+                        <div class="item rounded-3 bg-body mx-auto my-3">
+                            <i class="far fa-file-code fa-lg text-primary"></i>
+                        </div>
+                        <p class="font-w600  text-muted  mb-0">
+                           Pages
                         </p>
                     </div>
                 </a>
-            </div>-->
+            </div>
+
+            <div class="col-6 col-lg-3">
+                <a class="block block-rounded block-link-shadow text-center" href="{{ route('users') }}">
+                    <div class="block-content py-5">
+                        <div class="font-size-h3 font-w600 text-success mb-1"></div>
+                        <div class="item rounded-3 bg-body mx-auto my-3">
+                            <i class="fas fa-users fa-lg text-primary"></i>
+                        </div>
+                        <p class="font-w600  text-muted  mb-0">
+                            Users
+                        </p>
+                    </div>
+                </a>
+            </div>
+
+            <div class="col-6 col-lg-3">
+                <a class="block block-rounded block-link-shadow text-center" href="{{ route('widgets') }}">
+                    <div class="block-content py-5">
+                        <div class="font-size-h3 font-w600 text-success mb-1"></div>
+                        <div class="item rounded-3 bg-body mx-auto my-3">
+                            <i class="fas fa-hand-sparkles fa-lg text-primary"></i>
+                        </div>
+                        <p class="font-w600  text-muted  mb-0">
+                            Widgets
+                        </p>
+                    </div>
+                </a>
+            </div>
+
+
         </div>
 
         <!-- Top Products and Latest Orders -->
-        <div class="row">
+     <!--   <div class="row">
             <div class="col-12">
-                <!-- Latest News -->
+
                 <div class="block block-rounded">
                     <div class="block-header block-header-default">
-                        <h3 class="block-title">Zadnje Novosti</h3>
+                        <h3 class="block-title">Recent Blogs</h3>
                         <div class="block-options">
                             <button type="button" class="btn-block-option" data-toggle="block-option" data-action="state_toggle" data-action-mode="demo">
                                 <i class="si si-refresh"></i>
@@ -109,7 +137,7 @@
                     </div>
                 </div>
             </div>
-        </div>
+        </div> -->
     </div>
     <!-- END Page Content -->
 @endsection

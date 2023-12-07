@@ -11,7 +11,7 @@
     <div class="bg-body-light">
         <div class="content content-full">
             <div class="d-flex flex-column flex-sm-row justify-content-sm-between align-items-sm-center">
-                <h1 class="flex-sm-fill font-size-h2 font-w400 mt-2 mb-0 mb-sm-2">Korisnici</h1>
+                <h1 class="flex-sm-fill font-size-h2 font-w400 mt-2 mb-0 mb-sm-2">Users</h1>
 
             </div>
         </div>
@@ -26,15 +26,15 @@
         <!-- All Orders -->
         <div class="block block-rounded">
             <div class="block-header block-header-default">
-                <h3 class="block-title">Svi korisnici ({{ $users->total() }})</h3>
+                <h3 class="block-title">All users ({{ $users->total() }})</h3>
                 <div class="block-options">
                     <!-- Search Form -->
                     <form action="{{ route('users') }}" method="GET">
                         <div class="block-options-item">
-                            <input type="text" class="form-control" id="search-input" name="search" placeholder="Pretraži korisnike" value="{{ request()->query('search') }}">
+                            <input type="text" class="form-control" id="search-input" name="search" placeholder="Search users" value="{{ request()->query('search') }}">
                         </div>
                         <div class="block-options-item">
-                            <a href="{{ route('users') }}" class="btn btn-hero-sm btn-secondary"><i class="fa fa-search-minus"></i> Očisti</a>
+                            <a href="{{ route('users') }}" class="btn btn-hero-sm btn-secondary"><i class="fa fa-search-minus"></i> Clear</a>
                         </div>
                     </form>
                 </div>
@@ -45,11 +45,11 @@
                     <table class="table table-borderless table-striped table-vcenter font-size-sm">
                         <thead>
                         <tr>
-                            <th>Kupac</th>
+                            <th>User</th>
                             <th>Email</th>
                             <th class="text-center">Status</th>
-                            <th class="text-center">Uloga</th>
-                            <th class="text-right">Detalji</th>
+                            <th class="text-center">Role</th>
+                            <th class="text-right">Details</th>
                         </tr>
                         </thead>
                         <tbody>
@@ -90,7 +90,7 @@
     <script>
         $(() => {
             $('#status-select').select2({
-                placeholder: 'Promjenite status'
+                placeholder: 'Change status'
             });
 
         })

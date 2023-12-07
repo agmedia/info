@@ -16,7 +16,7 @@
     <div class="bg-body-light">
         <div class="content content-full">
             <div class="d-flex flex-column flex-sm-row justify-content-sm-between align-items-sm-center">
-                <h1 class="flex-sm-fill font-size-h2 font-w400 mt-2 mb-0 mb-sm-2">Stranica edit</h1>
+                <h1 class="flex-sm-fill font-size-h2 font-w400 mt-2 mb-0 mb-sm-2">Page edit</h1>
             </div>
         </div>
     </div>
@@ -33,18 +33,18 @@
             <div class="block">
                 <div class="block-header block-header-default">
                     <a class="btn btn-light" href="{{ route('pages') }}">
-                        <i class="fa fa-arrow-left mr-1"></i> Povratak
+                        <i class="fa fa-arrow-left mr-1"></i> BAck
                     </a>
                     <div class="block-options">
                         @if (auth()->user()->can('*'))
                             <div class="custom-control custom-switch custom-control-info block-options-item">
                                 <input type="checkbox" class="custom-control-input" id="special-switch" name="special" {{ (isset($page) and $page->subgroup == 'special') ? 'checked' : '' }}>
-                                <label class="custom-control-label" for="special-switch">Special Stranica</label>
+                                <label class="custom-control-label" for="special-switch">Special Page</label>
                             </div>
                         @endif
                         <div class="custom-control custom-switch custom-control-success block-options-item ml-4">
                             <input type="checkbox" class="custom-control-input" id="status-switch" name="status" {{ (isset($page) and $page->status) ? 'checked' : '' }}>
-                            <label class="custom-control-label" for="status-switch">Aktiviraj</label>
+                            <label class="custom-control-label" for="status-switch">Publish</label>
                         </div>
                     </div>
                 </div>
@@ -55,13 +55,13 @@
                             <div class="row mb-4">
                                 <div class="col-md-8">
                                     <div class="form-group">
-                                        <label for="title-input">Naslov</label>
-                                        <input type="text" class="form-control" id="title-input" name="title" placeholder="Upišite naslov..." value="{{ isset($page) ? $page->title : old('title') }}" onkeyup="SetSEOPreview()">
+                                        <label for="title-input">Title</label>
+                                        <input type="text" class="form-control" id="title-input" name="title" placeholder="Enter page title..." value="{{ isset($page) ? $page->title : old('title') }}" onkeyup="SetSEOPreview()">
                                     </div>
                                 </div>
                                 <div class="col-md-4">
                                     <div class="form-group">
-                                        <label for="group-select">Grupa</label>
+                                        <label for="group-select">Group</label>
                                         <select class="js-select2 form-control" id="group-select" name="group" style="width: 100%;">
                                             <option></option>
                                             @foreach ($groups as $group)
@@ -88,7 +88,7 @@
                                         <input type="text" class="form-control" id="query-input" name="query_string" placeholder="Custom upit u bazu ako je potrebno..." value="{{ isset($resource_data['query']) ? $resource_data['query'] : '' }}">
                                     </div>
                                     <div class="col-md-12">
-                                        <label for="description-editor">Opis</label>
+                                        <label for="description-editor">Description</label>
                                         <textarea style="visibility: hidden; height: 30px;" id="ace-input" name="description"></textarea>
                                         <pre id="editor-blade" style="height: 500px; width: 100%;">{{ isset($page) ? $page->description : '' }}</pre>
                                     </div>
@@ -111,18 +111,18 @@
                         <div class="col-md-10 ">
                             <form action="be_pages_ecom_product_edit.html" method="POST" onsubmit="return false;">
                                 <div class="form-group">
-                                    <label for="meta-title-input">Meta naslov</label>
+                                    <label for="meta-title-input">Meta title</label>
                                     <input type="text" class="js-maxlength form-control" id="meta-title-input" name="meta_title" value="{{ isset($page) ? $page->meta_title : old('meta_title') }}" maxlength="70" data-always-show="true" data-placement="top">
                                     <small class="form-text text-muted">
-                                        70 znakova max
+                                        70 chars max
                                     </small>
                                 </div>
 
                                 <div class="form-group">
-                                    <label for="meta-description-input">Meta opis</label>
+                                    <label for="meta-description-input">Meta description</label>
                                     <textarea class="js-maxlength form-control" id="meta-description-input" name="meta_description" rows="4" maxlength="160" data-always-show="true" data-placement="top">{{ isset($page) ? $page->meta_description : old('meta_description') }}</textarea>
                                     <small class="form-text text-muted">
-                                        160 znakova max
+                                        160 chars max
                                     </small>
                                 </div>
 

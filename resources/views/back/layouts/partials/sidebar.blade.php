@@ -17,10 +17,10 @@
             <!-- Logo -->
             <a class="font-w600 text-white text-center tracking-wide" href="/">
                             <span class="smini-visible">
-                                SK<span class="opacity-75">K</span>
+                                AG<span class="opacity-75"></span>
                             </span>
                 <span class="smini-hidden ml-2">
-                                SK <span class="opacity-75">Admin</span>
+                                AG <span class="opacity-75">Admin</span>
                             </span>
             </a>
             <!-- END Logo -->
@@ -62,22 +62,22 @@
                 <li class="nav-main-item{{ request()->is(['admin/catalog/*']) ? ' open' : '' }}">
                     <a class="nav-main-link nav-main-link-submenu" data-toggle="submenu" aria-haspopup="true" aria-expanded="true" href="#">
                         <i class="nav-main-link-icon si si-bar-chart"></i>
-                        <span class="nav-main-link-name">Katalog</span>
+                        <span class="nav-main-link-name">Catalog</span>
                     </a>
                     <ul class="nav-main-submenu">
                         <li class="nav-main-item">
                             <a class="nav-main-link{{ request()->routeIs(['blogs', 'blogs.*']) ? ' active' : '' }}" href="{{ route('blogs') }}">
-                                <span class="nav-main-link-name">{{ __('Novosti') }}</span>
+                                <span class="nav-main-link-name">{{ __('Blog') }}</span>
                             </a>
                         </li>
-                        <li class="nav-main-item">
+                      <!--  <li class="nav-main-item">
                             <a class="nav-main-link{{ request()->routeIs(['galleries', 'gallery.*']) ? ' active' : '' }}" href="{{ route('galleries') }}">
                                 <span class="nav-main-link-name">{{ __('Galerije') }}</span>
                             </a>
-                        </li>
+                        </li>-->
                         <li class="nav-main-item">
                             <a class="nav-main-link{{ request()->routeIs(['pages', 'pages.*']) ? ' active' : '' }}" href="{{ route('pages') }}">
-                                <span class="nav-main-link-name">Stranice</span>
+                                <span class="nav-main-link-name">Pages</span>
                             </a>
                         </li>
                     </ul>
@@ -86,16 +86,16 @@
                 <li class="nav-main-item">
                     <a class="nav-main-link{{ request()->routeIs(['users', 'users.*']) ? ' active' : '' }}" href="{{ route('users') }}">
                         <i class="nav-main-link-icon si si-users"></i>
-                        <span class="nav-main-link-name">Korisnici</span>
+                        <span class="nav-main-link-name">Users</span>
                     </a>
                 </li>
 
-                <li class="nav-main-heading">Aplikacija</li>
+                <li class="nav-main-heading">App</li>
 
                 <li class="nav-main-item">
                     <a class="nav-main-link{{ request()->routeIs(['profile', 'profile.*']) ? ' active' : '' }}" href="{{ route('profile.show') }}">
                         <i class="nav-main-link-icon si si-user"></i>
-                        <span class="nav-main-link-name">Moj Profil</span>
+                        <span class="nav-main-link-name">My Profile</span>
                     </a>
                 </li>
 
@@ -109,17 +109,17 @@
                 <li class="nav-main-item{{ request()->is(['admin/settings/*']) ? ' open' : '' }}">
                     <a class="nav-main-link nav-main-link-submenu" data-toggle="submenu" aria-haspopup="true" aria-expanded="true" href="#">
                         <i class="nav-main-link-icon si si-settings"></i>
-                        <span class="nav-main-link-name">Postavke</span>
+                        <span class="nav-main-link-name">Setings</span>
                     </a>
                     <ul class="nav-main-submenu">
-                        <li class="nav-main-item{{ request()->is(['admin/settings/system/*']) ? ' open' : '' }}">
+                       <!-- <li class="nav-main-item{{ request()->is(['admin/settings/system/*']) ? ' open' : '' }}">
                             <a class="nav-main-link nav-main-link-submenu" data-toggle="submenu" aria-haspopup="true" aria-expanded="false" href="#">
-                                <span class="nav-main-link-name">Sistem</span>
+                                <span class="nav-main-link-name">System</span>
                             </a>
                             <ul class="nav-main-submenu">
                                 <li class="nav-main-item">
                                     <a class="nav-main-link{{ request()->routeIs(['application', 'application.*']) ? ' active' : '' }}" href="{{ route('application.settings') }}">
-                                        <span class="nav-main-link-name">Aplikacija</span>
+                                        <span class="nav-main-link-name">Application</span>
                                     </a>
                                 </li>
 {{--                                <li class="nav-main-item">--}}
@@ -128,12 +128,12 @@
 {{--                                    </a>--}}
 {{--                                </li>--}}
                             </ul>
-                        </li>
-                        <li class="nav-main-item">
+                        </li> -->
+                   <!--     <li class="nav-main-item">
                             <a class="nav-main-link{{ request()->routeIs(['faqs', 'faqs.*']) ? ' active' : '' }}" href="{{ route('faqs') }}">
                                 <span class="nav-main-link-name">FAQ</span>
                             </a>
-                        </li>
+                        </li> -->
                         <li class="nav-main-item">
                             <a class="nav-main-link{{ request()->routeIs(['file-manager']) ? ' active' : '' }}" href="{{ route('file-manager') }}">
                                 <span class="nav-main-link-name">File Manager</span>
