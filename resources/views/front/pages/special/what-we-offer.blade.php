@@ -10,7 +10,7 @@
 
 
             <div class="row min-vh-50 min-vh-md-50 min-vh-lg-60 min-vh-xl-75 hero-page-child align-items-end">
-                <div class="col-8 bg-light bg-gradient mw-sm mx-auto pt-5" data-animate="fadeInUpSmall"
+                <div class="col-9 bg-light bg-gradient mw-sm mx-auto pt-5" data-animate="fadeInUpSmall"
                      data-delay="400" style="padding-bottom: 15vh;">
 
 

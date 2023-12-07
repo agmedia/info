@@ -9,17 +9,17 @@
                 <div id="logo">
                     <a href="{{ route('index') }}">
                         @if (request()->is(['/']))
-                            <img class="logo-default" srcset="{{ asset('img/logo/logo.png') }}, {{ asset('img/logo/logo@2x.png') }} 2x"
-                                 src="{{ asset('img/logo/logo@2x.png') }}" alt="Focus branding logo">
+                            <img class="logo-default" srcset="{{ asset('img/logo/logo.svg') }}, {{ asset('img/logo/logo.svg') }} 2x"
+                                 src="{{ asset('img/logo/logo.svg') }}" alt="Focus branding logo">
                         @else
-                            <img class="logo-default" srcset="{{ asset('img/logo/logo-dark.png') }}, {{ asset('img/logo/logo-dark@2x.png') }} 2x"
-                                 src="{{ asset('img/logo/logo-dark@2x.png') }}" alt="Focus branding logo">
+                            <img class="logo-default" srcset="{{ asset('img/logo/logo-dark.svg') }}, {{ asset('img/logo/logo-dark.svg') }} 2x"
+                                 src="{{ asset('img/logo/logo-dark.svg') }}" alt="Focus branding logo">
                         @endif
                         <img class="logo-sticky"
-                             srcset="{{ asset('img/logo/logo-dark-sticky.png') }}, {{ asset('img/logo/logo-dark-sticky@2x.png') }} 2x"
-                             src="{{ asset('img/logo/logo-dark-sticky@2x.png') }}" alt="Focus branding logo">
-                        <img class="logo-mobile" srcset="{{ asset('img/logo/logo-dark.png') }}, {{ asset('img/logo/logo-dark@2x.png') }} 2x"
-                             src="{{ asset('img/logo/logo-dark@2x.png') }}" alt="Focus branding logo">
+                             srcset="{{ asset('img/logo/logo-dark-sticky.svg') }}, {{ asset('img/logo/logo-dark-sticky.svg') }} 2x"
+                             src="{{ asset('img/logo/logo-dark-sticky.svg') }}" alt="Focus branding logo">
+                        <img class="logo-mobile" srcset="{{ asset('img/logo/logo-dark.svg') }}, {{ asset('img/logo/logo-dark.svg') }} 2x"
+                             src="{{ asset('img/logo/logo-dark.svg') }}" alt="Focus branding logo">
                     </a>
                 </div><!-- #logo end -->
 

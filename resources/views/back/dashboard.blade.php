@@ -5,10 +5,10 @@
     <div class="bg-body-light">
         <div class="content content-full">
             <div class="d-flex flex-column flex-sm-row justify-content-sm-between align-items-sm-center">
-                <h1 class="flex-sm-fill font-size-h2 font-w400 mt-2 mb-0 mb-sm-2">Nadzorna ploča</h1>
+                <h1 class="flex-sm-fill font-size-h2 font-w400 mt-2 mb-0 mb-sm-2">Dashboard</h1>
                 <nav class="flex-sm-00-auto ml-sm-3" aria-label="breadcrumb">
                     <ol class="breadcrumb">
-                        <li class="breadcrumb-item active" aria-current="page">Nadzorna ploča</li>
+                        <li class="breadcrumb-item active" aria-current="page">Dashboard</li>
                     </ol>
                 </nav>
             </div>
@@ -42,27 +42,27 @@
 
         <!-- Quick Overview -->
         <div class="row row-deck">
-            <div class="col-6 col-lg-4">
-                <a class="block block-rounded block-link-shadow text-center" href="{{ route('users') }}">
+            <div class="col-6 col-lg-6">
+                <a class="block block-rounded block-link-shadow text-center" href="{{ route('pages') }}">
                     <div class="block-content py-5">
                         <div class="font-size-h3 font-w600 text-warning mb-1"></div>
                         <p class="font-w600 font-size-sm text-muted text-uppercase mb-0">
-                            Korisnici
+                           Pages
                         </p>
                     </div>
                 </a>
             </div>
-            <div class="col-6 col-lg-4">
+            <div class="col-6 col-lg-6">
                 <a class="block block-rounded block-link-shadow text-center" href="{{ route('blogs') }}">
                     <div class="block-content py-5">
                         <div class="font-size-h3 font-w600 text-success mb-1"></div>
                         <p class="font-w600 font-size-sm text-muted text-uppercase mb-0">
-                            Novosti
+                            Blog
                         </p>
                     </div>
                 </a>
             </div>
-            <div class="col-6 col-lg-4">
+         <!--   <div class="col-6 col-lg-4">
                 <a class="block block-rounded block-link-shadow text-center" href="{{ route('galleries') }}">
                     <div class="block-content py-5">
                         <div class="font-size-h3 text-success font-w600 mb-1"></div>
@@ -71,7 +71,7 @@
                         </p>
                     </div>
                 </a>
-            </div>
+            </div>-->
         </div>
 
         <!-- Top Products and Latest Orders -->
