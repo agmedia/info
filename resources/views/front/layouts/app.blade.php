@@ -3,8 +3,16 @@
 <head>
     <meta http-equiv="content-type" content="text/html; charset=utf-8">
     <meta http-equiv="x-ua-compatible" content="IE=edge">
-    <meta name="author" content="@yield('title')">
-    <meta name="description" content="@yield('description')">
+
+    @if (isset($page) && ! empty($page))
+        <title>{{ isset($page->meta_title) ? $page->meta_title : '' }}</title>
+        <meta name="author" content="{{ isset($page->meta_title) ? $page->meta_title : '' }}">
+        <meta name="description" content="{{ isset($page->meta_description) ? $page->meta_description : '' }}">
+    @else
+        <title>Focus Branding</title>
+        <meta name="author" content="Focus Branding">
+        <meta name="description" content="Focus Branding">
+    @endif
 
     <!-- Font Imports -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -27,10 +35,6 @@
     <link rel="stylesheet" href="{{ asset('css/swiper.css') }}">
 
     <meta name="viewport" content="width=device-width, initial-scale=1">
-
-    <!-- Document Title -->
-    <title>@yield('title')</title>
-
 </head>
 <!-- Body-->
 <body class="stretched">

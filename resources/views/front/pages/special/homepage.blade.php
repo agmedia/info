@@ -283,7 +283,6 @@
                                 </div>
 
                             </div>
-
                         </div>
                     </div>
 
@@ -295,16 +294,11 @@
                     <!-- Wall & Glass Graphics -->
                     <div class="col-lg-12 dark my-6">
                         <div class="row">
-
-
                             <div class="col-lg-6 ps-lg-0">
-
                                 <div class="pt-xl-3">
-
                                     <h2 class="font-heading lh-base fs-services-title ls-3 mt-lg-6 me-lg-3 pt-lg-5 fw-light text-lg-end ms-lg-n6 ms-xl-0"
                                         data-animate="fadeInDownSmall">
                                         Wall <span class="fs-1 text-light font-primary">&</span> GlaSS graphicS</h2>
-
                                     <div class="me-lg-6 ms-xl-5 pe-lg-1 text-lg-end">
 
                                         <p class="lead lh-base font-secondary" data-animate="fadeInUp">Unlock
@@ -320,15 +314,10 @@
                                                                                                         canvases that tell your unique story.</p>
                                     </div>
                                 </div>
-
                             </div>
 
-
                             <div class="col-lg-6" data-animate="fadeInRightSmall" data-delay="150">
-
-
                                 <div class="position-relative box-line-styled--offset">
-
                                     <div class="fslider" data-arrows="false" data-easing="easeInOutCubic" data-speed="1200" data-pause="3600">
                                         <div class="flexslider">
                                             <div class="slider-wrap">
@@ -338,7 +327,6 @@
                                                 <div class="slide"><img class="img-responsive"
                                                                         src="{{ asset('img/services/glass-graphics.jpg') }}"
                                                                         alt="Glass graphics"></div>
-
                                             </div>
                                         </div>
                                     </div>
@@ -346,32 +334,19 @@
                                     <div class="box-line orange-line left-offset only-title only-title--wall-glass"
                                          data-animate="jackInTheBox" data-delay="300"></div>
                                 </div>
-
-
                             </div>
-
-
-
-
                         </div>
                     </div>
-
 
                     <div class="col-12 symbol symbol-with-lines" data-animate="fadeIn">
                         <img class="img-fluid" src="{{ asset('img/symbols/symbol-simple.svg') }}" alt="Focus branding symbol"
                              data-animate="fadeIn" data-delay="250" />
                     </div>
-
                     <!-- Acoustic -->
                     <div class="col-lg-12 dark my-6">
                         <div class="row">
-
-
                             <div class="col-lg-6 order-2 order-lg-1" data-animate="fadeInLeftSmall" data-delay="150">
-
-
                                 <div class="position-relative box-line-styled--offset">
-
                                     <div class="fslider" data-arrows="false" data-easing="easeInOutCubic" data-speed="1200" data-pause="3600">
                                         <div class="flexslider">
                                             <div class="slider-wrap">
@@ -381,7 +356,6 @@
                                                 <div class="slide"><img class="img-responsive"
                                                                         src="{{ asset('img/services/acoustic-wall.jpg') }}"
                                                                         alt="Acoustic wall"></div>
-
                                             </div>
                                         </div>
                                     </div>
@@ -390,21 +364,15 @@
                                          data-animate="jackInTheBox" data-delay="300">
                                     </div>
                                 </div>
-
-
                             </div>
 
-
                             <div class="col-lg-6 pe-lg-0 order-1 order-lg-2">
-
                                 <div class="pt-lg-3">
-
                                     <h2 class="font-heading lh-base fs-services-title ls-3 mt-lg-6 ms-lg-3 pt-lg-5 fw-light"
                                         data-animate="fadeInDownSmall">
                                         AcouSticS</h2>
 
                                     <div class="ms-lg-6 me-xl-5 ps-lg-1">
-
                                         <!-- <p class="fw-bold fs-1 lh-sm" data-animate="fadeInUpSmall">Elevate your brand and simplify navigation with our comprehensive signage solutions. -->
 
                                         <p class="lead lh-base font-secondary" data-animate="fadeInUp">A noisy
@@ -412,44 +380,30 @@
                                                                                                        work experience of employees. </p>
 
                                         <p class="lead lh-base font-secondary" data-animate="fadeInUp">We offer a diverse selection of
-                                                                                                       acoustic solutions that not only effectively address noise issues,
-                                                                                                       but also enhance the look and feel of your workspace.</p>
+                                                                                                       acoustic solutions that not only effectively address noise issues, but also enhance the look and feel of your workspace.</p>
                                     </div>
                                 </div>
-
                             </div>
-
                         </div>
                     </div>
-
 
                     <div class="col-12 d-flex justify-content-center">
                         <a href="{{ route('front.page', ['page' => 'what-we-offer']) }}" class="button button-xlarge button-circle button-reveal text-transform-none ls-0 mt-0 mt-xxl-5"
                            data-animate="fadeInUp" data-delay="400">
                             <i class="fa-solid fa-arrow-right"></i>
                             <span class="text-uppercase">Explore all Solutions</span> </a>
-
                     </div>
                 </div>
 
             </div>
-
-
         </div>
-
         <div class="shape-divider" data-shape="slant-2" data-fill="#21374C" data-position="bottom"></div>
-
-
     </section>
 
-
-
-    <!-- Parallax Area
-    ============================================= -->
+    <!-- Parallax Area -->
     <section class="section my-0 parallax scroll-detect overflow-visible">
         <img src="{{ asset('img/measurement-planning.jpg') }}" alt="Who are we" class="parallax-bg">
         <div class="content-wrap pt-3">
-
             <div class="container">
 
                 <div class="row dark">
@@ -479,44 +433,29 @@
                                    data-delay="200"> Our goal is to provide cost-effective solutions that
                                                      enhance brand image, improve acoustics, and creating functional and
                                                      aesthetically pleasing environments.</p>
-
                             </div>
                         </div>
                     </div>
-
-
-
                 </div>
-
             </div>
-
         </div>
-
-
         <div class="shape-divider shape-divider-light" data-shape="slant-2" data-position="bottom"></div>
     </section>
 
-
     <!-- Latest Articles -->
     <section class="section my-0 py-0">
-
         <div class="content-wrap pt-0 pb-3">
-
             <div class="container">
 
                 <div class="row">
-
                     <div class="col-12 symbol symbol-with-lines mt-5 mt-lg-6 mb-3 fadeIn animated" data-animate="fadeIn">
                         <h2 class="display-4 mt-4 text-uppercase fadeIn animated" data-animate="fadeIn" data-delay="250">News
                         </h2>
                     </div>
-
                 </div>
 
                 <div class="row justify-content-center">
-
                     <div class="col-md-9 col-lg-12">
-
                         <div class="row posts-md">
 
                             <div class="entry col-lg-4 p-3" data-animate="fadeInLeftSmall" data-delay="200">
@@ -527,11 +466,9 @@
 
                                     <div class="entry-title text-transform-none p-3 mt-0 bg-light">
                                         <h3 class="lh-sm"><a href="#">Qui architecto eligendi et enim necessitatibus.</a></h3>
-
                                         <div class="entry-meta">
                                             <ul class="ms-0">
                                                 <li><i class="fa-solid fa-calendar-days"></i> 10th Feb 2021</li>
-
                                             </ul>
                                         </div>
                                     </div>
@@ -550,11 +487,9 @@
 
                                     <div class="entry-title text-transform-none p-3 mt-0 bg-light">
                                         <h3 class="lh-sm"><a href="#blog-single">Et mollitia unde vel galisum doloremque est dolores accusantium. </a></h3>
-
                                         <div class="entry-meta">
                                             <ul class="ms-0">
                                                 <li><i class="fa-solid fa-calendar-days"></i> 10th Feb 2021</li>
-
                                             </ul>
                                         </div>
                                     </div>
@@ -573,7 +508,6 @@
 
                                     <div class="entry-title text-transform-none p-3 mt-0 bg-light">
                                         <h3 class="lh-sm"><a href="#blog-single">Ea explicabo reprehenderit ut consequuntur sunt. </a></h3>
-
                                         <div class="entry-meta">
                                             <ul class="ms-0">
                                                 <li><i class="fa-solid fa-calendar-days"></i> 10th Feb 2021</li>
@@ -587,28 +521,16 @@
                                     </div>
                                 </article>
                             </div>
-
-
-
                         </div>
-
                     </div>
-
-
                 </div>
-
             </div>
-
         </div>
     </section>
 
-
-    <!-- Values
-============================================= -->
+    <!-- Values -->
     <section class="section my-0 pt-0 pb-0 pb-xl-6">
-
         <div class="content-wrap py-0">
-
             <div class="container">
 
                 <div class="row">
@@ -620,11 +542,8 @@
                     <div class="col-12 mt-4 mb-6">
                         <div class="row justify-content-center gx-5 gy-4">
 
-
                             <div class="col-lg-3 col-sm-6" data-animate="fadeInUpSmall">
-
-                                <div
-                                        class="feature-box feature-box--values fbox-effect flex-column bg-white border border-f5 p-4 h-100">
+                                <div class="feature-box feature-box--values fbox-effect flex-column bg-white border border-f5 p-4 h-100">
                                     <div class="fbox-icon mb-4">
                                         <i class="fa-solid fa-recycle"></i>
                                     </div>
@@ -634,12 +553,10 @@
                                                                                      Ireland or Europe.</p>
                                     </div>
                                 </div>
-
                             </div>
 
                             <div class="col-lg-3 col-sm-6" data-animate="fadeInDownSmall" data-delay="300">
-                                <div
-                                        class="feature-box feature-box--values fbox-effect flex-column bg-white border border-f5 p-4 h-100">
+                                <div class="feature-box feature-box--values fbox-effect flex-column bg-white border border-f5 p-4 h-100">
                                     <div class="fbox-icon mb-4">
                                         <i class="fa-solid fa-clock-four"></i>
                                     </div>
@@ -654,8 +571,7 @@
                             </div>
 
                             <div class="col-lg-3 col-sm-6" data-animate="fadeInUpSmall" data-delay="600">
-                                <div
-                                        class="feature-box feature-box--values fbox-effect flex-column bg-white border border-f5 p-4 h-100">
+                                <div class="feature-box feature-box--values fbox-effect flex-column bg-white border border-f5 p-4 h-100">
                                     <div class="fbox-icon mb-4">
                                         <i class="fa-solid fa-piggy-bank"></i>
                                     </div>
@@ -669,8 +585,7 @@
                             </div>
 
                             <div class="col-lg-3 col-sm-6" data-animate="fadeInDownSmall" data-delay="900">
-                                <div
-                                        class="feature-box feature-box--values fbox-effect flex-column bg-white border border-f5 p-4 h-100">
+                                <div class="feature-box feature-box--values fbox-effect flex-column bg-white border border-f5 p-4 h-100">
                                     <div class="fbox-icon mb-4">
                                         <i class="fa-solid fa-award"></i>
                                     </div>
@@ -685,20 +600,12 @@
 
                         </div>
                     </div>
-
-
-
                 </div>
-
             </div>
-
         </div>
-
         <!-- <div class="shape-divider" data-shape="slant-2" data-position="bottom"></div> -->
-
     </section>
     <!-- #content end -->
-
 </div>
 
 ++put-your-workplace-spotlight++
