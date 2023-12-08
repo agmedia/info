@@ -1,5 +1,4 @@
 <article>
-
     <!-- Hero Section
     ============================================= -->
     <div class="min-vh-50 min-vh-md-50 min-vh-lg-60 min-vh-xl-75 hero-page include-header parallax scroll-detect" data-animate="fadeInUp">

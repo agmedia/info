@@ -1,17 +1,11 @@
 <section>
     <div class="content-wrap pt-5 pt-lg-6">
-
-
-
         <div class="container mw-lg">
-
             <div class="row justify-content-between col-mb-30">
-
 
                 <div class="col-md-5 order-2 order-md-1 px-sm-6 px-md-3" data-animate="fadeInLeftSmall" data-delay="150">
                     <div class="card bg-contrast-0 border-0 shadow">
                         <div class="card-body p-0">
-
                             <div class="fslider services" data-easing="easeInOutCubic" data-speed="1200" data-pause="3600">
                                 <div class="flexslider">
                                     <div class="slider-wrap">
@@ -28,7 +22,6 @@
                                     </div>
                                 </div>
                             </div>
-
                         </div>
                     </div>
                 </div>
@@ -66,11 +59,11 @@
 
                 <div class="col-12 order-3 order-md-3 mt-4 mt-md-6">
                     <div class="row">
-
                         <div class="col-md-4">
                             <h3 class="fs-3 mb-2" data-animate="fadeInUp" data-delay="100"> Our Team</h3>
                             <p class="lead lh-base font-secondary" data-animate="fadeInUp"
-                               data-delay="100"> Our collective expertise is the driving force. We bring together industry veterans—seasoned professionals who know the ins and outs of signage, branding, acoustics, and beyond. Whether you have a groundbreaking idea or a detailed project plan, our team is ready to collaborate.</p>
+                               data-delay="100"> Our collective expertise is the driving force. We bring together industry veterans—seasoned professionals who know the ins and outs of signage, branding, acoustics, and beyond. Whether you have a groundbreaking idea or a
+                                                 detailed project plan, our team is ready to collaborate.</p>
                         </div>
 
                         <div class="col-md-4">
@@ -85,17 +78,10 @@
                             <p class="lead lh-base font-secondary" data-animate="fadeInUp"
                                data-delay="300"> Eager to get started on your next project? We're here to chat. Whether you have a clear plan or just a spark of an idea, let's connect. Give us a shout via link below and we`ll sort you out.</p>
                         </div>
-
                     </div>
                 </div>
-
-
-
-
             </div>
-
         </div>
-
     </div>
 </section>
 
@@ -105,7 +91,6 @@
         <div class="container mb-lg-6">
             <div class="row">
 
-
                 <div class="col-12 symbol symbol-with-lines" data-animate="fadeIn">
                     <h2 class="display-4 mt-4 text-uppercase" data-animate="fadeIn" data-delay="250">Values
                     </h2>
@@ -114,11 +99,8 @@
                 <div class="col-12 mt-4 mb-6">
                     <div class="row justify-content-center gx-5 gy-4">
 
-
                         <div class="col-lg-3 col-sm-6" data-animate="fadeInUpSmall">
-
-                            <div
-                                    class="feature-box feature-box--values fbox-effect flex-column bg-white border border-f5 p-4 h-100">
+                            <div class="feature-box feature-box--values fbox-effect flex-column bg-white border border-f5 p-4 h-100">
                                 <div class="fbox-icon mb-4">
                                     <i class="fa-solid fa-recycle"></i>
                                 </div>
@@ -132,8 +114,7 @@
                         </div>
 
                         <div class="col-lg-3 col-sm-6" data-animate="fadeInDownSmall" data-delay="300">
-                            <div
-                                    class="feature-box feature-box--values fbox-effect flex-column bg-white border border-f5 p-4 h-100">
+                            <div class="feature-box feature-box--values fbox-effect flex-column bg-white border border-f5 p-4 h-100">
                                 <div class="fbox-icon mb-4">
                                     <i class="fa-solid fa-clock-four"></i>
                                 </div>
@@ -148,8 +129,7 @@
                         </div>
 
                         <div class="col-lg-3 col-sm-6" data-animate="fadeInUpSmall" data-delay="600">
-                            <div
-                                    class="feature-box feature-box--values fbox-effect flex-column bg-white border border-f5 p-4 h-100">
+                            <div class="feature-box feature-box--values fbox-effect flex-column bg-white border border-f5 p-4 h-100">
                                 <div class="fbox-icon mb-4">
                                     <i class="fa-solid fa-piggy-bank"></i>
                                 </div>
@@ -163,8 +143,7 @@
                         </div>
 
                         <div class="col-lg-3 col-sm-6" data-animate="fadeInDownSmall" data-delay="900">
-                            <div
-                                    class="feature-box feature-box--values fbox-effect flex-column bg-white border border-f5 p-4 h-100">
+                            <div class="feature-box feature-box--values fbox-effect flex-column bg-white border border-f5 p-4 h-100">
                                 <div class="fbox-icon mb-4">
                                     <i class="fa-solid fa-award"></i>
                                 </div>
@@ -179,11 +158,8 @@
 
                     </div>
                 </div>
-
             </div>
         </div>
-
         <!-- <div class="shape-divider" data-shape="slant-2" data-position="bottom"></div> -->
-
     </div>
 </div>
