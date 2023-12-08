@@ -24676,4 +24676,16 @@ header:not(.transparent-header) #header-wrap,
     text-indent: calc(14.315rem + 0.624vw);
   }
 }
+
+@media (max-width: 440px) {
+  .hero-title-xs {
+    font-size: 0.81rem !important;
+  }
+}
+
+@media (max-width: 440px) {
+  .hero-subtitle-xs {
+    font-size: 1.08rem !important;
+  }
+}
 /*# sourceMappingURL=style.css.map */
