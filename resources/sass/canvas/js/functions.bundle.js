@@ -5823,7 +5823,7 @@ if( typeof jQuery !== 'undefined' ) {
 		 * Notifications Functions Start
 		 * --------------------------------------------------------------------------
 		 */
-		Notifications: function() {
+/*	Notifications: function() {
 			return {
 				init: function(selector) {
 					if( __core.getSelector(selector, false, false).length < 1 ){
@@ -6004,7 +6004,7 @@ if( typeof jQuery !== 'undefined' ) {
 					});
 				}
 			};
-		}(),
+		}(),*/
 		// Notifications Functions End
 
 		/**
