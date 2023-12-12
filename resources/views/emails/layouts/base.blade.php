@@ -281,7 +281,7 @@
     <table align="center" role="presentation" cellspacing="0" cellpadding="0" border="0" width="600" style="margin: auto;" class="email-container">
         <tr>
             <td style="padding: 20px;  font-size: 12px; line-height: 15px; text-align: center; color: #373f50;">
-                Focus Branding © {{ now()->year }}. Sva prava pridržana.
+                Focus Branding © {{ now()->year }}. All Rights Reserved.
                 <br>
             </td>
         </tr>
