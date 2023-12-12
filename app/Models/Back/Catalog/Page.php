@@ -33,6 +33,12 @@ class Page extends Model
     protected $request;
 
 
+    public function getResourceDataAttribute($value)
+    {
+        return json_decode($value);
+    }
+
+
     /**
      * @param Builder $query
      *

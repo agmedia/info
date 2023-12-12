@@ -85,7 +85,7 @@
                                     </div>
                                     <div class="col-md-9">
                                         <label for="query-input">DB Query</label>
-                                        <input type="text" class="form-control" id="query-input" name="query_string" placeholder="Custom upit u bazu ako je potrebno..." value="{{ isset($resource_data['query']) ? $resource_data['query'] : '' }}">
+                                        <input type="text" class="form-control" id="query-input" name="query_string" placeholder="Custom upit u bazu ako je potrebno..." value="{{ isset($page->resource_data->query) ? $page->resource_data->query : '' }}">
                                     </div>
                                     <div class="col-md-12">
                                         <label for="description-editor">Description</label>
@@ -196,7 +196,8 @@
 
             $('#resource-select').select2({
                 placeholder: '-- Molimo odaberite --',
-                minimumResultsForSearch: Infinity
+                minimumResultsForSearch: Infinity,
+                allowClear: true
             });
 
             let rte = document.getElementById("js-ckeditor");

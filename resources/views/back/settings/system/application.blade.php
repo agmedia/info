@@ -85,6 +85,24 @@
                     </div>
                 </div>
 
+                <div class="block">
+                    <div class="block-header block-header-default">
+                        <h3 class="block-title">System Modifications</h3>
+                    </div>
+                    <div class="block-content">
+                        <div class="row justify-content-center mb-2">
+                            <div class="col-md-11 mt-1">
+                                <div class="form-group">
+                                    <div class="custom-control custom-switch custom-control-info">
+                                        <input type="checkbox" class="custom-control-input" id="cache-pages" name="status" {{ (isset($data) and $data['cache']) ? 'checked' : '' }}>
+                                        <label class="custom-control-label" for="cache-pages">Cache Front Pages</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
             </div>
         </div>
 
@@ -98,6 +116,27 @@
 @push('js_after')
     <script src="{{ asset('js/plugins/select2/js/select2.full.min.js') }}"></script>
     <script>
+        $(() => {
+            $('#cache-pages').on('change', (e) => {
+                storeCacheSelect(e.currentTarget.checked);
+            })
+        })
+
+        /**
+         *
+         */
+        function storeCacheSelect(cache) {
+            axios.post("{{ route('api.application.cache.store') }}", {data: cache})
+            .then(response => {
+                console.log(response)
+                if (response.data.success) {
+                    return successToast.fire(response.data.success);
+                } else {
+                    return errorToast.fire(response.data.message);
+                }
+            });
+        }
+
         /**
          *
          */
@@ -106,7 +145,6 @@
 
             axios.post("{{ route('api.application.google-api.store.key') }}", {data: item})
             .then(response => {
-                console.log(response.data)
                 if (response.data.success) {
                     return successToast.fire(response.data.success);
                 } else {

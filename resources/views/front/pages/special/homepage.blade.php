@@ -1,3 +1,6 @@
+@push('meta')
+    <tester></tester>
+@endpush
 <section id="slider" class="slider-hero slider-element min-vh-100 include-header slider-parallax overflow-visible">
 
     <div class="slider-inner">

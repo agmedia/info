@@ -14,16 +14,16 @@
                 <table cellspacing="0" cellpadding="0" border="0" width="100%">
                     <tr>
                         <td style="width: 26%">Ime:</td>
-                        <td style="width: 74%"><b>{{ $contact['name'] }}</b></td>
+                        <td style="width: 74%"><b>{{ $contact['template-contactform-name'] }}</b></td>
                     </tr>
                     <tr>
                         <td>Email:</td>
-                        <td><b>{{ $contact['email'] }}</b></td>
+                        <td><b>{{ $contact['template-contactform-email'] }}</b></td>
                     </tr>
-                    @if ( ! empty($contact['phone']))
+                    @if ( ! empty($contact['template-contactform-phone']))
                         <tr>
                             <td>Telefon:</td>
-                            <td><b>{{ $contact['phone'] }}</b></td>
+                            <td><b>{{ $contact['template-contactform-phone'] }}</b></td>
                         </tr>
                     @endif
                 </table>
@@ -31,7 +31,7 @@
         </tr>
         <tr>
             <td style="padding: 5px 20px 30px 20px; font-family: sans-serif; font-size: 15px; line-height: 20px; color: #555555;">
-                <pre>{!! $contact['message'] !!}</pre>
+                <pre>{!! $contact['template-contactform-message'] !!}</pre>
             </td>
         </tr>
         <tr>

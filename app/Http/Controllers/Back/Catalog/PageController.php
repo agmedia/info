@@ -76,7 +76,6 @@ class PageController extends Controller
     {
         $groups = $page->subgroups(null, 'special')->pluck('subgroup');
         $resources     = (new Widget())->getTargetResources();
-        $resource_data = json_decode($page->resource_data, true);
 
         $filepath = Helper::resolveViewFilepath($page->slug, 'pages');
         $storage  = Storage::disk('view');
@@ -85,7 +84,7 @@ class PageController extends Controller
             $page->description = $storage->get($filepath);
         }
 
-        return view('back.catalog.pages.edit', compact('page', 'groups', 'resources', 'resource_data'));
+        return view('back.catalog.pages.edit', compact('page', 'groups', 'resources'));
     }
 
 

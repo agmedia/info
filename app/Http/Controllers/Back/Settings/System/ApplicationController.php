@@ -53,6 +53,8 @@ class ApplicationController extends Controller
         $set = Settings::reset('app', 'basic', $request->toArray());
 
         if ($set) {
+            $this->flushApplicationCache();
+
             return response()->json(['success' => 'Osnovni info aplikacije je snimljen...']);
         }
 
@@ -71,6 +73,29 @@ class ApplicationController extends Controller
             $set = Settings::reset('app', 'google.maps', $request->input('data'));
 
             if ($set) {
+                $this->flushApplicationCache();
+
+                return response()->json(['success' => __('back/app.save_success')]);
+            }
+        }
+
+        return response()->json(['error' => __('back/app.save_failure')]);
+    }
+
+
+    /**
+     * @param Request $request
+     *
+     * @return JsonResponse
+     */
+    public function storeCacheSelect(Request $request): JsonResponse
+    {
+        if ($request->has('data')) {
+            $set = Settings::reset('app', 'cache', $request->input('data') == 'true' ? 1 : 0, false);
+
+            if ($set) {
+                $this->flushApplicationCache();
+
                 return response()->json(['success' => __('back/app.save_success')]);
             }
         }
@@ -129,7 +154,7 @@ class ApplicationController extends Controller
         }
 
         if ($stored) {
-            //$this->clearCache();
+            $this->flushApplicationCache();
 
             return response()->json(['success' => 'Pogodnost je uspješno snimljena.']);
         }
@@ -163,10 +188,18 @@ class ApplicationController extends Controller
         }
 
         if ($stored) {
+            $this->flushApplicationCache();
+
             return response()->json(['success' => 'Pogodnost je uspješno obrisana.']);
         }
 
         return response()->json(['message' => 'Whoops.!! Pokušajte ponovo ili kontaktirajte administratora!']);
+    }
+
+
+    private function flushApplicationCache()
+    {
+        return Application::flushSystemData();
     }
 
 }

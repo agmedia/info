@@ -69,20 +69,20 @@ class Settings extends Model
             $return_styles = collect();
 
             foreach ($styles as $style) {
-                if ($style->json) {
-                    $temp_style = collect(json_decode($style->value))->all();
+                $return_styles->put($style->key, $style->value);
 
-                    foreach ($temp_style as $item) {
-                        $return_styles->put($item->title, $item);
-                    }
+                if ($style->json) {
+                    $temp_style = collect(json_decode($style->value));
+
+                    $return_styles->put($style->key, ($temp_style->count() > 1) ? $temp_style->all() : $temp_style->first());
                 }
             }
 
             if ($only_active) {
-                return $return_styles->where('status')->sortBy('sort_order');
+                return $return_styles->where('status');
             }
 
-            return $return_styles->sortBy('sort_order');
+            return $return_styles;
         }
 
         return [];

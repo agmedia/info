@@ -134,6 +134,7 @@ Route::prefix('api/v2')->group(function () {
             Route::prefix('application')->group(function () {
                 Route::post('basic/store', [ApplicationController::class, 'basicInfoStore'])->name('api.application.basic.store');
                 Route::post('maps-api/store', [ApplicationController::class, 'storeGoogleMapsApiKey'])->name('api.application.google-api.store.key');
+                Route::post('cache/store', [ApplicationController::class, 'storeCacheSelect'])->name('api.application.cache.store');
             });
         });
         // FRONT SETTINGS LIST

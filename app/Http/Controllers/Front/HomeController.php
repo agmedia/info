@@ -25,21 +25,49 @@ class HomeController extends Controller
 {
 
     /**
-     * Display a listing of the resource.
+     * @param Request $request
      *
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View
      */
     public function index(Request $request)
     {
-        /*$page = Helper::resolveCache('home')->remember('news', config('cache.life'), function () {
-            return Page::query()->where('group', 'page')->where('subgroup', 'special')->where('title', 'Homepage');
-        });*/
+        if (config('system.cache')) {
+            $page = Helper::resolveCache('page')->remember('home', config('cache.life'), function () {
+                $page = Page::query()->special()->where('slug', 'homepage')->first();
+                $page->description = Page::resolveDescription($page);
 
-        $page = Page::query()->special()->where('slug', 'homepage')->first();
-
-        $page->description = Page::resolveDescription($page);
+                return $page;
+            });
+        } else {
+            $page = Page::query()->special()->where('slug', 'homepage')->first();
+            $page->description = Page::resolveDescription($page);
+        }
 
         return view('front.pages.page', compact('page'));
+    }
+
+
+    /**
+     * @param Page $page
+     *
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View
+     */
+    public function page(Page $page)
+    {
+        //dd(config('system'), $page->resource_data);
+        if (config('system.cache')) {
+            $template = Helper::resolveCache('page')->remember($page->id, config('cache.life'), function () use ($page) {
+                $template              = Page::resolvePage($page);
+                $template->description = Page::resolveDescription($template, $page);
+
+                return $template;
+            });
+        } else {
+            $template              = Page::resolvePage($page);
+            $template->description = Page::resolveDescription($template, $page);
+        }
+
+        return view('front.pages.page')->with(['page' => $template]);
     }
 
 
@@ -70,20 +98,6 @@ class HomeController extends Controller
         //dd($galleries->toArray());
 
         return view('front.pages.galleries', compact('galleries', 'news'));
-    }
-
-
-    /**
-     * @param Page $page
-     *
-     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View
-     */
-    public function page(Page $page)
-    {
-        $template              = Page::resolvePage($page);
-        $template->description = Page::resolveDescription($template, $page);
-
-        return view('front.pages.page')->with(['page' => $template]);
     }
 
 
@@ -148,8 +162,6 @@ class HomeController extends Controller
     {
         Log::info($request->toArray());
 
-        return response()->json(['success' => 'Vaša poruka je uspješno poslana.! Odgovoriti ćemo vam uskoro.']);
-
         $request->validate([
             'template-contactform-name'    => 'required',
             'template-contactform-email'   => 'required|email',
@@ -174,7 +186,7 @@ class HomeController extends Controller
             Log::info($sent);
         });
 
-        return redirect()->route('front.page', ['page' => 'kontakt', 'success' => 'Vaša poruka je uspješno poslana.! Odgovoriti ćemo vam uskoro.']);
+        return redirect()->route('front.page', ['page' => 'contact-us', 'success' => 'Vaša poruka je uspješno poslana.! Odgovoriti ćemo vam uskoro.']);
     }
 
 

@@ -26,6 +26,9 @@ return [
         'long_desc' => 'Long description',
         'long_desc_label' => '(If required. Displayed if payment is selected during purchase.)',
         'chars' => 'chars',
-        'select_geo' => 'Select geo zone',
-    ]
+        'select_geo' => 'Select geo zone'
+    ],
+    //
+    'save_success' => 'Data has been saved successfully!',
+    'save_failure' => 'Error has occured. Please contact Administrator.'
 ];
