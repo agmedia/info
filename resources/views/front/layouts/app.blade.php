@@ -25,7 +25,7 @@
     <link rel="apple-touch-icon" href="{{ asset('img/favicon/apple-touch-icon.png') }}">
 
     <!-- Core Style -->
-    <link rel="stylesheet" href="{{ asset('style.css?v=1.0') }}">
+    <link rel="stylesheet" href="{{ asset('style.css?v=1.3') }}">
 
     <!-- Font Icons -->
     <link rel="stylesheet" href="{{ asset('css/font-icons.css') }}">
