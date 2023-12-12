@@ -24414,6 +24414,14 @@ header:not(.transparent-header) #header-wrap,
   right: 0;
   width: 20%;
 }
+.box-line-styled--hero::before {
+  -webkit-clip-path: polygon(0 0, 100% 0, 100% 100%, 0 85%);
+          clip-path: polygon(0 0, 100% 0, 100% 100%, 0 85%);
+}
+.box-line-styled--hero::after {
+  -webkit-clip-path: polygon(0 10%, 100% 0, 100% 100%, 0 100%);
+          clip-path: polygon(0 10%, 100% 0, 100% 100%, 0 100%);
+}
 .box-line-styled--inside .box-line {
   position: absolute;
   border: 1px solid var(--cnvs-themecolor);
@@ -24500,6 +24508,84 @@ header:not(.transparent-header) #header-wrap,
   border-left: none;
   left: -3.5rem;
 }
+.box-line-styled--offset .box-line.left-offset.only-title::before {
+  -webkit-clip-path: polygon(0 0, 100% 0, 100% 85%, 0 100%);
+          clip-path: polygon(0 0, 100% 0, 100% 85%, 0 100%);
+}
+.box-line-styled--offset .box-line.left-offset.only-title::after {
+  -webkit-clip-path: polygon(0 0%, 100% 5%, 100% 100%, 0 100%);
+          clip-path: polygon(0 0%, 100% 5%, 100% 100%, 0 100%);
+}
+.box-line-styled--offset .box-line.left-offset.only-title--portrait-img::before {
+  -webkit-clip-path: polygon(0 0, 100% 0, 100% 100%, 0 83%);
+          clip-path: polygon(0 0, 100% 0, 100% 100%, 0 83%);
+}
+.box-line-styled--offset .box-line.left-offset.only-title--portrait-img::after {
+  -webkit-clip-path: polygon(0 2%, 100% 0, 100% 100%, 0 100%);
+          clip-path: polygon(0 2%, 100% 0, 100% 100%, 0 100%);
+}
+@media (max-width: 1399.98px) {
+  .box-line-styled--offset .box-line.left-offset.only-title--portrait-img::after {
+    -webkit-clip-path: polygon(0 2.5%, 100% 0, 100% 100%, 0 100%);
+            clip-path: polygon(0 2.5%, 100% 0, 100% 100%, 0 100%);
+  }
+}
+@media (max-width: 1199.98px) {
+  .box-line-styled--offset .box-line.left-offset.only-title--portrait-img::after {
+    -webkit-clip-path: polygon(0 3%, 100% 0, 100% 100%, 0 100%);
+            clip-path: polygon(0 3%, 100% 0, 100% 100%, 0 100%);
+  }
+}
+@media (max-width: 991.98px) {
+  .box-line-styled--offset .box-line.left-offset.only-title--portrait-img::after {
+    -webkit-clip-path: polygon(0 7%, 100% 0, 100% 100%, 0 100%);
+            clip-path: polygon(0 7%, 100% 0, 100% 100%, 0 100%);
+  }
+}
+@media (max-width: 767.98px) {
+  .box-line-styled--offset .box-line.left-offset.only-title--portrait-img::after {
+    -webkit-clip-path: polygon(0 2.5%, 100% 0, 100% 100%, 0 100%);
+            clip-path: polygon(0 2.5%, 100% 0, 100% 100%, 0 100%);
+  }
+}
+.box-line-styled--offset .box-line.left-offset.only-title--wall-glass::before {
+  -webkit-clip-path: polygon(0 0, 100% 0, 100% 100%, 0 83%);
+          clip-path: polygon(0 0, 100% 0, 100% 100%, 0 83%);
+}
+@media (max-width: 1199.98px) {
+  .box-line-styled--offset .box-line.left-offset.only-title--wall-glass::before {
+    -webkit-clip-path: polygon(0 0, 100% 0, 100% 100%, 0 75%);
+            clip-path: polygon(0 0, 100% 0, 100% 100%, 0 75%);
+  }
+}
+@media (max-width: 991.98px) {
+  .box-line-styled--offset .box-line.left-offset.only-title--wall-glass::before {
+    -webkit-clip-path: polygon(0 0, 100% 0, 100% 100%, 0 83%);
+            clip-path: polygon(0 0, 100% 0, 100% 100%, 0 83%);
+  }
+}
+.box-line-styled--offset .box-line.left-offset.only-title--wall-glass::after {
+  -webkit-clip-path: polygon(0 6%, 100% 0, 100% 100%, 0 100%);
+          clip-path: polygon(0 6%, 100% 0, 100% 100%, 0 100%);
+}
+@media (max-width: 1399.98px) {
+  .box-line-styled--offset .box-line.left-offset.only-title--wall-glass::after {
+    -webkit-clip-path: polygon(0 12%, 100% 0, 100% 100%, 0 100%);
+            clip-path: polygon(0 12%, 100% 0, 100% 100%, 0 100%);
+  }
+}
+@media (max-width: 1199.98px) {
+  .box-line-styled--offset .box-line.left-offset.only-title--wall-glass::after {
+    -webkit-clip-path: polygon(0 21%, 100% 0, 100% 100%, 0 100%);
+            clip-path: polygon(0 21%, 100% 0, 100% 100%, 0 100%);
+  }
+}
+@media (max-width: 991.98px) {
+  .box-line-styled--offset .box-line.left-offset.only-title--wall-glass::after {
+    -webkit-clip-path: polygon(0 6%, 100% 0, 100% 100%, 0 100%);
+            clip-path: polygon(0 6%, 100% 0, 100% 100%, 0 100%);
+  }
+}
 .box-line-styled--offset .box-line.right-offset {
   border-right: none;
   right: -3.5rem;
@@ -24530,25 +24616,35 @@ header:not(.transparent-header) #header-wrap,
 }
 .box-line-styled--offset .box-line.only-title--portrait-img::after {
   height: calc(76% - 1vw);
+  -webkit-clip-path: polygon(0 0, 100% 2%, 100% 100%, 0 100%);
+          clip-path: polygon(0 0, 100% 2%, 100% 100%, 0 100%);
 }
 @media (max-width: 1399.98px) {
   .box-line-styled--offset .box-line.only-title--portrait-img::after {
     height: calc(70% - 2vw);
+    -webkit-clip-path: polygon(0 0, 100% 2.5%, 100% 100%, 0 100%);
+            clip-path: polygon(0 0, 100% 2.5%, 100% 100%, 0 100%);
   }
 }
 @media (max-width: 1199.98px) {
   .box-line-styled--offset .box-line.only-title--portrait-img::after {
     height: calc(70% - 3vw);
+    -webkit-clip-path: polygon(0 0, 100% 3%, 100% 100%, 0 100%);
+            clip-path: polygon(0 0, 100% 3%, 100% 100%, 0 100%);
   }
 }
 @media (max-width: 991.98px) {
   .box-line-styled--offset .box-line.only-title--portrait-img::after {
     height: calc(40% + 2vw);
+    -webkit-clip-path: polygon(0 0, 100% 7%, 100% 100%, 0 100%);
+            clip-path: polygon(0 0, 100% 7%, 100% 100%, 0 100%);
   }
 }
 @media (max-width: 767.98px) {
   .box-line-styled--offset .box-line.only-title--portrait-img::after {
     height: calc(65% + 2vw);
+    -webkit-clip-path: polygon(0 0, 100% 2.5%, 100% 100%, 0 100%);
+            clip-path: polygon(0 0, 100% 2.5%, 100% 100%, 0 100%);
   }
 }
 .box-line-styled--offset .box-line.only-title--wall-glass::before {
@@ -24582,14 +24678,6 @@ header:not(.transparent-header) #header-wrap,
     height: calc(50% - 3vw);
   }
 }
-@media (max-width: 991.98px) {
-  .box-line-styled--offset .box-line {
-    top: 9px;
-    right: 9px;
-    bottom: 9px;
-    left: 9px;
-  }
-}
 .box-line-styled--offset .box-line::before, .box-line-styled--offset .box-line::after {
   position: absolute;
   display: block;
@@ -24604,6 +24692,14 @@ header:not(.transparent-header) #header-wrap,
 .box-line-styled--offset .box-line::after {
   bottom: 0;
   height: 15%;
+}
+.box-line-styled--offset .box-line::before {
+  -webkit-clip-path: polygon(0 0, 100% 0, 100% 85%, 0 100%);
+          clip-path: polygon(0 0, 100% 0, 100% 85%, 0 100%);
+}
+.box-line-styled--offset .box-line::after {
+  -webkit-clip-path: polygon(0 0%, 100% 5%, 100% 100%, 0 100%);
+          clip-path: polygon(0 0%, 100% 5%, 100% 100%, 0 100%);
 }
 @media (max-width: 991.98px) {
   .box-line-styled--offset .box-line {
@@ -24668,6 +24764,19 @@ header:not(.transparent-header) #header-wrap,
 @media (min-width: 1500px) {
   .fs-services-title-v2 {
     font-size: 1.9rem;
+  }
+}
+
+@media (max-width: 410px) {
+  .fs-services-title,
+  .fs-services-title-v2 {
+    font-size: calc(1.2rem + 0.324vw);
+  }
+}
+@media (max-width: 360px) {
+  .fs-services-title,
+  .fs-services-title-v2 {
+    font-size: calc(1.05rem + 0.324vw);
   }
 }
 
