@@ -24798,3 +24798,138 @@ header:not(.transparent-header) #header-wrap,
   }
 }
 /*# sourceMappingURL=style.css.map */
+-----------------------------------------------------------------------------------*/
+/* ----------------------------------------------------------------
+	Alerts
+-----------------------------------------------------------------*/
+.style-msg,
+.style-msg2 {
+    position: relative;
+    display: block;
+    color: var(--cnvs-heading-color);
+    border-left: 4px solid rgba(var(--cnvs-contrast-rgb), 0.1);
+    margin-bottom: 20px;
+}
+
+.style-msg2 {
+    border-left-color: rgba(var(--cnvs-contrast-rgb), 0.1);
+}
+
+.primarymsg {
+    background: #cfe2ff;
+    border-color: #b6d4fe;
+    color: #084298;
+}
+
+.secondarymsg {
+    background: #e2e3e5;
+    border-color: #d3d6d8;
+    color: #41464b;
+}
+
+.successmsg {
+    background: #d1e7dd;
+    border-color: #badbcc;
+    color: #0f5132;
+}
+
+.infomsg {
+    background: #cff4fc;
+    border-color: #b6effb;
+    color: #087990;
+}
+
+.warningmsg {
+    background: #fff3cd;
+    border-color: #ffecb5;
+    color: #997404;
+}
+
+.dangermsg {
+    background: #f8d7da;
+    border-color: #f5c2c7;
+    color: #842029;
+}
+
+.lightmsg {
+    background: #fefefe;
+    border-color: #fdfdfe;
+    color: #959596;
+}
+
+.darkmsg {
+    background: #d3d3d4;
+    border-color: #bcbebf;
+    color: #141619;
+}
+
+.errormsg {
+    background: #f8d7da;
+    border-color: #f5c2c7;
+    color: #842029;
+}
+
+.alertmsg {
+    background: #fff3cd;
+    border-color: #ffecb5;
+    color: #997404;
+}
+
+.style-msg .sb-msg,
+.style-msg2 .msgtitle,
+.style-msg2 .sb-msg {
+    display: block;
+    padding: 1rem;
+    border-left: 1px solid rgba(255, 255, 255, 0.5);
+    font-size: 0.875rem;
+    text-shadow: 1px 1px 1px rgba(255, 255, 255, 0.6);
+}
+
+.style-msg2 .msgtitle {
+    background: rgba(0, 0, 0, 0.15);
+    border-top: none;
+    border-bottom: none;
+    font-size: 1rem;
+    font-weight: bold;
+}
+
+.style-msg-light .sb-msg,
+.style-msg-light .msgtitle {
+    color: var(--bs-white);
+    text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.3);
+}
+
+.style-msg2 .sb-msg {
+    font-weight: normal;
+}
+
+.style-msg2 ol,
+.style-msg2 ul {
+    margin: 0 0 0 30px;
+}
+
+.style-msg2 ol {
+    list-style-type: decimal;
+}
+
+.style-msg2 ul {
+    list-style-type: disc;
+}
+
+.alert i,
+.sb-msg i,
+.msgtitle i {
+    position: relative;
+    top: 1px;
+    font-size: 0.875rem;
+    width: 0.875rem;
+    text-align: center;
+    margin-right: 5px;
+}
+
+.style-msg .btn-close {
+    position: absolute;
+    top: 0;
+    left: auto;
+    right: 0;
+}
