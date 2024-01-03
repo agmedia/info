@@ -171,8 +171,6 @@ class HomeController extends Controller
      */
     public function sendContactMessage(Request $request)
     {
-        Log::info($request->toArray());
-
         $request->validate([
             'template-contactform-name'    => 'required',
             'template-contactform-email'   => 'required|email',
@@ -181,23 +179,19 @@ class HomeController extends Controller
         ]);
 
         // Recaptcha
-        /*$recaptcha = (new Recaptcha())->check($request->toArray());
-
-        Log::info($recaptcha->ok());
+        $recaptcha = (new Recaptcha())->check($request->toArray());
 
         if ( ! $recaptcha->ok()) {
             return redirect()->route('front.page', ['page' => 'kontakt', 'error' => 'ReCaptcha Error! Kontaktirajte administratora!']);
-        }*/
+        }
 
         $message = $request->toArray();
 
         dispatch(function () use ($message) {
-            $sent = Mail::to(config('mail.admin'))->send(new ContactFormMessage($message));
-
-            Log::info($sent);
+            Mail::to(config('mail.admin'))->send(new ContactFormMessage($message));
         });
 
-        return view('front.contact')->with(['success' => 'Vaša poruka je uspješno poslana.! Odgovoriti ćemo vam uskoro.']);
+        return redirect()->back()->with(['success' => 'Vaša poruka je uspješno poslana.! Odgovoriti ćemo vam uskoro.']);
     }
 
 

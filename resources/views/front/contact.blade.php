@@ -2,8 +2,6 @@
 
 @section('content')
 
-    @include('front.layouts.partials.session')
-
     <section id="content">
         <div class="content-wrap pt-5 pt-lg-6" style="background: linear-gradient(to bottom, #F8F9FA 720px, var(--cnvs-contrast-0) 720px);">
             <div class="container mw-lg">
@@ -26,8 +24,8 @@
                     <div class="col-lg-6" data-animate="fadeInRightSmall" data-delay="150">
                         <div class="card bg-contrast-0 border-0 shadow">
                             <div class="card-body p-5">
-                                <div class="form-widget">
-                                    <div class="form-result">@include('front.layouts.partials.session')</div>
+                                <div class="form">
+                                    @include('front.layouts.partials.session')
 
                                     <form class="mb-0" action="{{ route('poruka') }}" method="post">
                                         {{ csrf_field() }}
