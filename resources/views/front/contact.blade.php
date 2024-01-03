@@ -2,85 +2,105 @@
 
 @section('content')
 
-    <section id="slider" class="slider-element" style="background-image: url('{{ asset('img/banners/banner1.jpg') }}'); background-size: cover; background-position: center center;">
-        <div class="container">
-            <div class="row h-100 py-3">
-                <div class="col-lg-6 d-flex align-self-center flex-column pt-5 pb-0 py-lg-6 mb-0 my-lg-4">
-                    <h2 class="display-4 dark" style="font-weight: 800">Kontakt SK Koros</h2>
-                    <div>
-                        <a href="#" class="button button-large border border-width-2 bg-alt py-2 rounded-1 fw-medium text-transform-none ls-0 ms-0 ms-sm-1 h-op-09">
-                            <i class="bi-file-earmark-plus"></i>Prijavi se u Klub
-                        </a>
-                    </div>
-                </div>
-                <div class="col-lg-6 d-flex align-self-end flex-column">
-                </div>
-            </div>
-        </div>
-    </section>
+    @include('front.layouts.partials.session')
 
-
-
-    <!-- Contact -->
     <section id="content">
-        <div class="content-wrap">
-            <div class="container">
-                <div class="row gx-5 col-mb-80">
-                    <main class="col-lg-9">
-                        <h3>Pošaljite nam upit</h3>
-                        <form class="mb-0" action="{{ route('poruka') }}" method="post">
-                            @csrf
-                            <div class="row">
-                                <div class="col-sm-12 mb-4">
-                                    <label class="form-label" for="cf-name">Vaše ime:&nbsp;@include('back.layouts.partials.required-star')</label>
-                                    <input class="form-control" type="text" name="name" id="cf-name" placeholder="">
-                                    @error('name')<div class="text-danger font-size-sm">Molimo upišite vaše ime!</div>@enderror
-                                </div>
-                                <div class="col-sm-6 mb-4">
-                                    <label class="form-label" for="cf-email">Email adresa:&nbsp;@include('back.layouts.partials.required-star')</label>
-                                    <input class="form-control" type="email" id="cf-email" placeholder="" name="email">
-                                    @error('email')<div class="text-danger font-size-sm">Molimo upišite ispravno email adresu!</div>@enderror
-                                </div>
-                                <div class="col-sm-6 mb-4">
-                                    <label class="form-label" for="cf-phone">Broj telefona:&nbsp;@include('back.layouts.partials.required-star')</label>
-                                    <input class="form-control" type="text" id="cf-phone" placeholder="" name="phone">
-                                    @error('phone')<div class="text-danger font-size-sm">Molimo upišite broj telefona!</div>@enderror
-                                </div>
+        <div class="content-wrap pt-5 pt-lg-6" style="background: linear-gradient(to bottom, #F8F9FA 720px, var(--cnvs-contrast-0) 720px);">
+            <div class="container mw-lg">
 
-                                <div class="col-12">
-                                    <label class="form-label" for="cf-message">Upit:&nbsp;@include('back.layouts.partials.required-star')</label>
-                                    <textarea class="form-control" id="cf-message" rows="6" placeholder="" name="message"></textarea>
-                                    @error('message')<div class="text-danger font-size-sm">Molimo upišite poruku!</div>@enderror
-                                    <button class="btn btn-primary mt-4" type="submit">Pošaljite upit </button>
+                <div class="row justify-content-between col-mb-30">
+                    <div class="col-lg-5">
+                        <h1 class="mb-3 fs-3 font-heading lh-base ls-3 mb-xl-5" data-animate="fadeInDownSmall">Contact us</h1>
+                        <p class="fs-5" data-animate="fadeInUpSmall">Have a question, a project idea, or just want to send good vibes our way?
+                            <strong>We're all ears! </strong></p>
+                        <p class="fs-5" data-animate="fadeInUpSmall">Reach out using the form below, or connect with us via email or phone. Let's bring your ideas to life! Can't wait to hear from you!</p>
+
+                        <div data-animate="fadeInUpSmall">
+                            <p class="d-flex mb-3" ><i class="me-3 mt-1 fa-solid fa-phone"></i> <a href="#" class="text-larger text-contrast-1000 fw-medium"> +353  83 873 1575</a></p>
+                            <p class="d-flex mb-4"><i class="me-3 mt-1 fa-solid fa-location-dot"></i> <a href="#" class="text-larger text-contrast-1000 fw-medium">76 Grosvenos Square, Rathmines, Dublin</a></p>
+                            <p class="d-flex mb-3"><i class="me-3 mt-1 fa-solid fa-envelope"></i> <a href="#" class="text-larger text-contrast-1000 fw-medium"><strong>General enquiries:</strong> info@focusbranding.ie</a></p>
+                            <p class="d-flex mb-3"><i class="me-3 mt-1 fa-solid fa-envelope"></i> <a href="#" class="text-larger text-contrast-1000 fw-medium"><strong>Sales:</strong>ivan@focusbranding.ie</a></p>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-6" data-animate="fadeInRightSmall" data-delay="150">
+                        <div class="card bg-contrast-0 border-0 shadow">
+                            <div class="card-body p-5">
+                                <div class="form-widget">
+                                    <div class="form-result">@include('front.layouts.partials.session')</div>
+
+                                    <form class="mb-0" action="{{ route('poruka') }}" method="post">
+                                        {{ csrf_field() }}
+                                        <div class="form-process">
+                                            <div class="css3-spinner">
+                                                <div class="css3-spinner-scaler"></div>
+                                            </div>
+                                        </div>
+
+                                        <div class="row">
+                                            <div class="col-12 form-group">
+                                                <label for="template-contactform-name">Name <small>*</small></label>
+                                                <input type="text" id="template-contactform-name" name="template-contactform-name" value="" class="form-control required">
+                                            </div>
+
+                                            <div class="col-12 form-group">
+                                                <label for="template-contactform-email">Email <small>*</small></label>
+                                                <input type="email" id="template-contactform-email" name="template-contactform-email" value="" class="required email form-control">
+                                            </div>
+
+                                            <div class="col-12 form-group">
+                                                <label for="template-contactform-phone">Phone <small>*</small></label>
+                                                <input type="text" id="template-contactform-phone" name="template-contactform-phone" value="" class="form-control required">
+                                            </div>
+
+                                            <div class="col-12 form-group">
+                                                <label for="template-contactform-company">Company</label>
+                                                <input type="text" id="template-contactform-company" name="company" value="" class="form-control">
+                                            </div>
+
+                                            <div class="col-12 form-group">
+                                                <label for="template-contactform-subject">Subjects</label>
+                                                <select id="template-contactform-subject" name="template-contactform-subject" class="form-select">
+                                                    <option value="" disabled selected>Select One</option>
+                                                    <option value="Signage">Signage</option>
+                                                    <option value="Wall graphics">Wall graphics</option>
+                                                    <option value="Glass graphics">Glass graphics</option>
+                                                    <option value="Acoustics">Acoustics</option>
+                                                    <option value="Other">Other</option>
+                                                </select>
+                                            </div>
+
+                                            <div class="w-100"></div>
+
+                                            <div class="col-12 form-group">
+                                                <label for="template-contactform-message">Message</label>
+                                                <textarea class="form-control" id="template-contactform-message" name="template-contactform-message" rows="5" cols="30"></textarea>
+                                            </div>
+
+                                            <div class="col-12 form-group d-none">
+                                                <input type="text" id="template-contactform-botcheck" name="template-contactform-botcheck" value="" class="form-control">
+                                            </div>
+
+                                            <div class="col-12">
+                                                <button class="button button-large button-dark rounded m-0 mt-5" type="submit" id="template-contactform-submit" name="template-contactform-submit" value="submit">Submit Now</button>
+                                            </div>
+                                        </div>
+
+                                        <input type="hidden" name="prefix" value="template-contactform-">
+
+                                    </form>
                                 </div>
                             </div>
-                            <input type="hidden" name="recaptcha" id="recaptcha">
-                        </form>
-                    </main>
-
-                    <!-- Sidebar -->
-                    <aside class="sidebar col-lg-3">
-                        <address>
-                            <strong>Sjedište:</strong><br>
-                            795 Folsom Ave, Suite 600<br>
-                            San Francisco<br>
-                            CA 94107<br>
-                        </address>
-                        <abbr title="Phone Number"><strong>Tel:</strong></abbr> (1) 8547 632521<br>
-                        <abbr title="Email Address"><strong>Email:</strong></abbr> info@sk-koros.hr
-
-                        <div class="widget border-0 pt-0">
-                            <a href="#" class="social-icon si-small bg-dark h-bg-facebook">
-                                <i class="fa-brands fa-facebook-f"></i>
-                                <i class="fa-brands fa-facebook-f"></i>
-                            </a>
                         </div>
-                    </aside>
+                    </div>
                 </div>
 
             </div>
+
         </div>
     </section>
+
+    @include('front.layouts.widgets.put-your-workplace-spotlight')
 
 @endsection
 

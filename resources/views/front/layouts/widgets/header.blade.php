@@ -48,8 +48,8 @@
                                 <div>Who are we</div>
                             </a>
                         </li>
-                        <li class="menu-item {{ request()->is(['info/contact-us']) ? 'current' : '' }}">
-                            <a class="menu-link" href="{{ route('front.page', ['page' => 'contact-us']) }}">
+                        <li class="menu-item {{ request()->is(['/contact-us']) ? 'current' : '' }}">
+                            <a class="menu-link" href="{{ route('front.contact') }}">
                                 <div>Contact us</div>
                             </a>
                         </li>

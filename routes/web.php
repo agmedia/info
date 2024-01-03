@@ -155,6 +155,7 @@ Route::prefix('api/v2')->group(function () {
  * FRONT ROUTES
  */
 Route::get('/', [HomeController::class, 'index'])->name('index');
+Route::get('/contact-us', [HomeController::class, 'contact'])->name('front.contact');
 Route::get('info/{page}', [HomeController::class, 'page'])->name('front.page');
 Route::post('/kontakt/posalji', [HomeController::class, 'sendContactMessage'])->name('poruka');
 Route::get('/faq', [HomeController::class, 'faq'])->name('faq');

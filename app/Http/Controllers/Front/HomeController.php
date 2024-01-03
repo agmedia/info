@@ -158,6 +158,17 @@ class HomeController extends Controller
      *
      * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View
      */
+    public function contact(Request $request)
+    {
+        return view('front.contact');
+    }
+
+
+    /**
+     * @param Request $request
+     *
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View
+     */
     public function sendContactMessage(Request $request)
     {
         Log::info($request->toArray());
@@ -186,7 +197,7 @@ class HomeController extends Controller
             Log::info($sent);
         });
 
-        return redirect()->route('front.page', ['page' => 'contact-us', 'success' => 'Vaša poruka je uspješno poslana.! Odgovoriti ćemo vam uskoro.']);
+        return view('front.contact')->with(['success' => 'Vaša poruka je uspješno poslana.! Odgovoriti ćemo vam uskoro.']);
     }
 
 
