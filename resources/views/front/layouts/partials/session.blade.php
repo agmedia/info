@@ -1,7 +1,7 @@
 @if(session('success'))
     <!-- Success alert -->
-    <div class="style-msg successmsg">
-        <div class="sb-msg"><i class="bi-hand-thumbs-up"></i> {{ session('success') }}</div>
+    <div class="style-msg successmsg mb-4">
+        <div class="sb-msg">{{ session('success') }}</div>
 
     </div>
 @endif
