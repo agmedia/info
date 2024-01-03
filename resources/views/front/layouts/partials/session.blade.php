@@ -1,18 +1,21 @@
 @if(session('success'))
     <!-- Success alert -->
-    <div class="alert alert-success d-flex" role="alert">
-        <div class="alert-icon">
-            <i class="ci-check-circle"></i>
-        </div>
-        <div>Uspjeh..! {{ session('success') }}</div>
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        {{ session('success') }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     </div>
 @endif
+
+
+
+
+
 @if(session('error'))
     <div class="alert alert-danger d-flex" role="alert">
         <div class="alert-icon">
             <i class="ci-close-circle"></i>
         </div>
-        <div>Greška..! {{ session('error') }}</div>
+        <div>{{ session('error') }}</div>
     </div>
 
 @endif

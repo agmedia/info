@@ -191,7 +191,7 @@ class HomeController extends Controller
             Mail::to(config('mail.admin'))->send(new ContactFormMessage($message));
         });
 
-        return redirect()->back()->with(['success' => 'Vaša poruka je uspješno poslana.! Odgovoriti ćemo vam uskoro.']);
+        return redirect()->back()->with(['success' => 'Thank you for getting in touch! We appreciate you contacting us. One of our colleagues will get back in touch with you soon! Have a great day!']);
     }
 
 
