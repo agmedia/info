@@ -182,7 +182,7 @@ class HomeController extends Controller
         $recaptcha = (new Recaptcha())->check($request->toArray());
 
         if ( ! $recaptcha->ok()) {
-            return redirect()->route('front.page', ['page' => 'kontakt', 'error' => 'ReCaptcha Error! Kontaktirajte administratora!']);
+            return redirect()->back()->with(['error' => 'ReCaptcha Error! Kontaktirajte administratora!']);
         }
 
         $message = $request->toArray();
