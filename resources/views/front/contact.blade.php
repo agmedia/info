@@ -85,7 +85,7 @@
                                         </div>
 
                                         <input type="hidden" name="prefix" value="template-contactform-">
-
+                                        <input type="hidden" name="recaptcha" id="recaptcha">
                                     </form>
                                 </div>
                             </div>
