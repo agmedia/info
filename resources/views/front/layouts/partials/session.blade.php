@@ -1,12 +1,10 @@
 @if(session('success'))
     <!-- Success alert -->
-    <div class="alert alert-success alert-dismissible fade show" role="alert">
-        {{ session('success') }}
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    <div class="style-msg successmsg">
+        <div class="sb-msg"><i class="bi-hand-thumbs-up"></i> {{ session('success') }}</div>
+
     </div>
 @endif
-
-
 
 
 
