@@ -28,5 +28,20 @@ class DatabaseSeeder extends Seeder
             ContentBlockSeeder::class,
             ContentBlockSlotSeeder::class,
         ]);
+
+        $seedDummyData = filter_var((string) env('SEED_DUMMY_DATA', 'false'), FILTER_VALIDATE_BOOL);
+
+        if (! $seedDummyData && $this->command) {
+            $seedDummyData = $this->command->confirm(
+                'Seed extended dummy content dataset (users, blog posts, info pages, FAQs)?',
+                false
+            );
+        }
+
+        if ($seedDummyData) {
+            $this->call([
+                DummyContentSeeder::class,
+            ]);
+        }
     }
 }

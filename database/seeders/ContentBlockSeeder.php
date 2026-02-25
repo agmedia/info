@@ -22,13 +22,13 @@ class ContentBlockSeeder extends Seeder
                 'translations' => [
                     'en' => [
                         'title' => 'Modern essentials, built for everyday carry.',
-                        'subtitle' => 'AGShop blends practical design and clean structure for fast browsing.',
+                        'subtitle' => 'AGinfo blends practical design and clean structure for fast browsing.',
                         'cta_label' => 'Explore content',
                         'cta_url' => '/blog',
                     ],
                     'hr' => [
                         'title' => 'Modern essentials, built for everyday carry.',
-                        'subtitle' => 'AGShop spaja praktican dizajn i cistu strukturu za brzo pregledavanje sadrzaja.',
+                        'subtitle' => 'AGinfo spaja praktican dizajn i cistu strukturu za brzo pregledavanje sadrzaja.',
                         'cta_label' => 'Istrazi sadrzaj',
                         'cta_url' => '/blog',
                     ],

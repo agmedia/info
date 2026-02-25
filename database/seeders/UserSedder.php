@@ -43,7 +43,7 @@ class UserSedder extends Seeder
         $customerRoleId = (int) Role::query()->where('name', 'customer')->value('id');
 
         $adminUser = User::updateOrCreate(
-            ['email' => 'admin@agshop.local'],
+            ['email' => 'admin@aginfo.local'],
             [
                 'name' => 'admin',
                 'password' => 'admin',
@@ -57,7 +57,7 @@ class UserSedder extends Seeder
         }
 
         $editorUser = User::updateOrCreate(
-            ['email' => 'editor@agshop.local'],
+            ['email' => 'editor@aginfo.local'],
             [
                 'name' => 'editor',
                 'password' => 'editor',
@@ -71,7 +71,7 @@ class UserSedder extends Seeder
         }
 
         $customerUser = User::updateOrCreate(
-            ['email' => 'customer@agshop.local'],
+            ['email' => 'customer@aginfo.local'],
             [
                 'name' => 'customer',
                 'password' => 'customer',

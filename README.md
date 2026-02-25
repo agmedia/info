@@ -1,6 +1,6 @@
-# AG Shop
+# AG Info
 
-Admin-first webshop platform (Livewire admin), with planned Vue-based front templates (desktop + mobile/PWA).
+Admin-first content platform (Livewire admin) with desktop/mobile storefront variants.
 
 ## Requirements
 
@@ -43,11 +43,15 @@ php artisan db:seed
 ```
 Expected prompt:
 ```text
-Seed large dummy webshop dataset (100 categories, 1000 products, 3000 orders, 500 users, etc.)? (yes/no) [no]:
+Seed extended dummy content dataset (users, blog posts, info pages, FAQs)? (yes/no) [no]:
 ```
 - Answer `no` for standard local baseline data.
-- Answer `yes` when you need a large dummy dataset for performance/testing.
+- Answer `yes` when you need a larger content dataset for performance/testing.
 - You can also force this non-interactively with `SEED_DUMMY_DATA=true`.
+- To run only dummy content seeding:
+```bash
+php artisan db:seed --class=Database\\Seeders\\DummyContentSeeder
+```
 
 7. Link storage:
 ```bash
@@ -71,9 +75,9 @@ These are default local users for quick testing:
 
 | Role | Email | Password |
 | --- | --- | --- |
-| Admin | `admin@agshop.local` | `admin` |
-| Editor | `editor@agshop.local` | `editor` |
-| Customer | `customer@agshop.local` | `customer` |
+| Admin | `admin@aginfo.local` | `admin` |
+| Editor | `editor@aginfo.local` | `editor` |
+| Customer | `customer@aginfo.local` | `customer` |
 
 Super-admin users are intentionally not listed in this table.
 
