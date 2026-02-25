@@ -1,0 +1,64 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: docker/php/Dockerfile
+    image: aginfo-app:latest
+    container_name: aginfo-app
+    restart: unless-stopped
+    working_dir: /var/www/html
+    volumes:
+      - ./:/var/www/html
+      - aginfo_vendor:/var/www/html/vendor
+      - aginfo_node_modules:/var/www/html/node_modules
+      - aginfo_storage:/var/www/html/storage
+    environment:
+      APP_ENV: local
+      APP_DEBUG: "true"
+      APP_URL: http://localhost:${AGINFO_HTTP_PORT:-8088}
+      DB_CONNECTION: mysql
+      DB_HOST: db
+      DB_PORT: 3306
+      DB_DATABASE: ${AGINFO_DB_DATABASE:-aginfo}
+      DB_USERNAME: ${AGINFO_DB_USER:-aginfo}
+      DB_PASSWORD: ${AGINFO_DB_PASSWORD:-aginfo}
+    depends_on:
+      db:
+        condition: service_healthy
+
+  nginx:
+    image: nginx:1.27-alpine
+    container_name: aginfo-nginx
+    restart: unless-stopped
+    ports:
+      - "${AGINFO_HTTP_PORT:-8088}:80"
+    volumes:
+      - ./:/var/www/html
+      - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      - app
+
+  db:
+    image: mysql:8.4
+    container_name: aginfo-db
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: ${AGINFO_DB_DATABASE:-aginfo}
+      MYSQL_USER: ${AGINFO_DB_USER:-aginfo}
+      MYSQL_PASSWORD: ${AGINFO_DB_PASSWORD:-aginfo}
+      MYSQL_ROOT_PASSWORD: ${AGINFO_DB_ROOT_PASSWORD:-root}
+    ports:
+      - "3307:3306"
+    volumes:
+      - aginfo_db_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-p${AGINFO_DB_ROOT_PASSWORD:-root}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  aginfo_db_data:
+  aginfo_vendor:
+  aginfo_node_modules:
+  aginfo_storage:

@@ -1,0 +1,225 @@
+<?php
+
+namespace App\Providers;
+
+use App\Models\Content\ContentBlock;
+use App\Models\Content\ContentBlockSlot;
+use App\Models\Content\ContentBlockTranslation;
+use App\Models\Settings\Local\Currency;
+use App\Models\Settings\Local\GeoZone;
+use App\Models\Settings\Local\GeoZoneCountry;
+use App\Models\Settings\Local\Language;
+use App\Models\Settings\Local\OrderStatus;
+use App\Models\Settings\Local\PaymentMethod;
+use App\Models\Settings\Local\ShippingMethod;
+use App\Models\Settings\Local\TaxRate;
+use App\Observers\Content\ContentCacheObserver;
+use App\Observers\Settings\LocalSettingObserver;
+use App\Services\Catalog\CatalogFeatureService;
+use App\Services\Content\ContentBlockResolver;
+use App\Services\Front\NavigationMenuService;
+use App\Services\Front\StoreSettingsService;
+use App\Services\Settings\LocalSettingsService;
+use App\Services\Settings\SystemSettingsService;
+use App\Services\UserTracking\UserTrackingService;
+use Illuminate\Cache\RateLimiting\Limit;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Config;
+use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Support\Facades\View;
+use Illuminate\Support\ServiceProvider;
+use Livewire\Livewire;
+
+class AppServiceProvider extends ServiceProvider
+{
+    public function register(): void
+    {
+        $this->app->singleton(LocalSettingsService::class, fn () => new LocalSettingsService());
+        $this->app->singleton(SystemSettingsService::class, fn () => new SystemSettingsService());
+        $this->app->singleton(CatalogFeatureService::class, fn ($app) => new CatalogFeatureService($app->make(SystemSettingsService::class)));
+        $this->app->singleton(ContentBlockResolver::class, fn () => new ContentBlockResolver());
+        $this->app->singleton(NavigationMenuService::class, fn ($app) => new NavigationMenuService($app->make(SystemSettingsService::class)));
+        $this->app->singleton(StoreSettingsService::class, fn ($app) => new StoreSettingsService($app->make(SystemSettingsService::class)));
+        $this->app->singleton(UserTrackingService::class, fn ($app) => new UserTrackingService($app->make(SystemSettingsService::class)));
+    }
+
+    public function boot(): void
+    {
+        Livewire::addPersistentMiddleware([
+            \App\Http\Middleware\EnsureAdminAbility::class,
+        ]);
+
+        $this->applyDynamicStoreMailSettings();
+
+        RateLimiter::for('wholesale-api', static function (Request $request) {
+            $perMinute = max(30, (int) env('WHOLESALE_API_RATE_LIMIT', 240));
+            $key = (string) ($request->user()?->id ?: $request->ip());
+
+            return [
+                Limit::perMinute($perMinute)->by('wholesale:'.$key),
+            ];
+        });
+
+        View::composer('livewire.admin.*', static function ($view): void {
+            static $localeOptions = null;
+
+            if ($localeOptions === null) {
+                try {
+                    $localeOptions = Language::query()
+                        ->where('is_active', true)
+                        ->orderByDesc('is_default')
+                        ->orderBy('sort_order')
+                        ->orderBy('code')
+                        ->pluck('code')
+                        ->filter(fn ($code) => is_string($code) && trim($code) !== '')
+                        ->map(fn ($code) => strtolower(trim((string) $code)))
+                        ->unique()
+                        ->values()
+                        ->all();
+                } catch (\Throwable) {
+                    $localeOptions = [];
+                }
+
+                if ($localeOptions === []) {
+                    $localeOptions = [strtolower((string) config('app.locale', 'en'))];
+                }
+            }
+
+            $view->with('adminLocaleOptions', $localeOptions);
+        });
+
+        View::composer('front.*', static function ($view): void {
+            static $shared = null;
+
+            if ($shared === null) {
+                try {
+                    $shared = [
+                        'storeSettings' => app(StoreSettingsService::class)->all(),
+                    ];
+                } catch (\Throwable) {
+                    $shared = [
+                        'storeSettings' => [
+                            'announcement' => [
+                                'enabled' => true,
+                                'text' => (string) __('ui.front.desktop.promo_bar'),
+                                'url' => '',
+                                'new_tab' => false,
+                            ],
+                            'branding' => [
+                                'store_name' => (string) config('app.name', 'AG Info'),
+                                'logo_url' => null,
+                                'favicon_url' => null,
+                                'favicons' => [
+                                    'ico_url' => null,
+                                    '16_url' => null,
+                                    '32_url' => null,
+                                    '180_url' => null,
+                                    '192_url' => null,
+                                    '512_url' => null,
+                                ],
+                                'social' => [],
+                            ],
+                            'footer' => [
+                                'phone' => '',
+                                'email_sales' => '',
+                                'email_support' => '',
+                                'hours' => '',
+                                'link_columns' => [],
+                                'bottom_links' => [],
+                                'bottom_copyright_text' => '',
+                            ],
+                            'newsletter' => ['provider' => 'none'],
+                            'analytics' => ['enabled' => false],
+                            'email' => ['enabled' => false],
+                            'seo' => [
+                                'default_title' => (string) config('app.name', 'AG Info'),
+                                'default_description' => '',
+                                'robots' => 'index,follow',
+                                'canonical_policy' => 'self',
+                            ],
+                            'og' => [
+                                'default_image_url' => null,
+                                'home_image_url' => null,
+                                'category_image_url' => null,
+                                'product_image_url' => null,
+                                'page_image_url' => null,
+                                'blog_image_url' => null,
+                            ],
+                            'schema' => [
+                                'enabled' => true,
+                                'org_enabled' => true,
+                                'website_enabled' => true,
+                                'breadcrumbs_enabled' => true,
+                                'itemlist_enabled' => true,
+                                'home_enabled' => true,
+                                'category_enabled' => true,
+                                'product_enabled' => false,
+                                'blog_enabled' => true,
+                                'page_enabled' => true,
+                                'faq_enabled' => true,
+                                'org_type' => 'Organization',
+                                'business_name' => (string) config('app.name', 'AG Info'),
+                            ],
+                        ],
+                    ];
+                }
+            }
+
+            $view->with('storeSettings', $shared['storeSettings']);
+        });
+
+        PaymentMethod::observe(LocalSettingObserver::class);
+        ShippingMethod::observe(LocalSettingObserver::class);
+        GeoZone::observe(LocalSettingObserver::class);
+        GeoZoneCountry::observe(LocalSettingObserver::class);
+        Currency::observe(LocalSettingObserver::class);
+        TaxRate::observe(LocalSettingObserver::class);
+        OrderStatus::observe(LocalSettingObserver::class);
+        Language::observe(LocalSettingObserver::class);
+
+        ContentBlock::observe(ContentCacheObserver::class);
+        ContentBlockTranslation::observe(ContentCacheObserver::class);
+        ContentBlockSlot::observe(ContentCacheObserver::class);
+    }
+
+    private function applyDynamicStoreMailSettings(): void
+    {
+        try {
+            $settings = app(StoreSettingsService::class)->email();
+            if (! (bool) ($settings['enabled'] ?? false)) {
+                return;
+            }
+
+            $mailer = (string) ($settings['mailer'] ?? 'smtp');
+            Config::set('mail.default', $mailer);
+
+            if ($mailer === 'smtp') {
+                Config::set('mail.mailers.smtp.host', (string) ($settings['host'] ?? ''));
+                Config::set('mail.mailers.smtp.port', (int) ($settings['port'] ?? 587));
+                Config::set('mail.mailers.smtp.username', (string) ($settings['username'] ?? ''));
+                Config::set('mail.mailers.smtp.password', (string) ($settings['password'] ?? ''));
+                Config::set('mail.mailers.smtp.encryption', (string) ($settings['encryption'] ?? ''));
+            }
+
+            if ($mailer === 'sendmail') {
+                Config::set('mail.mailers.sendmail.path', (string) ($settings['sendmail_path'] ?? '/usr/sbin/sendmail -bs -i'));
+            }
+
+            $fromAddress = trim((string) ($settings['from_address'] ?? ''));
+            if ($fromAddress !== '') {
+                Config::set('mail.from.address', $fromAddress);
+            }
+            $fromName = trim((string) ($settings['from_name'] ?? ''));
+            if ($fromName !== '') {
+                Config::set('mail.from.name', $fromName);
+            }
+            $replyTo = trim((string) ($settings['reply_to'] ?? ''));
+            if ($replyTo !== '') {
+                Config::set('mail.reply_to.address', $replyTo);
+                Config::set('mail.reply_to.name', $fromName !== '' ? $fromName : (string) config('mail.from.name', ''));
+            }
+        } catch (\Throwable) {
+            // Do not break app boot if settings table is not ready.
+        }
+    }
+}
