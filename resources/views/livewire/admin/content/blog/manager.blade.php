@@ -41,6 +41,7 @@
             <table class="admin-items-table min-w-full text-sm">
                 <thead class="text-slate-600">
                     <tr>
+                        <th class="px-3 py-2 text-left font-semibold">{{ __('Preview') }}</th>
                         <th class="px-3 py-2 text-left font-semibold">{{ __('Post') }}</th>
                         <th class="px-3 py-2 text-left font-semibold">{{ __('Slug') }}</th>
                         <th class="px-3 py-2 text-center font-semibold">{{ __('Published') }}</th>
@@ -52,8 +53,23 @@
                 </thead>
                 <tbody class="divide-y divide-slate-100">
                     @forelse ($rows as $row)
-                        @php $tr = $row->translations->first(); @endphp
+                        @php
+                            $tr = $row->translations->first();
+                            $cover = $row->media->firstWhere('collection_name', 'blog_cover');
+                            $coverUrl = $cover
+                                ? ($cover->hasGeneratedConversion('thumb_100x100') ? $cover->getUrl('thumb_100x100') : $cover->getUrl())
+                                : null;
+                        @endphp
                         <tr>
+                            <td class="px-3 py-2 align-top">
+                                @if ($coverUrl)
+                                    <img src="{{ $coverUrl }}" alt="" class="h-16 w-16 rounded-lg border border-slate-200 bg-slate-100 object-cover" />
+                                @else
+                                    <div class="flex h-16 w-16 items-center justify-center rounded-lg border border-dashed border-slate-300 bg-slate-50 text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-400">
+                                        {{ __('admin.common.no_image') }}
+                                    </div>
+                                @endif
+                            </td>
                             <td class="px-3 py-2 text-slate-800">
                                 <div class="font-medium">{{ $tr?->title ?? __('(missing title)') }}</div>
                                 <div class="text-xs text-slate-500">{{ $row->code }}</div>
@@ -89,7 +105,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="7" class="px-3 py-8 text-center text-sm text-slate-500">{{ __('No blog posts yet.') }}</td>
+                            <td colspan="8" class="px-3 py-8 text-center text-sm text-slate-500">{{ __('No blog posts yet.') }}</td>
                         </tr>
                     @endforelse
                 </tbody>

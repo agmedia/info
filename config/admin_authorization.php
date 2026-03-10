@@ -34,6 +34,19 @@ return [
             'view' => ['content.blog.view'],
         ],
 
+        'admin.content.team.create' => [
+            'view' => ['content.team.create'],
+            'mutate' => ['content.team.create'],
+        ],
+        'admin.content.team.edit' => [
+            'view' => ['content.team.update'],
+            'mutate' => ['content.team.update'],
+            'delete' => ['content.team.delete'],
+        ],
+        'admin.content.team.*' => [
+            'view' => ['content.team.view'],
+        ],
+
         'admin.content.pages.create' => [
             'view' => ['content.pages.create'],
             'mutate' => ['content.pages.create'],
@@ -125,14 +138,6 @@ return [
         'admin.users.edit' => [
             'view' => ['users.profile.update'],
             'mutate' => ['users.profile.update'],
-        ],
-        'admin.users.groups' => [
-            'view' => ['users.groups.manage'],
-            'mutate' => ['users.groups.manage'],
-            'delete' => ['users.groups.manage'],
-        ],
-        'admin.users.activity' => [
-            'view' => ['users.activity.view'],
         ],
         'admin.users.access' => [
             'view' => ['users.access.manage'],

@@ -19,11 +19,7 @@ class DashboardFeatureTest extends TestCase
         $this->actingAs($admin)
             ->get('/admin/dashboard')
             ->assertOk()
-            ->assertSee('Performance Overview')
-            ->assertSee('Order Pipeline')
-            ->assertSee('Sales Trend')
-            ->assertSee('Recent Orders')
-            ->assertSee('Feature Flags');
+            ->assertSee('Info Site Overview');
     }
 
     public function test_dashboard_hides_loyalty_and_tracking_sections_when_disabled(): void
@@ -43,6 +39,17 @@ class DashboardFeatureTest extends TestCase
             ->assertDontSee('Recent Tracking Events');
     }
 
+    public function test_admin_defaults_to_croatian_locale(): void
+    {
+        $admin = $this->makeUserWithRole('admin');
+
+        $this->actingAs($admin)
+            ->get('/admin/dashboard')
+            ->assertOk()
+            ->assertSessionHas('admin_locale', 'hr')
+            ->assertSee('Nadzorna ploča');
+    }
+
     private function makeUserWithRole(string $role): User
     {
         Bouncer::role()->firstOrCreate(['name' => 'superadmin']);
@@ -56,4 +63,3 @@ class DashboardFeatureTest extends TestCase
         return $user;
     }
 }
-

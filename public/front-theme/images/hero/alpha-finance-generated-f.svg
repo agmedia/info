@@ -1,0 +1,70 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1920" height="1080" viewBox="0 0 1920 1080" fill="none">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#05070B"/>
+      <stop offset="46%" stop-color="#0A1728"/>
+      <stop offset="100%" stop-color="#0C466E"/>
+    </linearGradient>
+    <radialGradient id="mistA" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(1410 230) rotate(135) scale(820 560)">
+      <stop stop-color="#43B3EA" stop-opacity="0.22"/>
+      <stop offset="1" stop-color="#43B3EA" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="mistB" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(480 820) rotate(8) scale(640 260)">
+      <stop stop-color="#B79652" stop-opacity="0.18"/>
+      <stop offset="1" stop-color="#B79652" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="gold" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#8F7545"/>
+      <stop offset="50%" stop-color="#C2A163"/>
+      <stop offset="100%" stop-color="#8F7545"/>
+    </linearGradient>
+    <linearGradient id="cyan" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#74D0F3"/>
+      <stop offset="100%" stop-color="#2EADE4"/>
+    </linearGradient>
+    <filter id="softBlur" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="8"/>
+    </filter>
+  </defs>
+
+  <rect width="1920" height="1080" fill="url(#bg)"/>
+  <rect width="1920" height="1080" fill="url(#mistA)"/>
+  <rect width="1920" height="1080" fill="url(#mistB)"/>
+
+  <!-- abstract etched field -->
+  <g opacity="0.09" stroke="#9BC8E5" stroke-width="1">
+    <path d="M0 170H1920M0 320H1920M0 470H1920M0 620H1920M0 770H1920M0 920H1920"/>
+    <path d="M140 0V1080M300 0V1080M460 0V1080M620 0V1080M780 0V1080M940 0V1080M1100 0V1080M1260 0V1080M1420 0V1080M1580 0V1080M1740 0V1080"/>
+  </g>
+
+  <!-- soft volumetric bars (finance/accounting/tax abstraction) -->
+  <g>
+    <rect x="310" y="602" width="54" height="244" rx="10" fill="#64C7F0" fill-opacity="0.28"/>
+    <rect x="386" y="552" width="54" height="294" rx="10" fill="#64C7F0" fill-opacity="0.32"/>
+    <rect x="462" y="646" width="54" height="200" rx="10" fill="#64C7F0" fill-opacity="0.24"/>
+
+    <rect x="900" y="560" width="54" height="286" rx="10" fill="#64C7F0" fill-opacity="0.3"/>
+    <rect x="976" y="500" width="54" height="346" rx="10" fill="#64C7F0" fill-opacity="0.34"/>
+    <rect x="1052" y="620" width="54" height="226" rx="10" fill="#64C7F0" fill-opacity="0.26"/>
+
+    <rect x="1428" y="530" width="54" height="316" rx="10" fill="#64C7F0" fill-opacity="0.31"/>
+    <rect x="1504" y="468" width="54" height="378" rx="10" fill="#64C7F0" fill-opacity="0.36"/>
+    <rect x="1580" y="598" width="54" height="248" rx="10" fill="#64C7F0" fill-opacity="0.25"/>
+  </g>
+
+  <!-- premium data waves -->
+  <g fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M120 744C220 700 284 716 388 674C494 632 570 706 668 670C764 636 844 692 944 654C1046 614 1128 664 1236 626C1344 588 1432 616 1540 574C1648 532 1728 540 1810 520" stroke="url(#cyan)" stroke-width="6"/>
+    <path d="M120 792C232 770 314 810 420 782C526 754 612 790 714 764C816 738 904 772 1010 746C1118 720 1210 746 1318 722C1426 698 1512 708 1622 694C1710 684 1768 684 1810 682" stroke="url(#gold)" stroke-width="3.2"/>
+    <path d="M120 768C222 722 286 738 390 694C496 650 572 724 670 688C766 654 846 708 946 672C1048 632 1130 680 1238 642C1346 604 1434 632 1542 592C1650 548 1730 556 1810 536" stroke="#66C9F1" stroke-opacity="0.34" stroke-width="14" filter="url(#softBlur)"/>
+  </g>
+
+  <!-- subtle orbital trust forms -->
+  <g fill="none" stroke="#B79652" stroke-opacity="0.18">
+    <ellipse cx="1460" cy="620" rx="212" ry="168" stroke-width="1"/>
+    <ellipse cx="1460" cy="620" rx="300" ry="236" stroke-width="0.8"/>
+    <ellipse cx="1460" cy="620" rx="390" ry="308" stroke-width="0.7"/>
+  </g>
+
+  <rect x="0" y="0" width="1920" height="1.5" fill="url(#gold)" opacity="0.48"/>
+</svg>

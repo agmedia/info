@@ -8,7 +8,7 @@ document.addEventListener('DOMContentLoaded', () => {
     'use strict'
 
     //Global Variables
-    let isPWA = true;  // Enables or disables the service worker and PWA
+    let isPWA = false; // Disabled: do not register service worker or show install prompts
     let isAJAX = false; // AJAX transitions. Requires local server or server
     var pwaName = "Appkit"; //Local Storage Names for PWA
     var pwaRemind = 1; //Days to re-remind to add to home
@@ -705,42 +705,50 @@ document.addEventListener('DOMContentLoaded', () => {
             })
         }
 
-        //Scroll Ads
-        var scrollItems = document.querySelectorAll('.scroll-ad, .header-auto-show')
-        if(scrollItems.length){
-            var scrollAd = document.querySelectorAll('.scroll-ad');
-            var scrollHeader = document.querySelectorAll('.header-auto-show');
-            var pageTitle = document.querySelectorAll('.page-title');
-            window.addEventListener('scroll', function() {
-                if (document.querySelectorAll('.scroll-ad, .header-auto-show').length) {
-                    function showScrollAd(){scrollAd[0].classList.add('scroll-ad-visible');}
-                    function hideScrollAd(){scrollAd[0].classList.remove('scroll-ad-visible');}
-                    function showHeader(){scrollHeader[0].classList.add('header-active');}
-                    function hideHeader(){scrollHeader[0].classList.remove('header-active');}
-                    function hideTitle(){pageTitle[0].style.opacity ="0"}
-                    function showTitle(){pageTitle[0].style.opacity ="1"}
-                    var window_height = window.outerWidth;
-                    var total_scroll_height = document.documentElement.scrollTop
-                    let inside_header = total_scroll_height <= 80;
-                    var passed_header = total_scroll_height >= 80;
-                    let inside_title = total_scroll_height <= 40;
-                    var passed_title = total_scroll_height >= 40;
-                    let inside_footer = (window_height - total_scroll_height + 1000) <= 150
-                    if(scrollAd.length){
-                        inside_header ? hideScrollAd() : null
-                        passed_header ? showScrollAd() : null
-                        inside_footer ? hideScrollAd() : null
-                    }
-                    if(scrollHeader.length){
-                        inside_header ? hideHeader() : null
-                        passed_header ? showHeader() : null
-                    }
-                    if(pageTitle.length){
-                        inside_title ? showTitle() : null
-                        passed_title ? hideTitle() : null
-                    }
+        //Scroll Ads (throttled)
+        var scrollAdEl = document.querySelector('.scroll-ad');
+        var scrollHeaderEl = document.querySelector('.header-auto-show');
+        var pageTitleEl = document.querySelector('.page-title');
+        if(scrollAdEl || scrollHeaderEl || pageTitleEl){
+            var tickingScrollUI = false;
+            var isScrollAdVisible = null;
+            var isHeaderVisible = null;
+            var isTitleVisible = null;
+
+            function syncScrollUI(){
+                var scrollTop = window.scrollY || document.documentElement.scrollTop || 0;
+                var shouldShowScrollAd = scrollTop >= 80;
+                var shouldShowHeader = scrollTop >= 80;
+                var shouldShowTitle = scrollTop <= 40;
+
+                if(scrollAdEl && isScrollAdVisible !== shouldShowScrollAd){
+                    scrollAdEl.classList.toggle('scroll-ad-visible', shouldShowScrollAd);
+                    isScrollAdVisible = shouldShowScrollAd;
                 }
-            });
+
+                if(scrollHeaderEl && isHeaderVisible !== shouldShowHeader){
+                    scrollHeaderEl.classList.toggle('header-active', shouldShowHeader);
+                    isHeaderVisible = shouldShowHeader;
+                }
+
+                if(pageTitleEl && isTitleVisible !== shouldShowTitle){
+                    pageTitleEl.style.opacity = shouldShowTitle ? '1' : '0';
+                    isTitleVisible = shouldShowTitle;
+                }
+
+                tickingScrollUI = false;
+            }
+
+            function onScrollUI(){
+                if(tickingScrollUI){
+                    return;
+                }
+                tickingScrollUI = true;
+                requestAnimationFrame(syncScrollUI);
+            }
+
+            syncScrollUI();
+            window.addEventListener('scroll', onScrollUI, { passive: true });
         }
 
         //Stepper
@@ -1652,4 +1660,3 @@ document.addEventListener('DOMContentLoaded', () => {
 
     waitForPageAndInit();
 });
-

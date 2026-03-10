@@ -1,7 +1,7 @@
 <div class="space-y-6">
     <div class="admin-panel admin-search-panel p-6">
-        <h1 class="text-xl font-semibold tracking-tight">{{ __('Store Settings') }}</h1>
-        <p class="mt-2 text-sm text-slate-600">{{ __('Central place for storefront email, branding, newsletter, and announcement bar settings.') }}</p>
+        <h1 class="text-xl font-semibold tracking-tight">{{ __('Settings') }}</h1>
+        <p class="mt-2 text-sm text-slate-600">{{ __('Central place for public-site email, branding, newsletter, and announcement bar settings.') }}</p>
     </div>
 
     <div class="admin-panel admin-form-panel p-6">
@@ -9,9 +9,9 @@
             @foreach ([
                 'email' => 'Email',
                 'branding' => 'Branding & Footer',
+                'blog' => 'Blog',
                 'newsletter' => 'Newsletter',
                 'integrations' => 'Integrations',
-                'pricing' => 'Pricing',
                 'seo' => 'SEO',
                 'og' => 'OG / Twitter',
                 'schema' => 'Schema Markup',
@@ -28,7 +28,7 @@
                 <div class="grid gap-4 md:grid-cols-2">
                     <label class="inline-flex items-center gap-2 text-sm font-semibold text-slate-700 md:col-span-2">
                         <input type="checkbox" wire:model="form.store_email_enabled" class="rounded border-slate-300 text-cyan-700 focus:ring-cyan-500" />
-                        {{ __('Enable store email notifications') }}
+                        {{ __('Enable email notifications') }}
                     </label>
                     <div>
                         <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Mailer') }}</label>
@@ -51,11 +51,6 @@
                         <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Reply-To') }}</label>
                         <input type="email" wire:model="form.store_email_reply_to" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
                         @error('form.store_email_reply_to') <p class="mt-1 text-xs text-rose-600">{{ $message }}</p> @enderror
-                    </div>
-                    <div>
-                        <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Orders To') }}</label>
-                        <input type="email" wire:model="form.store_email_orders_to" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
-                        @error('form.store_email_orders_to') <p class="mt-1 text-xs text-rose-600">{{ $message }}</p> @enderror
                     </div>
                     <div>
                         <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Contact Forms To') }}</label>
@@ -119,26 +114,15 @@
                     </div>
                     <div class="md:col-span-2 rounded-xl border border-slate-200 bg-slate-50 p-4">
                         <h3 class="text-sm font-bold text-slate-800">{{ __('Footer Link Columns') }}</h3>
-                        <p class="mt-1 text-xs text-slate-600">{{ __('Configure 3 footer columns: title + product categories + pages + custom links.') }}</p>
+                        <p class="mt-1 text-xs text-slate-600">{{ __('Configure 3 footer columns with page links and custom links.') }}</p>
                     </div>
                     @foreach ([1, 2, 3] as $col)
                         <div class="md:col-span-2 rounded-xl border border-slate-200 p-4">
                             <p class="mb-3 text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Column') }} {{ $col }}</p>
-                            <div class="grid gap-3 md:grid-cols-4">
+                            <div class="grid gap-3 md:grid-cols-3">
                                 <div>
                                     <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Title') }}</label>
                                     <input type="text" wire:model="form.store_footer_col_{{ $col }}_title" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
-                                </div>
-                                <div>
-                                    <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Product Categories') }}</label>
-                                    <div class="max-h-40 space-y-1 overflow-auto rounded-xl border border-slate-300 p-2 text-sm">
-                                        @foreach (($catalogCategoryOptions ?? []) as $option)
-                                            <label class="flex items-center gap-2">
-                                                <input type="checkbox" wire:model="form.store_footer_col_{{ $col }}_category_ids" value="{{ (int) $option['id'] }}" class="rounded border-slate-300 text-cyan-700 focus:ring-cyan-500">
-                                                <span>{{ (string) $option['label'] }}</span>
-                                            </label>
-                                        @endforeach
-                                    </div>
                                 </div>
                                 <div>
                                     <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Pages') }}</label>
@@ -233,6 +217,59 @@
                 </div>
             @endif
 
+            @if ($tab === 'blog')
+                <div class="grid gap-4 md:grid-cols-2">
+                    <div class="md:col-span-2 rounded-xl border border-slate-200 bg-slate-50 p-4">
+                        <h3 class="text-sm font-bold text-slate-800">{{ __('Blog page settings') }}</h3>
+                        <p class="mt-1 text-xs text-slate-600">{{ __('Hero copy, category navigation behaviour and posts per page for the public blog listing.') }}</p>
+                    </div>
+
+                    <div>
+                        <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Eyebrow') }}</label>
+                        <input type="text" wire:model="form.store_blog_header_eyebrow" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" placeholder="{{ __('Alpha Capitalis') }}" />
+                        @error('form.store_blog_header_eyebrow') <p class="mt-1 text-xs text-rose-600">{{ $message }}</p> @enderror
+                    </div>
+
+                    <div>
+                        <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Hero title') }}</label>
+                        <input type="text" wire:model="form.store_blog_header_title" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" placeholder="{{ __('Novosti i objave') }}" />
+                        @error('form.store_blog_header_title') <p class="mt-1 text-xs text-rose-600">{{ $message }}</p> @enderror
+                    </div>
+
+                    <div class="md:col-span-2">
+                        <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Hero intro') }}</label>
+                        <textarea wire:model="form.store_blog_header_intro" rows="3" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" placeholder="{{ __('Kratki uvod iznad blog liste i filtera.') }}"></textarea>
+                        @error('form.store_blog_header_intro') <p class="mt-1 text-xs text-rose-600">{{ $message }}</p> @enderror
+                    </div>
+
+                    <div>
+                        <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Hero CTA label') }}</label>
+                        <input type="text" wire:model="form.store_blog_header_cta_label" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" placeholder="{{ __('Kontaktirajte nas') }}" />
+                        @error('form.store_blog_header_cta_label') <p class="mt-1 text-xs text-rose-600">{{ $message }}</p> @enderror
+                    </div>
+
+                    <div>
+                        <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Hero CTA URL') }}</label>
+                        <input type="text" wire:model="form.store_blog_header_cta_url" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" placeholder="/contact" />
+                        @error('form.store_blog_header_cta_url') <p class="mt-1 text-xs text-rose-600">{{ $message }}</p> @enderror
+                    </div>
+
+                    <div>
+                        <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Visible categories before "Vidi još"') }}</label>
+                        <input type="number" min="1" max="40" wire:model="form.store_blog_category_preview_limit" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+                        <p class="mt-1 text-xs text-slate-500">{{ __('Controls how many category checkboxes are shown before the expandable "Vidi još" section.') }}</p>
+                        @error('form.store_blog_category_preview_limit') <p class="mt-1 text-xs text-rose-600">{{ $message }}</p> @enderror
+                    </div>
+
+                    <div>
+                        <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Posts per page') }}</label>
+                        <input type="number" min="1" max="48" wire:model="form.store_blog_posts_per_page" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+                        <p class="mt-1 text-xs text-slate-500">{{ __('Controls frontend pagination on /blog.') }}</p>
+                        @error('form.store_blog_posts_per_page') <p class="mt-1 text-xs text-rose-600">{{ $message }}</p> @enderror
+                    </div>
+                </div>
+            @endif
+
             @if ($tab === 'newsletter')
                 <div class="grid gap-4 md:grid-cols-2">
                     <div class="md:col-span-2">
@@ -266,7 +303,7 @@
                 <div class="grid gap-4 md:grid-cols-2">
                     <div class="md:col-span-2 rounded-xl border border-slate-200 bg-slate-50 p-4">
                         <h3 class="text-sm font-bold text-slate-800">{{ __('reCAPTCHA v3') }}</h3>
-                        <p class="mt-1 text-xs text-slate-600">{{ __('Protect forms (contact, checkout later) from spam bots.') }}</p>
+                        <p class="mt-1 text-xs text-slate-600">{{ __('Protect contact and public forms from spam bots.') }}</p>
                     </div>
                     <label class="inline-flex items-center gap-2 text-sm font-semibold text-slate-700 md:col-span-2">
                         <input type="checkbox" wire:model="form.store_captcha_recaptcha_v3_enabled" class="rounded border-slate-300 text-cyan-700 focus:ring-cyan-500" />
@@ -287,7 +324,7 @@
 
                     <div class="md:col-span-2 rounded-xl border border-slate-200 bg-slate-50 p-4 mt-2">
                         <h3 class="text-sm font-bold text-slate-800">{{ __('Google Analytics (GA4)') }}</h3>
-                        <p class="mt-1 text-xs text-slate-600">{{ __('Inject global gtag script and push purchase event on checkout success.') }}</p>
+                        <p class="mt-1 text-xs text-slate-600">{{ __('Inject the global GA4 gtag script on public pages.') }}</p>
                     </div>
                     <label class="inline-flex items-center gap-2 text-sm font-semibold text-slate-700 md:col-span-2">
                         <input type="checkbox" wire:model="form.store_analytics_enabled" class="rounded border-slate-300 text-cyan-700 focus:ring-cyan-500" />
@@ -298,28 +335,6 @@
                         <input type="text" wire:model="form.store_analytics_ga4_measurement_id" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" placeholder="G-XXXXXXXXXX" />
                     </div>
                     <div></div>
-                    <label class="inline-flex items-center gap-2 text-sm font-semibold text-slate-700 md:col-span-2">
-                        <input type="checkbox" wire:model="form.store_analytics_purchase_event_enabled" class="rounded border-slate-300 text-cyan-700 focus:ring-cyan-500" />
-                        {{ __('Enable purchase event on successful checkout') }}
-                    </label>
-                    <div class="md:w-72">
-                        <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Purchase event name') }}</label>
-                        <input type="text" wire:model="form.store_analytics_purchase_event_name" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" placeholder="purchase" />
-                    </div>
-
-                </div>
-            @endif
-
-            @if ($tab === 'pricing')
-                <div class="grid gap-4 md:grid-cols-2">
-                    <div class="md:col-span-2 rounded-xl border border-slate-200 bg-slate-50 p-4">
-                        <h3 class="text-sm font-bold text-slate-800">{{ __('Pricing') }}</h3>
-                        <p class="mt-1 text-xs text-slate-600">{{ __('Choose if stored catalog prices are entered with VAT included or VAT excluded.') }}</p>
-                    </div>
-                    <label class="inline-flex items-center gap-2 text-sm font-semibold text-slate-700 md:col-span-2">
-                        <input type="checkbox" wire:model="form.store_pricing_prices_include_tax" class="rounded border-slate-300 text-cyan-700 focus:ring-cyan-500" />
-                        {{ __('Product prices include VAT') }}
-                    </label>
                 </div>
             @endif
 
@@ -371,13 +386,6 @@
                         @endif
                     </div>
                     <div>
-                        <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Product OG override') }}</label>
-                        <input type="file" wire:model="ogProductImageUpload" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
-                        @if ($form['store_og_product_image_path'])
-                            <p class="mt-1 text-xs text-slate-500">{{ __('Current:') }} {{ $form['store_og_product_image_path'] }}</p>
-                        @endif
-                    </div>
-                    <div>
                         <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Page OG override') }}</label>
                         <input type="file" wire:model="ogPageImageUpload" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
                         @if ($form['store_og_page_image_path'])
@@ -414,19 +422,11 @@
                     </label>
                     <label class="inline-flex items-center gap-2 text-sm font-semibold text-slate-700">
                         <input type="checkbox" wire:model="form.store_schema_itemlist_enabled" class="rounded border-slate-300 text-cyan-700 focus:ring-cyan-500" />
-                        {{ __('ItemList (shop/category/blog list)') }}
+                        {{ __('ItemList (blog list)') }}
                     </label>
                     <label class="inline-flex items-center gap-2 text-sm font-semibold text-slate-700">
                         <input type="checkbox" wire:model="form.store_schema_home_enabled" class="rounded border-slate-300 text-cyan-700 focus:ring-cyan-500" />
                         {{ __('Home WebPage') }}
-                    </label>
-                    <label class="inline-flex items-center gap-2 text-sm font-semibold text-slate-700">
-                        <input type="checkbox" wire:model="form.store_schema_category_enabled" class="rounded border-slate-300 text-cyan-700 focus:ring-cyan-500" />
-                        {{ __('Category CollectionPage') }}
-                    </label>
-                    <label class="inline-flex items-center gap-2 text-sm font-semibold text-slate-700">
-                        <input type="checkbox" wire:model="form.store_schema_product_enabled" class="rounded border-slate-300 text-cyan-700 focus:ring-cyan-500" />
-                        {{ __('Product schema') }}
                     </label>
                     <label class="inline-flex items-center gap-2 text-sm font-semibold text-slate-700">
                         <input type="checkbox" wire:model="form.store_schema_blog_enabled" class="rounded border-slate-300 text-cyan-700 focus:ring-cyan-500" />
@@ -483,10 +483,6 @@
                             <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Country code') }}</label>
                             <input type="text" wire:model="form.store_schema_address_country" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" placeholder="HR" />
                         </div>
-                        <div>
-                            <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Product currency') }}</label>
-                            <input type="text" wire:model="form.store_schema_product_currency" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" placeholder="EUR" />
-                        </div>
                     </div>
 
                     <div class="md:col-span-2">
@@ -512,7 +508,7 @@
                         <input type="number" min="1" max="20" wire:model="form.store_schema_faq_limit" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
                     </div>
                     <div class="md:col-span-2">
-                        <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('ItemList max products/posts') }}</label>
+                        <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('ItemList max posts') }}</label>
                         <input type="number" min="1" max="48" wire:model="form.store_schema_itemlist_limit" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm md:w-48" />
                     </div>
                 </div>
@@ -540,7 +536,7 @@
             @endif
 
             <div class="pt-2">
-                <button type="submit" class="rounded-xl bg-cyan-700 px-4 py-2 text-sm font-semibold text-white hover:bg-cyan-800">{{ __('Save Store Settings') }}</button>
+                <button type="submit" class="rounded-xl bg-cyan-700 px-4 py-2 text-sm font-semibold text-white hover:bg-cyan-800">{{ __('Save Settings') }}</button>
             </div>
         </form>
     </div>

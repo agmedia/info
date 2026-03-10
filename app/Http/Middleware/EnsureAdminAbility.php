@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Support\Admin\AdminAclSynchronizer;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
@@ -21,6 +22,8 @@ class EnsureAdminAbility
 
         $user = $request->user();
         abort_unless($user, 401);
+
+        AdminAclSynchronizer::ensureSynced();
 
         if ($user->isA('superadmin')) {
             return $next($request);

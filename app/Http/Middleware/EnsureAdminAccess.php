@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Support\Admin\AdminAclSynchronizer;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -15,6 +16,8 @@ class EnsureAdminAccess
      */
     public function handle(Request $request, Closure $next): Response
     {
+        AdminAclSynchronizer::ensureSynced();
+
         $user = $request->user();
 
         if (! $user) {

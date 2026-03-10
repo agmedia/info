@@ -3,6 +3,7 @@
 use App\Models\Catalog\Category\Category;
 use App\Models\Content\Blog\BlogPost;
 use App\Models\Content\ContentBlock;
+use App\Models\Content\Team\TeamMember;
 
 return [
     'presets' => [
@@ -59,6 +60,20 @@ return [
                 'blog_gallery' => [
                     'label' => 'Gallery',
                     'single_file' => false,
+                    'max_upload_kb' => 8192,
+                    'accept_mime_types' => ['image/jpeg', 'image/png', 'image/webp', 'image/avif'],
+                    'conversions' => ['thumb_100x100', 'card_360x240', 'detail_960x960'],
+                    'preview_conversion' => 'card_360x240',
+                ],
+            ],
+        ],
+        TeamMember::class => [
+            'label' => 'Team Member',
+            'main_collection' => 'team_photo',
+            'collections' => [
+                'team_photo' => [
+                    'label' => 'Member Photo',
+                    'single_file' => true,
                     'max_upload_kb' => 8192,
                     'accept_mime_types' => ['image/jpeg', 'image/png', 'image/webp', 'image/avif'],
                     'conversions' => ['thumb_100x100', 'card_360x240', 'detail_960x960'],

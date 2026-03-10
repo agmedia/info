@@ -2,7 +2,6 @@
 
 namespace App\Livewire\Admin\Content\Navigation;
 
-use App\Models\Catalog\Category\Category;
 use App\Models\Content\Page\InfoPage;
 use App\Services\Front\NavigationMenuService;
 use App\Services\Settings\SystemSettingsService;
@@ -28,10 +27,14 @@ class Manager extends Component
 
     public function mount(): void
     {
-        $this->locale = (string) (request()->query('locale') ?: config('app.locale', 'en'));
+        $this->locale = (string) (request()->query('locale') ?: app()->getLocale() ?: config('admin_ui.locale.default', 'hr'));
         $this->previousLocale = $this->locale;
 
-        $items = app(NavigationMenuService::class)->configuredItems();
+        $items = collect(app(NavigationMenuService::class)->configuredItems())
+            ->reject(fn (array $item): bool => (string) ($item['type'] ?? '') === 'category')
+            ->values()
+            ->all();
+
         $this->form['items'] = $items;
         $this->syncInputsFromLocaleTranslations($this->locale);
     }
@@ -41,11 +44,6 @@ class Manager extends Component
         $this->syncLocaleTranslationsFromInputs($this->previousLocale);
         $this->syncInputsFromLocaleTranslations($this->locale);
         $this->previousLocale = $this->locale;
-    }
-
-    public function addCategoryItem(): void
-    {
-        $this->form['items'][] = $this->makeDefaultItem('category');
     }
 
     public function addPageItem(): void
@@ -123,9 +121,8 @@ class Manager extends Component
 
         $validated = $this->validate([
             'form.items' => ['array'],
-            'form.items.*.type' => ['required', 'in:category,page,blog,contact,faq,custom'],
+            'form.items.*.type' => ['required', 'in:page,blog,contact,faq,custom'],
             'form.items.*.label' => ['nullable', 'string', 'max:120'],
-            'form.items.*.category_id' => ['nullable', 'integer', 'min:0'],
             'form.items.*.page_id' => ['nullable', 'integer', 'min:0'],
             'form.items.*.url' => ['nullable', 'string', 'max:2048'],
             'form.items.*.label_translations' => ['nullable', 'array'],
@@ -150,9 +147,6 @@ class Manager extends Component
             $normalizedItems[] = $normalized;
 
             $type = (string) $normalized['type'];
-            if ($type === 'category' && (int) $normalized['category_id'] <= 0) {
-                $this->addError('form.items.'.$index.'.category_id', (string) __('admin.content.navigation.errors.select_category'));
-            }
             if ($type === 'page' && (int) $normalized['page_id'] <= 0) {
                 $this->addError('form.items.'.$index.'.page_id', (string) __('admin.content.navigation.errors.select_page'));
             }
@@ -191,53 +185,6 @@ class Manager extends Component
         $fallbackLocale = (string) config('app.locale', 'en');
         $locales = array_values(array_unique([$this->locale, $fallbackLocale]));
 
-        $categoryOptions = Category::query()
-            ->where('scope', Category::SCOPE_CATALOG)
-            ->where('is_active', true)
-            ->with([
-                'translations' => fn ($q) => $q
-                    ->where('scope', Category::SCOPE_CATALOG)
-                    ->whereIn('locale', $locales),
-            ])
-            ->orderBy('_lft')
-            ->get();
-
-        $categoryNameById = $categoryOptions
-            ->mapWithKeys(function (Category $category) use ($fallbackLocale): array {
-                $translation = $category->translations->firstWhere('locale', $this->locale)
-                    ?? $category->translations->firstWhere('locale', $fallbackLocale)
-                    ?? $category->translations->first();
-
-                return [
-                    (int) $category->id => (string) ($translation?->name ?? $category->code ?? '#'.$category->id),
-                ];
-            });
-
-        $categoryMap = $categoryOptions->keyBy(fn (Category $category): int => (int) $category->id);
-
-        $categoryOptions = $categoryOptions
-            ->map(function (Category $category) use ($categoryNameById, $categoryMap): array {
-                $parts = [];
-                $cursor = $category;
-                $guard = 0;
-
-                while ($cursor && $guard < 32) {
-                    $parts[] = (string) ($categoryNameById[(int) $cursor->id] ?? ('#'.$cursor->id));
-                    $parentId = (int) ($cursor->parent_id ?? 0);
-                    $cursor = $parentId > 0 ? $categoryMap->get($parentId) : null;
-                    $guard++;
-                }
-
-                $parts = array_reverse($parts);
-
-                return [
-                    'id' => (int) $category->id,
-                    'label' => implode(' > ', $parts),
-                ];
-            })
-            ->values()
-            ->all();
-
         $pageOptions = InfoPage::query()
             ->where('is_active', true)
             ->with([
@@ -260,7 +207,6 @@ class Manager extends Component
             ->all();
 
         return view('livewire.admin.content.navigation.manager', [
-            'categoryOptions' => $categoryOptions,
             'pageOptions' => $pageOptions,
         ]);
     }
@@ -305,7 +251,6 @@ class Manager extends Component
             'type' => $type,
             'label' => $storedLabel,
             'label_translations' => $labelTranslations,
-            'category_id' => (int) ($item['category_id'] ?? 0),
             'page_id' => (int) ($item['page_id'] ?? 0),
             'url' => $storedUrl,
             'url_translations' => $urlTranslations,
@@ -330,7 +275,6 @@ class Manager extends Component
             'type' => $type,
             'label' => '',
             'label_translations' => [],
-            'category_id' => 0,
             'page_id' => 0,
             'url' => '',
             'url_translations' => [],

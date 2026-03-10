@@ -164,7 +164,7 @@ class Tree extends Component
             ->all();
 
         if ($locales === []) {
-            return [config('app.locale', 'en')];
+            return [strtolower((string) app()->getLocale() ?: config('admin_ui.locale.default', 'hr'))];
         }
 
         return array_values(array_unique($locales));
@@ -332,6 +332,6 @@ class Tree extends Component
             return $default;
         }
 
-        return $this->localeOptions[0] ?? config('app.locale', 'en');
+        return strtolower((string) app()->getLocale() ?: (string) ($this->localeOptions[0] ?? config('admin_ui.locale.default', 'hr')));
     }
 }

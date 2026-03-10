@@ -7,35 +7,38 @@
 @endphp
 
 @section('title', $translation?->title ?? 'Page')
+@section('main_class', 'w-full px-0 py-0')
 
 @section('content')
+    @php
+        $pageTitleBreadcrumbs = [
+            ['label' => __('ui.front.desktop.footer.home'), 'url' => route('home')],
+            ['label' => $translation?->title ?? $page->code, 'current' => true],
+        ];
+    @endphp
+
     @if ($topBlocks->isNotEmpty())
-        <section class="mb-8">@include('components.content-placement', ['items' => $topBlocks])</section>
+        <section class="mx-auto mb-8 w-full max-w-[1320px] px-4 pt-10 sm:px-6 lg:px-8">@include('components.content-placement', ['items' => $topBlocks])</section>
     @endif
 
-    <section class="mb-8 px-1">
-        <nav aria-label="Breadcrumb" class="mb-3 text-center">
-            <ol class="inline-flex items-center justify-center gap-2 text-xs font-medium uppercase tracking-wide text-slate-500">
-                <li><a href="{{ route('home') }}" class="hover:text-slate-700">{{ __('ui.front.desktop.footer.home') }}</a></li>
-                <li class="text-slate-400">/</li>
-                <li class="text-slate-700">{{ $translation?->title ?? $page->code }}</li>
-            </ol>
-        </nav>
-        <div class="bg-slate-100 px-8 py-8 text-center">
-            <h1 class="text-4xl font-extrabold tracking-tight text-slate-900">{{ $translation?->title ?? $page->code }}</h1>
+    <x-front.page-title-band :breadcrumbs="$pageTitleBreadcrumbs">
+        <div class="ac-page-title-copy">
+            <h1>{{ $translation?->title ?? $page->code }}</h1>
             @if (!empty($translation?->excerpt))
-                <p class="mt-2 text-slate-600">{{ $translation->excerpt }}</p>
+                <p>{{ $translation->excerpt }}</p>
             @endif
         </div>
+    </x-front.page-title-band>
+
+    <section class="mx-auto w-full max-w-[1320px] px-4 py-10 sm:px-6 lg:px-8">
+        <article class="rounded-[22px] border border-slate-200 bg-white px-5 py-6 sm:px-6 lg:px-8 lg:py-8">
+            <div class="content-richtext">
+                {!! $translation?->body_html ?: '<p>This page has no body content.</p>' !!}
+            </div>
+        </article>
     </section>
 
-    <article class="bg-white px-2 py-2">
-        <div class="content-richtext">
-            {!! $translation?->body_html ?: '<p>This page has no body content.</p>' !!}
-        </div>
-    </article>
-
     @if ($bottomBlocks->isNotEmpty())
-        <section class="mt-10">@include('components.content-placement', ['items' => $bottomBlocks])</section>
+        <section class="mx-auto mt-2 w-full max-w-[1320px] px-4 pb-10 sm:px-6 lg:px-8">@include('components.content-placement', ['items' => $bottomBlocks])</section>
     @endif
 @endsection

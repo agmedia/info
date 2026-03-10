@@ -1,0 +1,54 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1920" height="1080" viewBox="0 0 1920 1080" fill="none">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#050607"/>
+      <stop offset="52%" stop-color="#091724"/>
+      <stop offset="100%" stop-color="#0a3d64"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(1460 220) rotate(136) scale(760 540)">
+      <stop stop-color="#1d5d8b" stop-opacity="0.45"/>
+      <stop offset="1" stop-color="#1d5d8b" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="gold" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#c2a163"/>
+      <stop offset="100%" stop-color="#8f7545"/>
+    </linearGradient>
+    <filter id="soft" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="8"/>
+    </filter>
+  </defs>
+
+  <rect width="1920" height="1080" fill="url(#bg)"/>
+  <rect width="1920" height="1080" fill="url(#glow)"/>
+
+  <!-- subtle finance grid -->
+  <g opacity="0.14">
+    <path d="M0 140H1920M0 260H1920M0 380H1920M0 500H1920M0 620H1920M0 740H1920M0 860H1920" stroke="#9FCBEC" stroke-width="1"/>
+    <path d="M120 0V1080M280 0V1080M440 0V1080M600 0V1080M760 0V1080M920 0V1080M1080 0V1080M1240 0V1080M1400 0V1080M1560 0V1080M1720 0V1080" stroke="#9FCBEC" stroke-width="1"/>
+  </g>
+
+  <!-- chart lines -->
+  <g opacity="0.45">
+    <path d="M120 760L260 700L390 724L510 650L660 670L800 560L930 590L1060 500L1200 530L1320 470L1480 490L1650 420L1800 390" stroke="#78B6E0" stroke-width="3"/>
+    <path d="M120 820L240 780L390 800L520 740L650 760L790 690L930 710L1060 640L1200 666L1320 620L1460 640L1610 600L1800 560" stroke="url(#gold)" stroke-width="2.2"/>
+  </g>
+
+  <!-- candlesticks -->
+  <g opacity="0.32" stroke="#B79652" stroke-width="2">
+    <path d="M520 740V640"/><rect x="506" y="670" width="28" height="56" fill="#B79652" fill-opacity="0.22"/>
+    <path d="M700 710V590"/><rect x="686" y="620" width="28" height="64" fill="#B79652" fill-opacity="0.22"/>
+    <path d="M910 690V560"/><rect x="896" y="600" width="28" height="74" fill="#B79652" fill-opacity="0.22"/>
+    <path d="M1140 650V520"/><rect x="1126" y="560" width="28" height="70" fill="#B79652" fill-opacity="0.22"/>
+    <path d="M1340 630V480"/><rect x="1326" y="530" width="28" height="86" fill="#B79652" fill-opacity="0.22"/>
+    <path d="M1560 610V450"/><rect x="1546" y="500" width="28" height="94" fill="#B79652" fill-opacity="0.22"/>
+  </g>
+
+  <!-- abstract rings -->
+  <g opacity="0.25" stroke="#B79652" fill="none">
+    <circle cx="1510" cy="700" r="210" stroke-width="1.6"/>
+    <circle cx="1510" cy="700" r="278" stroke-width="1"/>
+    <circle cx="1510" cy="700" r="340" stroke-width="0.8"/>
+  </g>
+
+  <ellipse cx="1480" cy="760" rx="220" ry="80" fill="#B79652" opacity="0.11" filter="url(#soft)"/>
+</svg>

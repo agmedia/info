@@ -3,8 +3,6 @@
 namespace Tests\Feature\Admin;
 
 use App\Livewire\Admin\Content\Navigation\Manager as NavigationManager;
-use App\Models\Catalog\Category\Category;
-use App\Models\Catalog\Category\CategoryTranslation;
 use App\Models\Content\Page\InfoPage;
 use App\Models\Content\Page\InfoPageTranslation;
 use App\Models\User;
@@ -26,28 +24,12 @@ class ContentNavigationFeatureTest extends TestCase
         $this->actingAs($user)
             ->get('/admin/content/navigation')
             ->assertOk()
-            ->assertSee('Main Navigation');
+            ->assertSee(__('admin.content.navigation.title'));
     }
 
     public function test_admin_can_save_navigation_config(): void
     {
         $user = $this->makeAdminUser();
-
-        $category = Category::query()->create([
-            'scope' => Category::SCOPE_CATALOG,
-            'code' => 'food',
-            'is_active' => true,
-            'show_in_menu' => true,
-            'sort_order' => 10,
-        ]);
-
-        CategoryTranslation::query()->create([
-            'category_id' => $category->id,
-            'scope' => Category::SCOPE_CATALOG,
-            'locale' => 'en',
-            'name' => 'Food',
-            'slug' => 'food',
-        ]);
 
         $page = InfoPage::query()->create([
             'code' => 'faq',
@@ -68,23 +50,21 @@ class ContentNavigationFeatureTest extends TestCase
             ->test(NavigationManager::class)
             ->set('form.items', [
                 [
-                    'type' => 'category',
+                    'type' => 'page',
                     'label' => '',
-                    'category_id' => $category->id,
-                    'page_id' => 0,
+                    'page_id' => $page->id,
                     'url' => '',
                     'open_in_new_tab' => false,
-                    'show_dropdown' => true,
+                    'show_dropdown' => false,
                     'is_active' => true,
                     'sort_order' => 0,
                 ],
                 [
-                    'type' => 'page',
-                    'label' => '',
-                    'category_id' => 0,
-                    'page_id' => $page->id,
-                    'url' => '',
-                    'open_in_new_tab' => false,
+                    'type' => 'custom',
+                    'label' => 'Kontakt',
+                    'page_id' => 0,
+                    'url' => '/contact',
+                    'open_in_new_tab' => true,
                     'show_dropdown' => false,
                     'is_active' => true,
                     'sort_order' => 1,
@@ -97,10 +77,11 @@ class ContentNavigationFeatureTest extends TestCase
 
         $this->assertIsArray($saved);
         $this->assertCount(2, $saved);
-        $this->assertSame('category', $saved[0]['type']);
-        $this->assertSame((int) $category->id, (int) $saved[0]['category_id']);
-        $this->assertSame('page', $saved[1]['type']);
-        $this->assertSame((int) $page->id, (int) $saved[1]['page_id']);
+        $this->assertSame('page', $saved[0]['type']);
+        $this->assertSame((int) $page->id, (int) $saved[0]['page_id']);
+        $this->assertSame('custom', $saved[1]['type']);
+        $this->assertSame('/contact', $saved[1]['url']);
+        $this->assertTrue((bool) $saved[1]['open_in_new_tab']);
     }
 
     private function makeAdminUser(): User

@@ -54,7 +54,7 @@ class Manager extends Component
 
         $this->modelClass = $modelClass;
         $this->modelId = $modelId;
-        $this->locale = trim($locale) !== '' ? $locale : (string) config('app.locale', 'en');
+        $this->locale = trim($locale) !== '' ? $locale : (string) (app()->getLocale() ?: config('admin_ui.locale.default', 'hr'));
     }
 
     public function uploadCollection(string $collectionName): void
@@ -192,7 +192,7 @@ class Manager extends Component
         $cta2Url = trim((string) ($meta['cta_2_url'] ?? ''));
 
         $custom = (array) ($media->custom_properties ?? []);
-        $locale = trim($this->locale) !== '' ? $this->locale : (string) config('app.locale', 'en');
+        $locale = trim($this->locale) !== '' ? $this->locale : (string) (app()->getLocale() ?: config('admin_ui.locale.default', 'hr'));
 
         if ($alt === '') {
             Arr::forget($custom, "alt.$locale");
@@ -383,7 +383,7 @@ class Manager extends Component
                 }
 
                 $custom = (array) ($media->custom_properties ?? []);
-                $locale = trim($this->locale) !== '' ? $this->locale : (string) config('app.locale', 'en');
+                $locale = trim($this->locale) !== '' ? $this->locale : (string) (app()->getLocale() ?: config('admin_ui.locale.default', 'hr'));
                 $edit = (array) data_get($custom, 'image_edit', []);
                 $focal = (array) ($edit['focal_point'] ?? []);
                 $crop = (array) ($edit['crop_box'] ?? []);

@@ -25,7 +25,20 @@
                 </div>
                 <div style="grid-column: span 3;">
                     <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Group Code') }}</label>
-                    <input type="text" wire:model="form.group_code" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm font-mono lowercase" />
+                    <select wire:model.live="groupCodeSelection" data-tom-select data-tom-no-search="1" class="admin-select w-full rounded-xl border border-slate-300 px-3 py-2 text-sm lowercase">
+                        @foreach ($faqGroupOptions as $groupCode)
+                            <option value="{{ $groupCode }}">{{ $groupCode }}</option>
+                        @endforeach
+                        <option value="{{ $customGroupOptionValue }}">{{ __('New Group') }}</option>
+                    </select>
+                    @if ($groupCodeSelection === $customGroupOptionValue)
+                        <input
+                            type="text"
+                            wire:model.live.debounce.300ms="customGroupCode"
+                            class="mt-2 w-full rounded-xl border border-slate-300 px-3 py-2 text-sm font-mono lowercase"
+                            placeholder="{{ __('Enter new group code') }}"
+                        />
+                    @endif
                     @error('form.group_code') <p class="mt-1 text-xs text-rose-600">{{ $message }}</p> @enderror
                 </div>
                 <div style="grid-column: span 2;">

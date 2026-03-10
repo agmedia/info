@@ -158,6 +158,7 @@ class AccessManager extends Component
         $abilities = Ability::query()
             ->whereNull('entity_id')
             ->whereNull('entity_type')
+            ->whereNotIn('name', ['users.groups.manage', 'users.activity.view'])
             ->when($this->search !== '', function ($query): void {
                 $query->where(function ($q): void {
                     $q->where('name', 'like', '%'.$this->search.'%')
@@ -355,7 +356,7 @@ class AccessManager extends Component
     {
         $user = auth()->user();
         abort_unless(
-            $user && (Bouncer::is($user)->an('superadmin') || $user->can('users.access.manage')),
+            $user && Bouncer::is($user)->an('superadmin'),
             403
         );
     }

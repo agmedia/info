@@ -56,7 +56,7 @@
                         <th class="px-3 py-2 text-left font-semibold">{{ __('admin.content.faq.manager.table.faq') }}</th>
                         <th class="px-3 py-2 text-left font-semibold">{{ __('admin.content.faq.manager.table.slug') }}</th>
                         <th class="px-3 py-2 text-center font-semibold">{{ __('admin.content.faq.manager.table.group') }}</th>
-                        <th class="px-3 py-2 text-center font-semibold">{{ __('admin.content.faq.manager.table.comments') }}</th>
+                        <th class="px-3 py-2 text-center font-semibold">{{ __('admin.content.faq.manager.table.sort_order') }}</th>
                         <th class="px-3 py-2 text-center font-semibold">{{ __('admin.content.faq.manager.table.featured') }}</th>
                         <th class="px-3 py-2 text-center font-semibold">{{ __('admin.content.faq.manager.table.state') }}</th>
                         <th class="px-3 py-2 text-right font-semibold">{{ __('admin.content.faq.manager.table.actions') }}</th>
@@ -72,7 +72,7 @@
                             </td>
                             <td class="px-3 py-2 font-mono text-xs text-slate-700">{{ $tr?->slug ?? '-' }}</td>
                             <td class="px-3 py-2 text-center text-slate-700">{{ $row->group_code }}</td>
-                            <td class="px-3 py-2 text-center text-slate-700">{{ $row->comments_count }}</td>
+                            <td class="px-3 py-2 text-center text-slate-700">{{ $row->sort_order }}</td>
                             <td class="px-3 py-2 text-center">
                                 <span class="rounded-full px-2.5 py-1 text-xs font-semibold {{ $row->is_featured ? 'bg-cyan-100 text-cyan-800' : 'bg-slate-200 text-slate-700' }}">
                                     {{ $row->is_featured ? __('admin.common.yes') : __('admin.common.no') }}

@@ -1,0 +1,57 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1920" height="1080" viewBox="0 0 1920 1080" fill="none">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#03060A"/>
+      <stop offset="52%" stop-color="#081B2D"/>
+      <stop offset="100%" stop-color="#0B4269"/>
+    </linearGradient>
+    <radialGradient id="cityGlow" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(1420 230) rotate(140) scale(980 620)">
+      <stop stop-color="#4BBBED" stop-opacity="0.22"/>
+      <stop offset="1" stop-color="#4BBBED" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="skylineFill" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#0E263C" stop-opacity="0.86"/>
+      <stop offset="100%" stop-color="#06111D" stop-opacity="0.96"/>
+    </linearGradient>
+    <linearGradient id="windowGlow" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#7DD5F7" stop-opacity="0.45"/>
+      <stop offset="100%" stop-color="#7DD5F7" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="lineAccent" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#6AD0F4" stop-opacity="0.18"/>
+      <stop offset="100%" stop-color="#9DEBFF" stop-opacity="0.34"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="1920" height="1080" fill="url(#bg)"/>
+  <rect width="1920" height="1080" fill="url(#cityGlow)"/>
+
+  <g opacity="0.09" stroke="#8FC5E3" stroke-width="1">
+    <path d="M0 220H1920M0 390H1920M0 560H1920M0 730H1920M0 900H1920"/>
+    <path d="M120 0V1080M340 0V1080M560 0V1080M780 0V1080M1000 0V1080M1220 0V1080M1440 0V1080M1660 0V1080"/>
+  </g>
+
+  <!-- Zagreb-inspired skyline dominant -->
+  <g>
+    <path d="M0 860L90 860L90 804L142 804L142 860L196 860L196 776L246 776L246 860L308 860L308 742L354 742L354 860L414 860L414 690L440 690L440 622L458 622L458 690L486 690L486 860L560 860L560 784L602 784L602 860L678 860L678 724L720 724L720 860L794 860L794 676L836 676L836 860L914 860L914 724L962 724L962 860L1052 860L1052 694L1090 694L1090 860L1172 860L1172 742L1220 742L1220 860L1312 860L1312 708L1352 708L1352 860L1436 860L1436 748L1488 748L1488 860L1574 860L1574 690L1600 690L1600 620L1620 620L1620 690L1652 690L1652 860L1742 860L1742 768L1788 768L1788 860L1920 860L1920 1080L0 1080Z" fill="url(#skylineFill)"/>
+    <rect x="0" y="860" width="1920" height="4" fill="#6DCFF3" opacity="0.2"/>
+  </g>
+
+  <!-- sparse tech hints -->
+  <g opacity="0.28" fill="url(#windowGlow)">
+    <rect x="228" y="810" width="6" height="40"/>
+    <rect x="347" y="760" width="6" height="74"/>
+    <rect x="492" y="742" width="6" height="88"/>
+    <rect x="712" y="742" width="6" height="98"/>
+    <rect x="835" y="702" width="6" height="120"/>
+    <rect x="1082" y="718" width="6" height="116"/>
+    <rect x="1344" y="736" width="6" height="104"/>
+    <rect x="1594" y="700" width="6" height="132"/>
+    <rect x="1778" y="780" width="6" height="56"/>
+  </g>
+
+  <path d="M0 904C194 898 360 900 520 892C680 884 840 878 1002 866C1170 854 1328 838 1492 804C1658 770 1788 714 1920 642" stroke="url(#lineAccent)" stroke-width="4.5" fill="none" stroke-linecap="round"/>
+  <path d="M0 946C210 942 382 944 548 938C714 932 882 924 1052 912C1228 898 1396 886 1568 860C1718 836 1828 810 1920 778" stroke="#B79652" stroke-opacity="0.24" stroke-width="2" fill="none"/>
+
+  <rect x="0" y="0" width="1920" height="1.5" fill="#B79652" fill-opacity="0.34"/>
+</svg>

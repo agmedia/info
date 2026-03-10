@@ -2,9 +2,9 @@
 
 return [
     'page_title' => 'Contact',
-    'eyebrow' => 'Customer support',
-    'heading' => 'Get in touch',
-    'subheading' => 'Send us questions about products, orders, or wholesale. We will reply as soon as possible.',
+    'eyebrow' => 'Alpha Capitalis',
+    'heading' => 'Contact',
+    'subheading' => 'We are available for finance, accounting, audit, tax, and business advisory matters. Reach out through the form or contact our Zagreb and Vinkovci offices directly.',
     'sent_status' => 'Thanks. Your message has been sent successfully.',
     'captcha_failed' => 'Security verification failed. Please try again.',
     'validation' => [
@@ -24,6 +24,9 @@ return [
         ],
     ],
     'form' => [
+        'kicker' => 'Send inquiry',
+        'title' => 'Send us a message',
+        'intro' => 'Briefly describe your topic and leave your contact details. We will get back to you as soon as possible.',
         'name' => 'Full name',
         'email' => 'Email',
         'phone' => 'Phone (optional)',
@@ -35,13 +38,36 @@ return [
     ],
     'direct' => [
         'title' => 'Direct contact',
+        'body' => 'For initial information, arranging a meeting, or faster inquiry routing, contact us directly.',
         'email' => 'Email',
         'phone' => 'Phone',
         'response_time' => 'Response time',
         'response_fallback' => 'Within business hours',
     ],
     'help' => [
-        'title' => 'Quick help',
-        'body' => 'For order questions, include your order number and contact phone so we can help you immediately.',
+        'title' => 'Before you send',
+        'body' => 'Include the topic, company name, and area of interest so we can reply with a more relevant next step.',
+    ],
+    'offices' => [
+        'kicker' => 'Our offices',
+        'title' => 'Zagreb and Vinkovci',
+        'intro' => 'For arranging meetings, initial information, or sending inquiries, we are available through two offices.',
+        'view_map' => 'View on map',
+        'zagreb' => [
+            'label' => 'Zagreb office',
+            'company' => 'Alpha Capitalis d.o.o.',
+            'map_label' => 'Zagreb',
+        ],
+        'vinkovci' => [
+            'label' => 'Vinkovci office',
+            'company' => 'Alpha Capitalis East d.o.o.',
+            'map_label' => 'Vinkovci',
+        ],
+    ],
+    'map' => [
+        'kicker' => 'Locations',
+        'title' => 'Find us on the map',
+        'intro' => 'Choose an office and open the location on the map for directions, navigation, or meeting planning.',
+        'open_external' => 'Open in Google Maps',
     ],
 ];

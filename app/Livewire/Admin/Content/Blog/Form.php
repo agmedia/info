@@ -40,7 +40,7 @@ class Form extends Component
 
     public function mount(?int $postId = null): void
     {
-        $this->form['locale'] = (string) (request()->query('locale') ?: config('app.locale', 'en'));
+        $this->form['locale'] = (string) (request()->query('locale') ?: app()->getLocale() ?: config('admin_ui.locale.default', 'hr'));
 
         if ($postId) {
             $this->postId = $postId;

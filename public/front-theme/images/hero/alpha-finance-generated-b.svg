@@ -1,0 +1,90 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1920" height="1080" viewBox="0 0 1920 1080" fill="none">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#050607"/>
+      <stop offset="46%" stop-color="#071523"/>
+      <stop offset="100%" stop-color="#0a3f66"/>
+    </linearGradient>
+    <radialGradient id="blueGlow" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(1500 180) rotate(132) scale(860 620)">
+      <stop stop-color="#1f6b9f" stop-opacity="0.34"/>
+      <stop offset="1" stop-color="#1f6b9f" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="goldLine" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#8f7545"/>
+      <stop offset="50%" stop-color="#c2a163"/>
+      <stop offset="100%" stop-color="#8f7545"/>
+    </linearGradient>
+    <linearGradient id="panel" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#0a1118" stop-opacity="0.56"/>
+      <stop offset="100%" stop-color="#10283c" stop-opacity="0.56"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="1920" height="1080" fill="url(#bg)"/>
+  <rect width="1920" height="1080" fill="url(#blueGlow)"/>
+
+  <!-- subtle structure grid -->
+  <g opacity="0.09" stroke="#93c4e4" stroke-width="1">
+    <path d="M0 180H1920M0 340H1920M0 500H1920M0 660H1920M0 820H1920"/>
+    <path d="M160 0V1080M400 0V1080M640 0V1080M880 0V1080M1120 0V1080M1360 0V1080M1600 0V1080"/>
+  </g>
+
+  <!-- elegant rings / compass feel -->
+  <g opacity="0.22" stroke="#b79652" fill="none">
+    <circle cx="1460" cy="610" r="180" stroke-width="1.3"/>
+    <circle cx="1460" cy="610" r="252" stroke-width="0.9"/>
+    <circle cx="1460" cy="610" r="322" stroke-width="0.8"/>
+    <path d="M1270 610H1650M1460 420V800" stroke-width="0.9" opacity="0.72"/>
+  </g>
+
+  <!-- service matrix (6 areas) -->
+  <g>
+    <rect x="190" y="686" width="1540" height="246" rx="18" fill="url(#panel)" stroke="rgba(183,150,82,0.25)"/>
+    <path d="M703 686V932M1216 686V932M190 809H1730" stroke="rgba(255,255,255,0.14)"/>
+
+    <!-- 1 Financije -->
+    <g transform="translate(280 730)">
+      <rect x="0" y="0" width="44" height="44" rx="22" fill="rgba(183,150,82,0.12)" stroke="rgba(183,150,82,0.42)"/>
+      <path d="M12 29h20M14 25l4-8 4 5 6-10" stroke="#d2b06f" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+      <text x="58" y="18" fill="#e8edf2" font-size="18" font-family="'Public Sans', Arial, sans-serif" font-weight="600">Financije</text>
+    </g>
+
+    <!-- 2 Računovodstvo -->
+    <g transform="translate(805 730)">
+      <rect x="0" y="0" width="44" height="44" rx="22" fill="rgba(183,150,82,0.12)" stroke="rgba(183,150,82,0.42)"/>
+      <path d="M14 14h16v16H14zM14 20h16M22 14v16" stroke="#d2b06f" stroke-width="1.8" stroke-linecap="round"/>
+      <text x="58" y="18" fill="#e8edf2" font-size="18" font-family="'Public Sans', Arial, sans-serif" font-weight="600">Računovodstvo</text>
+    </g>
+
+    <!-- 3 Porezi -->
+    <g transform="translate(1330 730)">
+      <rect x="0" y="0" width="44" height="44" rx="22" fill="rgba(183,150,82,0.12)" stroke="rgba(183,150,82,0.42)"/>
+      <path d="M14 28h16M18 28v-8m8 8v-12" stroke="#d2b06f" stroke-width="1.8" stroke-linecap="round"/>
+      <text x="58" y="18" fill="#e8edf2" font-size="18" font-family="'Public Sans', Arial, sans-serif" font-weight="600">Porezi</text>
+    </g>
+
+    <!-- 4 Revizija -->
+    <g transform="translate(280 850)">
+      <rect x="0" y="0" width="44" height="44" rx="22" fill="rgba(183,150,82,0.12)" stroke="rgba(183,150,82,0.42)"/>
+      <path d="M14 30l6-6 4 4 8-10" stroke="#d2b06f" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+      <text x="58" y="18" fill="#e8edf2" font-size="18" font-family="'Public Sans', Arial, sans-serif" font-weight="600">Revizija</text>
+    </g>
+
+    <!-- 5 EU fondovi -->
+    <g transform="translate(805 850)">
+      <rect x="0" y="0" width="44" height="44" rx="22" fill="rgba(183,150,82,0.12)" stroke="rgba(183,150,82,0.42)"/>
+      <path d="M22 13l2.2 4.5 5 .8-3.6 3.6.8 5-4.4-2.3-4.4 2.3.8-5-3.6-3.6 5-.8z" stroke="#d2b06f" stroke-width="1.4" fill="none"/>
+      <text x="58" y="18" fill="#e8edf2" font-size="18" font-family="'Public Sans', Arial, sans-serif" font-weight="600">EU fondovi</text>
+    </g>
+
+    <!-- 6 Obiteljski biznisi -->
+    <g transform="translate(1330 850)">
+      <rect x="0" y="0" width="44" height="44" rx="22" fill="rgba(183,150,82,0.12)" stroke="rgba(183,150,82,0.42)"/>
+      <path d="M14 30v-7l8-6 8 6v7M19 30v-5h6v5" stroke="#d2b06f" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+      <text x="58" y="18" fill="#e8edf2" font-size="18" font-family="'Public Sans', Arial, sans-serif" font-weight="600">Obiteljski biznisi</text>
+    </g>
+  </g>
+
+  <!-- top gold accent -->
+  <rect x="0" y="0" width="1920" height="2" fill="url(#goldLine)" opacity="0.55"/>
+</svg>

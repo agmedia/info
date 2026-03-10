@@ -34,16 +34,21 @@ class ContactController extends Controller
         $captchaEnabled = (bool) ($captchaSettings['recaptcha_v3_enabled'] ?? false)
             && trim((string) ($captchaSettings['recaptcha_v3_site_key'] ?? '')) !== ''
             && trim((string) ($captchaSettings['recaptcha_v3_secret_key'] ?? '')) !== '';
+        $redirectTo = $this->safeRedirectTarget((string) $request->input('redirect_to', ''));
 
         $validated = $request->validate(
             [
-                'name' => ['required', 'string', 'max:191'],
+                'name' => ['nullable', 'string', 'max:191'],
+                'first_name' => ['required_without:name', 'nullable', 'string', 'max:80'],
+                'last_name' => ['nullable', 'string', 'max:120'],
+                'company' => ['nullable', 'string', 'max:191'],
                 'email' => ['required', 'email', 'max:191'],
                 'phone' => ['nullable', 'string', 'max:80'],
                 'subject' => ['nullable', 'string', 'max:191'],
                 'message' => ['required', 'string', 'min:10', 'max:8000'],
                 'accept_terms' => ['accepted'],
                 'recaptcha_token' => [$captchaEnabled ? 'required' : 'nullable', 'string', 'max:4096'],
+                'redirect_to' => ['nullable', 'string', 'max:2048'],
             ],
             [
                 'required' => __('contact.validation.required'),
@@ -54,14 +59,35 @@ class ContactController extends Controller
             ],
             [
                 'name' => __('contact.form.name'),
+                'first_name' => app()->getLocale() === 'hr' ? 'Ime' : 'First name',
+                'last_name' => app()->getLocale() === 'hr' ? 'Prezime' : 'Last name',
+                'company' => app()->getLocale() === 'hr' ? 'Tvrtka' : 'Company',
                 'email' => __('contact.form.email'),
                 'phone' => __('contact.form.phone'),
                 'subject' => __('contact.form.subject'),
                 'message' => __('contact.form.message'),
                 'accept_terms' => __('contact.form.accept_terms'),
                 'recaptcha_token' => __('contact.validation.security_check'),
+                'redirect_to' => 'redirect target',
             ]
         );
+
+        $resolvedName = trim((string) ($validated['name'] ?? ''));
+
+        if ($resolvedName === '') {
+            $resolvedName = trim(implode(' ', array_filter([
+                trim((string) ($validated['first_name'] ?? '')),
+                trim((string) ($validated['last_name'] ?? '')),
+            ])));
+        }
+
+        if ($resolvedName === '') {
+            throw ValidationException::withMessages([
+                'first_name' => __('contact.validation.required', [
+                    'attribute' => app()->getLocale() === 'hr' ? 'Ime' : 'First name',
+                ]),
+            ]);
+        }
 
         if ($captchaEnabled) {
             $this->assertRecaptchaIsValid(
@@ -75,7 +101,7 @@ class ContactController extends Controller
 
         $message = ContactMessage::query()->create([
             'user_id' => $request->user()?->id,
-            'name' => $validated['name'],
+            'name' => $resolvedName,
             'email' => $validated['email'],
             'phone' => $validated['phone'] ?? null,
             'subject' => trim((string) ($validated['subject'] ?? '')) !== ''
@@ -88,13 +114,18 @@ class ContactController extends Controller
             'payload' => [
                 'locale' => app()->getLocale(),
                 'url' => $request->fullUrl(),
+                'first_name' => trim((string) ($validated['first_name'] ?? '')) ?: null,
+                'last_name' => trim((string) ($validated['last_name'] ?? '')) ?: null,
+                'company' => trim((string) ($validated['company'] ?? '')) ?: null,
             ],
         ]);
         $this->notifications->sendContactNotification($message);
 
-        return redirect()
-            ->route('contact.create')
-            ->with('status', __('contact.sent_status'));
+        if ($redirectTo !== null) {
+            return redirect($redirectTo)->with('status', __('contact.sent_status'));
+        }
+
+        return redirect()->route('contact.create')->with('status', __('contact.sent_status'));
     }
 
     private function assertRecaptchaIsValid(
@@ -135,5 +166,33 @@ class ContactController extends Controller
                 'recaptcha_token' => __('contact.captcha_failed'),
             ]);
         }
+    }
+
+    private function safeRedirectTarget(string $target): ?string
+    {
+        $target = trim($target);
+
+        if ($target === '') {
+            return null;
+        }
+
+        if (str_starts_with($target, '/')) {
+            return $target;
+        }
+
+        $targetHost = parse_url($target, PHP_URL_HOST);
+        $appHost = parse_url(config('app.url'), PHP_URL_HOST);
+
+        if ($targetHost !== null && $appHost !== null && strcasecmp((string) $targetHost, (string) $appHost) === 0) {
+            $path = (string) parse_url($target, PHP_URL_PATH);
+            $query = (string) parse_url($target, PHP_URL_QUERY);
+            $fragment = (string) parse_url($target, PHP_URL_FRAGMENT);
+
+            return $path
+                .($query !== '' ? '?'.$query : '')
+                .($fragment !== '' ? '#'.$fragment : '');
+        }
+
+        return null;
     }
 }

@@ -1,0 +1,86 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1920" height="1080" viewBox="0 0 1920 1080" fill="none">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#04070d"/>
+      <stop offset="52%" stop-color="#0a1b2e"/>
+      <stop offset="100%" stop-color="#0a4f7f"/>
+    </linearGradient>
+    <radialGradient id="cyanGlow" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(1360 230) rotate(136) scale(820 520)">
+      <stop stop-color="#36b6f1" stop-opacity="0.34"/>
+      <stop offset="1" stop-color="#36b6f1" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="goldGlow" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(370 860) rotate(8) scale(560 250)">
+      <stop stop-color="#b79652" stop-opacity="0.26"/>
+      <stop offset="1" stop-color="#b79652" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="lineBlue" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#4fd3ff"/>
+      <stop offset="100%" stop-color="#24a7e6"/>
+    </linearGradient>
+    <linearGradient id="lineGold" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#8f7545"/>
+      <stop offset="55%" stop-color="#c2a163"/>
+      <stop offset="100%" stop-color="#8f7545"/>
+    </linearGradient>
+    <filter id="blurSoft" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="6"/>
+    </filter>
+  </defs>
+
+  <rect width="1920" height="1080" fill="url(#bg)"/>
+  <rect width="1920" height="1080" fill="url(#cyanGlow)"/>
+  <rect width="1920" height="1080" fill="url(#goldGlow)"/>
+
+  <!-- accounting/tax structure grid -->
+  <g opacity="0.12" stroke="#9cd1f0" stroke-width="1">
+    <path d="M0 170H1920M0 320H1920M0 470H1920M0 620H1920M0 770H1920M0 920H1920"/>
+    <path d="M140 0V1080M310 0V1080M480 0V1080M650 0V1080M820 0V1080M990 0V1080M1160 0V1080M1330 0V1080M1500 0V1080M1670 0V1080M1840 0V1080"/>
+  </g>
+
+  <!-- finance bars -->
+  <g>
+    <rect x="360" y="610" width="42" height="220" rx="7" fill="#46c8ff" fill-opacity="0.62"/>
+    <rect x="430" y="540" width="42" height="290" rx="7" fill="#46c8ff" fill-opacity="0.68"/>
+    <rect x="500" y="660" width="42" height="170" rx="7" fill="#46c8ff" fill-opacity="0.52"/>
+    <rect x="930" y="560" width="42" height="270" rx="7" fill="#46c8ff" fill-opacity="0.62"/>
+    <rect x="1000" y="500" width="42" height="330" rx="7" fill="#46c8ff" fill-opacity="0.72"/>
+    <rect x="1070" y="610" width="42" height="220" rx="7" fill="#46c8ff" fill-opacity="0.58"/>
+    <rect x="1430" y="520" width="42" height="310" rx="7" fill="#46c8ff" fill-opacity="0.66"/>
+    <rect x="1500" y="450" width="42" height="380" rx="7" fill="#46c8ff" fill-opacity="0.76"/>
+    <rect x="1570" y="590" width="42" height="240" rx="7" fill="#46c8ff" fill-opacity="0.58"/>
+  </g>
+
+  <!-- data curves -->
+  <g fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M120 730C240 680 290 700 390 650C490 600 560 690 650 640C740 590 810 660 900 610C980 565 1060 620 1140 575C1230 525 1310 560 1400 510C1500 455 1600 490 1800 400" stroke="url(#lineBlue)" stroke-width="7"/>
+    <path d="M120 780C220 760 300 810 420 760C520 715 620 770 730 730C850 685 930 740 1030 700C1140 655 1240 710 1360 670C1480 625 1600 650 1800 610" stroke="url(#lineGold)" stroke-width="4"/>
+    <path d="M120 760C240 700 290 720 390 670C490 620 560 710 650 660C740 610 810 680 900 630C980 585 1060 640 1140 595C1230 545 1310 580 1400 530C1500 475 1600 510 1800 420" stroke="#46c8ff" stroke-opacity="0.5" stroke-width="14" filter="url(#blurSoft)"/>
+  </g>
+
+  <!-- audit/certainty pulses -->
+  <g opacity="0.28" stroke="#b79652" fill="none">
+    <circle cx="1460" cy="620" r="140" stroke-width="1.2"/>
+    <circle cx="1460" cy="620" r="220" stroke-width="0.9"/>
+    <circle cx="1460" cy="620" r="300" stroke-width="0.8"/>
+  </g>
+
+  <!-- EU funds hint: 12 subtle stars in ring, no text/icons -->
+  <g opacity="0.34" transform="translate(240 270)">
+    <g fill="#d2b06f">
+      <path d="M0 -10l2.6 5.2 5.8.9-4.2 4.1 1 5.8L0 3.2-5.2 6l1-5.8L-8.4-3.9l5.8-.9z"/>
+      <path d="M40 -9l2.3 4.8 5.3.8-3.8 3.8.9 5.3L40 2.9l-4.7 2.7.9-5.3-3.8-3.8 5.3-.8z"/>
+      <path d="M72 -2l2 4.1 4.6.7-3.3 3.3.8 4.6-4.1-2.2-4.1 2.2.8-4.6-3.3-3.3 4.6-.7z"/>
+      <path d="M84 30l1.8 3.8 4.2.6-3 3 .7 4.2-3.7-2-3.7 2 .7-4.2-3-3 4.2-.6z"/>
+      <path d="M72 62l2 4.1 4.6.7-3.3 3.3.8 4.6-4.1-2.2-4.1 2.2.8-4.6-3.3-3.3 4.6-.7z"/>
+      <path d="M40 75l2.3 4.8 5.3.8-3.8 3.8.9 5.3L40 87.7l-4.7 2.7.9-5.3-3.8-3.8 5.3-.8z"/>
+      <path d="M0 78l2.6 5.2 5.8.9-4.2 4.1 1 5.8L0 91.2-5.2 94l1-5.8-4.2-4.1 5.8-.9z"/>
+      <path d="M-40 75l2.3 4.8 5.3.8-3.8 3.8.9 5.3-4.7-2.7-4.7 2.7.9-5.3-3.8-3.8 5.3-.8z"/>
+      <path d="M-72 62l2 4.1 4.6.7-3.3 3.3.8 4.6-4.1-2.2-4.1 2.2.8-4.6-3.3-3.3 4.6-.7z"/>
+      <path d="M-84 30l1.8 3.8 4.2.6-3 3 .7 4.2-3.7-2-3.7 2 .7-4.2-3-3 4.2-.6z"/>
+      <path d="M-72 -2l2 4.1 4.6.7-3.3 3.3.8 4.6-4.1-2.2-4.1 2.2.8-4.6-3.3-3.3 4.6-.7z"/>
+      <path d="M-40 -9l2.3 4.8 5.3.8-3.8 3.8.9 5.3-4.7-2.7-4.7 2.7.9-5.3-3.8-3.8 5.3-.8z"/>
+    </g>
+  </g>
+
+  <rect x="0" y="0" width="1920" height="2" fill="url(#lineGold)" opacity="0.55"/>
+</svg>

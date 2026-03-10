@@ -10,10 +10,6 @@ class AdminAppearanceControls extends Component
     public array $form = [
         'admin_items_per_page' => 20,
         'admin_category_roots_per_page' => 12,
-        'front_category_products_per_page_desktop' => 24,
-        'front_category_products_per_page_mobile' => 12,
-        'front_manufacturer_products_per_page_desktop' => 24,
-        'front_manufacturer_products_per_page_mobile' => 12,
     ];
 
     public function mount(): void
@@ -32,7 +28,7 @@ class AdminAppearanceControls extends Component
     {
         $validated = $this->validate($this->rules());
 
-        app(SystemSettingsService::class)->putMany($validated['form']);
+        app(SystemSettingsService::class)->putMany(array_merge($validated['form'], $this->legacyPaginationCleanupPayload()));
 
         $this->dispatch('notify', type: 'success', message: __('Admin appearance pagination settings saved.'));
     }
@@ -57,15 +53,24 @@ class AdminAppearanceControls extends Component
         return [
             'form.admin_items_per_page' => ['required', 'integer', 'min:5', 'max:200'],
             'form.admin_category_roots_per_page' => ['required', 'integer', 'min:5', 'max:100'],
-            'form.front_category_products_per_page_desktop' => ['required', 'integer', 'min:6', 'max:120'],
-            'form.front_category_products_per_page_mobile' => ['required', 'integer', 'min:4', 'max:80'],
-            'form.front_manufacturer_products_per_page_desktop' => ['required', 'integer', 'min:6', 'max:120'],
-            'form.front_manufacturer_products_per_page_mobile' => ['required', 'integer', 'min:4', 'max:80'],
         ];
     }
 
     public function render()
     {
         return view('livewire.admin.settings.system.admin-appearance-controls');
+    }
+
+    /**
+     * @return array<string, int>
+     */
+    private function legacyPaginationCleanupPayload(): array
+    {
+        return [
+            'front_category_products_per_page_desktop' => 0,
+            'front_category_products_per_page_mobile' => 0,
+            'front_manufacturer_products_per_page_desktop' => 0,
+            'front_manufacturer_products_per_page_mobile' => 0,
+        ];
     }
 }

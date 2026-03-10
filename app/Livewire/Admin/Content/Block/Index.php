@@ -23,7 +23,7 @@ class Index extends Component
     public function mount(): void
     {
         $this->surface = 'all';
-        $this->locale = (string) (request()->query('locale') ?: config('app.locale'));
+        $this->locale = (string) (request()->query('locale') ?: app()->getLocale() ?: config('admin_ui.locale.default', 'hr'));
     }
 
     public function updatedSearch(): void

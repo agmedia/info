@@ -2,9 +2,9 @@
 
 return [
     'page_title' => 'Kontakt',
-    'eyebrow' => 'Korisnička podrška',
-    'heading' => 'Javite nam se',
-    'subheading' => 'Pošaljite upit vezan uz artikle, narudžbe ili veleprodaju. Odgovaramo u najkraćem roku.',
+    'eyebrow' => 'Alpha Capitalis',
+    'heading' => 'Kontakt',
+    'subheading' => 'Stojimo vam na raspolaganju za financije, računovodstvo, reviziju, poreze i poslovno savjetovanje. Javite nam se putem obrasca ili direktno uredima u Zagrebu i Vinkovcima.',
     'sent_status' => 'Hvala. Vaša poruka je uspješno poslana.',
     'captcha_failed' => 'Potvrda sigurnosti nije uspjela. Pokušajte ponovno.',
     'validation' => [
@@ -24,6 +24,9 @@ return [
         ],
     ],
     'form' => [
+        'kicker' => 'Pošaljite upit',
+        'title' => 'Pošaljite nam poruku',
+        'intro' => 'Ukratko opišite temu upita i ostavite svoje kontakt podatke. Javit ćemo vam se u najkraćem mogućem roku.',
         'name' => 'Ime i prezime',
         'email' => 'Email',
         'phone' => 'Telefon (opcionalno)',
@@ -35,13 +38,36 @@ return [
     ],
     'direct' => [
         'title' => 'Direktan kontakt',
+        'body' => 'Za inicijalne informacije, dogovor oko sastanka ili brže usmjeravanje upita, javite nam se izravno.',
         'email' => 'Email',
         'phone' => 'Telefon',
         'response_time' => 'Vrijeme odgovora',
         'response_fallback' => 'Unutar radnog vremena',
     ],
     'help' => [
-        'title' => 'Brza pomoć',
-        'body' => 'Za upit o narudžbi navedite broj narudžbe i kontakt telefon kako bismo vam odmah pomogli.',
+        'title' => 'Prije slanja upita',
+        'body' => 'U poruci navedite temu, tvrtku i područje interesa kako bismo vam se mogli javiti s konkretnijim prijedlogom sljedećeg koraka.',
+    ],
+    'offices' => [
+        'kicker' => 'Naši uredi',
+        'title' => 'Zagreb i Vinkovci',
+        'intro' => 'Za dogovor sastanka, inicijalne informacije ili slanje upita dostupni smo kroz dva ureda.',
+        'view_map' => 'Pogledaj na karti',
+        'zagreb' => [
+            'label' => 'Ured Zagreb',
+            'company' => 'Alpha Capitalis d.o.o.',
+            'map_label' => 'Zagreb',
+        ],
+        'vinkovci' => [
+            'label' => 'Ured Vinkovci',
+            'company' => 'Alpha Capitalis East d.o.o.',
+            'map_label' => 'Vinkovci',
+        ],
+    ],
+    'map' => [
+        'kicker' => 'Lokacije',
+        'title' => 'Pronađite nas na karti',
+        'intro' => 'Odaberite ured i otvorite lokaciju na karti za dolazak, navigaciju ili planiranje sastanka.',
+        'open_external' => 'Otvori u Google Maps',
     ],
 ];

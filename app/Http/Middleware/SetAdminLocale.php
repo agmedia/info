@@ -3,6 +3,7 @@
 namespace App\Http\Middleware;
 
 use App\Models\Settings\Local\Language;
+use App\Support\Admin\AdminLocale;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\App;
@@ -13,14 +14,14 @@ class SetAdminLocale
     public function handle(Request $request, Closure $next): Response
     {
         $available = $this->availableLocales();
-        $fallback = $this->normalizeLocale((string) config('app.locale', 'en')) ?: 'en';
+        $default = AdminLocale::default();
 
-        $queryLocale = $this->normalizeLocale((string) $request->query('admin_locale', ''));
-        $sessionLocale = $this->normalizeLocale((string) $request->session()->get('admin_locale', ''));
+        $queryLocale = AdminLocale::normalize((string) $request->query('admin_locale', ''));
+        $sessionLocale = AdminLocale::normalize((string) $request->session()->get('admin_locale', ''));
 
         $locale = in_array($queryLocale, $available, true)
             ? $queryLocale
-            : (in_array($sessionLocale, $available, true) ? $sessionLocale : (in_array($fallback, $available, true) ? $fallback : (string) ($available[0] ?? $fallback)));
+            : (in_array($sessionLocale, $available, true) ? $sessionLocale : (in_array($default, $available, true) ? $default : (string) ($available[0] ?? $default)));
 
         App::setLocale($locale);
         $request->setLocale($locale);
@@ -34,46 +35,26 @@ class SetAdminLocale
      */
     private function availableLocales(): array
     {
-        $fallback = $this->normalizeLocale((string) config('app.locale', 'en')) ?: 'en';
-        $defaults = ['hr', 'en'];
+        $fallbacks = AdminLocale::fallbackOptions();
 
         try {
             $codes = Language::query()
                 ->where('is_active', true)
                 ->pluck('code')
-                ->map(fn ($code) => $this->normalizeLocale((string) $code))
+                ->map(fn ($code) => AdminLocale::normalize((string) $code))
                 ->filter(fn ($code) => $code !== '')
                 ->unique()
                 ->values()
                 ->all();
 
             $merged = array_values(array_unique(array_filter([
-                ...$defaults,
+                ...$fallbacks,
                 ...$codes,
-                $fallback,
             ])));
 
-            return $merged !== [] ? $merged : $defaults;
+            return $merged !== [] ? $merged : $fallbacks;
         } catch (\Throwable) {
-            return array_values(array_unique([$defaults[0], $defaults[1], $fallback]));
+            return $fallbacks;
         }
-    }
-
-    private function normalizeLocale(string $locale): string
-    {
-        $normalized = strtolower(trim($locale));
-        if ($normalized === '') {
-            return '';
-        }
-
-        if (str_contains($normalized, '_')) {
-            $normalized = (string) explode('_', $normalized)[0];
-        }
-
-        if (str_contains($normalized, '-')) {
-            $normalized = (string) explode('-', $normalized)[0];
-        }
-
-        return $normalized;
     }
 }

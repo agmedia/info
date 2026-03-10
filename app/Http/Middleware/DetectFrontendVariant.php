@@ -2,7 +2,6 @@
 
 namespace App\Http\Middleware;
 
-use App\Services\Catalog\CatalogFeatureService;
 use App\Services\Front\DeviceViewResolver;
 use Closure;
 use Illuminate\Http\Request;
@@ -13,7 +12,6 @@ class DetectFrontendVariant
 {
     public function __construct(
         private readonly DeviceViewResolver $deviceViewResolver,
-        private readonly CatalogFeatureService $catalogFeatureService,
     ) {
     }
 
@@ -29,13 +27,7 @@ class DetectFrontendVariant
             $variant = $requestedVariant;
         }
 
-        $useMobilePwa = (bool) config('catalog_features.flags.catalog_use_mobile_pwa', true);
-
-        try {
-            $useMobilePwa = $this->catalogFeatureService->useMobilePwa();
-        } catch (\Throwable) {
-            // Fallback to config when settings storage isn't available yet (e.g. isolated tests).
-        }
+        $useMobilePwa = false;
 
         if (! $useMobilePwa) {
             $variant = 'desktop';

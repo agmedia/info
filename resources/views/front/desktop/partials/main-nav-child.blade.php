@@ -1,23 +1,27 @@
 @php
     $children = collect($child['children'] ?? []);
-    $padding = 0.15 + ($level * 0.75);
-    $textSize = match (true) {
-        $level >= 2 => 'text-[11px]',
-        $level === 1 => 'text-[12px]',
-        default => 'text-[13px]',
-    };
-    $weightClass = $level === 0 ? 'font-light' : 'font-light';
+    $hasChildren = $children->isNotEmpty();
+    $childHref = (string) ($child['url'] ?? '#');
+    $childTarget = !empty($child['open_in_new_tab']) ? '_blank' : null;
+    $childRel = !empty($child['open_in_new_tab']) ? 'noopener noreferrer' : null;
 @endphp
-<li>
-    <a href="{{ $child['url'] ?? '#' }}" class="flex items-center justify-between rounded-md px-1.5 py-0.5 {{ $textSize }} {{ $weightClass }} text-slate-500 transition hover:bg-white/70 hover:text-slate-900" style="padding-left: {{ $padding }}rem;">
-        <span>{{ $child['label'] ?? '' }}</span>
+<li class="front-nav-dropdown-item {{ $hasChildren ? 'group/subnav relative' : '' }}">
+    <a href="{{ $childHref }}" class="front-nav-dropdown-link {{ $hasChildren ? 'front-nav-dropdown-link--branch' : '' }}" @if($childTarget) target="{{ $childTarget }}" rel="{{ $childRel }}" @endif>
+        <span class="min-w-0 truncate">{{ $child['label'] ?? '' }}</span>
+        @if ($hasChildren)
+            <span class="front-nav-dropdown-caret" aria-hidden="true">›</span>
+        @endif
     </a>
 
-    @if ($children->isNotEmpty())
-        <ul class="space-y-1 pb-1">
+    @if ($hasChildren)
+        <div class="front-nav-submenu invisible pointer-events-none absolute left-full top-0 z-20 w-[19rem] pl-2 opacity-0 transition-all duration-150 group-hover/subnav:visible group-hover/subnav:pointer-events-auto group-hover/subnav:opacity-100">
+            <div class="front-nav-submenu-panel p-2">
+                <ul class="front-nav-dropdown-list space-y-1">
             @foreach ($children as $nestedChild)
                 @include('front.desktop.partials.main-nav-child', ['child' => $nestedChild, 'level' => $level + 1])
             @endforeach
-        </ul>
+                </ul>
+            </div>
+        </div>
     @endif
 </li>

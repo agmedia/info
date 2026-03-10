@@ -14,6 +14,7 @@
         panel?.classList.add('-translate-x-full');
         panel?.classList.remove('translate-x-0');
         document.body.classList.remove('overflow-hidden');
+        root.querySelectorAll('details[open]').forEach((details) => details.removeAttribute('open'));
     };
 
     const openMenu = () => {

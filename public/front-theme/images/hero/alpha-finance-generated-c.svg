@@ -1,0 +1,82 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1920" height="1080" viewBox="0 0 1920 1080" fill="none">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#040506"/>
+      <stop offset="48%" stop-color="#081726"/>
+      <stop offset="100%" stop-color="#0a426a"/>
+    </linearGradient>
+    <radialGradient id="glow1" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(1480 240) rotate(136) scale(860 620)">
+      <stop stop-color="#2a78ab" stop-opacity="0.34"/>
+      <stop offset="1" stop-color="#2a78ab" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="glow2" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(520 820) rotate(10) scale(620 300)">
+      <stop stop-color="#b79652" stop-opacity="0.2"/>
+      <stop offset="1" stop-color="#b79652" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="lineGold" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#8f7545"/>
+      <stop offset="50%" stop-color="#c2a163"/>
+      <stop offset="100%" stop-color="#8f7545"/>
+    </linearGradient>
+    <filter id="blur" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="10"/>
+    </filter>
+  </defs>
+
+  <rect width="1920" height="1080" fill="url(#bg)"/>
+  <rect width="1920" height="1080" fill="url(#glow1)"/>
+  <rect width="1920" height="1080" fill="url(#glow2)"/>
+
+  <!-- structural grid -->
+  <g opacity="0.11" stroke="#96c6e6" stroke-width="1">
+    <path d="M0 150H1920M0 300H1920M0 450H1920M0 600H1920M0 750H1920M0 900H1920"/>
+    <path d="M130 0V1080M300 0V1080M470 0V1080M640 0V1080M810 0V1080M980 0V1080M1150 0V1080M1320 0V1080M1490 0V1080M1660 0V1080M1830 0V1080"/>
+  </g>
+
+  <!-- central abstract compass/system -->
+  <g transform="translate(960 545)">
+    <circle cx="0" cy="0" r="248" stroke="#b79652" stroke-opacity="0.3" stroke-width="1.2"/>
+    <circle cx="0" cy="0" r="320" stroke="#b79652" stroke-opacity="0.2" stroke-width="0.9"/>
+    <circle cx="0" cy="0" r="400" stroke="#b79652" stroke-opacity="0.14" stroke-width="0.8"/>
+    <path d="M-420 0H420M0 -420V420" stroke="#b79652" stroke-opacity="0.22" stroke-width="0.8"/>
+    <path d="M-300 -300L300 300M300 -300L-300 300" stroke="#9ec9e8" stroke-opacity="0.18" stroke-width="0.8"/>
+
+    <!-- service nodes (6) -->
+    <g>
+      <circle cx="0" cy="-265" r="34" fill="#0f2233" stroke="#b79652" stroke-opacity="0.65" stroke-width="1.6"/>
+      <path d="M-10 -258h20M-8 -252l4-8 4 5 6-9" stroke="#d5b575" stroke-width="1.7" stroke-linecap="round"/>
+
+      <circle cx="230" cy="-135" r="34" fill="#0f2233" stroke="#b79652" stroke-opacity="0.65" stroke-width="1.6"/>
+      <path d="M220 -146h20v20h-20zM220 -136h20M230 -146v20" stroke="#d5b575" stroke-width="1.6" stroke-linecap="round"/>
+
+      <circle cx="230" cy="135" r="34" fill="#0f2233" stroke="#b79652" stroke-opacity="0.65" stroke-width="1.6"/>
+      <path d="M220 146h20M224 146v-8m8 8v-12" stroke="#d5b575" stroke-width="1.7" stroke-linecap="round"/>
+
+      <circle cx="0" cy="265" r="34" fill="#0f2233" stroke="#b79652" stroke-opacity="0.65" stroke-width="1.6"/>
+      <path d="M-9 272l6-6 4 4 8-10" stroke="#d5b575" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+
+      <circle cx="-230" cy="135" r="34" fill="#0f2233" stroke="#b79652" stroke-opacity="0.65" stroke-width="1.6"/>
+      <path d="M-230 121l2.2 4.5 5 .8-3.6 3.6.8 5-4.4-2.3-4.4 2.3.8-5-3.6-3.6 5-.8z" stroke="#d5b575" stroke-width="1.3" fill="none"/>
+
+      <circle cx="-230" cy="-135" r="34" fill="#0f2233" stroke="#b79652" stroke-opacity="0.65" stroke-width="1.6"/>
+      <path d="M-240 -124v-7l8-6 8 6v7M-235 -124v-5h6v5" stroke="#d5b575" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+    </g>
+
+    <!-- links -->
+    <g stroke="url(#lineGold)" stroke-opacity="0.38" stroke-width="1.4">
+      <path d="M0 -231L0 -90"/>
+      <path d="M200 -118L74 -42"/>
+      <path d="M200 118L74 42"/>
+      <path d="M0 231L0 90"/>
+      <path d="M-200 118L-74 42"/>
+      <path d="M-200 -118L-74 -42"/>
+    </g>
+
+    <circle cx="0" cy="0" r="56" fill="#0f2233" stroke="#b79652" stroke-opacity="0.7" stroke-width="1.6"/>
+    <circle cx="0" cy="0" r="14" fill="#b79652" fill-opacity="0.78" filter="url(#blur)"/>
+  </g>
+
+  <!-- subtle bottom atmosphere -->
+  <ellipse cx="960" cy="980" rx="760" ry="120" fill="#0f3d62" opacity="0.24"/>
+  <rect x="0" y="0" width="1920" height="2" fill="url(#lineGold)" opacity="0.55"/>
+</svg>

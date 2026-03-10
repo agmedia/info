@@ -1,210 +1,325 @@
 @extends('front.desktop.layouts.store')
 
 @section('title', __('contact.page_title'))
+@section('main_class', 'w-full px-0 py-0')
 
 @section('content')
     @php
         $captchaSiteKey = trim((string) ($storeSettings['captcha']['recaptcha_v3_site_key'] ?? ''));
         $captchaEnabled = (bool) ($storeSettings['captcha']['recaptcha_v3_enabled'] ?? false) && $captchaSiteKey !== '';
+        $contactEmail = trim((string) ($storeSettings['footer']['email_support'] ?? '')) ?: 'info@alphacapitalis.com';
+        $contactPhone = trim((string) ($storeSettings['footer']['phone'] ?? '')) ?: '+385 (1) 580 6656';
+        $contactPhoneHref = preg_replace('/\s+/', '', $contactPhone);
+        $contactHours = trim((string) ($storeSettings['footer']['hours'] ?? '')) ?: __('contact.direct.response_fallback');
+        $contactOffices = [
+            [
+                'key' => 'zagreb',
+                'label' => __('contact.offices.zagreb.label'),
+                'company' => __('contact.offices.zagreb.company'),
+                'address' => [
+                    'Ulica R. F. Mihanovića 9',
+                    '10110 Zagreb, Sky Office / XIX. kat',
+                ],
+                'email' => $contactEmail,
+                'phone' => $contactPhone,
+                'phone_href' => $contactPhoneHref,
+                'map_label' => __('contact.offices.zagreb.map_label'),
+                'map_query' => 'Ulica R. F. Mihanovića 9, 10110 Zagreb, Sky Office',
+                'map_embed_url' => 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2781.7413420479693!2d15.907458076538921!3d45.796409471081354!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x4765d6ffe74dee09%3A0xf32defacc421b2a3!2sALPHA%20CAPITALIS%20LTD.!5e0!3m2!1shr!2shr!4v1772955873924!5m2!1shr!2shr',
+            ],
+            [
+                'key' => 'vinkovci',
+                'label' => __('contact.offices.vinkovci.label'),
+                'company' => __('contact.offices.vinkovci.company'),
+                'address' => [
+                    'Duga ulica 67',
+                    '32100 Vinkovci',
+                ],
+                'email' => $contactEmail,
+                'phone' => $contactPhone,
+                'phone_href' => $contactPhoneHref,
+                'map_label' => __('contact.offices.vinkovci.map_label'),
+                'map_query' => 'Duga ulica 67, 32100 Vinkovci',
+                'map_embed_url' => null,
+            ],
+        ];
+        $contactOffices = array_map(static function (array $office): array {
+            $query = rawurlencode($office['map_query']);
+            $office['map_embed_url'] = $office['map_embed_url'] ?: 'https://www.google.com/maps?q='.$query.'&z=16&output=embed';
+            $office['map_external_url'] = 'https://www.google.com/maps/search/?api=1&query='.$query;
+
+            return $office;
+        }, $contactOffices);
+        $pageTitleBreadcrumbs = [
+            ['label' => __('ui.front.desktop.footer.home'), 'url' => route('home')],
+            ['label' => __('contact.page_title'), 'current' => true],
+        ];
     @endphp
 
-    <section class="mb-8">
-        <p class="mb-3 text-center text-xs uppercase tracking-[0.14em] text-slate-500">
-            {{ __('ui.front.desktop.footer.home') }} <span class="mx-1">/</span> {{ __('contact.page_title') }}
-        </p>
-        <div class="border border-slate-200 bg-slate-100 px-6 py-10 text-center sm:px-10">
-            <p class="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">{{ __('contact.eyebrow') }}</p>
-            <h1 class="mt-3 text-4xl font-extrabold tracking-tight text-slate-900">{{ __('contact.heading') }}</h1>
-            <p class="mx-auto mt-3 max-w-2xl text-base text-slate-600">{{ __('contact.subheading') }}</p>
-        </div>
-    </section>
+    <div class="front-contact-page">
+        <x-front.page-title-band :breadcrumbs="$pageTitleBreadcrumbs">
+            <div class="ac-page-title-copy">
+                <h1>{{ __('contact.heading') }}</h1>
+                <p>{{ __('contact.subheading') }}</p>
+            </div>
+        </x-front.page-title-band>
 
-    <section class="grid gap-6 lg:grid-cols-[1fr_340px]">
-        <form
-            method="POST"
-            action="{{ route('contact.store') }}"
-            class="border border-slate-200 bg-white p-6 sm:p-8"
-            novalidate
-            data-contact-form
-            data-msg-name-required="{{ __('contact.validation.inline.name_required') }}"
-            data-msg-email-required="{{ __('contact.validation.inline.email_required') }}"
-            data-msg-email-invalid="{{ __('contact.validation.inline.email_invalid') }}"
-            data-msg-message-required="{{ __('contact.validation.inline.message_required') }}"
-            data-msg-message-min="{{ __('contact.validation.inline.message_min') }}"
-            data-msg-accept-terms="{{ __('contact.validation.inline.accept_terms') }}"
-            @if($captchaEnabled) data-recaptcha-form data-recaptcha-site-key="{{ $captchaSiteKey }}" data-recaptcha-action="contact_form" @endif
-        >
-            @csrf
-            <input type="hidden" name="recaptcha_token" value="" data-recaptcha-token>
-
-            <div class="grid gap-4 md:grid-cols-2">
-                <div>
-                    <label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-500">{{ __('contact.form.name') }}</label>
-                    <input type="text" name="name" value="{{ old('name', auth()->user()?->name) }}" class="h-11 w-full border-slate-300 text-sm focus:border-slate-500 focus:ring-0" required>
-                    <p class="mt-2 text-xs font-semibold text-rose-600 {{ $errors->has('name') ? '' : 'hidden' }}" data-field-error="name">@error('name'){{ $message }}@enderror</p>
+        <section class="front-contact-offices-shell">
+            <div class="mx-auto w-full max-w-[1320px] px-4 sm:px-6 lg:px-8">
+                <div class="front-contact-offices-head">
+                    <p class="front-contact-section-kicker">{{ __('contact.offices.kicker') }}</p>
+                    <h2>{{ __('contact.offices.title') }}</h2>
+                    <p>{{ __('contact.offices.intro') }}</p>
                 </div>
-                <div>
-                    <label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-500">{{ __('contact.form.email') }}</label>
-                    <input type="email" name="email" value="{{ old('email', auth()->user()?->email) }}" class="h-11 w-full border-slate-300 text-sm focus:border-slate-500 focus:ring-0" required>
-                    <p class="mt-2 text-xs font-semibold text-rose-600 {{ $errors->has('email') ? '' : 'hidden' }}" data-field-error="email">@error('email'){{ $message }}@enderror</p>
+
+                <div class="front-contact-offices-grid">
+                    @foreach ($contactOffices as $office)
+                        <article class="front-contact-office-card">
+                            <div class="front-contact-office-top">
+                                <p class="front-contact-office-label">{{ $office['label'] }}</p>
+                                <h3>{{ $office['company'] }}</h3>
+                            </div>
+
+                            <div class="front-contact-office-body">
+                                @foreach ($office['address'] as $line)
+                                    <p>{{ $line }}</p>
+                                @endforeach
+
+                                <button type="button" class="front-contact-office-map-trigger" data-office-map-trigger="{{ $office['key'] }}">
+                                    <span class="front-contact-inline-icon" aria-hidden="true">
+                                        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8">
+                                            <path d="M10 18s5-4.6 5-9a5 5 0 1 0-10 0c0 4.4 5 9 5 9z"/>
+                                            <circle cx="10" cy="9" r="1.9"/>
+                                        </svg>
+                                    </span>
+                                    <span>{{ __('contact.offices.view_map') }}</span>
+                                </button>
+                            </div>
+
+                            <div class="front-contact-office-meta">
+                                <a href="mailto:{{ $office['email'] }}" class="front-contact-office-link">
+                                    <span>{{ __('contact.direct.email') }}</span>
+                                    <strong>
+                                        <span class="front-contact-inline-icon" aria-hidden="true">
+                                            <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8">
+                                                <path d="M3 5.5h14v9H3z"/>
+                                                <path d="m4 6 6 4.8L16 6"/>
+                                            </svg>
+                                        </span>
+                                        {{ $office['email'] }}
+                                    </strong>
+                                </a>
+                                <a href="tel:{{ $office['phone_href'] }}" class="front-contact-office-link">
+                                    <span>{{ __('contact.direct.phone') }}</span>
+                                    <strong>
+                                        <span class="front-contact-inline-icon" aria-hidden="true">
+                                            <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8">
+                                                <path d="M6.2 3.8h2.1l1.2 3.2-1.5 1.5a11 11 0 0 0 3.9 3.9l1.5-1.5 3.2 1.2v2.1c0 .6-.5 1-1.1 1A12.6 12.6 0 0 1 4.1 4.9c0-.6.5-1.1 1.1-1.1z"/>
+                                            </svg>
+                                        </span>
+                                        {{ $office['phone'] }}
+                                    </strong>
+                                </a>
+                            </div>
+                        </article>
+                    @endforeach
                 </div>
             </div>
+        </section>
 
-            <div class="mt-4">
-                <label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-500">{{ __('contact.form.phone') }}</label>
-                <input type="text" name="phone" value="{{ old('phone') }}" class="h-11 w-full border-slate-300 text-sm focus:border-slate-500 focus:ring-0">
-                <p class="mt-2 text-xs font-semibold text-rose-600 {{ $errors->has('phone') ? '' : 'hidden' }}" data-field-error="phone">@error('phone'){{ $message }}@enderror</p>
+        <section class="front-contact-content-shell">
+            <div class="mx-auto w-full max-w-[1320px] px-4 sm:px-6 lg:px-8">
+                <div class="front-contact-layout">
+                    <form
+                        method="POST"
+                        action="{{ route('contact.store') }}"
+                        class="front-contact-form"
+                        novalidate
+                        data-contact-form
+                        data-msg-name-required="{{ __('contact.validation.inline.name_required') }}"
+                        data-msg-email-required="{{ __('contact.validation.inline.email_required') }}"
+                        data-msg-email-invalid="{{ __('contact.validation.inline.email_invalid') }}"
+                        data-msg-message-required="{{ __('contact.validation.inline.message_required') }}"
+                        data-msg-message-min="{{ __('contact.validation.inline.message_min') }}"
+                        data-msg-accept-terms="{{ __('contact.validation.inline.accept_terms') }}"
+                        @if($captchaEnabled) data-recaptcha-form data-recaptcha-site-key="{{ $captchaSiteKey }}" data-recaptcha-action="contact_form" @endif
+                    >
+                        @csrf
+                        <input type="hidden" name="recaptcha_token" value="" data-recaptcha-token>
+
+                        <div class="front-contact-form-head">
+                            <p class="front-contact-section-kicker">{{ __('contact.form.kicker') }}</p>
+                            <h2>{{ __('contact.form.title') }}</h2>
+                            <p>{{ __('contact.form.intro') }}</p>
+                        </div>
+
+                        @if (session('status'))
+                            <div class="front-contact-status" role="status">
+                                {{ session('status') }}
+                            </div>
+                        @endif
+
+                        <div class="grid gap-4 md:grid-cols-2">
+                            <div>
+                                <label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-500">{{ __('contact.form.name') }}</label>
+                                <input type="text" name="name" value="{{ old('name', auth()->user()?->name) }}" class="front-contact-input h-11 w-full text-sm" required>
+                                <p class="mt-2 text-xs font-semibold text-rose-600 {{ $errors->has('name') ? '' : 'hidden' }}" data-field-error="name">@error('name'){{ $message }}@enderror</p>
+                            </div>
+                            <div>
+                                <label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-500">{{ __('contact.form.email') }}</label>
+                                <input type="email" name="email" value="{{ old('email', auth()->user()?->email) }}" class="front-contact-input h-11 w-full text-sm" required>
+                                <p class="mt-2 text-xs font-semibold text-rose-600 {{ $errors->has('email') ? '' : 'hidden' }}" data-field-error="email">@error('email'){{ $message }}@enderror</p>
+                            </div>
+                        </div>
+
+                        <div class="mt-4">
+                            <label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-500">{{ __('contact.form.phone') }}</label>
+                            <input type="text" name="phone" value="{{ old('phone') }}" class="front-contact-input h-11 w-full text-sm">
+                            <p class="mt-2 text-xs font-semibold text-rose-600 {{ $errors->has('phone') ? '' : 'hidden' }}" data-field-error="phone">@error('phone'){{ $message }}@enderror</p>
+                        </div>
+
+                        <div class="mt-4">
+                            <label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-500">{{ __('contact.form.subject') }}</label>
+                            <input type="text" name="subject" value="{{ old('subject') }}" class="front-contact-input h-11 w-full text-sm">
+                            <p class="mt-2 text-xs font-semibold text-rose-600 {{ $errors->has('subject') ? '' : 'hidden' }}" data-field-error="subject">@error('subject'){{ $message }}@enderror</p>
+                        </div>
+
+                        <div class="mt-4">
+                            <label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-500">{{ __('contact.form.message') }}</label>
+                            <textarea name="message" rows="8" class="front-contact-textarea w-full text-sm" required>{{ old('message') }}</textarea>
+                            <p class="mt-2 text-xs font-semibold text-rose-600 {{ $errors->has('message') ? '' : 'hidden' }}" data-field-error="message">@error('message'){{ $message }}@enderror</p>
+                        </div>
+
+                        <div class="front-contact-consent-wrap">
+                            <label class="front-contact-consent">
+                                <input type="checkbox" name="accept_terms" value="1" class="front-contact-checkbox mt-0.5 h-4 w-4 border-slate-300 text-slate-900 focus:ring-0" @checked((bool) old('accept_terms'))>
+                                <span>{{ __('contact.form.accept_terms') }}</span>
+                            </label>
+                            <p class="mt-2 text-xs font-semibold text-rose-600 {{ $errors->has('accept_terms') ? '' : 'hidden' }}" data-field-error="accept_terms">@error('accept_terms'){{ $message }}@enderror</p>
+                        </div>
+
+                        <div class="front-contact-form-actions">
+                            <button type="submit" class="front-contact-submit inline-flex h-11 items-center justify-center px-6 text-sm font-semibold text-white transition">
+                                {{ __('contact.form.submit') }}
+                            </button>
+                            <p class="text-xs font-semibold text-rose-600 {{ $errors->has('recaptcha_token') ? '' : 'hidden' }}" data-field-error="recaptcha_token">@error('recaptcha_token'){{ $message }}@enderror</p>
+                        </div>
+                    </form>
+
+                    <aside class="front-contact-sidebar">
+                        <div class="front-contact-panel front-contact-panel--direct">
+                            <h2>{{ __('contact.direct.title') }}</h2>
+                            <p class="front-contact-panel-intro">{{ __('contact.direct.body') }}</p>
+
+                            <ul class="front-contact-direct-list">
+                                <li>
+                                    <span>{{ __('contact.direct.email') }}</span>
+                                    <a href="mailto:{{ $contactEmail }}">{{ $contactEmail }}</a>
+                                </li>
+                                <li>
+                                    <span>{{ __('contact.direct.phone') }}</span>
+                                    <a href="tel:{{ $contactPhoneHref }}">{{ $contactPhone }}</a>
+                                </li>
+                                <li>
+                                    <span>{{ __('contact.direct.response_time') }}</span>
+                                    <strong>{{ $contactHours }}</strong>
+                                </li>
+                            </ul>
+                        </div>
+
+                        <div class="front-contact-help">
+                            <h3>{{ __('contact.help.title') }}</h3>
+                            <p>{{ __('contact.help.body') }}</p>
+                        </div>
+                    </aside>
+                </div>
             </div>
+        </section>
 
-            <div class="mt-4">
-                <label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-500">{{ __('contact.form.subject') }}</label>
-                <input type="text" name="subject" value="{{ old('subject') }}" class="h-11 w-full border-slate-300 text-sm focus:border-slate-500 focus:ring-0">
-                <p class="mt-2 text-xs font-semibold text-rose-600 {{ $errors->has('subject') ? '' : 'hidden' }}" data-field-error="subject">@error('subject'){{ $message }}@enderror</p>
+        <section id="contact-map-section" class="front-contact-map-shell">
+            <div class="mx-auto w-full max-w-[1320px] px-4 sm:px-6 lg:px-8">
+                <div class="front-contact-map-tabs" role="tablist" aria-label="{{ __('contact.map.title') }}">
+                    @foreach ($contactOffices as $index => $office)
+                        <button
+                            type="button"
+                            class="front-contact-map-tab{{ $index === 0 ? ' is-active' : '' }}"
+                            data-office-map-tab="{{ $office['key'] }}"
+                            role="tab"
+                            aria-selected="{{ $index === 0 ? 'true' : 'false' }}"
+                        >
+                            {{ $office['map_label'] }}
+                        </button>
+                    @endforeach
+                </div>
+
+                <div class="front-contact-map-stage">
+                    @foreach ($contactOffices as $index => $office)
+                        <div
+                            class="front-contact-map-panel{{ $index === 0 ? ' is-active' : '' }}"
+                            data-office-map-panel="{{ $office['key'] }}"
+                            @if ($index !== 0) hidden @endif
+                        >
+                            <div class="front-contact-map-frame">
+                                <iframe
+                                    src="{{ $office['map_embed_url'] }}"
+                                    loading="lazy"
+                                    referrerpolicy="no-referrer-when-downgrade"
+                                    allowfullscreen
+                                    title="{{ $office['map_label'] }}"
+                                ></iframe>
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
             </div>
+        </section>
+    </div>
 
-            <div class="mt-4">
-                <label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-500">{{ __('contact.form.message') }}</label>
-                <textarea name="message" rows="8" class="w-full border-slate-300 text-sm focus:border-slate-500 focus:ring-0" required>{{ old('message') }}</textarea>
-                <p class="mt-2 text-xs font-semibold text-rose-600 {{ $errors->has('message') ? '' : 'hidden' }}" data-field-error="message">@error('message'){{ $message }}@enderror</p>
-            </div>
-
-            <div class="mt-4">
-                <label class="inline-flex items-start gap-2 text-sm text-slate-700">
-                    <input type="checkbox" name="accept_terms" value="1" class="mt-0.5 h-4 w-4 border-slate-300 text-slate-900 focus:ring-0" @checked((bool) old('accept_terms'))>
-                    <span>{{ __('contact.form.accept_terms') }}</span>
-                </label>
-                <p class="mt-2 text-xs font-semibold text-rose-600 {{ $errors->has('accept_terms') ? '' : 'hidden' }}" data-field-error="accept_terms">@error('accept_terms'){{ $message }}@enderror</p>
-            </div>
-
-            <button type="submit" class="mt-6 inline-flex h-11 items-center justify-center border border-slate-900 bg-slate-900 px-6 text-sm font-semibold text-white transition hover:bg-slate-700">
-                {{ __('contact.form.submit') }}
-            </button>
-            <p class="mt-2 text-xs font-semibold text-rose-600 {{ $errors->has('recaptcha_token') ? '' : 'hidden' }}" data-field-error="recaptcha_token">@error('recaptcha_token'){{ $message }}@enderror</p>
-        </form>
-
-        <aside class="space-y-4">
-            <div class="border border-slate-200 bg-white p-6">
-                <h2 class="text-lg font-semibold text-slate-900">{{ __('contact.direct.title') }}</h2>
-                <ul class="mt-3 space-y-2 text-sm text-slate-600">
-                    @if (!empty($storeSettings['footer']['email_support'] ?? ''))
-                        <li><span class="font-semibold text-slate-900">{{ __('contact.direct.email') }}:</span> {{ $storeSettings['footer']['email_support'] }}</li>
-                    @endif
-                    @if (!empty($storeSettings['footer']['phone'] ?? ''))
-                        <li><span class="font-semibold text-slate-900">{{ __('contact.direct.phone') }}:</span> {{ $storeSettings['footer']['phone'] }}</li>
-                    @endif
-                    <li><span class="font-semibold text-slate-900">{{ __('contact.direct.response_time') }}:</span> {{ (string) ($storeSettings['footer']['hours'] ?? __('contact.direct.response_fallback')) }}</li>
-                </ul>
-            </div>
-
-            <div class="border border-slate-200 bg-slate-100 p-6">
-                <h3 class="text-sm font-bold uppercase tracking-wide text-slate-700">{{ __('contact.help.title') }}</h3>
-                <p class="mt-2 text-sm text-slate-700">{{ __('contact.help.body') }}</p>
-            </div>
-        </aside>
-    </section>
-
-    @if ($captchaEnabled)
-        @push('scripts')
-            <script src="https://www.google.com/recaptcha/api.js?render={{ $captchaSiteKey }}"></script>
-        @endpush
-    @endif
+    @include('front.desktop.contact.partials.form-script', [
+        'captchaEnabled' => $captchaEnabled,
+        'captchaSiteKey' => $captchaSiteKey,
+    ])
 
     @push('scripts')
         <script>
             (function () {
-                const forms = document.querySelectorAll('[data-contact-form]');
-                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                const mapSection = document.getElementById('contact-map-section');
+                const mapPanels = Array.from(document.querySelectorAll('[data-office-map-panel]'));
+                const mapTabs = Array.from(document.querySelectorAll('[data-office-map-tab]'));
+                const mapTriggers = Array.from(document.querySelectorAll('[data-office-map-trigger]'));
 
-                forms.forEach(function (form) {
-                    const clearError = function (field) {
-                        const errorNode = form.querySelector('[data-field-error="' + field + '"]');
-                        if (!errorNode) {
-                            return;
-                        }
-                        errorNode.textContent = '';
-                        errorNode.classList.add('hidden');
-                        errorNode.style.display = 'none';
-                    };
+                const activateOfficeMap = function (officeKey) {
+                    if (!officeKey) {
+                        return;
+                    }
 
-                    const setError = function (field, message) {
-                        const errorNode = form.querySelector('[data-field-error="' + field + '"]');
-                        if (!errorNode) {
-                            return;
-                        }
-                        errorNode.textContent = message;
-                        errorNode.classList.remove('hidden');
-                        errorNode.style.display = 'block';
-                    };
-
-                    form.querySelectorAll('[data-field-error]').forEach(function (node) {
-                        if ((node.textContent || '').trim() === '') {
-                            node.style.display = 'none';
-                        } else {
-                            node.style.display = 'block';
-                            node.classList.remove('hidden');
-                        }
+                    mapPanels.forEach(function (panel) {
+                        const isActive = panel.dataset.officeMapPanel === officeKey;
+                        panel.hidden = !isActive;
+                        panel.classList.toggle('is-active', isActive);
                     });
 
-                    const validate = function () {
-                        ['name', 'email', 'message', 'accept_terms', 'recaptcha_token'].forEach(clearError);
+                    mapTabs.forEach(function (tab) {
+                        const isActive = tab.dataset.officeMapTab === officeKey;
+                        tab.classList.toggle('is-active', isActive);
+                        tab.setAttribute('aria-selected', isActive ? 'true' : 'false');
+                    });
+                };
 
-                        const name = form.querySelector('[name="name"]');
-                        const email = form.querySelector('[name="email"]');
-                        const message = form.querySelector('[name="message"]');
-                        const acceptTerms = form.querySelector('[name="accept_terms"]');
-                        let valid = true;
+                mapTabs.forEach(function (tab) {
+                    tab.addEventListener('click', function () {
+                        activateOfficeMap(tab.dataset.officeMapTab || '');
+                    });
+                });
 
-                        if (!name || name.value.trim() === '') {
-                            setError('name', form.dataset.msgNameRequired || '');
-                            valid = false;
+                mapTriggers.forEach(function (trigger) {
+                    trigger.addEventListener('click', function () {
+                        const officeKey = trigger.dataset.officeMapTrigger || '';
+                        activateOfficeMap(officeKey);
+
+                        if (mapSection) {
+                            mapSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
                         }
-
-                        const emailValue = email ? email.value.trim() : '';
-                        if (emailValue === '') {
-                            setError('email', form.dataset.msgEmailRequired || '');
-                            valid = false;
-                        } else if (!emailRegex.test(emailValue)) {
-                            setError('email', form.dataset.msgEmailInvalid || '');
-                            valid = false;
-                        }
-
-                        const messageValue = message ? message.value.trim() : '';
-                        if (messageValue === '') {
-                            setError('message', form.dataset.msgMessageRequired || '');
-                            valid = false;
-                        } else if (messageValue.length < 10) {
-                            setError('message', form.dataset.msgMessageMin || '');
-                            valid = false;
-                        }
-
-                        if (!acceptTerms || !acceptTerms.checked) {
-                            setError('accept_terms', form.dataset.msgAcceptTerms || '');
-                            valid = false;
-                        }
-
-                        return valid;
-                    };
-
-                    form.addEventListener('submit', function (event) {
-                        event.preventDefault();
-                        if (!validate()) {
-                            return;
-                        }
-
-                        const tokenInput = form.querySelector('[data-recaptcha-token]');
-                        const siteKey = form.dataset.recaptchaSiteKey;
-                        const action = form.dataset.recaptchaAction || 'contact_form';
-                        if (!tokenInput || !window.grecaptcha || !siteKey) {
-                            form.submit();
-                            return;
-                        }
-
-                        grecaptcha.ready(function () {
-                            grecaptcha.execute(siteKey, { action: action }).then(function (token) {
-                                tokenInput.value = token || '';
-                                form.submit();
-                            });
-                        });
                     });
                 });
             }());

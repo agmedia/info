@@ -1,0 +1,123 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1920" height="1080" viewBox="0 0 1920 1080" fill="none">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#030509"/>
+      <stop offset="46%" stop-color="#071629"/>
+      <stop offset="100%" stop-color="#0B456E"/>
+    </linearGradient>
+
+    <radialGradient id="blueHaze" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(1460 200) rotate(142) scale(980 620)">
+      <stop stop-color="#4AB9EC" stop-opacity="0.26"/>
+      <stop offset="1" stop-color="#4AB9EC" stop-opacity="0"/>
+    </radialGradient>
+
+    <radialGradient id="goldHaze" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(980 980) rotate(0) scale(960 260)">
+      <stop stop-color="#B79652" stop-opacity="0.12"/>
+      <stop offset="1" stop-color="#B79652" stop-opacity="0"/>
+    </radialGradient>
+
+    <linearGradient id="gridFade" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#8FC5E3" stop-opacity="0.15"/>
+      <stop offset="100%" stop-color="#8FC5E3" stop-opacity="0.03"/>
+    </linearGradient>
+
+    <linearGradient id="lineMain" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#6AD0F5" stop-opacity="0.34"/>
+      <stop offset="100%" stop-color="#9BE8FF" stop-opacity="0.56"/>
+    </linearGradient>
+
+    <linearGradient id="lineGold" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#8C7242" stop-opacity="0.22"/>
+      <stop offset="48%" stop-color="#C6A76C" stop-opacity="0.34"/>
+      <stop offset="100%" stop-color="#8C7242" stop-opacity="0.24"/>
+    </linearGradient>
+
+    <linearGradient id="candles" x1="0" y1="1" x2="0" y2="0">
+      <stop offset="0%" stop-color="#62CCF1" stop-opacity="0.16"/>
+      <stop offset="100%" stop-color="#A3EBFF" stop-opacity="0.56"/>
+    </linearGradient>
+
+    <linearGradient id="dataArea" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#63CFF3" stop-opacity="0.2"/>
+      <stop offset="100%" stop-color="#63CFF3" stop-opacity="0"/>
+    </linearGradient>
+
+    <linearGradient id="skylineGlow" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#79C8EF" stop-opacity="0.22"/>
+      <stop offset="100%" stop-color="#79C8EF" stop-opacity="0"/>
+    </linearGradient>
+
+    <filter id="softGlow" x="-10%" y="-30%" width="120%" height="200%">
+      <feGaussianBlur stdDeviation="5" result="b"/>
+      <feMerge>
+        <feMergeNode in="b"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+
+    <clipPath id="lowerZone">
+      <rect x="0" y="560" width="1920" height="520"/>
+    </clipPath>
+  </defs>
+
+  <rect width="1920" height="1080" fill="url(#bg)"/>
+  <rect width="1920" height="1080" fill="url(#blueHaze)"/>
+  <rect width="1920" height="1080" fill="url(#goldHaze)"/>
+
+  <!-- Tech grid -->
+  <g stroke="url(#gridFade)" stroke-width="1">
+    <path d="M0 178H1920M0 332H1920M0 486H1920M0 640H1920M0 794H1920M0 948H1920"/>
+    <path d="M90 0V1080M270 0V1080M450 0V1080M630 0V1080M810 0V1080M990 0V1080M1170 0V1080M1350 0V1080M1530 0V1080M1710 0V1080"/>
+  </g>
+
+  <!-- Zagreb skyline silhouette (abstract, subtle) -->
+  <g opacity="0.24">
+    <path d="M0 840L90 840L90 800L138 800L138 840L176 840L176 776L236 776L236 840L284 840L284 748L334 748L334 840L390 840L390 706L422 706L422 640L440 640L440 706L470 706L470 840L532 840L532 782L568 782L568 840L624 840L624 730L668 730L668 840L730 840L730 690L780 690L780 840L850 840L850 728L900 728L900 840L980 840L980 700L1020 700L1020 840L1088 840L1088 758L1140 758L1140 840L1220 840L1220 722L1262 722L1262 840L1338 840L1338 746L1388 746L1388 840L1460 840L1460 680L1490 680L1490 612L1508 612L1508 680L1540 680L1540 840L1624 840L1624 736L1670 736L1670 840L1748 840L1748 764L1792 764L1792 840L1920 840L1920 1080L0 1080Z" fill="#061424"/>
+    <path d="M0 840L1920 840L1920 870L0 870Z" fill="url(#skylineGlow)"/>
+  </g>
+
+  <g clip-path="url(#lowerZone)">
+    <!-- Candle/volume rhythm -->
+    <g fill="url(#candles)">
+      <rect x="210" y="734" width="18" height="346" rx="6" opacity="0.46"/>
+      <rect x="382" y="712" width="18" height="368" rx="6" opacity="0.5"/>
+      <rect x="554" y="690" width="18" height="390" rx="6" opacity="0.55"/>
+      <rect x="726" y="664" width="18" height="416" rx="6" opacity="0.6"/>
+      <rect x="898" y="636" width="18" height="444" rx="6" opacity="0.65"/>
+      <rect x="1070" y="608" width="18" height="472" rx="6" opacity="0.7"/>
+      <rect x="1242" y="578" width="18" height="502" rx="6" opacity="0.75"/>
+      <rect x="1414" y="548" width="18" height="532" rx="6" opacity="0.8"/>
+      <rect x="1586" y="516" width="18" height="564" rx="6" opacity="0.84"/>
+      <rect x="1758" y="482" width="18" height="598" rx="6" opacity="0.88"/>
+    </g>
+
+    <path d="M0 1080L0 918C154 906 288 910 420 896C558 880 672 886 792 870C920 852 1026 858 1144 840C1270 820 1382 812 1502 778C1630 742 1750 694 1920 590V1080H0Z" fill="url(#dataArea)"/>
+
+    <g fill="none" stroke-linecap="round" stroke-linejoin="round" vector-effect="non-scaling-stroke">
+      <path d="M0 918C154 906 288 910 420 896C558 880 672 886 792 870C920 852 1026 858 1144 840C1270 820 1382 812 1502 778C1630 742 1750 694 1920 590" stroke="url(#lineMain)" stroke-width="5.6" filter="url(#softGlow)"/>
+      <path d="M0 958C164 952 306 960 446 948C584 936 702 940 828 924C954 908 1068 912 1188 896C1314 878 1428 872 1548 852C1672 832 1794 806 1920 764" stroke="url(#lineGold)" stroke-width="2.3"/>
+      <path d="M0 924C154 912 288 916 420 902C558 886 672 892 792 876C920 858 1026 864 1144 846C1270 826 1382 818 1502 784C1630 748 1750 700 1920 596" stroke="#9DE7FF" stroke-opacity="0.18" stroke-width="9"/>
+    </g>
+
+    <!-- tiny numeric ticks for finance-tech feel -->
+    <g fill="#9FD7F4" opacity="0.22" font-family="'Public Sans', Arial, sans-serif" font-size="12" letter-spacing="0.05em">
+      <text x="324" y="702">74.84</text>
+      <text x="494" y="680">85.12</text>
+      <text x="666" y="658">91.36</text>
+      <text x="838" y="632">98.07</text>
+      <text x="1010" y="604">102.44</text>
+      <text x="1182" y="574">109.21</text>
+      <text x="1354" y="544">116.88</text>
+      <text x="1526" y="512">124.39</text>
+      <text x="1698" y="478">131.02</text>
+    </g>
+  </g>
+
+  <!-- Orbit accents -->
+  <g fill="none" stroke="#B79652" stroke-opacity="0.12">
+    <ellipse cx="1510" cy="614" rx="252" ry="196" stroke-width="1"/>
+    <ellipse cx="1510" cy="614" rx="342" ry="264" stroke-width="0.8"/>
+  </g>
+
+  <rect x="0" y="0" width="1920" height="1.5" fill="#B79652" fill-opacity="0.34"/>
+</svg>

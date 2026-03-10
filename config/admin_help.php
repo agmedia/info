@@ -42,6 +42,11 @@ return [
             'summary' => 'Create and edit blog posts, metadata, and taxonomy links.',
         ],
 
+        'admin.content.team.*' => [
+            'title' => 'Team',
+            'summary' => 'Manage team members, profile copy, contact links, and profile photos.',
+        ],
+
         'admin.content.pages.*' => [
             'title' => 'Pages',
             'summary' => 'Manage static pages and legal content.',
@@ -96,20 +101,12 @@ return [
         ],
 
         'admin.users' => [
-            'title' => 'Users',
-            'summary' => 'Search and manage user accounts.',
+            'title' => 'Admin Users',
+            'summary' => 'Search and manage administrator accounts.',
         ],
         'admin.users.edit' => [
-            'title' => 'Edit User',
-            'summary' => 'Update user profile and account-level flags.',
-        ],
-        'admin.users.groups' => [
-            'title' => 'User Groups',
-            'summary' => 'Manage permission groups and assignment strategy.',
-        ],
-        'admin.users.activity' => [
-            'title' => 'User Activity',
-            'summary' => 'Review user activity logs and admin actions.',
+            'title' => 'Edit Admin User',
+            'summary' => 'Update core admin account data and access flags.',
         ],
         'admin.users.access' => [
             'title' => 'Roles & Abilities',

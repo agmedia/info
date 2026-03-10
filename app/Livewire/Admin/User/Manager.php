@@ -3,7 +3,6 @@
 namespace App\Livewire\Admin\User;
 
 use App\Models\User;
-use App\Models\User\CustomerGroup;
 use App\Services\Settings\SystemSettingsService;
 use Illuminate\Database\Eloquent\Builder;
 use Livewire\Component;
@@ -19,7 +18,6 @@ class Manager extends Component
 
     public string $search = '';
     public string $role = '';
-    public string $segment = '';
     public string $sortBy = 'created_at';
     public string $sortDir = 'desc';
 
@@ -34,11 +32,6 @@ class Manager extends Component
     }
 
     public function updatedRole(): void
-    {
-        $this->resetPage(pageName: self::PAGE_NAME);
-    }
-
-    public function updatedSegment(): void
     {
         $this->resetPage(pageName: self::PAGE_NAME);
     }
@@ -71,7 +64,10 @@ class Manager extends Component
         );
 
         $rows = User::query()
-            ->with(['roles:id,name,title', 'customerGroups:id,name'])
+            ->with(['roles:id,name,title'])
+            ->whereHas('roles', function (Builder $query): void {
+                $query->where('name', '!=', 'customer');
+            })
             ->when($this->search !== '', function (Builder $query): void {
                 $query->where(function (Builder $q): void {
                     $q->where('name', 'like', '%'.$this->search.'%')
@@ -81,30 +77,18 @@ class Manager extends Component
             ->when($this->role !== '', function (Builder $query): void {
                 $query->whereHas('roles', fn (Builder $q) => $q->where('name', $this->role));
             })
-            ->when($this->segment !== '', function (Builder $query): void {
-                $segmentId = (int) $this->segment;
-                if ($segmentId > 0) {
-                    $query->whereHas('customerGroups', fn (Builder $q) => $q->where('customer_groups.id', $segmentId));
-                }
-            })
             ->orderBy($this->sortBy, $this->sortDir)
             ->paginate($perPage, ['*'], self::PAGE_NAME);
 
         $roles = Role::query()
+            ->where('name', '!=', 'customer')
             ->when(! $this->canSeeSuperadminRole(), fn ($query) => $query->where('name', '!=', 'superadmin'))
             ->orderBy('name')
             ->get(['name', 'title']);
 
-        $segments = CustomerGroup::query()
-            ->where('is_active', true)
-            ->orderBy('sort_order')
-            ->orderBy('name')
-            ->get(['id', 'name']);
-
         return view('livewire.admin.user.manager', [
             'rows' => $rows,
             'roles' => $roles,
-            'segments' => $segments,
             'perPage' => $perPage,
         ]);
     }

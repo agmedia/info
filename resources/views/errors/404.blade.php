@@ -95,10 +95,10 @@
         <div class="inner">
             <p class="kicker">Error 404</p>
             <h1 id="not-found-title">Stranica nije pronađena</h1>
-            <p>Link koji ste otvorili ne postoji ili je premješten. Vratite se na početnu ili nastavite kupovinu.</p>
+            <p>Link koji ste otvorili ne postoji ili je premješten. Vratite se na početnu ili otvorite neku od javnih stranica.</p>
             <div class="actions">
                 <a class="btn" href="/">Početna</a>
-                <a class="btn btn-ghost" href="/shop">Shop</a>
+                <a class="btn btn-ghost" href="/contact">Kontakt</a>
             </div>
         </div>
     </section>

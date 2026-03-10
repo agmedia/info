@@ -24,6 +24,8 @@ class AuthenticationTest extends TestCase
     public function test_users_can_authenticate_using_the_login_screen(): void
     {
         $user = User::factory()->create();
+        Bouncer::role()->firstOrCreate(['name' => 'admin']);
+        Bouncer::assign('admin')->to($user);
 
         $component = Volt::test('pages.auth.login')
             ->set('form.email', $user->email)
@@ -36,6 +38,27 @@ class AuthenticationTest extends TestCase
             ->assertRedirect(route('dashboard', absolute: false));
 
         $this->assertAuthenticated();
+    }
+
+    public function test_non_admin_users_can_not_authenticate_using_the_login_screen(): void
+    {
+        $admin = User::factory()->create();
+        Bouncer::role()->firstOrCreate(['name' => 'admin']);
+        Bouncer::assign('admin')->to($admin);
+
+        $user = User::factory()->create();
+
+        $component = Volt::test('pages.auth.login')
+            ->set('form.email', $user->email)
+            ->set('form.password', 'password');
+
+        $component->call('login');
+
+        $component
+            ->assertHasErrors()
+            ->assertNoRedirect();
+
+        $this->assertGuest();
     }
 
     public function test_users_can_not_authenticate_with_invalid_password(): void
@@ -70,12 +93,14 @@ class AuthenticationTest extends TestCase
         $adminResponse->assertRedirect('/admin/dashboard');
 
         $dashboardResponse = $this->get('/admin/dashboard');
-        $dashboardResponse->assertOk()->assertSee('Performance Overview');
+        $dashboardResponse->assertOk()->assertSee('Info Site Overview');
     }
 
     public function test_users_can_logout(): void
     {
         $user = User::factory()->create();
+        Bouncer::role()->firstOrCreate(['name' => 'admin']);
+        Bouncer::assign('admin')->to($user);
 
         $this->actingAs($user);
 

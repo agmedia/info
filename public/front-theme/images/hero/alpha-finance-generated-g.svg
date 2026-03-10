@@ -1,0 +1,67 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1920" height="1080" viewBox="0 0 1920 1080" fill="none">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#05070A"/>
+      <stop offset="45%" stop-color="#0A1624"/>
+      <stop offset="100%" stop-color="#0A3D62"/>
+    </linearGradient>
+
+    <radialGradient id="mistBlue" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(1420 220) rotate(135) scale(760 540)">
+      <stop stop-color="#2f8fc7" stop-opacity="0.24"/>
+      <stop offset="1" stop-color="#2f8fc7" stop-opacity="0"/>
+    </radialGradient>
+
+    <radialGradient id="mistGold" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(420 860) rotate(8) scale(560 240)">
+      <stop stop-color="#B79652" stop-opacity="0.16"/>
+      <stop offset="1" stop-color="#B79652" stop-opacity="0"/>
+    </radialGradient>
+
+    <linearGradient id="lineBlue" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#76CFF2" stop-opacity="0.30"/>
+      <stop offset="100%" stop-color="#3CB3E7" stop-opacity="0.30"/>
+    </linearGradient>
+
+    <linearGradient id="lineGold" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#8F7545" stop-opacity="0.34"/>
+      <stop offset="50%" stop-color="#C2A163" stop-opacity="0.34"/>
+      <stop offset="100%" stop-color="#8F7545" stop-opacity="0.34"/>
+    </linearGradient>
+
+    <filter id="softBlur" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="7"/>
+    </filter>
+  </defs>
+
+  <rect width="1920" height="1080" fill="url(#bg)"/>
+  <rect width="1920" height="1080" fill="url(#mistBlue)"/>
+  <rect width="1920" height="1080" fill="url(#mistGold)"/>
+
+  <!-- subtle etched grid -->
+  <g opacity="0.085" stroke="#9BC8E5" stroke-width="1">
+    <path d="M0 168H1920M0 318H1920M0 468H1920M0 618H1920M0 768H1920M0 918H1920"/>
+    <path d="M140 0V1080M310 0V1080M480 0V1080M650 0V1080M820 0V1080M990 0V1080M1160 0V1080M1330 0V1080M1500 0V1080M1670 0V1080M1840 0V1080"/>
+  </g>
+
+  <!-- abstract financial contours -->
+  <g fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M90 752C218 704 292 732 394 684C500 634 576 712 674 670C772 628 852 692 952 652C1054 612 1140 668 1248 628C1358 588 1448 618 1558 578C1664 540 1742 540 1830 520" stroke="url(#lineBlue)" stroke-width="5.4"/>
+    <path d="M90 792C218 764 306 814 416 784C526 754 614 794 718 766C822 738 910 774 1018 748C1128 722 1218 750 1332 728C1444 706 1538 714 1642 700C1732 688 1788 688 1830 686" stroke="url(#lineGold)" stroke-width="2.8"/>
+    <path d="M90 768C218 720 292 748 394 700C500 650 576 728 674 686C772 644 852 708 952 668C1054 628 1140 684 1248 644C1358 604 1448 634 1558 594C1664 556 1742 556 1830 536" stroke="#67C9F1" stroke-opacity="0.26" stroke-width="12" filter="url(#softBlur)"/>
+  </g>
+
+  <!-- abstract transparent panes -->
+  <g>
+    <rect x="270" y="545" width="210" height="320" rx="14" fill="#6AC8EF" fill-opacity="0.08"/>
+    <rect x="760" y="500" width="270" height="365" rx="14" fill="#6AC8EF" fill-opacity="0.10"/>
+    <rect x="1320" y="455" width="250" height="410" rx="14" fill="#6AC8EF" fill-opacity="0.09"/>
+  </g>
+
+  <!-- orbital confidence forms -->
+  <g fill="none" stroke="#B79652" stroke-opacity="0.18">
+    <ellipse cx="1460" cy="620" rx="210" ry="165" stroke-width="1"/>
+    <ellipse cx="1460" cy="620" rx="292" ry="228" stroke-width="0.85"/>
+    <ellipse cx="1460" cy="620" rx="374" ry="292" stroke-width="0.7"/>
+  </g>
+
+  <rect x="0" y="0" width="1920" height="1.5" fill="#B79652" fill-opacity="0.45"/>
+</svg>

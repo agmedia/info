@@ -49,12 +49,7 @@ return [
         'faq.*',
         'pages.*',
         'contact.*',
-        'account.*',
-        'login',
-        'register',
-        'dashboard',
         'admin.*',
-        'profile',
     ],
 
     'view_overrides' => [

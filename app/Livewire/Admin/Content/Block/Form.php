@@ -1436,8 +1436,8 @@ BLADE,
             <span class="text-xl font-bold">+</span>
         </div>
         <div>
-            <div class="text-2xl font-bold leading-none">Fast Dispatch</div>
-            <div class="mt-1 text-sm leading-tight text-white/80">Orders before 14:00 ship same day.</div>
+            <div class="text-2xl font-bold leading-none">Fast Response</div>
+            <div class="mt-1 text-sm leading-tight text-white/80">Most inquiries receive a reply within one business day.</div>
         </div>
     </div>
 
@@ -1446,8 +1446,8 @@ BLADE,
             <span class="text-xl font-bold">+</span>
         </div>
         <div>
-            <div class="text-2xl font-bold leading-none">Easy Returns</div>
-            <div class="mt-1 text-sm leading-tight text-white/80">30-day return flow with no paperwork.</div>
+            <div class="text-2xl font-bold leading-none">Senior Expertise</div>
+            <div class="mt-1 text-sm leading-tight text-white/80">Finance, tax, accounting, and advisory support in one place.</div>
         </div>
     </div>
 
@@ -1456,8 +1456,8 @@ BLADE,
             <span class="text-xl font-bold">+</span>
         </div>
         <div>
-            <div class="text-2xl font-bold leading-none">Secure Checkout</div>
-            <div class="mt-1 text-sm leading-tight text-white/80">Card, Apple Pay, and Google Pay support.</div>
+            <div class="text-2xl font-bold leading-none">Trusted Delivery</div>
+            <div class="mt-1 text-sm leading-tight text-white/80">Clear onboarding, documented scope, and direct communication.</div>
         </div>
     </div>
 </div>

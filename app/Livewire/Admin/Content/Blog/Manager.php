@@ -16,7 +16,7 @@ class Manager extends Component
 
     public function mount(): void
     {
-        $this->locale = (string) (request()->query('locale') ?: config('app.locale', 'en'));
+        $this->locale = (string) (request()->query('locale') ?: app()->getLocale() ?: config('admin_ui.locale.default', 'hr'));
     }
 
     public function updatedSearch(): void
@@ -55,6 +55,7 @@ class Manager extends Component
             ->withCount('categories')
             ->with([
                 'translations' => fn ($q) => $q->where('locale', $this->locale),
+                'media',
             ])
             ->when($this->search !== '', function ($query): void {
                 $query->where(function ($q): void {

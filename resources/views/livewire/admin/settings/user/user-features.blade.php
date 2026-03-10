@@ -2,23 +2,19 @@
     <div class="admin-panel admin-search-panel p-6">
         <h1 class="text-xl font-semibold tracking-tight">{{ __('User Settings') }}</h1>
         <p class="mt-2 text-sm text-slate-600">{{ __('Namespace:') }} <code>Settings/User</code></p>
-        <p class="mt-2 text-xs text-slate-500">{{ __('Control user tracking capture and loyalty engine behavior.') }}</p>
+        <p class="mt-2 text-xs text-slate-500">{{ __('Control user tracking capture for analytics and diagnostics.') }}</p>
     </div>
 
     <div class="admin-panel admin-form-panel p-6">
         <form wire:submit="save" class="admin-form mt-1 space-y-4">
             <div>
                 <p class="admin-section-title">{{ __('Feature Switches') }}</p>
-                <div class="mt-3 grid gap-3 md:grid-cols-2">
+                <div class="mt-3 grid gap-3 md:grid-cols-1">
                     @php
                         $switches = [
                             'user_tracking_enabled' => [
                                 'title' => __('User Tracking'),
                                 'description' => __('Stores user/front interaction events for analytics and personalization.'),
-                            ],
-                            'user_loyalty_enabled' => [
-                                'title' => __('Loyalty System'),
-                                'description' => __('Awards loyalty points from order totals when eligible statuses are reached.'),
                             ],
                         ];
                     @endphp
@@ -51,45 +47,6 @@
                             </p>
                         </div>
                     @endforeach
-                </div>
-            </div>
-
-            <div>
-                <p class="admin-section-title">{{ __('Loyalty Rules') }}</p>
-                <div class="mt-3 grid gap-3 md:grid-cols-3">
-                    <div>
-                        <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Points Per Currency Unit') }}</label>
-                        <input
-                            type="number"
-                            step="0.01"
-                            min="0"
-                            wire:model="form.loyalty_points_per_currency"
-                            class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm"
-                        />
-                        @error('form.loyalty_points_per_currency') <p class="mt-1 text-xs text-rose-600">{{ $message }}</p> @enderror
-                    </div>
-                    <div>
-                        <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Minimum Order Total') }}</label>
-                        <input
-                            type="number"
-                            step="0.01"
-                            min="0"
-                            wire:model="form.loyalty_min_order_total"
-                            class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm"
-                        />
-                        @error('form.loyalty_min_order_total') <p class="mt-1 text-xs text-rose-600">{{ $message }}</p> @enderror
-                    </div>
-                    <div>
-                        <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Reversal Policy') }}</label>
-                        <select wire:model="form.loyalty_reversal_mode" data-tom-select data-tom-no-search="1" class="admin-select w-full rounded-xl border border-slate-300 px-3 py-2 text-sm">
-                            <option value="zero_out">{{ __('Zero out settlement row') }}</option>
-                            <option value="separate_entry">{{ __('Create separate reversal entry') }}</option>
-                        </select>
-                        @error('form.loyalty_reversal_mode') <p class="mt-1 text-xs text-rose-600">{{ $message }}</p> @enderror
-                    </div>
-                </div>
-                <div class="mt-3 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs text-slate-600">
-                    {{ __('Award formula:') }} <code>round(order grand total * points per currency)</code>, {{ __('only when order status is marked paid and not cancelled. Reversal policy controls what happens when an awarded order moves to cancelled/refunded flow.') }}
                 </div>
             </div>
 

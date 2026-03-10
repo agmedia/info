@@ -2,7 +2,6 @@
 
 namespace App\Services\Front;
 
-use App\Models\Catalog\Category\Category;
 use App\Models\Content\Page\InfoPage;
 use App\Services\Settings\SystemSettingsService;
 use Illuminate\Support\Facades\Storage;
@@ -22,6 +21,7 @@ class StoreSettingsService
         return [
             'announcement' => $this->announcement(),
             'branding' => $this->branding(),
+            'blog' => $this->blog(),
             'footer' => $this->footer(),
             'newsletter' => $this->newsletter(),
             'captcha' => $this->captcha(),
@@ -87,6 +87,22 @@ class StoreSettingsService
     /**
      * @return array<string, mixed>
      */
+    public function blog(): array
+    {
+        return [
+            'hero_eyebrow' => trim((string) $this->settings->get('store_blog_header_eyebrow', __('ui.blog.eyebrow'))),
+            'hero_title' => trim((string) $this->settings->get('store_blog_header_title', __('ui.blog.title'))),
+            'hero_intro' => trim((string) $this->settings->get('store_blog_header_intro', __('ui.blog.subtitle'))),
+            'hero_cta_label' => trim((string) $this->settings->get('store_blog_header_cta_label', __('ui.blog.cta_default'))),
+            'hero_cta_url' => trim((string) $this->settings->get('store_blog_header_cta_url', '/contact')),
+            'category_preview_limit' => max(1, min(40, (int) $this->settings->get('store_blog_category_preview_limit', 8))),
+            'posts_per_page' => max(1, min(48, (int) $this->settings->get('store_blog_posts_per_page', 12))),
+        ];
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
     public function footer(): array
     {
         $locale = app()->getLocale();
@@ -144,8 +160,6 @@ class StoreSettingsService
         return [
             'enabled' => (bool) $this->settings->get('store_analytics_enabled', false),
             'ga4_measurement_id' => trim((string) $this->settings->get('store_analytics_ga4_measurement_id', '')),
-            'purchase_event_enabled' => (bool) $this->settings->get('store_analytics_purchase_event_enabled', true),
-            'purchase_event_name' => trim((string) $this->settings->get('store_analytics_purchase_event_name', 'purchase')) ?: 'purchase',
         ];
     }
 
@@ -166,7 +180,6 @@ class StoreSettingsService
             'from_address' => (string) $this->settings->get('store_email_from_address', (string) config('mail.from.address', '')),
             'from_name' => (string) $this->settings->get('store_email_from_name', (string) config('mail.from.name', '')),
             'reply_to' => (string) $this->settings->get('store_email_reply_to', ''),
-            'orders_to' => (string) $this->settings->get('store_email_orders_to', ''),
             'contact_to' => (string) $this->settings->get('store_email_contact_to', ''),
         ];
     }
@@ -193,7 +206,6 @@ class StoreSettingsService
             'default_image_url' => $this->assetUrl((string) $this->settings->get('store_og_default_image_path', '')),
             'home_image_url' => $this->assetUrl((string) $this->settings->get('store_og_home_image_path', '')),
             'category_image_url' => $this->assetUrl((string) $this->settings->get('store_og_category_image_path', '')),
-            'product_image_url' => $this->assetUrl((string) $this->settings->get('store_og_product_image_path', '')),
             'page_image_url' => $this->assetUrl((string) $this->settings->get('store_og_page_image_path', '')),
             'blog_image_url' => $this->assetUrl((string) $this->settings->get('store_og_blog_image_path', '')),
         ];
@@ -211,8 +223,7 @@ class StoreSettingsService
             'breadcrumbs_enabled' => (bool) $this->settings->get('store_schema_breadcrumbs_enabled', true),
             'itemlist_enabled' => (bool) $this->settings->get('store_schema_itemlist_enabled', true),
             'home_enabled' => (bool) $this->settings->get('store_schema_home_enabled', true),
-            'category_enabled' => (bool) $this->settings->get('store_schema_category_enabled', true),
-            'product_enabled' => (bool) $this->settings->get('store_schema_product_enabled', true),
+            'category_enabled' => (bool) $this->settings->get('store_schema_category_enabled', false),
             'blog_enabled' => (bool) $this->settings->get('store_schema_blog_enabled', true),
             'page_enabled' => (bool) $this->settings->get('store_schema_page_enabled', true),
             'faq_enabled' => (bool) $this->settings->get('store_schema_faq_enabled', true),
@@ -228,7 +239,6 @@ class StoreSettingsService
             'same_as' => trim((string) $this->settings->get('store_schema_same_as', '')),
             'blog_author_name' => trim((string) $this->settings->get('store_schema_blog_author_name', '')),
             'blog_author_url' => trim((string) $this->settings->get('store_schema_blog_author_url', '')),
-            'product_currency' => strtoupper((string) $this->settings->get('store_schema_product_currency', 'EUR')),
             'faq_group' => trim((string) $this->settings->get('store_schema_faq_group', '')),
             'faq_limit' => (int) $this->settings->get('store_schema_faq_limit', 8),
             'itemlist_limit' => (int) $this->settings->get('store_schema_itemlist_limit', 12),
@@ -251,47 +261,17 @@ class StoreSettingsService
     private function resolveFooterLinkColumns(string $locale, string $fallbackLocale): array
     {
         $pageIds = [];
-        $categoryIds = [];
         foreach ([1, 2, 3] as $col) {
             $pageIds = array_merge($pageIds, $this->normalizeIdList($this->settings->get('store_footer_col_'.$col.'_page_ids', [])));
-            $categoryIds = array_merge($categoryIds, $this->normalizeIdList($this->settings->get('store_footer_col_'.$col.'_category_ids', [])));
         }
         $pageIds = array_values(array_unique($pageIds));
-        $categoryIds = array_values(array_unique($categoryIds));
 
         $pageMap = $this->resolveFooterPageLinksMap($locale, $fallbackLocale, $pageIds);
 
-        $categoryMap = Category::query()
-            ->whereIn('id', $categoryIds)
-            ->where('scope', Category::SCOPE_CATALOG)
-            ->where('is_active', true)
-            ->with(['translations' => fn ($q) => $q
-                ->where('scope', Category::SCOPE_CATALOG)
-                ->whereIn('locale', [$locale, $fallbackLocale])])
-            ->get()
-            ->mapWithKeys(function (Category $category) use ($locale, $fallbackLocale): array {
-                $translation = $category->translations->firstWhere('locale', $locale)
-                    ?? $category->translations->firstWhere('locale', $fallbackLocale)
-                    ?? $category->translations->first();
-                $slug = trim((string) ($translation?->slug ?? ''));
-                if ($slug === '') {
-                    return [];
-                }
-
-                return [
-                    (int) $category->id => [
-                        'label' => (string) ($translation?->name ?? $category->code),
-                        'url' => route('categories.show', ['slug' => $slug]),
-                        'type' => 'catalog_category',
-                    ],
-                ];
-            })
-            ->all();
-
         $defaults = [
-            1 => (string) __('ui.front.desktop.footer.shop'),
+            1 => (string) __('ui.front.desktop.footer.info'),
             2 => (string) __('ui.front.desktop.footer.help'),
-            3 => (string) __('ui.front.desktop.footer.info'),
+            3 => (string) __('ui.front.desktop.footer.support'),
         ];
 
         $result = [];
@@ -302,12 +282,6 @@ class StoreSettingsService
             }
 
             $links = [];
-            foreach ($this->normalizeIdList($this->settings->get('store_footer_col_'.$col.'_category_ids', [])) as $categoryId) {
-                $entry = $categoryMap[(int) $categoryId] ?? null;
-                if (is_array($entry)) {
-                    $links[] = $entry;
-                }
-            }
             foreach ($this->normalizeIdList($this->settings->get('store_footer_col_'.$col.'_page_ids', [])) as $pageId) {
                 $entry = $pageMap[(int) $pageId] ?? null;
                 if (is_array($entry)) {

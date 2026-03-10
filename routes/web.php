@@ -2,12 +2,14 @@
 
 use App\Http\Controllers\Admin\AdminAiController;
 use App\Http\Controllers\Admin\SystemToolsController;
-use App\Http\Controllers\Front\AccountController;
-use App\Http\Controllers\Front\AuthController;
 use App\Http\Controllers\Front\BlogController;
+use App\Http\Controllers\Front\CollaborationAssessmentController;
 use App\Http\Controllers\Front\ContactController;
+use App\Http\Controllers\Front\FamilyBusinessController;
 use App\Http\Controllers\Front\FaqController;
+use App\Http\Controllers\Front\LeaseCalculatorController;
 use App\Http\Controllers\Front\PageController;
+use App\Http\Controllers\Front\TeamController;
 use App\Http\Controllers\Front\StorefrontController;
 use App\Models\Catalog\Category\Category;
 use App\Models\Content\Blog\BlogPost;
@@ -15,6 +17,7 @@ use App\Models\Content\ContentBlock;
 use App\Models\Content\ContentBlockSlot;
 use App\Models\Content\Page\InfoPage;
 use App\Models\Content\Support\Faq;
+use App\Models\Content\Team\TeamMember;
 use App\Models\Settings\Local\Language;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -49,48 +52,26 @@ Route::middleware(['front.locale', 'front.device'])
             return redirect()->back();
         })->name('front.locale.switch');
 
-        Route::get('site.webmanifest', [StorefrontController::class, 'manifest'])->name('front.manifest');
-
         Route::get('/', [StorefrontController::class, 'home'])->name('home');
 
         Route::get('blog', [BlogController::class, 'index'])->name('blog.index');
         Route::get('blog/{slug}', [BlogController::class, 'show'])->name('blog.show');
         Route::get('faq', [FaqController::class, 'index'])->name('faq.index');
+        Route::get('alpha-capitalis-tim', [TeamController::class, 'index'])->name('team.index');
+        Route::get('obiteljski-biznis', [FamilyBusinessController::class, 'show'])->name('family-business.show');
 
         Route::get('pages/category/{slug}', [PageController::class, 'category'])->name('pages.category');
         Route::get('page/{slug}', [PageController::class, 'show'])->name('pages.show');
 
         Route::get('contact', [ContactController::class, 'create'])->name('contact.create');
         Route::post('contact', [ContactController::class, 'store'])->name('contact.store');
+        Route::get('ac-forma-robot', [CollaborationAssessmentController::class, 'create'])->name('assessment.create');
+        Route::post('ac-forma-robot', [CollaborationAssessmentController::class, 'store'])->name('assessment.store');
+        Route::get('leasing-kalkulator', [LeaseCalculatorController::class, 'show'])->name('lease-calculator.show');
 
-        Route::middleware('guest')->prefix('auth')->as('front.auth.')->group(function (): void {
-            Route::get('login', [AuthController::class, 'showLogin'])->name('login');
-            Route::post('login', [AuthController::class, 'login'])->name('login.store');
-            Route::get('register', [AuthController::class, 'showRegister'])->name('register');
-            Route::post('register', [AuthController::class, 'register'])->name('register.store');
-        });
-
-        Route::middleware(['auth', 'verified'])
-            ->prefix('account')
-            ->as('account.')
-            ->group(function (): void {
-                Route::get('/', [AccountController::class, 'dashboard'])->name('dashboard');
-                Route::get('profile', [AccountController::class, 'profile'])->name('profile');
-                Route::put('profile', [AccountController::class, 'updateProfile'])->name('profile.update');
-                Route::put('preferences', [AccountController::class, 'updatePreferences'])->name('preferences.update');
-                Route::put('addresses/{type}', [AccountController::class, 'updateAddress'])
-                    ->where('type', 'billing|shipping')
-                    ->name('addresses.update');
-            });
     });
 
 Route::get('dashboard', function (Request $request) {
-    $user = $request->user();
-
-    if ($user && $user->isA('customer')) {
-        return redirect('/');
-    }
-
     return redirect()->route('admin.dashboard');
 })
     ->middleware(['auth', 'verified'])
@@ -111,9 +92,7 @@ Route::middleware(['admin.locale', 'auth', 'verified', 'admin.access', 'admin.ma
         })->name('categories.edit');
 
         Route::view('users', 'admin.users.index')->name('users');
-        Route::view('users/groups', 'admin.users.groups')->name('users.groups');
         Route::view('users/access', 'admin.users.access')->name('users.access');
-        Route::view('users/activity', 'admin.users.activity')->name('users.activity');
         Route::get('users/{user}/edit', function (User $user) {
             return view('admin.users.edit', compact('user'));
         })->name('users.edit');
@@ -128,6 +107,12 @@ Route::middleware(['admin.locale', 'auth', 'verified', 'admin.access', 'admin.ma
             Route::get('blog/{post}/edit', function (BlogPost $post) {
                 return view('admin.content.blog.edit', compact('post'));
             })->name('blog.edit');
+
+            Route::view('team', 'admin.content.team.index')->name('team.index');
+            Route::view('team/create', 'admin.content.team.create')->name('team.create');
+            Route::get('team/{member}/edit', function (TeamMember $member) {
+                return view('admin.content.team.edit', compact('member'));
+            })->name('team.edit');
 
             Route::view('pages', 'admin.content.pages.index')->name('pages.index');
             Route::view('pages/create', 'admin.content.pages.create')->name('pages.create');

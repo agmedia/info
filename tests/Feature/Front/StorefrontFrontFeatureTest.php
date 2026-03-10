@@ -4,19 +4,13 @@ namespace Tests\Feature\Front;
 
 use App\Models\Catalog\Category\Category;
 use App\Models\Catalog\Category\CategoryTranslation;
-use App\Models\Catalog\Manufacturer\Manufacturer;
-use App\Models\Catalog\Manufacturer\ManufacturerTranslation;
-use App\Models\Catalog\Product\Product;
-use App\Models\Catalog\Product\ProductTranslation;
 use App\Models\Content\Blog\BlogPost;
 use App\Models\Content\Blog\BlogPostTranslation;
 use App\Models\Content\Page\InfoPage;
 use App\Models\Content\Page\InfoPageTranslation;
-use App\Models\Settings\Local\Currency;
-use App\Models\Settings\Local\OrderStatus;
-use App\Models\Settings\Local\PaymentMethod;
-use App\Models\Settings\Local\ShippingMethod;
-use App\Models\User;
+use App\Models\Content\Support\Comment;
+use App\Models\Content\Team\TeamMember;
+use App\Models\Content\Team\TeamMemberTranslation;
 use App\Services\Front\NavigationMenuService;
 use App\Services\Settings\SystemSettingsService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -26,33 +20,21 @@ class StorefrontFrontFeatureTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_pretty_storefront_routes_are_available(): void
+    public function test_public_content_routes_are_available(): void
     {
-        [$category, $categorySlug] = $this->seedCategory();
-        [$product, $productSlug] = $this->seedProduct($category->id);
-        [$manufacturer, $manufacturerSlug] = $this->seedManufacturer();
         [$post, $postSlug] = $this->seedBlogPost();
         [$page, $pageSlug] = $this->seedInfoPage();
-
-        app(SystemSettingsService::class)->putMany([
-            'catalog_use_manufacturers' => true,
-            'catalog_use_blog' => true,
-        ]);
-
-        $this->get('/shop')->assertOk();
-        $this->get('/categories')->assertOk();
-        $this->get('/category/'.$categorySlug)->assertOk();
-        $this->get('/product/'.$productSlug)->assertOk();
-        $this->get('/manufacturers')->assertOk();
-        $this->get('/manufacturer/'.$manufacturerSlug)->assertOk();
+        
         $this->get('/blog')->assertOk();
         $this->get('/blog/'.$postSlug)->assertOk();
+        $this->get('/faq')->assertOk();
         $this->get('/page/'.$pageSlug)->assertOk();
+        $this->get('/alpha-capitalis-tim')->assertOk();
+        $this->get('/obiteljski-biznis')->assertOk();
         $this->get('/contact')->assertOk();
-        $this->get('/cart')->assertOk();
+        $this->get('/ac-forma-robot')->assertOk();
+        $this->get('/leasing-kalkulator')->assertOk();
 
-        $this->assertNotNull($product);
-        $this->assertNotNull($manufacturer);
         $this->assertNotNull($post);
         $this->assertNotNull($page);
     }
@@ -65,6 +47,7 @@ class StorefrontFrontFeatureTest extends TestCase
             'phone' => '+38591000000',
             'subject' => 'Wholesale inquiry',
             'message' => 'Please contact me with available B2B pricing details.',
+            'accept_terms' => '1',
         ])->assertRedirect('/contact');
 
         $this->assertDatabaseHas('contact_messages', [
@@ -74,265 +57,398 @@ class StorefrontFrontFeatureTest extends TestCase
         ]);
     }
 
-    public function test_home_renders_configured_navigation_with_subcategories(): void
+    public function test_family_business_contact_form_can_redirect_back_to_section(): void
     {
-        [$parent, $parentSlug] = $this->seedCategory();
+        $this->post('/contact', [
+            'first_name' => 'Ana',
+            'last_name' => 'Horvat',
+            'company' => 'Obitelj Horvat d.o.o.',
+            'email' => 'ana@example.test',
+            'phone' => '+38598111222',
+            'subject' => 'Dogovor sastanka',
+            'message' => 'Želim dogovoriti inicijalni sastanak za temu tranzicije vlasništva.',
+            'accept_terms' => '1',
+            'redirect_to' => '/obiteljski-biznis#family-business-sastanak',
+        ])->assertRedirect('/obiteljski-biznis#family-business-sastanak');
 
-        $child = Category::query()->create([
-            'scope' => Category::SCOPE_CATALOG,
-            'code' => 'child-'.strtolower((string) str()->random(5)),
-            'is_active' => true,
-            'show_in_menu' => true,
-            'sort_order' => 2,
-            'parent_id' => $parent->id,
+        $this->assertDatabaseHas('contact_messages', [
+            'name' => 'Ana Horvat',
+            'email' => 'ana@example.test',
+            'subject' => 'Dogovor sastanka',
+            'status' => 'new',
         ]);
+    }
 
-        CategoryTranslation::query()->create([
-            'category_id' => $child->id,
-            'scope' => Category::SCOPE_CATALOG,
-            'locale' => 'en',
-            'name' => 'Child menu category',
-            'slug' => 'child-menu-category',
-            'description' => 'Child description',
-        ]);
+    public function test_contact_page_renders_official_office_data(): void
+    {
+        $this->get('/contact')
+            ->assertOk()
+            ->assertSee('Alpha Capitalis d.o.o.')
+            ->assertSee('Ulica R. F. Mihanovića 9')
+            ->assertSee('Alpha Capitalis East d.o.o.')
+            ->assertSee('Duga ulica 67')
+            ->assertSee('info@alphacapitalis.com')
+            ->assertSee('+385 (1) 580 6656');
+    }
+
+    public function test_collaboration_assessment_page_renders(): void
+    {
+        $this->get('/ac-forma-robot')
+            ->assertOk()
+            ->assertSee(__('assessment.heading'))
+            ->assertSee(__('assessment.form.company_name'))
+            ->assertSee(__('assessment.form.outgoing_invoices_monthly'));
+    }
+
+    public function test_collaboration_assessment_form_stores_structured_message(): void
+    {
+        $this->post('/ac-forma-robot', [
+            'company_name' => 'Alpha Test d.o.o.',
+            'company_oib' => '12345678901',
+            'activity' => 'Financijsko savjetovanje',
+            'contact_email' => 'assessment@example.test',
+            'contact_phone' => '+38591111222',
+            'incoming_invoices_monthly' => '24',
+            'outgoing_invoices_monthly' => '18',
+            'bank_accounts_monthly' => '2',
+            'payroll_calculations_monthly' => '6',
+            'inventory_bookkeeping' => 'no',
+            'cost_centers_tracking' => 'yes',
+            'monthly_reporting' => 'yes',
+            'accept_terms' => '1',
+        ])->assertRedirect('/ac-forma-robot');
+
+        $message = \App\Models\Content\Support\ContactMessage::query()
+            ->where('email', 'assessment@example.test')
+            ->latest('id')
+            ->first();
+
+        $this->assertNotNull($message);
+        $this->assertSame(__('assessment.form.default_subject'), $message->subject);
+        $this->assertSame('collaboration_assessment', $message->payload['form_type'] ?? null);
+        $this->assertSame('Alpha Test d.o.o.', $message->payload['answers']['company_name'] ?? null);
+        $this->assertSame('18', $message->payload['answers']['outgoing_invoices_monthly'] ?? null);
+    }
+
+    public function test_lease_calculator_page_renders(): void
+    {
+        $this->get('/leasing-kalkulator')
+            ->assertOk()
+            ->assertSee(__('lease_calculator.heading'))
+            ->assertSee(__('lease_calculator.form.start_date'))
+            ->assertSee(__('lease_calculator.results.lease_liability'));
+    }
+
+    public function test_home_header_links_to_lease_calculator_page(): void
+    {
+        $this->get('/')
+            ->assertOk()
+            ->assertSee('/leasing-kalkulator', false)
+            ->assertDontSee('#msfi16-kalkulator', false);
+    }
+
+    public function test_home_header_links_team_navigation_item_to_public_team_page(): void
+    {
+        $this->get('/')
+            ->assertOk()
+            ->assertSee('Alpha Capitalis Tim')
+            ->assertSee(route('team.index'), false)
+            ->assertDontSee('#tim', false);
+    }
+
+    public function test_navigation_menu_service_resolves_page_and_custom_links(): void
+    {
+        [$page, $pageSlug] = $this->seedInfoPage();
 
         app(SystemSettingsService::class)->put(NavigationMenuService::SETTINGS_KEY, [
             [
-                'type' => 'category',
-                'label' => 'Hrana i namirnice',
-                'category_id' => $parent->id,
-                'page_id' => 0,
+                'type' => 'page',
+                'label' => 'Savjeti',
+                'page_id' => $page->id,
                 'url' => '',
                 'open_in_new_tab' => false,
-                'show_dropdown' => true,
+                'show_dropdown' => false,
                 'is_active' => true,
                 'sort_order' => 0,
             ],
+            [
+                'type' => 'custom',
+                'label' => 'Kontakt',
+                'page_id' => 0,
+                'url' => '/contact',
+                'open_in_new_tab' => false,
+                'show_dropdown' => false,
+                'is_active' => true,
+                'sort_order' => 1,
+            ],
+        ]);
+
+        $items = app(NavigationMenuService::class)->forLocale('en');
+
+        $this->assertCount(2, $items);
+        $this->assertSame('Savjeti', $items[0]['label'] ?? null);
+        $this->assertSame(route('pages.show', ['slug' => $pageSlug]), $items[0]['url'] ?? null);
+        $this->assertSame('Kontakt', $items[1]['label'] ?? null);
+        $this->assertSame('/contact', $items[1]['url'] ?? null);
+    }
+
+    public function test_home_renders_client_testimonials_section(): void
+    {
+        Comment::query()->create([
+            'commentable_type' => null,
+            'commentable_id' => null,
+            'author_name' => 'Ivan Knezevic',
+            'author_email' => null,
+            'locale' => 'en',
+            'body' => 'We gained a much clearer picture of profitability after implementing the controlling system.',
+            'rating' => 5,
+            'status' => Comment::STATUS_APPROVED,
+            'is_featured' => true,
+            'reviewed_at' => now(),
+            'payload' => ['company' => 'Palma D.O.O.'],
         ]);
 
         $this->get('/')
             ->assertOk()
-            ->assertSee('Hrana i namirnice')
-            ->assertSee('Child menu category')
-            ->assertSee('/category/'.$parentSlug, false);
+            ->assertSee('What Our Clients Say')
+            ->assertSee('We gained a much clearer picture of profitability after implementing the controlling system.')
+            ->assertSee('Ivan Knezevic')
+            ->assertSee('Palma D.O.O.');
     }
 
-    public function test_account_routes_are_prefixed_and_require_authenticated_verified_user(): void
+    public function test_blog_index_supports_filters_and_uses_blog_settings_for_pagination(): void
     {
-        $this->get('/account')->assertRedirect('/login');
-        $this->get('/account/orders')->assertRedirect('/login');
-        $this->get('/account/profile')->assertRedirect('/login');
+        $finance = $this->seedBlogCategory('Finance', 'finance');
+        $tax = $this->seedBlogCategory('Tax', 'tax');
 
-        $user = User::factory()->create([
-            'email_verified_at' => now(),
+        $this->seedBlogPost([$finance->id], 'Alpha Review', 'alpha-review', 'Alpha review excerpt', now()->subHour());
+        $this->seedBlogPost([$finance->id], 'Alpha Plan', 'alpha-plan', 'Alpha plan excerpt', now()->subDay());
+        $this->seedBlogPost([$tax->id], 'Beta Taxes', 'beta-taxes', 'Beta taxes excerpt', now()->subDays(2));
+
+        app(SystemSettingsService::class)->putMany([
+            'store_blog_posts_per_page' => 1,
+            'store_blog_category_preview_limit' => 1,
         ]);
 
-        $this->actingAs($user)->get('/account')->assertOk();
-        $this->actingAs($user)->get('/account/orders')->assertOk();
-        $this->actingAs($user)->get('/account/profile')->assertOk();
+        $this->get('/blog/finance?q=Alpha')
+            ->assertOk()
+            ->assertSee('Alpha Review')
+            ->assertDontSee('Beta Taxes')
+            ->assertSee('Show more')
+            ->assertSee('<span class="front-scroll-breadcrumb-current">Finance</span>', false)
+            ->assertSee('/blog/finance', false)
+            ->assertSee('page=2', false)
+            ->assertSee('q=Alpha', false);
     }
 
-    public function test_checkout_creates_order_with_pretty_checkout_routes(): void
+    public function test_blog_index_renders_store_configured_hero_copy(): void
     {
-        [$category] = $this->seedCategory();
-        [$product] = $this->seedProduct($category->id);
+        $this->seedBlogPost();
 
-        Currency::query()->create([
-            'code' => 'EUR',
-            'name' => 'Euro',
-            'symbol' => 'EUR',
-            'symbol_position' => 'left',
-            'decimal_places' => 2,
-            'exchange_rate' => 1,
-            'is_default' => true,
-            'is_active' => true,
-            'sort_order' => 1,
+        app(SystemSettingsService::class)->putMany([
+            'store_blog_header_eyebrow' => 'Insights Desk',
+            'store_blog_header_title' => 'Strategic Insights',
+            'store_blog_header_intro' => 'Fresh perspective for owners and finance teams.',
+            'store_blog_header_cta_label' => 'Book a consultation',
+            'store_blog_header_cta_url' => '/contact',
         ]);
 
-        OrderStatus::query()->create([
-            'code' => 'new',
-            'name' => 'New',
-            'is_default' => true,
-            'is_active' => true,
-            'sort_order' => 1,
-        ]);
-
-        ShippingMethod::query()->create([
-            'code' => 'standard',
-            'name' => 'Standard Shipping',
-            'price' => 4.99,
-            'is_active' => true,
-            'sort_order' => 1,
-        ]);
-
-        PaymentMethod::query()->create([
-            'code' => 'bank',
-            'name' => 'Bank Transfer',
-            'provider' => 'bank',
-            'fee_type' => 'fixed',
-            'fee_value' => 0,
-            'is_active' => true,
-            'sort_order' => 1,
-        ]);
-
-        $this->post('/cart/items', [
-            'product_id' => $product->id,
-            'quantity' => 2,
-        ])->assertRedirect();
-
-        $response = $this->post('/checkout', [
-            'customer_first_name' => 'Jane',
-            'customer_last_name' => 'Doe',
-            'customer_email' => 'jane@example.test',
-            'customer_phone' => '+38591000002',
-
-            'billing_first_name' => 'Jane',
-            'billing_last_name' => 'Doe',
-            'billing_company' => 'AG Test',
-            'billing_oib' => '12345678901',
-            'billing_vat_id' => 'HR12345678901',
-            'billing_address_line_1' => 'Main Street 1',
-            'billing_address_line_2' => '',
-            'billing_postal_code' => '10000',
-            'billing_city' => 'Zagreb',
-            'billing_state' => 'Grad Zagreb',
-            'billing_country_code' => 'HR',
-
-            'use_billing_for_shipping' => '1',
-
-            'shipping_method_code' => 'standard',
-            'payment_method_code' => 'bank',
-            'customer_note' => 'Please ring bell on delivery.',
-            'accept_terms' => '1',
-        ]);
-
-        $order = \App\Models\Sales\Order\Order::query()->first();
-
-        $this->assertNotNull($order);
-
-        $response->assertRedirect(route('checkout.success', ['orderNumber' => $order->order_number]));
-
-        $this->assertDatabaseHas('orders', [
-            'id' => $order->id,
-            'customer_email' => 'jane@example.test',
-            'item_qty' => 2,
-        ]);
-
-        $this->assertDatabaseHas('order_items', [
-            'order_id' => $order->id,
-            'product_id' => $product->id,
-            'quantity' => 2,
-        ]);
-
-        $this->assertDatabaseMissing('orders', [
-            'customer_email' => 'missing@example.test',
-        ]);
+        $this->get('/blog')
+            ->assertOk()
+            ->assertSee('Strategic Insights')
+            ->assertSee('Fresh perspective for owners and finance teams.')
+            ->assertSee('Book a consultation');
     }
 
-    /**
-     * @return array{Category,string}
-     */
-    private function seedCategory(): array
+    public function test_team_page_renders_active_members_with_public_links(): void
     {
-        $category = Category::query()->create([
-            'scope' => Category::SCOPE_CATALOG,
-            'code' => 'cat-'.strtolower((string) str()->random(6)),
+        $member = TeamMember::query()->create([
+            'code' => 'team-'.strtolower((string) str()->random(6)),
             'is_active' => true,
-            'show_in_menu' => true,
             'sort_order' => 1,
+            'email' => 'team@example.test',
+            'facebook_url' => 'https://facebook.com/alpha-team',
+            'twitter_url' => 'https://twitter.com/alpha-team',
+            'linkedin_url' => 'https://linkedin.com/company/alpha-team',
         ]);
 
-        $slug = 'category-'.strtolower((string) str()->random(6));
-
-        CategoryTranslation::query()->create([
-            'category_id' => $category->id,
-            'scope' => Category::SCOPE_CATALOG,
+        TeamMemberTranslation::query()->create([
+            'team_member_id' => $member->id,
             'locale' => 'en',
-            'name' => 'Category '.$slug,
-            'slug' => $slug,
-            'description' => 'Category description',
+            'name' => 'Ivana Horvat',
+            'position' => 'Senior Manager',
+            'departments' => "Finance\nTax",
+            'description_html' => '<p>Leads strategic projects for owners and management teams.</p>',
         ]);
 
-        return [$category, $slug];
+        TeamMemberTranslation::query()->create([
+            'team_member_id' => $member->id,
+            'locale' => 'hr',
+            'name' => 'Ivana Horvat',
+            'position' => 'Senior Manager',
+            'departments' => "Financije\nPorezi",
+            'description_html' => '<p>Vodi strateške projekte za vlasnike i menadžerske timove.</p>',
+        ]);
+
+        $this->get('/alpha-capitalis-tim')
+            ->assertOk()
+            ->assertSee('Ivana Horvat')
+            ->assertSee('Senior Manager')
+            ->assertDontSee('Finance')
+            ->assertDontSee('Tax')
+            ->assertSee('team@example.test')
+            ->assertSee('https://linkedin.com/company/alpha-team', false);
     }
 
-    /**
-     * @return array{Product,string}
-     */
-    private function seedProduct(int $categoryId): array
+    public function test_blog_article_breadcrumb_includes_primary_category_archive(): void
     {
-        $product = Product::query()->create([
-            'code' => 'prod-'.strtolower((string) str()->random(6)),
-            'sku' => 'SKU-'.strtoupper((string) str()->random(5)),
-            'is_active' => true,
-            'base_price' => 49.99,
-            'stock_qty' => 15,
-        ]);
+        $news = $this->seedBlogCategory('News', 'news');
+        [, $postSlug] = $this->seedBlogPost([$news->id], 'Growth Update', 'growth-update');
 
-        $slug = 'product-'.strtolower((string) str()->random(6));
-
-        ProductTranslation::query()->create([
-            'product_id' => $product->id,
-            'locale' => 'en',
-            'name' => 'Product '.$slug,
-            'slug' => $slug,
-            'excerpt' => 'Product excerpt',
-            'description' => 'Product body',
-        ]);
-
-        $product->categories()->sync([$categoryId => ['sort_order' => 1, 'is_primary' => true]]);
-
-        return [$product, $slug];
+        $this->get('/blog/'.$postSlug)
+            ->assertOk()
+            ->assertSee('/blog/news', false)
+            ->assertSee('class="front-scroll-breadcrumb-link">News</a>', false)
+            ->assertSee('class="front-scroll-breadcrumb-current ac-blog-breadcrumb-current"', false);
     }
 
-    /**
-     * @return array{Manufacturer,string}
-     */
-    private function seedManufacturer(): array
+    public function test_family_business_page_shows_only_family_business_blog_posts_when_category_exists(): void
     {
-        $manufacturer = Manufacturer::query()->create([
-            'code' => 'man-'.strtolower((string) str()->random(6)),
+        $familyBusiness = $this->seedBlogCategory('Family Business', 'family-business');
+        $tax = $this->seedBlogCategory('Tax', 'tax');
+
+        $this->seedBlogPost([$familyBusiness->id], 'Succession Playbook', 'succession-playbook');
+        $this->seedBlogPost([$tax->id], 'VAT Reminder', 'vat-reminder');
+
+        $this->get('/obiteljski-biznis')
+            ->assertOk()
+            ->assertSee('Obiteljski biznis')
+            ->assertSee('Succession Playbook')
+            ->assertDontSee('VAT Reminder')
+            ->assertSee('Najnovije objave iz kategorije');
+    }
+
+    public function test_family_business_page_shows_only_team_members_from_family_business_department(): void
+    {
+        $familyMember = TeamMember::query()->create([
+            'code' => 'family-team-'.strtolower((string) str()->random(6)),
             'is_active' => true,
             'sort_order' => 1,
+            'email' => 'family@example.test',
+            'linkedin_url' => 'https://linkedin.com/in/family-team',
         ]);
 
-        $slug = 'manufacturer-'.strtolower((string) str()->random(6));
-
-        ManufacturerTranslation::query()->create([
-            'manufacturer_id' => $manufacturer->id,
+        TeamMemberTranslation::query()->create([
+            'team_member_id' => $familyMember->id,
             'locale' => 'en',
-            'name' => 'Manufacturer '.$slug,
-            'slug' => $slug,
-            'description' => 'Manufacturer description',
+            'name' => 'Danijel Pevec',
+            'position' => 'Partner',
+            'departments' => "obiteljski-biznis\nSavjetovanje",
+            'description_html' => '<p>Radi s obiteljskim poduzećima kroz tranzicije i upravljanje.</p>',
         ]);
 
-        return [$manufacturer, $slug];
+        $otherMember = TeamMember::query()->create([
+            'code' => 'tax-team-'.strtolower((string) str()->random(6)),
+            'is_active' => true,
+            'sort_order' => 2,
+            'email' => 'tax@example.test',
+        ]);
+
+        TeamMemberTranslation::query()->create([
+            'team_member_id' => $otherMember->id,
+            'locale' => 'en',
+            'name' => 'Tax Specialist',
+            'position' => 'Senior Manager',
+            'departments' => "tax\nfinance",
+            'description_html' => '<p>Porezno savjetovanje.</p>',
+        ]);
+
+        $this->get('/obiteljski-biznis')
+            ->assertOk()
+            ->assertSee('Naš tim za obiteljsko savjetovanje')
+            ->assertSee('Tu smo kako biste zadobili uvid u cjelovitu perspektivu.')
+            ->assertSee('Ugovorite sastanak')
+            ->assertSee('Danijel Pevec')
+            ->assertSee('family@example.test')
+            ->assertDontSee('Tax Specialist');
+    }
+
+    public function test_removed_public_auth_and_account_routes_are_not_available(): void
+    {
+        $this->get('/auth/login')->assertNotFound();
+        $this->get('/auth/register')->assertNotFound();
+        $this->get('/register')->assertNotFound();
+        $this->get('/forgot-password')->assertNotFound();
+        $this->get('/account')->assertNotFound();
+        $this->get('/account/profile')->assertNotFound();
     }
 
     /**
      * @return array{BlogPost,string}
      */
-    private function seedBlogPost(): array
+    private function seedBlogPost(
+        array $categoryIds = [],
+        ?string $title = null,
+        ?string $slug = null,
+        ?string $excerpt = null,
+        $publishedAt = null
+    ): array
     {
         $post = BlogPost::query()->create([
             'code' => 'blog-'.strtolower((string) str()->random(6)),
             'is_active' => true,
-            'published_at' => now()->subDay(),
+            'published_at' => $publishedAt ?? now()->subDay(),
             'sort_order' => 1,
         ]);
 
-        $slug = 'blog-'.strtolower((string) str()->random(6));
+        $slug = $slug ?: 'blog-'.strtolower((string) str()->random(6));
 
         BlogPostTranslation::query()->create([
             'post_id' => $post->id,
             'locale' => 'en',
-            'title' => 'Blog '.$slug,
+            'title' => $title ?: 'Blog '.$slug,
             'slug' => $slug,
-            'excerpt' => 'Blog excerpt',
+            'excerpt' => $excerpt ?: 'Blog excerpt',
             'body_html' => '<p>Blog body</p>',
         ]);
 
+        if ($categoryIds !== []) {
+            $post->categories()->sync(
+                collect($categoryIds)
+                    ->values()
+                    ->mapWithKeys(fn ($categoryId, $index): array => [
+                        (int) $categoryId => [
+                            'sort_order' => $index,
+                            'is_primary' => $index === 0,
+                        ],
+                    ])
+                    ->all()
+            );
+        }
+
         return [$post, $slug];
+    }
+
+    private function seedBlogCategory(string $name, string $slug): Category
+    {
+        $category = Category::query()->create([
+            'scope' => Category::SCOPE_BLOG,
+            'code' => 'blog-cat-'.strtolower((string) str()->random(6)),
+            'is_active' => true,
+            'show_in_menu' => true,
+            'sort_order' => 1,
+        ]);
+
+        CategoryTranslation::query()->create([
+            'category_id' => $category->id,
+            'scope' => Category::SCOPE_BLOG,
+            'locale' => 'en',
+            'name' => $name,
+            'slug' => $slug,
+            'description' => $name.' description',
+        ]);
+
+        return $category;
     }
 
     /**

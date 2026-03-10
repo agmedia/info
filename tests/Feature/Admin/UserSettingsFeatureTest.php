@@ -33,27 +33,23 @@ class UserSettingsFeatureTest extends TestCase
             ->assertForbidden();
     }
 
-    public function test_admin_can_save_user_tracking_and_loyalty_switches(): void
+    public function test_admin_can_save_user_tracking_switch_and_clear_legacy_loyalty_settings(): void
     {
         $admin = $this->makeUserWithRole('admin');
 
         Livewire::actingAs($admin)
             ->test(UserFeatures::class)
             ->set('form.user_tracking_enabled', false)
-            ->set('form.user_loyalty_enabled', true)
-            ->set('form.loyalty_points_per_currency', 2.5)
-            ->set('form.loyalty_min_order_total', 50)
-            ->set('form.loyalty_reversal_mode', 'separate_entry')
             ->call('save')
             ->assertHasNoErrors();
 
         $settings = app(SystemSettingsService::class);
 
         $this->assertFalse((bool) $settings->get('user_tracking_enabled', true));
-        $this->assertTrue((bool) $settings->get('user_loyalty_enabled', false));
-        $this->assertSame(2.5, (float) $settings->get('loyalty_points_per_currency', 0));
-        $this->assertSame(50.0, (float) $settings->get('loyalty_min_order_total', 0));
-        $this->assertSame('separate_entry', (string) $settings->get('loyalty_reversal_mode', ''));
+        $this->assertFalse((bool) $settings->get('user_loyalty_enabled', true));
+        $this->assertSame(0.0, (float) $settings->get('loyalty_points_per_currency', 1));
+        $this->assertSame(0.0, (float) $settings->get('loyalty_min_order_total', 1));
+        $this->assertSame('zero_out', (string) $settings->get('loyalty_reversal_mode', ''));
     }
 
     private function makeUserWithRole(string $role): User

@@ -99,6 +99,11 @@
         $description = $cleanupText((string) __('ui.faq.subtitle'), 320);
     }
 
+    if (request()->routeIs('team.index')) {
+        $title = $cleanupText((string) __('ui.team.page_title'), 191);
+        $description = $cleanupText((string) __('ui.team.subtitle'), 320);
+    }
+
     if ($description === '') {
         $description = $defaultDescription;
     }

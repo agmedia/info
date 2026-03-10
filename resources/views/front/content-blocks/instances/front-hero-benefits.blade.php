@@ -5,8 +5,8 @@
                 <span class="text-lg font-semibold">+</span>
             </div>
             <div>
-                <div class="text-xl font-semibold leading-none">Fast Dispatch</div>
-                <div class="mt-1 text-sm leading-tight text-white/70">Orders before 14:00 ship same day.</div>
+                <div class="text-xl font-semibold leading-none">Fast Response</div>
+                <div class="mt-1 text-sm leading-tight text-white/70">Most inquiries receive a reply within one business day.</div>
             </div>
         </div>
     </div>
@@ -17,8 +17,8 @@
                 <span class="text-lg font-semibold">+</span>
             </div>
             <div>
-                <div class="text-xl font-semibold leading-none">Easy Returns</div>
-                <div class="mt-1 text-sm leading-tight text-white/70">30-day return flow with no paperwork.</div>
+                <div class="text-xl font-semibold leading-none">Senior Expertise</div>
+                <div class="mt-1 text-sm leading-tight text-white/70">Finance, tax, accounting, and advisory support in one place.</div>
             </div>
         </div>
     </div>
@@ -29,8 +29,8 @@
                 <span class="text-lg font-semibold">+</span>
             </div>
             <div>
-                <div class="text-xl font-semibold leading-none">Secure Checkout</div>
-                <div class="mt-1 text-sm leading-tight text-white/70">Card, Apple Pay, and Google Pay support.</div>
+                <div class="text-xl font-semibold leading-none">Trusted Delivery</div>
+                <div class="mt-1 text-sm leading-tight text-white/70">Clear onboarding, documented scope, and direct communication.</div>
             </div>
         </div>
     </div>

@@ -1,70 +1,159 @@
 @extends('front.desktop.layouts.store')
 
-@section('title', __('ui.blog.page_title'))
+@php
+    $blogSettings = $storeSettings['blog'] ?? [];
+    $defaultHeroTitle = trim((string) ($blogSettings['hero_title'] ?? '')) ?: __('ui.blog.title');
+    $heroIntro = trim((string) ($blogSettings['hero_intro'] ?? '')) ?: __('ui.blog.subtitle');
+    $heroCtaLabel = trim((string) ($blogSettings['hero_cta_label'] ?? ''));
+    $heroCtaUrl = trim((string) ($blogSettings['hero_cta_url'] ?? ''));
+    $categoryPreviewLimit = max(1, (int) ($blogSettings['category_preview_limit'] ?? 8));
+    $activeCategoryIds = collect($selectedCategoryIds ?? [])->map(fn ($id) => (int) $id)->all();
+    $fallbackActiveCategory = count($activeCategoryIds) === 1
+        ? collect($selectedCategories ?? [])->first()
+        : null;
+    $currentCategoryName = trim((string) ($currentCategory['name'] ?? ($fallbackActiveCategory['name'] ?? '')));
+    $isCategoryArchive = $currentCategoryName !== '';
+    $heroTitle = $isCategoryArchive ? $currentCategoryName : $defaultHeroTitle;
+    $hasMoreCategories = $categories->count() > $categoryPreviewLimit;
+    $baseIndexUrl = route('blog.index').($searchTerm !== '' ? '?'.http_build_query(['q' => $searchTerm]) : '');
+    $hasSelectedHiddenCategory = $categories
+        ->slice($categoryPreviewLimit)
+        ->contains(fn (array $category): bool => in_array((int) $category['id'], $activeCategoryIds, true));
+    $pageTitleBreadcrumbs = [
+        ['label' => __('ui.front.desktop.footer.home'), 'url' => route('home')],
+    ];
+
+    if ($isCategoryArchive) {
+        $pageTitleBreadcrumbs[] = ['label' => __('ui.blog.title'), 'url' => route('blog.index')];
+        $pageTitleBreadcrumbs[] = ['label' => $currentCategoryName, 'current' => true];
+    } else {
+        $pageTitleBreadcrumbs[] = ['label' => __('ui.blog.title'), 'current' => true];
+    }
+@endphp
+
+@section('title', $heroTitle !== '' ? $heroTitle : __('ui.blog.page_title'))
+@section('main_class', 'w-full px-0 py-0')
 
 @section('content')
-    <section class="mb-8 px-1">
-        <nav aria-label="Breadcrumb" class="mb-3 text-center">
-            <ol class="inline-flex items-center justify-center gap-2 text-xs font-medium uppercase tracking-wide text-slate-500">
-                <li><a href="{{ route('home') }}" class="hover:text-slate-700">{{ __('ui.front.desktop.footer.home') }}</a></li>
-                <li class="text-slate-400">/</li>
-                <li class="text-slate-700">{{ __('ui.blog.title') }}</li>
-            </ol>
-        </nav>
-        <div class="bg-slate-100 px-8 py-8 text-center">
-            <h1 class="text-4xl font-extrabold tracking-tight text-slate-900">{{ __('ui.blog.title') }}</h1>
-            <p class="mt-2 text-slate-600">{{ __('ui.blog.subtitle') }}</p>
-        </div>
-    </section>
+    <div class="ac-blog-page">
+        <x-front.page-title-band
+            :breadcrumbs="$pageTitleBreadcrumbs"
+            section-class="ac-blog-title-band"
+            breadcrumb-class="ac-blog-hero-breadcrumb"
+        >
+            <div class="ac-page-title-copy">
+                <h1 id="ac-blog-title">{{ $heroTitle }}</h1>
 
-    @if ($topBlocks->isNotEmpty())
-        <section class="mb-8">@include('components.content-placement', ['items' => $topBlocks])</section>
-    @endif
+                @if ($heroIntro !== '')
+                    <p>{{ $heroIntro }}</p>
+                @endif
 
-    @if ($posts->isEmpty())
-        <div class="border border-dashed border-slate-300 bg-white p-10 text-center text-slate-500">{{ __('ui.blog.empty') }}</div>
-    @else
-        <section class="grid gap-x-8 gap-y-12 sm:grid-cols-2 lg:grid-cols-3">
-            @foreach ($posts as $post)
-                @php
-                    $translation = $post->translations->firstWhere('locale', $locale)
-                        ?? $post->translations->firstWhere('locale', $fallbackLocale);
-                    $postImage = $post->getFirstMedia('blog_cover');
-                    $postImageUrl = $postImage ? $postImage->getUrl() : null;
-                @endphp
+                @if ($heroCtaLabel !== '' && $heroCtaUrl !== '')
+                    <div class="ac-page-title-actions ac-blog-hero-action">
+                        <a href="{{ $heroCtaUrl }}" class="front-action-cta">
+                            <span>{{ $heroCtaLabel }}</span>
+                            <svg class="h-3.5 w-3.5" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                <path d="M4 12L12 4"></path>
+                                <path d="M6 4h6v6"></path>
+                            </svg>
+                        </a>
+                    </div>
+                @endif
+            </div>
+        </x-front.page-title-band>
 
-                <article>
-                    <a href="{{ route('blog.show', ['slug' => $translation?->slug ?? $post->id]) }}" class="group block">
-                        <div class="aspect-[3/4] overflow-hidden bg-slate-200">
-                            @if ($postImageUrl)
-                                <img
-                                    src="{{ $postImageUrl }}"
-                                    alt="{{ $translation?->title ?? $post->code }}"
-                                    class="h-full w-full object-cover transition duration-300 group-hover:scale-[1.02]"
-                                    loading="lazy"
-                                    decoding="async"
+        <div class="mx-auto w-full max-w-[1320px] px-4 sm:px-6 lg:px-8">
+            @if ($categories->isNotEmpty())
+                <section class="ac-blog-category-nav" aria-labelledby="ac-blog-category-nav-title">
+                    <h2 id="ac-blog-category-nav-title" class="sr-only">{{ __('ui.blog.browse_categories') }}</h2>
+                    <div class="front-scroll-rail">
+                        <div class="front-scroll-rail-track">
+                            <a
+                                href="{{ $baseIndexUrl }}"
+                                class="ac-blog-category-chip {{ $activeCategoryIds === [] ? 'is-active' : '' }}"
+                            >
+                                <span>{{ __('ui.blog.all_posts') }}</span>
+                            </a>
+
+                            @foreach ($categories->take($categoryPreviewLimit) as $category)
+                                @php
+                                    $categoryUrl = trim((string) $category['slug']) !== ''
+                                        ? url('/blog/'.$category['slug']).($searchTerm !== '' ? '?'.http_build_query(['q' => $searchTerm]) : '')
+                                        : $baseIndexUrl;
+                                @endphp
+                                <a
+                                    href="{{ $categoryUrl }}"
+                                    class="ac-blog-category-chip {{ in_array((int) $category['id'], $activeCategoryIds, true) ? 'is-active' : '' }}"
                                 >
-                            @else
-                                <div class="flex h-full w-full items-center justify-center text-xs font-semibold uppercase tracking-wide text-slate-500">{{ __('ui.product.no_image') }}</div>
-                            @endif
+                                    <span>{{ $category['name'] }}</span>
+                                    <span class="ac-blog-category-chip-count">{{ $category['count'] }}</span>
+                                </a>
+                            @endforeach
                         </div>
+                    </div>
 
-                        <h2 class="mt-4 text-center text-2xl font-semibold leading-tight text-slate-800">
-                            {{ $translation?->title ?? $post->code }}
-                        </h2>
+                    @if ($hasMoreCategories)
+                        <details class="ac-blog-filter-more ac-blog-category-more" @open($hasSelectedHiddenCategory)>
+                            <summary class="ac-blog-filter-more-toggle">
+                                <span class="label-more">{{ __('ui.blog.filters.show_more') }}</span>
+                                <span class="label-less">{{ __('ui.blog.filters.show_less') }}</span>
+                            </summary>
+                            <div class="front-scroll-rail mt-3">
+                                <div class="front-scroll-rail-track">
+                                    @foreach ($categories->slice($categoryPreviewLimit) as $category)
+                                        @php
+                                            $categoryUrl = trim((string) $category['slug']) !== ''
+                                                ? url('/blog/'.$category['slug']).($searchTerm !== '' ? '?'.http_build_query(['q' => $searchTerm]) : '')
+                                                : $baseIndexUrl;
+                                        @endphp
+                                        <a
+                                            href="{{ $categoryUrl }}"
+                                            class="ac-blog-category-chip {{ in_array((int) $category['id'], $activeCategoryIds, true) ? 'is-active' : '' }}"
+                                        >
+                                            <span>{{ $category['name'] }}</span>
+                                            <span class="ac-blog-category-chip-count">{{ $category['count'] }}</span>
+                                        </a>
+                                    @endforeach
+                                </div>
+                            </div>
+                        </details>
+                    @endif
+                </section>
+            @endif
 
-                        <p class="mx-auto mt-4 max-w-[30ch] text-center text-sm leading-relaxed text-slate-700">
-                            {{ $translation?->excerpt ?: __('ui.blog.excerpt_fallback') }}
-                        </p>
-                    </a>
-                </article>
-            @endforeach
-        </section>
+            @if ($topBlocks->isNotEmpty())
+                <section class="mb-8">
+                    @include('components.content-placement', ['items' => $topBlocks])
+                </section>
+            @endif
 
-        <div class="mt-10">{{ $posts->links() }}</div>
-    @endif
+            <section class="ac-blog-content">
+                @if ($posts->isEmpty())
+                    <div class="ac-blog-empty">
+                        <p>{{ __('ui.blog.empty') }}</p>
+                    </div>
+                @else
+                    <div class="ac-blog-grid">
+                        @foreach ($posts as $post)
+                            @include('front.desktop.blog.partials.card', [
+                                'post' => $post,
+                                'locale' => $locale,
+                                'fallbackLocale' => $fallbackLocale,
+                            ])
+                        @endforeach
+                    </div>
 
-    @if ($bottomBlocks->isNotEmpty())
-        <section class="mt-10">@include('components.content-placement', ['items' => $bottomBlocks])</section>
-    @endif
+                    <div class="ac-blog-pagination">
+                        {{ $posts->links() }}
+                    </div>
+                @endif
+            </section>
+
+            @if ($bottomBlocks->isNotEmpty())
+                <section class="mt-10">
+                    @include('components.content-placement', ['items' => $bottomBlocks])
+                </section>
+            @endif
+        </div>
+    </div>
 @endsection

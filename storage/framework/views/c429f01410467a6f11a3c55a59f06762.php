@@ -1,0 +1,147 @@
+<?php
+    $seoSettings = $storeSettings['seo'] ?? [];
+    $ogSettings = $storeSettings['og'] ?? [];
+    $brandSettings = $storeSettings['branding'] ?? [];
+
+    $locale = (string) ($locale ?? app()->getLocale());
+    $fallbackLocale = (string) ($fallbackLocale ?? config('app.locale'));
+
+    $cleanupText = static function (mixed $value, int $limit = 320): string {
+        $plain = trim((string) strip_tags((string) $value));
+        if ($plain === '') {
+            return '';
+        }
+
+        $plain = preg_replace('/\s+/u', ' ', $plain) ?: $plain;
+
+        return \Illuminate\Support\Str::limit($plain, $limit, '');
+    };
+
+    $defaultTitle = trim((string) ($seoSettings['default_title'] ?? ''));
+    $defaultDescription = $cleanupText($seoSettings['default_description'] ?? '', 320);
+    $sectionTitle = trim((string) \Illuminate\Support\Facades\View::yieldContent('title'));
+
+    $title = $sectionTitle !== ''
+        ? $sectionTitle
+        : ($defaultTitle !== '' ? $defaultTitle : (string) config('app.name', 'AG Shop'));
+    $description = $defaultDescription;
+    $robots = trim((string) ($seoSettings['robots'] ?? 'index,follow'));
+    $canonicalPolicy = (string) ($seoSettings['canonical_policy'] ?? 'self');
+    $canonicalUrl = $canonicalPolicy === 'self' ? url()->current() : '';
+
+    $siteName = trim((string) ($brandSettings['store_name'] ?? ''));
+    if ($siteName === '') {
+        $siteName = (string) config('app.name', 'AG Shop');
+    }
+
+    $ogType = 'website';
+    $ogImage = (string) ($ogSettings['default_image_url'] ?? '');
+
+    if (request()->routeIs('home')) {
+        $title = $defaultTitle !== '' ? $defaultTitle : $title;
+        $description = $defaultDescription;
+        $ogImage = (string) ($ogSettings['home_image_url'] ?? $ogImage);
+    }
+
+    if (request()->routeIs('pages.category') && isset($category)) {
+        $categoryTranslation = $category->translations->firstWhere('locale', $locale)
+            ?? $category->translations->firstWhere('locale', $fallbackLocale);
+        $title = $cleanupText($categoryTranslation?->meta_title ?: $categoryTranslation?->name ?: $title, 191);
+        $description = $cleanupText($categoryTranslation?->meta_description ?: $categoryTranslation?->description ?: $description, 320);
+
+        if (trim((string) ($ogSettings['category_image_url'] ?? '')) !== '') {
+            $ogImage = (string) $ogSettings['category_image_url'];
+        } elseif (method_exists($category, 'getFirstMediaUrl')) {
+            $categoryImage = (string) ($category->getFirstMediaUrl('category_banner') ?: $category->getFirstMediaUrl());
+            if ($categoryImage !== '') {
+                $ogImage = $categoryImage;
+            }
+        }
+    }
+
+    if (request()->routeIs('pages.show') && isset($page)) {
+        $pageTranslation = $selectedTranslation
+            ?? $page->translations->firstWhere('locale', $locale)
+            ?? $page->translations->firstWhere('locale', $fallbackLocale)
+            ?? (isset($slug) ? $page->translations->firstWhere('slug', (string) $slug) : null);
+        $title = $cleanupText($pageTranslation?->meta_title ?: $pageTranslation?->title ?: $title, 191);
+        $description = $cleanupText($pageTranslation?->meta_description ?: $pageTranslation?->excerpt ?: $description, 320);
+
+        if (trim((string) ($ogSettings['page_image_url'] ?? '')) !== '') {
+            $ogImage = (string) $ogSettings['page_image_url'];
+        }
+    }
+
+    if (request()->routeIs('blog.*')) {
+        $ogType = request()->routeIs('blog.show') ? 'article' : 'website';
+
+        if (isset($post)) {
+            $postTranslation = $post->translations->firstWhere('locale', $locale)
+                ?? $post->translations->firstWhere('locale', $fallbackLocale);
+            $title = $cleanupText($postTranslation?->meta_title ?: $postTranslation?->title ?: $title, 191);
+            $description = $cleanupText($postTranslation?->meta_description ?: $postTranslation?->excerpt ?: $description, 320);
+
+            if (trim((string) ($ogSettings['blog_image_url'] ?? '')) !== '') {
+                $ogImage = (string) $ogSettings['blog_image_url'];
+            } elseif (method_exists($post, 'getFirstMediaUrl')) {
+                $postImage = (string) ($post->getFirstMediaUrl('blog_cover') ?: $post->getFirstMediaUrl());
+                if ($postImage !== '') {
+                    $ogImage = $postImage;
+                }
+            }
+        } elseif (trim((string) ($ogSettings['blog_image_url'] ?? '')) !== '') {
+            $ogImage = (string) $ogSettings['blog_image_url'];
+        }
+    }
+
+    if (request()->routeIs('faq.index')) {
+        $title = $cleanupText((string) __('ui.faq.page_title'), 191);
+        $description = $cleanupText((string) __('ui.faq.subtitle'), 320);
+    }
+
+    if (request()->routeIs('team.index')) {
+        $title = $cleanupText((string) __('ui.team.page_title'), 191);
+        $description = $cleanupText((string) __('ui.team.subtitle'), 320);
+    }
+
+    if ($description === '') {
+        $description = $defaultDescription;
+    }
+
+    if ($title === '') {
+        $title = (string) config('app.name', 'AG Shop');
+    }
+?>
+
+<title><?php echo e($title); ?></title>
+<?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($description !== ''): ?>
+    <meta name="description" content="<?php echo e($description); ?>">
+<?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+<?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($robots !== ''): ?>
+    <meta name="robots" content="<?php echo e($robots); ?>">
+<?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+<?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($canonicalUrl !== ''): ?>
+    <link rel="canonical" href="<?php echo e($canonicalUrl); ?>">
+<?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+
+<meta property="og:locale" content="<?php echo e(str_replace('_', '-', app()->getLocale())); ?>">
+<meta property="og:type" content="<?php echo e($ogType); ?>">
+<meta property="og:title" content="<?php echo e($title); ?>">
+<?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($description !== ''): ?>
+    <meta property="og:description" content="<?php echo e($description); ?>">
+<?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+<meta property="og:url" content="<?php echo e($canonicalUrl !== '' ? $canonicalUrl : request()->fullUrl()); ?>">
+<meta property="og:site_name" content="<?php echo e($siteName); ?>">
+<?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($ogImage !== ''): ?>
+    <meta property="og:image" content="<?php echo e($ogImage); ?>">
+<?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="<?php echo e($title); ?>">
+<?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($description !== ''): ?>
+    <meta name="twitter:description" content="<?php echo e($description); ?>">
+<?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+<?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($ogImage !== ''): ?>
+    <meta name="twitter:image" content="<?php echo e($ogImage); ?>">
+<?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+<?php /**PATH /Users/tomek/Herd/info/resources/views/front/partials/seo-meta.blade.php ENDPATH**/ ?>

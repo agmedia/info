@@ -11,7 +11,15 @@ use Livewire\Component;
 
 class Form extends Component
 {
+    private const CUSTOM_GROUP_OPTION = '__custom__';
+
     public ?int $faqId = null;
+
+    public array $existingGroupCodes = [];
+
+    public string $groupCodeSelection = 'general';
+
+    public string $customGroupCode = '';
 
     public array $form = [
         'code' => '',
@@ -31,17 +39,42 @@ class Form extends Component
 
     public function mount(?int $faqId = null): void
     {
-        $this->form['locale'] = (string) (request()->query('locale') ?: config('app.locale', 'en'));
+        $this->form['locale'] = (string) (request()->query('locale') ?: app()->getLocale() ?: config('admin_ui.locale.default', 'hr'));
+        $this->hydrateGroupOptions();
 
         if ($faqId) {
             $this->faqId = $faqId;
             $this->loadFaq();
+            return;
         }
+
+        $this->syncGroupSelectionFromForm();
     }
 
     public function updatedFormLocale(): void
     {
         $this->loadTranslationForLocale();
+    }
+
+    public function updatedGroupCodeSelection(string $value): void
+    {
+        if ($value === self::CUSTOM_GROUP_OPTION) {
+            $this->form['group_code'] = $this->normalizeGroupCode($this->customGroupCode);
+            return;
+        }
+
+        $this->form['group_code'] = $this->normalizeGroupCode($value);
+        $this->customGroupCode = '';
+    }
+
+    public function updatedCustomGroupCode(string $value): void
+    {
+        $normalized = $this->normalizeGroupCode($value);
+        $this->customGroupCode = $normalized;
+
+        if ($this->groupCodeSelection === self::CUSTOM_GROUP_OPTION) {
+            $this->form['group_code'] = $normalized;
+        }
     }
 
     public function generateSlug(): void
@@ -72,7 +105,7 @@ class Form extends Component
         DB::transaction(function () use ($validated, $payload, $translationPayload, $userId, $wasEditing): void {
             $faqData = [
                 'code' => trim((string) $validated['form']['code']),
-                'group_code' => trim((string) $validated['form']['group_code']) !== '' ? trim((string) $validated['form']['group_code']) : 'general',
+                'group_code' => $this->resolvedGroupCode(),
                 'is_active' => (bool) $validated['form']['is_active'],
                 'is_featured' => (bool) $validated['form']['is_featured'],
                 'sort_order' => (int) $validated['form']['sort_order'],
@@ -107,7 +140,7 @@ class Form extends Component
                 ->withProperties([
                     'locale' => $validated['form']['locale'],
                     'slug' => $validated['form']['slug'],
-                    'group_code' => $validated['form']['group_code'],
+                    'group_code' => $faqData['group_code'],
                     'is_featured' => (bool) $validated['form']['is_featured'],
                 ])
                 ->log('FAQ saved');
@@ -132,6 +165,8 @@ class Form extends Component
     {
         return view('livewire.admin.content.faq.form', [
             'isEdit' => (bool) $this->faqId,
+            'faqGroupOptions' => $this->existingGroupCodes,
+            'customGroupOptionValue' => self::CUSTOM_GROUP_OPTION,
         ]);
     }
 
@@ -200,6 +235,9 @@ class Form extends Component
                 ? json_encode($translation->payload, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES)
                 : '';
         }
+
+        $this->hydrateGroupOptions();
+        $this->syncGroupSelectionFromForm();
     }
 
     private function loadTranslationForLocale(): void
@@ -237,6 +275,68 @@ class Form extends Component
         $this->form['meta_title'] = '';
         $this->form['meta_description'] = '';
         $this->form['translation_payload_text'] = '';
+    }
+
+    private function hydrateGroupOptions(): void
+    {
+        $existingGroups = Faq::query()
+            ->select('group_code')
+            ->whereNotNull('group_code')
+            ->where('group_code', '!=', '')
+            ->distinct()
+            ->orderBy('group_code')
+            ->pluck('group_code')
+            ->map(fn ($groupCode): string => $this->normalizeGroupCode((string) $groupCode))
+            ->filter(fn (string $groupCode): bool => $groupCode !== '')
+            ->values()
+            ->all();
+
+        $currentGroupCode = $this->normalizeGroupCode((string) ($this->form['group_code'] ?? ''));
+        $fallbackGroups = ['general'];
+
+        $this->existingGroupCodes = collect([...$fallbackGroups, ...$existingGroups, $currentGroupCode])
+            ->filter(fn (string $groupCode): bool => $groupCode !== '')
+            ->unique()
+            ->values()
+            ->all();
+    }
+
+    private function syncGroupSelectionFromForm(): void
+    {
+        $currentGroupCode = $this->normalizeGroupCode((string) ($this->form['group_code'] ?? 'general'));
+        $this->form['group_code'] = $currentGroupCode;
+
+        if ($currentGroupCode !== '' && in_array($currentGroupCode, $this->existingGroupCodes, true)) {
+            $this->groupCodeSelection = $currentGroupCode;
+            $this->customGroupCode = '';
+            return;
+        }
+
+        $this->groupCodeSelection = self::CUSTOM_GROUP_OPTION;
+        $this->customGroupCode = $currentGroupCode;
+    }
+
+    private function resolvedGroupCode(): string
+    {
+        if ($this->groupCodeSelection === self::CUSTOM_GROUP_OPTION) {
+            return $this->normalizeGroupCode($this->customGroupCode) ?: 'general';
+        }
+
+        return $this->normalizeGroupCode($this->groupCodeSelection) ?: 'general';
+    }
+
+    private function normalizeGroupCode(string $value): string
+    {
+        $normalized = Str::of($value)
+            ->lower()
+            ->ascii()
+            ->replace('_', '-')
+            ->replaceMatches('/[^a-z0-9\-]+/', '-')
+            ->replaceMatches('/\-+/', '-')
+            ->trim('-')
+            ->value();
+
+        return $normalized;
     }
 
     /**

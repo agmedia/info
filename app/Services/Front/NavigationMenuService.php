@@ -2,7 +2,6 @@
 
 namespace App\Services\Front;
 
-use App\Models\Catalog\Category\Category;
 use App\Models\Content\Page\InfoPage;
 use App\Services\Settings\SystemSettingsService;
 use Illuminate\Support\Facades\Storage;
@@ -42,15 +41,6 @@ class NavigationMenuService
             return $this->resolvedCache[$cacheKey] = [];
         }
 
-        $categoryIds = $items
-            ->where('type', 'category')
-            ->pluck('category_id')
-            ->map(fn ($id): int => (int) $id)
-            ->filter(fn ($id): bool => $id > 0)
-            ->unique()
-            ->values()
-            ->all();
-
         $pageIds = $items
             ->where('type', 'page')
             ->pluck('page_id')
@@ -59,20 +49,6 @@ class NavigationMenuService
             ->unique()
             ->values()
             ->all();
-
-        $categories = Category::query()
-            ->where('scope', Category::SCOPE_CATALOG)
-            ->where('is_active', true)
-            ->with([
-                'translations' => fn ($q) => $q
-                    ->where('scope', Category::SCOPE_CATALOG)
-                    ->whereIn('locale', [$locale, $fallbackLocale]),
-            ])
-            ->orderBy('_lft')
-            ->get();
-
-        $categoriesById = $categories->keyBy('id');
-        $childrenByParentId = $categories->groupBy(fn ($category) => (int) ($category->parent_id ?? 0));
 
         $pagesById = InfoPage::query()
             ->where('is_active', true)
@@ -89,14 +65,7 @@ class NavigationMenuService
             $type = (string) ($item['type'] ?? 'custom');
             $entry = null;
 
-            if ($type === 'category') {
-                $categoryId = (int) ($item['category_id'] ?? 0);
-                $category = $categoryId > 0 ? $categoriesById->get($categoryId) : null;
-
-                if ($category instanceof Category) {
-                    $entry = $this->resolveCategoryItem($category, $item, $childrenByParentId, $locale, $fallbackLocale);
-                }
-            } elseif ($type === 'page') {
+            if ($type === 'page') {
                 $pageId = (int) ($item['page_id'] ?? 0);
                 $page = $pageId > 0 ? $pagesById->get($pageId) : null;
 
@@ -241,46 +210,6 @@ class NavigationMenuService
 
     /**
      * @param array<string, mixed> $item
-     * @param \Illuminate\Support\Collection<int, \Illuminate\Support\Collection<int, Category>> $childrenByParentId
-     * @return array<string, mixed>|null
-     */
-    private function resolveCategoryItem(
-        Category $category,
-        array $item,
-        $childrenByParentId,
-        string $locale,
-        string $fallbackLocale
-    ): ?array {
-        $translation = $this->pickCategoryTranslation($category, $locale, $fallbackLocale);
-        $slug = trim((string) ($translation?->slug ?? ''));
-
-        if ($slug === '') {
-            return null;
-        }
-
-        $children = [];
-        if ((bool) ($item['show_dropdown'] ?? true)) {
-            $children = $this->buildCategoryChildren($category->id, $childrenByParentId, $locale, $fallbackLocale);
-        }
-
-        return [
-            'key' => 'category-'.$category->id,
-            'type' => 'category',
-            'label' => $this->labelForItem(
-                $item,
-                (string) ($translation?->name ?? $category->code),
-                $locale,
-                $fallbackLocale
-            ),
-            'url' => route('categories.show', ['slug' => $slug]),
-            'children' => $children,
-            'open_in_new_tab' => false,
-            'mega_promo' => $this->resolveMegaPromo($item),
-        ];
-    }
-
-    /**
-     * @param array<string, mixed> $item
      * @return array<string, string>
      */
     private function resolveMegaPromo(array $item): array
@@ -303,35 +232,6 @@ class NavigationMenuService
             'cta_label' => trim((string) ($item['desktop_promo_cta_label'] ?? '')),
             'cta_url' => trim((string) ($item['desktop_promo_cta_url'] ?? '')),
         ];
-    }
-
-    /**
-     * @param \Illuminate\Support\Collection<int, \Illuminate\Support\Collection<int, Category>> $childrenByParentId
-     * @return array<int, array<string, mixed>>
-     */
-    private function buildCategoryChildren(int $parentId, $childrenByParentId, string $locale, string $fallbackLocale): array
-    {
-        $children = [];
-        $childrenRows = $childrenByParentId->get($parentId, collect())
-            ->sortBy(fn (Category $category): array => [(int) $category->sort_order, (int) $category->id])
-            ->values();
-
-        foreach ($childrenRows as $child) {
-            $translation = $this->pickCategoryTranslation($child, $locale, $fallbackLocale);
-            $slug = trim((string) ($translation?->slug ?? ''));
-
-            if ($slug === '') {
-                continue;
-            }
-
-            $children[] = [
-                'label' => (string) ($translation?->name ?? $child->code),
-                'url' => route('categories.show', ['slug' => $slug]),
-                'children' => $this->buildCategoryChildren((int) $child->id, $childrenByParentId, $locale, $fallbackLocale),
-            ];
-        }
-
-        return $children;
     }
 
     /**
@@ -410,13 +310,6 @@ class NavigationMenuService
         }
 
         return '';
-    }
-
-    private function pickCategoryTranslation(Category $category, string $locale, string $fallbackLocale): mixed
-    {
-        return $category->translations->firstWhere('locale', $locale)
-            ?? $category->translations->firstWhere('locale', $fallbackLocale)
-            ?? $category->translations->first();
     }
 
     private function pickPageTranslation(InfoPage $page, string $locale, string $fallbackLocale): mixed

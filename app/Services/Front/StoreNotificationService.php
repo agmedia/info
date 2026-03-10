@@ -22,9 +22,6 @@ class StoreNotificationService
 
         $to = trim((string) ($emailSettings['contact_to'] ?? ''));
         if ($to === '') {
-            $to = trim((string) ($emailSettings['orders_to'] ?? ''));
-        }
-        if ($to === '') {
             return;
         }
 

@@ -3,12 +3,8 @@
 namespace Tests\Feature\Admin;
 
 use App\Livewire\Admin\User\Form as UserForm;
-use App\Models\Sales\Order\Order;
-use App\Models\Settings\Local\OrderStatus;
 use App\Models\User;
-use App\Models\User\CustomerGroup;
-use App\Models\User\LoyaltyTransaction;
-use App\Services\Settings\SystemSettingsService;
+use App\Models\User\UserAddress;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;
 use Silber\Bouncer\BouncerFacade as Bouncer;
@@ -19,68 +15,136 @@ class AdminUsersFeatureTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_privileged_admin_can_open_users_index(): void
+    public function test_privileged_admin_can_open_admin_users_index_and_edit_page(): void
     {
         $admin = $this->makeUserWithRole('admin');
+        $target = $this->makeUserWithRole('editor');
 
-        $response = $this->actingAs($admin)->get('/admin/users');
-
-        $response
+        $this->actingAs($admin)
+            ->get('/admin/users')
             ->assertOk()
-            ->assertSee('Users');
+            ->assertSee('Admin Users');
+
+        $this->actingAs($admin)
+            ->get('/admin/users/'.$target->id.'/edit')
+            ->assertOk()
+            ->assertSee('Edit Admin User');
     }
 
-    public function test_editor_cannot_open_users_index(): void
+    public function test_editor_cannot_open_admin_users_index_or_edit_page(): void
     {
         $editor = $this->makeUserWithRole('editor');
+        $target = $this->makeUserWithRole('admin');
 
-        $response = $this->actingAs($editor)->get('/admin/users');
-
-        $response->assertForbidden();
+        $this->actingAs($editor)->get('/admin/users')->assertForbidden();
+        $this->actingAs($editor)->get('/admin/users/'.$target->id.'/edit')->assertForbidden();
     }
 
-    public function test_privileged_admin_can_open_user_groups_and_activity_pages(): void
+    public function test_removed_customer_only_pages_are_not_available(): void
     {
         $admin = $this->makeUserWithRole('admin');
-        $target = $this->makeUserWithRole('customer');
 
-        $this->actingAs($admin)->get('/admin/users/groups')->assertOk()->assertSee('User Groups');
-        $this->actingAs($admin)->get('/admin/users/activity')->assertOk()->assertSee('User Activity');
-        $this->actingAs($admin)->get('/admin/users/'.$target->id.'/show')->assertOk()->assertSee('User Overview');
+        $this->actingAs($admin)->get('/admin/users/groups')->assertNotFound();
+        $this->actingAs($admin)->get('/admin/users/activity')->assertNotFound();
     }
 
-    public function test_editor_cannot_open_user_groups_and_activity_pages(): void
+    public function test_index_only_lists_admin_accounts_and_hides_customer_users(): void
     {
+        $admin = $this->makeUserWithRole('admin');
         $editor = $this->makeUserWithRole('editor');
-        $target = $this->makeUserWithRole('customer');
+        $customer = $this->makeUserWithRole('customer');
 
-        $this->actingAs($editor)->get('/admin/users/groups')->assertForbidden();
-        $this->actingAs($editor)->get('/admin/users/activity')->assertForbidden();
-        $this->actingAs($editor)->get('/admin/users/'.$target->id.'/show')->assertForbidden();
+        $this->actingAs($admin)
+            ->get('/admin/users')
+            ->assertOk()
+            ->assertSee($admin->email)
+            ->assertSee($editor->email)
+            ->assertDontSee($customer->email);
     }
 
-    public function test_admin_can_edit_user_and_change_role(): void
+    public function test_customer_user_cannot_be_opened_in_admin_edit_form(): void
     {
         $admin = $this->makeUserWithRole('admin');
-        $target = $this->makeUserWithRole('customer');
+        $customer = $this->makeUserWithRole('customer');
+
+        $this->actingAs($admin)
+            ->get('/admin/users/'.$customer->id.'/edit')
+            ->assertNotFound();
+    }
+
+    public function test_admin_can_edit_admin_user_and_change_role(): void
+    {
+        $admin = $this->makeUserWithRole('admin');
+        $target = $this->makeUserWithRole('editor');
 
         Livewire::actingAs($admin)
             ->test(UserForm::class, ['userId' => $target->id])
-            ->set('form.name', 'Edited User')
-            ->set('form.email', 'edited.user@example.test')
-            ->set('form.role', 'editor')
+            ->set('form.name', 'Edited Admin')
+            ->set('form.email', 'edited.admin@example.test')
+            ->set('form.role', 'admin')
             ->set('form.email_verified', true)
             ->set('form.password', 'new-password-123')
             ->set('form.password_confirmation', 'new-password-123')
+            ->set('form.profile.first_name', 'Ana')
+            ->set('form.profile.last_name', 'Admin')
+            ->set('form.profile.phone', '+38591111222')
             ->call('save')
             ->assertRedirect(route('admin.users'));
 
         $target = $target->fresh();
 
-        $this->assertSame('Edited User', $target?->name);
-        $this->assertSame('edited.user@example.test', $target?->email);
+        $this->assertSame('Edited Admin', $target?->name);
+        $this->assertSame('edited.admin@example.test', $target?->email);
         $this->assertNotNull($target?->email_verified_at);
-        $this->assertTrue((bool) $target?->isA('editor'));
+        $this->assertTrue((bool) $target?->isA('admin'));
+
+        $this->assertDatabaseHas('user_profiles', [
+            'user_id' => $target->id,
+            'first_name' => 'Ana',
+            'last_name' => 'Admin',
+            'phone' => '+38591111222',
+        ]);
+    }
+
+    public function test_saving_admin_user_clears_legacy_addresses(): void
+    {
+        $admin = $this->makeUserWithRole('admin');
+        $target = $this->makeUserWithRole('editor');
+
+        UserAddress::query()->create([
+            'user_id' => $target->id,
+            'type' => UserAddress::TYPE_BILLING,
+            'address_line_1' => 'Billing Street 1',
+            'city' => 'Zagreb',
+            'postal_code' => '10000',
+            'country_code' => 'HR',
+        ]);
+
+        UserAddress::query()->create([
+            'user_id' => $target->id,
+            'type' => UserAddress::TYPE_SHIPPING,
+            'address_line_1' => 'Shipping Street 2',
+            'city' => 'Kutina',
+            'postal_code' => '44320',
+            'country_code' => 'HR',
+        ]);
+
+        Livewire::actingAs($admin)
+            ->test(UserForm::class, ['userId' => $target->id])
+            ->set('form.name', 'Editor Cleaned')
+            ->set('form.email', 'editor.cleaned@example.test')
+            ->set('form.role', 'editor')
+            ->call('save')
+            ->assertRedirect(route('admin.users'));
+
+        $this->assertDatabaseMissing('user_addresses', [
+            'user_id' => $target->id,
+            'type' => UserAddress::TYPE_BILLING,
+        ]);
+        $this->assertDatabaseMissing('user_addresses', [
+            'user_id' => $target->id,
+            'type' => UserAddress::TYPE_SHIPPING,
+        ]);
     }
 
     public function test_edit_form_prefers_superadmin_when_user_has_multiple_roles(): void
@@ -108,14 +172,14 @@ class AdminUsersFeatureTest extends TestCase
     {
         $admin = $this->makeUserWithRole('admin');
         $superadmin = $this->makeUserWithRole('superadmin');
-        $customer = $this->makeUserWithRole('customer');
+        $target = $this->makeUserWithRole('editor');
 
         Livewire::actingAs($admin)
-            ->test(UserForm::class, ['userId' => $customer->id])
+            ->test(UserForm::class, ['userId' => $target->id])
             ->assertDontSee('Super Administrator');
 
         Livewire::actingAs($superadmin)
-            ->test(UserForm::class, ['userId' => $customer->id])
+            ->test(UserForm::class, ['userId' => $target->id])
             ->assertSee('Super Administrator');
     }
 
@@ -132,76 +196,20 @@ class AdminUsersFeatureTest extends TestCase
             ->assertSet('form.role', 'admin');
     }
 
-    public function test_admin_can_update_profile_addresses_segments_and_activity_log(): void
+    public function test_admin_edit_logs_activity_without_customer_group_payload(): void
     {
         $admin = $this->makeUserWithRole('admin');
-        $target = $this->makeUserWithRole('customer');
-
-        $retail = CustomerGroup::query()->create([
-            'code' => 'retail',
-            'name' => 'Retail',
-            'is_active' => true,
-            'is_default' => true,
-            'sort_order' => 10,
-        ]);
-        $vip = CustomerGroup::query()->create([
-            'code' => 'vip',
-            'name' => 'VIP',
-            'is_active' => true,
-            'is_default' => false,
-            'sort_order' => 20,
-        ]);
+        $target = $this->makeUserWithRole('editor');
 
         Livewire::actingAs($admin)
             ->test(UserForm::class, ['userId' => $target->id])
-            ->set('form.customer_groups', [$retail->id, $vip->id])
-            ->set('form.profile.first_name', 'Filip')
-            ->set('form.profile.last_name', 'Jankoski')
-            ->set('form.profile.phone', '+38591111222')
-            ->set('form.profile.company', 'Agmedia')
-            ->set('form.profile.oib', '12345678901')
-            ->set('form.billing_address.address_line_1', 'Billing Street 1')
-            ->set('form.billing_address.city', 'Zagreb')
-            ->set('form.billing_address.postal_code', '10000')
-            ->set('form.shipping_address.address_line_1', 'Shipping Street 2')
-            ->set('form.shipping_address.city', 'Kutina')
-            ->set('form.shipping_address.postal_code', '44320')
+            ->set('form.name', 'Audit Admin')
+            ->set('form.email', 'audit.admin@example.test')
+            ->set('form.role', 'editor')
+            ->set('form.profile.first_name', 'Audit')
+            ->set('form.profile.last_name', 'User')
             ->call('save')
             ->assertRedirect(route('admin.users'));
-
-        $this->assertDatabaseHas('user_profiles', [
-            'user_id' => $target->id,
-            'first_name' => 'Filip',
-            'last_name' => 'Jankoski',
-            'phone' => '+38591111222',
-            'company' => 'Agmedia',
-            'oib' => '12345678901',
-        ]);
-
-        $this->assertDatabaseHas('user_addresses', [
-            'user_id' => $target->id,
-            'type' => 'billing',
-            'address_line_1' => 'Billing Street 1',
-            'city' => 'Zagreb',
-            'postal_code' => '10000',
-        ]);
-
-        $this->assertDatabaseHas('user_addresses', [
-            'user_id' => $target->id,
-            'type' => 'shipping',
-            'address_line_1' => 'Shipping Street 2',
-            'city' => 'Kutina',
-            'postal_code' => '44320',
-        ]);
-
-        $this->assertDatabaseHas('customer_group_user', [
-            'user_id' => $target->id,
-            'customer_group_id' => $retail->id,
-        ]);
-        $this->assertDatabaseHas('customer_group_user', [
-            'user_id' => $target->id,
-            'customer_group_id' => $vip->id,
-        ]);
 
         $activity = Activity::query()
             ->where('log_name', 'admin_users')
@@ -212,141 +220,21 @@ class AdminUsersFeatureTest extends TestCase
 
         $this->assertNotNull($activity);
         $this->assertSame('updated', $activity->event);
-        $this->assertContains('Retail', (array) $activity->getExtraProperty('groups'));
-        $this->assertContains('VIP', (array) $activity->getExtraProperty('groups'));
-    }
-
-    public function test_users_index_and_show_include_loyalty_and_recent_orders_data(): void
-    {
-        $admin = $this->makeUserWithRole('admin');
-        $target = $this->makeUserWithRole('customer');
-        $status = $this->createStatus('paid', 'Paid', true, true, false, 1);
-        $order = $this->createOrder($status, $target, 'AG-USR-LOY-0001');
-
-        LoyaltyTransaction::query()->create([
-            'user_id' => $target->id,
-            'order_id' => $order->id,
-            'event_key' => 'order:'.$order->id.':settlement',
-            'type' => 'order_settlement',
-            'points' => 125,
-            'note' => 'Test settlement.',
-            'payload' => null,
-            'created_by' => $admin->id,
-        ]);
-
-        $this->actingAs($admin)
-            ->get('/admin/users')
-            ->assertOk()
-            ->assertSee('Loyalty')
-            ->assertSee('125 pts')
-            ->assertSee('/admin/users/loyalty?user_id='.$target->id, false);
-
-        $this->actingAs($admin)
-            ->get('/admin/users/'.$target->id.'/show')
-            ->assertOk()
-            ->assertSee('Loyalty')
-            ->assertSee('AG-USR-LOY-0001')
-            ->assertSee('125');
-    }
-
-    public function test_loyalty_ui_is_hidden_when_feature_is_disabled(): void
-    {
-        app(SystemSettingsService::class)->put('user_loyalty_enabled', false);
-
-        $admin = $this->makeUserWithRole('admin');
-        $target = $this->makeUserWithRole('customer');
-
-        $this->actingAs($admin)
-            ->get('/admin/users')
-            ->assertOk()
-            ->assertDontSee('/admin/users/loyalty', false)
-            ->assertDontSee('Loyalty</span>', false);
-
-        $this->actingAs($admin)
-            ->get('/admin/users/'.$target->id.'/show')
-            ->assertOk()
-            ->assertDontSee('Loyalty Ledger')
-            ->assertDontSee('admin-section-title">Loyalty', false);
+        $this->assertNull($activity->getExtraProperty('groups'));
+        $this->assertNull($activity->getExtraProperty('billing_address'));
+        $this->assertNull($activity->getExtraProperty('shipping_address'));
     }
 
     private function makeUserWithRole(string $role): User
     {
-        Bouncer::role()->firstOrCreate(['name' => 'superadmin']);
-        Bouncer::role()->firstOrCreate(['name' => 'admin']);
-        Bouncer::role()->firstOrCreate(['name' => 'editor']);
-        Bouncer::role()->firstOrCreate(['name' => 'customer']);
+        Bouncer::role()->firstOrCreate(['name' => 'superadmin'], ['title' => 'Super Administrator']);
+        Bouncer::role()->firstOrCreate(['name' => 'admin'], ['title' => 'Administrator']);
+        Bouncer::role()->firstOrCreate(['name' => 'editor'], ['title' => 'Editor']);
+        Bouncer::role()->firstOrCreate(['name' => 'customer'], ['title' => 'Customer']);
 
         $user = User::factory()->create();
         Bouncer::assign($role)->to($user);
 
         return $user;
-    }
-
-    private function createStatus(
-        string $code,
-        string $name,
-        bool $isDefault = false,
-        bool $isPaid = false,
-        bool $isCancelled = false,
-        int $sortOrder = 1
-    ): OrderStatus {
-        return OrderStatus::query()->create([
-            'code' => $code,
-            'name' => $name,
-            'description' => null,
-            'color' => 'slate',
-            'is_default' => $isDefault,
-            'is_paid' => $isPaid,
-            'is_cancelled' => $isCancelled,
-            'is_active' => true,
-            'sort_order' => $sortOrder,
-            'settings' => null,
-        ]);
-    }
-
-    private function createOrder(OrderStatus $status, User $user, string $number): Order
-    {
-        return Order::query()->create([
-            'order_number' => $number,
-            'status_id' => $status->id,
-            'user_id' => $user->id,
-            'source' => 'web',
-            'locale' => 'en',
-            'currency_code' => 'EUR',
-            'currency_rate' => 1,
-            'customer_name' => $user->name,
-            'customer_email' => $user->email,
-            'customer_phone' => '+38591000111',
-            'billing_first_name' => 'Test',
-            'billing_last_name' => 'User',
-            'billing_address_line_1' => 'Street 1',
-            'billing_postal_code' => '10000',
-            'billing_city' => 'Zagreb',
-            'billing_country_code' => 'HR',
-            'shipping_first_name' => 'Test',
-            'shipping_last_name' => 'User',
-            'shipping_address_line_1' => 'Street 1',
-            'shipping_postal_code' => '10000',
-            'shipping_city' => 'Zagreb',
-            'shipping_country_code' => 'HR',
-            'payment_method_code' => 'bank',
-            'payment_method_name' => 'Bank Transfer',
-            'shipping_method_code' => 'standard',
-            'shipping_method_name' => 'Standard Shipping',
-            'item_qty' => 1,
-            'subtotal' => 99.90,
-            'shipping_total' => 4.99,
-            'payment_fee_total' => 0,
-            'discount_total' => 0,
-            'tax_total' => 20,
-            'grand_total' => 124.89,
-            'customer_note' => null,
-            'admin_note' => null,
-            'payload' => null,
-            'placed_at' => now(),
-            'paid_at' => null,
-            'created_by' => $user->id,
-            'updated_by' => $user->id,
-        ]);
     }
 }

@@ -22,6 +22,7 @@ use App\Services\Front\StoreSettingsService;
 use App\Services\Settings\LocalSettingsService;
 use App\Services\Settings\SystemSettingsService;
 use App\Services\UserTracking\UserTrackingService;
+use App\Support\Admin\AdminLocale;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Config;
@@ -60,10 +61,12 @@ class AppServiceProvider extends ServiceProvider
             ];
         });
 
-        View::composer('livewire.admin.*', static function ($view): void {
+        View::composer(['livewire.admin.*', 'components.admin-layout'], static function ($view): void {
             static $localeOptions = null;
 
             if ($localeOptions === null) {
+                $fallbackOptions = AdminLocale::fallbackOptions();
+
                 try {
                     $localeOptions = Language::query()
                         ->where('is_active', true)
@@ -72,7 +75,7 @@ class AppServiceProvider extends ServiceProvider
                         ->orderBy('code')
                         ->pluck('code')
                         ->filter(fn ($code) => is_string($code) && trim($code) !== '')
-                        ->map(fn ($code) => strtolower(trim((string) $code)))
+                        ->map(fn ($code) => AdminLocale::normalize((string) $code))
                         ->unique()
                         ->values()
                         ->all();
@@ -81,7 +84,18 @@ class AppServiceProvider extends ServiceProvider
                 }
 
                 if ($localeOptions === []) {
-                    $localeOptions = [strtolower((string) config('app.locale', 'en'))];
+                    $localeOptions = $fallbackOptions;
+                } else {
+                    $preferred = array_values(array_filter(
+                        $fallbackOptions,
+                        static fn (string $locale): bool => in_array($locale, $localeOptions, true)
+                    ));
+                    $remaining = array_values(array_filter(
+                        $localeOptions,
+                        static fn (string $locale): bool => ! in_array($locale, $preferred, true)
+                    ));
+
+                    $localeOptions = array_values(array_unique([...$preferred, ...$remaining]));
                 }
             }
 
@@ -119,6 +133,15 @@ class AppServiceProvider extends ServiceProvider
                                 ],
                                 'social' => [],
                             ],
+                            'blog' => [
+                                'hero_eyebrow' => (string) __('ui.blog.eyebrow'),
+                                'hero_title' => (string) __('ui.blog.title'),
+                                'hero_intro' => (string) __('ui.blog.subtitle'),
+                                'hero_cta_label' => (string) __('ui.blog.cta_default'),
+                                'hero_cta_url' => '/contact',
+                                'category_preview_limit' => 8,
+                                'posts_per_page' => 12,
+                            ],
                             'footer' => [
                                 'phone' => '',
                                 'email_sales' => '',
@@ -141,7 +164,6 @@ class AppServiceProvider extends ServiceProvider
                                 'default_image_url' => null,
                                 'home_image_url' => null,
                                 'category_image_url' => null,
-                                'product_image_url' => null,
                                 'page_image_url' => null,
                                 'blog_image_url' => null,
                             ],
@@ -152,8 +174,7 @@ class AppServiceProvider extends ServiceProvider
                                 'breadcrumbs_enabled' => true,
                                 'itemlist_enabled' => true,
                                 'home_enabled' => true,
-                                'category_enabled' => true,
-                                'product_enabled' => false,
+                                'category_enabled' => false,
                                 'blog_enabled' => true,
                                 'page_enabled' => true,
                                 'faq_enabled' => true,

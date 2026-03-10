@@ -12,5 +12,4 @@
         gtag('js', new Date());
         gtag('config', '{{ $ga4Id }}');
     </script>
-    <script defer src="{{ asset('front-theme/scripts/shop-analytics.js') }}?v={{ filemtime(public_path('front-theme/scripts/shop-analytics.js')) }}"></script>
 @endif

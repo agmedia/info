@@ -2,11 +2,9 @@
 
 namespace App\Livewire\Admin\Settings\System;
 
-use App\Models\Catalog\Category\Category;
 use App\Models\Content\Page\InfoPage;
 use App\Services\Settings\SystemSettingsService;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Validation\Rule;
 use Livewire\Component;
 use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
 use Livewire\WithFileUploads;
@@ -31,24 +29,27 @@ class StoreSettings extends Component
         'store_email_from_address' => '',
         'store_email_from_name' => '',
         'store_email_reply_to' => '',
-        'store_email_orders_to' => '',
         'store_email_contact_to' => '',
 
         'store_brand_name' => '',
+        'store_blog_header_eyebrow' => '',
+        'store_blog_header_title' => '',
+        'store_blog_header_intro' => '',
+        'store_blog_header_cta_label' => '',
+        'store_blog_header_cta_url' => '',
+        'store_blog_category_preview_limit' => 8,
+        'store_blog_posts_per_page' => 12,
         'store_footer_phone' => '',
         'store_footer_email_sales' => '',
         'store_footer_email_support' => '',
         'store_footer_hours' => '',
         'store_footer_col_1_title' => '',
-        'store_footer_col_1_category_ids' => [],
         'store_footer_col_1_page_ids' => [],
         'store_footer_col_1_custom_links' => '',
         'store_footer_col_2_title' => '',
-        'store_footer_col_2_category_ids' => [],
         'store_footer_col_2_page_ids' => [],
         'store_footer_col_2_custom_links' => '',
         'store_footer_col_3_title' => '',
-        'store_footer_col_3_category_ids' => [],
         'store_footer_col_3_page_ids' => [],
         'store_footer_col_3_custom_links' => '',
         'store_footer_bottom_link_page_ids' => [],
@@ -83,9 +84,6 @@ class StoreSettings extends Component
 
         'store_analytics_enabled' => false,
         'store_analytics_ga4_measurement_id' => '',
-        'store_analytics_purchase_event_enabled' => true,
-        'store_analytics_purchase_event_name' => 'purchase',
-        'store_pricing_prices_include_tax' => false,
 
         'store_seo_default_title' => '',
         'store_seo_default_description' => '',
@@ -95,7 +93,6 @@ class StoreSettings extends Component
         'store_og_default_image_path' => '',
         'store_og_home_image_path' => '',
         'store_og_category_image_path' => '',
-        'store_og_product_image_path' => '',
         'store_og_page_image_path' => '',
         'store_og_blog_image_path' => '',
 
@@ -105,8 +102,6 @@ class StoreSettings extends Component
         'store_schema_breadcrumbs_enabled' => true,
         'store_schema_itemlist_enabled' => true,
         'store_schema_home_enabled' => true,
-        'store_schema_category_enabled' => true,
-        'store_schema_product_enabled' => true,
         'store_schema_blog_enabled' => true,
         'store_schema_page_enabled' => true,
         'store_schema_faq_enabled' => true,
@@ -122,7 +117,6 @@ class StoreSettings extends Component
         'store_schema_same_as' => '',
         'store_schema_blog_author_name' => '',
         'store_schema_blog_author_url' => '',
-        'store_schema_product_currency' => 'EUR',
         'store_schema_faq_group' => '',
         'store_schema_faq_limit' => 8,
         'store_schema_itemlist_limit' => 12,
@@ -138,7 +132,6 @@ class StoreSettings extends Component
     public ?TemporaryUploadedFile $ogDefaultImageUpload = null;
     public ?TemporaryUploadedFile $ogHomeImageUpload = null;
     public ?TemporaryUploadedFile $ogCategoryImageUpload = null;
-    public ?TemporaryUploadedFile $ogProductImageUpload = null;
     public ?TemporaryUploadedFile $ogPageImageUpload = null;
     public ?TemporaryUploadedFile $ogBlogImageUpload = null;
 
@@ -147,20 +140,35 @@ class StoreSettings extends Component
         $this->authorizeAccess();
 
         $settings = app(SystemSettingsService::class);
+        $allSettings = $settings->all();
         foreach ($this->form as $key => $default) {
             $this->form[$key] = $settings->get($key, $default);
         }
 
         foreach ([1, 2, 3] as $col) {
-            $categoryKey = 'store_footer_col_'.$col.'_category_ids';
             $pageKey = 'store_footer_col_'.$col.'_page_ids';
-            $this->form[$categoryKey] = $this->normalizeIdList($this->form[$categoryKey] ?? []);
             $this->form[$pageKey] = $this->normalizeIdList($this->form[$pageKey] ?? []);
         }
         $this->form['store_footer_bottom_link_page_ids'] = $this->normalizeIdList($this->form['store_footer_bottom_link_page_ids'] ?? []);
 
         if (trim((string) $this->form['store_announcement_text']) === '') {
             $this->form['store_announcement_text'] = (string) __('ui.front.desktop.promo_bar');
+        }
+
+        if (! array_key_exists('store_blog_header_eyebrow', $allSettings)) {
+            $this->form['store_blog_header_eyebrow'] = (string) __('ui.blog.eyebrow');
+        }
+        if (! array_key_exists('store_blog_header_title', $allSettings)) {
+            $this->form['store_blog_header_title'] = (string) __('ui.blog.title');
+        }
+        if (! array_key_exists('store_blog_header_intro', $allSettings)) {
+            $this->form['store_blog_header_intro'] = (string) __('ui.blog.subtitle');
+        }
+        if (! array_key_exists('store_blog_header_cta_label', $allSettings)) {
+            $this->form['store_blog_header_cta_label'] = (string) __('ui.blog.cta_default');
+        }
+        if (! array_key_exists('store_blog_header_cta_url', $allSettings)) {
+            $this->form['store_blog_header_cta_url'] = '/contact';
         }
     }
 
@@ -170,11 +178,8 @@ class StoreSettings extends Component
 
         $validated = $this->validate($this->rules());
         $payload = $validated['form'];
-        $payload['store_schema_product_currency'] = strtoupper((string) ($payload['store_schema_product_currency'] ?? 'EUR'));
         $payload['store_schema_address_country'] = strtoupper((string) ($payload['store_schema_address_country'] ?? 'HR'));
-        $payload['store_analytics_purchase_event_name'] = trim((string) ($payload['store_analytics_purchase_event_name'] ?? 'purchase')) ?: 'purchase';
         foreach ([1, 2, 3] as $col) {
-            $payload['store_footer_col_'.$col.'_category_ids'] = $this->normalizeIdList($payload['store_footer_col_'.$col.'_category_ids'] ?? []);
             $payload['store_footer_col_'.$col.'_page_ids'] = $this->normalizeIdList($payload['store_footer_col_'.$col.'_page_ids'] ?? []);
         }
         $payload['store_footer_bottom_link_page_ids'] = $this->normalizeIdList($payload['store_footer_bottom_link_page_ids'] ?? []);
@@ -194,9 +199,6 @@ class StoreSettings extends Component
         if ($this->ogCategoryImageUpload) {
             $payload['store_og_category_image_path'] = $this->ogCategoryImageUpload->store('store-settings', 'public');
         }
-        if ($this->ogProductImageUpload) {
-            $payload['store_og_product_image_path'] = $this->ogProductImageUpload->store('store-settings', 'public');
-        }
         if ($this->ogPageImageUpload) {
             $payload['store_og_page_image_path'] = $this->ogPageImageUpload->store('store-settings', 'public');
         }
@@ -204,7 +206,7 @@ class StoreSettings extends Component
             $payload['store_og_blog_image_path'] = $this->ogBlogImageUpload->store('store-settings', 'public');
         }
 
-        app(SystemSettingsService::class)->putMany($payload);
+        app(SystemSettingsService::class)->putMany(array_merge($payload, $this->legacyStoreCleanupPayload()));
         $this->form = array_merge($this->form, $payload);
 
         $this->logoUpload = null;
@@ -212,11 +214,10 @@ class StoreSettings extends Component
         $this->ogDefaultImageUpload = null;
         $this->ogHomeImageUpload = null;
         $this->ogCategoryImageUpload = null;
-        $this->ogProductImageUpload = null;
         $this->ogPageImageUpload = null;
         $this->ogBlogImageUpload = null;
 
-        $this->dispatch('notify', type: 'success', message: __('Store settings saved.'));
+        $this->dispatch('notify', type: 'success', message: __('Settings saved.'));
     }
 
     /**
@@ -236,29 +237,29 @@ class StoreSettings extends Component
             'form.store_email_from_address' => ['nullable', 'email', 'max:191'],
             'form.store_email_from_name' => ['nullable', 'string', 'max:191'],
             'form.store_email_reply_to' => ['nullable', 'email', 'max:191'],
-            'form.store_email_orders_to' => ['nullable', 'email', 'max:191'],
             'form.store_email_contact_to' => ['nullable', 'email', 'max:191'],
 
             'form.store_brand_name' => ['nullable', 'string', 'max:191'],
+            'form.store_blog_header_eyebrow' => ['nullable', 'string', 'max:120'],
+            'form.store_blog_header_title' => ['nullable', 'string', 'max:191'],
+            'form.store_blog_header_intro' => ['nullable', 'string', 'max:500'],
+            'form.store_blog_header_cta_label' => ['nullable', 'string', 'max:120'],
+            'form.store_blog_header_cta_url' => ['nullable', 'string', 'max:2048'],
+            'form.store_blog_category_preview_limit' => ['required', 'integer', 'min:1', 'max:40'],
+            'form.store_blog_posts_per_page' => ['required', 'integer', 'min:1', 'max:48'],
             'form.store_footer_phone' => ['nullable', 'string', 'max:120'],
             'form.store_footer_email_sales' => ['nullable', 'email', 'max:191'],
             'form.store_footer_email_support' => ['nullable', 'email', 'max:191'],
             'form.store_footer_hours' => ['nullable', 'string', 'max:255'],
             'form.store_footer_col_1_title' => ['nullable', 'string', 'max:120'],
-            'form.store_footer_col_1_category_ids' => ['nullable', 'array'],
-            'form.store_footer_col_1_category_ids.*' => ['integer', Rule::exists('categories', 'id')->where(fn ($q) => $q->where('scope', Category::SCOPE_CATALOG))],
             'form.store_footer_col_1_page_ids' => ['nullable', 'array'],
             'form.store_footer_col_1_page_ids.*' => ['integer', 'exists:content_info_pages,id'],
             'form.store_footer_col_1_custom_links' => ['nullable', 'string', 'max:5000'],
             'form.store_footer_col_2_title' => ['nullable', 'string', 'max:120'],
-            'form.store_footer_col_2_category_ids' => ['nullable', 'array'],
-            'form.store_footer_col_2_category_ids.*' => ['integer', Rule::exists('categories', 'id')->where(fn ($q) => $q->where('scope', Category::SCOPE_CATALOG))],
             'form.store_footer_col_2_page_ids' => ['nullable', 'array'],
             'form.store_footer_col_2_page_ids.*' => ['integer', 'exists:content_info_pages,id'],
             'form.store_footer_col_2_custom_links' => ['nullable', 'string', 'max:5000'],
             'form.store_footer_col_3_title' => ['nullable', 'string', 'max:120'],
-            'form.store_footer_col_3_category_ids' => ['nullable', 'array'],
-            'form.store_footer_col_3_category_ids.*' => ['integer', Rule::exists('categories', 'id')->where(fn ($q) => $q->where('scope', Category::SCOPE_CATALOG))],
             'form.store_footer_col_3_page_ids' => ['nullable', 'array'],
             'form.store_footer_col_3_page_ids.*' => ['integer', 'exists:content_info_pages,id'],
             'form.store_footer_col_3_custom_links' => ['nullable', 'string', 'max:5000'],
@@ -287,9 +288,6 @@ class StoreSettings extends Component
 
             'form.store_analytics_enabled' => ['required', 'boolean'],
             'form.store_analytics_ga4_measurement_id' => ['nullable', 'string', 'max:64'],
-            'form.store_analytics_purchase_event_enabled' => ['required', 'boolean'],
-            'form.store_analytics_purchase_event_name' => ['nullable', 'string', 'max:64'],
-            'form.store_pricing_prices_include_tax' => ['required', 'boolean'],
 
             'form.store_seo_default_title' => ['nullable', 'string', 'max:191'],
             'form.store_seo_default_description' => ['nullable', 'string', 'max:320'],
@@ -302,8 +300,6 @@ class StoreSettings extends Component
             'form.store_schema_breadcrumbs_enabled' => ['required', 'boolean'],
             'form.store_schema_itemlist_enabled' => ['required', 'boolean'],
             'form.store_schema_home_enabled' => ['required', 'boolean'],
-            'form.store_schema_category_enabled' => ['required', 'boolean'],
-            'form.store_schema_product_enabled' => ['required', 'boolean'],
             'form.store_schema_blog_enabled' => ['required', 'boolean'],
             'form.store_schema_page_enabled' => ['required', 'boolean'],
             'form.store_schema_faq_enabled' => ['required', 'boolean'],
@@ -319,7 +315,6 @@ class StoreSettings extends Component
             'form.store_schema_same_as' => ['nullable', 'string', 'max:5000'],
             'form.store_schema_blog_author_name' => ['nullable', 'string', 'max:191'],
             'form.store_schema_blog_author_url' => ['nullable', 'url', 'max:2048'],
-            'form.store_schema_product_currency' => ['required', 'string', 'size:3'],
             'form.store_schema_faq_group' => ['nullable', 'string', 'max:120'],
             'form.store_schema_faq_limit' => ['required', 'integer', 'min:1', 'max:20'],
             'form.store_schema_itemlist_limit' => ['required', 'integer', 'min:1', 'max:48'],
@@ -334,7 +329,6 @@ class StoreSettings extends Component
             'ogDefaultImageUpload' => ['nullable', 'image', 'max:4096'],
             'ogHomeImageUpload' => ['nullable', 'image', 'max:4096'],
             'ogCategoryImageUpload' => ['nullable', 'image', 'max:4096'],
-            'ogProductImageUpload' => ['nullable', 'image', 'max:4096'],
             'ogPageImageUpload' => ['nullable', 'image', 'max:4096'],
             'ogBlogImageUpload' => ['nullable', 'image', 'max:4096'],
         ];
@@ -344,50 +338,6 @@ class StoreSettings extends Component
     {
         $locale = (string) app()->getLocale();
         $fallbackLocale = (string) config('app.locale');
-
-        $catalogCategoryOptions = Category::query()
-            ->where('scope', Category::SCOPE_CATALOG)
-            ->where('is_active', true)
-            ->withDepth()
-            ->defaultOrder()
-            ->with([
-                'translations' => fn ($q) => $q
-                    ->where('scope', Category::SCOPE_CATALOG)
-                    ->whereIn('locale', [$locale, $fallbackLocale]),
-            ])
-            ->get();
-
-        $categoryNameById = $catalogCategoryOptions->mapWithKeys(function (Category $category) use ($locale, $fallbackLocale): array {
-            $translation = $category->translations->firstWhere('locale', $locale)
-                ?? $category->translations->firstWhere('locale', $fallbackLocale)
-                ?? $category->translations->first();
-
-            return [
-                (int) $category->id => (string) ($translation?->name ?? $category->code ?? ('Category #'.$category->id)),
-            ];
-        });
-        $categoryMap = $catalogCategoryOptions->keyBy(fn (Category $category): int => (int) $category->id);
-
-        $catalogCategoryOptions = $catalogCategoryOptions
-            ->map(function (Category $category) use ($categoryNameById, $categoryMap): array {
-                $parts = [];
-                $cursor = $category;
-                $guard = 0;
-
-                while ($cursor && $guard < 32) {
-                    $parts[] = (string) ($categoryNameById[(int) $cursor->id] ?? ('Category #'.$cursor->id));
-                    $parentId = (int) ($cursor->parent_id ?? 0);
-                    $cursor = $parentId > 0 ? $categoryMap->get($parentId) : null;
-                    $guard++;
-                }
-
-                return [
-                    'id' => (int) $category->id,
-                    'label' => implode(' > ', array_reverse($parts)),
-                ];
-            })
-            ->values()
-            ->all();
 
         $pageOptions = InfoPage::query()
             ->where('is_active', true)
@@ -409,9 +359,28 @@ class StoreSettings extends Component
             ->all();
 
         return view('livewire.admin.settings.system.store-settings', [
-            'catalogCategoryOptions' => $catalogCategoryOptions,
             'pageOptions' => $pageOptions,
         ]);
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function legacyStoreCleanupPayload(): array
+    {
+        return [
+            'store_email_orders_to' => '',
+            'store_footer_col_1_category_ids' => [],
+            'store_footer_col_2_category_ids' => [],
+            'store_footer_col_3_category_ids' => [],
+            'store_analytics_purchase_event_enabled' => false,
+            'store_analytics_purchase_event_name' => 'purchase',
+            'store_pricing_prices_include_tax' => false,
+            'store_og_product_image_path' => '',
+            'store_schema_category_enabled' => false,
+            'store_schema_product_enabled' => false,
+            'store_schema_product_currency' => 'EUR',
+        ];
     }
 
     private function authorizeAccess(): void

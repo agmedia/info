@@ -3,7 +3,7 @@
 @endphp
 
 @if ($hasNavigation)
-    <div class="overflow-y-auto border-t border-white/10 px-0 text-sm uppercase tracking-[0.08em] text-white/90">
+    <div class="front-mobile-nav min-h-0 flex-1 overflow-y-auto border-t px-0 text-sm tracking-[0.03em]">
         @foreach ($mainNavigation as $item)
             @php
                 $children = collect($item['children'] ?? []);
@@ -13,11 +13,11 @@
             @endphp
 
             @if ($hasChildren)
-                <details class="group/nav border-b border-white/10">
-                    <summary class="flex min-h-[56px] cursor-pointer list-none items-center justify-between px-4 py-3 hover:bg-white/5">
+                <details class="group/nav border-b">
+                    <summary class="front-mobile-nav-summary flex min-h-[56px] cursor-pointer list-none items-center justify-between px-4 py-3">
                         <span class="min-w-0 truncate pr-3 text-[14px] font-semibold">{{ $item['label'] }}</span>
-                        <span class="inline-flex h-6 w-6 items-center justify-center text-[21px] font-light leading-none text-white/60 group-open/nav:hidden">+</span>
-                        <span class="hidden h-6 w-6 items-center justify-center text-[21px] font-light leading-none text-white/60 group-open/nav:inline-flex">-</span>
+                        <span class="front-mobile-nav-toggle inline-flex h-8 w-8 items-center justify-center text-[21px] font-light leading-none group-open/nav:hidden">+</span>
+                        <span class="front-mobile-nav-toggle hidden h-8 w-8 items-center justify-center text-[21px] font-light leading-none group-open/nav:inline-flex">-</span>
                     </summary>
                     <ul class="px-0 pb-0 text-[13px]">
                         @foreach ($children as $child)
@@ -26,15 +26,15 @@
                     </ul>
                 </details>
             @else
-                <a href="{{ $item['url'] ?? '#' }}" class="flex min-h-[56px] items-center border-b border-white/10 px-4 py-3 text-[14px] font-semibold hover:bg-white/5" @if($target) target="{{ $target }}" rel="{{ $rel }}" @endif>{{ $item['label'] }}</a>
+                <a href="{{ $item['url'] ?? '#' }}" class="front-mobile-nav-link flex min-h-[56px] items-center border-b px-4 py-3 text-[14px] font-semibold" @if($target) target="{{ $target }}" rel="{{ $rel }}" @endif>{{ $item['label'] }}</a>
             @endif
         @endforeach
     </div>
 @else
-    <nav class="overflow-y-auto border-t border-white/10 px-0 text-sm uppercase tracking-[0.08em] text-white/90">
-        <a href="{{ route('home') }}" class="flex min-h-[56px] items-center border-b border-white/10 px-4 py-3 text-[14px] font-semibold hover:bg-white/5">Home</a>
-        <a href="{{ route('blog.index') }}" class="flex min-h-[56px] items-center border-b border-white/10 px-4 py-3 text-[14px] font-semibold hover:bg-white/5">{{ __('ui.front.desktop.nav.blog') }}</a>
-        <a href="{{ route('faq.index') }}" class="flex min-h-[56px] items-center border-b border-white/10 px-4 py-3 text-[14px] font-semibold hover:bg-white/5">{{ __('ui.front.desktop.nav.faq') }}</a>
-        <a href="{{ route('contact.create') }}" class="flex min-h-[56px] items-center border-b border-white/10 px-4 py-3 text-[14px] font-semibold hover:bg-white/5">{{ __('ui.front.desktop.nav.contact') }}</a>
+    <nav class="front-mobile-nav min-h-0 flex-1 overflow-y-auto border-t px-0 text-sm tracking-[0.03em]">
+        <a href="{{ route('home') }}" class="front-mobile-nav-link flex min-h-[56px] items-center border-b px-4 py-3 text-[14px] font-semibold">Home</a>
+        <a href="{{ route('blog.index') }}" class="front-mobile-nav-link flex min-h-[56px] items-center border-b px-4 py-3 text-[14px] font-semibold">{{ __('ui.front.desktop.nav.blog') }}</a>
+        <a href="{{ route('faq.index') }}" class="front-mobile-nav-link flex min-h-[56px] items-center border-b px-4 py-3 text-[14px] font-semibold">{{ __('ui.front.desktop.nav.faq') }}</a>
+        <a href="{{ route('contact.create') }}" class="front-mobile-nav-link flex min-h-[56px] items-center border-b px-4 py-3 text-[14px] font-semibold">{{ __('ui.front.desktop.nav.contact') }}</a>
     </nav>
 @endif

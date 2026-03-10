@@ -242,6 +242,7 @@ const initTomSelect = () => {
         }
 
         const noSearch = element.dataset.tomNoSearch === '1';
+        const allowCreate = element.dataset.tomCreate === '1';
         const visual = element.dataset.tomVisual || '';
         const placeholder = element.getAttribute('placeholder') || element.dataset.tomPlaceholder || '';
         const maxItemsRaw = element.dataset.tomMaxItems;
@@ -258,7 +259,10 @@ const initTomSelect = () => {
         const config = {
             allowEmptyOption: true,
             maxItems: Number.isNaN(maxItems) ? (element.multiple ? null : 1) : maxItems,
-            create: false,
+            create: allowCreate ? (input) => {
+                const value = String(input ?? '').trim();
+                return value === '' ? false : { value, text: value };
+            } : false,
             plugins,
             controlInput: noSearch ? null : undefined,
             searchField: noSearch ? [] : ['text'],
@@ -1310,6 +1314,279 @@ const initDashboardCharts = () => {
     });
 };
 
+const initFrontDesktopHeader = () => {
+    const stickyHeader = document.querySelector('[data-front-sticky-header]');
+    const stickyBar = document.querySelector('.front-header-sticky') ?? stickyHeader;
+    const metaBar = document.querySelector('.front-header-meta');
+    const root = document.querySelector('[data-mobile-menu-root]');
+    const panel = root?.querySelector('[data-mobile-menu-panel]');
+    const overlay = root?.querySelector('[data-mobile-menu-close]');
+    const openButtons = document.querySelectorAll('[data-mobile-menu-open]');
+    const closeButtons = root?.querySelectorAll('[data-mobile-menu-close]') ?? [];
+    const searchPanel = document.querySelector('[data-header-search-panel]');
+    const searchToggles = document.querySelectorAll('[data-header-search-toggle]');
+    const searchInput = document.querySelector('[data-header-search-input]');
+    const syncHeaderOffsetVar = () => {
+        if (!(stickyBar instanceof HTMLElement)) {
+            return;
+        }
+        const stickyHeight = Math.max(0, Math.floor(stickyBar.offsetHeight));
+        const metaHeight = metaBar instanceof HTMLElement && window.getComputedStyle(metaBar).display !== 'none'
+            ? Math.max(0, Math.floor(metaBar.getBoundingClientRect().height))
+            : 0;
+        const totalHeaderHeight = stickyHeight + metaHeight;
+        document.documentElement.style.setProperty('--front-header-offset', `${totalHeaderHeight}px`);
+    };
+
+    const closeMenu = () => {
+        if (!root || !panel || !overlay) {
+            return;
+        }
+
+        root.classList.add('pointer-events-none');
+        overlay.classList.remove('opacity-100');
+        overlay.classList.add('opacity-0');
+        panel.classList.add('-translate-x-full');
+        panel.classList.remove('translate-x-0');
+        document.body.classList.remove('overflow-hidden');
+    };
+
+    const openMenu = () => {
+        if (!root || !panel || !overlay) {
+            return;
+        }
+
+        root.classList.remove('pointer-events-none');
+        overlay.classList.remove('opacity-0');
+        overlay.classList.add('opacity-100');
+        panel.classList.remove('-translate-x-full');
+        panel.classList.add('translate-x-0');
+        document.body.classList.add('overflow-hidden');
+    };
+
+    const closeSearch = () => {
+        if (!searchPanel) {
+            return;
+        }
+        searchPanel.classList.remove('is-open');
+    };
+
+    const openSearch = () => {
+        if (!searchPanel) {
+            return;
+        }
+        searchPanel.classList.add('is-open');
+        if (searchInput instanceof HTMLInputElement) {
+            requestAnimationFrame(() => searchInput.focus());
+        }
+    };
+
+    const toggleSearch = () => {
+        if (!searchPanel) {
+            return;
+        }
+        if (searchPanel.classList.contains('is-open')) {
+            closeSearch();
+            return;
+        }
+        openSearch();
+    };
+
+    openButtons.forEach((button) => {
+        if (button.dataset.boundMenuOpen === '1') return;
+        button.dataset.boundMenuOpen = '1';
+        button.addEventListener('click', openMenu);
+    });
+
+    closeButtons.forEach((button) => {
+        if (!(button instanceof HTMLElement) || button.dataset.boundMenuClose === '1') return;
+        button.dataset.boundMenuClose = '1';
+        button.addEventListener('click', closeMenu);
+    });
+
+    root?.querySelectorAll('a').forEach((link) => {
+        if (!(link instanceof HTMLElement) || link.dataset.boundMenuLink === '1') return;
+        link.dataset.boundMenuLink = '1';
+        link.addEventListener('click', closeMenu);
+    });
+
+    searchToggles.forEach((toggle) => {
+        if (toggle instanceof HTMLElement && toggle.dataset.boundSearchToggle !== '1') {
+            toggle.dataset.boundSearchToggle = '1';
+            toggle.addEventListener('click', toggleSearch);
+        }
+    });
+
+    if (document.body && document.body.dataset.frontHeaderEscBound !== '1') {
+        document.body.dataset.frontHeaderEscBound = '1';
+        document.addEventListener('keydown', (event) => {
+            if (event.key === 'Escape') {
+                closeMenu();
+                closeSearch();
+            }
+        });
+    }
+
+    if (stickyBar instanceof HTMLElement) {
+        if (stickyHeader instanceof HTMLElement) {
+            stickyHeader.classList.remove('is-compact');
+        }
+        syncHeaderOffsetVar();
+    }
+};
+
+const initHeroStatCounters = () => {
+    const counters = document.querySelectorAll('[data-count-up]');
+    if (!counters.length) {
+        return;
+    }
+
+    const prefersReducedMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false;
+
+    const formatValue = (element, value) => {
+        const suffix = element.dataset.countSuffix || '';
+        return `${Math.round(value)}${suffix}`;
+    };
+
+    const finalizeCounter = (element) => {
+        const target = Number.parseInt(element.dataset.countTo || '0', 10);
+        element.textContent = formatValue(element, Number.isNaN(target) ? 0 : target);
+        element.dataset.countAnimated = '1';
+        delete element.dataset.countAnimating;
+    };
+
+    const animateCounter = (element) => {
+        if (element.dataset.countAnimated === '1' || element.dataset.countAnimating === '1') {
+            return;
+        }
+
+        const target = Number.parseInt(element.dataset.countTo || '0', 10);
+        if (Number.isNaN(target) || target <= 0 || prefersReducedMotion) {
+            finalizeCounter(element);
+            return;
+        }
+
+        const duration = Number.parseInt(element.dataset.countDuration || '2200', 10);
+        const safeDuration = Number.isNaN(duration) ? 2200 : Math.max(900, duration);
+        element.dataset.countAnimating = '1';
+
+        const startTime = performance.now();
+        const step = (currentTime) => {
+            const progress = Math.min((currentTime - startTime) / safeDuration, 1);
+            const easedProgress = 0.5 - (Math.cos(Math.PI * progress) / 2);
+            const currentValue = target * easedProgress;
+
+            element.textContent = formatValue(element, currentValue);
+
+            if (progress < 1) {
+                window.requestAnimationFrame(step);
+                return;
+            }
+
+            finalizeCounter(element);
+        };
+
+        window.requestAnimationFrame(step);
+    };
+
+    counters.forEach((counter) => {
+        if (!(counter instanceof HTMLElement)) {
+            return;
+        }
+
+        if (counter.dataset.countAnimated !== '1' && counter.dataset.countPrepared !== '1') {
+            counter.textContent = formatValue(counter, 0);
+            counter.dataset.countPrepared = '1';
+        }
+    });
+
+    if (!('IntersectionObserver' in window) || prefersReducedMotion) {
+        counters.forEach((counter) => {
+            if (counter instanceof HTMLElement) {
+                finalizeCounter(counter);
+            }
+        });
+        return;
+    }
+
+    if (!window.__frontHeroStatObserver) {
+        window.__frontHeroStatObserver = new IntersectionObserver((entries, observer) => {
+            entries.forEach((entry) => {
+                if (!entry.isIntersecting) {
+                    return;
+                }
+
+                const element = entry.target;
+                if (element instanceof HTMLElement) {
+                    animateCounter(element);
+                }
+                observer.unobserve(element);
+            });
+        }, {
+            threshold: 0.35,
+            rootMargin: '0px 0px -8% 0px',
+        });
+    }
+
+    counters.forEach((counter) => {
+        if (!(counter instanceof HTMLElement) || counter.dataset.countAnimated === '1') {
+            return;
+        }
+
+        if (counter.dataset.countObserved === '1') {
+            return;
+        }
+
+        counter.dataset.countObserved = '1';
+        window.__frontHeroStatObserver.observe(counter);
+    });
+};
+
+const disableLegacyPwaRuntime = () => {
+    if (typeof window === 'undefined') {
+        return;
+    }
+
+    try {
+        localStorage.removeItem('Appkit-PWA-Prompt');
+        localStorage.removeItem('Appkit-PWA-Timeout-Value');
+    } catch (error) {
+        // Ignore localStorage access failures.
+    }
+
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.getRegistrations()
+            .then((registrations) => {
+                registrations.forEach((registration) => {
+                    const scriptUrl = registration.active?.scriptURL
+                        ?? registration.waiting?.scriptURL
+                        ?? registration.installing?.scriptURL
+                        ?? '';
+
+                    if (scriptUrl.includes('/_service-worker.js') || scriptUrl.includes('front-theme/_service-worker.js')) {
+                        registration.unregister().catch(() => {});
+                    }
+                });
+            })
+            .catch(() => {});
+    }
+
+    if ('caches' in window) {
+        caches.keys()
+            .then((names) => Promise.all(
+                names
+                    .filter((name) => /workbox|appkit|pwa|service-worker/i.test(name))
+                    .map((name) => caches.delete(name)),
+            ))
+            .catch(() => {});
+    }
+};
+
+const initFrontVisualEffects = () => {
+    // Temporarily disable space banner effects to keep scroll/perf smooth.
+    return;
+};
+
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', () => {
         initAceLauncher();
@@ -1318,7 +1595,10 @@ if (document.readyState === 'loading') {
         initMediaImageEditor();
         initTomSelect();
         initDashboardCharts();
-        initSpaceBanner();
+        initFrontVisualEffects();
+        initFrontDesktopHeader();
+        initHeroStatCounters();
+        disableLegacyPwaRuntime();
     }, { once: true });
 } else {
     initAceLauncher();
@@ -1327,10 +1607,16 @@ if (document.readyState === 'loading') {
     initMediaImageEditor();
     initTomSelect();
     initDashboardCharts();
-    initSpaceBanner();
+    initFrontVisualEffects();
+    initFrontDesktopHeader();
+    initHeroStatCounters();
+    disableLegacyPwaRuntime();
 }
 
 document.addEventListener('livewire:navigated', () => {
     initTomSelect();
-    initSpaceBanner();
+    initFrontVisualEffects();
+    initFrontDesktopHeader();
+    initHeroStatCounters();
+    disableLegacyPwaRuntime();
 });

@@ -1008,16 +1008,17 @@
                     $catalogUseApi = app(\App\Services\Catalog\CatalogFeatureService::class)->useApi();
                     $contentCategoriesActive = request()->routeIs('admin.categories*');
                     $contentBlogActive = request()->routeIs('admin.content.blog.*');
+                    $contentTeamActive = request()->routeIs('admin.content.team.*');
                     $contentPagesActive = request()->routeIs('admin.content.pages.*');
                     $contentFaqsActive = request()->routeIs('admin.content.faqs.*');
                     $contentCommentsActive = request()->routeIs('admin.content.comments.*');
                     $contentBlocksActive = request()->routeIs('admin.content.blocks*');
                     $contentNavigationActive = request()->routeIs('admin.content.navigation*');
                     $contentSlotsActive = request()->routeIs('admin.content.slots*');
-                    $contentOpen = $contentCategoriesActive || $contentBlogActive || $contentPagesActive || $contentFaqsActive || $contentCommentsActive || $contentBlocksActive || $contentNavigationActive || $contentSlotsActive;
+                    $contentOpen = $contentCategoriesActive || $contentBlogActive || $contentTeamActive || $contentPagesActive || $contentFaqsActive || $contentCommentsActive || $contentBlocksActive || $contentNavigationActive || $contentSlotsActive;
                     $settingsOpen = request()->routeIs('admin.settings.*');
                     $settingsSystemOpen = request()->routeIs('admin.settings.system.*');
-                    $canManageUsersAccess = auth()->user() && (auth()->user()->isA('superadmin') || auth()->user()->can('users.access.manage'));
+                    $canManageUsersAccess = auth()->user() && auth()->user()->isA('superadmin');
                     $canManageRuntimeTools = auth()->user() && (
                         auth()->user()->isA('superadmin')
                         || auth()->user()->can('settings.system.runtime.manage')
@@ -1031,22 +1032,15 @@
                         || auth()->user()->can('settings.local.languages.manage')
                     );
                     $usersListActive = request()->routeIs('admin.users') || request()->routeIs('admin.users.edit') || request()->routeIs('admin.users.show');
-                    $usersGroupsActive = request()->routeIs('admin.users.groups');
                     $usersAccessActive = $canManageUsersAccess && request()->routeIs('admin.users.access');
-                    $usersActivityActive = request()->routeIs('admin.users.activity');
                     $canViewUsersList = auth()->user() && (auth()->user()->isA('superadmin') || auth()->user()->can('users.list.view'));
-                    $canManageUserGroups = auth()->user() && (auth()->user()->isA('superadmin') || auth()->user()->can('users.groups.manage'));
-                    $canViewUserActivity = auth()->user() && (auth()->user()->isA('superadmin') || auth()->user()->can('users.activity.view'));
-                    $usersOpen = $usersListActive || $usersGroupsActive || $usersAccessActive || $usersActivityActive;
+                    $usersOpen = $usersListActive || $usersAccessActive;
                     $helpRoute = request()->route()?->getName() ?? '';
                     $helpConfig = config('admin_help', []);
                     $helpEntry = $helpConfig['default'] ?? [];
                     $canViewUsersSection = auth()->user() && (
                         auth()->user()->isA('superadmin')
                         || auth()->user()->can('users.list.view')
-                        || auth()->user()->can('users.groups.manage')
-                        || auth()->user()->can('users.activity.view')
-                        || auth()->user()->can('users.access.manage')
                     );
 
                     foreach (($helpConfig['routes'] ?? []) as $pattern => $payload) {
@@ -1265,6 +1259,15 @@
                                 </span>
                             </a>
                             <a
+                                href="{{ route('admin.content.team.index') }}"
+                                class="sidebar-dropdown-link block rounded-lg font-medium {{ $contentTeamActive ? 'is-active-leaf' : 'text-slate-700 hover:bg-slate-100' }}"
+                            >
+                                <span class="flex items-center gap-2">
+                                    <span class="sidebar-dot"></span>
+                                    <span>{{ __('admin.layout.menu.team') }}</span>
+                                </span>
+                            </a>
+                            <a
                                 href="{{ route('admin.content.pages.index') }}"
                                 class="sidebar-dropdown-link block rounded-lg font-medium {{ $contentPagesActive ? 'is-active-leaf' : 'text-slate-700 hover:bg-slate-100' }}"
                             >
@@ -1417,17 +1420,6 @@
                                         </span>
                                     </a>
                                 @endif
-                                @if ($canManageUserGroups)
-                                    <a
-                                        href="{{ route('admin.users.groups') }}"
-                                        class="sidebar-dropdown-link block rounded-lg font-medium {{ $usersGroupsActive ? 'is-active-leaf' : 'text-slate-700 hover:bg-slate-100' }}"
-                                    >
-                                        <span class="flex items-center gap-2">
-                                            <span class="sidebar-dot"></span>
-                                            <span>{{ __('admin.layout.menu.groups') }}</span>
-                                        </span>
-                                    </a>
-                                @endif
                                 @if ($canManageUsersAccess)
                                     <a
                                         href="{{ route('admin.users.access') }}"
@@ -1436,17 +1428,6 @@
                                         <span class="flex items-center gap-2">
                                             <span class="sidebar-dot"></span>
                                             <span>{{ __('admin.layout.menu.roles_abilities') }}</span>
-                                        </span>
-                                    </a>
-                                @endif
-                                @if ($canViewUserActivity)
-                                    <a
-                                        href="{{ route('admin.users.activity') }}"
-                                        class="sidebar-dropdown-link block rounded-lg font-medium {{ $usersActivityActive ? 'is-active-leaf' : 'text-slate-700 hover:bg-slate-100' }}"
-                                    >
-                                        <span class="flex items-center gap-2">
-                                            <span class="sidebar-dot"></span>
-                                            <span>{{ __('admin.layout.menu.activity') }}</span>
                                         </span>
                                     </a>
                                 @endif
@@ -1465,7 +1446,7 @@
                     <div class="flex items-center gap-3">
                         @php
                             $activeAdminLocale = strtolower((string) app()->getLocale());
-                            $adminLocaleOptions = ['hr', 'en'];
+                            $adminLocaleOptions = array_values(array_unique(array_filter($adminLocaleOptions ?? [config('admin_ui.locale.default', 'hr'), 'en'])));
                         @endphp
                         <div class="flex items-center rounded-lg border border-slate-200 bg-white p-0.5 text-xs font-semibold uppercase tracking-[0.1em] text-slate-600">
                             @foreach ($adminLocaleOptions as $localeCode)
