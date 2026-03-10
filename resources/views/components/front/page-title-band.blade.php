@@ -43,12 +43,11 @@
                                 @if ($url !== '' && ! $current)
                                     <a href="{{ $url }}" class="{{ trim('front-scroll-breadcrumb-link '.$linkClass) }}">{{ $label }}</a>
                                 @else
-                                    <span
-                                        class="{{ trim('front-scroll-breadcrumb-current '.$currentClass) }}"
-                                        @if ($title !== '') title="{{ $title }}" @endif
-                                    >
-                                        {{ $label }}
-                                    </span>
+                                    @if ($title !== '')
+                                        <span class="{{ trim('front-scroll-breadcrumb-current '.$currentClass) }}" title="{{ $title }}">{{ $label }}</span>
+                                    @else
+                                        <span class="{{ trim('front-scroll-breadcrumb-current '.$currentClass) }}">{{ $label }}</span>
+                                    @endif
                                 @endif
                             </li>
                         @endforeach

@@ -80,13 +80,11 @@ unset($__defined_vars, $__key, $__value); ?>
                                 <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($url !== '' && ! $current): ?>
                                     <a href="<?php echo e($url); ?>" class="<?php echo e(trim('front-scroll-breadcrumb-link '.$linkClass)); ?>"><?php echo e($label); ?></a>
                                 <?php else: ?>
-                                    <span
-                                        class="<?php echo e(trim('front-scroll-breadcrumb-current '.$currentClass)); ?>"
-                                        <?php if($title !== ''): ?> title="<?php echo e($title); ?>" <?php endif; ?>
-                                    >
-                                        <?php echo e($label); ?>
-
-                                    </span>
+                                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($title !== ''): ?>
+                                        <span class="<?php echo e(trim('front-scroll-breadcrumb-current '.$currentClass)); ?>" title="<?php echo e($title); ?>"><?php echo e($label); ?></span>
+                                    <?php else: ?>
+                                        <span class="<?php echo e(trim('front-scroll-breadcrumb-current '.$currentClass)); ?>"><?php echo e($label); ?></span>
+                                    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                                 <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                             </li>
                         <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
