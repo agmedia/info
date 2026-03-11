@@ -91,38 +91,38 @@
 
                     <div class="space-y-6">
                         <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $members; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $member): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                            <article class="overflow-hidden rounded-[32px] border border-slate-200 bg-white p-4 sm:p-4 lg:p-5">
-                                <div class="grid gap-4 lg:grid-cols-[220px_minmax(0,1fr)] lg:items-start lg:gap-5">
-                                    <div class="self-start mx-auto w-full max-w-[220px] overflow-hidden rounded-[24px] border border-slate-200 bg-white lg:mx-0">
+                            <article class="ac-team-member-card overflow-hidden rounded-[32px] border border-slate-200 bg-white p-4 sm:p-4 lg:p-5">
+                                <div class="ac-team-member-layout grid gap-4 lg:grid-cols-[220px_minmax(0,1fr)] lg:items-start lg:gap-5">
+                                    <div class="ac-team-member-media self-start overflow-hidden rounded-[24px] border border-slate-200 bg-white">
                                         <div class="relative overflow-hidden">
                                             <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($member['photo_url'] !== ''): ?>
                                                 <img
                                                     src="<?php echo e($member['photo_url']); ?>"
                                                     alt="<?php echo e($member['name']); ?>"
-                                                    class="block h-auto w-full bg-white"
+                                                    class="ac-team-member-photo block h-auto w-full bg-white"
                                                     loading="lazy"
                                                     decoding="async"
                                                 >
                                             <?php else: ?>
-                                                <div class="flex h-full items-center justify-center">
+                                                <div class="ac-team-member-photo flex h-full items-center justify-center">
                                                     <span class="text-6xl font-black tracking-[0.18em] text-white/92"><?php echo e($member['initials']); ?></span>
                                                 </div>
                                             <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                                         </div>
                                     </div>
 
-                                    <div class="flex min-w-0 flex-col justify-center">
-                                        <div class="border-b border-slate-100 pb-3.5">
-                                            <h3 class="text-[1.2rem] font-black leading-tight tracking-tight text-slate-950 sm:text-[1.38rem]"><?php echo e($member['name']); ?></h3>
-                                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($member['position'] !== ''): ?>
-                                                <p class="ac-team-role mt-2 text-[0.8rem] font-semibold uppercase text-sky-800">
-                                                    <?php echo e($member['position']); ?>
+                                    <div class="ac-team-member-head border-b border-slate-100 pb-3.5">
+                                        <h3 class="ac-team-member-name text-[1.2rem] font-black leading-tight tracking-tight text-slate-950 sm:text-[1.38rem]"><?php echo e($member['name']); ?></h3>
+                                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($member['position'] !== ''): ?>
+                                            <p class="ac-team-role mt-2 text-[0.8rem] font-semibold uppercase text-sky-800">
+                                                <?php echo e($member['position']); ?>
 
-                                                </p>
-                                            <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
-                                        </div>
+                                            </p>
+                                        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                                    </div>
 
-                                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($member['description_html'] !== ''): ?>
+                                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($member['description_html'] !== ''): ?>
+                                        <div class="ac-team-member-bio">
                                             <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($member['has_long_description']): ?>
                                                 <div class="ac-team-bio mt-4">
                                                     <input id="team-bio-<?php echo e($member['id']); ?>" type="checkbox" class="ac-team-bio-toggle">
@@ -149,50 +149,50 @@
 
                                                 </div>
                                             <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
-                                        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
-
-                                        <?php
-                                            $memberPhoneHref = preg_replace('/[^0-9+]/', '', $member['mobile_phone']);
-                                        ?>
-
-                                        <div class="mt-4 flex flex-wrap gap-2.5">
-                                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($member['email'] !== ''): ?>
-                                                <a href="mailto:<?php echo e($member['email']); ?>" title="<?php echo e(__('ui.team.social.email')); ?>" aria-label="<?php echo e(__('ui.team.social.email')); ?>" class="inline-flex h-10 w-10 items-center justify-center rounded-full border border-slate-200 bg-slate-50 text-slate-700 transition hover:border-sky-200 hover:bg-white hover:text-sky-900">
-                                                    <svg class="h-4 w-4" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                                                        <path d="M3 5.75h14v8.5a1.25 1.25 0 0 1-1.25 1.25H4.25A1.25 1.25 0 0 1 3 14.25v-8.5Z"></path>
-                                                        <path d="m4 6.5 6 4.75 6-4.75"></path>
-                                                    </svg>
-                                                </a>
-                                            <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
-                                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($member['mobile_phone'] !== '' && $memberPhoneHref !== ''): ?>
-                                                <a href="tel:<?php echo e($memberPhoneHref); ?>" title="<?php echo e(__('ui.team.social.phone')); ?>" aria-label="<?php echo e(__('ui.team.social.phone')); ?>" class="inline-flex h-10 w-10 items-center justify-center rounded-full border border-slate-200 bg-slate-50 text-slate-700 transition hover:border-sky-200 hover:bg-white hover:text-sky-900">
-                                                    <svg class="h-4 w-4" viewBox="0 0 384 512" fill="currentColor" aria-hidden="true">
-                                                        <path d="M16 64C16 28.7 44.7 0 80 0L304 0c35.3 0 64 28.7 64 64l0 384c0 35.3-28.7 64-64 64L80 512c-35.3 0-64-28.7-64-64L16 64zM128 440c0 13.3 10.7 24 24 24l80 0c13.3 0 24-10.7 24-24s-10.7-24-24-24l-80 0c-13.3 0-24 10.7-24 24zM304 64l-224 0 0 304 224 0 0-304z"></path>
-                                                    </svg>
-                                                </a>
-                                            <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
-                                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($member['facebook_url'] !== ''): ?>
-                                                <a href="<?php echo e($member['facebook_url']); ?>" target="_blank" rel="noopener noreferrer" title="<?php echo e(__('ui.team.social.facebook')); ?>" aria-label="<?php echo e(__('ui.team.social.facebook')); ?>" class="inline-flex h-10 w-10 items-center justify-center rounded-full border border-slate-200 bg-slate-50 text-slate-700 transition hover:border-sky-200 hover:bg-white hover:text-sky-900">
-                                                    <svg class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                                                        <path d="M11.167 17v-6.091h2.042l.306-2.373h-2.348V7.02c0-.686.19-1.153 1.173-1.153H13.6V3.744c-.218-.03-.967-.094-1.839-.094-1.82 0-3.067 1.11-3.067 3.149v1.737H6.636v2.373h2.058V17h2.473Z"></path>
-                                                    </svg>
-                                                </a>
-                                            <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
-                                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($member['twitter_url'] !== ''): ?>
-                                                <a href="<?php echo e($member['twitter_url']); ?>" target="_blank" rel="noopener noreferrer" title="<?php echo e(__('ui.team.social.twitter')); ?>" aria-label="<?php echo e(__('ui.team.social.twitter')); ?>" class="inline-flex h-10 w-10 items-center justify-center rounded-full border border-slate-200 bg-slate-50 text-slate-700 transition hover:border-sky-200 hover:bg-white hover:text-sky-900">
-                                                    <svg class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                                                        <path d="M4.36 4h3.04l3 4.215L14.09 4H16l-4.775 5.452L16.5 16h-3.04l-3.244-4.556L6.216 16H4.31l5.01-5.72L4.36 4Zm2.1 1.42h-.73l7.81 9.16h.73l-7.81-9.16Z"></path>
-                                                    </svg>
-                                                </a>
-                                            <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
-                                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($member['linkedin_url'] !== ''): ?>
-                                                <a href="<?php echo e($member['linkedin_url']); ?>" target="_blank" rel="noopener noreferrer" title="<?php echo e(__('ui.team.social.linkedin')); ?>" aria-label="<?php echo e(__('ui.team.social.linkedin')); ?>" class="inline-flex h-10 w-10 items-center justify-center rounded-full border border-slate-200 bg-slate-50 text-slate-700 transition hover:border-sky-200 hover:bg-white hover:text-sky-900">
-                                                    <svg class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                                                        <path d="M5.057 7.3H2.6V17h2.457V7.3Zm.16-3.156A1.43 1.43 0 0 0 3.793 2.7a1.43 1.43 0 0 0-1.424 1.444c0 .793.63 1.438 1.406 1.438H3.8c.794 0 1.417-.645 1.417-1.438ZM17 11.104C17 8.179 15.438 6.82 13.354 6.82c-1.682 0-2.435.926-2.856 1.576V7.3H8.042c.032.728 0 9.7 0 9.7h2.456v-5.418c0-.29.021-.58.107-.787.235-.58.77-1.18 1.67-1.18 1.177 0 1.648.89 1.648 2.197V17H17v-5.896Z"></path>
-                                                    </svg>
-                                                </a>
-                                            <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                                         </div>
+                                    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+
+                                    <?php
+                                        $memberPhoneHref = preg_replace('/[^0-9+]/', '', $member['mobile_phone']);
+                                    ?>
+
+                                    <div class="ac-team-member-actions mt-4 flex flex-wrap gap-2.5">
+                                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($member['email'] !== ''): ?>
+                                            <a href="mailto:<?php echo e($member['email']); ?>" title="<?php echo e(__('ui.team.social.email')); ?>" aria-label="<?php echo e(__('ui.team.social.email')); ?>" class="inline-flex h-10 w-10 items-center justify-center rounded-full border border-slate-200 bg-slate-50 text-slate-700 transition hover:border-sky-200 hover:bg-white hover:text-sky-900">
+                                                <svg class="h-4 w-4" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                                    <path d="M3 5.75h14v8.5a1.25 1.25 0 0 1-1.25 1.25H4.25A1.25 1.25 0 0 1 3 14.25v-8.5Z"></path>
+                                                    <path d="m4 6.5 6 4.75 6-4.75"></path>
+                                                </svg>
+                                            </a>
+                                        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($member['mobile_phone'] !== '' && $memberPhoneHref !== ''): ?>
+                                            <a href="tel:<?php echo e($memberPhoneHref); ?>" title="<?php echo e(__('ui.team.social.phone')); ?>" aria-label="<?php echo e(__('ui.team.social.phone')); ?>" class="inline-flex h-10 w-10 items-center justify-center rounded-full border border-slate-200 bg-slate-50 text-slate-700 transition hover:border-sky-200 hover:bg-white hover:text-sky-900">
+                                                <svg class="h-4 w-4" viewBox="0 0 384 512" fill="currentColor" aria-hidden="true">
+                                                    <path d="M16 64C16 28.7 44.7 0 80 0L304 0c35.3 0 64 28.7 64 64l0 384c0 35.3-28.7 64-64 64L80 512c-35.3 0-64-28.7-64-64L16 64zM128 440c0 13.3 10.7 24 24 24l80 0c13.3 0 24-10.7 24-24s-10.7-24-24-24l-80 0c-13.3 0-24 10.7-24 24zM304 64l-224 0 0 304 224 0 0-304z"></path>
+                                                </svg>
+                                            </a>
+                                        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($member['facebook_url'] !== ''): ?>
+                                            <a href="<?php echo e($member['facebook_url']); ?>" target="_blank" rel="noopener noreferrer" title="<?php echo e(__('ui.team.social.facebook')); ?>" aria-label="<?php echo e(__('ui.team.social.facebook')); ?>" class="inline-flex h-10 w-10 items-center justify-center rounded-full border border-slate-200 bg-slate-50 text-slate-700 transition hover:border-sky-200 hover:bg-white hover:text-sky-900">
+                                                <svg class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                                                    <path d="M11.167 17v-6.091h2.042l.306-2.373h-2.348V7.02c0-.686.19-1.153 1.173-1.153H13.6V3.744c-.218-.03-.967-.094-1.839-.094-1.82 0-3.067 1.11-3.067 3.149v1.737H6.636v2.373h2.058V17h2.473Z"></path>
+                                                </svg>
+                                            </a>
+                                        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($member['twitter_url'] !== ''): ?>
+                                            <a href="<?php echo e($member['twitter_url']); ?>" target="_blank" rel="noopener noreferrer" title="<?php echo e(__('ui.team.social.twitter')); ?>" aria-label="<?php echo e(__('ui.team.social.twitter')); ?>" class="inline-flex h-10 w-10 items-center justify-center rounded-full border border-slate-200 bg-slate-50 text-slate-700 transition hover:border-sky-200 hover:bg-white hover:text-sky-900">
+                                                <svg class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                                                    <path d="M4.36 4h3.04l3 4.215L14.09 4H16l-4.775 5.452L16.5 16h-3.04l-3.244-4.556L6.216 16H4.31l5.01-5.72L4.36 4Zm2.1 1.42h-.73l7.81 9.16h.73l-7.81-9.16Z"></path>
+                                                </svg>
+                                            </a>
+                                        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($member['linkedin_url'] !== ''): ?>
+                                            <a href="<?php echo e($member['linkedin_url']); ?>" target="_blank" rel="noopener noreferrer" title="<?php echo e(__('ui.team.social.linkedin')); ?>" aria-label="<?php echo e(__('ui.team.social.linkedin')); ?>" class="inline-flex h-10 w-10 items-center justify-center rounded-full border border-slate-200 bg-slate-50 text-slate-700 transition hover:border-sky-200 hover:bg-white hover:text-sky-900">
+                                                <svg class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                                                    <path d="M5.057 7.3H2.6V17h2.457V7.3Zm.16-3.156A1.43 1.43 0 0 0 3.793 2.7a1.43 1.43 0 0 0-1.424 1.444c0 .793.63 1.438 1.406 1.438H3.8c.794 0 1.417-.645 1.417-1.438ZM17 11.104C17 8.179 15.438 6.82 13.354 6.82c-1.682 0-2.435.926-2.856 1.576V7.3H8.042c.032.728 0 9.7 0 9.7h2.456v-5.418c0-.29.021-.58.107-.787.235-.58.77-1.18 1.67-1.18 1.177 0 1.648.89 1.648 2.197V17H17v-5.896Z"></path>
+                                                </svg>
+                                            </a>
+                                        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                                     </div>
                                 </div>
                             </article>
@@ -339,6 +339,126 @@
 
         .ac-team-bio-toggle:not(:checked) ~ .ac-team-bio-trigger .ac-team-bio-less {
             display: none;
+        }
+
+        @media (min-width: 641px) {
+            .ac-team-member-layout {
+                grid-template-columns: 220px minmax(0, 1fr);
+                align-items: start;
+                column-gap: 1.25rem;
+                row-gap: 1rem;
+            }
+
+            .ac-team-member-media {
+                grid-column: 1;
+                grid-row: 1 / span 3;
+                width: 100%;
+                max-width: 220px;
+                margin-left: 0;
+                margin-right: 0;
+            }
+
+            .ac-team-member-head {
+                grid-column: 2;
+                grid-row: 1;
+            }
+
+            .ac-team-member-bio {
+                grid-column: 2;
+                grid-row: 2;
+            }
+
+            .ac-team-member-actions {
+                grid-column: 2;
+                grid-row: 3;
+                margin-top: 0;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .ac-team-member-card {
+                padding: 1rem;
+                border-radius: 28px;
+            }
+
+            .ac-team-member-layout {
+                grid-template-columns: 108px minmax(0, 1fr);
+                align-items: start;
+                column-gap: 0.95rem;
+                row-gap: 0.85rem;
+            }
+
+            .ac-team-member-media {
+                width: 108px;
+                max-width: 108px;
+                margin-left: 0;
+                margin-right: 0;
+                border-radius: 22px;
+            }
+
+            .ac-team-member-photo {
+                aspect-ratio: 0.78;
+                object-fit: cover;
+                object-position: center top;
+            }
+
+            .ac-team-member-head {
+                min-width: 0;
+                align-self: center;
+                padding-bottom: 0.85rem;
+            }
+
+            .ac-team-member-name {
+                font-size: 1.14rem;
+                line-height: 1.04;
+            }
+
+            .ac-team-role {
+                margin-top: 0.55rem;
+                font-size: 0.72rem;
+                letter-spacing: 0.08em;
+            }
+
+            .ac-team-member-bio,
+            .ac-team-member-actions {
+                grid-column: 1 / -1;
+            }
+
+            .ac-team-member-bio .ac-team-bio {
+                margin-top: 0;
+            }
+
+            .ac-team-member-card .ac-team-bio-excerpt,
+            .ac-team-member-card .ac-team-bio-content,
+            .ac-team-member-card .content-richtext {
+                font-size: 0.94rem !important;
+                line-height: 1.78 !important;
+            }
+
+            .ac-team-member-card .ac-team-bio-excerpt {
+                max-height: 13.2rem;
+            }
+
+            .ac-team-member-card .ac-team-bio-trigger {
+                margin-top: 0.85rem;
+                font-size: 0.74rem;
+                letter-spacing: 0.06em;
+            }
+
+            .ac-team-member-actions {
+                margin-top: 0.2rem;
+                gap: 0.55rem;
+            }
+
+            .ac-team-member-actions a {
+                width: 2.35rem;
+                height: 2.35rem;
+            }
+
+            .ac-team-member-actions a svg {
+                width: 0.92rem;
+                height: 0.92rem;
+            }
         }
     </style>
 <?php $__env->stopPush(); ?>

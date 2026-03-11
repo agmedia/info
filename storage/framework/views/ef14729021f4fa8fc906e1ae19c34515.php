@@ -1,9 +1,16 @@
 <?php
-    $hasNavigation = !empty($mainNavigation ?? []);
+    $navigationItems = collect($mainNavigation ?? [])->reject(function ($item) {
+        $label = trim((string) ($item['label'] ?? ''));
+        $url = rtrim((string) ($item['url'] ?? ''), '/');
+        $homeUrl = rtrim(route('home'), '/');
+
+        return $label === 'Početna' || $url === $homeUrl;
+    })->values();
+    $hasNavigation = $navigationItems->isNotEmpty();
 ?>
 
 <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($hasNavigation): ?>
-    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $mainNavigation; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $item): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $navigationItems; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $item): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
         <?php
             $children = collect($item['children'] ?? []);
             $hasChildren = $children->isNotEmpty();
@@ -34,7 +41,6 @@
         <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
     <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 <?php else: ?>
-    <a href="<?php echo e(route('home')); ?>" class="front-nav-link inline-flex items-center py-6"><span class="front-nav-link-label border-b pb-0.5 transition">Home</span></a>
     <a href="<?php echo e(route('blog.index')); ?>" class="front-nav-link inline-flex items-center py-6"><span class="front-nav-link-label border-b pb-0.5 transition"><?php echo e(__('ui.front.desktop.nav.blog')); ?></span></a>
     <a href="<?php echo e(route('faq.index')); ?>" class="front-nav-link inline-flex items-center py-6"><span class="front-nav-link-label border-b pb-0.5 transition"><?php echo e(__('ui.front.desktop.nav.faq')); ?></span></a>
     <a href="<?php echo e(route('contact.create')); ?>" class="front-nav-link inline-flex items-center py-6"><span class="front-nav-link-label border-b pb-0.5 transition"><?php echo e(__('ui.front.desktop.nav.contact')); ?></span></a>

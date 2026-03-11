@@ -148,7 +148,6 @@
 
         $homeUrl = route('home');
         $mainNavigation = [
-            ['label' => 'Početna', 'url' => $homeUrl, 'children' => []],
             ['label' => 'Usluge', 'url' => $homeUrl.'#usluge', 'children' => [
                 ['label' => 'Obiteljski biznis', 'url' => route('family-business.show')],
                 ['label' => 'Financije', 'url' => $homeUrl.'#odjel-financije'],
@@ -292,11 +291,13 @@
             <?php
                 $mobileHeaderLogoUrl = (string) ($storeSettings['branding']['logo_url'] ?? $defaultLogoUrl ?? '');
             ?>
-            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($mobileHeaderLogoUrl !== ''): ?>
-                <img src="<?php echo e($mobileHeaderLogoUrl); ?>" alt="<?php echo e($storeSettings['branding']['store_name'] ?? config('app.name', 'AG Info')); ?>" class="h-12 w-auto object-contain">
-            <?php else: ?>
-                <span class="text-xl font-black tracking-tight text-white"><?php echo e((string) ($storeSettings['branding']['store_name'] ?? 'AG Info')); ?></span>
-            <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+            <a href="<?php echo e(route('home')); ?>" class="inline-flex items-center">
+                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($mobileHeaderLogoUrl !== ''): ?>
+                    <img src="<?php echo e($mobileHeaderLogoUrl); ?>" alt="<?php echo e($storeSettings['branding']['store_name'] ?? config('app.name', 'AG Info')); ?>" class="h-12 w-auto object-contain">
+                <?php else: ?>
+                    <span class="text-xl font-black tracking-tight text-white"><?php echo e((string) ($storeSettings['branding']['store_name'] ?? 'AG Info')); ?></span>
+                <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+            </a>
             <button type="button" class="inline-flex h-10 w-10 items-center justify-center border transition" aria-label="<?php echo e(__('ui.front.desktop.close_navigation')); ?>" data-mobile-menu-close>
                 <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
                     <path d="M6 6l12 12M18 6L6 18"></path>
@@ -304,16 +305,14 @@
             </button>
         </div>
         <?php echo $__env->make('front.desktop.partials.main-nav-mobile', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
-        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(!empty($frontLanguages ?? [])): ?>
-            <div class="front-mobile-menu-locale mt-auto border-t px-4 py-4 text-xs font-semibold tracking-[0.04em]">
-                <p class="mb-2"><?php echo e(__('ui.front.desktop.language')); ?></p>
-                <div class="flex flex-wrap gap-2">
-                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = (array) ($frontLanguages ?? []); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $language): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($availableLanguages->isNotEmpty()): ?>
+            <div class="front-mobile-menu-locale mt-auto border-t px-4 py-4">
+                <div class="front-mobile-lang-switch inline-flex items-center p-0.5 text-xs font-semibold uppercase tracking-[0.08em]">
+                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $availableLanguages; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $language): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                         <?php
                             $code = (string) ($language['code'] ?? '');
                         ?>
-                        <?php if($code === '') continue; ?>
-                        <a href="<?php echo e(route('front.locale.switch', ['code' => $code])); ?>" class="front-mobile-menu-locale-link rounded border px-2 py-1 transition" hreflang="<?php echo e($code); ?>">
+                        <a href="<?php echo e(route('front.locale.switch', ['code' => $code])); ?>" class="front-mobile-menu-locale-link <?php echo e($activeLocale === $code ? 'is-active' : ''); ?>" hreflang="<?php echo e($code); ?>">
                             <?php echo e(strtoupper($code)); ?>
 
                         </a>
@@ -698,6 +697,10 @@
             var distance = finalTop - startTop;
             var duration = getAutoDuration(startTop, finalTop, options);
 
+            if (typeof window.__frontLockWheelSmoothing === 'function') {
+                window.__frontLockWheelSmoothing(duration, finalTop);
+            }
+
             if (activeAnimationFrame) {
                 window.cancelAnimationFrame(activeAnimationFrame);
                 activeAnimationFrame = null;
@@ -705,6 +708,9 @@
 
             if (prefersReducedMotion || duration <= 0 || Math.abs(distance) < 2) {
                 window.scrollTo(0, finalTop);
+                if (typeof window.__frontSyncWheelTarget === 'function') {
+                    window.__frontSyncWheelTarget(finalTop);
+                }
                 if (onComplete) {
                     onComplete();
                 }
@@ -734,6 +740,9 @@
 
                 activeAnimationFrame = null;
                 window.scrollTo(0, finalTop);
+                if (typeof window.__frontSyncWheelTarget === 'function') {
+                    window.__frontSyncWheelTarget(finalTop);
+                }
 
                 if (onComplete) {
                     onComplete();
@@ -742,6 +751,197 @@
 
             activeAnimationFrame = window.requestAnimationFrame(step);
         };
+    })();
+
+    (function () {
+        var userAgent = (window.navigator && window.navigator.userAgent ? window.navigator.userAgent : '').toLowerCase();
+        var isFirefox = userAgent.indexOf('firefox') !== -1 && userAgent.indexOf('seamonkey') === -1;
+
+        if (!isFirefox) {
+            return;
+        }
+
+        var reducedMotionQuery = window.matchMedia ? window.matchMedia('(prefers-reduced-motion: reduce)') : null;
+        var finePointerQuery = window.matchMedia ? window.matchMedia('(pointer: fine)') : null;
+        var activeFrame = null;
+        var isSyncingScroll = false;
+        var lockUntil = 0;
+        var getCurrentScrollTop = function () {
+            return window.pageYOffset || document.documentElement.scrollTop || 0;
+        };
+        var getMaxScrollTop = function () {
+            var root = document.documentElement;
+            var body = document.body;
+            var scrollHeight = Math.max(
+                root ? root.scrollHeight : 0,
+                body ? body.scrollHeight : 0,
+                root ? root.offsetHeight : 0,
+                body ? body.offsetHeight : 0
+            );
+            var viewportHeight = window.innerHeight || (root ? root.clientHeight : 0) || 0;
+
+            return Math.max(0, scrollHeight - viewportHeight);
+        };
+        var clampTarget = function (value) {
+            return Math.max(0, Math.min(getMaxScrollTop(), value));
+        };
+        var targetTop = clampTarget(getCurrentScrollTop());
+        var cancelAnimation = function () {
+            if (activeFrame === null) {
+                return;
+            }
+
+            window.cancelAnimationFrame(activeFrame);
+            activeFrame = null;
+        };
+        var canUseSmoothWheel = function () {
+            if (reducedMotionQuery && reducedMotionQuery.matches) {
+                return false;
+            }
+
+            if (finePointerQuery && !finePointerQuery.matches) {
+                return false;
+            }
+
+            if (window.innerWidth <= 1024) {
+                return false;
+            }
+
+            return !document.body.classList.contains('overflow-hidden');
+        };
+        var hasScrollableAncestor = function (node, deltaY) {
+            var current = node;
+
+            while (current && current !== document.body && current !== document.documentElement) {
+                if (!(current instanceof HTMLElement)) {
+                    current = current.parentElement;
+                    continue;
+                }
+
+                var style = window.getComputedStyle(current);
+                var overflowY = style.overflowY;
+                var canContainScroll = overflowY === 'auto' || overflowY === 'scroll' || overflowY === 'overlay';
+
+                if (canContainScroll && current.scrollHeight > current.clientHeight + 1) {
+                    var canScrollUp = current.scrollTop > 1;
+                    var canScrollDown = current.scrollTop + current.clientHeight < current.scrollHeight - 1;
+
+                    if ((deltaY < 0 && canScrollUp) || (deltaY > 0 && canScrollDown)) {
+                        return true;
+                    }
+                }
+
+                current = current.parentElement;
+            }
+
+            return false;
+        };
+        var normalizeWheelDelta = function (event) {
+            if (event.deltaMode === 1) {
+                return event.deltaY * 18;
+            }
+
+            if (event.deltaMode === 2) {
+                return event.deltaY * ((window.innerHeight || document.documentElement.clientHeight || 0) * 0.85);
+            }
+
+            return event.deltaY;
+        };
+        var animate = function () {
+            activeFrame = null;
+
+            if (performance.now() < lockUntil) {
+                targetTop = clampTarget(getCurrentScrollTop());
+                return;
+            }
+
+            var currentTop = getCurrentScrollTop();
+            var distance = targetTop - currentTop;
+
+            if (Math.abs(distance) < 0.6) {
+                isSyncingScroll = true;
+                window.scrollTo(0, targetTop);
+                isSyncingScroll = false;
+                return;
+            }
+
+            isSyncingScroll = true;
+            window.scrollTo(0, currentTop + (distance * 0.16));
+            isSyncingScroll = false;
+            activeFrame = window.requestAnimationFrame(animate);
+        };
+        var scheduleAnimation = function () {
+            if (activeFrame !== null) {
+                return;
+            }
+
+            activeFrame = window.requestAnimationFrame(animate);
+        };
+
+        window.__frontLockWheelSmoothing = function (duration, nextTarget) {
+            lockUntil = performance.now() + Math.max(0, Number(duration) || 0) + 120;
+            cancelAnimation();
+            targetTop = clampTarget(typeof nextTarget === 'number' ? nextTarget : getCurrentScrollTop());
+        };
+
+        window.__frontSyncWheelTarget = function (nextTarget) {
+            targetTop = clampTarget(typeof nextTarget === 'number' ? nextTarget : getCurrentScrollTop());
+        };
+
+        window.addEventListener('wheel', function (event) {
+            if (!canUseSmoothWheel()) {
+                return;
+            }
+
+            if (performance.now() < lockUntil || event.defaultPrevented || event.ctrlKey || event.metaKey || event.altKey) {
+                return;
+            }
+
+            if (Math.abs(event.deltaY) < 0.1 || Math.abs(event.deltaY) < Math.abs(event.deltaX)) {
+                return;
+            }
+
+            var target = event.target instanceof Element ? event.target : null;
+            if (target && target.closest('input, textarea, select, option, [contenteditable=\"\"], [contenteditable=\"true\"], [data-native-wheel-scroll]')) {
+                return;
+            }
+
+            if (target && hasScrollableAncestor(target, event.deltaY)) {
+                return;
+            }
+
+            event.preventDefault();
+            targetTop = clampTarget(targetTop + normalizeWheelDelta(event));
+            scheduleAnimation();
+        }, { passive: false });
+
+        window.addEventListener('scroll', function () {
+            if (isSyncingScroll || performance.now() < lockUntil) {
+                return;
+            }
+
+            if (activeFrame === null) {
+                targetTop = clampTarget(getCurrentScrollTop());
+            }
+        }, { passive: true });
+
+        window.addEventListener('resize', function () {
+            targetTop = clampTarget(targetTop);
+        });
+
+        window.addEventListener('orientationchange', function () {
+            targetTop = clampTarget(getCurrentScrollTop());
+            cancelAnimation();
+        });
+
+        document.addEventListener('visibilitychange', function () {
+            if (!document.hidden) {
+                return;
+            }
+
+            cancelAnimation();
+            targetTop = clampTarget(getCurrentScrollTop());
+        });
     })();
 
     (function () {

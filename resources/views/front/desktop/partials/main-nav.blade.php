@@ -1,9 +1,16 @@
 @php
-    $hasNavigation = !empty($mainNavigation ?? []);
+    $navigationItems = collect($mainNavigation ?? [])->reject(function ($item) {
+        $label = trim((string) ($item['label'] ?? ''));
+        $url = rtrim((string) ($item['url'] ?? ''), '/');
+        $homeUrl = rtrim(route('home'), '/');
+
+        return $label === 'Početna' || $url === $homeUrl;
+    })->values();
+    $hasNavigation = $navigationItems->isNotEmpty();
 @endphp
 
 @if ($hasNavigation)
-    @foreach ($mainNavigation as $item)
+    @foreach ($navigationItems as $item)
         @php
             $children = collect($item['children'] ?? []);
             $hasChildren = $children->isNotEmpty();
@@ -34,7 +41,6 @@
         @endif
     @endforeach
 @else
-    <a href="{{ route('home') }}" class="front-nav-link inline-flex items-center py-6"><span class="front-nav-link-label border-b pb-0.5 transition">Home</span></a>
     <a href="{{ route('blog.index') }}" class="front-nav-link inline-flex items-center py-6"><span class="front-nav-link-label border-b pb-0.5 transition">{{ __('ui.front.desktop.nav.blog') }}</span></a>
     <a href="{{ route('faq.index') }}" class="front-nav-link inline-flex items-center py-6"><span class="front-nav-link-label border-b pb-0.5 transition">{{ __('ui.front.desktop.nav.faq') }}</span></a>
     <a href="{{ route('contact.create') }}" class="front-nav-link inline-flex items-center py-6"><span class="front-nav-link-label border-b pb-0.5 transition">{{ __('ui.front.desktop.nav.contact') }}</span></a>

@@ -1,10 +1,17 @@
 @php
-    $hasNavigation = !empty($mainNavigation ?? []);
+    $navigationItems = collect($mainNavigation ?? [])->reject(function ($item) {
+        $label = trim((string) ($item['label'] ?? ''));
+        $url = rtrim((string) ($item['url'] ?? ''), '/');
+        $homeUrl = rtrim(route('home'), '/');
+
+        return $label === 'Početna' || $url === $homeUrl;
+    })->values();
+    $hasNavigation = $navigationItems->isNotEmpty();
 @endphp
 
 @if ($hasNavigation)
     <div class="front-mobile-nav min-h-0 flex-1 overflow-y-auto border-t px-0 text-sm tracking-[0.03em]">
-        @foreach ($mainNavigation as $item)
+        @foreach ($navigationItems as $item)
             @php
                 $children = collect($item['children'] ?? []);
                 $hasChildren = $children->isNotEmpty();
@@ -29,12 +36,15 @@
                 <a href="{{ $item['url'] ?? '#' }}" class="front-mobile-nav-link flex min-h-[56px] items-center border-b px-4 py-3 text-[14px] font-semibold" @if($target) target="{{ $target }}" rel="{{ $rel }}" @endif>{{ $item['label'] }}</a>
             @endif
         @endforeach
+        <a href="{{ route('assessment.create') }}" class="front-mobile-nav-link flex min-h-[56px] items-center border-b px-4 py-3 text-[14px] font-semibold">Procjena suradnje</a>
+        <a href="{{ route('lease-calculator.show') }}" class="front-mobile-nav-link flex min-h-[56px] items-center border-b px-4 py-3 text-[14px] font-semibold">MSFI 16 Kalkulator</a>
     </div>
 @else
     <nav class="front-mobile-nav min-h-0 flex-1 overflow-y-auto border-t px-0 text-sm tracking-[0.03em]">
-        <a href="{{ route('home') }}" class="front-mobile-nav-link flex min-h-[56px] items-center border-b px-4 py-3 text-[14px] font-semibold">Home</a>
         <a href="{{ route('blog.index') }}" class="front-mobile-nav-link flex min-h-[56px] items-center border-b px-4 py-3 text-[14px] font-semibold">{{ __('ui.front.desktop.nav.blog') }}</a>
         <a href="{{ route('faq.index') }}" class="front-mobile-nav-link flex min-h-[56px] items-center border-b px-4 py-3 text-[14px] font-semibold">{{ __('ui.front.desktop.nav.faq') }}</a>
         <a href="{{ route('contact.create') }}" class="front-mobile-nav-link flex min-h-[56px] items-center border-b px-4 py-3 text-[14px] font-semibold">{{ __('ui.front.desktop.nav.contact') }}</a>
+        <a href="{{ route('assessment.create') }}" class="front-mobile-nav-link flex min-h-[56px] items-center border-b px-4 py-3 text-[14px] font-semibold">Procjena suradnje</a>
+        <a href="{{ route('lease-calculator.show') }}" class="front-mobile-nav-link flex min-h-[56px] items-center border-b px-4 py-3 text-[14px] font-semibold">MSFI 16 Kalkulator</a>
     </nav>
 @endif
