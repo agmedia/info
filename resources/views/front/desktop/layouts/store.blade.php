@@ -359,21 +359,24 @@
             </div>
 
         </div>
-        <div class="front-hero-stats-card relative z-10">
+        <div class="front-hero-stats-card relative z-10" data-home-hero-stats>
             <div class="grid w-full grid-cols-2 md:grid-cols-4">
-                <div class="px-6 py-8 text-center">
-                    <span class="front-hero-stat-icon mx-auto mb-4 inline-flex h-11 w-11 items-center justify-center rounded-full" aria-hidden="true">
+                <article class="front-hero-stat-card px-6 py-8 text-center" data-home-hero-stat style="--front-hero-stat-delay: 0ms;">
+                    <span class="front-hero-stat-icon mx-auto inline-flex h-11 w-11 items-center justify-center rounded-full" aria-hidden="true">
                         <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8">
                             <path d="M8 7V5a4 4 0 0 1 8 0v2"/>
                             <rect x="4" y="7" width="16" height="13" rx="2"/>
                             <path d="M9 12h6"/>
                         </svg>
                     </span>
-                    <p class="front-hero-stat-value" data-count-up data-count-to="50" data-count-suffix="+">0+</p>
+                    <div class="front-hero-stat-value-shell" data-home-hero-display data-home-hero-display-value="50+">
+                        <p class="front-hero-stat-value" data-home-hero-count data-count-to="50" data-count-suffix="+">50</p>
+                    </div>
+                    <span class="front-hero-stat-accent" aria-hidden="true"></span>
                     <p class="front-hero-stat-label">Godina iskustva partnera</p>
-                </div>
-                <div class="px-6 py-8 text-center">
-                    <span class="front-hero-stat-icon mx-auto mb-4 inline-flex h-11 w-11 items-center justify-center rounded-full" aria-hidden="true">
+                </article>
+                <article class="front-hero-stat-card px-6 py-8 text-center" data-home-hero-stat style="--front-hero-stat-delay: 320ms;">
+                    <span class="front-hero-stat-icon mx-auto inline-flex h-11 w-11 items-center justify-center rounded-full" aria-hidden="true">
                         <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8">
                             <path d="M4 19h16"/>
                             <rect x="6" y="11" width="2.8" height="6" rx="1"/>
@@ -381,11 +384,14 @@
                             <rect x="15.2" y="5" width="2.8" height="12" rx="1"/>
                         </svg>
                     </span>
-                    <p class="front-hero-stat-value" data-count-up data-count-to="300" data-count-suffix="+">0+</p>
+                    <div class="front-hero-stat-value-shell" data-home-hero-display data-home-hero-display-value="300+">
+                        <p class="front-hero-stat-value" data-home-hero-count data-count-to="300" data-count-suffix="+">300</p>
+                    </div>
+                    <span class="front-hero-stat-accent" aria-hidden="true"></span>
                     <p class="front-hero-stat-label">Odrađenih projekata</p>
-                </div>
-                <div class="px-6 py-8 text-center">
-                    <span class="front-hero-stat-icon mx-auto mb-4 inline-flex h-11 w-11 items-center justify-center rounded-full" aria-hidden="true">
+                </article>
+                <article class="front-hero-stat-card px-6 py-8 text-center" data-home-hero-stat style="--front-hero-stat-delay: 640ms;">
+                    <span class="front-hero-stat-icon mx-auto inline-flex h-11 w-11 items-center justify-center rounded-full" aria-hidden="true">
                         <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8">
                             <path d="M17 21v-2a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v2"/>
                             <circle cx="10" cy="7" r="4"/>
@@ -393,19 +399,25 @@
                             <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
                         </svg>
                     </span>
-                    <p class="front-hero-stat-value" data-count-up data-count-to="400" data-count-suffix="+">0+</p>
+                    <div class="front-hero-stat-value-shell" data-home-hero-display data-home-hero-display-value="400+">
+                        <p class="front-hero-stat-value" data-home-hero-count data-count-to="400" data-count-suffix="+">400</p>
+                    </div>
+                    <span class="front-hero-stat-accent" aria-hidden="true"></span>
                     <p class="front-hero-stat-label">Redovnih klijenata</p>
-                </div>
-                <div class="px-6 py-8 text-center">
-                    <span class="front-hero-stat-icon mx-auto mb-4 inline-flex h-11 w-11 items-center justify-center rounded-full" aria-hidden="true">
+                </article>
+                <article class="front-hero-stat-card px-6 py-8 text-center" data-home-hero-stat style="--front-hero-stat-delay: 960ms;">
+                    <span class="front-hero-stat-icon mx-auto inline-flex h-11 w-11 items-center justify-center rounded-full" aria-hidden="true">
                         <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8">
                             <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
                             <circle cx="12" cy="7" r="4"/>
                         </svg>
                     </span>
-                    <p class="front-hero-stat-value" data-count-up data-count-to="50" data-count-suffix="+">0+</p>
+                    <div class="front-hero-stat-value-shell" data-home-hero-display data-home-hero-display-value="50+">
+                        <p class="front-hero-stat-value" data-home-hero-count data-count-to="50" data-count-suffix="+">50</p>
+                    </div>
+                    <span class="front-hero-stat-accent" aria-hidden="true"></span>
                     <p class="front-hero-stat-label">Mladih stručnjaka u timu</p>
-                </div>
+                </article>
             </div>
         </div>
     </section>
@@ -665,6 +677,72 @@
     })();
 
     (function () {
+        var prefersReducedMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        var activeAnimationFrame = null;
+        var getAutoDuration = function (startTop, finalTop, options) {
+            if (options && typeof options.duration === 'number') {
+                return options.duration;
+            }
+
+            var distance = Math.abs(finalTop - startTop);
+
+            return Math.max(720, Math.min(980, 620 + (distance * 0.16)));
+        };
+
+        window.__frontAnimateScrollTo = function (targetTop, options) {
+            var finalTop = Math.max(0, Math.round(targetTop));
+            var onComplete = options && typeof options.onComplete === 'function' ? options.onComplete : null;
+            var startTop = window.pageYOffset || document.documentElement.scrollTop || 0;
+            var distance = finalTop - startTop;
+            var duration = getAutoDuration(startTop, finalTop, options);
+
+            if (activeAnimationFrame) {
+                window.cancelAnimationFrame(activeAnimationFrame);
+                activeAnimationFrame = null;
+            }
+
+            if (prefersReducedMotion || duration <= 0 || Math.abs(distance) < 2) {
+                window.scrollTo(0, finalTop);
+                if (onComplete) {
+                    onComplete();
+                }
+                return;
+            }
+
+            var startTime = null;
+            var easeSwing = function (progress) {
+                return 0.5 - Math.cos(progress * Math.PI) / 2;
+            };
+
+            var step = function (currentTime) {
+                if (startTime === null) {
+                    startTime = currentTime;
+                }
+
+                var elapsed = currentTime - startTime;
+                var progress = Math.min(elapsed / duration, 1);
+                var nextTop = startTop + (distance * easeSwing(progress));
+
+                window.scrollTo(0, nextTop);
+
+                if (progress < 1) {
+                    activeAnimationFrame = window.requestAnimationFrame(step);
+                    return;
+                }
+
+                activeAnimationFrame = null;
+                window.scrollTo(0, finalTop);
+
+                if (onComplete) {
+                    onComplete();
+                }
+            };
+
+            activeAnimationFrame = window.requestAnimationFrame(step);
+        };
+    })();
+
+    (function () {
         var scrollTopButtons = Array.prototype.slice.call(document.querySelectorAll('[data-scroll-top]'));
         if (!scrollTopButtons.length) {
             return;
@@ -673,6 +751,8 @@
         var footerButton = document.querySelector('.front-footer [data-scroll-top]');
         var floatingButton = document.querySelector('[data-scroll-top-floating]');
         var footer = footerButton ? footerButton.closest('.front-footer') : document.querySelector('.front-footer');
+        var floatingVisible = null;
+        var floatingSyncFrame = null;
         var syncCompassBackground = function () {
             if (!footer || !footerButton) {
                 return;
@@ -694,7 +774,23 @@
             var viewportHeight = window.innerHeight || document.documentElement.clientHeight || 0;
             var shouldShow = window.innerWidth > 900 && window.scrollY > Math.max(viewportHeight * 0.45, 420);
 
+            if (floatingVisible === shouldShow) {
+                return;
+            }
+
+            floatingVisible = shouldShow;
             floatingButton.classList.toggle('is-visible', shouldShow);
+        };
+
+        var requestFloatingVisibilitySync = function () {
+            if (floatingSyncFrame !== null) {
+                return;
+            }
+
+            floatingSyncFrame = window.requestAnimationFrame(function () {
+                floatingSyncFrame = null;
+                syncFloatingVisibility();
+            });
         };
 
         syncCompassBackground();
@@ -703,13 +799,18 @@
         window.addEventListener('resize', syncFloatingVisibility);
         window.addEventListener('orientationchange', syncCompassBackground);
         window.addEventListener('orientationchange', syncFloatingVisibility);
-        window.addEventListener('scroll', syncFloatingVisibility, { passive: true });
+        window.addEventListener('scroll', requestFloatingVisibilitySync, { passive: true });
         window.setTimeout(syncCompassBackground, 120);
         window.setTimeout(syncFloatingVisibility, 120);
 
         scrollTopButtons.forEach(function (button) {
             button.addEventListener('click', function () {
-                window.scrollTo({ top: 0, behavior: 'smooth' });
+                if (typeof window.__frontAnimateScrollTo === 'function') {
+                    window.__frontAnimateScrollTo(0);
+                    return;
+                }
+
+                window.scrollTo(0, 0);
             });
         });
     })();
@@ -722,6 +823,43 @@
             }
 
             return Math.round(stickyHeader.getBoundingClientRect().height) + 2;
+        };
+
+        var getHashTarget = function (hash) {
+            if (!hash || hash === '#') {
+                return null;
+            }
+
+            var decodedHash = hash;
+            try {
+                decodedHash = decodeURIComponent(hash);
+            } catch (error) {
+                decodedHash = hash;
+            }
+
+            try {
+                return document.querySelector(decodedHash);
+            } catch (error) {
+                return document.getElementById(decodedHash.replace(/^#/, ''));
+            }
+        };
+
+        var scrollToHashTarget = function (hash, options) {
+            var targetElement = getHashTarget(hash);
+            if (!targetElement) {
+                return false;
+            }
+
+            var targetTop = window.pageYOffset + targetElement.getBoundingClientRect().top - getScrollOffset();
+
+            if (typeof window.__frontAnimateScrollTo === 'function') {
+                window.__frontAnimateScrollTo(targetTop, options);
+                return true;
+            }
+
+            window.scrollTo(0, Math.max(0, targetTop));
+
+            return true;
         };
 
         document.addEventListener('click', function (event) {
@@ -750,26 +888,214 @@
                 return;
             }
 
-            var targetSelector = decodeURIComponent(parsedUrl.hash);
-            var targetElement = document.querySelector(targetSelector);
-            if (!targetElement) {
+            if (!getHashTarget(parsedUrl.hash)) {
                 return;
             }
 
             event.preventDefault();
-
-            var targetTop = window.pageYOffset + targetElement.getBoundingClientRect().top - getScrollOffset();
-            window.scrollTo({
-                top: Math.max(0, targetTop),
-                behavior: 'smooth'
-            });
+            scrollToHashTarget(parsedUrl.hash);
 
             if (window.history && typeof window.history.pushState === 'function') {
                 window.history.pushState(null, '', parsedUrl.hash);
             }
         });
+
+        var syncInitialHashScroll = function () {
+            if (!window.location.hash || !getHashTarget(window.location.hash)) {
+                return;
+            }
+
+            window.scrollTo(0, 0);
+            window.requestAnimationFrame(function () {
+                window.requestAnimationFrame(function () {
+                    scrollToHashTarget(window.location.hash);
+                });
+            });
+        };
+
+        window.addEventListener('hashchange', function () {
+            scrollToHashTarget(window.location.hash);
+        });
+
+        if (document.readyState === 'complete') {
+            syncInitialHashScroll();
+            return;
+        }
+
+        window.addEventListener('load', syncInitialHashScroll, { once: true });
     })();
 </script>
+@if (request()->routeIs('home'))
+<script>
+    (function () {
+        var statsSection = document.querySelector('[data-home-hero-stats]');
+        if (!statsSection) {
+            return;
+        }
+
+        var items = Array.prototype.slice.call(statsSection.querySelectorAll('[data-home-hero-stat]'));
+        if (!items.length) {
+            return;
+        }
+
+        var prefersReducedMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        var formatDisplayValue = function (value) {
+            return Math.round(Number(value) || 0).toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+        };
+
+        var digitTrackMarkup = (function () {
+            var trackDigits = '';
+
+            for (var cycle = 0; cycle < 4; cycle += 1) {
+                for (var digit = 0; digit <= 9; digit += 1) {
+                    trackDigits += '<span>' + digit + '</span>';
+                }
+            }
+
+            return trackDigits;
+        })();
+
+        var buildCounterMarkup = function (formattedValue) {
+            return formattedValue.split('').map(function (character) {
+                if (!/[0-9]/.test(character)) {
+                    return '<span class="front-hero-formatting-mark">' + character + '</span>';
+                }
+
+                return '<span class="front-hero-digit"><span class="front-hero-digit-track" data-roll-target="' + character + '">' + digitTrackMarkup + '</span></span>';
+            }).join('');
+        };
+
+        var prepareItem = function (item) {
+            var valueElement = item.querySelector('[data-home-hero-count]');
+            var valueShell = item.querySelector('[data-home-hero-display]');
+            var targetValue = Number.parseInt(valueElement instanceof HTMLElement ? valueElement.dataset.countTo || '0' : '0', 10);
+            var formattedValue = formatDisplayValue(targetValue);
+
+            if (valueShell instanceof HTMLElement) {
+                valueShell.dataset.homeHeroDisplayValue = '0+';
+            }
+
+            if (valueElement instanceof HTMLElement) {
+                valueElement.innerHTML = buildCounterMarkup(formattedValue);
+            }
+        };
+
+        var animateValue = function (item, valueElement, valueShell, targetValue) {
+            var duration = Math.max(2400, Math.min(3200, 2200 + (String(targetValue).length * 240)));
+            var digitTracks = Array.prototype.slice.call(valueElement.querySelectorAll('.front-hero-digit-track'));
+
+            item.classList.add('is-counting');
+
+            digitTracks.forEach(function (track) {
+                track.style.transitionDuration = duration + 'ms';
+                track.style.transitionTimingFunction = 'cubic-bezier(0.16, 1, 0.3, 1)';
+            });
+
+            window.requestAnimationFrame(function () {
+                window.requestAnimationFrame(function () {
+                    digitTracks.forEach(function (track) {
+                        var targetDigit = Number.parseInt(track.dataset.rollTarget || '0', 10);
+                        var targetOffset = 20 + (Number.isNaN(targetDigit) ? 0 : targetDigit);
+
+                        track.style.transform = 'translate3d(0, -' + targetOffset + 'em, 0)';
+                    });
+                });
+            });
+
+            window.setTimeout(function () {
+                if (valueShell instanceof HTMLElement) {
+                    valueShell.dataset.homeHeroDisplayValue = formatDisplayValue(targetValue) + '+';
+                }
+
+                item.classList.remove('is-counting');
+                item.classList.add('is-counted');
+            }, duration + 60);
+        };
+
+        var getItemDelay = function (item) {
+            if (!(item instanceof HTMLElement)) {
+                return 0;
+            }
+
+            var delayValue = window.getComputedStyle(item).getPropertyValue('--front-hero-stat-delay').trim();
+            var parsedDelay = Number.parseFloat(delayValue);
+
+            if (Number.isNaN(parsedDelay)) {
+                return 0;
+            }
+
+            return delayValue.endsWith('s') && !delayValue.endsWith('ms')
+                ? parsedDelay * 1000
+                : parsedDelay;
+        };
+
+        var revealItem = function (item) {
+            if (!(item instanceof HTMLElement) || item.dataset.heroStatAnimated === '1') {
+                return;
+            }
+
+            item.dataset.heroStatAnimated = '1';
+            window.setTimeout(function () {
+                item.classList.add('is-revealed');
+
+                var valueElement = item.querySelector('[data-home-hero-count]');
+                var valueShell = item.querySelector('[data-home-hero-display]');
+                var targetValue = Number.parseInt(valueElement instanceof HTMLElement ? valueElement.dataset.countTo || '0' : '0', 10);
+
+                if (!(valueElement instanceof HTMLElement) || Number.isNaN(targetValue)) {
+                    return;
+                }
+
+                if (prefersReducedMotion) {
+                    valueElement.textContent = formatDisplayValue(targetValue);
+
+                    if (valueShell instanceof HTMLElement) {
+                        valueShell.dataset.homeHeroDisplayValue = formatDisplayValue(targetValue) + '+';
+                    }
+
+                    item.classList.add('is-counted');
+                    return;
+                }
+
+                animateValue(item, valueElement, valueShell, targetValue);
+            }, getItemDelay(item));
+        };
+
+        var revealAll = function () {
+            items.forEach(function (item) {
+                revealItem(item);
+            });
+        };
+
+        items.forEach(function (item) {
+            prepareItem(item);
+        });
+
+        statsSection.classList.add('is-enhanced');
+
+        if (!('IntersectionObserver' in window)) {
+            revealAll();
+            return;
+        }
+
+        var observer = new IntersectionObserver(function (entries, currentObserver) {
+            entries.forEach(function (entry) {
+                if (!entry.isIntersecting) {
+                    return;
+                }
+
+                revealAll();
+                currentObserver.disconnect();
+            });
+        }, {
+            threshold: 0.2,
+            rootMargin: '0px 0px -8% 0px',
+        });
+
+        observer.observe(statsSection);
+    })();
+</script>
+@endif
 @stack('scripts')
 </body>
 </html>

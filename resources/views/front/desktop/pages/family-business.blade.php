@@ -324,8 +324,10 @@
                                         <span class="ac-family-faq-question">{{ $translation->question }}</span>
                                         <span class="ac-family-faq-plus" aria-hidden="true">+</span>
                                     </summary>
-                                    <div class="content-richtext ac-family-faq-answer">
-                                        {!! $translation->answer_html ?: '<p>—</p>' !!}
+                                    <div class="ac-family-faq-answer-wrap">
+                                        <div class="content-richtext ac-family-faq-answer">
+                                            {!! $translation->answer_html ?: '<p>—</p>' !!}
+                                        </div>
                                     </div>
                                 </details>
                             @endif
@@ -744,14 +746,130 @@
         (function () {
             const shouldFocusSection = {{ ($errors->any() || session('status')) ? 'true' : 'false' }};
             const section = document.getElementById('family-business-sastanak');
+            const faqItems = Array.from(document.querySelectorAll('.ac-family-faq-item'));
 
-            if (!shouldFocusSection || !section) {
-                return;
-            }
+            const syncFaqItem = function (item) {
+                const content = item.querySelector('.ac-family-faq-answer-wrap');
+                if (!content) {
+                    return;
+                }
 
-            requestAnimationFrame(function () {
-                section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                if (item.hasAttribute('open')) {
+                    content.style.height = 'auto';
+                    return;
+                }
+
+                content.style.height = '0px';
+            };
+
+            const animateFaqItem = function (item, expand) {
+                const content = item.querySelector('.ac-family-faq-answer-wrap');
+                if (!content) {
+                    return;
+                }
+
+                if (content.__faqTransitionHandler) {
+                    content.removeEventListener('transitionend', content.__faqTransitionHandler);
+                    content.__faqTransitionHandler = null;
+                }
+
+                if (content.__faqFallbackTimer) {
+                    window.clearTimeout(content.__faqFallbackTimer);
+                    content.__faqFallbackTimer = null;
+                }
+
+                const startHeight = content.offsetHeight;
+                if (expand) {
+                    item.setAttribute('open', '');
+                }
+
+                const endHeight = expand ? content.scrollHeight : 0;
+                item.classList.remove('is-opening', 'is-closing');
+                item.classList.add(expand ? 'is-opening' : 'is-closing');
+                content.style.height = startHeight + 'px';
+
+                if (!expand) {
+                    item.removeAttribute('open');
+                }
+
+                requestAnimationFrame(function () {
+                    content.style.height = endHeight + 'px';
+                });
+
+                const finalizeAnimation = function () {
+                    if (content.__faqTransitionHandler) {
+                        content.removeEventListener('transitionend', content.__faqTransitionHandler);
+                        content.__faqTransitionHandler = null;
+                    }
+
+                    if (content.__faqFallbackTimer) {
+                        window.clearTimeout(content.__faqFallbackTimer);
+                        content.__faqFallbackTimer = null;
+                    }
+
+                    item.classList.remove('is-opening', 'is-closing');
+
+                    if (expand) {
+                        content.style.height = 'auto';
+                        return;
+                    }
+
+                    item.removeAttribute('open');
+                    content.style.height = '0px';
+                };
+
+                const onTransitionEnd = function (event) {
+                    if (event.propertyName !== 'height') {
+                        return;
+                    }
+
+                    finalizeAnimation();
+                };
+
+                content.__faqTransitionHandler = onTransitionEnd;
+                content.addEventListener('transitionend', onTransitionEnd);
+                content.__faqFallbackTimer = window.setTimeout(finalizeAnimation, 520);
+            };
+
+            const closeOtherFaqItems = function (activeItem) {
+                faqItems.forEach(function (item) {
+                    if (item === activeItem || !item.hasAttribute('open')) {
+                        return;
+                    }
+
+                    animateFaqItem(item, false);
+                });
+            };
+
+            faqItems.forEach(function (item) {
+                const summary = item.querySelector('.ac-family-faq-summary');
+                if (!summary) {
+                    return;
+                }
+
+                syncFaqItem(item);
+
+                summary.addEventListener('click', function (event) {
+                    event.preventDefault();
+
+                    if (item.classList.contains('is-opening') || item.classList.contains('is-closing')) {
+                        return;
+                    }
+
+                    const shouldExpand = !item.hasAttribute('open');
+                    if (shouldExpand) {
+                        closeOtherFaqItems(item);
+                    }
+
+                    animateFaqItem(item, shouldExpand);
+                });
             });
+
+            if (shouldFocusSection && section) {
+                requestAnimationFrame(function () {
+                    section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                });
+            }
         }());
     </script>
 @endpush
