@@ -284,9 +284,35 @@
         <script>
             (function () {
                 const mapSection = document.getElementById('contact-map-section');
+                const mapStage = mapSection ? mapSection.querySelector('.front-contact-map-stage') : null;
                 const mapPanels = Array.from(document.querySelectorAll('[data-office-map-panel]'));
                 const mapTabs = Array.from(document.querySelectorAll('[data-office-map-tab]'));
                 const mapTriggers = Array.from(document.querySelectorAll('[data-office-map-trigger]'));
+
+                const getHeaderOffset = function () {
+                    const stickyHeader = document.querySelector('[data-front-sticky-header]');
+                    if (!(stickyHeader instanceof HTMLElement)) {
+                        return 18;
+                    }
+
+                    return Math.round(stickyHeader.getBoundingClientRect().height) + 18;
+                };
+
+                const scrollToMap = function () {
+                    const scrollTarget = mapStage || mapSection;
+                    if (!(scrollTarget instanceof HTMLElement)) {
+                        return;
+                    }
+
+                    const targetTop = window.pageYOffset + scrollTarget.getBoundingClientRect().top - getHeaderOffset();
+
+                    if (typeof window.__frontAnimateScrollTo === 'function') {
+                        window.__frontAnimateScrollTo(targetTop);
+                        return;
+                    }
+
+                    window.scrollTo(0, Math.max(0, targetTop));
+                };
 
                 const activateOfficeMap = function (officeKey) {
                     if (!officeKey) {
@@ -317,9 +343,7 @@
                         const officeKey = trigger.dataset.officeMapTrigger || '';
                         activateOfficeMap(officeKey);
 
-                        if (mapSection) {
-                            mapSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                        }
+                        window.requestAnimationFrame(scrollToMap);
                     });
                 });
             }());
