@@ -661,17 +661,20 @@
     .front-hero-cta-primary {
         background: rgb(183, 150, 82);
         border-color: rgba(183, 150, 82, 0.95);
+        color: #08111b !important;
+        text-shadow: none;
     }
 
     .front-hero-cta-primary:hover {
         background: rgb(169, 137, 72);
         border-color: rgba(129, 101, 50, 0.95);
-        color: #ffffff;
+        color: #08111b !important;
     }
 
     .front-hero-cta-secondary {
-        background: rgba(8, 11, 16, 0.44);
+        background: rgba(8, 11, 16, 0.72);
         border-color: rgba(255, 255, 255, 0.86);
+        text-shadow: none;
     }
 
     .front-hero-cta-secondary:hover {
