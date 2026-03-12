@@ -574,7 +574,6 @@
                                                 </a>
                                             @endif
                                     </div>
-                                    </div>
                                 </div>
                             </article>
                         @endforeach
