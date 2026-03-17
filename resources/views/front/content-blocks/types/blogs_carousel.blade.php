@@ -106,7 +106,7 @@
             @endif
 
             @if ($ctaLabel !== '' && $ctaUrl !== '')
-                <a href="{{ $ctaUrl }}" class="mt-4 inline-flex h-10 items-center bg-slate-100 px-5 text-xs font-semibold uppercase tracking-[0.14em] text-slate-700 hover:bg-slate-200">
+                <a href="{{ $ctaUrl }}" class="front-link-cta mt-4 inline-flex h-10 items-center bg-slate-100 px-5 text-xs font-semibold uppercase tracking-[0.14em] text-slate-700 hover:bg-slate-200">
                     {{ $ctaLabel }}
                 </a>
             @endif

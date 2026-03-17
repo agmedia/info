@@ -32,7 +32,7 @@
                             <div class="card-bottom mb-3 ms-3 me-3">
                                 <h1 class="color-white font-800 mb-n2">{{ $categoryName }}</h1>
                                 <p class="color-white font-14 mb-2 opacity-60">{{ $subtitle }}</p>
-                                <a href="{{ $ctaUrl }}" class="btn btn-xxs rounded-xs bg-white color-black font-700 mt-2">
+                                <a href="{{ $ctaUrl }}" class="front-link-cta btn btn-xxs rounded-xs bg-white color-black font-700 mt-2">
                                     {{ trim($ctaLabel.' '.$categoryName) }}
                                 </a>
                             </div>
@@ -48,7 +48,7 @@
         <div class="card-bottom mb-3 ms-3 me-3">
             <h1 class="color-white font-800 mb-n2">{{ $title }}</h1>
             <p class="color-white font-14 mb-2 opacity-60">{{ $subtitle }}</p>
-            <a href="{{ $ctaUrl }}" class="btn btn-xxs rounded-xs bg-white color-black font-700 mt-2">{{ $ctaLabel }}</a>
+            <a href="{{ $ctaUrl }}" class="front-link-cta btn btn-xxs rounded-xs bg-white color-black font-700 mt-2">{{ $ctaLabel }}</a>
         </div>
         <div class="card-overlay bg-black opacity-60"></div>
     </div>

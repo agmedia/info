@@ -55,13 +55,13 @@
 
                         <div class="mx-auto mt-5 flex max-w-[460px] flex-col justify-center gap-2.5 sm:flex-row">
                             @if ($cta1Label !== '')
-                                <a href="{{ $cta1Url !== '' ? $cta1Url : '#' }}" class="inline-flex h-11 min-w-[145px] items-center justify-center border border-white bg-white px-5 text-base font-black uppercase tracking-[0.02em] text-slate-900 transition hover:bg-slate-100">
+                                <a href="{{ $cta1Url !== '' ? $cta1Url : '#' }}" class="front-link-cta inline-flex h-11 min-w-[145px] items-center justify-center border border-white bg-white px-5 text-base font-black uppercase tracking-[0.02em] text-slate-900 transition hover:bg-slate-100">
                                     {{ $cta1Label }}
                                 </a>
                             @endif
 
                             @if ($cta2Label !== '')
-                                <a href="{{ $cta2Url !== '' ? $cta2Url : '#' }}" class="inline-flex h-11 min-w-[145px] items-center justify-center border border-white bg-white px-5 text-base font-black uppercase tracking-[0.02em] text-slate-900 transition hover:bg-slate-100">
+                                <a href="{{ $cta2Url !== '' ? $cta2Url : '#' }}" class="front-link-cta inline-flex h-11 min-w-[145px] items-center justify-center border border-white bg-white px-5 text-base font-black uppercase tracking-[0.02em] text-slate-900 transition hover:bg-slate-100">
                                     {{ $cta2Label }}
                                 </a>
                             @endif

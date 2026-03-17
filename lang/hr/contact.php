@@ -2,9 +2,9 @@
 
 return [
     'page_title' => 'Kontakt',
-    'eyebrow' => 'Alpha Capitalis',
+    'eyebrow' => 'ALPHA CAPITALIS',
     'heading' => 'Kontakt',
-    'subheading' => 'Stojimo vam na raspolaganju za financije, računovodstvo, reviziju, poreze i poslovno savjetovanje. Javite nam se putem obrasca ili direktno uredima u Zagrebu i Vinkovcima.',
+    'subheading' => 'Stojimo vam na raspolaganju za financije, računovodstvo, reviziju, poreze i poslovno savjetovanje. Javite nam se putem obrasca ili direktno uredima u Zagrebu, Vinkovcima i Rijeci.',
     'sent_status' => 'Hvala. Vaša poruka je uspješno poslana.',
     'captcha_failed' => 'Potvrda sigurnosti nije uspjela. Pokušajte ponovno.',
     'validation' => [
@@ -50,18 +50,23 @@ return [
     ],
     'offices' => [
         'kicker' => 'Naši uredi',
-        'title' => 'Zagreb i Vinkovci',
-        'intro' => 'Za dogovor sastanka, inicijalne informacije ili slanje upita dostupni smo kroz dva ureda.',
+        'title' => 'Zagreb, Vinkovci i Rijeka',
+        'intro' => 'Za dogovor sastanka, inicijalne informacije ili slanje upita dostupni smo kroz tri ureda.',
         'view_map' => 'Pogledaj na karti',
         'zagreb' => [
             'label' => 'Ured Zagreb',
-            'company' => 'Alpha Capitalis d.o.o.',
+            'company' => 'ALPHA CAPITALIS d.o.o.',
             'map_label' => 'Zagreb',
         ],
         'vinkovci' => [
             'label' => 'Ured Vinkovci',
-            'company' => 'Alpha Capitalis East d.o.o.',
+            'company' => 'ALPHA CAPITALIS EAST d.o.o.',
             'map_label' => 'Vinkovci',
+        ],
+        'rijeka' => [
+            'label' => 'Ured Rijeka',
+            'company' => 'ALPHA CAPITALIS TIMIA d.o.o.',
+            'map_label' => 'Rijeka',
         ],
     ],
     'map' => [

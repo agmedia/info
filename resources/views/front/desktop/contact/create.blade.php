@@ -7,49 +7,42 @@
     @php
         $captchaSiteKey = trim((string) ($storeSettings['captcha']['recaptcha_v3_site_key'] ?? ''));
         $captchaEnabled = (bool) ($storeSettings['captcha']['recaptcha_v3_enabled'] ?? false) && $captchaSiteKey !== '';
-        $contactEmail = trim((string) ($storeSettings['footer']['email_support'] ?? '')) ?: 'info@alphacapitalis.com';
-        $contactPhone = trim((string) ($storeSettings['footer']['phone'] ?? '')) ?: '+385 (1) 580 6656';
+        $contactOffices = collect((array) ($storeSettings['official_entities'] ?? []))
+            ->filter(static fn ($office): bool => is_array($office) && (bool) ($office['show_on_contact'] ?? false))
+            ->map(static function (array $office): array {
+                $address = $office['contact_address'] ?? $office['address'] ?? [];
+                $office['label'] = trim((string) ($office['label'] ?? $office['office_label'] ?? ''));
+                $office['address'] = collect(is_array($address) ? $address : [])
+                    ->map(static fn ($line): string => trim((string) $line))
+                    ->filter()
+                    ->values()
+                    ->all();
+                $office['phone_href'] = preg_replace('/\s+/', '', (string) ($office['phone'] ?? ''));
+
+                $query = trim((string) ($office['map_query'] ?? ''));
+                $encodedQuery = rawurlencode($query);
+                $embedUrl = trim((string) ($office['map_embed_url'] ?? ''));
+
+                $office['map_embed_url'] = $embedUrl !== ''
+                    ? $embedUrl
+                    : ($encodedQuery !== '' ? 'https://www.google.com/maps?q='.$encodedQuery.'&z=16&output=embed' : '');
+                $office['map_external_url'] = $encodedQuery !== ''
+                    ? 'https://www.google.com/maps/search/?api=1&query='.$encodedQuery
+                    : '';
+
+                return $office;
+            })
+            ->values()
+            ->all();
+        $primaryOffice = collect($contactOffices)->firstWhere('key', 'alpha-capitalis-timia') ?? ($contactOffices[0] ?? null);
+        $contactEmail = trim((string) ($storeSettings['footer']['email_support'] ?? ''))
+            ?: trim((string) ($primaryOffice['email'] ?? ''))
+            ?: 'info@alphacapitalis.com';
+        $contactPhone = trim((string) ($storeSettings['footer']['phone'] ?? ''))
+            ?: trim((string) ($primaryOffice['phone'] ?? ''))
+            ?: '+385 (0) 51 301 503';
         $contactPhoneHref = preg_replace('/\s+/', '', $contactPhone);
         $contactHours = trim((string) ($storeSettings['footer']['hours'] ?? '')) ?: __('contact.direct.response_fallback');
-        $contactOffices = [
-            [
-                'key' => 'zagreb',
-                'label' => __('contact.offices.zagreb.label'),
-                'company' => __('contact.offices.zagreb.company'),
-                'address' => [
-                    'Ulica R. F. Mihanovića 9',
-                    '10110 Zagreb, Sky Office / XIX. kat',
-                ],
-                'email' => $contactEmail,
-                'phone' => $contactPhone,
-                'phone_href' => $contactPhoneHref,
-                'map_label' => __('contact.offices.zagreb.map_label'),
-                'map_query' => 'Ulica R. F. Mihanovića 9, 10110 Zagreb, Sky Office',
-                'map_embed_url' => 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2781.7413420479693!2d15.907458076538921!3d45.796409471081354!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x4765d6ffe74dee09%3A0xf32defacc421b2a3!2sALPHA%20CAPITALIS%20LTD.!5e0!3m2!1shr!2shr!4v1772955873924!5m2!1shr!2shr',
-            ],
-            [
-                'key' => 'vinkovci',
-                'label' => __('contact.offices.vinkovci.label'),
-                'company' => __('contact.offices.vinkovci.company'),
-                'address' => [
-                    'Duga ulica 67',
-                    '32100 Vinkovci',
-                ],
-                'email' => $contactEmail,
-                'phone' => $contactPhone,
-                'phone_href' => $contactPhoneHref,
-                'map_label' => __('contact.offices.vinkovci.map_label'),
-                'map_query' => 'Duga ulica 67, 32100 Vinkovci',
-                'map_embed_url' => null,
-            ],
-        ];
-        $contactOffices = array_map(static function (array $office): array {
-            $query = rawurlencode($office['map_query']);
-            $office['map_embed_url'] = $office['map_embed_url'] ?: 'https://www.google.com/maps?q='.$query.'&z=16&output=embed';
-            $office['map_external_url'] = 'https://www.google.com/maps/search/?api=1&query='.$query;
-
-            return $office;
-        }, $contactOffices);
         $pageTitleBreadcrumbs = [
             ['label' => __('ui.front.desktop.footer.home'), 'url' => route('home')],
             ['label' => __('contact.page_title'), 'current' => true],
@@ -84,6 +77,14 @@
                                 @foreach ($office['address'] as $line)
                                     <p>{{ $line }}</p>
                                 @endforeach
+
+                                @if (trim((string) ($office['mbs'] ?? '')) !== '')
+                                    <p>MBS: {{ $office['mbs'] }}</p>
+                                @endif
+
+                                @if (trim((string) ($office['iban'] ?? '')) !== '')
+                                    <p>IBAN: {{ $office['iban'] }}</p>
+                                @endif
 
                                 <button type="button" class="front-contact-office-map-trigger" data-office-map-trigger="{{ $office['key'] }}">
                                     <span class="front-contact-inline-icon" aria-hidden="true">

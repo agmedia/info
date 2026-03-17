@@ -83,12 +83,18 @@ class StorefrontFrontFeatureTest extends TestCase
     {
         $this->get('/contact')
             ->assertOk()
-            ->assertSee('Alpha Capitalis d.o.o.')
+            ->assertSee('ALPHA CAPITALIS d.o.o.')
             ->assertSee('Ulica R. F. Mihanovića 9')
-            ->assertSee('Alpha Capitalis East d.o.o.')
+            ->assertSee('ALPHA CAPITALIS EAST d.o.o.')
             ->assertSee('Duga ulica 67')
+            ->assertSee('ALPHA CAPITALIS TIMIA d.o.o.')
+            ->assertSee('Korzo 30')
+            ->assertSee('51 000 Rijeka')
+            ->assertSee('040282129')
+            ->assertSee('HR6524020061500165841')
             ->assertSee('info@alphacapitalis.com')
-            ->assertSee('+385 (1) 580 6656');
+            ->assertSee('+385 (1) 580 6656')
+            ->assertSee('+385 (0) 51 301 503');
     }
 
     public function test_collaboration_assessment_page_renders(): void
@@ -151,9 +157,41 @@ class StorefrontFrontFeatureTest extends TestCase
     {
         $this->get('/')
             ->assertOk()
-            ->assertSee('Alpha Capitalis Tim')
+            ->assertSee('ALPHA CAPITALIS Tim')
             ->assertSee(route('team.index'), false)
             ->assertDontSee('#tim', false);
+    }
+
+    public function test_home_services_section_renders_requested_service_order(): void
+    {
+        $response = $this->get('/');
+
+        $response->assertOk()
+            ->assertSee('EU fondovi');
+
+        $content = $response->getContent();
+        $this->assertIsString($content);
+
+        $anchors = [
+            'odjel-financije',
+            'odjel-racunovodstvo',
+            'odjel-revizija',
+            'odjel-porezi',
+            'odjel-eu-fondovi',
+            'odjel-obiteljski-biznisi',
+        ];
+
+        $positions = [];
+        foreach ($anchors as $anchor) {
+            $position = strpos($content, 'id="'.$anchor.'"');
+            $this->assertNotFalse($position, 'Missing services anchor: '.$anchor);
+            $positions[] = $position;
+        }
+
+        $sortedPositions = $positions;
+        sort($sortedPositions);
+
+        $this->assertSame($sortedPositions, $positions);
     }
 
     public function test_navigation_menu_service_resolves_page_and_custom_links(): void

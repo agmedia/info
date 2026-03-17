@@ -1,6 +1,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -197,29 +198,63 @@
 
     .front-desktop-shell .front-nav {
         color: #f6f6f6;
-        font-family: 'Public Sans', 'Segoe UI', Arial, sans-serif;
+        font-family: 'Sora', 'Public Sans', 'Segoe UI', Arial, sans-serif;
     }
 
     .front-nav-link {
-        color: rgba(255, 255, 255, 0.97);
+        position: relative;
+        color: rgba(248, 251, 255, 0.94);
+        text-shadow: 0 0 10px rgba(242, 221, 186, 0.06);
     }
 
     .front-nav-link-label {
-        font-size: 1rem;
-        font-weight: 600;
-        letter-spacing: 0;
-        text-transform: none;
+        font-size: 0.84rem;
+        font-weight: 500;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        line-height: 1.1;
+    }
+
+    .front-action-cta,
+    .front-header-cta,
+    .front-hero-cta,
+    .front-cta-primary,
+    .front-cta-outline,
+    .front-link-cta,
+    .front-search-submit,
+    .front-footer-newsletter-button,
+    .front-contact-submit,
+    .front-contact-office-map-trigger,
+    .ac-lease-submit,
+    .ac-lease-reset,
+    .ac-sticky-cta {
+        font-family: 'Sora', 'Public Sans', 'Segoe UI', Arial, sans-serif;
     }
 
     .front-nav-link:hover {
-        color: #cfb57f;
+        color: #f2ddba;
     }
 
     .front-nav-link-label { border-color: transparent; }
 
     .front-nav-link:hover .front-nav-link-label,
     .group\/nav:hover .front-nav-link-label {
-        border-color: rgba(171, 141, 82, 0.55);
+        border-color: rgba(183, 150, 82, 0.82);
+        text-shadow: 0 0 16px rgba(183, 150, 82, 0.26);
+    }
+
+    .front-nav-caret {
+        color: currentColor;
+        font-size: 0.58rem;
+        opacity: 0.76;
+        transform: translateY(-1px);
+        transition: color 0.18s ease, opacity 0.18s ease, text-shadow 0.18s ease;
+    }
+
+    .front-nav-link:hover .front-nav-caret,
+    .group\/nav:hover .front-nav-caret {
+        opacity: 1;
+        text-shadow: 0 0 10px rgba(183, 150, 82, 0.24);
     }
 
     .front-nav-dropdown {
@@ -247,9 +282,11 @@
         padding: 0.72rem 0.9rem;
         border-radius: 10px;
         color: rgba(255, 255, 255, 0.88);
-        font-size: 0.98rem;
-        font-weight: 500;
-        line-height: 1.35;
+        font-family: 'Sora', 'Public Sans', 'Segoe UI', Arial, sans-serif;
+        font-size: 0.84rem;
+        font-weight: 600;
+        line-height: 1.3;
+        letter-spacing: 0.04em;
         text-transform: none;
     }
 
@@ -958,6 +995,15 @@
         border-right-color: rgba(255, 255, 255, 0.08);
     }
 
+    .front-hero-stats-card > .grid > .front-hero-stat-card:nth-child(2):nth-last-child(2) {
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .front-hero-stats-card > .grid > .front-hero-stat-card--wide {
+        grid-column: 1 / -1;
+        border-right-width: 0 !important;
+    }
+
     .front-hero-stat-icon {
         margin-bottom: 0.15rem;
     }
@@ -1088,7 +1134,7 @@
     }
 
     .front-site-header.is-compact .front-nav-link-label {
-        font-size: 0.96rem;
+        font-size: 0.78rem;
     }
 
     .front-site-header.is-compact .front-logo-full {
@@ -1161,6 +1207,7 @@
     .front-mobile-nav {
         color: rgba(248, 251, 255, 0.94);
         border-color: rgba(255, 255, 255, 0.16);
+        font-family: 'Sora', 'Public Sans', 'Segoe UI', Arial, sans-serif;
     }
 
     .front-mobile-nav details,
@@ -1957,6 +2004,20 @@
         border-top: 1px solid rgba(255, 255, 255, 0.18);
     }
 
+    .front-footer-iso-grid.is-single {
+        justify-items: center;
+    }
+
+    .front-footer-iso-grid.is-single .front-footer-iso-item {
+        width: min(100%, 34rem);
+        justify-content: center;
+        text-align: center;
+    }
+
+    .front-footer-iso-grid.is-single .front-footer-iso-item p {
+        text-align: center;
+    }
+
     .front-footer-iso-item {
         display: flex;
         align-items: center;
@@ -2032,6 +2093,21 @@
         margin: 0;
     }
 
+    .front-footer-legal-credit {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.28rem;
+        white-space: nowrap;
+    }
+
+    .front-footer-legal-credit a {
+        color: #f6f8fb;
+    }
+
+    .front-footer-legal-credit a:hover {
+        color: #d4b983;
+    }
+
     .front-footer-legal-links {
         display: inline-flex;
         align-items: center;
@@ -2041,7 +2117,7 @@
     @media (min-width: 900px) {
         .front-footer-company-grid {
             display: grid;
-            grid-template-columns: repeat(2, minmax(0, 1fr));
+            grid-template-columns: repeat(3, minmax(0, 1fr));
         }
 
         .front-footer-company-accordion {
@@ -2051,11 +2127,15 @@
         .front-footer-iso-grid {
             grid-template-columns: repeat(3, minmax(0, 1fr));
         }
+
+        .front-footer-iso-grid.is-single {
+            grid-template-columns: minmax(0, 1fr);
+        }
     }
 
     @media (min-width: 1220px) {
         .front-footer-company-grid {
-            grid-template-columns: repeat(4, minmax(0, 1fr));
+            grid-template-columns: repeat(5, minmax(0, 1fr));
         }
     }
 
@@ -2158,6 +2238,10 @@
         .front-footer-legal {
             gap: 0.85rem;
             font-size: 0.8rem;
+        }
+
+        .front-footer-legal-credit {
+            white-space: normal;
         }
 
         .front-footer-legal-links {
@@ -2449,6 +2533,10 @@
         content: none;
     }
 
+    .ac-services-modern::after {
+        content: none;
+    }
+
     .ac-services-modern > * {
         position: relative;
         z-index: 1;
@@ -2470,6 +2558,11 @@
 
     .ac-services-eyebrow-line {
         display: none;
+    }
+
+    .ac-services-kicker,
+    .ac-services-center-kicker {
+        font-family: 'Sora', 'Public Sans', 'Segoe UI', Arial, sans-serif;
     }
 
     .ac-services-kicker {
@@ -2562,10 +2655,14 @@
     }
 
     .ac-services-grid {
-        margin-top: 1.5rem;
+        margin-top: 1.65rem;
         display: grid;
         grid-template-columns: repeat(3, minmax(0, 1fr));
-        gap: 1.4rem;
+        gap: 1.25rem;
+    }
+
+    .ac-services-grid--orbit {
+        position: relative;
     }
 
     .ac-service-item {
@@ -2573,40 +2670,52 @@
         display: flex;
         flex-direction: column;
         overflow: hidden;
-        border: 1px solid rgba(15, 23, 42, 0.06);
-        border-radius: 10px;
-        background: #fffdfa;
-        min-height: 404px;
-        box-shadow: 0 14px 30px rgba(15, 23, 42, 0.07);
-        transition: box-shadow 0.34s ease;
+        border: 1px solid rgba(255, 255, 255, 0.56);
+        border-radius: 22px;
+        background: linear-gradient(180deg, rgba(255, 255, 255, 0.78), rgba(255, 255, 255, 0.56));
+        min-height: 300px;
+        box-shadow: 0 18px 42px rgba(15, 23, 42, 0.08);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        transition: none;
+        z-index: 1;
     }
 
     .ac-service-item::before {
         content: '';
         position: absolute;
         inset: 0;
-        background: linear-gradient(160deg, rgba(2, 66, 115, 0.03), rgba(183, 150, 82, 0.05));
+        background:
+            radial-gradient(62% 68% at 0% 0%, rgba(255, 255, 255, 0.42), transparent 74%),
+            linear-gradient(160deg, rgba(2, 66, 115, 0.03), rgba(183, 150, 82, 0.05));
         opacity: 0;
         pointer-events: none;
-        transition: opacity 0.32s ease;
+        transition: none;
     }
 
     .ac-service-item.is-featured {
-        box-shadow: 0 14px 30px rgba(15, 23, 42, 0.07);
+        box-shadow: 0 18px 42px rgba(15, 23, 42, 0.08);
     }
 
     .ac-service-item:hover {
-        box-shadow: 0 20px 38px rgba(15, 23, 42, 0.1);
+        transform: none;
+        border-color: rgba(255, 255, 255, 0.56);
+        box-shadow: 0 18px 42px rgba(15, 23, 42, 0.08);
     }
 
     .ac-service-item:hover::before {
-        opacity: 1;
+        opacity: 0;
     }
 
     .ac-service-media {
         position: relative;
-        height: 214px;
-        border-bottom: 1px solid rgba(15, 23, 42, 0.08);
+        flex: 1 1 auto;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 1.55rem 1.25rem;
+        border-bottom: 0;
+        background: linear-gradient(135deg, rgba(238, 245, 249, 0.92), rgba(255, 255, 255, 0.46));
         isolation: isolate;
     }
 
@@ -2617,16 +2726,18 @@
         height: 100%;
         display: block;
         object-fit: cover;
-        transform: scale(1);
+        opacity: 0.16;
+        filter: blur(6px) saturate(0.92);
+        transform: scale(1.18);
         transform-origin: center;
-        transition: transform 0.55s cubic-bezier(0.22, 1, 0.36, 1), filter 0.35s ease;
+        transition: none;
     }
 
     .ac-service-media::before {
         content: '';
         position: absolute;
         inset: 0;
-        background: linear-gradient(180deg, rgba(6, 15, 27, 0.2) 0%, rgba(6, 15, 27, 0.5) 100%);
+        background: linear-gradient(180deg, rgba(255, 255, 255, 0.36) 0%, rgba(255, 255, 255, 0) 100%);
     }
 
     .ac-service-media::after {
@@ -2634,50 +2745,41 @@
         position: absolute;
         inset: 0;
         background:
-            radial-gradient(36% 46% at 74% 22%, rgba(157, 229, 255, 0.16), transparent 70%),
-            radial-gradient(28% 34% at 22% 78%, rgba(212, 176, 109, 0.12), transparent 72%);
-        opacity: 0.55;
-        transition: opacity 0.35s ease;
+            radial-gradient(48% 60% at 82% 18%, rgba(255, 255, 255, 0.88), transparent 72%),
+            radial-gradient(40% 44% at 14% 86%, rgba(15, 42, 67, 0.08), transparent 72%);
+        opacity: 0.88;
+        transition: none;
         pointer-events: none;
     }
 
-    .ac-service-pill {
-        position: absolute;
-        top: 0.9rem;
-        right: 0.9rem;
+    .ac-service-head-content {
+        position: relative;
         z-index: 3;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        padding: 0.26rem 0.56rem;
-        border-radius: 999px;
-        border: 1px solid rgba(255, 255, 255, 0.2);
-        background: rgba(5, 20, 33, 0.32);
-        color: #ffffff;
-        font-size: 0.58rem;
-        font-weight: 700;
-        letter-spacing: 0.12em;
-        text-transform: uppercase;
-        backdrop-filter: blur(3px);
+        display: grid;
+        gap: 1rem;
+        align-content: center;
+        justify-items: center;
+        width: 100%;
+        text-align: center;
     }
 
     .ac-service-icon-wrap {
-        position: absolute;
-        left: 0.95rem;
-        bottom: 0.95rem;
+        position: relative;
         z-index: 3;
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        width: 2.3rem;
-        height: 2.3rem;
-        border-radius: 0.72rem;
-        border: 1px solid rgba(255, 255, 255, 0.12);
-        background: rgba(6, 18, 30, 0.58);
-        color: #f8fafc;
-        box-shadow: 0 10px 20px rgba(3, 17, 31, 0.2);
-        backdrop-filter: blur(4px);
-        transition: transform 0.28s ease, border-color 0.28s ease, background-color 0.28s ease;
+        width: 4.1rem;
+        height: 4.1rem;
+        border-radius: 1.25rem;
+        border: 1px solid rgba(255, 255, 255, 0.58);
+        background: linear-gradient(180deg, rgba(255, 255, 255, 0.88), rgba(241, 247, 251, 0.72));
+        color: #0f2e4b;
+        box-shadow: 0 12px 26px rgba(15, 23, 42, 0.1);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        transform: translateY(0);
+        transition: none;
     }
 
     .ac-service-card-link {
@@ -2694,101 +2796,44 @@
     }
 
     .ac-service-icon {
-        width: 1.12rem;
-        height: 1.12rem;
-        transition: transform 0.28s ease, opacity 0.28s ease;
-    }
-
-    .ac-service-body {
-        padding: 1.28rem 1.25rem 0.52rem;
-        text-align: left;
-        flex: 1 1 auto;
+        width: 2.05rem;
+        height: 2.05rem;
+        display: block;
+        object-fit: contain;
+        transition: none;
     }
 
     .ac-service-item h3 {
         margin: 0;
         color: #0f1b2d;
-        font-family: "Playfair Display", Sans-serif;
-        font-size: clamp(1.34rem, 1.72vw, 1.72rem);
+        font-family: 'Public Sans', 'Segoe UI', Arial, sans-serif;
+        font-size: clamp(1.34rem, 1.52vw, 1.58rem);
         line-height: 1.06;
-        font-weight: 600;
-        letter-spacing: 0.008em;
+        font-weight: 700;
+        letter-spacing: -0.03em;
+        max-width: 11ch;
         text-wrap: balance;
     }
 
-    .ac-service-item p {
-        margin-top: 0.62rem;
-        margin-bottom: 0;
-        max-width: none;
-        color: #4f5e71;
-        font-size: 0.965rem;
-        line-height: 1.62;
-        text-wrap: pretty;
-    }
-
-    .ac-service-link {
-        margin: 0.2rem 1.25rem 0.9rem;
-        padding-top: 0.78rem;
-        padding-bottom: 0.22rem;
-        border-top: 1px solid rgba(15, 23, 42, 0.1);
-        margin-top: auto;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 0.9rem;
-        font-size: 0.69rem;
-        font-weight: 700;
-        letter-spacing: 0.22em;
-        text-transform: uppercase;
-        color: #13273f;
-        text-decoration: none;
-    }
-
-    .ac-service-link-arrow {
-        width: 1.34rem;
-        height: 1.34rem;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        border-radius: 999px;
-        border: 1px solid rgba(15, 23, 42, 0.08);
-        background: rgba(2, 66, 115, 0.04);
-        color: #0f2e4b;
-        transition: transform 0.2s ease, background-color 0.2s ease;
-    }
-
-    .ac-service-link-arrow svg {
-        width: 0.7rem;
-        height: 0.7rem;
-        stroke-width: 2.05;
-    }
-
-    .ac-service-item:hover .ac-service-link {
-        color: rgb(2, 66, 115);
-    }
-
     .ac-service-item:hover .ac-service-media-art {
-        transform: scale(1.035) translateY(-2px);
-        filter: saturate(1.04) contrast(1.02);
+        opacity: 0.16;
+        transform: scale(1.18);
+        filter: blur(6px) saturate(0.92);
     }
 
     .ac-service-item:hover .ac-service-media::after {
-        opacity: 0.75;
+        opacity: 0.88;
     }
 
     .ac-service-item:hover .ac-service-icon-wrap {
-        transform: translateY(-2px);
-        border-color: rgba(212, 185, 131, 0.22);
-        background: rgba(6, 18, 30, 0.72);
+        transform: none;
+        border-color: rgba(255, 255, 255, 0.58);
+        background: linear-gradient(180deg, rgba(255, 255, 255, 0.88), rgba(241, 247, 251, 0.72));
+        color: #0f2e4b;
     }
 
     .ac-service-item:hover .ac-service-icon {
-        transform: scale(1.06);
-    }
-
-    .ac-service-item:hover .ac-service-link-arrow {
-        transform: translate(1px, -1px);
-        background: rgba(2, 66, 115, 0.1);
+        transform: none;
     }
 
     .ac-inline-cta {
@@ -2947,7 +2992,7 @@
 
     .front-contact-offices-grid {
         display: grid;
-        grid-template-columns: repeat(2, minmax(0, 1fr));
+        grid-template-columns: repeat(3, minmax(0, 1fr));
         gap: 1rem;
     }
 
@@ -2987,9 +3032,11 @@
     .front-contact-office-top h3 {
         margin: 0;
         color: #0f1b2d;
-        font-size: clamp(1.25rem, 1.7vw, 1.55rem);
+        font-size: clamp(0.96rem, 1.02vw, 1.22rem);
         font-weight: 700;
-        line-height: 1.12;
+        line-height: 1.08;
+        letter-spacing: -0.02em;
+        white-space: nowrap;
     }
 
     .front-contact-office-body {
@@ -3027,7 +3074,7 @@
 
     .front-contact-office-meta {
         display: grid;
-        grid-template-columns: repeat(2, minmax(0, 1fr));
+        grid-template-columns: minmax(0, 1fr);
         gap: 0.8rem 1rem;
         padding-top: 1rem;
         border-top: 1px solid rgba(15, 42, 67, 0.08);
@@ -4538,12 +4585,210 @@
     }
 
     @media (max-width: 1280px) {
+        .front-desktop-shell .ac-services-modern {
+            position: relative;
+            width: 100vw;
+            margin-left: calc(50% - 50vw);
+            margin-right: calc(50% - 50vw);
+            padding:
+                1.9rem
+                max(1.2rem, calc((100vw - 1120px) / 2 + 1.2rem))
+                2.25rem;
+            background: transparent;
+            overflow: hidden;
+        }
+
+        .front-desktop-shell .ac-services-modern::after {
+            content: none;
+        }
+
+        .front-desktop-shell .ac-services-modern .ac-services-head {
+            max-width: 840px;
+            padding: 0.7rem 0 1rem;
+        }
+
+        .front-desktop-shell .ac-services-modern .ac-services-kicker {
+            padding: 0.42rem 0.84rem 0.4rem;
+            border: 1px solid rgba(207, 175, 104, 0.24);
+            background: linear-gradient(135deg, rgba(17, 42, 67, 0.98), rgba(10, 25, 42, 0.98));
+            color: #f4d98e;
+            font-size: 0.76rem;
+            font-weight: 800;
+            letter-spacing: 0.2em;
+            box-shadow: 0 12px 24px rgba(15, 23, 42, 0.08);
+        }
+
+        .front-desktop-shell .ac-services-modern .ac-services-head h2 {
+            margin-bottom: 0.8rem;
+            max-width: 15ch;
+            font-size: clamp(2rem, 4vw, 2.65rem);
+            font-weight: 650;
+            line-height: 1;
+            letter-spacing: -0.028em;
+        }
+
+        .front-desktop-shell .ac-services-modern .ac-services-intro {
+            max-width: 56ch;
+            color: #43576b;
+            font-size: 1.02rem;
+            line-height: 1.62;
+        }
+
+        .front-desktop-shell .ac-services-modern .ac-services-divider {
+            margin-top: 1rem;
+        }
+
         .ac-global-memberships-grid {
             grid-template-columns: repeat(3, minmax(0, 1fr));
         }
 
-        .ac-services-grid {
+        .front-desktop-shell .ac-services-modern .ac-services-grid {
             grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 0.9rem;
+        }
+
+        .front-desktop-shell .ac-services-modern .ac-service-item {
+            min-height: 0;
+            border: 0;
+            border-radius: 0;
+            background: transparent;
+            box-shadow: none;
+            backdrop-filter: none;
+            -webkit-backdrop-filter: none;
+            overflow: visible;
+        }
+
+        .front-desktop-shell .ac-services-modern .ac-service-item.is-featured {
+            border-color: transparent;
+            background: transparent;
+        }
+
+        .front-desktop-shell .ac-services-modern .ac-service-media {
+            min-height: 0;
+            padding: 0;
+            background: transparent;
+            border: 0;
+        }
+
+        .front-desktop-shell .ac-services-modern .ac-service-media::before,
+        .front-desktop-shell .ac-services-modern .ac-service-media::after,
+        .front-desktop-shell .ac-services-modern .ac-service-media-art {
+            display: none;
+        }
+
+        .front-desktop-shell .ac-services-modern .ac-service-head-content {
+            position: relative;
+            gap: 0.96rem;
+            justify-items: center;
+            min-width: 0;
+            width: 100%;
+        }
+
+        .front-desktop-shell .ac-services-modern .ac-service-icon-wrap {
+            width: 4.35rem;
+            height: 4.35rem;
+            border: 0;
+            border-radius: 999px;
+            background: radial-gradient(circle at 34% 26%, rgba(38, 74, 109, 0.98), rgba(15, 38, 60, 0.98) 72%);
+            box-shadow:
+                0 14px 26px rgba(8, 21, 36, 0.16),
+                inset 0 1px 0 rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(6px);
+            -webkit-backdrop-filter: blur(6px);
+        }
+
+        .front-desktop-shell .ac-services-modern .ac-service-icon {
+            width: 2.28rem;
+            height: 2.28rem;
+            filter: brightness(0) saturate(100%) invert(87%) sepia(22%) saturate(831%) hue-rotate(345deg) brightness(101%) contrast(93%);
+        }
+
+        .front-desktop-shell .ac-services-modern .ac-service-card-link {
+            width: 100%;
+            align-items: center;
+            justify-content: center;
+            min-height: 0;
+        }
+
+        .front-desktop-shell .ac-services-modern .ac-service-item h3 {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            width: auto;
+            max-width: 11ch;
+            margin: 0 auto;
+            padding: 0.38rem 0.74rem 0.36rem;
+            border: 1px solid rgba(171, 141, 82, 0.18);
+            border-radius: 0.48rem;
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.82), rgba(250, 246, 240, 0.58));
+            box-shadow:
+                0 8px 18px rgba(15, 23, 42, 0.06),
+                inset 0 1px 0 rgba(255, 255, 255, 0.84);
+            backdrop-filter: blur(6px);
+            -webkit-backdrop-filter: blur(6px);
+            font-family: 'Sora', 'Public Sans', 'Segoe UI', Arial, sans-serif;
+            font-size: clamp(0.88rem, 1.18vw, 0.98rem);
+            line-height: 1.03;
+            font-weight: 700;
+            letter-spacing: 0.03em;
+            text-transform: uppercase;
+            white-space: normal;
+            text-align: center;
+            color: #0d2339;
+            text-wrap: balance;
+        }
+
+        .front-desktop-shell .ac-services-modern .ac-service-item h3::before {
+            content: '';
+            position: absolute;
+            left: 50%;
+            bottom: calc(100% + 0.16rem);
+            width: 2px;
+            height: 0.96rem;
+            background: linear-gradient(180deg, rgba(171, 141, 82, 0.88), rgba(171, 141, 82, 0.18));
+            box-shadow: 0 0 0.3rem rgba(171, 141, 82, 0.16);
+            transform: translateX(-50%);
+            pointer-events: none;
+        }
+
+        .front-desktop-shell .ac-services-modern .ac-service-item h3::after {
+            content: '';
+            position: absolute;
+            left: 50%;
+            bottom: calc(100% + 0.98rem);
+            width: 0.38rem;
+            height: 0.38rem;
+            border-radius: 999px;
+            background: rgba(171, 141, 82, 0.98);
+            box-shadow:
+                0 0 0 0.22rem rgba(255, 255, 255, 0.72),
+                0 0 0.55rem rgba(171, 141, 82, 0.22);
+            transform: translateX(-50%);
+            pointer-events: none;
+        }
+
+        .front-desktop-shell .ac-services-modern .ac-service-item:hover .ac-service-icon-wrap {
+            background: radial-gradient(circle at 34% 26%, rgba(232, 205, 142, 0.98), rgba(196, 158, 79, 0.98) 72%);
+            box-shadow:
+                0 16px 30px rgba(171, 141, 82, 0.16),
+                inset 0 1px 0 rgba(255, 255, 255, 0.22);
+        }
+
+        .front-desktop-shell .ac-services-modern .ac-service-item:hover .ac-service-icon {
+            filter: brightness(0) saturate(100%) invert(15%) sepia(27%) saturate(1091%) hue-rotate(172deg) brightness(94%) contrast(95%);
+        }
+
+        .front-desktop-shell .ac-services-modern .ac-service-item:hover h3 {
+            border-color: rgba(171, 141, 82, 0.24);
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.92), rgba(252, 248, 242, 0.7));
+            box-shadow:
+                0 10px 22px rgba(171, 141, 82, 0.1),
+                inset 0 1px 0 rgba(255, 255, 255, 0.88);
+        }
+
+        .front-desktop-shell .ac-services-modern .ac-service-item:hover h3::before {
+            background: linear-gradient(180deg, rgba(171, 141, 82, 1), rgba(171, 141, 82, 0.22));
         }
 
         .ac-support-story-grid {
@@ -4551,14 +4796,115 @@
         }
     }
 
-    @media (max-width: 760px) {
-        .ac-services-modern {
-            padding-bottom: 2.8rem;
+    @media (max-width: 980px) {
+        .front-desktop-shell .ac-services-modern {
+            padding:
+                1.65rem
+                max(1rem, calc((100vw - 880px) / 2 + 1rem))
+                2rem;
         }
 
-        .ac-services-head {
+        .front-desktop-shell .ac-services-modern .ac-services-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 0.9rem;
+            grid-auto-rows: 1fr;
+        }
+
+        .front-desktop-shell .ac-services-modern .ac-service-item {
+            min-height: 9rem;
+            aspect-ratio: 1 / 0.88;
+            border: 1px solid rgba(171, 141, 82, 0.16);
+            border-radius: 1.1rem;
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.88), rgba(248, 243, 235, 0.78));
+            box-shadow: 0 10px 24px rgba(15, 23, 42, 0.06);
+            overflow: hidden;
+        }
+
+        .front-desktop-shell .ac-services-modern .ac-service-item.is-featured {
+            border-color: rgba(171, 141, 82, 0.16);
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.88), rgba(248, 243, 235, 0.78));
+            box-shadow: 0 10px 24px rgba(15, 23, 42, 0.06);
+        }
+
+        .front-desktop-shell .ac-services-modern .ac-service-media {
+            min-height: 100%;
+            height: 100%;
+            padding: 0;
+            display: flex;
+            align-items: stretch;
+        }
+
+        .front-desktop-shell .ac-services-modern .ac-service-icon-wrap {
+            width: 5.35rem;
+            height: 5.35rem;
+        }
+
+        .front-desktop-shell .ac-services-modern .ac-service-icon {
+            width: 3.1rem;
+            height: 3.1rem;
+        }
+
+        .front-desktop-shell .ac-services-modern .ac-service-card-link {
+            min-height: 100%;
+            align-items: stretch;
+            justify-content: stretch;
+        }
+
+        .front-desktop-shell .ac-services-modern .ac-service-head-content {
+            gap: 0.75rem;
+            min-height: 100%;
+            padding: 0.9rem 0.75rem 0.82rem;
+            align-content: center;
+        }
+
+        .front-desktop-shell .ac-services-modern .ac-service-item h3 {
+            display: block;
+            width: 100%;
+            max-width: 11.5ch;
+            font-size: clamp(0.96rem, 1.35vw, 1.06rem);
+            line-height: 1.08;
+            font-weight: 700;
+            letter-spacing: 0;
+            text-transform: none;
+            padding: 0;
+            border: 0;
+            border-radius: 0;
+            background: transparent;
+            box-shadow: none;
+            backdrop-filter: none;
+            -webkit-backdrop-filter: none;
+            white-space: normal;
+            text-wrap: balance;
+        }
+
+        .front-desktop-shell .ac-services-modern .ac-service-item h3::before,
+        .front-desktop-shell .ac-services-modern .ac-service-item h3::after {
+            content: none;
+        }
+
+        .front-desktop-shell .ac-services-modern .ac-service-item:hover {
+            border-color: rgba(171, 141, 82, 0.22);
+            box-shadow: 0 14px 30px rgba(15, 23, 42, 0.08);
+        }
+
+        .front-desktop-shell .ac-services-modern .ac-service-item:hover h3 {
+            border: 0;
+            background: transparent;
+            box-shadow: none;
+        }
+    }
+
+    @media (max-width: 760px) {
+        .front-desktop-shell .ac-services-modern {
+            padding:
+                1.3rem
+                0.9rem
+                1.7rem;
+        }
+
+        .front-desktop-shell .ac-services-modern .ac-services-head {
             text-align: center;
-            padding: 1rem 0 0.95rem;
+            padding: 0.5rem 0 0.95rem;
         }
 
         .ac-services-eyebrow {
@@ -4569,33 +4915,35 @@
             display: none;
         }
 
-        .ac-services-kicker {
-            font-size: 0.8rem;
-            padding: 0.2rem 0.52rem 0.18rem;
+        .front-desktop-shell .ac-services-modern .ac-services-kicker {
+            font-size: 0.72rem;
+            padding: 0.34rem 0.68rem 0.3rem;
         }
 
-        .ac-services-head h2 {
-            max-width: none;
-            font-size: clamp(1.82rem, 6.9vw, 2.18rem);
-            line-height: 1.06;
+        .front-desktop-shell .ac-services-modern .ac-services-head h2 {
+            max-width: 16.5ch;
+            font-size: clamp(1.72rem, 6vw, 2.04rem);
+            line-height: 0.96;
+            letter-spacing: -0.026em;
         }
 
-        .ac-services-head h2 span {
-            white-space: normal;
+        .front-desktop-shell .ac-services-modern .ac-services-head h2 span {
+            white-space: nowrap;
         }
 
-        .ac-services-intro {
-            max-width: none;
-            font-size: 1rem;
-            line-height: 1.66;
+        .front-desktop-shell .ac-services-modern .ac-services-intro {
+            max-width: 34ch;
+            font-size: 0.98rem;
+            line-height: 1.54;
         }
 
-        .ac-services-divider {
+        .front-desktop-shell .ac-services-modern .ac-services-divider {
             justify-content: center;
         }
 
-        .ac-services-grid {
-            grid-template-columns: 1fr;
+        .front-desktop-shell .ac-services-modern .ac-services-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 0.82rem;
         }
 
         .ac-global-memberships {
@@ -4630,33 +4978,45 @@
             line-height: 1.56;
         }
 
-        .ac-service-item {
-            min-height: 360px;
+        .front-desktop-shell .ac-services-modern .ac-service-item {
+            min-height: 8.15rem;
+            aspect-ratio: 1 / 0.84;
         }
 
-        .ac-service-media {
-            height: 178px;
+        .front-desktop-shell .ac-services-modern .ac-service-media {
+            min-height: 100%;
+            height: auto;
+            padding: 0;
         }
 
-        .ac-service-body {
-            padding: 1.08rem 1.05rem 0.45rem;
+        .front-desktop-shell .ac-services-modern .ac-service-icon-wrap {
+            width: 4.75rem;
+            height: 4.75rem;
+            border-radius: 999px;
         }
 
-        .ac-service-item h3,
-        .ac-support-story-card h3 {
-            font-size: clamp(1.14rem, 4.9vw, 1.34rem);
-            line-height: 1.1;
+        .front-desktop-shell .ac-services-modern .ac-service-icon {
+            width: 2.7rem;
+            height: 2.7rem;
         }
 
-        .ac-service-item p {
-            font-size: 0.94rem;
-            line-height: 1.58;
+        .front-desktop-shell .ac-services-modern .ac-service-head-content {
+            gap: 0.62rem;
+            padding: 0.76rem 0.56rem 0.7rem;
+        }
+
+        .front-desktop-shell .ac-services-modern .ac-service-item h3 {
+            max-width: 10.2ch;
+            font-size: clamp(0.86rem, 2.35vw, 0.98rem);
+            line-height: 1.08;
         }
 
         .ac-service-link {
-            margin-left: 1.05rem;
-            margin-right: 1.05rem;
-            margin-bottom: 0.74rem;
+            margin-left: 1rem;
+            margin-right: 1rem;
+            margin-bottom: 1rem;
+            font-size: 0.78rem;
+            letter-spacing: 0.15em;
         }
 
         .ac-inline-cta-title {
@@ -4715,6 +5075,19 @@
 
     }
 
+    @media (max-width: 460px) {
+        .front-desktop-shell .ac-services-modern .ac-services-head h2 {
+            max-width: 15.5ch;
+            font-size: clamp(1.56rem, 6.8vw, 1.86rem);
+            line-height: 0.97;
+            letter-spacing: -0.024em;
+        }
+
+        .front-desktop-shell .ac-services-modern .ac-services-head h2 span {
+            white-space: nowrap;
+        }
+    }
+
     @media (min-width: 761px) and (max-width: 1024px) {
         .ac-global-memberships-grid {
             grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -4737,6 +5110,41 @@
     .front-desktop-shell {
         --front-shadow: none;
         --front-stats-gradient: #071c2d;
+    }
+
+    @media (max-width: 560px) {
+        .front-desktop-shell .ac-services-modern .ac-services-grid {
+            gap: 0.68rem;
+        }
+
+        .front-desktop-shell .ac-services-modern .ac-service-head-content {
+            gap: 0.56rem;
+        }
+
+        .front-desktop-shell .ac-services-modern .ac-service-item {
+            min-height: 7.6rem;
+            aspect-ratio: 1 / 0.82;
+        }
+
+        .front-desktop-shell .ac-services-modern .ac-service-icon-wrap {
+            width: 4.1rem;
+            height: 4.1rem;
+        }
+
+        .front-desktop-shell .ac-services-modern .ac-service-icon {
+            width: 2.35rem;
+            height: 2.35rem;
+        }
+
+        .front-desktop-shell .ac-services-modern .ac-service-head-content {
+            padding: 0.72rem 0.45rem 0.64rem;
+        }
+
+        .front-desktop-shell .ac-services-modern .ac-service-item h3 {
+            max-width: 9.5ch;
+            font-size: clamp(0.8rem, 2.75vw, 0.9rem);
+            line-height: 1.06;
+        }
     }
 
     .front-site-header,
@@ -4904,82 +5312,85 @@
     }
 
     .ac-services-grid {
-        gap: 1.5rem;
+        gap: 1.25rem;
     }
 
     .ac-service-item {
-        border: 1px solid rgba(15, 42, 67, 0.12);
-        border-top: 3px solid rgba(15, 42, 67, 0.2);
-        border-radius: 12px;
+        border: 1px solid rgba(255, 255, 255, 0.58);
+        border-radius: 22px;
+        background: linear-gradient(180deg, rgba(255, 255, 255, 0.82), rgba(255, 255, 255, 0.58));
+        box-shadow: 0 18px 42px rgba(15, 23, 42, 0.08);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
     }
 
     .ac-service-item.is-featured {
-        border-color: rgba(171, 141, 82, 0.24);
-        border-top-color: #ab8d52;
-        background: #fffdfa;
+        border-color: rgba(255, 255, 255, 0.72);
+        background: linear-gradient(180deg, rgba(255, 255, 255, 0.86), rgba(255, 255, 255, 0.62));
     }
 
     .ac-service-item:hover {
-        border-color: rgba(2, 66, 115, 0.18);
+        border-color: rgba(255, 255, 255, 0.84);
     }
 
     .ac-service-media {
-        border-bottom: 1px solid rgba(15, 42, 67, 0.1);
-        background: #edf3f7;
+        border-bottom: 0;
+        background: linear-gradient(135deg, rgba(238, 245, 249, 0.92), rgba(255, 255, 255, 0.46));
     }
 
     .ac-service-media::before {
-        background: rgba(6, 15, 27, 0.1);
+        background: linear-gradient(180deg, rgba(255, 255, 255, 0.36) 0%, rgba(255, 255, 255, 0) 100%);
     }
 
     .ac-service-pill {
-        border-color: rgba(255, 255, 255, 0.16);
-        background: #102535;
-        font-size: 0.56rem;
-        letter-spacing: 0.16em;
+        border-color: rgba(15, 42, 67, 0.08);
+        background: rgba(255, 255, 255, 0.72);
+        color: #0f2e4b;
+        font-size: 0.6rem;
+        letter-spacing: 0.14em;
     }
 
     .ac-service-icon-wrap {
-        width: 2.5rem;
-        height: 2.5rem;
-        border-radius: 0.82rem;
-        border-color: rgba(15, 42, 67, 0.12);
-        background: rgba(255, 255, 255, 0.96);
+        width: 4.35rem;
+        height: 4.35rem;
+        border-radius: 1.35rem;
+        border-color: rgba(255, 255, 255, 0.58);
+        background: linear-gradient(180deg, rgba(255, 255, 255, 0.88), rgba(241, 247, 251, 0.72));
         color: #0f2e4b;
     }
 
     .ac-service-body {
-        padding: 1.38rem 1.35rem 0.6rem;
+        padding: 1.24rem 1.28rem 0.18rem;
     }
 
     .ac-service-item h3 {
         color: #102031;
-        font-size: clamp(1.3rem, 1.68vw, 1.66rem);
-        line-height: 1.08;
-    }
-
-    .ac-service-item p {
-        color: #58687a;
-        line-height: 1.68;
+        font-family: 'Public Sans', 'Segoe UI', Arial, sans-serif;
+        font-size: clamp(1.34rem, 1.46vw, 1.62rem);
+        line-height: 1.04;
+        font-weight: 700;
+        letter-spacing: -0.04em;
     }
 
     .ac-service-link {
-        margin: 0.3rem 1.35rem 1rem;
-        padding-top: 0.92rem;
-        border-top-color: rgba(15, 42, 67, 0.12);
+        margin: 0 1.25rem 1.12rem;
+        padding-top: 0;
+        border-top-color: transparent;
         color: #10273f;
+        font-size: 0.88rem;
+        letter-spacing: 0.18em;
     }
 
     .ac-service-link-arrow {
-        width: 1.5rem;
-        height: 1.5rem;
-        border-color: rgba(15, 42, 67, 0.1);
-        background: #f3f7fa;
+        width: 2rem;
+        height: 2rem;
+        border-color: rgba(15, 42, 67, 0.08);
+        background: rgba(255, 255, 255, 0.72);
     }
 
     .ac-service-item:hover .ac-service-icon-wrap {
-        border-color: rgba(171, 141, 82, 0.34);
-        background: #102535;
+        border-color: transparent;
+        background: linear-gradient(135deg, var(--ac-service-accent, #ab8d52), #0f2e4b);
         color: #ffffff;
     }
 
@@ -7926,6 +8337,418 @@
         .ac-global-memberships-splide .splide__arrow--next,
         .ac-client-experiences-splide .splide__arrow--next {
             right: -1.45rem;
+        }
+    }
+
+    .ac-services-center-card,
+    .ac-services-orbit-lines {
+        display: none;
+    }
+
+    @media (min-width: 1281px) {
+        .ac-services-modern {
+            position: relative;
+            width: 100vw;
+            margin-left: calc(50% - 50vw);
+            margin-right: calc(50% - 50vw);
+            padding:
+                2.5rem
+                max(2rem, calc((100vw - 1240px) / 2 + 2rem))
+                2.9rem;
+            border: 0;
+            border-radius: 0;
+            background: transparent;
+            overflow: hidden;
+        }
+
+        .ac-services-modern::before {
+            content: none;
+        }
+
+        .ac-services-modern::after {
+            content: none;
+        }
+
+        .ac-services-head--stacked {
+            display: none;
+        }
+
+        .ac-services-grid.ac-services-grid--orbit {
+            position: relative;
+            display: block;
+            max-width: 1320px;
+            min-height: 790px;
+            margin-top: 0;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .ac-services-orbit-lines {
+            display: block;
+            position: absolute;
+            inset: 0;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .ac-services-orbit-lines::before {
+            content: '';
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            width: min(40vw, 560px);
+            height: min(40vw, 560px);
+            transform: translate(-50%, -50%);
+            background: linear-gradient(180deg, rgba(171, 141, 82, 0.24), rgba(171, 141, 82, 0.1));
+            -webkit-mask: url('../images/branding/znak-ac.svg') center/contain no-repeat;
+            mask: url('../images/branding/znak-ac.svg') center/contain no-repeat;
+            opacity: 0.36;
+            filter: drop-shadow(0 8px 16px rgba(171, 141, 82, 0.06));
+        }
+
+        .ac-services-orbit-lines::after {
+            content: '';
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            width: min(50vw, 720px);
+            height: min(32vw, 460px);
+            transform: translate(-50%, -50%);
+            background: radial-gradient(ellipse at center, rgba(171, 141, 82, 0.08), rgba(171, 141, 82, 0.02) 56%, transparent 74%);
+            opacity: 0.48;
+        }
+
+        .ac-services-orbit-line {
+            display: none;
+        }
+
+        .ac-services-center-card {
+            display: flex;
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            z-index: 2;
+            width: min(47rem, 58vw);
+            min-height: 0;
+            margin: 0;
+            border: 0;
+            background: transparent;
+            box-shadow: none;
+            backdrop-filter: none;
+            -webkit-backdrop-filter: none;
+            overflow: visible;
+            transform: translate(-50%, -50%);
+        }
+
+        .ac-services-center-card::before {
+            content: '';
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            width: min(26rem, 68%);
+            height: min(26rem, 68%);
+            transform: translate(-50%, -50%);
+            background: linear-gradient(180deg, rgba(171, 141, 82, 0.38), rgba(171, 141, 82, 0.12));
+            -webkit-mask: url('../images/branding/znak-ac.svg') center/contain no-repeat;
+            mask: url('../images/branding/znak-ac.svg') center/contain no-repeat;
+            opacity: 0.26;
+        }
+
+        .ac-services-center-card::after {
+            content: none;
+        }
+
+        .ac-services-center-card-inner {
+            position: relative;
+            z-index: 1;
+            display: grid;
+            gap: 1.35rem;
+            align-content: center;
+            justify-items: center;
+            width: 100%;
+            max-width: 39rem;
+            margin: 0 auto;
+            padding: 1.8rem 2.4rem 1.95rem;
+            border: 0;
+            border-radius: 0;
+            background: transparent;
+            box-shadow: none;
+            backdrop-filter: none;
+            -webkit-backdrop-filter: none;
+            isolation: isolate;
+            text-align: center;
+        }
+
+        .ac-services-center-card-inner::before {
+            content: '';
+            position: absolute;
+            inset: 14% 10% 12%;
+            z-index: -1;
+            background: radial-gradient(circle at center, rgba(255, 255, 255, 0.74), rgba(255, 255, 255, 0.16) 54%, transparent 76%);
+            filter: blur(14px);
+            opacity: 0.84;
+            pointer-events: none;
+        }
+
+        .ac-services-center-kicker {
+            margin: 0;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.58rem 1.15rem;
+            border-radius: 999px;
+            border: 1px solid rgba(207, 175, 104, 0.3);
+            background: linear-gradient(135deg, rgba(17, 42, 67, 0.98), rgba(10, 25, 42, 0.98));
+            color: #f4d98e;
+            font-size: 0.82rem;
+            font-weight: 900;
+            letter-spacing: 0.28em;
+            text-transform: uppercase;
+            box-shadow:
+                0 14px 22px rgba(15, 23, 42, 0.12),
+                inset 0 1px 0 rgba(255, 255, 255, 0.08);
+        }
+
+        .ac-services-center-card h3 {
+            margin: 0;
+            width: -moz-max-content;
+            width: max-content;
+            max-width: 100%;
+            color: #0a1728;
+            font-family: "Playfair Display", Sans-serif;
+            font-size: clamp(1.9rem, 2.45vw, 2.55rem);
+            font-weight: 700;
+            line-height: 0.98;
+            letter-spacing: -0.034em;
+            text-wrap: balance;
+            text-shadow: 0 1px 0 rgba(255, 255, 255, 0.74);
+        }
+
+        .ac-services-center-card h3 span {
+            display: block;
+            white-space: nowrap;
+        }
+
+        .ac-services-center-card h3 span + span {
+            margin-top: 0.16rem;
+        }
+
+        .ac-services-center-card p:last-child {
+            margin: 0;
+            max-width: 38ch;
+            color: #284055;
+            font-size: 1.09rem;
+            font-weight: 500;
+            line-height: 1.7;
+            text-wrap: pretty;
+            text-shadow: 0 1px 0 rgba(255, 255, 255, 0.54);
+        }
+
+        .ac-services-grid--orbit .ac-service-item {
+            position: absolute;
+            z-index: 1;
+            width: 18.75rem;
+            min-height: 0;
+            border: 0;
+            background: transparent;
+            box-shadow: none;
+            backdrop-filter: none;
+            -webkit-backdrop-filter: none;
+            overflow: visible;
+            justify-self: center;
+        }
+
+        .ac-services-grid--orbit .ac-service-item::before {
+            display: none;
+        }
+
+        .ac-services-grid--orbit .ac-service-item[data-service-area="finance"] {
+            left: 35.75%;
+            top: 18.5%;
+            transform: translate(-50%, -50%);
+        }
+
+        .ac-services-grid--orbit .ac-service-item[data-service-area="accounting"] {
+            left: 64.25%;
+            top: 18.5%;
+            transform: translate(-50%, -50%);
+        }
+
+        .ac-services-grid--orbit .ac-service-item[data-service-area="audit"] {
+            left: 14%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        .ac-services-grid--orbit .ac-service-item[data-service-area="tax"] {
+            left: 86%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        .ac-services-grid--orbit .ac-service-item[data-service-area="eu"] {
+            left: 35.75%;
+            top: 81.5%;
+            transform: translate(-50%, -50%);
+        }
+
+        .ac-services-grid--orbit .ac-service-item[data-service-area="family"] {
+            left: 64.25%;
+            top: 81.5%;
+            transform: translate(-50%, -50%);
+        }
+
+        .ac-services-grid--orbit .ac-service-item:hover {
+            transform: translate(-50%, -50%);
+            border-color: transparent;
+            box-shadow: none;
+        }
+
+        .ac-services-grid--orbit .ac-service-card-link {
+            align-items: center;
+            justify-content: center;
+            min-height: 0;
+        }
+
+        .ac-services-grid--orbit .ac-service-media {
+            min-height: 0;
+            padding: 0;
+            background: transparent;
+            border: 0;
+            flex: 0 0 auto;
+        }
+
+        .ac-services-grid--orbit .ac-service-media::before,
+        .ac-services-grid--orbit .ac-service-media::after,
+        .ac-services-grid--orbit .ac-service-media-art {
+            display: none;
+        }
+
+        .ac-services-grid--orbit .ac-service-head-content {
+            position: relative;
+            gap: 0.98rem;
+            justify-items: center;
+            width: 100%;
+        }
+
+        .ac-services-grid--orbit .ac-service-icon-wrap {
+            width: 5.8rem;
+            height: 5.8rem;
+            padding: 0;
+            border: 0;
+            border-radius: 999px;
+            background:
+                radial-gradient(circle at 34% 26%, rgba(38, 74, 109, 0.98), rgba(15, 38, 60, 0.98) 72%);
+            box-shadow:
+                0 20px 38px rgba(8, 21, 36, 0.2),
+                inset 0 1px 0 rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(6px);
+            -webkit-backdrop-filter: blur(6px);
+            color: #ffffff;
+            transition:
+                background 180ms ease,
+                border-color 180ms ease,
+                box-shadow 180ms ease;
+        }
+
+        .ac-services-grid--orbit .ac-service-icon {
+            width: 3.75rem;
+            height: 3.75rem;
+            display: block;
+            -o-object-fit: contain;
+            object-fit: contain;
+            filter: brightness(0) saturate(100%) invert(87%) sepia(22%) saturate(831%) hue-rotate(345deg) brightness(101%) contrast(93%);
+            transition: filter 180ms ease;
+        }
+
+        .ac-services-grid--orbit .ac-service-item h3 {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            width: -moz-max-content;
+            width: max-content;
+            max-width: none;
+            margin: 0 auto;
+            padding: 0.4rem 0.78rem 0.38rem;
+            border: 1px solid rgba(171, 141, 82, 0.22);
+            border-radius: 0.48rem;
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.82), rgba(250, 246, 240, 0.58));
+            box-shadow:
+                0 10px 22px rgba(15, 23, 42, 0.07),
+                inset 0 1px 0 rgba(255, 255, 255, 0.86);
+            backdrop-filter: blur(6px);
+            -webkit-backdrop-filter: blur(6px);
+            font-family: 'Sora', 'Public Sans', 'Segoe UI', Arial, sans-serif;
+            font-size: clamp(0.89rem, 0.93vw, 1rem);
+            line-height: 1.02;
+            font-weight: 700;
+            letter-spacing: 0.03em;
+            text-transform: uppercase;
+            white-space: nowrap;
+            text-align: center;
+            color: #0d2339;
+            text-shadow: none;
+        }
+
+        .ac-services-grid--orbit .ac-service-item h3::before {
+            content: '';
+            position: absolute;
+            left: 50%;
+            bottom: calc(100% + 0.16rem);
+            width: 2px;
+            height: 1rem;
+            background: linear-gradient(180deg, rgba(171, 141, 82, 0.92), rgba(171, 141, 82, 0.18));
+            box-shadow: 0 0 0.35rem rgba(171, 141, 82, 0.18);
+            transform: translateX(-50%);
+            pointer-events: none;
+        }
+
+        .ac-services-grid--orbit .ac-service-item h3::after {
+            content: '';
+            position: absolute;
+            left: 50%;
+            bottom: calc(100% + 1rem);
+            width: 0.42rem;
+            height: 0.42rem;
+            border-radius: 999px;
+            background: rgba(171, 141, 82, 1);
+            box-shadow:
+                0 0 0 0.24rem rgba(255, 255, 255, 0.72),
+                0 0 0.7rem rgba(171, 141, 82, 0.26);
+            transform: translateX(-50%);
+            pointer-events: none;
+        }
+
+        .ac-services-grid--orbit .ac-service-item:hover .ac-service-icon-wrap {
+            transform: none;
+            background:
+                radial-gradient(circle at 34% 26%, rgba(232, 205, 142, 0.98), rgba(196, 158, 79, 0.98) 72%);
+            color: #10263c;
+            box-shadow:
+                0 18px 32px rgba(171, 141, 82, 0.18),
+                inset 0 1px 0 rgba(255, 255, 255, 0.22);
+        }
+
+        .ac-services-grid--orbit .ac-service-item:hover .ac-service-icon {
+            filter: brightness(0) saturate(100%) invert(15%) sepia(27%) saturate(1091%) hue-rotate(172deg) brightness(94%) contrast(95%);
+        }
+
+        .ac-services-grid--orbit .ac-service-item:hover h3 {
+            color: #0d2339;
+            border-color: rgba(171, 141, 82, 0.28);
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.92), rgba(252, 248, 242, 0.68));
+            box-shadow:
+                0 12px 24px rgba(171, 141, 82, 0.12),
+                inset 0 1px 0 rgba(255, 255, 255, 0.88);
+        }
+
+        .ac-services-grid--orbit .ac-service-item:hover h3::before {
+            background: linear-gradient(180deg, rgba(171, 141, 82, 1), rgba(171, 141, 82, 0.24));
+        }
+
+        .ac-services-grid--orbit .ac-service-item:hover h3::after {
+            background: rgba(171, 141, 82, 1);
         }
     }
 }

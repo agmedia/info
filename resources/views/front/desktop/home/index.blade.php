@@ -15,12 +15,90 @@
 
         // Static section payloads mirror the structure we can later hydrate from backend content blocks.
         $serviceCards = [
-            ['title' => 'Obiteljski biznis', 'tag' => 'Nasljeđe', 'icon' => 'family', 'anchor' => 'odjel-obiteljski-biznisi', 'image' => 'front-theme/images/services/family-business-editorial-3d.svg', 'text' => 'Podrška obiteljskim biznisima kroz rast, tranziciju i kontinuitet.', 'featured' => true, 'url' => route('family-business.show')],
-            ['title' => 'Financije', 'tag' => 'Strategija', 'icon' => 'finance', 'anchor' => 'odjel-financije', 'image' => 'front-theme/images/services/finance-editorial-3d.svg', 'text' => 'Vaš kompas kroz svijet financija i održivo upravljanje kapitalom.', 'featured' => true, 'url' => route('contact.create')],
-            ['title' => 'Revizija', 'tag' => 'Audit', 'icon' => 'audit', 'anchor' => 'odjel-revizija', 'image' => 'front-theme/images/services/audit-editorial-3d.svg', 'text' => 'Stručna neovisna mišljenja i objektivna procjena poslovnih procesa.', 'featured' => true, 'url' => route('contact.create')],
-            ['title' => 'Računovodstvo', 'tag' => 'Točnost', 'icon' => 'accounting', 'anchor' => 'odjel-racunovodstvo', 'image' => 'front-theme/images/services/accounting-editorial-3d.svg', 'text' => 'Pouzdano izvještavanje i operativna jasnoća za svakodnevne odluke.', 'featured' => true, 'url' => route('contact.create')],
-            ['title' => 'Porezi', 'tag' => 'Usklađenost', 'icon' => 'tax', 'anchor' => 'odjel-porezi', 'image' => 'front-theme/images/services/tax-editorial-3d.svg', 'text' => 'Porezna optimizacija uz punu usklađenost i jasno planiranje rizika.', 'featured' => true, 'url' => route('contact.create')],
-            ['title' => 'Poslovno savjetovanje', 'tag' => 'Rast', 'icon' => 'advisory', 'anchor' => 'odjel-poslovno-savjetovanje', 'image' => 'front-theme/images/services/advisory-editorial-3d.svg', 'text' => 'Uz vas kroz sve faze poslovanja, od analize do provedbe rješenja.', 'featured' => true, 'url' => route('contact.create')],
+            [
+                'title' => 'Financije',
+                'tag' => 'Kapital',
+                'icon' => 'finance',
+                'icon_asset' => 'front-theme/images/services-icons/financije.svg',
+                'anchor' => 'odjel-financije',
+                'image' => 'front-theme/images/services/finance-editorial-3d.svg',
+                'text' => 'Kapital, poslovno savjetovanje, kontroling i podrška pri financijskim odlukama.',
+                'highlights' => ['Kapital', 'Savjetovanje', 'Kontroling'],
+                'featured' => true,
+                'url' => route('contact.create'),
+                'accent' => '#2f6f9f',
+                'layout_area' => 'finance',
+            ],
+            [
+                'title' => 'Računovodstvo',
+                'tag' => 'Preciznost',
+                'icon' => 'accounting',
+                'icon_asset' => 'front-theme/images/services-icons/racunovodstvo.svg',
+                'anchor' => 'odjel-racunovodstvo',
+                'image' => 'front-theme/images/services/accounting-editorial-3d.svg',
+                'text' => 'Pouzdano vođenje poslovnih knjiga i jasni izvještaji za svakodnevno upravljanje.',
+                'highlights' => ['Knjige', 'Izvještaji'],
+                'featured' => true,
+                'url' => route('contact.create'),
+                'accent' => '#5f7f91',
+                'layout_area' => 'accounting',
+            ],
+            [
+                'title' => 'Revizija',
+                'tag' => 'Povjerenje',
+                'icon' => 'audit',
+                'icon_asset' => 'front-theme/images/services-icons/revizija.svg',
+                'anchor' => 'odjel-revizija',
+                'image' => 'front-theme/images/services/audit-editorial-3d.svg',
+                'text' => 'Neovisna stručna mišljenja i procjena poslovnih procesa, rizika i kontrola.',
+                'highlights' => ['Mišljenja', 'Procjene'],
+                'featured' => true,
+                'url' => route('contact.create'),
+                'accent' => '#214764',
+                'layout_area' => 'audit',
+            ],
+            [
+                'title' => 'Porezi',
+                'tag' => 'Usklađenost',
+                'icon' => 'tax',
+                'icon_asset' => 'front-theme/images/services-icons/porezi.svg',
+                'anchor' => 'odjel-porezi',
+                'image' => 'front-theme/images/services/tax-editorial-3d.svg',
+                'text' => 'Porezno planiranje, usklađenost i podrška u složenim poreznim pitanjima.',
+                'highlights' => ['Planiranje', 'Zastupanje'],
+                'featured' => true,
+                'url' => route('contact.create'),
+                'accent' => '#ab8d52',
+                'layout_area' => 'tax',
+            ],
+            [
+                'title' => 'EU fondovi',
+                'tag' => 'Natječaji',
+                'icon' => 'europe',
+                'icon_asset' => 'front-theme/images/services-icons/eufondovi.svg',
+                'anchor' => 'odjel-eu-fondovi',
+                'image' => 'front-theme/images/services/advisory-editorial-3d.svg',
+                'text' => 'Priprema projektnih prijedloga i usklađivanje ulaganja s aktualnim natječajima.',
+                'highlights' => ['Natječaji', 'Projekti'],
+                'featured' => true,
+                'url' => route('contact.create'),
+                'accent' => '#3f7c78',
+                'layout_area' => 'eu',
+            ],
+            [
+                'title' => 'Obiteljski biznis',
+                'tag' => 'Nasljeđe',
+                'icon' => 'family',
+                'icon_asset' => 'front-theme/images/services-icons/obiteljski-biznis.svg',
+                'anchor' => 'odjel-obiteljski-biznisi',
+                'image' => 'front-theme/images/services/family-business-editorial-3d.svg',
+                'text' => 'Podrška vlasničkoj tranziciji, upravljanju i dugoročnoj stabilnosti obitelji i poslovanja.',
+                'highlights' => ['Tranzicija', 'Nasljeđivanje'],
+                'featured' => true,
+                'url' => route('family-business.show'),
+                'accent' => '#8c6a47',
+                'layout_area' => 'family',
+            ],
         ];
 
         $consultationCta = [
@@ -33,7 +111,7 @@
         ];
 
         $supportJourney = [
-            'eyebrow' => 'Alpha Capitalis',
+            'eyebrow' => 'ALPHA CAPITALIS',
             'title_lines' => ['Podrška klijentima u svim', 'fazama razvoja poslovanja'],
             'text' => 'Pribavljamo kapital za razvoj poslovanja, pomažemo kod donošenja odluka oko financiranja i optimizacije bilance te postavljamo kontroling unutar organizacije.',
             'cards' => [
@@ -205,20 +283,19 @@
 
     <div class="mx-auto w-full max-w-[1240px] px-5 lg:px-8">
         <section id="usluge" class="ac-services-modern">
-            <div class="ac-services-head">
+            <div class="ac-services-head ac-services-head--stacked">
                 <div class="ac-services-eyebrow">
                     <span class="ac-services-eyebrow-line" aria-hidden="true"></span>
                     <p class="ac-services-kicker">Usluge</p>
                     <span class="ac-services-eyebrow-line" aria-hidden="true"></span>
                 </div>
                 <h2>
-                    <span>Kroz stručne usluge gradimo</span>
-                    <span>održiv rast klijenata</span>
+                    <span>Ključne usluge za rast,</span>
+                    <span>stabilnost i jasne odluke</span>
                 </h2>
                 <p class="ac-services-intro">
-                    Kroz profesionalne usluge u području financija, revizije, računovodstva i poreza,
-                    tim ALPHA CAPITALIS klijentima stvara vrijednost kroz pribavljanje kapitala,
-                    financijski menadžment, restrukturiranje i tranzicije.
+                    Od financija i računovodstva do revizije, poreza, EU fondova i obiteljskih tranzicija,
+                    ALPHA CAPITALIS objedinjuje ključna područja poslovne podrške na jednom mjestu.
                 </p>
                 <div class="ac-services-divider" aria-hidden="true">
                     <span class="ac-services-divider-line"></span>
@@ -227,10 +304,36 @@
                 </div>
             </div>
 
-            <div class="ac-services-grid">
+            <div class="ac-services-grid ac-services-grid--orbit">
+                <div class="ac-services-orbit-lines" aria-hidden="true">
+                    <span class="ac-services-orbit-line ac-services-orbit-line--top-left"></span>
+                    <span class="ac-services-orbit-line ac-services-orbit-line--top-right"></span>
+                    <span class="ac-services-orbit-line ac-services-orbit-line--mid-left"></span>
+                    <span class="ac-services-orbit-line ac-services-orbit-line--mid-right"></span>
+                    <span class="ac-services-orbit-line ac-services-orbit-line--bottom-left"></span>
+                    <span class="ac-services-orbit-line ac-services-orbit-line--bottom-right"></span>
+                </div>
+                <div class="ac-services-center-card">
+                    <div class="ac-services-center-card-inner">
+                        <p class="ac-services-center-kicker">Usluge</p>
+                        <h3>
+                            <span>Ključne usluge za rast,</span>
+                            <span>stabilnost i jasne odluke</span>
+                        </h3>
+                        <p>
+                            Od financija i računovodstva do revizije, poreza, EU fondova i obiteljskih tranzicija,
+                            ALPHA CAPITALIS objedinjuje ključna područja poslovne podrške na jednom mjestu.
+                        </p>
+                    </div>
+                </div>
                 @foreach ($serviceCards as $card)
-                    <article id="{{ $card['anchor'] }}" class="ac-service-item {{ $card['featured'] ? 'is-featured' : '' }}">
-                        <a href="{{ $card['url'] ?? route('contact.create') }}" class="ac-service-card-link" aria-label="Istraži uslugu: {{ $card['title'] }}">
+                    <article
+                        id="{{ $card['anchor'] }}"
+                        class="ac-service-item {{ $card['featured'] ? 'is-featured' : '' }}"
+                        style="--ac-service-accent: {{ $card['accent'] ?? '#ab8d52' }};"
+                        data-service-area="{{ $card['layout_area'] ?? '' }}"
+                    >
+                        <a href="{{ $card['url'] ?? route('contact.create') }}" class="ac-service-card-link">
                             <div class="ac-service-media">
                                 <img
                                     src="{{ $versionedAsset($card['image']) }}"
@@ -240,68 +343,20 @@
                                     loading="lazy"
                                     decoding="async"
                                 >
-                                <span class="ac-service-pill">{{ \Illuminate\Support\Str::upper($card['tag']) }}</span>
-                                <span class="ac-service-icon-wrap" aria-hidden="true">
-                                    <svg class="ac-service-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.65">
-                                        @switch($card['icon'])
-                                            @case('finance')
-                                                <path d="M4 19h16"></path>
-                                                <path d="M7 14v-4"></path>
-                                                <path d="M12 14V8"></path>
-                                                <path d="M17 14V6"></path>
-                                                <path d="m5.5 11 3-2 3 1.5 4-3.5 2.5 1"></path>
-                                                @break
-                                            @case('accounting')
-                                                <rect x="5" y="4.5" width="14" height="15" rx="2"></rect>
-                                                <path d="M8 8.5h8"></path>
-                                                <path d="M8 12h8"></path>
-                                                <path d="M8 15.5h5"></path>
-                                                @break
-                                            @case('tax')
-                                                <path d="m12 3 7 3v5c0 4.1-2.6 7.3-7 9-4.4-1.7-7-4.9-7-9V6l7-3Z"></path>
-                                                <path d="m9.3 12.2 1.8 1.8 3.8-3.8"></path>
-                                                @break
-                                            @case('audit')
-                                                <path d="M8 5h7l3 3v5"></path>
-                                                <path d="M8 5a2 2 0 0 0-2 2v6"></path>
-                                                <circle cx="9" cy="16" r="3"></circle>
-                                                <path d="m11.2 18.2 2.8 2.8"></path>
-                                                @break
-                                            @case('family')
-                                                <circle cx="12" cy="12" r="1.1"></circle>
-                                                <circle cx="12" cy="5.4" r="1.35"></circle>
-                                                <path d="M9.9 8.8c.7-1.2 3.5-1.2 4.2 0"></path>
-                                                <circle cx="6.2" cy="9.2" r="1.2"></circle>
-                                                <path d="M4.4 12.2c.6-1 2.4-1 3 0"></path>
-                                                <circle cx="17.8" cy="9.2" r="1.2"></circle>
-                                                <path d="M16 12.2c.6-1 2.4-1 3 0"></path>
-                                                <circle cx="8.2" cy="17.1" r="1.1"></circle>
-                                                <path d="M6.6 19.9c.5-.9 2.1-.9 2.7 0"></path>
-                                                <circle cx="15.8" cy="17.1" r="1.1"></circle>
-                                                <path d="M14.2 19.9c.5-.9 2.1-.9 2.7 0"></path>
-                                                <circle cx="12" cy="12" r="7.6"></circle>
-                                                @break
-                                            @default
-                                                <circle cx="12" cy="12" r="8"></circle>
-                                                <path d="m9 15 2.2-5 5-2.2-2.2 5L9 15Z"></path>
-                                                <circle cx="12" cy="12" r="1"></circle>
-                                        @endswitch
-                                    </svg>
-                                </span>
+                                <div class="ac-service-head-content">
+                                    <span class="ac-service-icon-wrap" aria-hidden="true">
+                                        <img
+                                            src="{{ $versionedAsset($card['icon_asset']) }}"
+                                            alt=""
+                                            aria-hidden="true"
+                                            class="ac-service-icon"
+                                            loading="lazy"
+                                            decoding="async"
+                                        >
+                                    </span>
+                                    <h3>{{ $card['title'] }}</h3>
+                                </div>
                             </div>
-                            <div class="ac-service-body">
-                                <h3>{{ $card['title'] }}</h3>
-                                <p>{{ $card['text'] }}</p>
-                            </div>
-                            <span class="ac-service-link">
-                                <span>Istraži uslugu</span>
-                                <span class="ac-service-link-arrow" aria-hidden="true">
-                                    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
-                                        <path d="M4 12L12 4"></path>
-                                        <path d="M6 4h6v6"></path>
-                                    </svg>
-                                </span>
-                            </span>
                         </a>
                     </article>
                 @endforeach
@@ -524,7 +579,7 @@
                         <div class="ac-services-head ac-support-story-head">
                             <div class="ac-services-eyebrow">
                                 <span class="ac-services-eyebrow-line" aria-hidden="true"></span>
-                                <p class="ac-services-kicker">Alpha Capitalis</p>
+                                <p class="ac-services-kicker">ALPHA CAPITALIS</p>
                                 <span class="ac-services-eyebrow-line" aria-hidden="true"></span>
                             </div>
                             <h2 id="ac-home-blog-title">

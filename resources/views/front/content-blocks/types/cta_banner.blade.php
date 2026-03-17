@@ -42,7 +42,7 @@
             @endif
         </div>
         @if ($ctaLabel !== '' && $ctaUrl !== '')
-            <a href="{{ $ctaUrl }}" class="inline-flex rounded-xl bg-white px-4 py-2 text-sm font-semibold text-slate-900 hover:bg-slate-100">
+            <a href="{{ $ctaUrl }}" class="front-link-cta inline-flex rounded-xl bg-white px-4 py-2 text-sm font-semibold text-slate-900 hover:bg-slate-100">
                 {{ $ctaLabel }}
             </a>
         @endif

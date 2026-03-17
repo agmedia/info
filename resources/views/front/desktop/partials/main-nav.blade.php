@@ -23,7 +23,7 @@
             <div class="group/nav relative">
                 <a href="{{ $href }}" class="front-nav-link inline-flex items-center gap-1 py-6 transition" @if($target) target="{{ $target }}" rel="{{ $rel }}" @endif>
                     <span class="front-nav-link-label border-b pb-0.5 transition">{{ $item['label'] }}</span>
-                    <span class="text-[10px] opacity-70">▼</span>
+                    <span class="front-nav-caret" aria-hidden="true">▼</span>
                 </a>
 
                 <div class="front-nav-dropdown invisible pointer-events-none absolute left-1/2 top-full z-50 min-w-[19rem] -translate-x-1/2 p-2 opacity-0 transition-all duration-150 group-hover/nav:visible group-hover/nav:pointer-events-auto group-hover/nav:opacity-100">

@@ -87,7 +87,7 @@
                                                         {{ $translation->cta_label }}
                                                     </span>
                                                 @else
-                                                    <a href="{{ $translation->cta_url }}" class="mt-6 inline-flex h-11 items-center border border-white bg-white px-6 text-sm font-semibold text-slate-900 hover:bg-slate-100">
+                                                    <a href="{{ $translation->cta_url }}" class="front-link-cta mt-6 inline-flex h-11 items-center border border-white bg-white px-6 text-sm font-semibold text-slate-900 hover:bg-slate-100">
                                                         {{ $translation->cta_label }}
                                                     </a>
                                                 @endif

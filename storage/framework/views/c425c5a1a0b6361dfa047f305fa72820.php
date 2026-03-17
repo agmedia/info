@@ -22,7 +22,7 @@
         : null;
 
     $heroSection = [
-        'title_lines' => ['Alpha Capitalis', 'Savjetnici za obiteljski biznis'],
+        'title_lines' => ['ALPHA CAPITALIS', 'Savjetnici za obiteljski biznis'],
         'intro' => 'U ALPHA CAPITALIS-u svjesni smo složenosti vašeg obiteljskog biznisa i jedinstvenosti vaše poduzetničke obitelji. Upravo zato vam na jednom mjestu pružamo cjelovitu podršku. Kroz holistički pristup stvaramo siguran prostor i posvećujemo vrijeme vašem poslovnom putu, osiguravajući stabilnost i razvoj kroz sve faze rasta.',
         'cta' => ['label' => 'Pružamo vam podršku', 'url' => '#family-business-publika'],
     ];
@@ -477,38 +477,38 @@
 
                     <div class="space-y-6 mt-10">
                         <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $familyBusinessTeam; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $member): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                            <article class="overflow-hidden rounded-[32px] border border-slate-200 bg-white p-4 sm:p-4 lg:p-5">
-                                <div class="grid gap-4 lg:grid-cols-[220px_minmax(0,1fr)] lg:items-start lg:gap-5">
-                                    <div class="self-start mx-auto w-full max-w-[220px] overflow-hidden rounded-[24px] border border-slate-200 bg-white lg:mx-0">
+                            <article class="ac-team-member-card overflow-hidden rounded-[32px] border border-slate-200 bg-white p-4 sm:p-4 lg:p-5">
+                                <div class="ac-team-member-layout grid gap-4 lg:grid-cols-[220px_minmax(0,1fr)] lg:items-start lg:gap-5">
+                                    <div class="ac-team-member-media self-start overflow-hidden rounded-[24px] border border-slate-200 bg-white">
                                         <div class="relative overflow-hidden">
                                             <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($member['photo_url'] !== ''): ?>
                                                 <img
                                                     src="<?php echo e($member['photo_url']); ?>"
                                                     alt="<?php echo e($member['name']); ?>"
-                                                    class="block h-auto w-full bg-white"
+                                                    class="ac-team-member-photo block h-auto w-full bg-white"
                                                     loading="lazy"
                                                     decoding="async"
                                                 >
                                             <?php else: ?>
-                                                <div class="flex aspect-[4/5] items-center justify-center bg-[linear-gradient(180deg,#0d233b_0%,#123151_100%)]">
+                                                <div class="ac-team-member-photo flex aspect-[4/5] items-center justify-center bg-[linear-gradient(180deg,#0d233b_0%,#123151_100%)]">
                                                     <span class="text-6xl font-black tracking-[0.18em] text-white/92"><?php echo e($member['initials']); ?></span>
                                                 </div>
                                             <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                                         </div>
                                     </div>
 
-                                    <div class="flex min-w-0 flex-col justify-center">
-                                        <div class="border-b border-slate-100 pb-3.5">
-                                            <h3 class="text-[1.2rem] font-black leading-tight tracking-tight text-slate-950 sm:text-[1.38rem]"><?php echo e($member['name']); ?></h3>
-                                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($member['position'] !== ''): ?>
-                                                <p class="ac-team-role mt-2 text-[0.8rem] font-semibold uppercase text-sky-800">
-                                                    <?php echo e($member['position']); ?>
+                                    <div class="ac-team-member-head border-b border-slate-100 pb-3.5">
+                                        <h3 class="ac-team-member-name text-[1.2rem] font-black leading-tight tracking-tight text-slate-950 sm:text-[1.38rem]"><?php echo e($member['name']); ?></h3>
+                                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($member['position'] !== ''): ?>
+                                            <p class="ac-team-role mt-2 text-[0.8rem] font-semibold uppercase text-sky-800">
+                                                <?php echo e($member['position']); ?>
 
-                                                </p>
-                                            <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
-                                        </div>
+                                            </p>
+                                        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                                    </div>
 
-                                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($member['description_html'] !== ''): ?>
+                                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($member['description_html'] !== ''): ?>
+                                        <div class="ac-team-member-bio">
                                             <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($member['has_long_description']): ?>
                                                 <div class="ac-team-bio mt-4">
                                                     <input id="family-team-bio-<?php echo e($member['id']); ?>" type="checkbox" class="ac-team-bio-toggle">
@@ -535,13 +535,14 @@
 
                                                 </div>
                                             <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
-                                        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                                        </div>
+                                    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
-                                        <?php
-                                            $memberPhoneHref = preg_replace('/[^0-9+]/', '', $member['mobile_phone']);
-                                        ?>
+                                    <?php
+                                        $memberPhoneHref = preg_replace('/[^0-9+]/', '', $member['mobile_phone']);
+                                    ?>
 
-                                        <div class="mt-4 flex flex-wrap gap-2.5">
+                                    <div class="ac-team-member-actions mt-4 flex flex-wrap gap-2.5">
                                             <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($member['email'] !== ''): ?>
                                                 <a href="mailto:<?php echo e($member['email']); ?>" title="<?php echo e(__('ui.team.social.email')); ?>" aria-label="<?php echo e(__('ui.team.social.email')); ?>" class="inline-flex h-10 w-10 items-center justify-center rounded-full border border-slate-200 bg-slate-50 text-slate-700 transition hover:border-sky-200 hover:bg-white hover:text-sky-900">
                                                     <svg class="h-4 w-4" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -578,9 +579,8 @@
                                                     </svg>
                                                 </a>
                                             <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
-                                        </div>
                                     </div>
-                                </div>    
+                                </div>
                             </article>
                         <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                     </div>
@@ -806,6 +806,130 @@ unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendB
         <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
     </div>
 <?php $__env->stopSection(); ?>
+
+<?php $__env->startPush('styles'); ?>
+    <style>
+        @media (min-width: 641px) {
+            .ac-team-member-layout {
+                grid-template-columns: 220px minmax(0, 1fr);
+                align-items: start;
+                column-gap: 1.25rem;
+                row-gap: 1rem;
+            }
+
+            .ac-team-member-media {
+                grid-column: 1;
+                grid-row: 1 / span 3;
+                width: 100%;
+                max-width: 220px;
+                margin-left: 0;
+                margin-right: 0;
+            }
+
+            .ac-team-member-head {
+                grid-column: 2;
+                grid-row: 1;
+            }
+
+            .ac-team-member-bio {
+                grid-column: 2;
+                grid-row: 2;
+            }
+
+            .ac-team-member-actions {
+                grid-column: 2;
+                grid-row: 3;
+                margin-top: 0;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .ac-team-member-card {
+                padding: 1rem;
+                border-radius: 28px;
+            }
+
+            .ac-team-member-layout {
+                grid-template-columns: 108px minmax(0, 1fr);
+                align-items: start;
+                column-gap: 0.95rem;
+                row-gap: 0.85rem;
+            }
+
+            .ac-team-member-media {
+                width: 108px;
+                max-width: 108px;
+                margin-left: 0;
+                margin-right: 0;
+                border-radius: 22px;
+            }
+
+            .ac-team-member-photo {
+                aspect-ratio: 0.78;
+                object-fit: cover;
+                object-position: center top;
+            }
+
+            .ac-team-member-head {
+                min-width: 0;
+                align-self: center;
+                padding-bottom: 0.85rem;
+            }
+
+            .ac-team-member-name {
+                font-size: 1.14rem;
+                line-height: 1.04;
+            }
+
+            .ac-team-role {
+                margin-top: 0.55rem;
+                font-size: 0.72rem;
+                letter-spacing: 0.08em;
+            }
+
+            .ac-team-member-bio,
+            .ac-team-member-actions {
+                grid-column: 1 / -1;
+            }
+
+            .ac-team-member-bio .ac-team-bio {
+                margin-top: 0;
+            }
+
+            .ac-team-member-card .ac-team-bio-excerpt,
+            .ac-team-member-card .ac-team-bio-content,
+            .ac-team-member-card .content-richtext {
+                font-size: 0.94rem !important;
+                line-height: 1.78 !important;
+            }
+
+            .ac-team-member-card .ac-team-bio-excerpt {
+                max-height: 13.2rem;
+            }
+
+            .ac-team-member-card .ac-team-bio-trigger {
+                margin-top: 0.85rem;
+                font-size: 0.74rem;
+                letter-spacing: 0.06em;
+            }
+
+            .ac-team-member-actions {
+                margin-top: 0.2rem;
+                gap: 0.55rem;
+            }
+
+            .ac-team-member-actions a {
+                width: 2.35rem;
+                height: 2.35rem;
+            }
+
+            .ac-team-member-actions a svg {
+                width: 0.92rem;
+                height: 0.92rem;
+            }
+        }
+    </style>
+<?php $__env->stopPush(); ?>
 
 <?php echo $__env->make('front.desktop.contact.partials.form-script', [
     'captchaEnabled' => $captchaEnabled,

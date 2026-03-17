@@ -8,7 +8,7 @@
     $textClass = (string) ($payload['text_class'] ?? 'text-slate-900');
     $titleClass = (string) ($payload['title_class'] ?? 'text-4xl font-extrabold tracking-tight md:text-5xl');
     $subtitleClass = (string) ($payload['subtitle_class'] ?? 'mt-4 text-lg text-slate-700');
-    $ctaClass = (string) ($payload['cta_class'] ?? 'mt-8 inline-flex rounded-xl bg-slate-900 px-5 py-3 text-sm font-semibold text-white hover:bg-slate-800');
+    $ctaClass = trim('front-link-cta '.(string) ($payload['cta_class'] ?? 'mt-8 inline-flex rounded-xl bg-slate-900 px-5 py-3 text-sm font-semibold text-white hover:bg-slate-800'));
     $overlayClass = (string) ($payload['overlay_class'] ?? 'absolute inset-0 bg-gradient-to-br from-white/80 via-white/60 to-white/40');
     $bgCss = trim((string) ($payload['bg_css'] ?? ''));
 

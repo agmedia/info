@@ -79,7 +79,7 @@
                 'label' => __('ui.front.desktop.nav.about'),
                 'url' => $homeUrl.'#o-nama',
                 'children' => [
-                    ['label' => 'Alpha Capitalis Tim', 'url' => route('team.index')],
+                    ['label' => 'ALPHA CAPITALIS Tim', 'url' => route('team.index')],
                     ['label' => 'Edukacija', 'url' => $homeUrl.'#edukacija', 'children' => [
                         ['label' => 'Akademija', 'url' => $homeUrl.'#edukacija-akademija'],
                         ['label' => 'Svijet financija', 'url' => $homeUrl.'#edukacija-svijet-financija'],
@@ -94,12 +94,12 @@
                 'label' => __('ui.front.desktop.nav.departments'),
                 'url' => $homeUrl.'#odjeli',
                 'children' => [
-                    ['label' => 'Obiteljski biznis', 'url' => route('family-business.show')],
                     ['label' => __('ui.front.desktop.nav.finance'), 'url' => $homeUrl.'#odjel-financije'],
-                    ['label' => __('ui.front.desktop.nav.audit'), 'url' => $homeUrl.'#odjel-revizija'],
                     ['label' => __('ui.front.desktop.nav.accounting'), 'url' => $homeUrl.'#odjel-racunovodstvo'],
+                    ['label' => __('ui.front.desktop.nav.audit'), 'url' => $homeUrl.'#odjel-revizija'],
                     ['label' => __('ui.front.desktop.nav.tax'), 'url' => $homeUrl.'#odjel-porezi'],
-                    ['label' => 'Poslovno savjetovanje', 'url' => $homeUrl.'#odjel-poslovno-savjetovanje'],
+                    ['label' => 'EU fondovi', 'url' => $homeUrl.'#odjel-eu-fondovi'],
+                    ['label' => 'Obiteljski biznis', 'url' => route('family-business.show')],
                 ],
                 'open_in_new_tab' => false,
             ],
@@ -149,16 +149,15 @@
         $homeUrl = route('home');
         $mainNavigation = [
             ['label' => 'Usluge', 'url' => $homeUrl.'#usluge', 'children' => [
-                ['label' => 'Obiteljski biznis', 'url' => route('family-business.show')],
                 ['label' => 'Financije', 'url' => $homeUrl.'#odjel-financije'],
-                ['label' => 'Revizija', 'url' => $homeUrl.'#odjel-revizija'],
                 ['label' => 'Računovodstvo', 'url' => $homeUrl.'#odjel-racunovodstvo'],
+                ['label' => 'Revizija', 'url' => $homeUrl.'#odjel-revizija'],
                 ['label' => 'Porezi', 'url' => $homeUrl.'#odjel-porezi'],
-                ['label' => 'Poslovno savjetovanje', 'url' => $homeUrl.'#odjel-poslovno-savjetovanje'],
+                ['label' => 'EU fondovi', 'url' => $homeUrl.'#odjel-eu-fondovi'],
+                ['label' => 'Obiteljski biznis', 'url' => route('family-business.show')],
             ]],
-            ['label' => 'Business Transfer Platform', 'url' => $homeUrl.'#business-transfer-platform', 'children' => []],
             ['label' => 'O nama', 'url' => $homeUrl.'#o-nama', 'children' => [
-                ['label' => 'Alpha Capitalis Tim', 'url' => route('team.index')],
+                ['label' => 'ALPHA CAPITALIS Tim', 'url' => route('team.index')],
                 ['label' => 'Edukacija', 'url' => $homeUrl.'#edukacija', 'children' => [
                     ['label' => 'Akademija', 'url' => $homeUrl.'#edukacija-akademija'],
                     ['label' => 'Svijet financija', 'url' => $homeUrl.'#edukacija-svijet-financija'],
@@ -345,7 +344,7 @@
             <div class="front-hero-video-content absolute inset-0 flex items-center justify-center px-6 text-center">
                 <div>
                     <h1 class="front-hero-video-title text-white">ALPHA CAPITALIS</h1>
-                    <p class="front-hero-video-subtitle mt-5 text-white/90">VAŠ KOMPAS KROZ SVIJET FINANCIJA</p>
+                    <p class="front-hero-video-subtitle mt-5 text-white/90">VAŠ KOMPAS KROZ GENERACIJE</p>
                     <div class="front-hero-cta-row mt-8 flex flex-wrap items-center justify-center gap-3">
                         <a href="#usluge" class="front-hero-cta front-hero-cta-primary inline-flex items-center justify-center px-6 py-3 text-[11px] font-semibold uppercase tracking-[0.12em]">
                             Naše usluge
@@ -359,22 +358,8 @@
 
         </div>
         <div class="front-hero-stats-card relative z-10" data-home-hero-stats>
-            <div class="grid w-full grid-cols-2 md:grid-cols-4">
+            <div class="grid w-full grid-cols-2 md:grid-cols-3">
                 <article class="front-hero-stat-card px-6 py-8 text-center" data-home-hero-stat style="--front-hero-stat-delay: 0ms;">
-                    <span class="front-hero-stat-icon mx-auto inline-flex h-11 w-11 items-center justify-center rounded-full" aria-hidden="true">
-                        <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8">
-                            <path d="M8 7V5a4 4 0 0 1 8 0v2"/>
-                            <rect x="4" y="7" width="16" height="13" rx="2"/>
-                            <path d="M9 12h6"/>
-                        </svg>
-                    </span>
-                    <div class="front-hero-stat-value-shell" data-home-hero-display data-home-hero-display-value="50+">
-                        <p class="front-hero-stat-value" data-home-hero-count data-count-to="50" data-count-suffix="+">50</p>
-                    </div>
-                    <span class="front-hero-stat-accent" aria-hidden="true"></span>
-                    <p class="front-hero-stat-label">Godina iskustva partnera</p>
-                </article>
-                <article class="front-hero-stat-card px-6 py-8 text-center" data-home-hero-stat style="--front-hero-stat-delay: 320ms;">
                     <span class="front-hero-stat-icon mx-auto inline-flex h-11 w-11 items-center justify-center rounded-full" aria-hidden="true">
                         <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8">
                             <path d="M4 19h16"/>
@@ -389,7 +374,7 @@
                     <span class="front-hero-stat-accent" aria-hidden="true"></span>
                     <p class="front-hero-stat-label">Odrađenih projekata</p>
                 </article>
-                <article class="front-hero-stat-card px-6 py-8 text-center" data-home-hero-stat style="--front-hero-stat-delay: 640ms;">
+                <article class="front-hero-stat-card px-6 py-8 text-center" data-home-hero-stat style="--front-hero-stat-delay: 320ms;">
                     <span class="front-hero-stat-icon mx-auto inline-flex h-11 w-11 items-center justify-center rounded-full" aria-hidden="true">
                         <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8">
                             <path d="M17 21v-2a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v2"/>
@@ -398,24 +383,24 @@
                             <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
                         </svg>
                     </span>
-                    <div class="front-hero-stat-value-shell" data-home-hero-display data-home-hero-display-value="400+">
-                        <p class="front-hero-stat-value" data-home-hero-count data-count-to="400" data-count-suffix="+">400</p>
+                    <div class="front-hero-stat-value-shell" data-home-hero-display data-home-hero-display-value="600+">
+                        <p class="front-hero-stat-value" data-home-hero-count data-count-to="600" data-count-suffix="+">600</p>
                     </div>
                     <span class="front-hero-stat-accent" aria-hidden="true"></span>
                     <p class="front-hero-stat-label">Redovnih klijenata</p>
                 </article>
-                <article class="front-hero-stat-card px-6 py-8 text-center" data-home-hero-stat style="--front-hero-stat-delay: 960ms;">
+                <article class="front-hero-stat-card front-hero-stat-card--wide px-6 py-8 text-center" data-home-hero-stat style="--front-hero-stat-delay: 640ms;">
                     <span class="front-hero-stat-icon mx-auto inline-flex h-11 w-11 items-center justify-center rounded-full" aria-hidden="true">
                         <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8">
                             <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
                             <circle cx="12" cy="7" r="4"/>
                         </svg>
                     </span>
-                    <div class="front-hero-stat-value-shell" data-home-hero-display data-home-hero-display-value="50+">
-                        <p class="front-hero-stat-value" data-home-hero-count data-count-to="50" data-count-suffix="+">50</p>
+                    <div class="front-hero-stat-value-shell" data-home-hero-display data-home-hero-display-value="60+">
+                        <p class="front-hero-stat-value" data-home-hero-count data-count-to="60" data-count-suffix="+">60</p>
                     </div>
                     <span class="front-hero-stat-accent" aria-hidden="true"></span>
-                    <p class="front-hero-stat-label">Mladih stručnjaka u timu</p>
+                    <p class="front-hero-stat-label">Kvalificiranih stručnjaka</p>
                 </article>
             </div>
         </div>
@@ -433,50 +418,16 @@
 
 <footer class="front-footer mt-0">
     @php
-        $footerCompanies = [
-            [
-                'name' => 'ALPHA CAPITALIS D.O.O',
-                'address' => ['Ul. Roberta Frangeša Mihanovića 9,', '10110 Zagreb / Sky Office, 19.kat'],
-                'oib' => '40742241290',
-                'mbs' => '080810593',
-                'iban' => 'HR4323600001102358715',
-                'phone' => '+385 (1) 580 6656',
-                'email' => 'info@alphacapitalis.com',
-            ],
-            [
-                'name' => 'ALPHA AUDIT D.O.O',
-                'address' => ['Ul. Roberta Frangeša Mihanovića 9,', '10110 Zagreb / Sky Office, 19.kat'],
-                'oib' => '14404485248',
-                'mbs' => '080893769',
-                'iban' => 'HR9823600001102399338',
-                'phone' => '+385 (1) 580 6656',
-                'email' => 'info@alphacapitalis.com',
-            ],
-            [
-                'name' => 'ALPHA CAPITALIS CONCEPT D.O.O',
-                'address' => ['Jezerska 8,', '10430 Samobor'],
-                'oib' => '16796363725',
-                'mbs' => '081084856',
-                'iban' => 'HR3023600001102595920',
-                'phone' => '+385 (1) 580 6656',
-                'email' => 'info@alphacapitalis.com',
-            ],
-            [
-                'name' => 'ALPHA CAPITALIS EAST D.O.O.',
-                'address' => ['Duga ulica 67', '32100 Vinkovci'],
-                'oib' => '43202073675',
-                'mbs' => '081451393',
-                'iban' => 'HR7223600001103012943',
-                'phone' => '+385 (1) 580 6656',
-                'email' => 'info@alphacapitalis.com',
-            ],
-        ];
+        $footerCompanies = collect((array) ($storeSettings['official_entities'] ?? []))
+            ->filter(static fn ($company): bool => is_array($company) && trim((string) ($company['name'] ?? '')) !== '')
+            ->values()
+            ->all();
 
-        $footerIsoCertificates = [
+        $footerIsoCertificates = collect([
             ['code' => 'ISO 9001:2015', 'title' => 'Sustav upravljanja kvalitetom', 'icon' => 'front-theme/images/certificates/iso-9001-sgs.png'],
             ['code' => 'ISO 14001:2015', 'title' => 'Sustav upravljanja okolišem', 'icon' => 'front-theme/images/certificates/iso-14001-sgs.png'],
             ['code' => 'ISO 45001:2018', 'title' => 'Sustav upravljanja zaštitom zdravlja i sigurnošću na radu', 'icon' => 'front-theme/images/certificates/iso-45001-sgs.png'],
-        ];
+        ])->take(1)->values();
     @endphp
 
     <button type="button" class="front-footer-compass" data-scroll-top aria-label="Povratak na vrh">
@@ -613,7 +564,7 @@
             @endforeach
         </div>
 
-        <div class="front-footer-iso-grid">
+        <div class="front-footer-iso-grid {{ $footerIsoCertificates->count() === 1 ? 'is-single' : '' }}">
             @foreach ($footerIsoCertificates as $certificate)
                 <div class="front-footer-iso-item">
                     <span class="front-footer-iso-logo-wrap" aria-hidden="true">
@@ -632,21 +583,12 @@
 
         <div class="front-footer-legal">
             <p>
-                Alpha Capitalis © Sva prava pridržana. Web by:
+                ALPHA CAPITALIS © Sva prava pridržana.
+            </p>
+            <p class="front-footer-legal-credit">
+                Web by:
                 <a href="https://www.agmedia.hr" target="_blank" rel="noopener noreferrer">AG media</a>
             </p>
-            <div class="front-footer-legal-links">
-                @forelse ((array) ($storeSettings['footer']['bottom_links'] ?? []) as $link)
-                    @php
-                        $url = trim((string) ($link['url'] ?? ''));
-                        $label = trim((string) ($link['label'] ?? ''));
-                    @endphp
-                    @continue($url === '' || $label === '')
-                    <a href="{{ $url }}">{{ $label }}</a>
-                @empty
-                    <a href="">Pravila privatnosti</a>
-                @endforelse
-            </div>
         </div>
     </div>
 </footer>
@@ -1170,9 +1112,10 @@
             var valueShell = item.querySelector('[data-home-hero-display]');
             var targetValue = Number.parseInt(valueElement instanceof HTMLElement ? valueElement.dataset.countTo || '0' : '0', 10);
             var formattedValue = formatDisplayValue(targetValue);
+            var suffix = valueElement instanceof HTMLElement ? valueElement.dataset.countSuffix || '' : '';
 
             if (valueShell instanceof HTMLElement) {
-                valueShell.dataset.homeHeroDisplayValue = '0+';
+                valueShell.dataset.homeHeroDisplayValue = '0' + suffix;
             }
 
             if (valueElement instanceof HTMLElement) {
@@ -1203,8 +1146,10 @@
             });
 
             window.setTimeout(function () {
+                var suffix = valueElement instanceof HTMLElement ? valueElement.dataset.countSuffix || '' : '';
+
                 if (valueShell instanceof HTMLElement) {
-                    valueShell.dataset.homeHeroDisplayValue = formatDisplayValue(targetValue) + '+';
+                    valueShell.dataset.homeHeroDisplayValue = formatDisplayValue(targetValue) + suffix;
                 }
 
                 item.classList.remove('is-counting');
@@ -1247,10 +1192,12 @@
                 }
 
                 if (prefersReducedMotion) {
+                    var suffix = valueElement.dataset.countSuffix || '';
+
                     valueElement.textContent = formatDisplayValue(targetValue);
 
                     if (valueShell instanceof HTMLElement) {
-                        valueShell.dataset.homeHeroDisplayValue = formatDisplayValue(targetValue) + '+';
+                        valueShell.dataset.homeHeroDisplayValue = formatDisplayValue(targetValue) + suffix;
                     }
 
                     item.classList.add('is-counted');

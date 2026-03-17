@@ -2,9 +2,9 @@
 
 return [
     'page_title' => 'Contact',
-    'eyebrow' => 'Alpha Capitalis',
+    'eyebrow' => 'ALPHA CAPITALIS',
     'heading' => 'Contact',
-    'subheading' => 'We are available for finance, accounting, audit, tax, and business advisory matters. Reach out through the form or contact our Zagreb and Vinkovci offices directly.',
+    'subheading' => 'We are available for finance, accounting, audit, tax, and business advisory matters. Reach out through the form or contact our Zagreb, Vinkovci, and Rijeka offices directly.',
     'sent_status' => 'Thanks. Your message has been sent successfully.',
     'captcha_failed' => 'Security verification failed. Please try again.',
     'validation' => [
@@ -50,18 +50,23 @@ return [
     ],
     'offices' => [
         'kicker' => 'Our offices',
-        'title' => 'Zagreb and Vinkovci',
-        'intro' => 'For arranging meetings, initial information, or sending inquiries, we are available through two offices.',
+        'title' => 'Zagreb, Vinkovci, and Rijeka',
+        'intro' => 'For arranging meetings, initial information, or sending inquiries, we are available through three offices.',
         'view_map' => 'View on map',
         'zagreb' => [
             'label' => 'Zagreb office',
-            'company' => 'Alpha Capitalis d.o.o.',
+            'company' => 'ALPHA CAPITALIS d.o.o.',
             'map_label' => 'Zagreb',
         ],
         'vinkovci' => [
             'label' => 'Vinkovci office',
-            'company' => 'Alpha Capitalis East d.o.o.',
+            'company' => 'ALPHA CAPITALIS EAST d.o.o.',
             'map_label' => 'Vinkovci',
+        ],
+        'rijeka' => [
+            'label' => 'Rijeka office',
+            'company' => 'ALPHA CAPITALIS TIMIA d.o.o.',
+            'map_label' => 'Rijeka',
         ],
     ],
     'map' => [

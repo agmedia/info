@@ -42,7 +42,7 @@
             <p class="mt-3 text-base text-slate-600">{{ $translation->subtitle }}</p>
         @endif
         @if ($ctaLabel !== '' && $ctaUrl !== '')
-            <a href="{{ $ctaUrl }}" class="mt-6 inline-flex rounded-xl bg-slate-900 px-4 py-2 text-sm font-semibold text-white hover:bg-slate-800">
+            <a href="{{ $ctaUrl }}" class="front-link-cta mt-6 inline-flex rounded-xl bg-slate-900 px-4 py-2 text-sm font-semibold text-white hover:bg-slate-800">
                 {{ $ctaLabel }}
             </a>
         @endif

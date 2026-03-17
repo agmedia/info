@@ -24,7 +24,7 @@
         : null;
 
     $heroSection = [
-        'title_lines' => ['Alpha Capitalis', 'Savjetnici za obiteljski biznis'],
+        'title_lines' => ['ALPHA CAPITALIS', 'Savjetnici za obiteljski biznis'],
         'intro' => 'U ALPHA CAPITALIS-u svjesni smo složenosti vašeg obiteljskog biznisa i jedinstvenosti vaše poduzetničke obitelji. Upravo zato vam na jednom mjestu pružamo cjelovitu podršku. Kroz holistički pristup stvaramo siguran prostor i posvećujemo vrijeme vašem poslovnom putu, osiguravajući stabilnost i razvoj kroz sve faze rasta.',
         'cta' => ['label' => 'Pružamo vam podršku', 'url' => '#family-business-publika'],
     ];

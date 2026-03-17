@@ -226,7 +226,7 @@
 
                     <div>
                         <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Eyebrow') }}</label>
-                        <input type="text" wire:model="form.store_blog_header_eyebrow" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" placeholder="{{ __('Alpha Capitalis') }}" />
+                        <input type="text" wire:model="form.store_blog_header_eyebrow" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" placeholder="{{ __('ALPHA CAPITALIS') }}" />
                         @error('form.store_blog_header_eyebrow') <p class="mt-1 text-xs text-rose-600">{{ $message }}</p> @enderror
                     </div>
 
