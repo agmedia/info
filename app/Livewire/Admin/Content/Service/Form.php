@@ -265,7 +265,7 @@ class Form extends Component
 
     public function getBlogPostOptionsProperty(): Collection
     {
-        $fallbackLocale = (string) config('app.locale', 'en');
+        $fallbackLocale = (string) config('app.fallback_locale', config('app.locale', 'en'));
         $locales = array_values(array_unique([$this->form['locale'], $fallbackLocale]));
 
         return BlogPost::query()
@@ -289,7 +289,7 @@ class Form extends Component
 
     public function getFaqOptionsProperty(): Collection
     {
-        $fallbackLocale = (string) config('app.locale', 'en');
+        $fallbackLocale = (string) config('app.fallback_locale', config('app.locale', 'en'));
         $locales = array_values(array_unique([$this->form['locale'], $fallbackLocale]));
 
         return Faq::query()
@@ -328,7 +328,7 @@ class Form extends Component
 
     public function getTeamOptionsProperty(): Collection
     {
-        $fallbackLocale = (string) config('app.locale', 'en');
+        $fallbackLocale = (string) config('app.fallback_locale', config('app.locale', 'en'));
         $locales = array_values(array_unique([$this->form['locale'], $fallbackLocale]));
 
         return TeamMember::query()
@@ -426,9 +426,10 @@ class Form extends Component
             ->with('translations')
             ->findOrFail($this->servicePageId);
 
-        $preferredLocale = $this->form['locale'] ?: config('app.locale', 'en');
+        $fallbackLocale = (string) config('app.fallback_locale', config('app.locale', 'en'));
+        $preferredLocale = $this->form['locale'] ?: $fallbackLocale;
         $translation = $servicePage->translations->firstWhere('locale', $preferredLocale)
-            ?? $servicePage->translations->firstWhere('locale', config('app.locale', 'en'))
+            ?? $servicePage->translations->firstWhere('locale', $fallbackLocale)
             ?? $servicePage->translations->first();
 
         $this->form['code'] = $servicePage->code;

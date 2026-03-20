@@ -6,6 +6,8 @@
     $contactEmail = trim((string) ($storeSettings['footer']['email_support'] ?? '')) ?: 'info@alphacapitalis.com';
     $contactPhone = trim((string) ($storeSettings['footer']['phone'] ?? '')) ?: '+385 (1) 580 6656';
     $contactPhoneHref = preg_replace('/\s+/', '', $contactPhone);
+    $meetingFormLabels = $meetingSection['form_labels'] ?? [];
+    $brochureLabel = $brochureLabel !== '' ? $brochureLabel : 'Preuzmite brošuru';
 @endphp
 
 @section('title', $servicePageMetaTitle !== '' ? $servicePageMetaTitle : ($servicePageTitle ?? 'Obiteljski biznis'))
@@ -200,12 +202,12 @@
 
                             <div class="mt-8 flex flex-col gap-4 border-t border-slate-200/80 pt-6 lg:flex-row lg:items-end lg:justify-between">
                                 <div class="max-w-[48rem]">
-                                    <p class="ac-family-section-kicker">KAKO VAM MOŽEMO POMOĆI</p>
+                                    <p class="ac-family-section-kicker">{{ $capabilityCta['kicker'] ?? 'KAKO VAM MOŽEMO POMOĆI' }}</p>
                                     <p class="mt-3 text-[0.98rem] leading-7 text-slate-700">{{ $capabilitySection['help'] }}</p>
                                 </div>
 
                                 <a href="#family-business-sastanak" class="front-contact-submit inline-flex h-11 items-center justify-center gap-2 px-6 text-sm font-semibold !text-white transition">
-                                    <span>Zatražite konzultacije</span>
+                                    <span>{{ $capabilityCta['label'] ?? 'Zatražite konzultacije' }}</span>
                                     <svg viewBox="0 0 24 24" class="h-4 w-4 flex-none" fill="none" aria-hidden="true">
                                         <path d="M12 5v14" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"></path>
                                         <path d="m6 13 6 6 6-6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></path>
@@ -263,7 +265,7 @@
                                     <path d="M14 3.75V8.5h4.75" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
                                     <path d="M8.9 12.25h6.2M8.9 15.25h6.2" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
                                 </svg>
-                                <span>Preuzmite brošuru</span>
+                                <span>{{ $brochureLabel }}</span>
                                 <svg viewBox="0 0 24 24" class="h-[0.95rem] w-[0.95rem] flex-none" fill="none" aria-hidden="true">
                                     <path d="M5 12h13" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"></path>
                                     <path d="m12 5 7 7-7 7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></path>
@@ -411,11 +413,11 @@
                             <h2>{{ $meetingSection['contact_title'] }}</h2>
                             <ul class="front-contact-direct-list">
                                 <li>
-                                    <span>Telefon</span>
+                                    <span>{{ $meetingSection['direct_phone_label'] ?? 'Telefon' }}</span>
                                     <a href="tel:{{ $contactPhoneHref }}">{{ $contactPhone }}</a>
                                 </li>
                                 <li>
-                                    <span>Email</span>
+                                    <span>{{ $meetingSection['direct_email_label'] ?? 'Email' }}</span>
                                     <a href="mailto:{{ $contactEmail }}">{{ $contactEmail }}</a>
                                 </li>
                             </ul>
@@ -448,12 +450,12 @@
 
                         <div class="grid gap-4 md:grid-cols-2">
                             <div>
-                                <label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-500" for="family-business-first-name">Ime</label>
+                                <label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-500" for="family-business-first-name">{{ $meetingFormLabels['first_name'] ?? 'Ime' }}</label>
                                 <input id="family-business-first-name" type="text" name="first_name" value="{{ old('first_name') }}" class="front-contact-input h-11 w-full text-sm" required>
                                 <p class="mt-2 text-xs font-semibold text-rose-600 {{ $errors->has('first_name') ? '' : 'hidden' }}" data-field-error="first_name">@error('first_name'){{ $message }}@enderror</p>
                             </div>
                             <div>
-                                <label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-500" for="family-business-last-name">Prezime</label>
+                                <label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-500" for="family-business-last-name">{{ $meetingFormLabels['last_name'] ?? 'Prezime' }}</label>
                                 <input id="family-business-last-name" type="text" name="last_name" value="{{ old('last_name') }}" class="front-contact-input h-11 w-full text-sm">
                                 <p class="mt-2 text-xs font-semibold text-rose-600 {{ $errors->has('last_name') ? '' : 'hidden' }}" data-field-error="last_name">@error('last_name'){{ $message }}@enderror</p>
                             </div>
@@ -461,31 +463,31 @@
 
                         <div class="mt-4 grid gap-4 md:grid-cols-2">
                             <div>
-                                <label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-500" for="family-business-company">Tvrtka</label>
+                                <label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-500" for="family-business-company">{{ $meetingFormLabels['company'] ?? 'Tvrtka' }}</label>
                                 <input id="family-business-company" type="text" name="company" value="{{ old('company') }}" class="front-contact-input h-11 w-full text-sm">
                                 <p class="mt-2 text-xs font-semibold text-rose-600 {{ $errors->has('company') ? '' : 'hidden' }}" data-field-error="company">@error('company'){{ $message }}@enderror</p>
                             </div>
                             <div>
-                                <label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-500" for="family-business-phone">Broj telefona</label>
+                                <label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-500" for="family-business-phone">{{ $meetingFormLabels['phone'] ?? 'Broj telefona' }}</label>
                                 <input id="family-business-phone" type="text" name="phone" value="{{ old('phone') }}" class="front-contact-input h-11 w-full text-sm">
                                 <p class="mt-2 text-xs font-semibold text-rose-600 {{ $errors->has('phone') ? '' : 'hidden' }}" data-field-error="phone">@error('phone'){{ $message }}@enderror</p>
                             </div>
                         </div>
 
                         <div class="mt-4">
-                            <label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-500" for="family-business-email">Email</label>
+                            <label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-500" for="family-business-email">{{ $meetingFormLabels['email'] ?? 'Email' }}</label>
                             <input id="family-business-email" type="email" name="email" value="{{ old('email', auth()->user()?->email) }}" class="front-contact-input h-11 w-full text-sm" required>
                             <p class="mt-2 text-xs font-semibold text-rose-600 {{ $errors->has('email') ? '' : 'hidden' }}" data-field-error="email">@error('email'){{ $message }}@enderror</p>
                         </div>
 
                         <div class="mt-4">
-                            <label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-500" for="family-business-subject">Naslov poruke</label>
+                            <label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-500" for="family-business-subject">{{ $meetingFormLabels['subject'] ?? 'Naslov poruke' }}</label>
                             <input id="family-business-subject" type="text" name="subject" value="{{ old('subject') }}" class="front-contact-input h-11 w-full text-sm">
                             <p class="mt-2 text-xs font-semibold text-rose-600 {{ $errors->has('subject') ? '' : 'hidden' }}" data-field-error="subject">@error('subject'){{ $message }}@enderror</p>
                         </div>
 
                         <div class="mt-4">
-                            <label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-500" for="family-business-message">Poruka</label>
+                            <label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-500" for="family-business-message">{{ $meetingFormLabels['message'] ?? 'Poruka' }}</label>
                             <textarea id="family-business-message" name="message" rows="8" class="front-contact-textarea w-full text-sm" required>{{ old('message') }}</textarea>
                             <p class="mt-2 text-xs font-semibold text-rose-600 {{ $errors->has('message') ? '' : 'hidden' }}" data-field-error="message">@error('message'){{ $message }}@enderror</p>
                         </div>

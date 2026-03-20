@@ -81,25 +81,6 @@ return new class extends Migration
 
     public function down(): void
     {
-        if (! Schema::hasTable('content_service_pages') || ! Schema::hasTable('content_service_page_translations')) {
-            return;
-        }
-
-        $servicePageId = DB::table('content_service_pages')
-            ->where('code', ServicePageTemplateRegistry::defaultCode(ServicePageTemplateRegistry::FAMILY_BUSINESS))
-            ->where('template_key', ServicePageTemplateRegistry::FAMILY_BUSINESS)
-            ->value('id');
-
-        if (! $servicePageId) {
-            return;
-        }
-
-        DB::table('content_service_page_translations')
-            ->where('service_page_id', $servicePageId)
-            ->delete();
-
-        DB::table('content_service_pages')
-            ->where('id', $servicePageId)
-            ->delete();
+        // Intentionally left as a no-op so rollback never removes user-managed content.
     }
 };

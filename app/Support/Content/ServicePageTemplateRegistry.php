@@ -214,6 +214,10 @@ class ServicePageTemplateRegistry
                         ],
                     ],
                 ],
+                'capability_cta' => [
+                    'kicker' => 'KAKO VAM MOŽEMO POMOĆI',
+                    'label' => 'Zatražite konzultacije',
+                ],
                 'team_section' => [
                     'kicker' => 'TIM',
                     'title' => 'Naš tim za obiteljsko savjetovanje',
@@ -229,6 +233,17 @@ class ServicePageTemplateRegistry
                         '10110 Zagreb / Sky Office, 19. kat',
                     ],
                     'contact_title' => 'Kontaktirajte nas',
+                    'direct_phone_label' => 'Telefon',
+                    'direct_email_label' => 'Email',
+                    'form_labels' => [
+                        'first_name' => 'Ime',
+                        'last_name' => 'Prezime',
+                        'company' => 'Tvrtka',
+                        'phone' => 'Broj telefona',
+                        'email' => 'Email',
+                        'subject' => 'Naslov poruke',
+                        'message' => 'Poruka',
+                    ],
                     'submit' => 'Pošalji',
                 ],
                 'blog_section' => [
@@ -236,6 +251,7 @@ class ServicePageTemplateRegistry
                     'title' => 'Najnovije objave iz kategorije :category',
                     'intro' => 'Novosti, članci i stručni uvidi vezani uz tranziciju, upravljanje i razvoj obiteljskih poduzeća.',
                 ],
+                'brochure_label' => 'Preuzmite brošuru',
             ],
             default => [],
         };
