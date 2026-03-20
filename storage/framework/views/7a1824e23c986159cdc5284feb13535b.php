@@ -16,6 +16,28 @@
             ->sortBy(static fn ($mediaItem) => (int) ($mediaItem->order_column ?? 0))
             ->values();
     }
+    $bodyHtml = (string) ($translation?->body_html ?? '');
+    $normalizeAssetUrl = static function (?string $url): string {
+        $value = trim((string) $url);
+        if ($value === '') {
+            return '';
+        }
+
+        $path = parse_url($value, PHP_URL_PATH);
+
+        return rawurldecode(is_string($path) && $path !== '' ? $path : $value);
+    };
+    $inlineImagePaths = collect();
+    if ($bodyHtml !== '') {
+        preg_match_all('/<img[^>]+src=["\']([^"\']+)["\']/i', $bodyHtml, $bodyImageMatches);
+        $inlineImagePaths = collect($bodyImageMatches[1] ?? [])
+            ->map($normalizeAssetUrl)
+            ->filter()
+            ->values();
+    }
+    $galleryItems = $galleryItems
+        ->reject(fn ($mediaItem) => $inlineImagePaths->contains($normalizeAssetUrl($mediaItem->getUrl())))
+        ->values();
     $galleryCount = $galleryItems->count();
     $galleryColumnsClass = match (true) {
         $galleryCount <= 1 => 'grid-cols-1',
@@ -148,11 +170,37 @@
                     <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
                     <div class="content-richtext">
-                        <?php echo $translation?->body_html ?: '<p>No body content available.</p>'; ?>
+                        <?php echo $bodyHtml !== '' ? $bodyHtml : '<p>No body content available.</p>'; ?>
 
                     </div>
                 </div>
             </article>
+
+            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($galleryItems->isNotEmpty()): ?>
+                <section class="ac-blog-article-gallery">
+                    <div class="grid gap-5 <?php echo e($galleryColumnsClass); ?>" data-blog-gallery>
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $galleryItems; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $mediaItem): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                            <?php
+                                $galleryImageUrl = $mediaItem->getUrl();
+                            ?>
+                            <a
+                                href="<?php echo e($galleryImageUrl); ?>"
+                                class="block aspect-[3/4] overflow-hidden rounded-[18px] bg-slate-100"
+                                data-blog-gallery-item
+                                data-sub-html="<?php echo e($translation?->title ?? $post->code); ?>"
+                            >
+                                <img
+                                    src="<?php echo e($galleryImageUrl); ?>"
+                                    alt="<?php echo e($translation?->title ?? $post->code); ?>"
+                                    class="h-full w-full object-cover"
+                                    loading="lazy"
+                                    decoding="async"
+                                >
+                            </a>
+                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                    </div>
+                </section>
+            <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
             <section class="ac-blog-share" aria-label="<?php echo e(__('ui.blog.share.title')); ?>">
                 <div class="ac-blog-results-head is-centered">
@@ -183,34 +231,6 @@
                     <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                 </div>
             </section>
-        </div>
-
-        <div class="mx-auto w-full max-w-[1320px] px-4 sm:px-6 lg:px-8">
-            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($galleryItems->isNotEmpty()): ?>
-                <section class="ac-blog-article-gallery">
-                    <div class="grid gap-5 <?php echo e($galleryColumnsClass); ?>" data-blog-gallery>
-                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $galleryItems; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $mediaItem): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                            <?php
-                                $galleryImageUrl = $mediaItem->getUrl();
-                            ?>
-                            <a
-                                href="<?php echo e($galleryImageUrl); ?>"
-                                class="block aspect-[3/4] overflow-hidden rounded-[18px] bg-slate-100"
-                                data-blog-gallery-item
-                                data-sub-html="<?php echo e($translation?->title ?? $post->code); ?>"
-                            >
-                                <img
-                                    src="<?php echo e($galleryImageUrl); ?>"
-                                    alt="<?php echo e($translation?->title ?? $post->code); ?>"
-                                    class="h-full w-full object-cover"
-                                    loading="lazy"
-                                    decoding="async"
-                                >
-                            </a>
-                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
-                    </div>
-                </section>
-            <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
         </div>
 
         <section class="ac-inline-cta ac-inline-cta--blog" aria-labelledby="ac-blog-inline-cta-title">

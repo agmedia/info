@@ -865,9 +865,24 @@ unset($__defined_vars, $__key, $__value); ?>
                 background: #ffffff;
                 font-size: 0.875rem;
             }
+            .admin-quill.is-uploading-image .ql-toolbar {
+                opacity: 0.72;
+                pointer-events: none;
+            }
             .admin-quill .ql-editor {
                 color: #0f172a;
                 line-height: 1.55;
+            }
+            .admin-quill .ql-editor img {
+                display: block;
+                max-width: 100%;
+                height: auto;
+                margin: 1rem auto;
+                border-radius: 0.75rem;
+            }
+            .admin-quill .ql-editor img.is-selected {
+                outline: 3px solid rgba(8, 145, 178, 0.55);
+                outline-offset: 0.18rem;
             }
             .admin-quill .ql-editor h1,
             .admin-quill .ql-editor h2,
@@ -1393,6 +1408,15 @@ unset($__defined_vars, $__key, $__value); ?>
                                             <span class="flex items-center gap-2">
                                                 <span class="sidebar-dot"></span>
                                                 <span><?php echo e(__('admin.layout.menu.store_settings')); ?></span>
+                                            </span>
+                                        </a>
+                                        <a
+                                            href="<?php echo e(route('admin.settings.system.imports')); ?>"
+                                            class="sidebar-dropdown-link block rounded-lg font-medium <?php echo e(request()->routeIs('admin.settings.system.imports') ? 'is-active-leaf' : 'text-slate-700 hover:bg-slate-100'); ?>"
+                                        >
+                                            <span class="flex items-center gap-2">
+                                                <span class="sidebar-dot"></span>
+                                                <span><?php echo e(__('admin.layout.menu.blog_imports')); ?></span>
                                             </span>
                                         </a>
                                     <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>

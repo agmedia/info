@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Admin\AdminAiController;
+use App\Http\Controllers\Admin\BlogEditorImageController;
 use App\Http\Controllers\Admin\SystemToolsController;
 use App\Http\Controllers\Front\BlogController;
 use App\Http\Controllers\Front\CollaborationAssessmentController;
@@ -56,6 +57,11 @@ Route::middleware(['front.locale', 'front.device'])
 
         Route::get('blog', [BlogController::class, 'index'])->name('blog.index');
         Route::get('blog/{slug}', [BlogController::class, 'show'])->name('blog.show');
+        Route::get('{year}/{month}/{day}/{slug}', [BlogController::class, 'legacy'])
+            ->whereNumber('year')
+            ->whereNumber('month')
+            ->whereNumber('day')
+            ->name('blog.legacy');
         Route::get('faq', [FaqController::class, 'index'])->name('faq.index');
         Route::get('alpha-capitalis-tim', [TeamController::class, 'index'])->name('team.index');
         Route::get('obiteljski-biznis', [FamilyBusinessController::class, 'show'])->name('family-business.show');
@@ -104,6 +110,7 @@ Route::middleware(['admin.locale', 'auth', 'verified', 'admin.access', 'admin.ma
 
             Route::view('blog', 'admin.content.blog.index')->name('blog.index');
             Route::view('blog/create', 'admin.content.blog.create')->name('blog.create');
+            Route::post('blog/editor-images', BlogEditorImageController::class)->name('blog.editor-image.upload');
             Route::get('blog/{post}/edit', function (BlogPost $post) {
                 return view('admin.content.blog.edit', compact('post'));
             })->name('blog.edit');
@@ -161,6 +168,7 @@ Route::middleware(['admin.locale', 'auth', 'verified', 'admin.access', 'admin.ma
             Route::view('system/catalog-features', 'admin.settings.system.catalog-features')
                 ->name('system.catalog-features');
             Route::view('system/store-settings', 'admin.settings.system.store-settings')->name('system.store-settings');
+            Route::view('system/imports', 'admin.settings.system.imports')->name('system.imports');
             Route::view('local/languages', 'admin.settings.local.resource', ['resource' => 'languages'])->name('local.languages');
             Route::view('user', 'admin.settings.user.index')->name('user.index');
         });

@@ -30,6 +30,9 @@ return [
             'mutate' => ['content.blog.update'],
             'delete' => ['content.blog.delete'],
         ],
+        'admin.content.blog.editor-image.upload' => [
+            'mutate' => ['content.blog.create', 'content.blog.update'],
+        ],
         'admin.content.blog.*' => [
             'view' => ['content.blog.view'],
         ],
@@ -123,6 +126,10 @@ return [
             'mutate' => ['settings.system.admin_appearance.manage'],
         ],
         'admin.settings.system.store-settings' => [
+            'view' => ['settings.system.store.manage'],
+            'mutate' => ['settings.system.store.manage'],
+        ],
+        'admin.settings.system.imports' => [
             'view' => ['settings.system.store.manage'],
             'mutate' => ['settings.system.store.manage'],
         ],

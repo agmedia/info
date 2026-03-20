@@ -18,6 +18,28 @@
             ->sortBy(static fn ($mediaItem) => (int) ($mediaItem->order_column ?? 0))
             ->values();
     }
+    $bodyHtml = (string) ($translation?->body_html ?? '');
+    $normalizeAssetUrl = static function (?string $url): string {
+        $value = trim((string) $url);
+        if ($value === '') {
+            return '';
+        }
+
+        $path = parse_url($value, PHP_URL_PATH);
+
+        return rawurldecode(is_string($path) && $path !== '' ? $path : $value);
+    };
+    $inlineImagePaths = collect();
+    if ($bodyHtml !== '') {
+        preg_match_all('/<img[^>]+src=["\']([^"\']+)["\']/i', $bodyHtml, $bodyImageMatches);
+        $inlineImagePaths = collect($bodyImageMatches[1] ?? [])
+            ->map($normalizeAssetUrl)
+            ->filter()
+            ->values();
+    }
+    $galleryItems = $galleryItems
+        ->reject(fn ($mediaItem) => $inlineImagePaths->contains($normalizeAssetUrl($mediaItem->getUrl())))
+        ->values();
     $galleryCount = $galleryItems->count();
     $galleryColumnsClass = match (true) {
         $galleryCount <= 1 => 'grid-cols-1',
@@ -138,10 +160,36 @@
                     @endif
 
                     <div class="content-richtext">
-                        {!! $translation?->body_html ?: '<p>No body content available.</p>' !!}
+                        {!! $bodyHtml !== '' ? $bodyHtml : '<p>No body content available.</p>' !!}
                     </div>
                 </div>
             </article>
+
+            @if ($galleryItems->isNotEmpty())
+                <section class="ac-blog-article-gallery">
+                    <div class="grid gap-5 {{ $galleryColumnsClass }}" data-blog-gallery>
+                        @foreach ($galleryItems as $mediaItem)
+                            @php
+                                $galleryImageUrl = $mediaItem->getUrl();
+                            @endphp
+                            <a
+                                href="{{ $galleryImageUrl }}"
+                                class="block aspect-[3/4] overflow-hidden rounded-[18px] bg-slate-100"
+                                data-blog-gallery-item
+                                data-sub-html="{{ $translation?->title ?? $post->code }}"
+                            >
+                                <img
+                                    src="{{ $galleryImageUrl }}"
+                                    alt="{{ $translation?->title ?? $post->code }}"
+                                    class="h-full w-full object-cover"
+                                    loading="lazy"
+                                    decoding="async"
+                                >
+                            </a>
+                        @endforeach
+                    </div>
+                </section>
+            @endif
 
             <section class="ac-blog-share" aria-label="{{ __('ui.blog.share.title') }}">
                 <div class="ac-blog-results-head is-centered">
@@ -172,34 +220,6 @@
                     @endforeach
                 </div>
             </section>
-        </div>
-
-        <div class="mx-auto w-full max-w-[1320px] px-4 sm:px-6 lg:px-8">
-            @if ($galleryItems->isNotEmpty())
-                <section class="ac-blog-article-gallery">
-                    <div class="grid gap-5 {{ $galleryColumnsClass }}" data-blog-gallery>
-                        @foreach ($galleryItems as $mediaItem)
-                            @php
-                                $galleryImageUrl = $mediaItem->getUrl();
-                            @endphp
-                            <a
-                                href="{{ $galleryImageUrl }}"
-                                class="block aspect-[3/4] overflow-hidden rounded-[18px] bg-slate-100"
-                                data-blog-gallery-item
-                                data-sub-html="{{ $translation?->title ?? $post->code }}"
-                            >
-                                <img
-                                    src="{{ $galleryImageUrl }}"
-                                    alt="{{ $translation?->title ?? $post->code }}"
-                                    class="h-full w-full object-cover"
-                                    loading="lazy"
-                                    decoding="async"
-                                >
-                            </a>
-                        @endforeach
-                    </div>
-                </section>
-            @endif
         </div>
 
         <section class="ac-inline-cta ac-inline-cta--blog" aria-labelledby="ac-blog-inline-cta-title">

@@ -6,10 +6,12 @@ use App\Http\Controllers\Controller;
 use App\Http\Controllers\Front\Concerns\ResolvesFrontendView;
 use App\Models\Catalog\Category\Category;
 use App\Models\Content\Blog\BlogPost;
+use App\Models\Content\Blog\BlogPostTranslation;
 use App\Services\Content\ContentBlockResolver;
 use App\Services\Front\StoreSettingsService;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\Relation;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
@@ -25,7 +27,7 @@ class BlogController extends Controller
     public function show(Request $request, string $slug): View
     {
         $locale = app()->getLocale();
-        $fallbackLocale = (string) config('app.locale');
+        $fallbackLocale = (string) config('app.fallback_locale', config('app.locale'));
         $resolvedCategory = $this->resolveBlogCategoryBySlug($slug, $locale, $fallbackLocale);
 
         if ($resolvedCategory) {
@@ -83,10 +85,39 @@ class BlogController extends Controller
         ]);
     }
 
+    public function legacy(Request $request, string $year, string $month, string $day, string $slug): RedirectResponse
+    {
+        $locale = app()->getLocale();
+        $fallbackLocale = (string) config('app.fallback_locale', config('app.locale'));
+        $legacyPath = sprintf('/%s/%s/%s/%s', $year, $month, $day, $slug);
+        $translation = $this->resolveLegacyTranslation($legacyPath, $slug, $locale, $fallbackLocale);
+
+        abort_unless($translation, 404);
+
+        $post = BlogPost::query()
+            ->tap(function (Builder $query): void {
+                $this->applyFrontPublishedConstraints($query);
+            })
+            ->with([
+                'translations' => fn ($query) => $query->whereIn('locale', array_values(array_unique([$locale, $fallbackLocale]))),
+            ])
+            ->findOrFail($translation->post_id);
+
+        $canonicalTranslation = $post->translations->firstWhere('locale', $locale)
+            ?? $post->translations->firstWhere('locale', $fallbackLocale)
+            ?? $translation
+            ?? $post->translations->first();
+
+        $canonicalSlug = trim((string) ($canonicalTranslation?->slug ?? ''));
+        abort_if($canonicalSlug === '', 404);
+
+        return redirect()->route('blog.show', ['slug' => $canonicalSlug], 301);
+    }
+
     private function renderIndex(Request $request, ?Category $currentCategory = null): View
     {
         $locale = app()->getLocale();
-        $fallbackLocale = (string) config('app.locale');
+        $fallbackLocale = (string) config('app.fallback_locale', config('app.locale'));
         $variant = $this->frontendVariant($request);
         $searchTerm = trim((string) $request->query('q', ''));
         $selectedCategoryIds = $currentCategory
@@ -190,6 +221,29 @@ class BlogController extends Controller
                     ->where('slug', $slug);
             })
             ->first();
+    }
+
+    private function resolveLegacyTranslation(string $legacyPath, string $slug, string $locale, string $fallbackLocale): ?BlogPostTranslation
+    {
+        $locales = array_values(array_unique(array_filter([$locale, $fallbackLocale])));
+
+        return BlogPostTranslation::query()
+            ->when($locales !== [], fn (Builder $query) => $query->whereIn('locale', $locales))
+            ->where(function (Builder $query) use ($legacyPath, $slug): void {
+                $query
+                    ->where('payload->legacy_path', $legacyPath)
+                    ->orWhere(function (Builder $slugQuery) use ($slug): void {
+                        $slugQuery
+                            ->where('slug', $slug)
+                            ->whereNull('payload');
+                    });
+            })
+            ->orderByDesc('id')
+            ->first()
+            ?? BlogPostTranslation::query()
+                ->where('payload->legacy_path', $legacyPath)
+                ->orderByDesc('id')
+                ->first();
     }
 
     /**

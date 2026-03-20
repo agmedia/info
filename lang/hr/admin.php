@@ -47,6 +47,7 @@ return [
             'admin_appearance_controls' => 'Izgled admina',
             'catalog_features' => 'Opcije kataloga',
             'store_settings' => 'Postavke',
+            'blog_imports' => 'Import bloga',
             'api' => 'API',
             'user' => 'Korisnik',
             'users' => 'Administratori',

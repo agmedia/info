@@ -47,6 +47,7 @@ return [
             'admin_appearance_controls' => 'Admin Appearance Controls',
             'catalog_features' => 'Catalog Features',
             'store_settings' => 'Settings',
+            'blog_imports' => 'Blog Import',
             'api' => 'API',
             'user' => 'User',
             'users' => 'Admins',

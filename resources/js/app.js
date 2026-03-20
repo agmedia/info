@@ -332,10 +332,121 @@ const initQuillEditors = () => {
     }
 
     const selector = 'textarea[data-quill-editor]';
+    const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
 
     const normalizeHtml = (html) => {
         const value = String(html ?? '').trim();
         return value === '<p><br></p>' ? '' : value;
+    };
+
+    const parseYouTubeTimestamp = (rawValue) => {
+        const value = String(rawValue ?? '').trim().toLowerCase();
+        if (value === '') {
+            return 0;
+        }
+
+        if (/^\d+$/.test(value)) {
+            return Number.parseInt(value, 10);
+        }
+
+        let totalSeconds = 0;
+        let matchedLength = 0;
+        const unitPattern = /(\d+)(h|m|s)/g;
+        let match = unitPattern.exec(value);
+
+        while (match) {
+            const amount = Number.parseInt(match[1] || '0', 10);
+            if (match[2] === 'h') {
+                totalSeconds += amount * 3600;
+            } else if (match[2] === 'm') {
+                totalSeconds += amount * 60;
+            } else {
+                totalSeconds += amount;
+            }
+
+            matchedLength += match[0].length;
+            match = unitPattern.exec(value);
+        }
+
+        return matchedLength === value.length ? totalSeconds : 0;
+    };
+
+    const readYouTubeStartSeconds = (url) => {
+        const directParams = [
+            url.searchParams.get('start'),
+            url.searchParams.get('t'),
+        ];
+
+        for (const candidate of directParams) {
+            const seconds = parseYouTubeTimestamp(candidate);
+            if (seconds > 0) {
+                return seconds;
+            }
+        }
+
+        const hash = String(url.hash || '').replace(/^#/, '').trim();
+        if (hash === '') {
+            return 0;
+        }
+
+        if (hash.includes('=')) {
+            const hashParams = new URLSearchParams(hash);
+            const seconds = parseYouTubeTimestamp(hashParams.get('t') || hashParams.get('start'));
+            return seconds > 0 ? seconds : 0;
+        }
+
+        return parseYouTubeTimestamp(hash);
+    };
+
+    const resolveYouTubeEmbedUrl = (rawValue) => {
+        const input = String(rawValue ?? '').trim();
+        if (input === '') {
+            return '';
+        }
+
+        if (/^[a-zA-Z0-9_-]{11}$/.test(input)) {
+            return `https://www.youtube.com/embed/${input}`;
+        }
+
+        const normalizedInput = /^[a-z][a-z\d+.-]*:\/\//i.test(input) ? input : `https://${input.replace(/^\/+/, '')}`;
+        let parsedUrl = null;
+
+        try {
+            parsedUrl = new URL(normalizedInput);
+        } catch (error) {
+            return '';
+        }
+
+        const hostname = parsedUrl.hostname
+            .replace(/^www\./i, '')
+            .replace(/^m\./i, '')
+            .toLowerCase();
+
+        let videoId = '';
+        if (hostname === 'youtu.be') {
+            videoId = parsedUrl.pathname.split('/').filter(Boolean)[0] || '';
+        } else if (hostname === 'youtube.com' || hostname === 'youtube-nocookie.com') {
+            const segments = parsedUrl.pathname.split('/').filter(Boolean);
+
+            if (segments[0] === 'watch') {
+                videoId = parsedUrl.searchParams.get('v') || '';
+            } else if (['embed', 'shorts', 'live'].includes(segments[0] || '')) {
+                videoId = segments[1] || '';
+            }
+        }
+
+        videoId = videoId.replace(/[^a-zA-Z0-9_-]/g, '');
+        if (!/^[a-zA-Z0-9_-]{11}$/.test(videoId)) {
+            return '';
+        }
+
+        const embedUrl = new URL(`/embed/${videoId}`, 'https://www.youtube.com');
+        const startSeconds = readYouTubeStartSeconds(parsedUrl);
+        if (startSeconds > 0) {
+            embedUrl.searchParams.set('start', String(startSeconds));
+        }
+
+        return embedUrl.toString();
     };
 
     const stripInlineStyles = (html) => {
@@ -396,6 +507,14 @@ const initQuillEditors = () => {
             return;
         }
         textarea.dataset.quillBound = '1';
+        const imageUploadUrl = String(textarea.dataset.quillImageUploadUrl || '').trim();
+        const toolbarControls = [
+            [{ header: [2, 3, false] }],
+            ['bold', 'italic', 'underline'],
+            [{ list: 'ordered' }, { list: 'bullet' }],
+            imageUploadUrl !== '' ? ['blockquote', 'link', 'video', 'image'] : ['blockquote', 'link', 'video'],
+            ['clean'],
+        ];
 
         const wrapper = document.createElement('div');
         wrapper.className = 'admin-quill';
@@ -414,13 +533,7 @@ const initQuillEditors = () => {
             quill = new Quill(editorRoot, {
                 theme: 'snow',
                 modules: {
-                    toolbar: [
-                        [{ header: [2, 3, false] }],
-                        ['bold', 'italic', 'underline'],
-                        [{ list: 'ordered' }, { list: 'bullet' }],
-                        ['blockquote', 'link'],
-                        ['clean'],
-                    ],
+                    toolbar: toolbarControls,
                 },
                 placeholder: textarea.getAttribute('placeholder') || '',
             });
@@ -450,12 +563,67 @@ const initQuillEditors = () => {
         window.__adminQuillEditors.push(quill);
         window.__activeAdminQuill = quill;
         quill.__lastRange = null;
+        quill.__selectedImage = null;
+        let preserveSelectedImage = false;
+
+        const clearSelectedImage = () => {
+            if (quill.__selectedImage instanceof HTMLImageElement) {
+                quill.__selectedImage.classList.remove('is-selected');
+            }
+
+            quill.__selectedImage = null;
+        };
+
+        const selectImageNode = (node) => {
+            if (!(node instanceof HTMLImageElement) || !quill.root.contains(node)) {
+                clearSelectedImage();
+                return false;
+            }
+
+            if (quill.__selectedImage instanceof HTMLImageElement && quill.__selectedImage !== node) {
+                quill.__selectedImage.classList.remove('is-selected');
+            }
+
+            quill.__selectedImage = node;
+            quill.__selectedImage.classList.add('is-selected');
+            return true;
+        };
 
         quill.on('selection-change', (range) => {
             if (range) {
                 window.__activeAdminQuill = quill;
                 quill.__lastRange = range;
+                const [leaf] = quill.getLeaf(range.index);
+                if (!(leaf?.domNode instanceof HTMLImageElement && range.length === 1)) {
+                    clearSelectedImage();
+                }
+                return;
             }
+
+            if (preserveSelectedImage) {
+                return;
+            }
+
+            clearSelectedImage();
+        });
+
+        editorRoot.addEventListener('click', (event) => {
+            window.__activeAdminQuill = quill;
+
+            const target = event.target;
+            if (!(target instanceof HTMLImageElement) || !selectImageNode(target)) {
+                clearSelectedImage();
+                return;
+            }
+
+            const blot = Quill.find(target);
+            if (!blot) {
+                return;
+            }
+
+            const index = quill.getIndex(blot);
+            quill.setSelection(index, 1, 'silent');
+            quill.__lastRange = { index, length: 1 };
         });
 
         const rows = Number.parseInt(textarea.getAttribute('rows') || '8', 10);
@@ -474,6 +642,11 @@ const initQuillEditors = () => {
 
         let syncingFromQuill = false;
         let syncingFromTextarea = false;
+        const notify = (type, message) => {
+            window.dispatchEvent(new CustomEvent('admin:notify', {
+                detail: { type, message },
+            }));
+        };
 
         const syncTextareaFromQuill = () => {
             if (syncingFromTextarea) {
@@ -511,6 +684,177 @@ const initQuillEditors = () => {
         quill.on('text-change', syncTextareaFromQuill);
         textarea.addEventListener('input', syncQuillFromTextarea);
         textarea.addEventListener('change', syncQuillFromTextarea);
+
+        const toolbar = quill.getModule('toolbar');
+
+        const insertVideo = (url) => {
+            let range = quill.getSelection(true);
+            if (!range && quill.__lastRange) {
+                range = quill.__lastRange;
+                quill.setSelection(range.index, range.length || 0, 'silent');
+            }
+
+            const fallbackIndex = Math.max(0, quill.getLength() - 1);
+            const index = Number.isInteger(range?.index) ? range.index : fallbackIndex;
+
+            if (range?.length > 0) {
+                quill.deleteText(range.index, range.length, 'user');
+            }
+
+            quill.insertEmbed(index, 'video', url, 'user');
+            quill.setSelection(index + 1, 0, 'silent');
+            syncTextareaFromQuill();
+        };
+
+        toolbar?.addHandler('video', () => {
+            window.__activeAdminQuill = quill;
+
+            const value = window.prompt('Paste a YouTube URL to embed:', 'https://www.youtube.com/watch?v=');
+            if (value === null) {
+                return;
+            }
+
+            const embedUrl = resolveYouTubeEmbedUrl(value);
+            if (embedUrl === '') {
+                notify('warning', 'Only valid YouTube video URLs are supported.');
+                return;
+            }
+
+            insertVideo(embedUrl);
+            notify('success', 'YouTube video embedded.');
+        });
+
+        if (imageUploadUrl !== '') {
+            let imageUploadInFlight = false;
+
+            const updateImageNode = (imageNode, url, altText = '') => {
+                if (!(imageNode instanceof HTMLImageElement)) {
+                    return false;
+                }
+
+                imageNode.setAttribute('src', url);
+                imageNode.setAttribute('alt', altText !== '' ? altText : (imageNode.getAttribute('alt') || ''));
+                imageNode.setAttribute('loading', 'lazy');
+                imageNode.setAttribute('decoding', 'async');
+                selectImageNode(imageNode);
+                syncTextareaFromQuill();
+
+                return true;
+            };
+
+            const insertOrReplaceImage = (url, altText = '') => {
+                if (quill.__selectedImage instanceof HTMLImageElement && quill.root.contains(quill.__selectedImage)) {
+                    return updateImageNode(quill.__selectedImage, url, altText);
+                }
+
+                let range = quill.getSelection(true);
+                if (!range && quill.__lastRange) {
+                    range = quill.__lastRange;
+                    quill.setSelection(range.index, range.length || 0, 'silent');
+                }
+
+                const fallbackIndex = Math.max(0, quill.getLength() - 1);
+                const index = Number.isInteger(range?.index) ? range.index : fallbackIndex;
+
+                if (range?.length > 0) {
+                    quill.deleteText(range.index, range.length, 'user');
+                }
+
+                quill.insertEmbed(index, 'image', url, 'user');
+
+                const [leaf] = quill.getLeaf(index);
+                if (leaf?.domNode instanceof HTMLImageElement) {
+                    if (altText !== '') {
+                        leaf.domNode.setAttribute('alt', altText);
+                    }
+                    leaf.domNode.setAttribute('loading', 'lazy');
+                    leaf.domNode.setAttribute('decoding', 'async');
+                    selectImageNode(leaf.domNode);
+                }
+
+                quill.setSelection(index + 1, 0, 'silent');
+                syncTextareaFromQuill();
+                clearSelectedImage();
+                return false;
+            };
+
+            const uploadImage = async (file) => {
+                if (!(file instanceof File) || imageUploadInFlight) {
+                    return;
+                }
+
+                imageUploadInFlight = true;
+                wrapper.classList.add('is-uploading-image');
+                window.__activeAdminQuill = quill;
+
+                const formData = new FormData();
+                formData.append('image', file);
+
+                try {
+                    const response = await fetch(imageUploadUrl, {
+                        method: 'POST',
+                        headers: {
+                            Accept: 'application/json',
+                            'X-CSRF-TOKEN': csrfToken,
+                        },
+                        body: formData,
+                    });
+
+                    let payload = null;
+                    try {
+                        payload = await response.json();
+                    } catch (error) {
+                        payload = null;
+                    }
+
+                    if (!response.ok) {
+                        const message =
+                            payload?.message ||
+                            (typeof payload?.errors === 'object' ? Object.values(payload.errors)[0]?.[0] : null) ||
+                            'Image upload failed.';
+                        throw new Error(String(message));
+                    }
+
+                    const imageUrl = String(payload?.url || '').trim();
+                    if (imageUrl === '') {
+                        throw new Error('Image upload failed.');
+                    }
+
+                    const didReplace = insertOrReplaceImage(imageUrl, String(payload?.name || file.name || '').trim());
+                    notify('success', didReplace ? 'Image replaced.' : 'Image uploaded.');
+                } catch (error) {
+                    console.error('Failed to upload editor image', error);
+                    notify('danger', error instanceof Error ? error.message : 'Image upload failed.');
+                } finally {
+                    imageUploadInFlight = false;
+                    wrapper.classList.remove('is-uploading-image');
+                }
+            };
+
+            toolbar?.addHandler('image', () => {
+                if (imageUploadInFlight) {
+                    return;
+                }
+
+                window.__activeAdminQuill = quill;
+                preserveSelectedImage = quill.__selectedImage instanceof HTMLImageElement;
+
+                const input = document.createElement('input');
+                input.type = 'file';
+                input.accept = 'image/*';
+                input.addEventListener('change', () => {
+                    const [file] = Array.from(input.files || []);
+                    preserveSelectedImage = false;
+                    if (file) {
+                        uploadImage(file);
+                    }
+                }, { once: true });
+                window.addEventListener('focus', () => {
+                    preserveSelectedImage = false;
+                }, { once: true });
+                input.click();
+            });
+        }
 
         // Keep editor in sync when the textarea is patched by Livewire without input events.
         const valueObserver = new MutationObserver(() => {
