@@ -5,6 +5,7 @@ namespace App\Livewire\Admin\Settings\System;
 use App\Models\Catalog\Category\Category;
 use App\Models\Settings\Local\Language;
 use App\Services\Content\WordPressBlogImportService;
+use App\Services\Settings\SystemSettingsService;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
@@ -16,6 +17,9 @@ use Silber\Bouncer\BouncerFacade as Bouncer;
 class WordPressBlogImport extends Component
 {
     use WithFileUploads;
+
+    private const SETTING_LAST_XML_PATH = 'content_blog_import_last_xml_path';
+    private const SETTING_LAST_XML_NAME = 'content_blog_import_last_xml_name';
 
     public ?TemporaryUploadedFile $xmlUpload = null;
 
@@ -54,6 +58,7 @@ class WordPressBlogImport extends Component
         $this->authorizeAccess();
 
         $this->locale = $this->resolveDefaultLocale();
+        $this->loadStoredImportState();
         $this->loadCategoryOptions();
         $this->applyDefaultCategorySelection();
     }
@@ -121,6 +126,7 @@ class WordPressBlogImport extends Component
         $this->result = null;
 
         if (! is_string($this->storedXmlPath) || trim($this->storedXmlPath) === '' || ! Storage::disk('local')->exists($this->storedXmlPath)) {
+            $this->clearStoredImportState();
             $this->errorMessage = __('Upload XML first, then you can reimport/update existing posts.');
             $this->dispatch('notify', type: 'warning', message: $this->errorMessage);
 
@@ -243,8 +249,49 @@ class WordPressBlogImport extends Component
 
         $this->storedXmlPath = $storedPath;
         $this->storedXmlName = $this->xmlUpload?->getClientOriginalName() ?: basename($storedPath);
+        $this->persistStoredImportState();
 
         return Storage::disk('local')->path($storedPath);
+    }
+
+    private function loadStoredImportState(): void
+    {
+        $settings = app(SystemSettingsService::class);
+        $storedPath = trim((string) $settings->get(self::SETTING_LAST_XML_PATH, ''));
+        $storedName = trim((string) $settings->get(self::SETTING_LAST_XML_NAME, ''));
+
+        if ($storedPath !== '' && Storage::disk('local')->exists($storedPath)) {
+            $this->storedXmlPath = $storedPath;
+            $this->storedXmlName = $storedName !== '' ? $storedName : basename($storedPath);
+
+            return;
+        }
+
+        $this->storedXmlPath = null;
+        $this->storedXmlName = null;
+
+        if ($storedPath !== '' || $storedName !== '') {
+            $this->clearStoredImportState();
+        }
+    }
+
+    private function persistStoredImportState(): void
+    {
+        app(SystemSettingsService::class)->putMany([
+            self::SETTING_LAST_XML_PATH => $this->storedXmlPath,
+            self::SETTING_LAST_XML_NAME => $this->storedXmlName,
+        ]);
+    }
+
+    private function clearStoredImportState(): void
+    {
+        $this->storedXmlPath = null;
+        $this->storedXmlName = null;
+
+        app(SystemSettingsService::class)->putMany([
+            self::SETTING_LAST_XML_PATH => null,
+            self::SETTING_LAST_XML_NAME => null,
+        ]);
     }
 
     private function applyDefaultCategorySelection(): void

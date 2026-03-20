@@ -1061,6 +1061,34 @@ class WordPressBlogImportService
                 $iframeNode
             );
         }
+
+        foreach ($this->nodeListToArray($xpath->query('.//p', $root)) as $paragraphNode) {
+            if (! $paragraphNode instanceof DOMElement || ! $paragraphNode->parentNode) {
+                continue;
+            }
+
+            $payload = $this->resolveStandaloneEmbeddedVideoPayload($paragraphNode);
+            if ($payload === null) {
+                continue;
+            }
+
+            $paragraphNode->parentNode->replaceChild(
+                $this->buildEmbeddedVideoIframe($dom, $payload['src'], $payload['title']),
+                $paragraphNode
+            );
+        }
+
+        foreach ($this->nodeListToArray($root->childNodes) as $childNode) {
+            $payload = $this->resolveStandaloneEmbeddedVideoTextPayload($childNode);
+            if ($payload === null || ! $childNode->parentNode) {
+                continue;
+            }
+
+            $childNode->parentNode->replaceChild(
+                $this->buildEmbeddedVideoIframe($dom, $payload['src'], $payload['title']),
+                $childNode
+            );
+        }
     }
 
     private function sanitizeImportedAttributes(DOMXPath $xpath, DOMElement $root): void
@@ -1233,6 +1261,113 @@ class WordPressBlogImportService
         $iframe->setAttribute('title', $title !== '' ? $title : 'YouTube video');
 
         return $iframe;
+    }
+
+    /**
+     * @return array{src:string,title:string}|null
+     */
+    private function resolveStandaloneEmbeddedVideoPayload(DOMElement $node): ?array
+    {
+        if (strtolower($node->tagName) !== 'p') {
+            return null;
+        }
+
+        if ($node->getElementsByTagName('iframe')->length > 0 || $node->getElementsByTagName('video')->length > 0) {
+            return null;
+        }
+
+        $rawUrl = '';
+        $title = '';
+        $anchor = null;
+
+        foreach ($this->nodeListToArray($node->childNodes) as $childNode) {
+            if ($childNode->nodeType === XML_TEXT_NODE) {
+                if (trim(str_replace("\u{00A0}", ' ', (string) $childNode->textContent)) === '') {
+                    continue;
+                }
+
+                if ($anchor instanceof DOMElement) {
+                    return null;
+                }
+
+                $rawUrl = trim((string) $node->textContent);
+
+                continue;
+            }
+
+            if (! $childNode instanceof DOMElement) {
+                return null;
+            }
+
+            if (strtolower($childNode->tagName) !== 'a' || $anchor instanceof DOMElement) {
+                return null;
+            }
+
+            $anchor = $childNode;
+        }
+
+        if ($anchor instanceof DOMElement) {
+            foreach ($this->nodeListToArray($anchor->childNodes) as $anchorChild) {
+                if ($anchorChild->nodeType === XML_TEXT_NODE) {
+                    if (trim(str_replace("\u{00A0}", ' ', (string) $anchorChild->textContent)) === '') {
+                        continue;
+                    }
+
+                    $title = trim((string) $anchor->textContent);
+
+                    continue;
+                }
+
+                return null;
+            }
+
+            $rawUrl = trim((string) $anchor->getAttribute('href'));
+            if ($rawUrl === '') {
+                $rawUrl = trim((string) $anchor->textContent);
+            }
+        }
+
+        $rawUrl = preg_replace('/\s+/u', ' ', $rawUrl) ?? $rawUrl;
+        $rawUrl = trim($rawUrl);
+
+        if ($rawUrl === '' || preg_match('#^(https?:)?//\S+$#u', $rawUrl) !== 1) {
+            return null;
+        }
+
+        $embedUrl = $this->resolveYouTubeEmbedUrl($rawUrl);
+        if ($embedUrl === '') {
+            return null;
+        }
+
+        return [
+            'src' => $embedUrl,
+            'title' => $title,
+        ];
+    }
+
+    /**
+     * @return array{src:string,title:string}|null
+     */
+    private function resolveStandaloneEmbeddedVideoTextPayload(DOMNode $node): ?array
+    {
+        if ($node->nodeType !== XML_TEXT_NODE) {
+            return null;
+        }
+
+        $rawUrl = trim(preg_replace('/\s+/u', ' ', str_replace("\u{00A0}", ' ', (string) $node->textContent)) ?? '');
+        if ($rawUrl === '' || preg_match('#^(https?:)?//\S+$#u', $rawUrl) !== 1) {
+            return null;
+        }
+
+        $embedUrl = $this->resolveYouTubeEmbedUrl($rawUrl);
+        if ($embedUrl === '') {
+            return null;
+        }
+
+        return [
+            'src' => $embedUrl,
+            'title' => '',
+        ];
     }
 
     private function resolveYouTubeEmbedUrl(string $rawValue): string

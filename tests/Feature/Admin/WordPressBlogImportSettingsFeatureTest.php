@@ -62,7 +62,12 @@ class WordPressBlogImportSettingsFeatureTest extends TestCase
             ->assertHasNoErrors()
             ->assertSee('Imported posts')
             ->assertSee('Društvo ALPHA CAPITALIS uvršteno na popis savjetnika kod EBRD-a')
+            ->assertSet('storedXmlName', 'wordpress-export.xml');
+
+        Livewire::actingAs($admin)
+            ->test(WordPressBlogImport::class)
             ->assertSet('storedXmlName', 'wordpress-export.xml')
+            ->assertSee('wordpress-export.xml')
             ->call('reimport')
             ->assertHasNoErrors()
             ->assertSee('UPDATED');
@@ -157,6 +162,78 @@ XML
         $this->assertStringContainsString('<p>Tekst nakon videa.</p>', $bodyHtml);
         $this->assertStringNotContainsString('elementor-widget-video', $bodyHtml);
         $this->assertStringNotContainsString('widgetid=1', $bodyHtml);
+    }
+
+    public function test_wordpress_import_normalizes_standalone_youtube_url_between_paragraphs(): void
+    {
+        config()->set('app.locale', 'hr');
+        config()->set('app.fallback_locale', 'hr');
+
+        $admin = $this->makeAdminUser();
+        $xmlPath = tempnam(sys_get_temp_dir(), 'wp-video-text-import-');
+        $this->assertNotFalse($xmlPath);
+
+        file_put_contents($xmlPath, <<<'XML'
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0"
+    xmlns:excerpt="http://wordpress.org/export/1.2/excerpt/"
+    xmlns:content="http://purl.org/rss/1.0/modules/content/"
+    xmlns:wfw="http://wellformedweb.org/CommentAPI/"
+    xmlns:dc="http://purl.org/dc/elements/1.1/"
+    xmlns:wp="http://wordpress.org/export/1.2/">
+    <channel>
+        <title>WordPress Export</title>
+        <item>
+            <title>Prodaja društva u 6 koraka</title>
+            <link>https://alphacapitalis.com/2024/07/02/prodaja-drustva-u-6-koraka/</link>
+            <pubDate>Tue, 02 Jul 2024 10:00:00 +0000</pubDate>
+            <dc:creator><![CDATA[admin]]></dc:creator>
+            <guid isPermaLink="false">https://alphacapitalis.com/?p=99998</guid>
+            <description></description>
+            <content:encoded><![CDATA[
+<p>Prvi odlomak prije videa.</p>https://youtu.be/ZPZUcmahc04?si=JQ37K8bLcIGAJofK<p><em>Autor: primjer.</em></p>
+            ]]></content:encoded>
+            <excerpt:encoded><![CDATA[]]></excerpt:encoded>
+            <wp:post_id>99998</wp:post_id>
+            <wp:post_date><![CDATA[2024-07-02 12:00:00]]></wp:post_date>
+            <wp:post_date_gmt><![CDATA[2024-07-02 10:00:00]]></wp:post_date_gmt>
+            <wp:comment_status><![CDATA[closed]]></wp:comment_status>
+            <wp:ping_status><![CDATA[closed]]></wp:ping_status>
+            <wp:post_name><![CDATA[prodaja-drustva-u-6-koraka-tekst]]></wp:post_name>
+            <wp:status><![CDATA[publish]]></wp:status>
+            <wp:post_parent>0</wp:post_parent>
+            <wp:menu_order>0</wp:menu_order>
+            <wp:post_type><![CDATA[post]]></wp:post_type>
+            <wp:post_password><![CDATA[]]></wp:post_password>
+            <wp:is_sticky>0</wp:is_sticky>
+            <category domain="category" nicename="financije"><![CDATA[Financije]]></category>
+        </item>
+    </channel>
+</rss>
+XML
+        );
+
+        try {
+            app(WordPressBlogImportService::class)->import($xmlPath, [
+                'locale' => 'hr',
+                'category_mode' => 'single',
+                'category_name' => 'Novosti',
+                'category_slug' => 'novosti',
+                'user_id' => $admin->id,
+            ]);
+        } finally {
+            @unlink($xmlPath);
+        }
+
+        $post = BlogPost::query()->where('code', 'wordpress-post-99998')->first();
+
+        $this->assertNotNull($post);
+        $bodyHtml = (string) $post?->translation('hr')->first()?->body_html;
+        $this->assertStringContainsString('<p>Prvi odlomak prije videa.</p>', $bodyHtml);
+        $this->assertStringContainsString('https://www.youtube.com/embed/ZPZUcmahc04', $bodyHtml);
+        $this->assertStringContainsString('<iframe', $bodyHtml);
+        $this->assertStringContainsString('<p><em>Autor: primjer.</em></p>', $bodyHtml);
+        $this->assertStringNotContainsString('https://youtu.be/ZPZUcmahc04?si=JQ37K8bLcIGAJofK', $bodyHtml);
     }
 
     private function makeAdminUser(): User
