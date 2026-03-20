@@ -63,6 +63,19 @@ return [
             'view' => ['content.pages.view'],
         ],
 
+        'admin.content.services.create' => [
+            'view' => ['content.services.create'],
+            'mutate' => ['content.services.create'],
+        ],
+        'admin.content.services.edit' => [
+            'view' => ['content.services.update'],
+            'mutate' => ['content.services.update'],
+            'delete' => ['content.services.delete'],
+        ],
+        'admin.content.services.*' => [
+            'view' => ['content.services.view'],
+        ],
+
         'admin.content.faqs.create' => [
             'view' => ['content.faqs.create'],
             'mutate' => ['content.faqs.create'],

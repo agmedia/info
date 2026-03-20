@@ -17,6 +17,7 @@ use App\Models\Content\Blog\BlogPost;
 use App\Models\Content\ContentBlock;
 use App\Models\Content\ContentBlockSlot;
 use App\Models\Content\Page\InfoPage;
+use App\Models\Content\Service\ServicePage;
 use App\Models\Content\Support\Faq;
 use App\Models\Content\Team\TeamMember;
 use App\Models\Settings\Local\Language;
@@ -126,6 +127,12 @@ Route::middleware(['admin.locale', 'auth', 'verified', 'admin.access', 'admin.ma
             Route::get('pages/{page}/edit', function (InfoPage $page) {
                 return view('admin.content.pages.edit', compact('page'));
             })->name('pages.edit');
+
+            Route::view('services', 'admin.content.services.index')->name('services.index');
+            Route::view('services/create', 'admin.content.services.create')->name('services.create');
+            Route::get('services/{servicePage}/edit', function (ServicePage $servicePage) {
+                return view('admin.content.services.edit', compact('servicePage'));
+            })->name('services.edit');
 
             Route::view('faqs', 'admin.content.faqs.index')->name('faqs.index');
             Route::view('faqs/create', 'admin.content.faqs.create')->name('faqs.create');

@@ -6,10 +6,15 @@ use App\Http\Controllers\Controller;
 use App\Http\Controllers\Front\Concerns\ResolvesFrontendView;
 use App\Models\Catalog\Category\Category;
 use App\Models\Content\Blog\BlogPost;
+use App\Models\Content\Service\ServicePage;
+use App\Models\Content\Service\ServicePageTranslation;
 use App\Models\Content\Support\Faq;
 use App\Models\Content\Team\TeamMember;
+use App\Support\Content\ServicePageTemplateRegistry;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
 
@@ -22,23 +27,153 @@ class FamilyBusinessController extends Controller
         $locale = app()->getLocale();
         $fallbackLocale = (string) config('app.fallback_locale', config('app.locale', 'en'));
 
-        $familyBusinessCategory = $this->resolveFamilyBusinessCategory($locale, $fallbackLocale);
+        [$servicePage, $servicePageTranslation] = $this->resolveServicePage($locale, $fallbackLocale);
+
+        $pagePayload = ServicePageTemplateRegistry::mergePagePayload(
+            ServicePageTemplateRegistry::FAMILY_BUSINESS,
+            $servicePage?->payload
+        );
+        $translationPayload = ServicePageTemplateRegistry::mergeTranslationPayload(
+            ServicePageTemplateRegistry::FAMILY_BUSINESS,
+            $servicePageTranslation?->payload
+        );
+
+        $familyBusinessCategory = $this->resolveConfiguredBlogCategory(
+            (array) ($pagePayload['blog_source'] ?? []),
+            $locale,
+            $fallbackLocale
+        );
         $categoryTranslation = $familyBusinessCategory?->translations->firstWhere('locale', $locale)
             ?? $familyBusinessCategory?->translations->firstWhere('locale', $fallbackLocale)
             ?? $familyBusinessCategory?->translations->first();
         $categorySlug = trim((string) ($categoryTranslation?->slug ?? ''));
         $categoryName = trim((string) ($categoryTranslation?->name ?? '')) ?: 'Obiteljski biznis';
 
-        $familyBusinessPosts = BlogPost::query()
+        $familyBusinessPosts = $this->resolveFamilyBusinessPosts(
+            (array) ($pagePayload['blog_source'] ?? []),
+            $familyBusinessCategory,
+            $locale,
+            $fallbackLocale
+        );
+        $familyBusinessFaqs = $this->resolveFamilyBusinessFaqs(
+            (array) ($pagePayload['faq_source'] ?? []),
+            $locale,
+            $fallbackLocale
+        );
+        $familyBusinessTeam = $this->resolveFamilyBusinessTeam(
+            (array) ($pagePayload['team_source'] ?? []),
+            $locale,
+            $fallbackLocale
+        );
+
+        $blogSection = (array) ($translationPayload['blog_section'] ?? []);
+        $blogSection['title'] = str_replace(':category', $categoryName, (string) ($blogSection['title'] ?? ''));
+
+        $ffiSection = (array) ($translationPayload['ffi'] ?? []);
+        $ffiSection['logo_url'] = $this->resolveServiceLogoUrl($servicePage);
+
+        return view($this->frontendView($request, 'pages.family-business'), [
+            'familyBusinessPosts' => $familyBusinessPosts,
+            'familyBusinessFaqs' => $familyBusinessFaqs,
+            'familyBusinessTeam' => $familyBusinessTeam,
+            'familyBusinessCategoryName' => $categoryName,
+            'familyBusinessArchiveUrl' => $categorySlug !== ''
+                ? url('/blog/'.$categorySlug)
+                : route('blog.index'),
+            'heroSection' => (array) ($translationPayload['hero'] ?? []),
+            'audienceSection' => (array) ($translationPayload['audience'] ?? []),
+            'ffiSection' => $ffiSection,
+            'whatWeDoSection' => (array) ($translationPayload['what_we_do'] ?? []),
+            'advisoryApproachSection' => (array) ($translationPayload['advisory'] ?? []),
+            'capabilitySections' => (array) ($translationPayload['capabilities'] ?? []),
+            'teamSection' => (array) ($translationPayload['team_section'] ?? []),
+            'meetingSection' => (array) ($translationPayload['meeting'] ?? []),
+            'blogSection' => $blogSection,
+            'heroBackgroundUrl' => $this->resolveServiceHeroBackgroundUrl($servicePage),
+            'brochureUrl' => $this->resolveBrochureUrl((array) $pagePayload),
+            'servicePageTitle' => trim((string) ($servicePageTranslation?->title ?? '')) ?: 'Obiteljski biznis',
+            'servicePageMetaTitle' => trim((string) ($servicePageTranslation?->meta_title ?? '')),
+            'servicePageMetaDescription' => trim((string) ($servicePageTranslation?->meta_description ?? '')),
+            'servicePageOgImage' => $this->resolveServiceHeroBackgroundUrl($servicePage),
+            'locale' => $locale,
+            'fallbackLocale' => $fallbackLocale,
+        ]);
+    }
+
+    /**
+     * @return array{0: ServicePage|null, 1: ServicePageTranslation|null}
+     */
+    private function resolveServicePage(string $locale, string $fallbackLocale): array
+    {
+        if (! Schema::hasTable('content_service_pages') || ! Schema::hasTable('content_service_page_translations')) {
+            return [null, null];
+        }
+
+        $servicePage = ServicePage::query()
+            ->where('template_key', ServicePageTemplateRegistry::FAMILY_BUSINESS)
             ->where('is_active', true)
             ->where(function (Builder $query): void {
                 $query->whereNull('published_at')
                     ->orWhere('published_at', '<=', now());
             })
-            ->when($familyBusinessCategory, function (Builder $query) use ($familyBusinessCategory): void {
-                $query->whereHas('categories', function (Builder $categoryQuery) use ($familyBusinessCategory): void {
-                    $categoryQuery->where('categories.id', $familyBusinessCategory->id);
-                });
+            ->with([
+                'translations' => fn ($query) => $query->whereIn('locale', [$locale, $fallbackLocale]),
+                'media',
+            ])
+            ->orderByRaw('case when code = ? then 0 else 1 end', [ServicePageTemplateRegistry::defaultCode(ServicePageTemplateRegistry::FAMILY_BUSINESS)])
+            ->orderBy('sort_order')
+            ->orderBy('id')
+            ->first();
+
+        if (! $servicePage) {
+            return [null, null];
+        }
+
+        $translation = $servicePage->translations->firstWhere('locale', $locale)
+            ?? $servicePage->translations->firstWhere('locale', $fallbackLocale)
+            ?? $servicePage->translations->first();
+
+        return [$servicePage, $translation];
+    }
+
+    private function resolveConfiguredBlogCategory(array $blogSource, string $locale, string $fallbackLocale): ?Category
+    {
+        $mode = (string) ($blogSource['mode'] ?? 'auto_category');
+        $configuredCategoryId = (int) ($blogSource['category_id'] ?? 0);
+
+        if ($mode === 'category' && $configuredCategoryId > 0) {
+            $category = Category::query()
+                ->where('scope', Category::SCOPE_BLOG)
+                ->where('id', $configuredCategoryId)
+                ->with([
+                    'translations' => fn ($query) => $query
+                        ->where('scope', Category::SCOPE_BLOG)
+                        ->whereIn('locale', [$locale, $fallbackLocale]),
+                ])
+                ->first();
+
+            if ($category) {
+                return $category;
+            }
+        }
+
+        return $this->resolveFamilyBusinessCategory($locale, $fallbackLocale);
+    }
+
+    private function resolveFamilyBusinessPosts(
+        array $blogSource,
+        ?Category $familyBusinessCategory,
+        string $locale,
+        string $fallbackLocale
+    ): Collection {
+        $mode = (string) ($blogSource['mode'] ?? 'auto_category');
+        $limit = max(1, min(24, (int) ($blogSource['limit'] ?? 6)));
+
+        $baseQuery = BlogPost::query()
+            ->where('is_active', true)
+            ->where(function (Builder $query): void {
+                $query->whereNull('published_at')
+                    ->orWhere('published_at', '<=', now());
             })
             ->with([
                 'translations' => fn ($query) => $query->whereIn('locale', [$locale, $fallbackLocale]),
@@ -50,45 +185,127 @@ class FamilyBusinessController extends Controller
                             ->whereIn('locale', [$locale, $fallbackLocale]),
                     ]),
                 'media',
-            ])
+            ]);
+
+        if ($mode === 'manual') {
+            $postIds = collect((array) ($blogSource['post_ids'] ?? []))
+                ->map(fn ($id): int => (int) $id)
+                ->filter()
+                ->values();
+
+            if ($postIds->isEmpty()) {
+                return collect();
+            }
+
+            $posts = (clone $baseQuery)
+                ->whereIn('id', $postIds->all())
+                ->get();
+
+            $order = $postIds->flip();
+
+            return $posts
+                ->sortBy(fn (BlogPost $post): int => (int) ($order[$post->id] ?? 9999))
+                ->values();
+        }
+
+        $resolvedCategoryId = $mode === 'category'
+            ? (int) ($blogSource['category_id'] ?? 0)
+            : (int) ($familyBusinessCategory?->id ?? 0);
+
+        if ($resolvedCategoryId > 0) {
+            $baseQuery->whereHas('categories', function (Builder $categoryQuery) use ($resolvedCategoryId): void {
+                $categoryQuery->where('categories.id', $resolvedCategoryId);
+            });
+        }
+
+        return $baseQuery
             ->orderByDesc('published_at')
             ->orderByDesc('id')
-            ->limit(6)
+            ->limit($limit)
             ->get();
+    }
 
-        $familyBusinessFaqGroupCode = $this->resolveFamilyBusinessFaqGroupCode();
-        $familyBusinessFaqs = Faq::query()
+    private function resolveFamilyBusinessFaqs(array $faqSource, string $locale, string $fallbackLocale): Collection
+    {
+        $mode = (string) ($faqSource['mode'] ?? 'auto_group');
+        $baseQuery = Faq::query()
             ->where('is_active', true)
-            ->when($familyBusinessFaqGroupCode !== null, fn (Builder $query) => $query->where('group_code', $familyBusinessFaqGroupCode))
             ->with([
                 'translations' => fn ($query) => $query->whereIn('locale', [$locale, $fallbackLocale]),
-            ])
+            ]);
+
+        if ($mode === 'manual') {
+            $faqIds = collect((array) ($faqSource['faq_ids'] ?? []))
+                ->map(fn ($id): int => (int) $id)
+                ->filter()
+                ->values();
+
+            if ($faqIds->isEmpty()) {
+                return collect();
+            }
+
+            $faqs = (clone $baseQuery)
+                ->whereIn('id', $faqIds->all())
+                ->get();
+
+            $order = $faqIds->flip();
+
+            return $faqs
+                ->sortBy(fn (Faq $faq): int => (int) ($order[$faq->id] ?? 9999))
+                ->values();
+        }
+
+        $groupCode = $mode === 'group'
+            ? trim((string) ($faqSource['group_code'] ?? ''))
+            : ($this->resolveFamilyBusinessFaqGroupCode() ?? '');
+
+        if ($groupCode !== '') {
+            $baseQuery->where('group_code', $groupCode);
+        }
+
+        return $baseQuery
             ->orderByDesc('is_featured')
             ->orderBy('sort_order')
             ->orderBy('id')
             ->get();
+    }
 
-        $familyBusinessTeam = TeamMember::query()
+    private function resolveFamilyBusinessTeam(array $teamSource, string $locale, string $fallbackLocale): Collection
+    {
+        $baseQuery = TeamMember::query()
             ->where('is_active', true)
             ->with(['translations', 'media'])
             ->orderBy('sort_order')
-            ->orderBy('id')
+            ->orderBy('id');
+
+        $mode = (string) ($teamSource['mode'] ?? 'auto');
+        if ($mode === 'manual') {
+            $memberIds = collect((array) ($teamSource['member_ids'] ?? []))
+                ->map(fn ($id): int => (int) $id)
+                ->filter()
+                ->values();
+
+            if ($memberIds->isEmpty()) {
+                return collect();
+            }
+
+            $members = (clone $baseQuery)
+                ->whereIn('id', $memberIds->all())
+                ->get()
+                ->map(fn (TeamMember $member): array => $this->mapTeamMember($member, $locale, $fallbackLocale));
+
+            $order = $memberIds->flip();
+
+            return $members
+                ->sortBy(fn (array $member): int => (int) ($order[$member['id']] ?? 9999))
+                ->values();
+        }
+
+        return (clone $baseQuery)
             ->get()
             ->map(fn (TeamMember $member): array => $this->mapTeamMember($member, $locale, $fallbackLocale))
             ->filter(fn (array $member): bool => $member['name'] !== '' && $this->memberBelongsToFamilyBusiness($member['departments']))
             ->values();
-
-        return view($this->frontendView($request, 'pages.family-business'), [
-            'familyBusinessPosts' => $familyBusinessPosts,
-            'familyBusinessFaqs' => $familyBusinessFaqs,
-            'familyBusinessTeam' => $familyBusinessTeam,
-            'familyBusinessCategoryName' => $categoryName,
-            'familyBusinessArchiveUrl' => $categorySlug !== ''
-                ? url('/blog/'.$categorySlug)
-                : route('blog.index'),
-            'locale' => $locale,
-            'fallbackLocale' => $fallbackLocale,
-        ]);
     }
 
     private function resolveFamilyBusinessFaqGroupCode(): ?string
@@ -256,7 +473,7 @@ class FamilyBusinessController extends Controller
     /**
      * Lower score means a stronger family-business category match.
      *
-     * @param array<int, string> $slugCandidates
+     * @param  array<int, string>  $slugCandidates
      */
     private function familyBusinessCategoryScore(
         Category $category,
@@ -301,6 +518,62 @@ class FamilyBusinessController extends Controller
         }
 
         return $bestScore;
+    }
+
+    private function resolveServiceHeroBackgroundUrl(?ServicePage $servicePage): string
+    {
+        $mediaUrl = $servicePage
+            ? (string) ($servicePage->getFirstMediaUrl('service_hero_image', 'hero_1440x480') ?: $servicePage->getFirstMediaUrl('service_hero_image'))
+            : '';
+
+        if ($mediaUrl !== '') {
+            return $mediaUrl;
+        }
+
+        return $this->versionedAsset('front-theme/images/services/family-business-editorial-3d.svg');
+    }
+
+    private function resolveServiceLogoUrl(?ServicePage $servicePage): string
+    {
+        $mediaUrl = $servicePage
+            ? (string) ($servicePage->getFirstMediaUrl('service_logo', 'detail_960x960') ?: $servicePage->getFirstMediaUrl('service_logo'))
+            : '';
+
+        if ($mediaUrl !== '') {
+            return $mediaUrl;
+        }
+
+        return $this->versionedAsset('front-theme/images/services/ffi-logo_40.webp');
+    }
+
+    private function resolveBrochureUrl(array $pagePayload): ?string
+    {
+        $configured = trim((string) ($pagePayload['brochure_url'] ?? ''));
+        if ($configured !== '') {
+            if (Str::startsWith($configured, ['http://', 'https://'])) {
+                return $configured;
+            }
+
+            return Str::startsWith($configured, '/')
+                ? url($configured)
+                : asset($configured);
+        }
+
+        $relativePath = 'front-theme/documents/ALPHA_CAPITALIS_FAMILY_BUSINESS_ADVISORY_2025.pdf';
+        $absolutePath = public_path($relativePath);
+
+        return is_file($absolutePath)
+            ? asset($relativePath).'?v='.filemtime($absolutePath)
+            : null;
+    }
+
+    private function versionedAsset(string $relativePath): string
+    {
+        $absolutePath = public_path($relativePath);
+
+        return is_file($absolutePath)
+            ? asset($relativePath).'?v='.filemtime($absolutePath)
+            : asset($relativePath);
     }
 
     private function initialsForName(string $value): string

@@ -1025,12 +1025,13 @@
                     $contentBlogActive = request()->routeIs('admin.content.blog.*');
                     $contentTeamActive = request()->routeIs('admin.content.team.*');
                     $contentPagesActive = request()->routeIs('admin.content.pages.*');
+                    $contentServicesActive = request()->routeIs('admin.content.services.*');
                     $contentFaqsActive = request()->routeIs('admin.content.faqs.*');
                     $contentCommentsActive = request()->routeIs('admin.content.comments.*');
                     $contentBlocksActive = request()->routeIs('admin.content.blocks*');
                     $contentNavigationActive = request()->routeIs('admin.content.navigation*');
                     $contentSlotsActive = request()->routeIs('admin.content.slots*');
-                    $contentOpen = $contentCategoriesActive || $contentBlogActive || $contentTeamActive || $contentPagesActive || $contentFaqsActive || $contentCommentsActive || $contentBlocksActive || $contentNavigationActive || $contentSlotsActive;
+                    $contentOpen = $contentCategoriesActive || $contentBlogActive || $contentTeamActive || $contentPagesActive || $contentServicesActive || $contentFaqsActive || $contentCommentsActive || $contentBlocksActive || $contentNavigationActive || $contentSlotsActive;
                     $settingsOpen = request()->routeIs('admin.settings.*');
                     $settingsSystemOpen = request()->routeIs('admin.settings.system.*');
                     $canManageUsersAccess = auth()->user() && auth()->user()->isA('superadmin');
@@ -1289,6 +1290,15 @@
                                 <span class="flex items-center gap-2">
                                     <span class="sidebar-dot"></span>
                                     <span>{{ __('admin.layout.menu.pages') }}</span>
+                                </span>
+                            </a>
+                            <a
+                                href="{{ route('admin.content.services.index') }}"
+                                class="sidebar-dropdown-link block rounded-lg font-medium {{ $contentServicesActive ? 'is-active-leaf' : 'text-slate-700 hover:bg-slate-100' }}"
+                            >
+                                <span class="flex items-center gap-2">
+                                    <span class="sidebar-dot"></span>
+                                    <span>{{ __('admin.layout.menu.services') }}</span>
                                 </span>
                             </a>
                             <a

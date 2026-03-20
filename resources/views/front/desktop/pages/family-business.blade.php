@@ -1,205 +1,14 @@
 @extends('front.desktop.layouts.store')
 
 @php
-    $heroBackgroundRelativePath = 'front-theme/images/services/family-business-editorial-3d.svg';
-    $heroBackgroundPath = public_path($heroBackgroundRelativePath);
-    $heroBackgroundUrl = file_exists($heroBackgroundPath)
-        ? asset($heroBackgroundRelativePath).'?v='.filemtime($heroBackgroundPath)
-        : asset($heroBackgroundRelativePath);
-
-    $ffiLogoRelativePath = 'front-theme/images/services/ffi-logo_40.webp';
-    $ffiLogoPath = public_path($ffiLogoRelativePath);
-    $ffiLogoUrl = file_exists($ffiLogoPath)
-        ? asset($ffiLogoRelativePath).'?v='.filemtime($ffiLogoPath)
-        : asset($ffiLogoRelativePath);
     $captchaSiteKey = trim((string) ($storeSettings['captcha']['recaptcha_v3_site_key'] ?? ''));
     $captchaEnabled = (bool) ($storeSettings['captcha']['recaptcha_v3_enabled'] ?? false) && $captchaSiteKey !== '';
     $contactEmail = trim((string) ($storeSettings['footer']['email_support'] ?? '')) ?: 'info@alphacapitalis.com';
     $contactPhone = trim((string) ($storeSettings['footer']['phone'] ?? '')) ?: '+385 (1) 580 6656';
     $contactPhoneHref = preg_replace('/\s+/', '', $contactPhone);
-    $brochureRelativePath = 'front-theme/documents/ALPHA_CAPITALIS_FAMILY_BUSINESS_ADVISORY_2025.pdf';
-    $brochurePath = public_path($brochureRelativePath);
-    $brochureUrl = file_exists($brochurePath)
-        ? asset($brochureRelativePath).'?v='.filemtime($brochurePath)
-        : null;
-
-    $heroSection = [
-        'title_lines' => ['ALPHA CAPITALIS', 'Savjetnici za obiteljski biznis'],
-        'intro' => 'U ALPHA CAPITALIS-u svjesni smo složenosti vašeg obiteljskog biznisa i jedinstvenosti vaše poduzetničke obitelji. Upravo zato vam na jednom mjestu pružamo cjelovitu podršku. Kroz holistički pristup stvaramo siguran prostor i posvećujemo vrijeme vašem poslovnom putu, osiguravajući stabilnost i razvoj kroz sve faze rasta.',
-        'cta' => ['label' => 'Pružamo vam podršku', 'url' => '#family-business-publika'],
-    ];
-
-    $audienceSection = [
-        'headline' => 'ALPHA CAPITALIS pruža vam podršku u razvoju dugoročne održivosti poslovanja i obitelji.',
-        'cards' => [
-            [
-                'title' => 'Osnivači',
-                'icon' => 'founders',
-                'text' => 'Suradujemo s vama na očuvanju vaše ostavštine, izvornih vrijednosti i vizije obiteljskog poduzeća. Pružamo vam podršku u procesu prijenosa vlasništva, vođenja i upravljanja na sljedeću generaciju te zadržavanja doprinosa kroz mentorstvo. Pratimo vas i vodimo kroz suočavanje s emocionalnim izazovima gubitka kontrole i važnosti, straha od isključenja i neizvjesnosti te prilagodbe osobnog identiteta uslijed povlačenja.',
-            ],
-            [
-                'title' => 'Nasljednici',
-                'icon' => 'successors',
-                'text' => 'Pružamo vam podršku u razvoju liderskih sposobnosti za preuzimanje ključnih odgovornosti obiteljske tvrtke u tranziciji. Surađujemo s vama na uvođenju inovacija bez ugrožavanja tradicije te promjena i transformacija uz očuvanje nasljeđa. Radimo na definiranju vašeg profesionalnog identiteta i stjecanju autoriteta te suočavanju s emocionalnim izazovima unutarnjih konflikata, strahom od grešaka i otpora te sumnjom u sebe.',
-            ],
-            [
-                'title' => 'Članovi obitelji',
-                'icon' => 'family',
-                'text' => 'Radimo s vama na definiranju vaših profesionalnih uloga, odgovornosti i prava u obiteljskoj firmi te etici i kodeksu ponašanja. Pružamo vam podršku u kreiranju upravljačkih i komunikacijskih struktura kako biste izgradili povjerenje i usklađenost obiteljskih vrijednosti sa strateškim poslovnim ciljevima. Pratimo vas i vodimo kroz izazove u suočavanju s prisutnim psihološkim, obiteljskim i širim društvenim dinamikama.',
-            ],
-            [
-                'title' => 'Neobiteljski menadžeri',
-                'icon' => 'managers',
-                'text' => 'Suradujemo s vama kako biste se uspješno integrirali u obiteljsku kompaniju te potpuno iskoristili svoje znanje i iskustvo. Pružamo vam podršku u definiranju profesionalnih upravljačkih struktura i procedura koje osiguravaju transparentnost i učinkovito poslovanje, što doprinosi dugoročnoj održivosti i rastu. Radimo na suočavanju sa psihološkim i organizacijskim dinamikama, uslijed specifičnosti obiteljskog biznisa.',
-            ],
-        ],
-    ];
-
-    $ffiSection = [
-        'title' => 'ALPHA CAPITALIS je član Family Firm Institute (FFI)',
-        'body' => [
-            'FFI je najutjecajnija globalna mreža lidera u području obiteljskog biznisa. Pružaju učenje temeljeno na istraživanju i pripadajuće alate za savjetnike, edukatore i dionike obiteljskih poduzeća.',
-        ],
-        'logo_url' => $ffiLogoUrl,
-        'logo_alt' => 'FFI GEN ACFBA logo',
-    ];
-
-    $whatWeDoSection = [
-        'kicker' => 'ŠTO RADIMO?',
-        'title' => 'Dugi niz godina savjetujemo obiteljska poduzeća i poduzetničke obitelji.',
-        'intro' => 'Svjesni smo međuovisnosti izazova obitelji, vlasništva i poslovanja s kojima se suočavate, kao i drugačijih zakonitosti koje njima vladaju jer zajedno s vama radimo na ključnim temama i ostvarenju vaših zajedničkih ciljeva. Kao multidisciplinarni tim stručnjaka omogućujemo stjecanje i prijenos znanja, iskustva i mudrosti u kritičnim situacijama razvoja mnogih obiteljskih biznisa.',
-    ];
-
-    $advisoryApproachSection = [
-        'kicker' => 'ŠTO MOŽEMO UČINITI ZA VAS',
-        'title' => 'Tu smo kako biste zadobili uvid u cjelovitu perspektivu.',
-        'intro' => 'Razumijemo koliko je zahtjevno donositi odluke, istovremeno dobre za biznis i obitelj jer vas pratimo i vodimo kroz ključne izazove i probleme vašeg obiteljskog poslovanja. Upravo iz tih razloga njegujemo potpuno personaliziran pristup svakoj obitelji i poslovanju, omogućujući dolazak do vlastitih zajedničkih rješenja, koja su prihvatljiva i koja traju.',
-        'box_title' => 'KAKO VAS SAVJETUJEMO',
-        'items' => [
-            [
-                'lead' => 'Uvažavamo vaša proživljena iskustva',
-                'body' => 'i stvorena značenja oko njih. To omogućuje usredotočenost na vaše specifične teme i situacije, na način koji upravo za vas ima smisla.',
-            ],
-            [
-                'lead' => 'Bavimo se cjelinom i međuovisnošću',
-                'body' => 'vašeg obiteljskog, vlasničkog i poslovnog sistema. To omogućuje otkrivanje, osvještavanje i procesiranje naizgled nepovezanih uzroka i posljedica, što je temelj za održive promjene i transformacije.',
-            ],
-            [
-                'lead' => 'Naglašavamo sposobnosti učenja',
-                'body' => 'i samo-obnavljanja, urođene pojedincima, ali također obiteljima i organizacijama. To omogućuje kontinuirano prilagođavanje i uspješno nošenje s vanjskim i unutarnjim promjenama.',
-            ],
-            [
-                'lead' => 'Kreiramo viziju poželjne budućnosti',
-                'body' => 'vašeg obiteljskog poslovanja te vas usmjeravamo na resurse koji ju čine mogućom. To omogućuje vaše ujedinjenje u definiranju zajedničke svrhe, ciljeva i planova.',
-            ],
-            [
-                'lead' => 'Uključujemo sve obiteljske dionike',
-                'body' => 'prisutne u vlasništvu i upravljanju u proces. To omogućuje bogatstvo različitih perspektiva, kolektivnu inteligenciju te unutarnje vlasništvo nad donesenim i provedenim odlukama.',
-            ],
-            [
-                'lead' => 'Podršci pristupamo multidisciplinarno,',
-                'body' => 'koristeći stručna znanja iz različitih, ali međusobno nadopunjujućih područja. To omogućuje cjelovito zadovoljenje vaših potreba.',
-            ],
-            [
-                'lead' => 'Neovisni smo,',
-                'body' => 'što nam omogućuje pružanje podrške svim uključenim stranama, a ne samo pojedinim dijelovima, interesnim skupinama ili pojedincima.',
-            ],
-            [
-                'lead' => 'Njegujemo punu transparentnost',
-                'body' => 'u razmjeni informacija s vama. Na taj način zajednički kreiramo presudan okvir za stvaranje ključnih vrijednosti i rješenja.',
-            ],
-        ],
-    ];
-
-    $capabilitySections = [
-        [
-            'title' => 'Upravljanje',
-            'icon' => 'governance',
-            'intro' => 'Naš pristup obiteljskom upravljanju temelji se na uspostavljanju jasnog i održivog modela upravljanja koji usklađuje odluke obitelji, vlasništva i poslovanja te osigurava dugoročnu stabilnost sustava.',
-            'items' => [
-                [
-                    'title' => 'Razvoj krovne misije',
-                    'text' => 'Definiramo zajedničku svrhu, vrijednosti i prioritete koji povezuju generacije i daju jasan smjer budućem razvoju obitelji i poslovanja.',
-                ],
-                [
-                    'title' => 'Upoznavanje obiteljske dinamike',
-                    'text' => 'Prepoznajemo obrasce odnosa, očekivanja i komunikacije kako bi se potencijalni prijepori razumjeli, obradili i spriječili prije eskalacije.',
-                ],
-                [
-                    'title' => 'Prilagođena upravljačka struktura',
-                    'text' => 'Kreiramo model uloga, foruma i pravila odlučivanja koji odgovara vašoj fazi razvoja, veličini poslovanja i vlasničkoj strukturi.',
-                ],
-            ],
-            'help' => 'Pomažemo vam postaviti okvir upravljanja koji donosi veću transparentnost, učinkovitost i dugoročnu stabilnost te olakšava donošenje odluka u ključnim trenucima.',
-        ],
-        [
-            'title' => 'Tranzicija',
-            'icon' => 'transition',
-            'intro' => 'Planiranje nasljeđa ključno je za očuvanje stabilnosti i dugoročne održivosti poslovanja. Strukturirano vodimo prijenos vlasništva, odgovornosti i autoriteta na sljedeću generaciju.',
-            'items' => [
-                [
-                    'title' => 'Odabir i evaluacija nasljednika',
-                    'text' => 'Procjenjujemo kompetencije, motivaciju i razvojni potencijal budućih nositelja ključnih odgovornosti kako bi izbor bio promišljen i održiv.',
-                ],
-                [
-                    'title' => 'Transparentan proces',
-                    'text' => 'Postavljamo jasan slijed koraka, kriterija i odluka kako bi prijenos bio razumljiv, prihvatljiv i transparentan svim uključenim stranama.',
-                ],
-                [
-                    'title' => 'Mentorski program za nasljednike',
-                    'text' => 'Razvijamo prijenos znanja, autoriteta i odgovornosti kroz strukturiranu pripremu nove generacije i podršku u preuzimanju liderske uloge.',
-                ],
-            ],
-            'help' => 'Vodimo tranziciju od pripreme i dijaloga do implementacije rješenja koja čuvaju kontinuitet poslovanja, odnose među članovima obitelji i stabilnost vlasničke strukture.',
-        ],
-        [
-            'title' => 'Dinamika odnosa',
-            'icon' => 'relations',
-            'intro' => 'Kod obiteljskih tvrtki poslovne odluke često su usko povezane s odnosima. Zato radimo na prevenciji konflikata, zdravijoj komunikaciji i većoj jasnoći u međusobnim očekivanjima.',
-            'items' => [
-                [
-                    'title' => 'Prevencija',
-                    'text' => 'Pomažemo rano prepoznati tenzije i nesporazume kako bi se otvorio prostor za konstruktivan razgovor i pravovremeno rješavanje izazova.',
-                ],
-                [
-                    'title' => 'Kodeks komunikacije',
-                    'text' => 'Gradimo pravila komunikacije koja podržavaju jasnoću, uvažavanje i donošenje odluka bez nepotrebnog zastoja ili međusobnog iscrpljivanja.',
-                ],
-                [
-                    'title' => 'Normalizacija procesa',
-                    'text' => 'Uspostavljamo ritam sastanaka i procesa koji smanjuju neizvjesnost, grade sigurnost i donose više predvidljivosti unutar obitelji i tvrtke.',
-                ],
-            ],
-            'help' => 'Kroz strukturiran dijalog i podršku u komunikaciji pomažemo očuvati povjerenje, stabilnost odnosa i prostor za donošenje zajedničkih odluka.',
-        ],
-    ];
-
-    $teamSection = [
-        'kicker' => 'TIM',
-        'title' => 'Naš tim za obiteljsko savjetovanje',
-        'intro' => 'Stručnjaci koji rade s obiteljskim poduzećima u temama tranzicije, upravljanja, odnosa i dugoročne održivosti poslovanja.',
-    ];
-
-    $meetingSection = [
-        'title' => 'Ugovorite sastanak',
-        'intro' => 'U ALPHA CAPITALIS-u svjesni smo složenosti vašeg obiteljskog biznisa i jedinstvenosti vaše poduzetničke obitelji. Upravo zato vam na jednom mjestu pružamo cjelovitu podršku. Kroz holistički pristup stvaramo siguran prostor i posvećujemo vrijeme vašem poslovnom putu, osiguravajući stabilnost i razvoj kroz sve faze rasta.',
-        'visit_title' => 'Posjetite nas',
-        'visit_lines' => [
-            'Ul. Roberta Frangeša Mihanovića 9,',
-            '10110 Zagreb / Sky Office, 19. kat',
-        ],
-        'contact_title' => 'Kontaktirajte nas',
-        'submit' => 'Pošalji',
-    ];
-
-    $blogSection = [
-        'kicker' => 'BLOG',
-        'title' => 'Najnovije objave iz kategorije '.($familyBusinessCategoryName ?? 'Obiteljski biznis'),
-        'intro' => 'Novosti, članci i stručni uvidi vezani uz tranziciju, upravljanje i razvoj obiteljskih poduzeća.',
-    ];
 @endphp
 
-@section('title', 'Obiteljski biznis')
+@section('title', $servicePageMetaTitle !== '' ? $servicePageMetaTitle : ($servicePageTitle ?? 'Obiteljski biznis'))
 @section('main_class', 'w-full px-0 py-0')
 
 @section('content')
@@ -213,18 +22,18 @@
                     <div class="ac-family-hero-shell">
                         <div class="ac-family-hero-copy">
                             <h1 class="ac-family-hero-title">
-                                <span class="is-brand">{{ $heroSection['title_lines'][0] }}</span>
+                                <span class="is-brand">{{ $heroSection['brand_title'] ?? 'ALPHA CAPITALIS' }}</span>
                                 <span class="is-subtitle">
-                                    <span class="is-subtitle-lead">Savjetnici za</span>
-                                    <span class="is-subtitle-accent">obiteljski biznis</span>
+                                    <span class="is-subtitle-lead">{{ $heroSection['subtitle_lead'] ?? 'Savjetnici za' }}</span>
+                                    <span class="is-subtitle-accent">{{ $heroSection['subtitle_accent'] ?? 'obiteljski biznis' }}</span>
                                 </span>
                             </h1>
 
-                            <p class="ac-family-hero-intro">{{ $heroSection['intro'] }}</p>
+                            <p class="ac-family-hero-intro">{{ $heroSection['intro'] ?? '' }}</p>
 
                             <div class="ac-family-hero-actions">
-                                <a href="{{ $heroSection['cta']['url'] }}" class="front-action-cta">
-                                    <span>{{ $heroSection['cta']['label'] }}</span>
+                                <a href="{{ $heroSection['cta_url'] ?? '#family-business-publika' }}" class="front-action-cta">
+                                    <span>{{ $heroSection['cta_label'] ?? 'Pružamo vam podršku' }}</span>
                                     <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
                                         <path d="M12 5v14" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"></path>
                                         <path d="m6 13 6 6 6-6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></path>
@@ -581,9 +390,9 @@
                 </section>
             @endif
 
-            <section id="family-business-sastanak" class="ac-family-section pb-16 md:pb-24" aria-labelledby="ac-family-meeting-title">
+                <section id="family-business-sastanak" class="ac-family-section pb-16 md:pb-24" aria-labelledby="ac-family-meeting-title">
                 <div class="ac-family-team-showcase-head">
-                    <p class="ac-family-section-kicker">SASTANAK</p>
+                    <p class="ac-family-section-kicker">{{ $meetingSection['kicker'] ?? 'SASTANAK' }}</p>
                     <h2 id="ac-family-meeting-title">{{ $meetingSection['title'] }}</h2>
                     <p>{{ $meetingSection['intro'] }}</p>
                 </div>

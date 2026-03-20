@@ -3,6 +3,7 @@
 use App\Models\Catalog\Category\Category;
 use App\Models\Content\Blog\BlogPost;
 use App\Models\Content\ContentBlock;
+use App\Models\Content\Service\ServicePage;
 use App\Models\Content\Team\TeamMember;
 
 return [
@@ -64,6 +65,27 @@ return [
                     'accept_mime_types' => ['image/jpeg', 'image/png', 'image/webp', 'image/avif'],
                     'conversions' => ['thumb_100x100', 'card_360x240', 'detail_960x960'],
                     'preview_conversion' => 'card_360x240',
+                ],
+            ],
+        ],
+        ServicePage::class => [
+            'label' => 'Service Page',
+            'collections' => [
+                'service_hero_image' => [
+                    'label' => 'Hero Background',
+                    'single_file' => true,
+                    'max_upload_kb' => 8192,
+                    'accept_mime_types' => ['image/jpeg', 'image/png', 'image/webp', 'image/avif', 'image/svg+xml'],
+                    'conversions' => ['card_360x240', 'hero_1440x480'],
+                    'preview_conversion' => 'card_360x240',
+                ],
+                'service_logo' => [
+                    'label' => 'Service Logo',
+                    'single_file' => true,
+                    'max_upload_kb' => 4096,
+                    'accept_mime_types' => ['image/jpeg', 'image/png', 'image/webp', 'image/avif', 'image/svg+xml'],
+                    'conversions' => ['thumb_100x100', 'detail_960x960'],
+                    'preview_conversion' => 'thumb_100x100',
                 ],
             ],
         ],
