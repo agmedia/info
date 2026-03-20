@@ -1367,6 +1367,15 @@
                                                 <span>{{ __('admin.layout.menu.store_settings') }}</span>
                                             </span>
                                         </a>
+                                        <a
+                                            href="{{ route('admin.settings.system.imports') }}"
+                                            class="sidebar-dropdown-link block rounded-lg font-medium {{ request()->routeIs('admin.settings.system.imports') ? 'is-active-leaf' : 'text-slate-700 hover:bg-slate-100' }}"
+                                        >
+                                            <span class="flex items-center gap-2">
+                                                <span class="sidebar-dot"></span>
+                                                <span>{{ __('admin.layout.menu.blog_imports') }}</span>
+                                            </span>
+                                        </a>
                                     @endif
                                 </div>
                             </details>

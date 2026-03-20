@@ -1395,6 +1395,15 @@ unset($__defined_vars, $__key, $__value); ?>
                                                 <span><?php echo e(__('admin.layout.menu.store_settings')); ?></span>
                                             </span>
                                         </a>
+                                        <a
+                                            href="<?php echo e(route('admin.settings.system.imports')); ?>"
+                                            class="sidebar-dropdown-link block rounded-lg font-medium <?php echo e(request()->routeIs('admin.settings.system.imports') ? 'is-active-leaf' : 'text-slate-700 hover:bg-slate-100'); ?>"
+                                        >
+                                            <span class="flex items-center gap-2">
+                                                <span class="sidebar-dot"></span>
+                                                <span><?php echo e(__('admin.layout.menu.blog_imports')); ?></span>
+                                            </span>
+                                        </a>
                                     <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                                 </div>
                             </details>

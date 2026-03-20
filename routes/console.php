@@ -2,6 +2,7 @@
 
 use App\Models\User;
 use App\Models\Settings\Local\Region;
+use App\Services\Content\WordPressBlogImportService;
 use App\Services\Front\AddressDirectoryService;
 use Carbon\CarbonImmutable;
 use Illuminate\Foundation\Inspiring;
@@ -12,6 +13,66 @@ use Illuminate\Support\Facades\DB;
 Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());
 })->purpose('Display an inspiring quote');
+
+Artisan::command('content:import-wordpress-blog
+    {file : Path to the WordPress XML export}
+    {--limit=0 : Number of published posts to import (0 = all matches)}
+    {--offset=0 : Skip the first N matching posts}
+    {--locale=hr : Target locale for imported translations}
+    {--category-mode=single : "single" to import into one category, "source" to use categories from XML}
+    {--category-name=Novosti : Destination category name when category-mode=single}
+    {--category-slug=novosti : Destination category slug when category-mode=single}
+    {--slugs=* : Import only selected WordPress slugs}',
+    function (WordPressBlogImportService $importer): int {
+        try {
+            $result = $importer->import((string) $this->argument('file'), [
+                'limit' => (int) $this->option('limit'),
+                'offset' => (int) $this->option('offset'),
+                'locale' => (string) $this->option('locale'),
+                'category_mode' => (string) $this->option('category-mode'),
+                'category_name' => (string) $this->option('category-name'),
+                'category_slug' => (string) $this->option('category-slug'),
+                'slugs' => array_values(array_filter((array) $this->option('slugs'))),
+                'user_id' => auth()->id(),
+            ]);
+        } catch (\Throwable $exception) {
+            $this->error($exception->getMessage());
+
+            return self::FAILURE;
+        }
+
+        $this->info(sprintf(
+            'Imported %d WordPress post(s) in locale "%s" using category mode "%s".',
+            count($result['imported']),
+            $result['locale'],
+            $result['category_mode']
+        ));
+
+        if ($result['categories'] !== []) {
+            $categoryLabels = collect($result['categories'])
+                ->map(fn (array $category): string => sprintf('%s (/blog/%s)', $category['name'], $category['slug']))
+                ->implode(', ');
+
+            $this->line('Categories: '.$categoryLabels);
+        }
+
+        foreach ($result['imported'] as $row) {
+            $this->line(sprintf(
+                '- [%s] %s',
+                strtoupper((string) $row['status']),
+                (string) $row['title']
+            ));
+            $this->line('  legacy: '.$row['legacy_path']);
+            $this->line('  canonical: '.$row['canonical_path']);
+
+            if ($row['categories'] !== []) {
+                $this->line('  categories: '.implode(', ', $row['categories']));
+            }
+        }
+
+        return self::SUCCESS;
+    })
+    ->purpose('Import published WordPress blog posts from a WXR XML export');
 
 Artisan::command('wholesale:token {user : User ID or email} {name=wholesale-client} {--abilities=wholesale.read,categories.read} {--expires=}', function (): int {
     if (! app(\App\Services\Catalog\CatalogFeatureService::class)->useApi()) {

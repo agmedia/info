@@ -126,6 +126,10 @@ return [
             'view' => ['settings.system.store.manage'],
             'mutate' => ['settings.system.store.manage'],
         ],
+        'admin.settings.system.imports' => [
+            'view' => ['settings.system.store.manage'],
+            'mutate' => ['settings.system.store.manage'],
+        ],
         'admin.settings.local.languages' => [
             'view' => ['settings.local.languages.manage'],
             'mutate' => ['settings.local.languages.manage'],
