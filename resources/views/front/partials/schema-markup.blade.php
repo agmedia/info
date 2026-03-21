@@ -344,6 +344,72 @@
         }
     }
 
+    if (request()->routeIs('glossary.index') && isset($glossaryPage) && (bool) ($schemaSettings['page_enabled'] ?? true)) {
+        $translation = $glossaryPageTranslation
+            ?? $glossaryPage->translations->firstWhere('locale', $locale)
+            ?? $glossaryPage->translations->firstWhere('locale', $fallbackLocale)
+            ?? $glossaryPage->translations->first();
+
+        $glossarySchema = [
+            '@context' => 'https://schema.org',
+            '@type' => 'DefinedTermSet',
+            'name' => $text($translation?->meta_title ?: $translation?->title ?: $glossaryPage->code, 191),
+            'url' => $currentUrl,
+            'description' => $text($translation?->meta_description ?: $translation?->excerpt ?: $defaultDescription, 320),
+        ];
+
+        $termItems = collect($glossaryTerms ?? [])
+            ->take($itemListLimit)
+            ->map(function (array $term): ?array {
+                $title = trim((string) ($term['title'] ?? ''));
+                $url = trim((string) ($term['url'] ?? ''));
+
+                if ($title === '' || $url === '') {
+                    return null;
+                }
+
+                return [
+                    '@type' => 'DefinedTerm',
+                    'name' => $title,
+                    'url' => $url,
+                ];
+            })
+            ->filter()
+            ->values()
+            ->all();
+
+        if ($termItems !== []) {
+            $glossarySchema['hasDefinedTerm'] = $termItems;
+        }
+
+        $schemas[] = $glossarySchema;
+    }
+
+    if (request()->routeIs('glossary.show') && isset($glossaryTerm) && isset($glossaryTermTranslation) && (bool) ($schemaSettings['page_enabled'] ?? true)) {
+        $payload = is_array($glossaryTermTranslation->payload ?? null) ? $glossaryTermTranslation->payload : [];
+        $glossaryTermSchema = [
+            '@context' => 'https://schema.org',
+            '@type' => 'DefinedTerm',
+            'name' => $text($glossaryTermTranslation->meta_title ?: $glossaryTermTranslation->title ?: $glossaryTerm->code, 191),
+            'url' => $currentUrl,
+            'description' => $text($glossaryTermTranslation->meta_description ?: $glossaryTermTranslation->excerpt ?: $glossaryTermTranslation->body_html ?: $defaultDescription, 320),
+            'termCode' => (string) $glossaryTerm->code,
+            'inDefinedTermSet' => route('glossary.index'),
+        ];
+
+        $synonyms = collect($payload['synonyms'] ?? [])
+            ->map(fn ($item): string => trim((string) $item))
+            ->filter()
+            ->values()
+            ->all();
+
+        if ($synonyms !== []) {
+            $glossaryTermSchema['alternateName'] = count($synonyms) === 1 ? $synonyms[0] : $synonyms;
+        }
+
+        $schemas[] = $glossaryTermSchema;
+    }
+
     if (request()->routeIs('pages.show') && isset($page) && (bool) ($schemaSettings['page_enabled'] ?? true)) {
         $translation = $selectedTranslation
             ?? $page->translations->firstWhere('locale', $locale)

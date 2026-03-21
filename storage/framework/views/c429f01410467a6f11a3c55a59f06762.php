@@ -59,6 +59,32 @@
         }
     }
 
+    if (request()->routeIs('glossary.index') && isset($glossaryPage)) {
+        $translation = $glossaryPageTranslation
+            ?? $glossaryPage->translations->firstWhere('locale', $locale)
+            ?? $glossaryPage->translations->firstWhere('locale', $fallbackLocale)
+            ?? $glossaryPage->translations->first();
+        $title = $cleanupText($translation?->meta_title ?: $translation?->title ?: $title, 191);
+        $description = $cleanupText($translation?->meta_description ?: $translation?->excerpt ?: $description, 320);
+
+        if (trim((string) ($ogSettings['page_image_url'] ?? '')) !== '') {
+            $ogImage = (string) $ogSettings['page_image_url'];
+        }
+    }
+
+    if (request()->routeIs('glossary.show') && isset($glossaryTerm)) {
+        $translation = $glossaryTermTranslation
+            ?? $glossaryTerm->translations->firstWhere('locale', $locale)
+            ?? $glossaryTerm->translations->firstWhere('locale', $fallbackLocale)
+            ?? $glossaryTerm->translations->first();
+        $title = $cleanupText($translation?->meta_title ?: $translation?->title ?: $title, 191);
+        $description = $cleanupText($translation?->meta_description ?: $translation?->excerpt ?: $translation?->body_html ?: $description, 320);
+
+        if (trim((string) ($ogSettings['page_image_url'] ?? '')) !== '') {
+            $ogImage = (string) $ogSettings['page_image_url'];
+        }
+    }
+
     if (request()->routeIs('pages.show') && isset($page)) {
         $pageTranslation = $selectedTranslation
             ?? $page->translations->firstWhere('locale', $locale)
@@ -102,6 +128,15 @@
     if (request()->routeIs('team.index')) {
         $title = $cleanupText((string) __('ui.team.page_title'), 191);
         $description = $cleanupText((string) __('ui.team.subtitle'), 320);
+    }
+
+    if (request()->routeIs('family-business.show')) {
+        $title = $cleanupText((string) ($servicePageMetaTitle ?? $servicePageTitle ?? $title), 191);
+        $description = $cleanupText((string) ($servicePageMetaDescription ?? $description), 320);
+
+        if (trim((string) ($servicePageOgImage ?? '')) !== '') {
+            $ogImage = (string) $servicePageOgImage;
+        }
     }
 
     if ($description === '') {

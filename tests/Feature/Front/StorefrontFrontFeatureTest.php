@@ -28,7 +28,10 @@ class StorefrontFrontFeatureTest extends TestCase
         $this->get('/blog')->assertOk();
         $this->get('/blog/'.$postSlug)->assertOk();
         $this->get('/faq')->assertOk();
-        $this->get('/page/'.$pageSlug)->assertOk();
+        $this->get('/'.$pageSlug)->assertOk();
+        $this->get('/page/'.$pageSlug)
+            ->assertStatus(301)
+            ->assertRedirect(route('pages.show', ['slug' => $pageSlug]));
         $this->get('/alpha-capitalis-tim')->assertOk();
         $this->get('/obiteljski-biznis')->assertOk();
         $this->get('/contact')->assertOk();
@@ -37,6 +40,16 @@ class StorefrontFrontFeatureTest extends TestCase
 
         $this->assertNotNull($post);
         $this->assertNotNull($page);
+    }
+
+    public function test_info_page_uses_clean_url_and_legacy_page_url_redirects(): void
+    {
+        [, $pageSlug] = $this->seedInfoPage();
+
+        $this->get('/'.$pageSlug)->assertOk();
+        $this->get('/page/'.$pageSlug)
+            ->assertStatus(301)
+            ->assertRedirect(route('pages.show', ['slug' => $pageSlug]));
     }
 
     public function test_contact_form_stores_message(): void
@@ -160,6 +173,14 @@ class StorefrontFrontFeatureTest extends TestCase
             ->assertSee('ALPHA CAPITALIS Tim')
             ->assertSee(route('team.index'), false)
             ->assertDontSee('#tim', false);
+    }
+
+    public function test_home_header_links_eu_projects_navigation_item_to_clean_page_url(): void
+    {
+        $this->get('/')
+            ->assertOk()
+            ->assertSee(route('pages.show', ['slug' => 'eu-projekti']), false)
+            ->assertDontSee('#eu-projekti', false);
     }
 
     public function test_home_services_section_renders_requested_service_order(): void

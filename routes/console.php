@@ -2,6 +2,7 @@
 
 use App\Models\User;
 use App\Models\Settings\Local\Region;
+use App\Services\Content\GlossaryImportService;
 use App\Services\Content\WordPressBlogImportService;
 use App\Services\Front\AddressDirectoryService;
 use Carbon\CarbonImmutable;
@@ -73,6 +74,61 @@ Artisan::command('content:import-wordpress-blog
         return self::SUCCESS;
     })
     ->purpose('Import published WordPress blog posts from a WXR XML export');
+
+Artisan::command('content:import-glossary
+    {file : Path to the glossary CSV export}
+    {--locale=hr : Target locale for imported terms}
+    {--collection=svijet-financija : Collection code for imported terms}
+    {--page-code=finance-glossary : Info page code to connect with the glossary}
+    {--page-title=Svijet financija : Public page title}
+    {--page-slug=svijet-financija : Public page slug}
+    {--page-kicker=Rječnik pojmova : Label shown above the page hero}
+    {--page-excerpt=Pretražite financijske i računovodstvene pojmove na jednom mjestu. : Intro copy shown below the page title}
+    {--user-id= : Optional admin user ID for created_by/updated_by fields}',
+    function (GlossaryImportService $importer): int {
+        try {
+            $result = $importer->import((string) $this->argument('file'), [
+                'locale' => (string) $this->option('locale'),
+                'collection' => (string) $this->option('collection'),
+                'page_code' => (string) $this->option('page-code'),
+                'page_title' => (string) $this->option('page-title'),
+                'page_slug' => (string) $this->option('page-slug'),
+                'page_kicker' => (string) $this->option('page-kicker'),
+                'page_excerpt' => (string) $this->option('page-excerpt'),
+                'user_id' => $this->option('user-id') !== null && $this->option('user-id') !== ''
+                    ? (int) $this->option('user-id')
+                    : null,
+            ]);
+        } catch (\Throwable $exception) {
+            $this->error($exception->getMessage());
+
+            return self::FAILURE;
+        }
+
+        $this->info(sprintf(
+            'Imported %d glossary term(s) into collection "%s" for locale "%s".',
+            (int) $result['imported_count'],
+            (string) $result['collection'],
+            (string) $result['locale']
+        ));
+
+        $this->line(sprintf(
+            'Page: %s (/%s)',
+            (string) $result['page_code'],
+            (string) $result['page_slug']
+        ));
+
+        foreach ((array) ($result['imported'] ?? []) as $row) {
+            $this->line(sprintf(
+                '- %s [%s]',
+                (string) ($row['title'] ?? ''),
+                (string) ($row['slug'] ?? '')
+            ));
+        }
+
+        return self::SUCCESS;
+    })
+    ->purpose('Import finance glossary terms from a CSV export and prepare the related info page');
 
 Artisan::command('wholesale:token {user : User ID or email} {name=wholesale-client} {--abilities=wholesale.read,categories.read} {--expires=}', function (): int {
     if (! app(\App\Services\Catalog\CatalogFeatureService::class)->useApi()) {

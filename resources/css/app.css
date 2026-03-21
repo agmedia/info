@@ -28,6 +28,483 @@
 }
 
 @layer components {
+    .ac-glossary-band-kicker {
+        margin-bottom: 0.8rem;
+        font-size: 0.76rem;
+        font-weight: 700;
+        letter-spacing: 0.24em;
+        text-transform: uppercase;
+        color: rgba(232, 205, 142, 0.94);
+    }
+
+    .ac-glossary-shell {
+        background:
+            radial-gradient(circle at top left, rgba(171, 141, 82, 0.08), transparent 28%),
+            linear-gradient(180deg, #f8fafc 0%, #eef4fa 100%);
+    }
+
+    .ac-glossary-explorer {
+        position: relative;
+    }
+
+    .ac-glossary-hero {
+        position: relative;
+        overflow: hidden;
+        border: 1px solid rgba(154, 176, 205, 0.32);
+        border-radius: 2rem;
+        padding: 2rem;
+        background:
+            radial-gradient(circle at top right, rgba(171, 141, 82, 0.28), transparent 30%),
+            linear-gradient(135deg, #071628 0%, #0a233c 50%, #133d63 100%);
+        box-shadow: 0 28px 70px -42px rgba(7, 22, 40, 0.82);
+    }
+
+    .ac-glossary-hero::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background:
+            linear-gradient(90deg, rgba(255, 255, 255, 0.06) 1px, transparent 1px),
+            linear-gradient(180deg, rgba(255, 255, 255, 0.06) 1px, transparent 1px);
+        background-size: 5.5rem 5.5rem;
+        opacity: 0.18;
+        pointer-events: none;
+    }
+
+    .ac-glossary-hero-copy,
+    .ac-glossary-toolbar,
+    .ac-glossary-results-bar,
+    .ac-glossary-letter-strip {
+        position: relative;
+        z-index: 1;
+    }
+
+    .ac-glossary-hero-copy h2 {
+        margin: 0;
+        max-width: 36rem;
+        color: #f8fafc;
+        font-size: clamp(2rem, 3vw, 3rem);
+        line-height: 1.02;
+        letter-spacing: -0.03em;
+    }
+
+    .ac-glossary-hero-copy p:not(.ac-glossary-kicker) {
+        margin: 1rem 0 0;
+        max-width: 42rem;
+        color: rgba(226, 232, 240, 0.86);
+        font-size: 1rem;
+        line-height: 1.75;
+    }
+
+    .ac-glossary-kicker {
+        margin: 0 0 0.95rem;
+        color: rgba(232, 205, 142, 0.96);
+        font-size: 0.8rem;
+        font-weight: 700;
+        letter-spacing: 0.22em;
+        text-transform: uppercase;
+    }
+
+    .ac-glossary-toolbar {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto auto;
+        gap: 0.85rem;
+        margin-top: 1.8rem;
+        align-items: center;
+    }
+
+    .ac-glossary-search-field {
+        position: relative;
+        display: flex;
+        align-items: center;
+        border: 1px solid rgba(148, 163, 184, 0.22);
+        border-radius: 9999px;
+        background: rgba(255, 255, 255, 0.96);
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7);
+    }
+
+    .ac-glossary-search-icon {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 3.4rem;
+        color: #5f7388;
+    }
+
+    .ac-glossary-search-icon svg {
+        width: 1.15rem;
+        height: 1.15rem;
+    }
+
+    .ac-glossary-search-input {
+        width: 100%;
+        min-height: 3.35rem;
+        padding: 0 1.25rem 0 0;
+        border: 0;
+        background: transparent;
+        color: #0f172a;
+        font-size: 0.98rem;
+    }
+
+    .ac-glossary-search-input:focus {
+        outline: none;
+    }
+
+    .ac-glossary-search-input::placeholder {
+        color: #74859a;
+    }
+
+    .ac-glossary-action {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 3.35rem;
+        padding: 0 1.4rem;
+        border: 1px solid rgba(232, 205, 142, 0.42);
+        border-radius: 9999px;
+        background: linear-gradient(180deg, #f4dfaa 0%, #d6b672 100%);
+        color: #0c2238;
+        font-size: 0.85rem;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        transition: transform 140ms ease, box-shadow 140ms ease;
+        box-shadow: 0 14px 28px -24px rgba(232, 205, 142, 0.74);
+    }
+
+    .ac-glossary-action:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 18px 32px -24px rgba(232, 205, 142, 0.8);
+    }
+
+    .ac-glossary-clear {
+        justify-self: start;
+        color: rgba(232, 205, 142, 0.88);
+        font-size: 0.9rem;
+        font-weight: 600;
+    }
+
+    .ac-glossary-clear:hover {
+        color: #fff5d8;
+    }
+
+    .ac-glossary-results-bar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+        margin-top: 1.35rem;
+    }
+
+    .ac-glossary-results-copy {
+        margin: 0;
+        color: rgba(226, 232, 240, 0.88);
+        font-size: 0.88rem;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+    }
+
+    .ac-glossary-results-copy span:first-child {
+        color: #fff8ea;
+        font-size: 1.05rem;
+        font-weight: 700;
+    }
+
+    .ac-glossary-letter-strip {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        margin-top: 1.35rem;
+    }
+
+    .ac-glossary-letter {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 2.45rem;
+        min-height: 2.45rem;
+        padding: 0 0.72rem;
+        border: 1px solid rgba(226, 232, 240, 0.26);
+        border-radius: 9999px;
+        background: rgba(255, 255, 255, 0.08);
+        color: rgba(241, 245, 249, 0.82);
+        font-size: 0.82rem;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        transition: transform 140ms ease, background-color 140ms ease, color 140ms ease, border-color 140ms ease;
+    }
+
+    .ac-glossary-letter:hover {
+        transform: translateY(-1px);
+        border-color: rgba(232, 205, 142, 0.42);
+        color: #fff8ea;
+    }
+
+    .ac-glossary-letter.is-active {
+        border-color: rgba(232, 205, 142, 0.7);
+        background: linear-gradient(180deg, rgba(232, 205, 142, 0.92), rgba(171, 141, 82, 0.92));
+        color: #10263c;
+        box-shadow: 0 16px 30px -22px rgba(232, 205, 142, 0.82);
+    }
+
+    .ac-glossary-letter.is-empty {
+        opacity: 0.48;
+    }
+
+    .ac-glossary-group {
+        display: grid;
+        gap: 1.25rem;
+    }
+
+    .ac-glossary-group-head {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .ac-glossary-group-head h2 {
+        margin: 0;
+        color: #0c2238;
+        font-size: clamp(2rem, 3.1vw, 3.2rem);
+        line-height: 1;
+        letter-spacing: -0.05em;
+    }
+
+    .ac-glossary-group-kicker {
+        margin: 0 0 0.3rem;
+        color: #8b7350;
+        font-size: 0.72rem;
+        font-weight: 700;
+        letter-spacing: 0.2em;
+        text-transform: uppercase;
+    }
+
+    .ac-glossary-group-mark {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 4.6rem;
+        height: 4.6rem;
+        border-radius: 1.45rem;
+        background:
+            linear-gradient(180deg, rgba(12, 34, 56, 0.96), rgba(20, 61, 99, 0.94));
+        color: #f8fafc;
+        font-size: 1.6rem;
+        font-weight: 800;
+        box-shadow: 0 20px 40px -28px rgba(12, 34, 56, 0.82);
+    }
+
+    .ac-glossary-card {
+        overflow: hidden;
+        border: 1px solid rgba(148, 163, 184, 0.22);
+        border-radius: 1.6rem;
+        background: rgba(255, 255, 255, 0.96);
+        box-shadow: 0 18px 44px -38px rgba(12, 34, 56, 0.56);
+        transition: border-color 140ms ease, box-shadow 140ms ease, transform 140ms ease;
+    }
+
+    .ac-glossary-card:hover {
+        transform: translateY(-1px);
+        border-color: rgba(171, 141, 82, 0.28);
+        box-shadow: 0 22px 48px -36px rgba(12, 34, 56, 0.54);
+    }
+
+    .ac-glossary-card summary {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        gap: 1.2rem;
+        align-items: center;
+        padding: 1.4rem 1.45rem;
+        cursor: pointer;
+        list-style: none;
+    }
+
+    .ac-glossary-card summary::-webkit-details-marker {
+        display: none;
+    }
+
+    .ac-glossary-card-copy h3 {
+        margin: 0;
+        color: #0c2238;
+        font-size: 1.18rem;
+        line-height: 1.3;
+    }
+
+    .ac-glossary-card-copy p {
+        margin: 0.6rem 0 0;
+        color: #526375;
+        font-size: 0.97rem;
+        line-height: 1.75;
+    }
+
+    .ac-glossary-card-top {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.45rem;
+        margin-bottom: 0.9rem;
+    }
+
+    .ac-glossary-card-chevron {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 2.6rem;
+        height: 2.6rem;
+        border-radius: 9999px;
+        background: #eff4f8;
+        color: #35506b;
+        transition: transform 160ms ease, background-color 160ms ease, color 160ms ease;
+        flex-shrink: 0;
+    }
+
+    .ac-glossary-card-chevron svg {
+        width: 1.1rem;
+        height: 1.1rem;
+    }
+
+    .ac-glossary-card[open] .ac-glossary-card-chevron {
+        transform: rotate(180deg);
+        background: rgba(171, 141, 82, 0.18);
+        color: #8b7350;
+    }
+
+    .ac-glossary-meta-grid {
+        display: grid;
+        gap: 0.95rem;
+        padding: 0 1.45rem 1rem;
+    }
+
+    .ac-glossary-meta-row {
+        display: grid;
+        gap: 0.45rem;
+    }
+
+    .ac-glossary-meta-label {
+        color: #8b7350;
+        font-size: 0.72rem;
+        font-weight: 700;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+    }
+
+    .ac-glossary-meta-values {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.45rem;
+    }
+
+    .ac-glossary-chip {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 1.95rem;
+        padding: 0.25rem 0.8rem;
+        border: 1px solid rgba(148, 163, 184, 0.24);
+        border-radius: 9999px;
+        background: #f8fafc;
+        color: #3f556a;
+        font-size: 0.78rem;
+        font-weight: 700;
+        letter-spacing: 0.03em;
+    }
+
+    .ac-glossary-chip--accent {
+        border-color: rgba(171, 141, 82, 0.26);
+        background: rgba(171, 141, 82, 0.12);
+        color: #8b7350;
+    }
+
+    .ac-glossary-body {
+        padding: 0 1.45rem 1.45rem;
+        color: #203446;
+    }
+
+    .ac-glossary-empty {
+        padding: 2.2rem;
+        border: 1px dashed rgba(148, 163, 184, 0.4);
+        border-radius: 1.8rem;
+        background: rgba(255, 255, 255, 0.85);
+        text-align: center;
+    }
+
+    .ac-glossary-empty-kicker {
+        margin: 0;
+        color: #8b7350;
+        font-size: 0.76rem;
+        font-weight: 700;
+        letter-spacing: 0.2em;
+        text-transform: uppercase;
+    }
+
+    .ac-glossary-empty h2 {
+        margin: 0.9rem 0 0;
+        color: #0c2238;
+        font-size: clamp(1.75rem, 3vw, 2.6rem);
+        line-height: 1.05;
+    }
+
+    .ac-glossary-empty p {
+        margin: 0.85rem auto 0;
+        max-width: 34rem;
+        color: #526375;
+        line-height: 1.75;
+    }
+
+    @media (max-width: 1023px) {
+        .ac-glossary-hero {
+            padding: 1.55rem;
+        }
+
+        .ac-glossary-toolbar {
+            grid-template-columns: 1fr;
+        }
+
+        .ac-glossary-action,
+        .ac-glossary-clear {
+            width: 100%;
+            justify-content: center;
+        }
+    }
+
+    @media (max-width: 767px) {
+        .ac-glossary-shell {
+            padding-top: 0;
+        }
+
+        .ac-glossary-hero-copy h2 {
+            font-size: 1.8rem;
+        }
+
+        .ac-glossary-group-head {
+            align-items: flex-start;
+        }
+
+        .ac-glossary-group-mark {
+            width: 3.7rem;
+            height: 3.7rem;
+            font-size: 1.25rem;
+            border-radius: 1.1rem;
+        }
+
+        .ac-glossary-card summary {
+            padding: 1.1rem 1rem;
+            gap: 0.8rem;
+        }
+
+        .ac-glossary-meta-grid,
+        .ac-glossary-body {
+            padding-left: 1rem;
+            padding-right: 1rem;
+        }
+
+        .ac-glossary-body {
+            padding-bottom: 1.1rem;
+        }
+    }
+}
+
+@layer components {
     .front-desktop-shell {
         --front-bg: #f1f3f5;
         --front-bg-soft: #f1f3f5;
@@ -2355,6 +2832,55 @@
         text-decoration: underline;
         text-underline-offset: 2px;
         font-weight: 600;
+    }
+
+    .ac-page-body-inner .content-richtext ul,
+    .ac-page-body-inner .content-richtext ol {
+        margin: 0 0 1.2rem 1.45rem;
+        padding-left: 0.5rem;
+    }
+
+    .ac-page-body-inner .content-richtext ul {
+        list-style: disc outside;
+    }
+
+    .ac-page-body-inner .content-richtext ol {
+        list-style: decimal outside;
+    }
+
+    .ac-page-body-inner .content-richtext li {
+        display: list-item;
+        margin: 0 0 0.62rem;
+        padding-left: 0.15rem;
+    }
+
+    .ac-page-body-inner .content-richtext ul li::marker,
+    .ac-page-body-inner .content-richtext ol li::marker {
+        color: #ab8d52;
+        font-weight: 700;
+    }
+
+    .ac-page-body-inner .content-richtext li[data-list="bullet"] {
+        position: relative;
+        list-style: none;
+        margin: 0 0 0.9rem;
+        padding-left: 1.55rem;
+    }
+
+    .ac-page-body-inner .content-richtext li[data-list="bullet"] > .ql-ui {
+        display: none;
+    }
+
+    .ac-page-body-inner .content-richtext li[data-list="bullet"]::before {
+        content: '';
+        position: absolute;
+        top: 0.9em;
+        left: 0.15rem;
+        width: 0.46rem;
+        height: 0.46rem;
+        border-radius: 999px;
+        background: #ab8d52;
+        transform: translateY(-50%);
     }
 
     .front-desktop-shell .content-richtext iframe.ql-video,
@@ -6276,27 +6802,6 @@
         position: relative;
     }
 
-    .front-scroll-rail::before,
-    .front-scroll-rail::after {
-        content: '';
-        position: absolute;
-        top: 0;
-        bottom: 0;
-        width: 2rem;
-        pointer-events: none;
-        z-index: 2;
-    }
-
-    .front-scroll-rail::before {
-        left: 0;
-        background: linear-gradient(90deg, rgba(245, 248, 251, 0.98), rgba(245, 248, 251, 0));
-    }
-
-    .front-scroll-rail::after {
-        right: 0;
-        background: linear-gradient(270deg, rgba(245, 248, 251, 0.98), rgba(245, 248, 251, 0));
-    }
-
     .ac-blog-hero {
         margin-bottom: 1.6rem;
     }
@@ -8391,11 +8896,6 @@
 
         .ac-home-blog-card-meta-date {
             font-size: 0.88rem;
-        }
-
-        .front-scroll-rail::before,
-        .front-scroll-rail::after {
-            width: 1rem;
         }
 
         .ac-blog-shell {

@@ -227,6 +227,7 @@ class Form extends Component
                 'string',
                 'max:191',
                 'regex:/^[a-z0-9]+(?:-[a-z0-9]+)*$/',
+                Rule::notIn($this->reservedSlugs()),
                 Rule::unique('content_info_page_translations', 'slug')
                     ->where(fn ($q) => $q->where('locale', $this->form['locale']))
                     ->ignore($this->pageId, 'page_id'),
@@ -241,6 +242,16 @@ class Form extends Component
                 'integer',
                 Rule::exists('categories', 'id')->where(fn ($q) => $q->where('scope', Category::SCOPE_PAGE)),
             ],
+        ];
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    protected function messages(): array
+    {
+        return [
+            'form.slug.not_in' => __('This slug is reserved for an existing site route.'),
         ];
     }
 
@@ -321,6 +332,31 @@ class Form extends Component
         $this->form['meta_title'] = '';
         $this->form['meta_description'] = '';
         $this->form['translation_payload_text'] = '';
+    }
+
+    /**
+     * @return array<int, string>
+     */
+    private function reservedSlugs(): array
+    {
+        return [
+            'ac-forma-robot',
+            'admin',
+            'alpha-capitalis-tim',
+            'blog',
+            'contact',
+            'dashboard',
+            'faq',
+            'glossary',
+            'leasing-kalkulator',
+            'locale',
+            'login',
+            'logout',
+            'obiteljski-biznis',
+            'page',
+            'pages',
+            'profile',
+        ];
     }
 
     /**

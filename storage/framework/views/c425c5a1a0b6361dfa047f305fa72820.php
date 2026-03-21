@@ -1,203 +1,14 @@
 <?php
-    $heroBackgroundRelativePath = 'front-theme/images/services/family-business-editorial-3d.svg';
-    $heroBackgroundPath = public_path($heroBackgroundRelativePath);
-    $heroBackgroundUrl = file_exists($heroBackgroundPath)
-        ? asset($heroBackgroundRelativePath).'?v='.filemtime($heroBackgroundPath)
-        : asset($heroBackgroundRelativePath);
-
-    $ffiLogoRelativePath = 'front-theme/images/services/ffi-logo_40.webp';
-    $ffiLogoPath = public_path($ffiLogoRelativePath);
-    $ffiLogoUrl = file_exists($ffiLogoPath)
-        ? asset($ffiLogoRelativePath).'?v='.filemtime($ffiLogoPath)
-        : asset($ffiLogoRelativePath);
     $captchaSiteKey = trim((string) ($storeSettings['captcha']['recaptcha_v3_site_key'] ?? ''));
     $captchaEnabled = (bool) ($storeSettings['captcha']['recaptcha_v3_enabled'] ?? false) && $captchaSiteKey !== '';
     $contactEmail = trim((string) ($storeSettings['footer']['email_support'] ?? '')) ?: 'info@alphacapitalis.com';
     $contactPhone = trim((string) ($storeSettings['footer']['phone'] ?? '')) ?: '+385 (1) 580 6656';
     $contactPhoneHref = preg_replace('/\s+/', '', $contactPhone);
-    $brochureRelativePath = 'front-theme/documents/ALPHA_CAPITALIS_FAMILY_BUSINESS_ADVISORY_2025.pdf';
-    $brochurePath = public_path($brochureRelativePath);
-    $brochureUrl = file_exists($brochurePath)
-        ? asset($brochureRelativePath).'?v='.filemtime($brochurePath)
-        : null;
-
-    $heroSection = [
-        'title_lines' => ['ALPHA CAPITALIS', 'Savjetnici za obiteljski biznis'],
-        'intro' => 'U ALPHA CAPITALIS-u svjesni smo složenosti vašeg obiteljskog biznisa i jedinstvenosti vaše poduzetničke obitelji. Upravo zato vam na jednom mjestu pružamo cjelovitu podršku. Kroz holistički pristup stvaramo siguran prostor i posvećujemo vrijeme vašem poslovnom putu, osiguravajući stabilnost i razvoj kroz sve faze rasta.',
-        'cta' => ['label' => 'Pružamo vam podršku', 'url' => '#family-business-publika'],
-    ];
-
-    $audienceSection = [
-        'headline' => 'ALPHA CAPITALIS pruža vam podršku u razvoju dugoročne održivosti poslovanja i obitelji.',
-        'cards' => [
-            [
-                'title' => 'Osnivači',
-                'icon' => 'founders',
-                'text' => 'Suradujemo s vama na očuvanju vaše ostavštine, izvornih vrijednosti i vizije obiteljskog poduzeća. Pružamo vam podršku u procesu prijenosa vlasništva, vođenja i upravljanja na sljedeću generaciju te zadržavanja doprinosa kroz mentorstvo. Pratimo vas i vodimo kroz suočavanje s emocionalnim izazovima gubitka kontrole i važnosti, straha od isključenja i neizvjesnosti te prilagodbe osobnog identiteta uslijed povlačenja.',
-            ],
-            [
-                'title' => 'Nasljednici',
-                'icon' => 'successors',
-                'text' => 'Pružamo vam podršku u razvoju liderskih sposobnosti za preuzimanje ključnih odgovornosti obiteljske tvrtke u tranziciji. Surađujemo s vama na uvođenju inovacija bez ugrožavanja tradicije te promjena i transformacija uz očuvanje nasljeđa. Radimo na definiranju vašeg profesionalnog identiteta i stjecanju autoriteta te suočavanju s emocionalnim izazovima unutarnjih konflikata, strahom od grešaka i otpora te sumnjom u sebe.',
-            ],
-            [
-                'title' => 'Članovi obitelji',
-                'icon' => 'family',
-                'text' => 'Radimo s vama na definiranju vaših profesionalnih uloga, odgovornosti i prava u obiteljskoj firmi te etici i kodeksu ponašanja. Pružamo vam podršku u kreiranju upravljačkih i komunikacijskih struktura kako biste izgradili povjerenje i usklađenost obiteljskih vrijednosti sa strateškim poslovnim ciljevima. Pratimo vas i vodimo kroz izazove u suočavanju s prisutnim psihološkim, obiteljskim i širim društvenim dinamikama.',
-            ],
-            [
-                'title' => 'Neobiteljski menadžeri',
-                'icon' => 'managers',
-                'text' => 'Suradujemo s vama kako biste se uspješno integrirali u obiteljsku kompaniju te potpuno iskoristili svoje znanje i iskustvo. Pružamo vam podršku u definiranju profesionalnih upravljačkih struktura i procedura koje osiguravaju transparentnost i učinkovito poslovanje, što doprinosi dugoročnoj održivosti i rastu. Radimo na suočavanju sa psihološkim i organizacijskim dinamikama, uslijed specifičnosti obiteljskog biznisa.',
-            ],
-        ],
-    ];
-
-    $ffiSection = [
-        'title' => 'ALPHA CAPITALIS je član Family Firm Institute (FFI)',
-        'body' => [
-            'FFI je najutjecajnija globalna mreža lidera u području obiteljskog biznisa. Pružaju učenje temeljeno na istraživanju i pripadajuće alate za savjetnike, edukatore i dionike obiteljskih poduzeća.',
-        ],
-        'logo_url' => $ffiLogoUrl,
-        'logo_alt' => 'FFI GEN ACFBA logo',
-    ];
-
-    $whatWeDoSection = [
-        'kicker' => 'ŠTO RADIMO?',
-        'title' => 'Dugi niz godina savjetujemo obiteljska poduzeća i poduzetničke obitelji.',
-        'intro' => 'Svjesni smo međuovisnosti izazova obitelji, vlasništva i poslovanja s kojima se suočavate, kao i drugačijih zakonitosti koje njima vladaju jer zajedno s vama radimo na ključnim temama i ostvarenju vaših zajedničkih ciljeva. Kao multidisciplinarni tim stručnjaka omogućujemo stjecanje i prijenos znanja, iskustva i mudrosti u kritičnim situacijama razvoja mnogih obiteljskih biznisa.',
-    ];
-
-    $advisoryApproachSection = [
-        'kicker' => 'ŠTO MOŽEMO UČINITI ZA VAS',
-        'title' => 'Tu smo kako biste zadobili uvid u cjelovitu perspektivu.',
-        'intro' => 'Razumijemo koliko je zahtjevno donositi odluke, istovremeno dobre za biznis i obitelj jer vas pratimo i vodimo kroz ključne izazove i probleme vašeg obiteljskog poslovanja. Upravo iz tih razloga njegujemo potpuno personaliziran pristup svakoj obitelji i poslovanju, omogućujući dolazak do vlastitih zajedničkih rješenja, koja su prihvatljiva i koja traju.',
-        'box_title' => 'KAKO VAS SAVJETUJEMO',
-        'items' => [
-            [
-                'lead' => 'Uvažavamo vaša proživljena iskustva',
-                'body' => 'i stvorena značenja oko njih. To omogućuje usredotočenost na vaše specifične teme i situacije, na način koji upravo za vas ima smisla.',
-            ],
-            [
-                'lead' => 'Bavimo se cjelinom i međuovisnošću',
-                'body' => 'vašeg obiteljskog, vlasničkog i poslovnog sistema. To omogućuje otkrivanje, osvještavanje i procesiranje naizgled nepovezanih uzroka i posljedica, što je temelj za održive promjene i transformacije.',
-            ],
-            [
-                'lead' => 'Naglašavamo sposobnosti učenja',
-                'body' => 'i samo-obnavljanja, urođene pojedincima, ali također obiteljima i organizacijama. To omogućuje kontinuirano prilagođavanje i uspješno nošenje s vanjskim i unutarnjim promjenama.',
-            ],
-            [
-                'lead' => 'Kreiramo viziju poželjne budućnosti',
-                'body' => 'vašeg obiteljskog poslovanja te vas usmjeravamo na resurse koji ju čine mogućom. To omogućuje vaše ujedinjenje u definiranju zajedničke svrhe, ciljeva i planova.',
-            ],
-            [
-                'lead' => 'Uključujemo sve obiteljske dionike',
-                'body' => 'prisutne u vlasništvu i upravljanju u proces. To omogućuje bogatstvo različitih perspektiva, kolektivnu inteligenciju te unutarnje vlasništvo nad donesenim i provedenim odlukama.',
-            ],
-            [
-                'lead' => 'Podršci pristupamo multidisciplinarno,',
-                'body' => 'koristeći stručna znanja iz različitih, ali međusobno nadopunjujućih područja. To omogućuje cjelovito zadovoljenje vaših potreba.',
-            ],
-            [
-                'lead' => 'Neovisni smo,',
-                'body' => 'što nam omogućuje pružanje podrške svim uključenim stranama, a ne samo pojedinim dijelovima, interesnim skupinama ili pojedincima.',
-            ],
-            [
-                'lead' => 'Njegujemo punu transparentnost',
-                'body' => 'u razmjeni informacija s vama. Na taj način zajednički kreiramo presudan okvir za stvaranje ključnih vrijednosti i rješenja.',
-            ],
-        ],
-    ];
-
-    $capabilitySections = [
-        [
-            'title' => 'Upravljanje',
-            'icon' => 'governance',
-            'intro' => 'Naš pristup obiteljskom upravljanju temelji se na uspostavljanju jasnog i održivog modela upravljanja koji usklađuje odluke obitelji, vlasništva i poslovanja te osigurava dugoročnu stabilnost sustava.',
-            'items' => [
-                [
-                    'title' => 'Razvoj krovne misije',
-                    'text' => 'Definiramo zajedničku svrhu, vrijednosti i prioritete koji povezuju generacije i daju jasan smjer budućem razvoju obitelji i poslovanja.',
-                ],
-                [
-                    'title' => 'Upoznavanje obiteljske dinamike',
-                    'text' => 'Prepoznajemo obrasce odnosa, očekivanja i komunikacije kako bi se potencijalni prijepori razumjeli, obradili i spriječili prije eskalacije.',
-                ],
-                [
-                    'title' => 'Prilagođena upravljačka struktura',
-                    'text' => 'Kreiramo model uloga, foruma i pravila odlučivanja koji odgovara vašoj fazi razvoja, veličini poslovanja i vlasničkoj strukturi.',
-                ],
-            ],
-            'help' => 'Pomažemo vam postaviti okvir upravljanja koji donosi veću transparentnost, učinkovitost i dugoročnu stabilnost te olakšava donošenje odluka u ključnim trenucima.',
-        ],
-        [
-            'title' => 'Tranzicija',
-            'icon' => 'transition',
-            'intro' => 'Planiranje nasljeđa ključno je za očuvanje stabilnosti i dugoročne održivosti poslovanja. Strukturirano vodimo prijenos vlasništva, odgovornosti i autoriteta na sljedeću generaciju.',
-            'items' => [
-                [
-                    'title' => 'Odabir i evaluacija nasljednika',
-                    'text' => 'Procjenjujemo kompetencije, motivaciju i razvojni potencijal budućih nositelja ključnih odgovornosti kako bi izbor bio promišljen i održiv.',
-                ],
-                [
-                    'title' => 'Transparentan proces',
-                    'text' => 'Postavljamo jasan slijed koraka, kriterija i odluka kako bi prijenos bio razumljiv, prihvatljiv i transparentan svim uključenim stranama.',
-                ],
-                [
-                    'title' => 'Mentorski program za nasljednike',
-                    'text' => 'Razvijamo prijenos znanja, autoriteta i odgovornosti kroz strukturiranu pripremu nove generacije i podršku u preuzimanju liderske uloge.',
-                ],
-            ],
-            'help' => 'Vodimo tranziciju od pripreme i dijaloga do implementacije rješenja koja čuvaju kontinuitet poslovanja, odnose među članovima obitelji i stabilnost vlasničke strukture.',
-        ],
-        [
-            'title' => 'Dinamika odnosa',
-            'icon' => 'relations',
-            'intro' => 'Kod obiteljskih tvrtki poslovne odluke često su usko povezane s odnosima. Zato radimo na prevenciji konflikata, zdravijoj komunikaciji i većoj jasnoći u međusobnim očekivanjima.',
-            'items' => [
-                [
-                    'title' => 'Prevencija',
-                    'text' => 'Pomažemo rano prepoznati tenzije i nesporazume kako bi se otvorio prostor za konstruktivan razgovor i pravovremeno rješavanje izazova.',
-                ],
-                [
-                    'title' => 'Kodeks komunikacije',
-                    'text' => 'Gradimo pravila komunikacije koja podržavaju jasnoću, uvažavanje i donošenje odluka bez nepotrebnog zastoja ili međusobnog iscrpljivanja.',
-                ],
-                [
-                    'title' => 'Normalizacija procesa',
-                    'text' => 'Uspostavljamo ritam sastanaka i procesa koji smanjuju neizvjesnost, grade sigurnost i donose više predvidljivosti unutar obitelji i tvrtke.',
-                ],
-            ],
-            'help' => 'Kroz strukturiran dijalog i podršku u komunikaciji pomažemo očuvati povjerenje, stabilnost odnosa i prostor za donošenje zajedničkih odluka.',
-        ],
-    ];
-
-    $teamSection = [
-        'kicker' => 'TIM',
-        'title' => 'Naš tim za obiteljsko savjetovanje',
-        'intro' => 'Stručnjaci koji rade s obiteljskim poduzećima u temama tranzicije, upravljanja, odnosa i dugoročne održivosti poslovanja.',
-    ];
-
-    $meetingSection = [
-        'title' => 'Ugovorite sastanak',
-        'intro' => 'U ALPHA CAPITALIS-u svjesni smo složenosti vašeg obiteljskog biznisa i jedinstvenosti vaše poduzetničke obitelji. Upravo zato vam na jednom mjestu pružamo cjelovitu podršku. Kroz holistički pristup stvaramo siguran prostor i posvećujemo vrijeme vašem poslovnom putu, osiguravajući stabilnost i razvoj kroz sve faze rasta.',
-        'visit_title' => 'Posjetite nas',
-        'visit_lines' => [
-            'Ul. Roberta Frangeša Mihanovića 9,',
-            '10110 Zagreb / Sky Office, 19. kat',
-        ],
-        'contact_title' => 'Kontaktirajte nas',
-        'submit' => 'Pošalji',
-    ];
-
-    $blogSection = [
-        'kicker' => 'BLOG',
-        'title' => 'Najnovije objave iz kategorije '.($familyBusinessCategoryName ?? 'Obiteljski biznis'),
-        'intro' => 'Novosti, članci i stručni uvidi vezani uz tranziciju, upravljanje i razvoj obiteljskih poduzeća.',
-    ];
+    $meetingFormLabels = $meetingSection['form_labels'] ?? [];
+    $brochureLabel = $brochureLabel !== '' ? $brochureLabel : 'Preuzmite brošuru';
 ?>
 
-<?php $__env->startSection('title', 'Obiteljski biznis'); ?>
+<?php $__env->startSection('title', $servicePageMetaTitle !== '' ? $servicePageMetaTitle : ($servicePageTitle ?? 'Obiteljski biznis')); ?>
 <?php $__env->startSection('main_class', 'w-full px-0 py-0'); ?>
 
 <?php $__env->startSection('content'); ?>
@@ -211,18 +22,18 @@
                     <div class="ac-family-hero-shell">
                         <div class="ac-family-hero-copy">
                             <h1 class="ac-family-hero-title">
-                                <span class="is-brand"><?php echo e($heroSection['title_lines'][0]); ?></span>
+                                <span class="is-brand"><?php echo e($heroSection['brand_title'] ?? 'ALPHA CAPITALIS'); ?></span>
                                 <span class="is-subtitle">
-                                    <span class="is-subtitle-lead">Savjetnici za</span>
-                                    <span class="is-subtitle-accent">obiteljski biznis</span>
+                                    <span class="is-subtitle-lead"><?php echo e($heroSection['subtitle_lead'] ?? 'Savjetnici za'); ?></span>
+                                    <span class="is-subtitle-accent"><?php echo e($heroSection['subtitle_accent'] ?? 'obiteljski biznis'); ?></span>
                                 </span>
                             </h1>
 
-                            <p class="ac-family-hero-intro"><?php echo e($heroSection['intro']); ?></p>
+                            <p class="ac-family-hero-intro"><?php echo e($heroSection['intro'] ?? ''); ?></p>
 
                             <div class="ac-family-hero-actions">
-                                <a href="<?php echo e($heroSection['cta']['url']); ?>" class="front-action-cta">
-                                    <span><?php echo e($heroSection['cta']['label']); ?></span>
+                                <a href="<?php echo e($heroSection['cta_url'] ?? '#family-business-publika'); ?>" class="front-action-cta">
+                                    <span><?php echo e($heroSection['cta_label'] ?? 'Pružamo vam podršku'); ?></span>
                                     <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
                                         <path d="M12 5v14" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"></path>
                                         <path d="m6 13 6 6 6-6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></path>
@@ -391,12 +202,12 @@
 
                             <div class="mt-8 flex flex-col gap-4 border-t border-slate-200/80 pt-6 lg:flex-row lg:items-end lg:justify-between">
                                 <div class="max-w-[48rem]">
-                                    <p class="ac-family-section-kicker">KAKO VAM MOŽEMO POMOĆI</p>
+                                    <p class="ac-family-section-kicker"><?php echo e($capabilityCta['kicker'] ?? 'KAKO VAM MOŽEMO POMOĆI'); ?></p>
                                     <p class="mt-3 text-[0.98rem] leading-7 text-slate-700"><?php echo e($capabilitySection['help']); ?></p>
                                 </div>
 
                                 <a href="#family-business-sastanak" class="front-contact-submit inline-flex h-11 items-center justify-center gap-2 px-6 text-sm font-semibold !text-white transition">
-                                    <span>Zatražite konzultacije</span>
+                                    <span><?php echo e($capabilityCta['label'] ?? 'Zatražite konzultacije'); ?></span>
                                     <svg viewBox="0 0 24 24" class="h-4 w-4 flex-none" fill="none" aria-hidden="true">
                                         <path d="M12 5v14" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"></path>
                                         <path d="m6 13 6 6 6-6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></path>
@@ -456,7 +267,7 @@
                                     <path d="M14 3.75V8.5h4.75" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
                                     <path d="M8.9 12.25h6.2M8.9 15.25h6.2" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
                                 </svg>
-                                <span>Preuzmite brošuru</span>
+                                <span><?php echo e($brochureLabel); ?></span>
                                 <svg viewBox="0 0 24 24" class="h-[0.95rem] w-[0.95rem] flex-none" fill="none" aria-hidden="true">
                                     <path d="M5 12h13" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"></path>
                                     <path d="m12 5 7 7-7 7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></path>
@@ -587,9 +398,9 @@
                 </section>
             <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
-            <section id="family-business-sastanak" class="ac-family-section pb-16 md:pb-24" aria-labelledby="ac-family-meeting-title">
+                <section id="family-business-sastanak" class="ac-family-section pb-16 md:pb-24" aria-labelledby="ac-family-meeting-title">
                 <div class="ac-family-team-showcase-head">
-                    <p class="ac-family-section-kicker">SASTANAK</p>
+                    <p class="ac-family-section-kicker"><?php echo e($meetingSection['kicker'] ?? 'SASTANAK'); ?></p>
                     <h2 id="ac-family-meeting-title"><?php echo e($meetingSection['title']); ?></h2>
                     <p><?php echo e($meetingSection['intro']); ?></p>
                 </div>
@@ -608,11 +419,11 @@
                             <h2><?php echo e($meetingSection['contact_title']); ?></h2>
                             <ul class="front-contact-direct-list">
                                 <li>
-                                    <span>Telefon</span>
+                                    <span><?php echo e($meetingSection['direct_phone_label'] ?? 'Telefon'); ?></span>
                                     <a href="tel:<?php echo e($contactPhoneHref); ?>"><?php echo e($contactPhone); ?></a>
                                 </li>
                                 <li>
-                                    <span>Email</span>
+                                    <span><?php echo e($meetingSection['direct_email_label'] ?? 'Email'); ?></span>
                                     <a href="mailto:<?php echo e($contactEmail); ?>"><?php echo e($contactEmail); ?></a>
                                 </li>
                             </ul>
@@ -646,7 +457,7 @@
 
                         <div class="grid gap-4 md:grid-cols-2">
                             <div>
-                                <label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-500" for="family-business-first-name">Ime</label>
+                                <label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-500" for="family-business-first-name"><?php echo e($meetingFormLabels['first_name'] ?? 'Ime'); ?></label>
                                 <input id="family-business-first-name" type="text" name="first_name" value="<?php echo e(old('first_name')); ?>" class="front-contact-input h-11 w-full text-sm" required>
                                 <p class="mt-2 text-xs font-semibold text-rose-600 <?php echo e($errors->has('first_name') ? '' : 'hidden'); ?>" data-field-error="first_name"><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__errorArgs = ['first_name'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
@@ -658,7 +469,7 @@ endif;
 unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?></p>
                             </div>
                             <div>
-                                <label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-500" for="family-business-last-name">Prezime</label>
+                                <label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-500" for="family-business-last-name"><?php echo e($meetingFormLabels['last_name'] ?? 'Prezime'); ?></label>
                                 <input id="family-business-last-name" type="text" name="last_name" value="<?php echo e(old('last_name')); ?>" class="front-contact-input h-11 w-full text-sm">
                                 <p class="mt-2 text-xs font-semibold text-rose-600 <?php echo e($errors->has('last_name') ? '' : 'hidden'); ?>" data-field-error="last_name"><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__errorArgs = ['last_name'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
@@ -673,7 +484,7 @@ unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendB
 
                         <div class="mt-4 grid gap-4 md:grid-cols-2">
                             <div>
-                                <label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-500" for="family-business-company">Tvrtka</label>
+                                <label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-500" for="family-business-company"><?php echo e($meetingFormLabels['company'] ?? 'Tvrtka'); ?></label>
                                 <input id="family-business-company" type="text" name="company" value="<?php echo e(old('company')); ?>" class="front-contact-input h-11 w-full text-sm">
                                 <p class="mt-2 text-xs font-semibold text-rose-600 <?php echo e($errors->has('company') ? '' : 'hidden'); ?>" data-field-error="company"><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__errorArgs = ['company'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
@@ -685,7 +496,7 @@ endif;
 unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?></p>
                             </div>
                             <div>
-                                <label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-500" for="family-business-phone">Broj telefona</label>
+                                <label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-500" for="family-business-phone"><?php echo e($meetingFormLabels['phone'] ?? 'Broj telefona'); ?></label>
                                 <input id="family-business-phone" type="text" name="phone" value="<?php echo e(old('phone')); ?>" class="front-contact-input h-11 w-full text-sm">
                                 <p class="mt-2 text-xs font-semibold text-rose-600 <?php echo e($errors->has('phone') ? '' : 'hidden'); ?>" data-field-error="phone"><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__errorArgs = ['phone'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
@@ -699,7 +510,7 @@ unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendB
                         </div>
 
                         <div class="mt-4">
-                            <label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-500" for="family-business-email">Email</label>
+                            <label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-500" for="family-business-email"><?php echo e($meetingFormLabels['email'] ?? 'Email'); ?></label>
                             <input id="family-business-email" type="email" name="email" value="<?php echo e(old('email', auth()->user()?->email)); ?>" class="front-contact-input h-11 w-full text-sm" required>
                             <p class="mt-2 text-xs font-semibold text-rose-600 <?php echo e($errors->has('email') ? '' : 'hidden'); ?>" data-field-error="email"><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__errorArgs = ['email'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
@@ -712,7 +523,7 @@ unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendB
                         </div>
 
                         <div class="mt-4">
-                            <label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-500" for="family-business-subject">Naslov poruke</label>
+                            <label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-500" for="family-business-subject"><?php echo e($meetingFormLabels['subject'] ?? 'Naslov poruke'); ?></label>
                             <input id="family-business-subject" type="text" name="subject" value="<?php echo e(old('subject')); ?>" class="front-contact-input h-11 w-full text-sm">
                             <p class="mt-2 text-xs font-semibold text-rose-600 <?php echo e($errors->has('subject') ? '' : 'hidden'); ?>" data-field-error="subject"><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__errorArgs = ['subject'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
@@ -725,7 +536,7 @@ unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendB
                         </div>
 
                         <div class="mt-4">
-                            <label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-500" for="family-business-message">Poruka</label>
+                            <label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-500" for="family-business-message"><?php echo e($meetingFormLabels['message'] ?? 'Poruka'); ?></label>
                             <textarea id="family-business-message" name="message" rows="8" class="front-contact-textarea w-full text-sm" required><?php echo e(old('message')); ?></textarea>
                             <p class="mt-2 text-xs font-semibold text-rose-600 <?php echo e($errors->has('message') ? '' : 'hidden'); ?>" data-field-error="message"><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__errorArgs = ['message'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');

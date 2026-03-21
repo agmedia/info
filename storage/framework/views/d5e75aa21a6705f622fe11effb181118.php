@@ -5,7 +5,7 @@
 ?>
 
 <?php $__env->startSection('title', $translation?->title ?? 'Page'); ?>
-<?php $__env->startSection('main_class', 'w-full px-0 py-0'); ?>
+<?php $__env->startSection('main_class', 'w-full px-0 py-0 pb-[100px]'); ?>
 
 <?php $__env->startSection('content'); ?>
     <?php
@@ -46,13 +46,17 @@
 <?php unset($__componentOriginale6a101278d02d7bbbf9e98ee1142bf75); ?>
 <?php endif; ?>
 
-    <section class="mx-auto w-full max-w-[1320px] px-4 py-10 sm:px-6 lg:px-8">
-        <article class="rounded-[22px] border border-slate-200 bg-white px-5 py-6 sm:px-6 lg:px-8 lg:py-8">
-            <div class="content-richtext">
-                <?php echo $translation?->body_html ?: '<p>This page has no body content.</p>'; ?>
+    <section class="border-y border-slate-200 bg-slate-100/80">
+        <div class="mx-auto w-full max-w-[1320px] px-4 py-10 sm:px-6 lg:px-8">
+            <article class="border border-slate-200 bg-white px-5 py-6 sm:px-6 lg:px-8 lg:py-8">
+                <div class="ac-page-body-inner">
+                    <div class="content-richtext">
+                        <?php echo $translation?->body_html ?: '<p>This page has no body content.</p>'; ?>
 
-            </div>
-        </article>
+                    </div>
+                </div>
+            </article>
+        </div>
     </section>
 
     <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($bottomBlocks->isNotEmpty()): ?>

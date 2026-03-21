@@ -79,6 +79,24 @@ class ContentBlogPagesFeatureTest extends TestCase
         $this->assertSame('Shipping Info', (string) $page->translation('en')->first()?->title);
     }
 
+    public function test_admin_cannot_use_reserved_clean_slug_for_info_page(): void
+    {
+        $user = $this->makeAdminUser();
+
+        Livewire::actingAs($user)
+            ->test(PageForm::class)
+            ->set('form.code', 'blog-landing')
+            ->set('form.layout', 'default')
+            ->set('form.is_active', true)
+            ->set('form.locale', 'en')
+            ->set('form.title', 'Blog Landing')
+            ->set('form.slug', 'blog')
+            ->call('save')
+            ->assertHasErrors(['form.slug' => 'not_in']);
+
+        $this->assertNull(InfoPage::query()->where('code', 'blog-landing')->first());
+    }
+
     public function test_blog_manager_renders_cover_preview_when_post_has_image(): void
     {
         Storage::fake('public');

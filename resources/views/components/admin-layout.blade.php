@@ -1024,6 +1024,7 @@
                     $contentCategoriesActive = request()->routeIs('admin.categories*');
                     $contentBlogActive = request()->routeIs('admin.content.blog.*');
                     $contentTeamActive = request()->routeIs('admin.content.team.*');
+                    $contentGlossaryActive = request()->routeIs('admin.content.glossary.*');
                     $contentPagesActive = request()->routeIs('admin.content.pages.*');
                     $contentServicesActive = request()->routeIs('admin.content.services.*');
                     $contentFaqsActive = request()->routeIs('admin.content.faqs.*');
@@ -1031,7 +1032,7 @@
                     $contentBlocksActive = request()->routeIs('admin.content.blocks*');
                     $contentNavigationActive = request()->routeIs('admin.content.navigation*');
                     $contentSlotsActive = request()->routeIs('admin.content.slots*');
-                    $contentOpen = $contentCategoriesActive || $contentBlogActive || $contentTeamActive || $contentPagesActive || $contentServicesActive || $contentFaqsActive || $contentCommentsActive || $contentBlocksActive || $contentNavigationActive || $contentSlotsActive;
+                    $contentOpen = $contentCategoriesActive || $contentBlogActive || $contentTeamActive || $contentGlossaryActive || $contentPagesActive || $contentServicesActive || $contentFaqsActive || $contentCommentsActive || $contentBlocksActive || $contentNavigationActive || $contentSlotsActive;
                     $settingsOpen = request()->routeIs('admin.settings.*');
                     $settingsSystemOpen = request()->routeIs('admin.settings.system.*');
                     $canManageUsersAccess = auth()->user() && auth()->user()->isA('superadmin');
@@ -1281,6 +1282,15 @@
                                 <span class="flex items-center gap-2">
                                     <span class="sidebar-dot"></span>
                                     <span>{{ __('admin.layout.menu.team') }}</span>
+                                </span>
+                            </a>
+                            <a
+                                href="{{ route('admin.content.glossary.index') }}"
+                                class="sidebar-dropdown-link block rounded-lg font-medium {{ $contentGlossaryActive ? 'is-active-leaf' : 'text-slate-700 hover:bg-slate-100' }}"
+                            >
+                                <span class="flex items-center gap-2">
+                                    <span class="sidebar-dot"></span>
+                                    <span>{{ __('admin.layout.menu.glossary') }}</span>
                                 </span>
                             </a>
                             <a

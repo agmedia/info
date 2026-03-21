@@ -8,6 +8,7 @@ use App\Http\Controllers\Front\CollaborationAssessmentController;
 use App\Http\Controllers\Front\ContactController;
 use App\Http\Controllers\Front\FamilyBusinessController;
 use App\Http\Controllers\Front\FaqController;
+use App\Http\Controllers\Front\GlossaryController;
 use App\Http\Controllers\Front\LeaseCalculatorController;
 use App\Http\Controllers\Front\PageController;
 use App\Http\Controllers\Front\TeamController;
@@ -16,6 +17,7 @@ use App\Models\Catalog\Category\Category;
 use App\Models\Content\Blog\BlogPost;
 use App\Models\Content\ContentBlock;
 use App\Models\Content\ContentBlockSlot;
+use App\Models\Content\Glossary\GlossaryTerm;
 use App\Models\Content\Page\InfoPage;
 use App\Models\Content\Service\ServicePage;
 use App\Models\Content\Support\Faq;
@@ -66,9 +68,20 @@ Route::middleware(['front.locale', 'front.device'])
         Route::get('faq', [FaqController::class, 'index'])->name('faq.index');
         Route::get('alpha-capitalis-tim', [TeamController::class, 'index'])->name('team.index');
         Route::get('obiteljski-biznis', [FamilyBusinessController::class, 'show'])->name('family-business.show');
+        Route::get('glossary', [GlossaryController::class, 'index'])->name('glossary.index');
+        Route::get('glossary/{slug}', [GlossaryController::class, 'show'])->name('glossary.show');
 
         Route::get('pages/category/{slug}', [PageController::class, 'category'])->name('pages.category');
-        Route::get('page/{slug}', [PageController::class, 'show'])->name('pages.show');
+        Route::get('page/{slug}', function (string $slug, Request $request) {
+            $targetUrl = route('pages.show', ['slug' => $slug]);
+            $queryString = $request->getQueryString();
+
+            if ($queryString) {
+                $targetUrl .= '?'.$queryString;
+            }
+
+            return redirect()->to($targetUrl, 301);
+        })->where('slug', '[a-z0-9-]+')->name('pages.legacy');
 
         Route::get('contact', [ContactController::class, 'create'])->name('contact.create');
         Route::post('contact', [ContactController::class, 'store'])->name('contact.store');
@@ -121,6 +134,12 @@ Route::middleware(['admin.locale', 'auth', 'verified', 'admin.access', 'admin.ma
             Route::get('team/{member}/edit', function (TeamMember $member) {
                 return view('admin.content.team.edit', compact('member'));
             })->name('team.edit');
+
+            Route::view('glossary', 'admin.content.glossary.index')->name('glossary.index');
+            Route::view('glossary/create', 'admin.content.glossary.create')->name('glossary.create');
+            Route::get('glossary/{term}/edit', function (GlossaryTerm $term) {
+                return view('admin.content.glossary.edit', compact('term'));
+            })->name('glossary.edit');
 
             Route::view('pages', 'admin.content.pages.index')->name('pages.index');
             Route::view('pages/create', 'admin.content.pages.create')->name('pages.create');
@@ -206,3 +225,11 @@ Route::post('logout', function (Request $request) {
 })->middleware('auth')->name('logout');
 
 require __DIR__.'/auth.php';
+
+Route::middleware(['front.locale', 'front.device'])
+    ->group(function (): void {
+        // Keep CMS page slugs last so fixed top-level routes win first.
+        Route::get('{slug}', [PageController::class, 'show'])
+            ->where('slug', '[a-z0-9-]+')
+            ->name('pages.show');
+    });

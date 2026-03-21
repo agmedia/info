@@ -50,6 +50,19 @@ return [
             'view' => ['content.team.view'],
         ],
 
+        'admin.content.glossary.create' => [
+            'view' => ['content.glossary.create'],
+            'mutate' => ['content.glossary.create'],
+        ],
+        'admin.content.glossary.edit' => [
+            'view' => ['content.glossary.update'],
+            'mutate' => ['content.glossary.update'],
+            'delete' => ['content.glossary.delete'],
+        ],
+        'admin.content.glossary.*' => [
+            'view' => ['content.glossary.view'],
+        ],
+
         'admin.content.pages.create' => [
             'view' => ['content.pages.create'],
             'mutate' => ['content.pages.create'],

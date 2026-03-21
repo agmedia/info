@@ -6,7 +6,7 @@
 @endphp
 
 @section('title', $categoryTranslation?->name ?? 'Pages')
-@section('main_class', 'w-full px-0 py-0')
+@section('main_class', 'w-full px-0 py-0 pb-[100px]')
 
 @section('content')
     @php

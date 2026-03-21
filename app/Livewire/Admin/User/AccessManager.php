@@ -330,6 +330,7 @@ class AccessManager extends Component
             'users.access' => __('Users / Access'),
             'catalog.categories' => __('Catalog / Categories'),
             'content.blog' => __('Content / Blog'),
+            'content.glossary' => __('Content / Glossary'),
             'content.pages' => __('Content / Pages'),
             'content.services' => __('Content / Services'),
             'content.faqs' => __('Content / FAQs'),

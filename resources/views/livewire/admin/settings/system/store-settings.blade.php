@@ -137,7 +137,7 @@
                                 </div>
                                 <div>
                                     <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Custom Links') }}</label>
-                                    <textarea wire:model="form.store_footer_col_{{ $col }}_custom_links" rows="6" class="w-full rounded-xl border border-slate-300 px-3 py-2 font-mono text-xs" placeholder="{{ __('Blog|/blog&#10;FAQ|/page/faq&#10;Kontakt|/contact') }}"></textarea>
+                                    <textarea wire:model="form.store_footer_col_{{ $col }}_custom_links" rows="6" class="w-full rounded-xl border border-slate-300 px-3 py-2 font-mono text-xs" placeholder="{{ __('Blog|/blog&#10;FAQ|/faq&#10;Kontakt|/contact') }}"></textarea>
                                     <p class="mt-1 text-xs text-slate-500">{{ __('One per line:') }} <code>Label|URL</code></p>
                                 </div>
                             </div>

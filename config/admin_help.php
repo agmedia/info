@@ -47,6 +47,11 @@ return [
             'summary' => 'Manage team members, profile copy, contact links, and profile photos.',
         ],
 
+        'admin.content.glossary.*' => [
+            'title' => 'Glossary',
+            'summary' => 'Manage finance glossary terms used by the Svijet financija page.',
+        ],
+
         'admin.content.pages.*' => [
             'title' => 'Pages',
             'summary' => 'Manage static pages and legal content.',

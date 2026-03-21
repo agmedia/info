@@ -1052,13 +1052,15 @@ unset($__defined_vars, $__key, $__value); ?>
                     $contentCategoriesActive = request()->routeIs('admin.categories*');
                     $contentBlogActive = request()->routeIs('admin.content.blog.*');
                     $contentTeamActive = request()->routeIs('admin.content.team.*');
+                    $contentGlossaryActive = request()->routeIs('admin.content.glossary.*');
                     $contentPagesActive = request()->routeIs('admin.content.pages.*');
+                    $contentServicesActive = request()->routeIs('admin.content.services.*');
                     $contentFaqsActive = request()->routeIs('admin.content.faqs.*');
                     $contentCommentsActive = request()->routeIs('admin.content.comments.*');
                     $contentBlocksActive = request()->routeIs('admin.content.blocks*');
                     $contentNavigationActive = request()->routeIs('admin.content.navigation*');
                     $contentSlotsActive = request()->routeIs('admin.content.slots*');
-                    $contentOpen = $contentCategoriesActive || $contentBlogActive || $contentTeamActive || $contentPagesActive || $contentFaqsActive || $contentCommentsActive || $contentBlocksActive || $contentNavigationActive || $contentSlotsActive;
+                    $contentOpen = $contentCategoriesActive || $contentBlogActive || $contentTeamActive || $contentGlossaryActive || $contentPagesActive || $contentServicesActive || $contentFaqsActive || $contentCommentsActive || $contentBlocksActive || $contentNavigationActive || $contentSlotsActive;
                     $settingsOpen = request()->routeIs('admin.settings.*');
                     $settingsSystemOpen = request()->routeIs('admin.settings.system.*');
                     $canManageUsersAccess = auth()->user() && auth()->user()->isA('superadmin');
@@ -1311,12 +1313,30 @@ unset($__defined_vars, $__key, $__value); ?>
                                 </span>
                             </a>
                             <a
+                                href="<?php echo e(route('admin.content.glossary.index')); ?>"
+                                class="sidebar-dropdown-link block rounded-lg font-medium <?php echo e($contentGlossaryActive ? 'is-active-leaf' : 'text-slate-700 hover:bg-slate-100'); ?>"
+                            >
+                                <span class="flex items-center gap-2">
+                                    <span class="sidebar-dot"></span>
+                                    <span><?php echo e(__('admin.layout.menu.glossary')); ?></span>
+                                </span>
+                            </a>
+                            <a
                                 href="<?php echo e(route('admin.content.pages.index')); ?>"
                                 class="sidebar-dropdown-link block rounded-lg font-medium <?php echo e($contentPagesActive ? 'is-active-leaf' : 'text-slate-700 hover:bg-slate-100'); ?>"
                             >
                                 <span class="flex items-center gap-2">
                                     <span class="sidebar-dot"></span>
                                     <span><?php echo e(__('admin.layout.menu.pages')); ?></span>
+                                </span>
+                            </a>
+                            <a
+                                href="<?php echo e(route('admin.content.services.index')); ?>"
+                                class="sidebar-dropdown-link block rounded-lg font-medium <?php echo e($contentServicesActive ? 'is-active-leaf' : 'text-slate-700 hover:bg-slate-100'); ?>"
+                            >
+                                <span class="flex items-center gap-2">
+                                    <span class="sidebar-dot"></span>
+                                    <span><?php echo e(__('admin.layout.menu.services')); ?></span>
                                 </span>
                             </a>
                             <a
