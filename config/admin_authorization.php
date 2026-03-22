@@ -143,6 +143,11 @@ return [
             'delete' => ['content.slots.delete'],
         ],
 
+        'admin.messages.career.*' => [
+            'view' => ['messages.career.view'],
+            'mutate' => ['messages.career.moderate'],
+        ],
+
         'admin.settings.system.runtime' => [
             'view' => ['settings.system.runtime.manage'],
             'mutate' => ['settings.system.runtime.manage'],

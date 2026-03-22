@@ -175,6 +175,17 @@ class PageController extends Controller
             return redirect()->to($targetUrl, 301);
         }
 
+        if ($page->layout === 'career') {
+            return view($this->frontendView($request, 'pages.career'), [
+                'page' => $page,
+                'selectedTranslation' => $selectedTranslation,
+                'topBlocks' => $topBlocks,
+                'bottomBlocks' => $bottomBlocks,
+                'locale' => $locale,
+                'fallbackLocale' => $fallbackLocale,
+            ]);
+        }
+
         return view($this->frontendView($request, 'pages.show'), [
             'page' => $page,
             'selectedTranslation' => $selectedTranslation,

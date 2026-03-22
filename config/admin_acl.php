@@ -57,6 +57,9 @@ return [
         ['name' => 'content.slots.update', 'title' => 'Update content slots', 'group' => 'content.slots'],
         ['name' => 'content.slots.delete', 'title' => 'Delete content slots', 'group' => 'content.slots'],
 
+        ['name' => 'messages.career.view', 'title' => 'View career applications', 'group' => 'messages.career'],
+        ['name' => 'messages.career.moderate', 'title' => 'Moderate career applications', 'group' => 'messages.career'],
+
         ['name' => 'media.manage', 'title' => 'Manage media', 'group' => 'content.media'],
 
         ['name' => 'users.list.view', 'title' => 'View users', 'group' => 'users.core'],
@@ -117,6 +120,8 @@ return [
             'content.slots.create',
             'content.slots.update',
             'content.slots.delete',
+            'messages.career.view',
+            'messages.career.moderate',
             'media.manage',
             'users.list.view',
             'users.profile.update',

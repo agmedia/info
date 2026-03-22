@@ -2,8 +2,10 @@
 
 use App\Http\Controllers\Admin\AdminAiController;
 use App\Http\Controllers\Admin\BlogEditorImageController;
+use App\Http\Controllers\Admin\CareerApplicationDocumentController;
 use App\Http\Controllers\Admin\SystemToolsController;
 use App\Http\Controllers\Front\BlogController;
+use App\Http\Controllers\Front\CareerApplicationController;
 use App\Http\Controllers\Front\CollaborationAssessmentController;
 use App\Http\Controllers\Front\ContactController;
 use App\Http\Controllers\Front\FamilyBusinessController;
@@ -88,6 +90,7 @@ Route::middleware(['front.locale', 'front.device'])
         Route::get('ac-forma-robot', [CollaborationAssessmentController::class, 'create'])->name('assessment.create');
         Route::post('ac-forma-robot', [CollaborationAssessmentController::class, 'store'])->name('assessment.store');
         Route::get('leasing-kalkulator', [LeaseCalculatorController::class, 'show'])->name('lease-calculator.show');
+        Route::post('karijera/prijava', [CareerApplicationController::class, 'store'])->name('career.applications.store');
 
     });
 
@@ -174,6 +177,12 @@ Route::middleware(['admin.locale', 'auth', 'verified', 'admin.access', 'admin.ma
             Route::get('slots/{slot}/edit', function (ContentBlockSlot $slot) {
                 return view('admin.content.slots.edit', compact('slot'));
             })->name('slots.edit');
+        });
+
+        Route::prefix('messages')->as('messages.')->group(function (): void {
+            Route::view('career-cv-form', 'admin.messages.career.index')->name('career.index');
+            Route::get('career-cv-form/{careerApplication}/download', CareerApplicationDocumentController::class)
+                ->name('career.download');
         });
 
         Route::prefix('settings')->as('settings.')->group(function (): void {

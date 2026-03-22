@@ -1061,6 +1061,12 @@ unset($__defined_vars, $__key, $__value); ?>
                     $contentNavigationActive = request()->routeIs('admin.content.navigation*');
                     $contentSlotsActive = request()->routeIs('admin.content.slots*');
                     $contentOpen = $contentCategoriesActive || $contentBlogActive || $contentTeamActive || $contentGlossaryActive || $contentPagesActive || $contentServicesActive || $contentFaqsActive || $contentCommentsActive || $contentBlocksActive || $contentNavigationActive || $contentSlotsActive;
+                    $messagesCareerActive = request()->routeIs('admin.messages.career.*');
+                    $canViewCareerMessages = auth()->user() && (
+                        auth()->user()->isA('superadmin')
+                        || auth()->user()->can('messages.career.view')
+                    );
+                    $messagesOpen = $messagesCareerActive;
                     $settingsOpen = request()->routeIs('admin.settings.*');
                     $settingsSystemOpen = request()->routeIs('admin.settings.system.*');
                     $canManageUsersAccess = auth()->user() && auth()->user()->isA('superadmin');
@@ -1377,6 +1383,31 @@ unset($__defined_vars, $__key, $__value); ?>
                             </a>
                         </div>
                     </details>
+
+                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($canViewCareerMessages): ?>
+                        <details class="group rounded-lg" <?php if($messagesOpen): ?> open <?php endif; ?>>
+                            <summary class="sidebar-dropdown-summary flex cursor-pointer list-none items-center justify-between rounded-lg font-medium [&::-webkit-details-marker]:hidden [&::marker]:content-[''] <?php echo e($messagesOpen ? 'bg-slate-900 text-white' : 'text-slate-700 hover:bg-slate-100'); ?>">
+                                <span class="flex items-center gap-2">
+                                    <svg class="h-4 w-4 shrink-0" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                                        <rect x="3.5" y="5.5" width="13" height="9" rx="1.5" stroke="currentColor" stroke-width="1.4" />
+                                        <path d="m4.5 6.5 5.5 4 5.5-4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" />
+                                    </svg>
+                                    <span><?php echo e(__('admin.layout.menu.messages')); ?></span>
+                                </span>
+                            </summary>
+                            <div class="ml-3 mt-1 space-y-1 border-l border-slate-200 pl-4">
+                                <a
+                                    href="<?php echo e(route('admin.messages.career.index')); ?>"
+                                    class="sidebar-dropdown-link block rounded-lg font-medium <?php echo e($messagesCareerActive ? 'is-active-leaf' : 'text-slate-700 hover:bg-slate-100'); ?>"
+                                >
+                                    <span class="flex items-center gap-2">
+                                        <span class="sidebar-dot"></span>
+                                        <span><?php echo e(__('admin.layout.menu.career_cv_form')); ?></span>
+                                    </span>
+                                </a>
+                            </div>
+                        </details>
+                    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
                     <details class="group rounded-lg" <?php if($settingsOpen): ?> open <?php endif; ?>>
                         <summary class="sidebar-dropdown-summary flex cursor-pointer list-none items-center justify-between rounded-lg font-medium [&::-webkit-details-marker]:hidden [&::marker]:content-[''] <?php echo e($settingsOpen ? 'bg-slate-900 text-white' : 'text-slate-700 hover:bg-slate-100'); ?>">

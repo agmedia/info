@@ -8,12 +8,15 @@ use App\Models\Content\Blog\BlogPost;
 use App\Models\Content\Blog\BlogPostTranslation;
 use App\Models\Content\Page\InfoPage;
 use App\Models\Content\Page\InfoPageTranslation;
+use App\Models\Content\Support\CareerApplication;
 use App\Models\Content\Support\Comment;
 use App\Models\Content\Team\TeamMember;
 use App\Models\Content\Team\TeamMemberTranslation;
 use App\Services\Front\NavigationMenuService;
 use App\Services\Settings\SystemSettingsService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
 class StorefrontFrontFeatureTest extends TestCase
@@ -50,6 +53,39 @@ class StorefrontFrontFeatureTest extends TestCase
         $this->get('/page/'.$pageSlug)
             ->assertStatus(301)
             ->assertRedirect(route('pages.show', ['slug' => $pageSlug]));
+    }
+
+    public function test_career_page_renders_curated_cms_layout(): void
+    {
+        $this->get('/karijera')
+            ->assertOk()
+            ->assertSee('Postani dio tima')
+            ->assertSee('Selekcijski proces u ALPHA CAPITALISU')
+            ->assertSee('Pošaljite nam svoj CV')
+            ->assertSee('ALPHA CAPITALIS postoji od 2012. godine s ciljem pružanja podrške klijentima u svijetu financija kroz sve faze razvoja poslovanja.');
+    }
+
+    public function test_career_application_form_stores_submission_and_uploaded_cv(): void
+    {
+        Storage::fake('local');
+
+        $this->post(route('career.applications.store'), [
+            'first_name' => 'Ivana',
+            'last_name' => 'Horvat',
+            'email' => 'ivana@example.test',
+            'message' => 'Veselim se prilici za razgovor i dodatno upoznavanje vašeg tima.',
+            'cv' => UploadedFile::fake()->create('ivana-horvat-cv.pdf', 200, 'application/pdf'),
+            'accept_terms' => '1',
+        ])->assertRedirect('/karijera#career-cta');
+
+        $application = CareerApplication::query()->latest('id')->first();
+
+        $this->assertNotNull($application);
+        $this->assertSame('Ivana', $application->first_name);
+        $this->assertSame('Horvat', $application->last_name);
+        $this->assertSame('ivana@example.test', $application->email);
+        $this->assertSame(CareerApplication::STATUS_NEW, $application->status);
+        Storage::disk('local')->assertExists((string) $application->cv_path);
     }
 
     public function test_contact_form_stores_message(): void
@@ -181,6 +217,14 @@ class StorefrontFrontFeatureTest extends TestCase
             ->assertOk()
             ->assertSee(route('pages.show', ['slug' => 'eu-projekti']), false)
             ->assertDontSee('#eu-projekti', false);
+    }
+
+    public function test_home_header_links_career_navigation_item_to_clean_page_url(): void
+    {
+        $this->get('/')
+            ->assertOk()
+            ->assertSee(route('pages.show', ['slug' => 'karijera']), false)
+            ->assertDontSee('#karijera', false);
     }
 
     public function test_home_services_section_renders_requested_service_order(): void

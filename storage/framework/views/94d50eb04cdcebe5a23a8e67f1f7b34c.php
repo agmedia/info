@@ -749,7 +749,7 @@
         </section>
     <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
-    <?php if (! $__env->hasRenderedOnce('16d1b71f-53b6-4ccb-9788-528d8ee6b17d')): $__env->markAsRenderedOnce('16d1b71f-53b6-4ccb-9788-528d8ee6b17d'); ?>
+    <?php if (! $__env->hasRenderedOnce('73fc1d28-b292-415c-8942-88bda78ecb71')): $__env->markAsRenderedOnce('73fc1d28-b292-415c-8942-88bda78ecb71'); ?>
         <script>
             (function () {
                 const syncTestimonialToggles = function () {
