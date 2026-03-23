@@ -6,8 +6,11 @@ use App\Models\Catalog\Category\Category;
 use App\Models\Catalog\Category\CategoryTranslation;
 use App\Models\Content\Blog\BlogPost;
 use App\Models\Content\Blog\BlogPostTranslation;
+use App\Models\Content\ContentBlock;
 use App\Models\Content\Page\InfoPage;
 use App\Models\Content\Page\InfoPageTranslation;
+use App\Models\Content\Resource\ResourceDocument;
+use App\Models\Content\Resource\ResourceDocumentTranslation;
 use App\Models\Content\Support\CareerApplication;
 use App\Models\Content\Support\Comment;
 use App\Models\Content\Team\TeamMember;
@@ -63,6 +66,269 @@ class StorefrontFrontFeatureTest extends TestCase
             ->assertSee('Selekcijski proces u ALPHA CAPITALISU')
             ->assertSee('Pošaljite nam svoj CV')
             ->assertSee('ALPHA CAPITALIS postoji od 2012. godine s ciljem pružanja podrške klijentima u svijetu financija kroz sve faze razvoja poslovanja.');
+    }
+
+    public function test_academy_page_renders_custom_cms_layout(): void
+    {
+        $this->get('/akademija')
+            ->assertOk()
+            ->assertSee('ALPHA CAPITALIS AKADEMIJA')
+            ->assertSee('Predavanja i edukativni sadržaj na temu korporativnih financija')
+            ->assertDontSee('This page has no body content.');
+    }
+
+    public function test_academy_page_shows_posts_from_selected_page_source_category(): void
+    {
+        $academyPage = InfoPage::query()->where('code', 'academy')->firstOrFail();
+
+        $caseStudy = $this->seedBlogCategory('Case Study', 'case-study');
+        $tax = $this->seedBlogCategory('Tax', 'tax');
+
+        $this->seedBlogPost([$caseStudy->id], 'Case Study Alpha', 'case-study-alpha', 'Case study excerpt', now()->subHour());
+        $this->seedBlogPost([$caseStudy->id], 'Case Study Beta', 'case-study-beta', 'Case study beta excerpt', now()->subDay());
+        $this->seedBlogPost([$tax->id], 'Tax Gamma', 'tax-gamma', 'Tax excerpt', now()->subDays(2));
+
+        $academyPage->update([
+            'payload' => [
+                'blog_source' => [
+                    'mode' => 'category',
+                    'category_id' => $caseStudy->id,
+                    'limit' => 2,
+                ],
+            ],
+        ]);
+
+        $academyPage->translations()->where('locale', 'hr')->update([
+            'payload' => [
+                'academy_blog_section' => [
+                    'title' => 'Latest Case Studies',
+                    'intro' => 'Selected from the Case Study category.',
+                ],
+            ],
+        ]);
+
+        $this->get('/akademija')
+            ->assertOk()
+            ->assertSee('Latest Case Studies')
+            ->assertSee('Case Study Alpha')
+            ->assertSee('Case Study Beta')
+            ->assertDontSee('Tax Gamma');
+    }
+
+    public function test_academy_page_shows_only_selected_download_documents_from_page_sources(): void
+    {
+        $academyPage = InfoPage::query()->where('code', 'academy')->firstOrFail();
+
+        $caseStudy = $this->seedBlogCategory('Case Study', 'case-study');
+        $this->seedBlogPost([$caseStudy->id], 'Case Study Alpha', 'case-study-alpha', 'Case study excerpt', now()->subHour());
+
+        $selectedOne = $this->seedResourceDocument('academy-resource-alpha', 'Akademija dokument Alpha', 'academy-resource-alpha');
+        $selectedTwo = $this->seedResourceDocument('academy-resource-beta', 'Akademija dokument Beta', 'academy-resource-beta');
+        $hidden = $this->seedResourceDocument('academy-resource-hidden', 'Skriven dokument', 'academy-resource-hidden');
+
+        $academyPage->update([
+            'payload' => [
+                'blog_source' => [
+                    'mode' => 'category',
+                    'category_id' => $caseStudy->id,
+                    'limit' => 1,
+                ],
+                'resource_source' => [
+                    'mode' => 'manual',
+                    'document_ids' => [$selectedTwo->id, $selectedOne->id],
+                ],
+            ],
+        ]);
+
+        $academyPage->translations()->where('locale', 'hr')->update([
+            'payload' => [
+                'academy_blog_section' => [
+                    'title' => 'Latest Case Studies',
+                    'intro' => 'Selected from the Case Study category.',
+                ],
+                'academy_resource_section' => [
+                    'title' => 'Dokumenti za preuzimanje',
+                    'intro' => 'Odabrani dokumenti za Akademiju.',
+                ],
+            ],
+        ]);
+
+        $this->get('/akademija')
+            ->assertOk()
+            ->assertSeeInOrder(['Latest Case Studies', 'Dokumenti za preuzimanje'])
+            ->assertSee('Dokumenti za preuzimanje')
+            ->assertSee('Odabrani dokumenti za Akademiju.')
+            ->assertSee('Akademija dokument Alpha')
+            ->assertSee('Akademija dokument Beta')
+            ->assertDontSee('Skriven dokument')
+            ->assertSee(route('resources.show', ['slug' => 'academy-resource-alpha']), false)
+            ->assertSee(route('resources.show', ['slug' => 'academy-resource-beta']), false);
+
+        $this->assertNotNull($hidden);
+    }
+
+    public function test_academy_page_shows_embedded_videos_below_download_documents(): void
+    {
+        $academyPage = InfoPage::query()->where('code', 'academy')->firstOrFail();
+
+        $caseStudy = $this->seedBlogCategory('Case Study', 'case-study');
+        $this->seedBlogPost([$caseStudy->id], 'Case Study Alpha', 'case-study-alpha', 'Case study excerpt', now()->subHour());
+        $document = $this->seedResourceDocument('academy-resource-alpha', 'Akademija dokument Alpha', 'academy-resource-alpha');
+
+        $academyPage->update([
+            'payload' => [
+                'blog_source' => [
+                    'mode' => 'category',
+                    'category_id' => $caseStudy->id,
+                    'limit' => 1,
+                ],
+                'resource_source' => [
+                    'mode' => 'manual',
+                    'document_ids' => [$document->id],
+                ],
+                'video_source' => [
+                    'mode' => 'manual',
+                    'items' => [
+                        [
+                            'title' => 'ALPHA CAPITALIS - Uvod u svijet financija',
+                            'youtube_url' => 'https://www.youtube.com/watch?v=GivT5NzdO1c',
+                        ],
+                        [
+                            'title' => 'ALPHA CAPITALIS - Kako izraditi poslovni plan',
+                            'youtube_url' => 'https://www.youtube.com/watch?v=VA7LlrHMsiM',
+                        ],
+                    ],
+                ],
+            ],
+        ]);
+
+        $academyPage->translations()->where('locale', 'hr')->update([
+            'payload' => [
+                'academy_blog_section' => [
+                    'title' => 'Latest Case Studies',
+                    'intro' => 'Selected from the Case Study category.',
+                ],
+                'academy_resource_section' => [
+                    'title' => 'Dokumenti za preuzimanje',
+                    'intro' => 'Odabrani dokumenti za Akademiju.',
+                ],
+                'academy_video_section' => [
+                    'title' => 'Online edukacija i personalizirani trening',
+                    'intro' => 'Odabrani edukativni video sadržaj.',
+                ],
+            ],
+        ]);
+
+        $this->get('/akademija')
+            ->assertOk()
+            ->assertSeeInOrder([
+                'Dokumenti za preuzimanje',
+                'Online edukacija i personalizirani trening',
+                'ALPHA CAPITALIS - Uvod u svijet financija',
+            ])
+            ->assertSee('Odabrani edukativni video sadržaj.')
+            ->assertSee('https://www.youtube.com/embed/GivT5NzdO1c?rel=0&amp;modestbranding=1', false)
+            ->assertSee('https://www.youtube.com/embed/VA7LlrHMsiM?rel=0&amp;modestbranding=1', false)
+            ->assertDontSee('Pokaži još');
+    }
+
+    public function test_academy_page_shows_show_more_button_when_video_list_overflows(): void
+    {
+        $academyPage = InfoPage::query()->where('code', 'academy')->firstOrFail();
+
+        $academyPage->update([
+            'payload' => [
+                'video_source' => [
+                    'mode' => 'manual',
+                    'items' => [
+                        ['title' => 'Video 1', 'youtube_url' => 'https://www.youtube.com/watch?v=GivT5NzdO1c'],
+                        ['title' => 'Video 2', 'youtube_url' => 'https://www.youtube.com/watch?v=VA7LlrHMsiM'],
+                        ['title' => 'Video 3', 'youtube_url' => 'https://www.youtube.com/watch?v=caJnbuuKo_w'],
+                        ['title' => 'Video 4', 'youtube_url' => 'https://www.youtube.com/watch?v=fTcFqkJE164'],
+                        ['title' => 'Video 5', 'youtube_url' => 'https://www.youtube.com/watch?v=5FFawI7XCN4'],
+                    ],
+                ],
+            ],
+        ]);
+
+        $academyPage->translations()->where('locale', 'hr')->update([
+            'payload' => [
+                'academy_video_section' => [
+                    'title' => 'Online edukacija i personalizirani trening',
+                    'intro' => 'Odabrani edukativni video sadržaj.',
+                ],
+            ],
+        ]);
+
+        $this->get('/akademija')
+            ->assertOk()
+            ->assertSee('Pokaži još')
+            ->assertSee('data-academy-video-show-more', false)
+            ->assertSee('data-academy-video-hidden', false);
+    }
+
+    public function test_page_blog_grid_block_shows_only_posts_from_selected_blog_category(): void
+    {
+        [$page, $pageSlug] = $this->seedInfoPage();
+
+        $caseStudy = $this->seedBlogCategory('Case Study', 'case-study');
+        $tax = $this->seedBlogCategory('Tax', 'tax');
+
+        $this->seedBlogPost([$caseStudy->id], 'Case Study Alpha', 'case-study-alpha', 'Case study excerpt', now()->subHour());
+        $this->seedBlogPost([$caseStudy->id], 'Case Study Beta', 'case-study-beta', 'Case study beta excerpt', now()->subDay());
+        $this->seedBlogPost([$tax->id], 'Tax Gamma', 'tax-gamma', 'Tax excerpt', now()->subDays(2));
+
+        $block = ContentBlock::query()->create([
+            'code' => 'case-study-page-grid',
+            'name' => 'Case Study Page Grid',
+            'type' => 'blog_grid_3',
+            'is_active' => true,
+            'payload' => [
+                'source' => 'query',
+                'category_ids' => [$caseStudy->id],
+                'sort' => 'newest',
+            ],
+        ]);
+
+        $block->translations()->create([
+            'locale' => 'en',
+            'title' => 'Latest Case Studies',
+            'subtitle' => 'Selected from the Case Study category.',
+            'cta_label' => 'View category',
+            'cta_url' => '',
+            'payload' => [
+                'items_limit' => 2,
+            ],
+        ]);
+        $block->translations()->create([
+            'locale' => 'hr',
+            'title' => 'Latest Case Studies',
+            'subtitle' => 'Selected from the Case Study category.',
+            'cta_label' => 'View category',
+            'cta_url' => '',
+            'payload' => [
+                'items_limit' => 2,
+            ],
+        ]);
+
+        $block->slots()->create([
+            'placement' => 'page.bottom',
+            'frontend_variant' => 'all',
+            'target_type' => 'page',
+            'target_ref' => $pageSlug,
+            'sort_order' => 0,
+            'is_active' => true,
+        ]);
+
+        $this->get('/'.$pageSlug)
+            ->assertOk()
+            ->assertSee('Latest Case Studies')
+            ->assertSee('Case Study Alpha')
+            ->assertSee('Case Study Beta')
+            ->assertDontSee('Tax Gamma')
+            ->assertSee('/blog/case-study', false);
+
+        $this->assertNotNull($page);
     }
 
     public function test_career_application_form_stores_submission_and_uploaded_cv(): void
@@ -225,6 +491,14 @@ class StorefrontFrontFeatureTest extends TestCase
             ->assertOk()
             ->assertSee(route('pages.show', ['slug' => 'karijera']), false)
             ->assertDontSee('#karijera', false);
+    }
+
+    public function test_home_header_links_academy_navigation_item_to_clean_page_url(): void
+    {
+        $this->get('/')
+            ->assertOk()
+            ->assertSee(route('pages.show', ['slug' => 'akademija']), false)
+            ->assertDontSee('#edukacija-akademija', false);
     }
 
     public function test_home_services_section_renders_requested_service_order(): void
@@ -608,6 +882,36 @@ class StorefrontFrontFeatureTest extends TestCase
         ]);
 
         return $category;
+    }
+
+    private function seedResourceDocument(string $code, string $title, string $slug): ResourceDocument
+    {
+        $document = ResourceDocument::query()->create([
+            'code' => $code,
+            'group_code' => 'downloads',
+            'is_active' => true,
+            'published_at' => now()->subDay(),
+            'sort_order' => 1,
+            'download_url' => 'https://example.test/files/'.$code.'.pdf',
+        ]);
+
+        ResourceDocumentTranslation::query()->create([
+            'document_id' => $document->id,
+            'locale' => 'hr',
+            'title' => $title,
+            'slug' => $slug,
+            'excerpt' => 'Resource excerpt',
+        ]);
+
+        ResourceDocumentTranslation::query()->create([
+            'document_id' => $document->id,
+            'locale' => 'en',
+            'title' => $title,
+            'slug' => $slug,
+            'excerpt' => 'Resource excerpt',
+        ]);
+
+        return $document->load('translations');
     }
 
     /**

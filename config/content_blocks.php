@@ -8,7 +8,7 @@ return [
         'hero_single' => 'Hero Single Banner',
         'hero_slider' => 'Hero Slider (multi banner)',
         'blogs_carousel' => 'Blogs Carousel',
-        'blog_grid_3' => 'Blog Grid (3)',
+        'blog_grid_3' => 'Blog Category Grid (3 Cards)',
         'cards_2' => 'Cards (2 Col)',
         'hero_main' => 'Hero Main',
         'split_message' => 'Split Message (2 Col)',

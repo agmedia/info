@@ -14,6 +14,8 @@ use Livewire\Component;
 
 class Form extends Component
 {
+    private const TAB_OPTIONS = ['content', 'sources', 'template', 'media'];
+
     private const ITEM_TYPE_MAP = [
         'categories' => 'category',
         'mobile_hero_banner' => 'category',
@@ -21,6 +23,8 @@ class Form extends Component
     ];
 
     public ?int $blockId = null;
+
+    public string $activeTab = 'content';
 
     public array $form = [];
 
@@ -134,6 +138,10 @@ class Form extends Component
             return;
         }
 
+        if ($type !== 'blog_grid_3' && $this->activeTab === 'sources') {
+            $this->activeTab = 'content';
+        }
+
         $suggestedSurface = $this->suggestedFrontendVariantForType($type);
         if ($suggestedSurface !== null) {
             $this->form['slot_frontend_variant'] = $suggestedSurface;
@@ -160,6 +168,15 @@ class Form extends Component
         }
 
         $this->lastType = $type;
+    }
+
+    public function setTab(string $tab): void
+    {
+        if (! in_array($tab, self::TAB_OPTIONS, true)) {
+            return;
+        }
+
+        $this->activeTab = $tab;
     }
 
     public function loadTemplatePreset(): void
@@ -270,6 +287,19 @@ class Form extends Component
         $translationPayload['blog_source'] = in_array($blogSource, ['latest', 'featured'], true) ? $blogSource : 'latest';
         unset($translationPayload['render_mode'], $translationPayload['body_html_container_class']);
 
+        $blockPayload = is_array($existingBlockPayload) ? $existingBlockPayload : [];
+        if ((string) ($validated['form']['type'] ?? '') === 'blog_grid_3') {
+            $blogCategoryId = (int) ($validated['form']['blog_category_id'] ?? 0);
+            $blogSort = (string) ($validated['form']['blog_sort'] ?? 'newest');
+
+            $blockPayload['source'] = 'query';
+            $blockPayload['category_ids'] = $blogCategoryId > 0 ? [$blogCategoryId] : [];
+            $blockPayload['manual_blog_ids'] = [];
+            $blockPayload['sort'] = in_array($blogSort, ['newest', 'featured', 'title'], true)
+                ? $blogSort
+                : 'newest';
+        }
+
         $itemType = $this->itemTypeForBlockType((string) $validated['form']['type']);
         $selectedIds = collect((array) ($validated['form']['selected_item_ids'] ?? []))
             ->map(fn ($id) => (int) $id)
@@ -308,7 +338,7 @@ class Form extends Component
 
         DB::transaction(function () use (
             $validated,
-            $existingBlockPayload,
+            $blockPayload,
             $translationPayload,
             $itemType,
             $selectedIds,
@@ -321,7 +351,7 @@ class Form extends Component
                 'name' => trim((string) $validated['form']['name']),
                 'type' => (string) $validated['form']['type'],
                 'is_active' => (bool) $validated['form']['is_active'],
-                'payload' => $existingBlockPayload,
+                'payload' => $blockPayload === [] ? null : $blockPayload,
                 'updated_by' => $userId,
             ];
 
@@ -413,6 +443,13 @@ class Form extends Component
             'form.items_limit' => ['nullable', 'integer', 'min:1', 'max:50'],
             'form.reviews_featured_only' => ['boolean'],
             'form.blog_source' => ['nullable', Rule::in(['latest', 'featured'])],
+            'form.blog_category_id' => [
+                Rule::requiredIf(fn (): bool => (string) ($this->form['type'] ?? '') === 'blog_grid_3'),
+                'nullable',
+                'integer',
+                Rule::exists('categories', 'id')->where(fn ($query) => $query->where('scope', Category::SCOPE_BLOG)),
+            ],
+            'form.blog_sort' => ['nullable', Rule::in(['newest', 'featured', 'title'])],
             'form.template_body' => ['nullable', 'string'],
 
             'form.slot_placement' => ['required', 'string', 'max:120'],
@@ -451,6 +488,8 @@ class Form extends Component
             'items_limit' => 6,
             'reviews_featured_only' => false,
             'blog_source' => 'latest',
+            'blog_category_id' => null,
+            'blog_sort' => 'newest',
             'template_body' => $this->defaultTemplateForType($defaultType),
 
             'slot_placement' => array_key_first($this->placements) ?: 'home.hero',
@@ -489,6 +528,11 @@ class Form extends Component
 
         $slot = $block->slots->first();
         $translationPayload = is_array($translation?->payload ?? null) ? $translation->payload : [];
+        $blockPayload = is_array($block->payload ?? null) ? $block->payload : [];
+        $legacyCategoryIds = collect($blockPayload['category_ids'] ?? [])
+            ->map(fn ($id) => (int) $id)
+            ->filter(fn (int $id): bool => $id > 0)
+            ->values();
 
         $this->form['code'] = $block->code;
         $this->form['name'] = $block->name;
@@ -511,6 +555,13 @@ class Form extends Component
         $this->form['blog_source'] = in_array($blogSource, ['latest', 'featured'], true)
             ? $blogSource
             : 'latest';
+        $this->form['blog_category_id'] = (int) ($blockPayload['blog_category_id'] ?? 0) > 0
+            ? (int) $blockPayload['blog_category_id']
+            : ($legacyCategoryIds->first() ?: null);
+        $blogSort = (string) ($blockPayload['sort'] ?? 'newest');
+        $this->form['blog_sort'] = in_array($blogSort, ['newest', 'featured', 'title'], true)
+            ? $blogSort
+            : 'newest';
 
         $this->form['slot_placement'] = (string) ($slot?->placement ?? (array_key_first($this->placements) ?: 'home.hero'));
         $loadedVariant = (string) ($slot?->frontend_variant ?? 'all');
@@ -642,6 +693,34 @@ class Form extends Component
         $this->form['blog_source'] = 'latest';
     }
 
+    public function getBlogCategoryOptionsProperty(): Collection
+    {
+        $fallbackLocale = (string) config('app.fallback_locale', config('app.locale', 'en'));
+        $locales = array_values(array_unique([(string) $this->form['locale'], $fallbackLocale]));
+
+        return Category::query()
+            ->where('scope', Category::SCOPE_BLOG)
+            ->withDepth()
+            ->defaultOrder()
+            ->with([
+                'translations' => fn ($q) => $q
+                    ->where('scope', Category::SCOPE_BLOG)
+                    ->whereIn('locale', $locales),
+            ])
+            ->get()
+            ->map(function (Category $category) use ($fallbackLocale): array {
+                $translation = $category->translations->firstWhere('locale', (string) $this->form['locale'])
+                    ?? $category->translations->firstWhere('locale', $fallbackLocale)
+                    ?? $category->translations->first();
+                $depth = max(0, (int) ($category->depth ?? 0) - 1);
+
+                return [
+                    'id' => (int) $category->id,
+                    'label' => str_repeat('— ', $depth).(string) ($translation?->name ?? $category->code),
+                ];
+            });
+    }
+
     private function itemTypeForBlockType(string $type): ?string
     {
         return self::ITEM_TYPE_MAP[$type] ?? null;
@@ -767,6 +846,7 @@ class Form extends Component
             'mobile_hero_banner',
             'hero_highlights_strip',
             'blogs_carousel',
+            'blog_grid_3',
             'categories',
             'blogs',
         ];
@@ -1058,6 +1138,14 @@ BLADE,
 BLADE,
             'blogs_carousel' => <<<'BLADE'
 @include('front.content-blocks.types.blogs_carousel', [
+    'block' => $block,
+    'translation' => $translation,
+    'slot' => $slot ?? null,
+    'blockItems' => $blockItems ?? collect(),
+])
+BLADE,
+            'blog_grid_3' => <<<'BLADE'
+@include('front.content-blocks.types.blog_grid_3', [
     'block' => $block,
     'translation' => $translation,
     'slot' => $slot ?? null,

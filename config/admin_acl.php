@@ -59,6 +59,8 @@ return [
 
         ['name' => 'messages.career.view', 'title' => 'View career applications', 'group' => 'messages.career'],
         ['name' => 'messages.career.moderate', 'title' => 'Moderate career applications', 'group' => 'messages.career'],
+        ['name' => 'messages.download_requests.view', 'title' => 'View resource download requests', 'group' => 'messages.download_requests'],
+        ['name' => 'messages.download_requests.moderate', 'title' => 'Moderate resource download requests', 'group' => 'messages.download_requests'],
 
         ['name' => 'media.manage', 'title' => 'Manage media', 'group' => 'content.media'],
 
@@ -122,6 +124,8 @@ return [
             'content.slots.delete',
             'messages.career.view',
             'messages.career.moderate',
+            'messages.download_requests.view',
+            'messages.download_requests.moderate',
             'media.manage',
             'users.list.view',
             'users.profile.update',

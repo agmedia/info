@@ -24,7 +24,7 @@
         <section class="pb-16 pt-8 lg:pb-24 lg:pt-12">
             <div class="mx-auto w-full max-w-[1320px] px-4 sm:px-6 lg:px-8">
                 <div class="mb-12 grid gap-6 lg:grid-cols-[minmax(0,1.35fr)_360px] lg:items-stretch">
-                    <article class="overflow-hidden rounded-[34px] border border-slate-200 bg-white p-7 sm:p-8 lg:p-9">
+                    <article class="ac-team-page-panel overflow-hidden border border-slate-200 bg-white p-7 sm:p-8 lg:p-9">
                         <div class="max-w-[54rem]">
                             <p class="ac-team-kicker text-xs font-semibold uppercase text-sky-800">{{ __('ui.team.eyebrow') }}</p>
                             <h2 class="ac-team-intro-lead mt-4 max-w-[42rem] text-slate-950">
@@ -36,7 +36,7 @@
                         </div>
                     </article>
 
-                    <aside class="overflow-hidden rounded-[34px] border border-slate-200 bg-[#103a63] p-7 text-white sm:p-8">
+                    <aside class="ac-team-page-panel overflow-hidden border border-slate-200 bg-[#103a63] p-7 text-white sm:p-8">
                         <div>
                             <p class="ac-team-kicker text-xs font-semibold uppercase text-sky-100/80">{{ __('ui.team.support_label') }}</p>
                             <h2 class="mt-4 text-[1.65rem] font-black leading-[1.18] text-white">
@@ -58,7 +58,7 @@
                 </div>
 
                 @if ($members->isEmpty())
-                    <div class="rounded-[32px] border border-dashed border-slate-300 bg-white/80 px-6 py-14 text-center shadow-[0_18px_54px_rgba(15,23,42,0.06)]">
+                    <div class="ac-team-page-empty border border-dashed border-slate-300 bg-white/80 px-6 py-14 text-center shadow-[0_18px_54px_rgba(15,23,42,0.06)]">
                         <h2 class="text-2xl font-black tracking-tight text-slate-950">{{ __('ui.team.empty_title') }}</h2>
                         <p class="mx-auto mt-3 max-w-[34rem] text-sm leading-7 text-slate-600">{{ __('ui.team.empty') }}</p>
                     </div>
@@ -71,9 +71,9 @@
 
                     <div class="space-y-6">
                         @foreach ($members as $member)
-                            <article class="ac-team-member-card overflow-hidden rounded-[32px] border border-slate-200 bg-white p-4 sm:p-4 lg:p-5">
+                            <article class="ac-team-member-card overflow-hidden border border-slate-200 bg-white p-4 sm:p-4 lg:p-5">
                                 <div class="ac-team-member-layout grid gap-4 lg:grid-cols-[220px_minmax(0,1fr)] lg:items-start lg:gap-5">
-                                    <div class="ac-team-member-media self-start overflow-hidden rounded-[24px] border border-slate-200 bg-white">
+                                    <div class="ac-team-member-media self-start overflow-hidden border border-slate-200 bg-white">
                                         <div class="relative overflow-hidden">
                                             @if ($member['photo_url'] !== '')
                                                 <img
@@ -134,7 +134,7 @@
 
                                     <div class="ac-team-member-actions mt-4 flex flex-wrap gap-2.5">
                                         @if ($member['email'] !== '')
-                                            <a href="mailto:{{ $member['email'] }}" title="{{ __('ui.team.social.email') }}" aria-label="{{ __('ui.team.social.email') }}" class="inline-flex h-10 w-10 items-center justify-center rounded-full border border-slate-200 bg-slate-50 text-slate-700 transition hover:border-sky-200 hover:bg-white hover:text-sky-900">
+                                            <a href="mailto:{{ $member['email'] }}" title="{{ __('ui.team.social.email') }}" aria-label="{{ __('ui.team.social.email') }}" class="ac-team-social-link inline-flex h-10 w-10 items-center justify-center border border-slate-200 bg-slate-50 text-slate-700 transition hover:border-sky-200 hover:bg-white hover:text-sky-900">
                                                 <svg class="h-4 w-4" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                                                     <path d="M3 5.75h14v8.5a1.25 1.25 0 0 1-1.25 1.25H4.25A1.25 1.25 0 0 1 3 14.25v-8.5Z"></path>
                                                     <path d="m4 6.5 6 4.75 6-4.75"></path>
@@ -142,28 +142,28 @@
                                             </a>
                                         @endif
                                         @if ($member['mobile_phone'] !== '' && $memberPhoneHref !== '')
-                                            <a href="tel:{{ $memberPhoneHref }}" title="{{ __('ui.team.social.phone') }}" aria-label="{{ __('ui.team.social.phone') }}" class="inline-flex h-10 w-10 items-center justify-center rounded-full border border-slate-200 bg-slate-50 text-slate-700 transition hover:border-sky-200 hover:bg-white hover:text-sky-900">
+                                            <a href="tel:{{ $memberPhoneHref }}" title="{{ __('ui.team.social.phone') }}" aria-label="{{ __('ui.team.social.phone') }}" class="ac-team-social-link inline-flex h-10 w-10 items-center justify-center border border-slate-200 bg-slate-50 text-slate-700 transition hover:border-sky-200 hover:bg-white hover:text-sky-900">
                                                 <svg class="h-4 w-4" viewBox="0 0 384 512" fill="currentColor" aria-hidden="true">
                                                     <path d="M16 64C16 28.7 44.7 0 80 0L304 0c35.3 0 64 28.7 64 64l0 384c0 35.3-28.7 64-64 64L80 512c-35.3 0-64-28.7-64-64L16 64zM128 440c0 13.3 10.7 24 24 24l80 0c13.3 0 24-10.7 24-24s-10.7-24-24-24l-80 0c-13.3 0-24 10.7-24 24zM304 64l-224 0 0 304 224 0 0-304z"></path>
                                                 </svg>
                                             </a>
                                         @endif
                                         @if ($member['facebook_url'] !== '')
-                                            <a href="{{ $member['facebook_url'] }}" target="_blank" rel="noopener noreferrer" title="{{ __('ui.team.social.facebook') }}" aria-label="{{ __('ui.team.social.facebook') }}" class="inline-flex h-10 w-10 items-center justify-center rounded-full border border-slate-200 bg-slate-50 text-slate-700 transition hover:border-sky-200 hover:bg-white hover:text-sky-900">
+                                            <a href="{{ $member['facebook_url'] }}" target="_blank" rel="noopener noreferrer" title="{{ __('ui.team.social.facebook') }}" aria-label="{{ __('ui.team.social.facebook') }}" class="ac-team-social-link inline-flex h-10 w-10 items-center justify-center border border-slate-200 bg-slate-50 text-slate-700 transition hover:border-sky-200 hover:bg-white hover:text-sky-900">
                                                 <svg class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
                                                     <path d="M11.167 17v-6.091h2.042l.306-2.373h-2.348V7.02c0-.686.19-1.153 1.173-1.153H13.6V3.744c-.218-.03-.967-.094-1.839-.094-1.82 0-3.067 1.11-3.067 3.149v1.737H6.636v2.373h2.058V17h2.473Z"></path>
                                                 </svg>
                                             </a>
                                         @endif
                                         @if ($member['twitter_url'] !== '')
-                                            <a href="{{ $member['twitter_url'] }}" target="_blank" rel="noopener noreferrer" title="{{ __('ui.team.social.twitter') }}" aria-label="{{ __('ui.team.social.twitter') }}" class="inline-flex h-10 w-10 items-center justify-center rounded-full border border-slate-200 bg-slate-50 text-slate-700 transition hover:border-sky-200 hover:bg-white hover:text-sky-900">
+                                            <a href="{{ $member['twitter_url'] }}" target="_blank" rel="noopener noreferrer" title="{{ __('ui.team.social.twitter') }}" aria-label="{{ __('ui.team.social.twitter') }}" class="ac-team-social-link inline-flex h-10 w-10 items-center justify-center border border-slate-200 bg-slate-50 text-slate-700 transition hover:border-sky-200 hover:bg-white hover:text-sky-900">
                                                 <svg class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
                                                     <path d="M4.36 4h3.04l3 4.215L14.09 4H16l-4.775 5.452L16.5 16h-3.04l-3.244-4.556L6.216 16H4.31l5.01-5.72L4.36 4Zm2.1 1.42h-.73l7.81 9.16h.73l-7.81-9.16Z"></path>
                                                 </svg>
                                             </a>
                                         @endif
                                         @if ($member['linkedin_url'] !== '')
-                                            <a href="{{ $member['linkedin_url'] }}" target="_blank" rel="noopener noreferrer" title="{{ __('ui.team.social.linkedin') }}" aria-label="{{ __('ui.team.social.linkedin') }}" class="inline-flex h-10 w-10 items-center justify-center rounded-full border border-slate-200 bg-slate-50 text-slate-700 transition hover:border-sky-200 hover:bg-white hover:text-sky-900">
+                                            <a href="{{ $member['linkedin_url'] }}" target="_blank" rel="noopener noreferrer" title="{{ __('ui.team.social.linkedin') }}" aria-label="{{ __('ui.team.social.linkedin') }}" class="ac-team-social-link inline-flex h-10 w-10 items-center justify-center border border-slate-200 bg-slate-50 text-slate-700 transition hover:border-sky-200 hover:bg-white hover:text-sky-900">
                                                 <svg class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
                                                     <path d="M5.057 7.3H2.6V17h2.457V7.3Zm.16-3.156A1.43 1.43 0 0 0 3.793 2.7a1.43 1.43 0 0 0-1.424 1.444c0 .793.63 1.438 1.406 1.438H3.8c.794 0 1.417-.645 1.417-1.438ZM17 11.104C17 8.179 15.438 6.82 13.354 6.82c-1.682 0-2.435.926-2.856 1.576V7.3H8.042c.032.728 0 9.7 0 9.7h2.456v-5.418c0-.29.021-.58.107-.787.235-.58.77-1.18 1.67-1.18 1.177 0 1.648.89 1.648 2.197V17H17v-5.896Z"></path>
                                                 </svg>
@@ -175,7 +175,7 @@
                         @endforeach
                     </div>
 
-                    <section class="mt-12 rounded-[36px] border border-slate-200 bg-white p-6 sm:p-7 lg:p-8">
+                    <section class="ac-team-career-card mt-12 border border-slate-200 bg-white p-6 sm:p-7 lg:p-8">
                         <div class="max-w-[70rem]">
                             <h2 class="text-[1.65rem] font-black leading-tight text-slate-950 sm:text-[1.9rem]">
                                 {{ __('ui.team.career_title') }}
@@ -222,7 +222,7 @@
             background: #ffffff;
             color: #0f2e4b !important;
             box-shadow: none;
-            border-radius: 999px;
+            border-radius: var(--front-button-radius);
         }
 
         .ac-team-cta-light.front-action-cta:hover {
@@ -237,7 +237,7 @@
             background: linear-gradient(90deg, #08111a 0%, #0b2c49 100%);
             color: #ffffff !important;
             box-shadow: none;
-            border-radius: 999px;
+            border-radius: var(--front-button-radius);
         }
 
         .ac-team-cta-dark.front-action-cta:hover {
@@ -349,11 +349,11 @@
             }
         }
 
-        @media (max-width: 640px) {
-            .ac-team-member-card {
-                padding: 1rem;
-                border-radius: 28px;
-            }
+            @media (max-width: 640px) {
+                .ac-team-member-card {
+                    padding: 1rem;
+                    border-radius: var(--front-card-radius);
+                }
 
             .ac-team-member-layout {
                 grid-template-columns: 108px minmax(0, 1fr);
@@ -362,13 +362,13 @@
                 row-gap: 0.85rem;
             }
 
-            .ac-team-member-media {
-                width: 108px;
-                max-width: 108px;
-                margin-left: 0;
-                margin-right: 0;
-                border-radius: 22px;
-            }
+                .ac-team-member-media {
+                    width: 108px;
+                    max-width: 108px;
+                    margin-left: 0;
+                    margin-right: 0;
+                    border-radius: var(--front-card-radius);
+                }
 
             .ac-team-member-photo {
                 aspect-ratio: 0.78;

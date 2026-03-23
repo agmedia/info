@@ -24,6 +24,7 @@ class DatabaseSeeder extends Seeder
             CategorySeeder::class,
             BlogPostSeeder::class,
             InfoPageSeeder::class,
+            ResourceDocumentSeeder::class,
             FaqSeeder::class,
             ContentBlockSeeder::class,
             ContentBlockSlotSeeder::class,

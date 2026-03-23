@@ -1,3 +1,7 @@
+@php
+    $isBlogGridThree = ($form['type'] ?? '') === 'blog_grid_3';
+@endphp
+
 <div class="space-y-6">
     <div class="admin-panel admin-search-panel p-6">
         <div class="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
@@ -138,77 +142,138 @@
             </div>
         </div>
 
-        <div class="grid gap-6 xl:grid-cols-2">
-            <div class="admin-panel admin-form-panel p-6">
-                <p class="admin-section-title">{{ __('Content') }}</p>
-
-                <div class="mt-4 grid gap-3 md:grid-cols-2">
-                    <div>
-                        <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Title') }}</label>
-                        <input type="text" wire:model="form.title" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
-                    </div>
-                    <div>
-                        <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Subtitle') }}</label>
-                        <input type="text" wire:model="form.subtitle" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
-                    </div>
+        @if ($isBlogGridThree)
+            <div class="admin-panel admin-form-panel p-3 sm:p-4">
+                <div class="flex flex-wrap gap-2">
+                    <button type="button" wire:click="setTab('content')" class="rounded-lg border px-3 py-2 text-xs font-semibold uppercase tracking-[0.12em] {{ $activeTab === 'content' ? 'border-slate-900 bg-slate-900 text-white' : 'border-slate-300 bg-white text-slate-700 hover:bg-slate-100' }}">
+                        {{ __('Content') }}
+                    </button>
+                    <button type="button" wire:click="setTab('sources')" class="rounded-lg border px-3 py-2 text-xs font-semibold uppercase tracking-[0.12em] {{ $activeTab === 'sources' ? 'border-slate-900 bg-slate-900 text-white' : 'border-slate-300 bg-white text-slate-700 hover:bg-slate-100' }}">
+                        {{ __('Sources') }}
+                    </button>
+                    <button type="button" wire:click="setTab('template')" class="rounded-lg border px-3 py-2 text-xs font-semibold uppercase tracking-[0.12em] {{ $activeTab === 'template' ? 'border-slate-900 bg-slate-900 text-white' : 'border-slate-300 bg-white text-slate-700 hover:bg-slate-100' }}">
+                        {{ __('Template') }}
+                    </button>
+                    <button type="button" wire:click="setTab('media')" class="rounded-lg border px-3 py-2 text-xs font-semibold uppercase tracking-[0.12em] {{ $activeTab === 'media' ? 'border-slate-900 bg-slate-900 text-white' : 'border-slate-300 bg-white text-slate-700 hover:bg-slate-100' }}">
+                        {{ __('Media') }}
+                    </button>
                 </div>
+            </div>
+        @endif
 
-                <div class="mt-3 grid gap-3 md:grid-cols-2">
-                    <div>
-                        <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('CTA Label') }}</label>
-                        <input type="text" wire:model="form.cta_label" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+        @if (! $isBlogGridThree || $activeTab === 'content')
+            <div class="grid gap-6 xl:grid-cols-2">
+                <div class="admin-panel admin-form-panel p-6">
+                    <p class="admin-section-title">{{ __('Content') }}</p>
+
+                    <div class="mt-4 grid gap-3 md:grid-cols-2">
+                        <div>
+                            <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Title') }}</label>
+                            <input type="text" wire:model="form.title" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+                        </div>
+                        <div>
+                            <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Subtitle') }}</label>
+                            <input type="text" wire:model="form.subtitle" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+                        </div>
                     </div>
-                    <div>
-                        <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('CTA URL') }}</label>
-                        <input type="text" wire:model="form.cta_url" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" placeholder="{{ __('/contact or https://...') }}" />
+
+                    <div class="mt-3 grid gap-3 md:grid-cols-2">
+                        <div>
+                            <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('CTA Label') }}</label>
+                            <input type="text" wire:model="form.cta_label" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+                        </div>
+                        <div>
+                            <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('CTA URL') }}</label>
+                            <input type="text" wire:model="form.cta_url" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" placeholder="{{ __('/contact or https://...') }}" />
+                        </div>
                     </div>
-                </div>
 
-                @if (($form['type'] ?? '') === 'five_star_reviews_carousel' || ($form['type'] ?? '') === 'blogs_carousel')
-                    <div class="mt-3">
-                        <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
-                            {{ ($form['type'] ?? '') === 'blogs_carousel' ? __('Number of blog posts to show') : __('Number of comments to show') }}
-                        </label>
-                        <input type="number" min="1" max="50" wire:model="form.items_limit" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm md:max-w-[220px]" />
-                        @error('form.items_limit') <p class="mt-1 text-xs text-rose-600">{{ $message }}</p> @enderror
-
-                        @if (($form['type'] ?? '') === 'blogs_carousel')
-                            <div class="mt-2 md:max-w-[220px]">
-                                <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Blog source') }}</label>
-                                <select wire:model="form.blog_source" data-tom-select data-tom-no-search="1" class="admin-select w-full rounded-xl border border-slate-300 px-3 py-2 text-sm">
-                                    <option value="latest">{{ __('Latest') }}</option>
-                                    <option value="featured">{{ __('Featured only') }}</option>
-                                </select>
-                            </div>
-                        @else
-                            <label class="inline-flex items-center gap-2">
-                                <input type="checkbox" wire:model="form.reviews_featured_only" class="h-4 w-4 border-slate-300 text-slate-900 focus:ring-0">
-                                <span class="text-xs font-semibold uppercase tracking-[0.14em] text-slate-600">{{ __('Featured comments only') }}</span>
+                    @if (($form['type'] ?? '') === 'five_star_reviews_carousel' || ($form['type'] ?? '') === 'blogs_carousel')
+                        <div class="mt-3">
+                            <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
+                                {{ ($form['type'] ?? '') === 'blogs_carousel' ? __('Number of blog posts to show') : __('Number of comments to show') }}
                             </label>
-                        @endif
+                            <input type="number" min="1" max="50" wire:model="form.items_limit" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm md:max-w-[220px]" />
+                            @error('form.items_limit') <p class="mt-1 text-xs text-rose-600">{{ $message }}</p> @enderror
+
+                            @if (($form['type'] ?? '') === 'blogs_carousel')
+                                <div class="mt-2 md:max-w-[220px]">
+                                    <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Blog source') }}</label>
+                                    <select wire:model="form.blog_source" data-tom-select data-tom-no-search="1" class="admin-select w-full rounded-xl border border-slate-300 px-3 py-2 text-sm">
+                                        <option value="latest">{{ __('Latest') }}</option>
+                                        <option value="featured">{{ __('Featured only') }}</option>
+                                    </select>
+                                </div>
+                            @else
+                                <label class="inline-flex items-center gap-2">
+                                    <input type="checkbox" wire:model="form.reviews_featured_only" class="h-4 w-4 border-slate-300 text-slate-900 focus:ring-0">
+                                    <span class="text-xs font-semibold uppercase tracking-[0.14em] text-slate-600">{{ __('Featured comments only') }}</span>
+                                </label>
+                            @endif
+                        </div>
+                    @endif
+
+                    <p class="mt-3 text-xs text-slate-500">
+                        {{ $isBlogGridThree ? __('Main markup/content is edited in the Template tab.') : __('Main markup/content is edited in the Blade Template section below (Ace).') }}
+                    </p>
+                </div>
+
+                <div class="admin-panel admin-form-panel p-6">
+                    <p class="admin-section-title">{{ __('Style & Background') }}</p>
+
+                    <div class="mt-4">
+                        <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Custom Classes') }}</label>
+                        <input type="text" wire:model="form.custom_classes" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" placeholder="{{ __('extra utility classes') }}" />
                     </div>
-                @endif
 
-                <p class="mt-3 text-xs text-slate-500">{{ __('Main markup/content is edited in the Blade Template section below (Ace).') }}</p>
+                    <div class="mt-3">
+                        <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Background CSS') }}</label>
+                        <textarea rows="4" wire:model="form.bg_css" class="w-full rounded-xl border border-slate-300 px-3 py-2 font-mono text-xs" placeholder="{{ __('background-color:#0f172a; color:white;') }}"></textarea>
+                        <p class="mt-1 text-xs text-slate-500">{{ __('If a background image is uploaded, it is applied first, then this CSS is appended.') }}</p>
+                    </div>
+                </div>
             </div>
+        @endif
 
+        @if ($isBlogGridThree && $activeTab === 'sources')
             <div class="admin-panel admin-form-panel p-6">
-                <p class="admin-section-title">{{ __('Style & Background') }}</p>
+                <p class="admin-section-title">{{ __('Sources') }}</p>
+                <p class="mt-1 text-xs text-slate-500">{{ __('Pick the blog category and query settings for the article cards shown on the selected page.') }}</p>
 
-                <div class="mt-4">
-                    <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Custom Classes') }}</label>
-                    <input type="text" wire:model="form.custom_classes" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" placeholder="{{ __('extra utility classes') }}" />
+                <div class="mt-4 grid gap-3 md:grid-cols-3">
+                    <div>
+                        <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Blog Category') }}</label>
+                        <select wire:model="form.blog_category_id" data-tom-select class="admin-select w-full rounded-xl border border-slate-300 px-3 py-2 text-sm">
+                            <option value="">{{ __('Select category...') }}</option>
+                            @foreach ($this->blogCategoryOptions as $row)
+                                <option value="{{ $row['id'] }}">{{ $row['label'] }}</option>
+                            @endforeach
+                        </select>
+                        @error('form.blog_category_id') <p class="mt-1 text-xs text-rose-600">{{ $message }}</p> @enderror
+                    </div>
+
+                    <div>
+                        <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Number of blog posts to show') }}</label>
+                        <input type="number" min="1" max="50" wire:model="form.items_limit" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+                        @error('form.items_limit') <p class="mt-1 text-xs text-rose-600">{{ $message }}</p> @enderror
+                    </div>
+
+                    <div>
+                        <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Sort Posts') }}</label>
+                        <select wire:model="form.blog_sort" data-tom-select data-tom-no-search="1" class="admin-select w-full rounded-xl border border-slate-300 px-3 py-2 text-sm">
+                            <option value="newest">{{ __('Newest first') }}</option>
+                            <option value="featured">{{ __('Featured first') }}</option>
+                            <option value="title">{{ __('Title A-Z') }}</option>
+                        </select>
+                        @error('form.blog_sort') <p class="mt-1 text-xs text-rose-600">{{ $message }}</p> @enderror
+                    </div>
                 </div>
 
-                <div class="mt-3">
-                    <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Background CSS') }}</label>
-                    <textarea rows="4" wire:model="form.bg_css" class="w-full rounded-xl border border-slate-300 px-3 py-2 font-mono text-xs" placeholder="{{ __('background-color:#0f172a; color:white;') }}"></textarea>
-                    <p class="mt-1 text-xs text-slate-500">{{ __('If a background image is uploaded, it is applied first, then this CSS is appended.') }}</p>
-                </div>
+                <p class="mt-3 text-xs text-slate-500">{{ __('If CTA URL is left empty, the block can still work without a button. Use page targeting above to place this block on one specific page.') }}</p>
             </div>
-        </div>
+        @endif
 
-        @if ($this->isItemBlock)
+        @if ($this->isItemBlock && (! $isBlogGridThree || $activeTab === 'content'))
             <div class="admin-panel admin-form-panel p-6">
                 <p class="admin-section-title">{{ __('Selected Items') }}</p>
                 <p class="mt-1 text-xs text-slate-500">{{ __('Choose items and order them. No JSON IDs needed.') }}</p>
@@ -244,28 +309,37 @@
             </div>
         @endif
 
-        <div class="admin-panel admin-form-panel p-6">
-            <p class="admin-section-title">{{ __('Blade Template (Per Block File)') }}</p>
-            <p class="mt-1 text-xs text-slate-500">{{ __('Saved to') }} <code>resources/views/front/content-blocks/instances/{{ $form['code'] ?: 'block-code' }}.blade.php</code>. {{ __('This block only.') }}</p>
+        @if (! $isBlogGridThree || $activeTab === 'template')
+            <div class="admin-panel admin-form-panel p-6">
+                <p class="admin-section-title">{{ __('Blade Template (Per Block File)') }}</p>
+                <p class="mt-1 text-xs text-slate-500">{{ __('Saved to') }} <code>resources/views/front/content-blocks/instances/{{ $form['code'] ?: 'block-code' }}.blade.php</code>. {{ __('This block only.') }}</p>
 
-            <div class="mt-3 mb-2 flex flex-wrap items-center gap-2">
-                <button type="button" wire:click="loadTemplatePreset" class="rounded-lg border border-cyan-200 bg-cyan-50 px-3 py-1.5 text-xs font-semibold text-cyan-800 hover:bg-cyan-100">{{ __('Load Default For Type') }}</button>
-                <button
-                    type="button"
-                    data-ace-open
-                    data-ace-target="content-block-template-blade"
-                    data-ace-label="Content Block Blade Template"
-                    class="rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-100"
-                >
-                    {{ __('Open in Ace') }}
-                </button>
+                <div class="mt-3 mb-2 flex flex-wrap items-center gap-2">
+                    <button type="button" wire:click="loadTemplatePreset" class="rounded-lg border border-cyan-200 bg-cyan-50 px-3 py-1.5 text-xs font-semibold text-cyan-800 hover:bg-cyan-100">{{ __('Load Default For Type') }}</button>
+                    <button
+                        type="button"
+                        data-ace-open
+                        data-ace-target="content-block-template-blade"
+                        data-ace-label="Content Block Blade Template"
+                        class="rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-100"
+                    >
+                        {{ __('Open in Ace') }}
+                    </button>
+                </div>
+
+                <textarea id="content-block-template-blade" rows="16" wire:model="form.template_body" data-ace-inline class="w-full rounded-xl border border-slate-300 px-3 py-2 font-mono text-xs"></textarea>
+                @error('form.template_body') <p class="mt-1 text-xs text-rose-600">{{ $message }}</p> @enderror
             </div>
+        @endif
 
-            <textarea id="content-block-template-blade" rows="16" wire:model="form.template_body" data-ace-inline class="w-full rounded-xl border border-slate-300 px-3 py-2 font-mono text-xs"></textarea>
-            @error('form.template_body') <p class="mt-1 text-xs text-rose-600">{{ $message }}</p> @enderror
-        </div>
+        @if ($isBlogGridThree && $activeTab === 'media' && ! $blockId)
+            <div class="admin-panel admin-form-panel p-6">
+                <p class="admin-section-title">{{ __('Media') }}</p>
+                <p class="text-sm text-slate-600">{{ __('Save the block first to manage media assets for this section.') }}</p>
+            </div>
+        @endif
 
-        @if ($blockId)
+        @if ($blockId && (! $isBlogGridThree || $activeTab === 'media'))
             <livewire:admin.media.manager
                 :model-class="\App\Models\Content\ContentBlock::class"
                 :model-id="$blockId"

@@ -116,12 +116,82 @@ class ContentBlocksFeatureTest extends TestCase
         Livewire::actingAs($user)
             ->test(BlockForm::class)
             ->assertSet('form.slot_frontend_variant', 'all')
-            ->assertDontSee('No items selected.')
             ->set('form.type', 'mobile_hero_banner')
             ->assertSet('form.slot_frontend_variant', 'mobile')
-            ->assertSee('No items selected.')
             ->set('form.type', 'desktop_hero_banner')
             ->assertSet('form.slot_frontend_variant', 'desktop');
+    }
+
+    public function test_blog_grid_type_loads_saved_blog_category_source_settings(): void
+    {
+        $user = $this->makeAdminUser();
+
+        $blogCategory = Category::query()->create([
+            'scope' => Category::SCOPE_BLOG,
+            'code' => 'case-study',
+            'is_active' => true,
+            'show_in_menu' => true,
+            'sort_order' => 10,
+            'payload' => null,
+            'created_by' => $user->id,
+            'updated_by' => $user->id,
+        ]);
+        $blogCategory->translations()->create([
+            'scope' => Category::SCOPE_BLOG,
+            'locale' => 'en',
+            'name' => 'Case Study',
+            'slug' => 'case-study',
+        ]);
+
+        $block = ContentBlock::query()->create([
+            'code' => 'case-study-grid',
+            'name' => 'Case Study Grid',
+            'type' => 'blog_grid_3',
+            'is_active' => true,
+            'payload' => [
+                'source' => 'query',
+                'category_ids' => [$blogCategory->id],
+                'sort' => 'featured',
+            ],
+            'created_by' => $user->id,
+            'updated_by' => $user->id,
+        ]);
+
+        $block->translations()->create([
+            'locale' => 'en',
+            'title' => 'Latest case studies',
+            'subtitle' => 'Selected from one category',
+            'cta_label' => 'View all',
+            'cta_url' => '/blog/case-study',
+            'payload' => [
+                'items_limit' => 3,
+            ],
+        ]);
+
+        $block->slots()->create([
+            'placement' => 'page.bottom',
+            'frontend_variant' => 'all',
+            'target_type' => 'page',
+            'target_ref' => 'akademija',
+            'sort_order' => 0,
+            'is_active' => true,
+            'created_by' => $user->id,
+            'updated_by' => $user->id,
+        ]);
+
+        Livewire::actingAs($user)
+            ->test(BlockForm::class, ['blockId' => $block->id])
+            ->assertSet('form.type', 'blog_grid_3')
+            ->assertSet('form.blog_category_id', $blogCategory->id)
+            ->assertSet('form.blog_sort', 'featured')
+            ->assertSet('form.items_limit', 3)
+            ->assertSet('form.slot_target_type', 'page')
+            ->assertSet('form.slot_target_ref', 'akademija')
+            ->assertSee('Sources')
+            ->call('setTab', 'sources')
+            ->assertSet('activeTab', 'sources')
+            ->assertSee('Blog Category')
+            ->assertSee('Case Study');
     }
 
     private function makeAdminUser(): User

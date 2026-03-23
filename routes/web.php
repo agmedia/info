@@ -13,6 +13,7 @@ use App\Http\Controllers\Front\FaqController;
 use App\Http\Controllers\Front\GlossaryController;
 use App\Http\Controllers\Front\LeaseCalculatorController;
 use App\Http\Controllers\Front\PageController;
+use App\Http\Controllers\Front\ResourceController;
 use App\Http\Controllers\Front\TeamController;
 use App\Http\Controllers\Front\StorefrontController;
 use App\Models\Catalog\Category\Category;
@@ -21,6 +22,7 @@ use App\Models\Content\ContentBlock;
 use App\Models\Content\ContentBlockSlot;
 use App\Models\Content\Glossary\GlossaryTerm;
 use App\Models\Content\Page\InfoPage;
+use App\Models\Content\Resource\ResourceDocument;
 use App\Models\Content\Service\ServicePage;
 use App\Models\Content\Support\Faq;
 use App\Models\Content\Team\TeamMember;
@@ -87,6 +89,9 @@ Route::middleware(['front.locale', 'front.device'])
 
         Route::get('contact', [ContactController::class, 'create'])->name('contact.create');
         Route::post('contact', [ContactController::class, 'store'])->name('contact.store');
+        Route::get('resources', [ResourceController::class, 'index'])->name('resources.index');
+        Route::get('resources/{slug}', [ResourceController::class, 'show'])->name('resources.show');
+        Route::post('resources/{slug}/request', [ResourceController::class, 'store'])->name('resources.request');
         Route::get('ac-forma-robot', [CollaborationAssessmentController::class, 'create'])->name('assessment.create');
         Route::post('ac-forma-robot', [CollaborationAssessmentController::class, 'store'])->name('assessment.store');
         Route::get('leasing-kalkulator', [LeaseCalculatorController::class, 'show'])->name('lease-calculator.show');
@@ -150,6 +155,12 @@ Route::middleware(['admin.locale', 'auth', 'verified', 'admin.access', 'admin.ma
                 return view('admin.content.pages.edit', compact('page'));
             })->name('pages.edit');
 
+            Route::view('resources', 'admin.content.resources.index')->name('resources.index');
+            Route::view('resources/create', 'admin.content.resources.create')->name('resources.create');
+            Route::get('resources/{document}/edit', function (ResourceDocument $document) {
+                return view('admin.content.resources.edit', compact('document'));
+            })->name('resources.edit');
+
             Route::view('services', 'admin.content.services.index')->name('services.index');
             Route::view('services/create', 'admin.content.services.create')->name('services.create');
             Route::get('services/{servicePage}/edit', function (ServicePage $servicePage) {
@@ -181,6 +192,7 @@ Route::middleware(['admin.locale', 'auth', 'verified', 'admin.access', 'admin.ma
 
         Route::prefix('messages')->as('messages.')->group(function (): void {
             Route::view('career-cv-form', 'admin.messages.career.index')->name('career.index');
+            Route::view('download-requests', 'admin.messages.download-requests.index')->name('download-requests.index');
             Route::get('career-cv-form/{careerApplication}/download', CareerApplicationDocumentController::class)
                 ->name('career.download');
         });

@@ -571,7 +571,7 @@
             min-height: 2.15rem;
             padding: 0.5rem 0.9rem;
             border: 1px solid rgba(15, 23, 42, 0.18);
-            border-radius: 0.875rem;
+            border-radius: var(--front-button-radius);
             background: rgba(255, 255, 255, 0.76);
             color: #10213a;
             font-size: 0.88rem;
@@ -667,7 +667,7 @@
             width: 100%;
             padding: 0.95rem 1.35rem;
             border: 1px solid #0f2a43;
-            border-radius: 0.875rem;
+            border-radius: var(--front-button-radius);
             background: #0f2a43;
             color: #fff;
             font-size: 0.78rem;

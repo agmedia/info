@@ -8,6 +8,8 @@ use App\Livewire\Admin\Content\Page\Form as PageForm;
 use App\Models\Content\Blog\BlogPost;
 use App\Models\Content\Blog\BlogPostTranslation;
 use App\Models\Content\Page\InfoPage;
+use App\Models\Content\Resource\ResourceDocument;
+use App\Models\Content\Resource\ResourceDocumentTranslation;
 use App\Models\User;
 use App\Services\Settings\SystemSettingsService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -77,6 +79,164 @@ class ContentBlogPagesFeatureTest extends TestCase
         $this->assertNotNull($page);
         $this->assertTrue((bool) $page->is_active);
         $this->assertSame('Shipping Info', (string) $page->translation('en')->first()?->title);
+    }
+
+    public function test_admin_can_save_academy_blog_source_settings_on_info_page(): void
+    {
+        $user = $this->makeAdminUser();
+
+        $blogCategory = Category::query()->create([
+            'scope' => Category::SCOPE_BLOG,
+            'code' => 'case-study',
+            'is_active' => true,
+            'show_in_menu' => true,
+            'sort_order' => 10,
+            'created_by' => $user->id,
+            'updated_by' => $user->id,
+        ]);
+        $blogCategory->translations()->create([
+            'scope' => Category::SCOPE_BLOG,
+            'locale' => 'en',
+            'name' => 'Case Study',
+            'slug' => 'case-study',
+        ]);
+
+        Livewire::actingAs($user)
+            ->test(PageForm::class)
+            ->set('form.code', 'academy-page')
+            ->set('form.layout', 'academy')
+            ->set('form.is_active', true)
+            ->set('form.locale', 'en')
+            ->set('form.title', 'Academy')
+            ->set('form.slug', 'academy')
+            ->call('setTab', 'sources')
+            ->assertSet('activeTab', 'sources')
+            ->set('form.academy_blog_category_id', $blogCategory->id)
+            ->set('form.academy_blog_limit', 3)
+            ->set('form.academy_blog_title', 'Latest Case Studies')
+            ->set('form.academy_blog_intro', 'Selected from the Case Study category.')
+            ->call('save')
+            ->assertRedirect(route('admin.content.pages.index', ['locale' => 'en']));
+
+        $page = InfoPage::query()->where('code', 'academy-page')->first();
+
+        $this->assertNotNull($page);
+        $this->assertSame('academy', $page->layout);
+        $this->assertSame([
+            'mode' => 'category',
+            'category_id' => $blogCategory->id,
+            'limit' => 3,
+        ], $page->payload['blog_source'] ?? null);
+        $this->assertSame('Latest Case Studies', (string) data_get($page->translation('en')->first()?->payload, 'academy_blog_section.title'));
+        $this->assertSame('Selected from the Case Study category.', (string) data_get($page->translation('en')->first()?->payload, 'academy_blog_section.intro'));
+    }
+
+    public function test_admin_can_save_academy_download_documents_source_settings_on_info_page(): void
+    {
+        $user = $this->makeAdminUser();
+
+        $firstDocument = ResourceDocument::query()->create([
+            'code' => 'academy-doc-1',
+            'group_code' => 'downloads',
+            'is_active' => true,
+            'sort_order' => 1,
+            'download_url' => 'https://example.test/files/academy-doc-1.pdf',
+        ]);
+        ResourceDocumentTranslation::query()->create([
+            'document_id' => $firstDocument->id,
+            'locale' => 'en',
+            'title' => 'Academy Document 1',
+            'slug' => 'academy-document-1',
+        ]);
+
+        $secondDocument = ResourceDocument::query()->create([
+            'code' => 'academy-doc-2',
+            'group_code' => 'transaction-analysis',
+            'is_active' => true,
+            'sort_order' => 2,
+            'download_url' => 'https://example.test/files/academy-doc-2.pdf',
+        ]);
+        ResourceDocumentTranslation::query()->create([
+            'document_id' => $secondDocument->id,
+            'locale' => 'en',
+            'title' => 'Academy Document 2',
+            'slug' => 'academy-document-2',
+        ]);
+
+        Livewire::actingAs($user)
+            ->test(PageForm::class)
+            ->set('form.code', 'academy-page')
+            ->set('form.layout', 'academy')
+            ->set('form.is_active', true)
+            ->set('form.locale', 'en')
+            ->set('form.title', 'Academy')
+            ->set('form.slug', 'academy')
+            ->call('setTab', 'sources')
+            ->assertSet('activeTab', 'sources')
+            ->set('form.academy_resource_document_ids', [$secondDocument->id, $firstDocument->id])
+            ->set('form.academy_resource_title', 'Download Documents')
+            ->set('form.academy_resource_intro', 'Selected documents for the academy page.')
+            ->call('save')
+            ->assertRedirect(route('admin.content.pages.index', ['locale' => 'en']));
+
+        $page = InfoPage::query()->where('code', 'academy-page')->first();
+
+        $this->assertNotNull($page);
+        $this->assertSame([
+            'mode' => 'manual',
+            'document_ids' => [$secondDocument->id, $firstDocument->id],
+        ], $page->payload['resource_source'] ?? null);
+        $this->assertSame('Download Documents', (string) data_get($page->translation('en')->first()?->payload, 'academy_resource_section.title'));
+        $this->assertSame('Selected documents for the academy page.', (string) data_get($page->translation('en')->first()?->payload, 'academy_resource_section.intro'));
+    }
+
+    public function test_admin_can_save_academy_video_source_settings_on_info_page(): void
+    {
+        $user = $this->makeAdminUser();
+
+        Livewire::actingAs($user)
+            ->test(PageForm::class)
+            ->set('form.code', 'academy-page')
+            ->set('form.layout', 'academy')
+            ->set('form.is_active', true)
+            ->set('form.locale', 'en')
+            ->set('form.title', 'Academy')
+            ->set('form.slug', 'academy')
+            ->call('setTab', 'sources')
+            ->assertSet('activeTab', 'sources')
+            ->set('form.academy_video_items', [
+                [
+                    'title' => 'Intro to Finance',
+                    'youtube_url' => 'https://youtu.be/GivT5NzdO1c',
+                ],
+                [
+                    'title' => 'Business Planning',
+                    'youtube_url' => 'https://www.youtube.com/watch?v=VA7LlrHMsiM',
+                ],
+            ])
+            ->set('form.academy_video_title', 'Online education and personalized training')
+            ->set('form.academy_video_intro', 'Curated YouTube videos for the academy page.')
+            ->call('save')
+            ->assertRedirect(route('admin.content.pages.index', ['locale' => 'en']));
+
+        $page = InfoPage::query()->where('code', 'academy-page')->first();
+
+        $this->assertNotNull($page);
+        $this->assertSame([
+            'mode' => 'manual',
+            'items' => [
+                [
+                    'title' => 'Intro to Finance',
+                    'youtube_url' => 'https://www.youtube.com/watch?v=GivT5NzdO1c',
+                ],
+                [
+                    'title' => 'Business Planning',
+                    'youtube_url' => 'https://www.youtube.com/watch?v=VA7LlrHMsiM',
+                ],
+            ],
+        ], $page->payload['video_source'] ?? null);
+        $this->assertSame('Online education and personalized training', (string) data_get($page->translation('en')->first()?->payload, 'academy_video_section.title'));
+        $this->assertSame('Curated YouTube videos for the academy page.', (string) data_get($page->translation('en')->first()?->payload, 'academy_video_section.intro'));
     }
 
     public function test_admin_cannot_use_reserved_clean_slug_for_info_page(): void

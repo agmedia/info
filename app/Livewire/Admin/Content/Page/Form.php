@@ -3,8 +3,11 @@
 namespace App\Livewire\Admin\Content\Page;
 
 use App\Models\Catalog\Category\Category;
+use App\Models\Content\Resource\ResourceDocument;
 use App\Models\Content\Page\InfoPage;
 use App\Models\Content\Page\InfoPageTranslation;
+use App\Support\Content\ResourceDocumentGroupRegistry;
+use App\Support\Content\YouTubeUrl;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -13,8 +16,11 @@ use Livewire\Component;
 
 class Form extends Component
 {
+    private const TAB_OPTIONS = ['content', 'sources', 'seo'];
+
     public ?int $pageId = null;
     public string $activeTab = 'content';
+    public ?int $academyDocumentPickerId = null;
 
     public array $form = [
         'code' => '',
@@ -32,6 +38,16 @@ class Form extends Component
         'meta_description' => '',
         'translation_payload_text' => '',
         'category_ids' => [],
+        'academy_blog_category_id' => null,
+        'academy_blog_limit' => 3,
+        'academy_blog_title' => '',
+        'academy_blog_intro' => '',
+        'academy_resource_document_ids' => [],
+        'academy_resource_title' => '',
+        'academy_resource_intro' => '',
+        'academy_video_items' => [],
+        'academy_video_title' => '',
+        'academy_video_intro' => '',
     ];
 
     public function mount(?int $pageId = null): void
@@ -47,6 +63,14 @@ class Form extends Component
     public function updatedFormLocale(): void
     {
         $this->loadTranslationForLocale();
+        $this->academyDocumentPickerId = null;
+    }
+
+    public function updatedFormLayout(string $layout): void
+    {
+        if ($layout !== 'academy' && $this->activeTab === 'sources') {
+            $this->activeTab = 'content';
+        }
     }
 
     public function generateSlug(): void
@@ -59,11 +83,86 @@ class Form extends Component
 
     public function setTab(string $tab): void
     {
-        if (!in_array($tab, ['content', 'seo'], true)) {
+        if (! in_array($tab, self::TAB_OPTIONS, true)) {
+            return;
+        }
+
+        if ($tab === 'sources' && (string) ($this->form['layout'] ?? '') !== 'academy') {
             return;
         }
 
         $this->activeTab = $tab;
+    }
+
+    public function addAcademyDocument(int $id): void
+    {
+        if ($id <= 0) {
+            return;
+        }
+
+        $ids = collect((array) ($this->form['academy_resource_document_ids'] ?? []))
+            ->map(fn ($value): int => (int) $value)
+            ->filter()
+            ->values();
+
+        if (! $ids->contains($id)) {
+            $ids->push($id);
+            $this->form['academy_resource_document_ids'] = $ids->all();
+        }
+
+        $this->academyDocumentPickerId = null;
+    }
+
+    public function removeAcademyDocument(int $id): void
+    {
+        $this->form['academy_resource_document_ids'] = collect((array) ($this->form['academy_resource_document_ids'] ?? []))
+            ->map(fn ($value): int => (int) $value)
+            ->reject(fn (int $value): bool => $value === $id)
+            ->values()
+            ->all();
+    }
+
+    public function moveAcademyDocumentUp(int $index): void
+    {
+        $this->moveAcademyDocument($index, -1);
+    }
+
+    public function moveAcademyDocumentDown(int $index): void
+    {
+        $this->moveAcademyDocument($index, 1);
+    }
+
+    public function addAcademyVideo(): void
+    {
+        $rows = (array) ($this->form['academy_video_items'] ?? []);
+        $rows[] = [
+            'title' => '',
+            'youtube_url' => '',
+        ];
+
+        $this->form['academy_video_items'] = array_values($rows);
+    }
+
+    public function removeAcademyVideo(int $index): void
+    {
+        $rows = array_values((array) ($this->form['academy_video_items'] ?? []));
+
+        if (! array_key_exists($index, $rows)) {
+            return;
+        }
+
+        unset($rows[$index]);
+        $this->form['academy_video_items'] = array_values($rows);
+    }
+
+    public function moveAcademyVideoUp(int $index): void
+    {
+        $this->moveAcademyVideo($index, -1);
+    }
+
+    public function moveAcademyVideoDown(int $index): void
+    {
+        $this->moveAcademyVideo($index, 1);
     }
 
     public function save()
@@ -81,16 +180,104 @@ class Form extends Component
             return null;
         }
 
+        $payload = is_array($payload) ? $payload : [];
+        $translationPayload = is_array($translationPayload) ? $translationPayload : [];
+
+        $academyCategoryId = (int) ($validated['form']['academy_blog_category_id'] ?? 0);
+        $academyBlogLimit = max(1, min(24, (int) ($validated['form']['academy_blog_limit'] ?? 3)));
+        $academyBlogTitle = trim((string) ($validated['form']['academy_blog_title'] ?? ''));
+        $academyBlogIntro = trim((string) ($validated['form']['academy_blog_intro'] ?? ''));
+        $academyResourceDocumentIds = $this->normalizeIdList((array) ($validated['form']['academy_resource_document_ids'] ?? []));
+        $academyResourceTitle = trim((string) ($validated['form']['academy_resource_title'] ?? ''));
+        $academyResourceIntro = trim((string) ($validated['form']['academy_resource_intro'] ?? ''));
+        $academyVideoTitle = trim((string) ($validated['form']['academy_video_title'] ?? ''));
+        $academyVideoIntro = trim((string) ($validated['form']['academy_video_intro'] ?? ''));
+        $academyVideoItems = $this->normalizeAcademyVideoItems((array) ($validated['form']['academy_video_items'] ?? []));
+
+        if ($academyVideoItems === false) {
+            return null;
+        }
+
+        if ((string) ($validated['form']['layout'] ?? '') === 'academy' && $academyCategoryId > 0) {
+            $payload['blog_source'] = [
+                'mode' => 'category',
+                'category_id' => $academyCategoryId,
+                'limit' => $academyBlogLimit,
+            ];
+        } else {
+            unset($payload['blog_source']);
+        }
+
+        if ((string) ($validated['form']['layout'] ?? '') === 'academy' && $academyResourceDocumentIds !== []) {
+            $payload['resource_source'] = [
+                'mode' => 'manual',
+                'document_ids' => $academyResourceDocumentIds,
+            ];
+        } else {
+            unset($payload['resource_source']);
+        }
+
+        if ((string) ($validated['form']['layout'] ?? '') === 'academy' && $academyVideoItems !== []) {
+            $payload['video_source'] = [
+                'mode' => 'manual',
+                'items' => $academyVideoItems,
+            ];
+        } else {
+            unset($payload['video_source']);
+        }
+
+        if ((string) ($validated['form']['layout'] ?? '') === 'academy') {
+            $academyBlogSection = array_filter([
+                'title' => $academyBlogTitle !== '' ? $academyBlogTitle : null,
+                'intro' => $academyBlogIntro !== '' ? $academyBlogIntro : null,
+            ], static fn ($value): bool => $value !== null && $value !== '');
+
+            if ($academyBlogSection !== []) {
+                $translationPayload['academy_blog_section'] = $academyBlogSection;
+            } else {
+                unset($translationPayload['academy_blog_section']);
+            }
+
+            $academyResourceSection = array_filter([
+                'title' => $academyResourceTitle !== '' ? $academyResourceTitle : null,
+                'intro' => $academyResourceIntro !== '' ? $academyResourceIntro : null,
+            ], static fn ($value): bool => $value !== null && $value !== '');
+
+            if ($academyResourceSection !== []) {
+                $translationPayload['academy_resource_section'] = $academyResourceSection;
+            } else {
+                unset($translationPayload['academy_resource_section']);
+            }
+
+            $academyVideoSection = array_filter([
+                'title' => $academyVideoTitle !== '' ? $academyVideoTitle : null,
+                'intro' => $academyVideoIntro !== '' ? $academyVideoIntro : null,
+            ], static fn ($value): bool => $value !== null && $value !== '');
+
+            if ($academyVideoSection !== []) {
+                $translationPayload['academy_video_section'] = $academyVideoSection;
+            } else {
+                unset($translationPayload['academy_video_section']);
+            }
+        } else {
+            unset($translationPayload['academy_blog_section']);
+            unset($translationPayload['academy_resource_section']);
+            unset($translationPayload['academy_video_section']);
+        }
+
+        $payloadToSave = $payload === [] ? null : $payload;
+        $translationPayloadToSave = $translationPayload === [] ? null : $translationPayload;
+
         $userId = auth()->id();
 
-        DB::transaction(function () use ($validated, $payload, $translationPayload, $userId, $wasEditing): void {
+        DB::transaction(function () use ($validated, $payloadToSave, $translationPayloadToSave, $userId, $wasEditing): void {
             $pageData = [
                 'code' => trim((string) $validated['form']['code']),
                 'layout' => trim((string) $validated['form']['layout']) !== '' ? trim((string) $validated['form']['layout']) : 'default',
                 'is_active' => (bool) $validated['form']['is_active'],
                 'published_at' => $validated['form']['published_at'] ?: null,
                 'sort_order' => (int) $validated['form']['sort_order'],
-                'payload' => $payload,
+                'payload' => $payloadToSave,
                 'updated_by' => $userId,
             ];
 
@@ -111,7 +298,7 @@ class Form extends Component
                     'body_html' => $validated['form']['body_html'] ?: null,
                     'meta_title' => $validated['form']['meta_title'] ?: null,
                     'meta_description' => $validated['form']['meta_description'] ?: null,
-                    'payload' => $translationPayload,
+                    'payload' => $translationPayloadToSave,
                 ]
             );
 
@@ -207,6 +394,80 @@ class Form extends Component
         });
     }
 
+    public function getBlogCategoryOptionsProperty(): Collection
+    {
+        $fallbackLocale = (string) config('app.fallback_locale', config('app.locale', 'en'));
+        $locales = array_values(array_unique([(string) $this->form['locale'], $fallbackLocale]));
+
+        return Category::query()
+            ->where('scope', Category::SCOPE_BLOG)
+            ->withDepth()
+            ->defaultOrder()
+            ->with([
+                'translations' => fn ($query) => $query
+                    ->where('scope', Category::SCOPE_BLOG)
+                    ->whereIn('locale', $locales),
+            ])
+            ->get()
+            ->map(function (Category $category) use ($fallbackLocale): array {
+                $translation = $category->translations->firstWhere('locale', (string) $this->form['locale'])
+                    ?? $category->translations->firstWhere('locale', $fallbackLocale)
+                    ?? $category->translations->first();
+                $depth = max(0, (int) ($category->depth ?? 0) - 1);
+
+                return [
+                    'id' => (int) $category->id,
+                    'label' => str_repeat('— ', $depth).(string) ($translation?->name ?? $category->code),
+                ];
+            });
+    }
+
+    public function getResourceDocumentOptionsProperty(): Collection
+    {
+        $fallbackLocale = (string) config('app.fallback_locale', config('app.locale', 'en'));
+        $locales = array_values(array_unique([(string) $this->form['locale'], $fallbackLocale]));
+
+        return ResourceDocument::query()
+            ->with([
+                'translations' => fn ($query) => $query->whereIn('locale', $locales),
+            ])
+            ->orderBy('sort_order')
+            ->orderByDesc('published_at')
+            ->orderBy('id')
+            ->get()
+            ->map(function (ResourceDocument $document) use ($fallbackLocale): array {
+                $translation = $document->translations->firstWhere('locale', (string) $this->form['locale'])
+                    ?? $document->translations->firstWhere('locale', $fallbackLocale)
+                    ?? $document->translations->first();
+                $title = trim((string) ($translation?->title ?? '')) ?: $document->code;
+                $groupLabel = ResourceDocumentGroupRegistry::label((string) $document->group_code);
+
+                return [
+                    'id' => (int) $document->id,
+                    'label' => $title.' - '.$groupLabel,
+                ];
+            });
+    }
+
+    public function getSelectedAcademyDocumentsProperty(): Collection
+    {
+        $optionsById = $this->resourceDocumentOptions->keyBy('id');
+
+        return collect((array) ($this->form['academy_resource_document_ids'] ?? []))
+            ->map(fn ($id): int => (int) $id)
+            ->filter()
+            ->values()
+            ->map(function (int $id, int $index) use ($optionsById): array {
+                $row = $optionsById->get($id);
+
+                return [
+                    'id' => $id,
+                    'index' => $index,
+                    'label' => (string) ($row['label'] ?? ('#'.$id)),
+                ];
+            });
+    }
+
     /**
      * @return array<string, mixed>
      */
@@ -238,6 +499,23 @@ class Form extends Component
             'form.meta_description' => ['nullable', 'string'],
             'form.translation_payload_text' => ['nullable', 'string'],
             'form.category_ids' => ['nullable', 'array'],
+            'form.academy_blog_category_id' => [
+                'nullable',
+                'integer',
+                Rule::exists('categories', 'id')->where(fn ($query) => $query->where('scope', Category::SCOPE_BLOG)),
+            ],
+            'form.academy_blog_limit' => ['nullable', 'integer', 'min:1', 'max:24'],
+            'form.academy_blog_title' => ['nullable', 'string', 'max:255'],
+            'form.academy_blog_intro' => ['nullable', 'string'],
+            'form.academy_resource_document_ids' => ['nullable', 'array'],
+            'form.academy_resource_document_ids.*' => ['integer', Rule::exists('content_resource_documents', 'id')],
+            'form.academy_resource_title' => ['nullable', 'string', 'max:255'],
+            'form.academy_resource_intro' => ['nullable', 'string'],
+            'form.academy_video_items' => ['nullable', 'array'],
+            'form.academy_video_items.*.title' => ['nullable', 'string', 'max:255'],
+            'form.academy_video_items.*.youtube_url' => ['nullable', 'string', 'max:2048'],
+            'form.academy_video_title' => ['nullable', 'string', 'max:255'],
+            'form.academy_video_intro' => ['nullable', 'string'],
             'form.category_ids.*' => [
                 'integer',
                 Rule::exists('categories', 'id')->where(fn ($q) => $q->where('scope', Category::SCOPE_PAGE)),
@@ -280,8 +558,29 @@ class Form extends Component
             ? json_encode($page->payload, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES)
             : '';
         $this->form['category_ids'] = $page->categories->pluck('id')->map(fn ($id) => (int) $id)->all();
+        $pagePayload = is_array($page->payload) ? $page->payload : [];
+        $blogSource = is_array($pagePayload['blog_source'] ?? null) ? $pagePayload['blog_source'] : [];
+        $resourceSource = is_array($pagePayload['resource_source'] ?? null) ? $pagePayload['resource_source'] : [];
+        $videoSource = is_array($pagePayload['video_source'] ?? null) ? $pagePayload['video_source'] : [];
+        $this->form['academy_blog_category_id'] = (int) ($blogSource['category_id'] ?? 0) > 0
+            ? (int) $blogSource['category_id']
+            : null;
+        $this->form['academy_blog_limit'] = max(1, min(24, (int) ($blogSource['limit'] ?? 3)));
+        $this->form['academy_resource_document_ids'] = $this->normalizeIdList((array) ($resourceSource['document_ids'] ?? []));
+        $this->form['academy_video_items'] = $this->normalizeAcademyVideoDraftItems((array) ($videoSource['items'] ?? []));
 
         if ($translation) {
+            $translationPayload = is_array($translation->payload) ? $translation->payload : [];
+            $academyBlogSection = is_array($translationPayload['academy_blog_section'] ?? null)
+                ? $translationPayload['academy_blog_section']
+                : [];
+            $academyResourceSection = is_array($translationPayload['academy_resource_section'] ?? null)
+                ? $translationPayload['academy_resource_section']
+                : [];
+            $academyVideoSection = is_array($translationPayload['academy_video_section'] ?? null)
+                ? $translationPayload['academy_video_section']
+                : [];
+
             $this->form['locale'] = $translation->locale;
             $this->form['title'] = $translation->title;
             $this->form['slug'] = $translation->slug;
@@ -289,9 +588,22 @@ class Form extends Component
             $this->form['body_html'] = $translation->body_html ?? '';
             $this->form['meta_title'] = $translation->meta_title ?? '';
             $this->form['meta_description'] = $translation->meta_description ?? '';
+            $this->form['academy_blog_title'] = (string) ($academyBlogSection['title'] ?? '');
+            $this->form['academy_blog_intro'] = (string) ($academyBlogSection['intro'] ?? '');
+            $this->form['academy_resource_title'] = (string) ($academyResourceSection['title'] ?? '');
+            $this->form['academy_resource_intro'] = (string) ($academyResourceSection['intro'] ?? '');
+            $this->form['academy_video_title'] = (string) ($academyVideoSection['title'] ?? '');
+            $this->form['academy_video_intro'] = (string) ($academyVideoSection['intro'] ?? '');
             $this->form['translation_payload_text'] = $translation->payload
                 ? json_encode($translation->payload, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES)
                 : '';
+        } else {
+            $this->form['academy_blog_title'] = '';
+            $this->form['academy_blog_intro'] = '';
+            $this->form['academy_resource_title'] = '';
+            $this->form['academy_resource_intro'] = '';
+            $this->form['academy_video_title'] = '';
+            $this->form['academy_video_intro'] = '';
         }
     }
 
@@ -318,6 +630,22 @@ class Form extends Component
         $this->form['body_html'] = $translation->body_html ?? '';
         $this->form['meta_title'] = $translation->meta_title ?? '';
         $this->form['meta_description'] = $translation->meta_description ?? '';
+        $translationPayload = is_array($translation->payload) ? $translation->payload : [];
+        $academyBlogSection = is_array($translationPayload['academy_blog_section'] ?? null)
+            ? $translationPayload['academy_blog_section']
+            : [];
+        $academyResourceSection = is_array($translationPayload['academy_resource_section'] ?? null)
+            ? $translationPayload['academy_resource_section']
+            : [];
+        $academyVideoSection = is_array($translationPayload['academy_video_section'] ?? null)
+            ? $translationPayload['academy_video_section']
+            : [];
+        $this->form['academy_blog_title'] = (string) ($academyBlogSection['title'] ?? '');
+        $this->form['academy_blog_intro'] = (string) ($academyBlogSection['intro'] ?? '');
+        $this->form['academy_resource_title'] = (string) ($academyResourceSection['title'] ?? '');
+        $this->form['academy_resource_intro'] = (string) ($academyResourceSection['intro'] ?? '');
+        $this->form['academy_video_title'] = (string) ($academyVideoSection['title'] ?? '');
+        $this->form['academy_video_intro'] = (string) ($academyVideoSection['intro'] ?? '');
         $this->form['translation_payload_text'] = $translation->payload
             ? json_encode($translation->payload, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES)
             : '';
@@ -331,6 +659,12 @@ class Form extends Component
         $this->form['body_html'] = '';
         $this->form['meta_title'] = '';
         $this->form['meta_description'] = '';
+        $this->form['academy_blog_title'] = '';
+        $this->form['academy_blog_intro'] = '';
+        $this->form['academy_resource_title'] = '';
+        $this->form['academy_resource_intro'] = '';
+        $this->form['academy_video_title'] = '';
+        $this->form['academy_video_intro'] = '';
         $this->form['translation_payload_text'] = '';
     }
 
@@ -384,5 +718,118 @@ class Form extends Component
         }
 
         return $decoded;
+    }
+
+    private function moveAcademyDocument(int $index, int $direction): void
+    {
+        $rows = array_values(array_map(
+            static fn ($value): int => (int) $value,
+            (array) ($this->form['academy_resource_document_ids'] ?? [])
+        ));
+
+        $swapIndex = $index + $direction;
+        if ($index < 0 || $index >= count($rows) || $swapIndex < 0 || $swapIndex >= count($rows)) {
+            return;
+        }
+
+        [$rows[$index], $rows[$swapIndex]] = [$rows[$swapIndex], $rows[$index]];
+        $this->form['academy_resource_document_ids'] = $rows;
+    }
+
+    private function moveAcademyVideo(int $index, int $direction): void
+    {
+        $rows = array_values((array) ($this->form['academy_video_items'] ?? []));
+
+        $swapIndex = $index + $direction;
+        if ($index < 0 || $index >= count($rows) || $swapIndex < 0 || $swapIndex >= count($rows)) {
+            return;
+        }
+
+        [$rows[$index], $rows[$swapIndex]] = [$rows[$swapIndex], $rows[$index]];
+        $this->form['academy_video_items'] = array_values($rows);
+    }
+
+    /**
+     * @param  array<int, mixed>  $items
+     * @return array<int, int>
+     */
+    private function normalizeIdList(array $items): array
+    {
+        return collect($items)
+            ->map(fn ($id): int => (int) $id)
+            ->filter()
+            ->values()
+            ->all();
+    }
+
+    /**
+     * @param  array<int, mixed>  $items
+     * @return array<int, array{title:string, youtube_url:string}>|false
+     */
+    private function normalizeAcademyVideoItems(array $items): array|false
+    {
+        $normalized = [];
+        $hasErrors = false;
+
+        foreach (array_values($items) as $index => $item) {
+            $title = trim((string) data_get($item, 'title', ''));
+            $youtubeUrl = trim((string) data_get($item, 'youtube_url', ''));
+
+            if ($title === '' && $youtubeUrl === '') {
+                continue;
+            }
+
+            if ($youtubeUrl === '') {
+                $this->addError("form.academy_video_items.$index.youtube_url", __('YouTube URL je obavezan ako je red popunjen.'));
+                $hasErrors = true;
+                continue;
+            }
+
+            $parsed = YouTubeUrl::parse($youtubeUrl);
+
+            if ($parsed === null) {
+                $this->addError("form.academy_video_items.$index.youtube_url", __('Podržani su samo valjani YouTube linkovi.'));
+                $hasErrors = true;
+                continue;
+            }
+
+            $normalized[] = [
+                'title' => $title,
+                'youtube_url' => $parsed['watch_url'],
+            ];
+        }
+
+        if ($hasErrors) {
+            $this->dispatch('notify', type: 'danger', message: __('Provjeri unesene YouTube linkove.'));
+
+            return false;
+        }
+
+        return $normalized;
+    }
+
+    /**
+     * @param  array<int, mixed>  $items
+     * @return array<int, array{title:string, youtube_url:string}>
+     */
+    private function normalizeAcademyVideoDraftItems(array $items): array
+    {
+        return collect($items)
+            ->map(function ($item): ?array {
+                $title = trim((string) data_get($item, 'title', ''));
+                $youtubeUrl = trim((string) data_get($item, 'youtube_url', ''));
+
+                if ($title === '' && $youtubeUrl === '') {
+                    return null;
+                }
+
+                return [
+                    'title' => $title,
+                    'youtube_url' => $youtubeUrl,
+                ];
+            })
+            ->filter()
+            ->values()
+            ->all();
     }
 }

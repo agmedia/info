@@ -1026,19 +1026,25 @@
                     $contentTeamActive = request()->routeIs('admin.content.team.*');
                     $contentGlossaryActive = request()->routeIs('admin.content.glossary.*');
                     $contentPagesActive = request()->routeIs('admin.content.pages.*');
+                    $contentResourcesActive = request()->routeIs('admin.content.resources.*');
                     $contentServicesActive = request()->routeIs('admin.content.services.*');
                     $contentFaqsActive = request()->routeIs('admin.content.faqs.*');
                     $contentCommentsActive = request()->routeIs('admin.content.comments.*');
                     $contentBlocksActive = request()->routeIs('admin.content.blocks*');
                     $contentNavigationActive = request()->routeIs('admin.content.navigation*');
                     $contentSlotsActive = request()->routeIs('admin.content.slots*');
-                    $contentOpen = $contentCategoriesActive || $contentBlogActive || $contentTeamActive || $contentGlossaryActive || $contentPagesActive || $contentServicesActive || $contentFaqsActive || $contentCommentsActive || $contentBlocksActive || $contentNavigationActive || $contentSlotsActive;
+                    $contentOpen = $contentCategoriesActive || $contentBlogActive || $contentTeamActive || $contentGlossaryActive || $contentPagesActive || $contentResourcesActive || $contentServicesActive || $contentFaqsActive || $contentCommentsActive || $contentBlocksActive || $contentNavigationActive || $contentSlotsActive;
                     $messagesCareerActive = request()->routeIs('admin.messages.career.*');
+                    $messagesDownloadRequestsActive = request()->routeIs('admin.messages.download-requests.*');
                     $canViewCareerMessages = auth()->user() && (
                         auth()->user()->isA('superadmin')
                         || auth()->user()->can('messages.career.view')
                     );
-                    $messagesOpen = $messagesCareerActive;
+                    $canViewDownloadRequestMessages = auth()->user() && (
+                        auth()->user()->isA('superadmin')
+                        || auth()->user()->can('messages.download_requests.view')
+                    );
+                    $messagesOpen = $messagesCareerActive || $messagesDownloadRequestsActive;
                     $settingsOpen = request()->routeIs('admin.settings.*');
                     $settingsSystemOpen = request()->routeIs('admin.settings.system.*');
                     $canManageUsersAccess = auth()->user() && auth()->user()->isA('superadmin');
@@ -1309,6 +1315,15 @@
                                 </span>
                             </a>
                             <a
+                                href="{{ route('admin.content.resources.index') }}"
+                                class="sidebar-dropdown-link block rounded-lg font-medium {{ $contentResourcesActive ? 'is-active-leaf' : 'text-slate-700 hover:bg-slate-100' }}"
+                            >
+                                <span class="flex items-center gap-2">
+                                    <span class="sidebar-dot"></span>
+                                    <span>{{ __('admin.layout.menu.resources') }}</span>
+                                </span>
+                            </a>
+                            <a
                                 href="{{ route('admin.content.services.index') }}"
                                 class="sidebar-dropdown-link block rounded-lg font-medium {{ $contentServicesActive ? 'is-active-leaf' : 'text-slate-700 hover:bg-slate-100' }}"
                             >
@@ -1356,7 +1371,7 @@
                         </div>
                     </details>
 
-                    @if ($canViewCareerMessages)
+                    @if ($canViewCareerMessages || $canViewDownloadRequestMessages)
                         <details class="group rounded-lg" @if($messagesOpen) open @endif>
                             <summary class="sidebar-dropdown-summary flex cursor-pointer list-none items-center justify-between rounded-lg font-medium [&::-webkit-details-marker]:hidden [&::marker]:content-[''] {{ $messagesOpen ? 'bg-slate-900 text-white' : 'text-slate-700 hover:bg-slate-100' }}">
                                 <span class="flex items-center gap-2">
@@ -1368,15 +1383,28 @@
                                 </span>
                             </summary>
                             <div class="ml-3 mt-1 space-y-1 border-l border-slate-200 pl-4">
-                                <a
-                                    href="{{ route('admin.messages.career.index') }}"
-                                    class="sidebar-dropdown-link block rounded-lg font-medium {{ $messagesCareerActive ? 'is-active-leaf' : 'text-slate-700 hover:bg-slate-100' }}"
-                                >
-                                    <span class="flex items-center gap-2">
-                                        <span class="sidebar-dot"></span>
-                                        <span>{{ __('admin.layout.menu.career_cv_form') }}</span>
-                                    </span>
-                                </a>
+                                @if ($canViewCareerMessages)
+                                    <a
+                                        href="{{ route('admin.messages.career.index') }}"
+                                        class="sidebar-dropdown-link block rounded-lg font-medium {{ $messagesCareerActive ? 'is-active-leaf' : 'text-slate-700 hover:bg-slate-100' }}"
+                                    >
+                                        <span class="flex items-center gap-2">
+                                            <span class="sidebar-dot"></span>
+                                            <span>{{ __('admin.layout.menu.career_cv_form') }}</span>
+                                        </span>
+                                    </a>
+                                @endif
+                                @if ($canViewDownloadRequestMessages)
+                                    <a
+                                        href="{{ route('admin.messages.download-requests.index') }}"
+                                        class="sidebar-dropdown-link block rounded-lg font-medium {{ $messagesDownloadRequestsActive ? 'is-active-leaf' : 'text-slate-700 hover:bg-slate-100' }}"
+                                    >
+                                        <span class="flex items-center gap-2">
+                                            <span class="sidebar-dot"></span>
+                                            <span>{{ __('admin.layout.menu.download_requests') }}</span>
+                                        </span>
+                                    </a>
+                                @endif
                             </div>
                         </details>
                     @endif

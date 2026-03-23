@@ -147,6 +147,10 @@ return [
             'view' => ['messages.career.view'],
             'mutate' => ['messages.career.moderate'],
         ],
+        'admin.messages.download-requests.*' => [
+            'view' => ['messages.download_requests.view'],
+            'mutate' => ['messages.download_requests.moderate'],
+        ],
 
         'admin.settings.system.runtime' => [
             'view' => ['settings.system.runtime.manage'],

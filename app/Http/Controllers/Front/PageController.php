@@ -5,12 +5,18 @@ namespace App\Http\Controllers\Front;
 use App\Http\Controllers\Controller;
 use App\Models\Catalog\Category\Category;
 use App\Http\Controllers\Front\Concerns\ResolvesFrontendView;
+use App\Models\Content\Blog\BlogPost;
 use App\Models\Content\Glossary\GlossaryTerm;
 use App\Models\Content\Page\InfoPage;
+use App\Models\Content\Resource\ResourceDocument;
 use App\Services\Content\ContentBlockResolver;
 use App\Services\Content\GlossaryImportService;
+use App\Support\Content\ResourceDocumentGroupRegistry;
+use App\Support\Content\YouTubeUrl;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
 
@@ -186,6 +192,50 @@ class PageController extends Controller
             ]);
         }
 
+        if ($page->layout === 'academy') {
+            [$academyBlogCategory, $academyBlogPosts] = $this->resolveAcademyBlogFeed(
+                $page,
+                (string) $locale,
+                $fallbackLocale
+            );
+            $academyResourceDocuments = $this->resolveAcademyResourceFeed(
+                $page,
+                (string) $locale,
+                $fallbackLocale
+            );
+
+            $academyBlogSection = $this->resolveAcademyBlogSection(
+                $selectedTranslation?->payload,
+                $academyBlogCategory,
+                (string) $locale,
+                $fallbackLocale
+            );
+            $academyResourceSection = $this->resolveAcademyResourceSection(
+                $selectedTranslation?->payload,
+                (string) $locale
+            );
+            $academyVideos = $this->resolveAcademyVideoFeed($page);
+            $academyVideoSection = $this->resolveAcademyVideoSection(
+                $selectedTranslation?->payload,
+                (string) $locale
+            );
+
+            return view($this->frontendView($request, 'pages.academy'), [
+                'page' => $page,
+                'selectedTranslation' => $selectedTranslation,
+                'topBlocks' => $topBlocks,
+                'bottomBlocks' => $bottomBlocks,
+                'academyBlogPosts' => $academyBlogPosts,
+                'academyBlogSection' => $academyBlogSection,
+                'academyResourceDocuments' => $academyResourceDocuments,
+                'academyResourceSection' => $academyResourceSection,
+                'academyVideos' => $academyVideos,
+                'academyVideoSection' => $academyVideoSection,
+                'locale' => $locale,
+                'fallbackLocale' => $fallbackLocale,
+            ]);
+        }
+
         return view($this->frontendView($request, 'pages.show'), [
             'page' => $page,
             'selectedTranslation' => $selectedTranslation,
@@ -194,6 +244,236 @@ class PageController extends Controller
             'locale' => $locale,
             'fallbackLocale' => $fallbackLocale,
         ]);
+    }
+
+    /**
+     * @return array{0: Category|null, 1: Collection<int, BlogPost>}
+     */
+    private function resolveAcademyBlogFeed(InfoPage $page, string $locale, string $fallbackLocale): array
+    {
+        $pagePayload = is_array($page->payload) ? $page->payload : [];
+        $blogSource = is_array($pagePayload['blog_source'] ?? null) ? $pagePayload['blog_source'] : [];
+        $categoryId = (int) ($blogSource['category_id'] ?? 0);
+        $limit = max(1, min(24, (int) ($blogSource['limit'] ?? 3)));
+
+        if ($categoryId <= 0) {
+            return [null, collect()];
+        }
+
+        $category = Category::query()
+            ->where('scope', Category::SCOPE_BLOG)
+            ->whereKey($categoryId)
+            ->with([
+                'translations' => fn ($query) => $query
+                    ->where('scope', Category::SCOPE_BLOG)
+                    ->whereIn('locale', [$locale, $fallbackLocale]),
+            ])
+            ->first();
+
+        if (! $category) {
+            return [null, collect()];
+        }
+
+        $posts = BlogPost::query()
+            ->where('is_active', true)
+            ->where(function (Builder $query): void {
+                $query->whereNull('published_at')
+                    ->orWhere('published_at', '<=', now());
+            })
+            ->whereHas('categories', function (Builder $query) use ($categoryId): void {
+                $query->where('categories.id', $categoryId);
+            })
+            ->with([
+                'translations' => fn ($query) => $query->whereIn('locale', [$locale, $fallbackLocale]),
+                'categories' => fn ($query) => $query
+                    ->where('scope', Category::SCOPE_BLOG)
+                    ->with([
+                        'translations' => fn ($translationQuery) => $translationQuery
+                            ->where('scope', Category::SCOPE_BLOG)
+                            ->whereIn('locale', [$locale, $fallbackLocale]),
+                    ]),
+                'media',
+            ])
+            ->orderByDesc('published_at')
+            ->orderByDesc('id')
+            ->limit($limit)
+            ->get();
+
+        return [
+            $category,
+            $posts,
+        ];
+    }
+
+    /**
+     * @return array{title: string, intro: string}
+     */
+    private function resolveAcademyBlogSection(
+        mixed $translationPayload,
+        ?Category $category,
+        string $locale,
+        string $fallbackLocale
+    ): array {
+        $payload = is_array($translationPayload) ? $translationPayload : [];
+        $section = is_array($payload['academy_blog_section'] ?? null) ? $payload['academy_blog_section'] : [];
+        $title = trim((string) ($section['title'] ?? ''));
+        $intro = trim((string) ($section['intro'] ?? ''));
+
+        if ($title !== '') {
+            return [
+                'title' => $title,
+                'intro' => $intro,
+            ];
+        }
+
+        $categoryTranslation = $category?->translations->firstWhere('locale', $locale)
+            ?? $category?->translations->firstWhere('locale', $fallbackLocale)
+            ?? $category?->translations->first();
+        $categoryName = trim((string) ($categoryTranslation?->name ?? ''));
+
+        if ($categoryName === '') {
+            return [
+                'title' => '',
+                'intro' => $intro,
+            ];
+        }
+
+        return [
+            'title' => $locale === 'hr'
+                ? 'Najnovije objave iz kategorije '.$categoryName
+                : 'Latest posts from category '.$categoryName,
+            'intro' => $intro,
+        ];
+    }
+
+    /**
+     * @return Collection<int, array<string, mixed>>
+     */
+    private function resolveAcademyResourceFeed(InfoPage $page, string $locale, string $fallbackLocale): Collection
+    {
+        $pagePayload = is_array($page->payload) ? $page->payload : [];
+        $resourceSource = is_array($pagePayload['resource_source'] ?? null) ? $pagePayload['resource_source'] : [];
+        $documentIds = collect((array) ($resourceSource['document_ids'] ?? []))
+            ->map(fn ($value): int => (int) $value)
+            ->filter()
+            ->values();
+
+        if ($documentIds->isEmpty()) {
+            return collect();
+        }
+
+        $documentsById = ResourceDocument::query()
+            ->where('is_active', true)
+            ->where(function (Builder $query): void {
+                $query->whereNull('published_at')
+                    ->orWhere('published_at', '<=', now());
+            })
+            ->whereKey($documentIds->all())
+            ->with([
+                'translations' => fn ($query) => $query->whereIn('locale', [$locale, $fallbackLocale]),
+            ])
+            ->get()
+            ->keyBy(fn (ResourceDocument $document): int => (int) $document->id);
+
+        return $documentIds
+            ->map(function (int $documentId) use ($documentsById, $locale, $fallbackLocale): ?array {
+                $document = $documentsById->get($documentId);
+
+                if (! $document) {
+                    return null;
+                }
+
+                $translation = $document->translations->firstWhere('locale', $locale)
+                    ?? $document->translations->firstWhere('locale', $fallbackLocale)
+                    ?? $document->translations->first();
+
+                if (! $translation) {
+                    return null;
+                }
+
+                return [
+                    'id' => (int) $document->id,
+                    'code' => (string) $document->code,
+                    'group_code' => (string) $document->group_code,
+                    'group_label' => ResourceDocumentGroupRegistry::label((string) $document->group_code),
+                    'title' => trim((string) $translation->title),
+                    'slug' => trim((string) $translation->slug),
+                    'excerpt' => trim((string) ($translation->excerpt ?? '')),
+                    'cover_image_url' => trim((string) ($document->cover_image_url ?? '')) ?: null,
+                    'download_url' => trim((string) ($document->download_url ?? '')) ?: null,
+                    'download_available' => trim((string) ($document->download_url ?? '')) !== '',
+                    'source_url' => trim((string) ($document->source_url ?? '')) ?: null,
+                    'published_at' => $document->published_at,
+                ];
+            })
+            ->filter()
+            ->values();
+    }
+
+    /**
+     * @return array{title: string, intro: string}
+     */
+    private function resolveAcademyResourceSection(mixed $translationPayload, string $locale): array
+    {
+        $payload = is_array($translationPayload) ? $translationPayload : [];
+        $section = is_array($payload['academy_resource_section'] ?? null) ? $payload['academy_resource_section'] : [];
+        $title = trim((string) ($section['title'] ?? ''));
+        $intro = trim((string) ($section['intro'] ?? ''));
+
+        return [
+            'title' => $title !== ''
+                ? $title
+                : ($locale === 'hr' ? 'Dokumenti za preuzimanje' : 'Download documents'),
+            'intro' => $intro,
+        ];
+    }
+
+    /**
+     * @return Collection<int, array<string, string>>
+     */
+    private function resolveAcademyVideoFeed(InfoPage $page): Collection
+    {
+        $pagePayload = is_array($page->payload) ? $page->payload : [];
+        $videoSource = is_array($pagePayload['video_source'] ?? null) ? $pagePayload['video_source'] : [];
+
+        return collect((array) ($videoSource['items'] ?? []))
+            ->map(function ($item): ?array {
+                $title = trim((string) data_get($item, 'title', ''));
+                $youtubeUrl = trim((string) data_get($item, 'youtube_url', ''));
+                $embedUrl = YouTubeUrl::embedUrl($youtubeUrl);
+
+                if ($embedUrl === '') {
+                    return null;
+                }
+
+                $separator = str_contains($embedUrl, '?') ? '&' : '?';
+
+                return [
+                    'title' => $title,
+                    'youtube_url' => $youtubeUrl,
+                    'embed_url' => $embedUrl.$separator.'rel=0&modestbranding=1',
+                ];
+            })
+            ->filter()
+            ->values();
+    }
+
+    /**
+     * @return array{title: string, intro: string}
+     */
+    private function resolveAcademyVideoSection(mixed $translationPayload, string $locale): array
+    {
+        $payload = is_array($translationPayload) ? $translationPayload : [];
+        $section = is_array($payload['academy_video_section'] ?? null) ? $payload['academy_video_section'] : [];
+        $title = trim((string) ($section['title'] ?? ''));
+        $intro = trim((string) ($section['intro'] ?? ''));
+
+        return [
+            'title' => $title !== ''
+                ? $title
+                : ($locale === 'hr' ? 'Online edukacija i personalizirani trening' : 'Online education and personalized training'),
+            'intro' => $intro,
+        ];
     }
 
     private function renderGlossaryPage(

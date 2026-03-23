@@ -8,6 +8,11 @@
 @tailwind utilities;
 
 @layer base {
+    :root {
+        --front-card-radius: 12px;
+        --front-button-radius: 10px;
+    }
+
     html,
     body {
         font-family: 'Public Sans', 'Segoe UI', Arial, sans-serif;
@@ -822,7 +827,7 @@
         flex-shrink: 0;
         opacity: 1;
         margin-top: 0;
-        border-radius: 10px;
+        border-radius: var(--front-button-radius);
         transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
     }
 
@@ -835,9 +840,9 @@
 
     .front-action-cta:hover,
     .front-header-cta:hover {
-        background: rgba(183, 150, 82, 0.3);
-        color: #ffffff;
-        border-color: rgba(183, 150, 82, 0.92);
+        background: #000000;
+        color: #ffffff !important;
+        border-color: #000000;
     }
 
     .front-action-cta-secondary,
@@ -848,9 +853,9 @@
 
     .front-action-cta-secondary:hover,
     .front-header-cta-secondary:hover {
-        background: rgba(183, 150, 82, 0.3);
-        color: #ffffff;
-        border-color: rgba(183, 150, 82, 0.92);
+        background: #000000;
+        color: #ffffff !important;
+        border-color: #000000;
     }
 
     .front-actions-separator {
@@ -1542,7 +1547,7 @@
         align-items: center;
         justify-content: center;
         gap: 0.55rem;
-        border-radius: 10px;
+        border-radius: var(--front-button-radius);
         border: 2px solid rgba(255, 255, 255, 0.86);
         padding: 0 1.35rem;
         font-size: 0.72rem;
@@ -1906,12 +1911,14 @@
 
     .front-section-surface {
         border: 1px solid rgba(171, 141, 82, 0.22);
+        border-radius: var(--front-card-radius);
         background: linear-gradient(180deg, #ffffff, #f6f6f6);
         box-shadow: var(--front-shadow);
     }
 
     .front-surface-muted {
         border: 1px solid rgba(171, 141, 82, 0.12);
+        border-radius: var(--front-card-radius);
         background: linear-gradient(180deg, #ffffff, #f8f8f8);
     }
 
@@ -2748,6 +2755,18 @@
         background-color: rgba(246, 246, 246, 0.96) !important;
     }
 
+    .front-desktop-shell .ac-resource-card-cta {
+        border-color: #cfd7e3;
+        background-color: #ffffff;
+        color: #10213a;
+    }
+
+    .front-desktop-shell .ac-resource-card-cta:hover {
+        border-color: #000000 !important;
+        background-color: #000000 !important;
+        color: #ffffff !important;
+    }
+
     .front-desktop-shell .bg-slate-200,
     .front-desktop-shell .bg-slate-200\/60 {
         background-color: rgba(237, 237, 237, 0.96) !important;
@@ -3226,7 +3245,7 @@
         flex-direction: column;
         overflow: hidden;
         border: 1px solid rgba(255, 255, 255, 0.56);
-        border-radius: 22px;
+        border-radius: var(--front-card-radius);
         background: linear-gradient(180deg, rgba(255, 255, 255, 0.78), rgba(255, 255, 255, 0.56));
         min-height: 300px;
         box-shadow: 0 18px 42px rgba(15, 23, 42, 0.08);
@@ -4829,7 +4848,7 @@
         display: flex;
         flex-direction: column;
         padding: 1.38rem 1.28rem 1.35rem;
-        border-radius: 10px;
+        border-radius: var(--front-card-radius);
         border: 0;
         background: linear-gradient(180deg, #ffffff 0%, #f7f9fb 100%);
         box-shadow: 0 20px 38px rgba(12, 20, 31, 0.1);
@@ -5765,6 +5784,52 @@
         background: #0f2e4b;
     }
 
+    .front-action-cta,
+    .front-header-cta,
+    .front-cta-primary,
+    .front-cta-outline,
+    .front-link-cta,
+    .front-search-submit,
+    .front-footer-newsletter-button,
+    .front-contact-submit,
+    .front-contact-office-map-trigger,
+    .ac-lease-submit,
+    .ac-lease-reset,
+    .ac-sticky-cta,
+    .ac-resource-card-cta,
+    .ac-resource-index-count,
+    .ac-team-social-link,
+    .ac-family-brochure-button,
+    .ac-family-static-cta {
+        border-radius: var(--front-button-radius);
+    }
+
+    .ag-home-card,
+    .ag-home-page-card,
+    .ag-home-empty,
+    .front-section-surface,
+    .front-surface-muted,
+    .ac-service-item,
+    .ac-service-item.is-featured,
+    .ac-support-story-card,
+    .ac-home-blog-card,
+    .ac-membership-card,
+    .ac-membership-logo,
+    .front-contact-hero,
+    .front-contact-form,
+    .front-contact-panel,
+    .front-contact-help,
+    .front-contact-office-card,
+    .ac-resource-index-card,
+    .ac-resource-index-empty,
+    .ac-team-page-panel,
+    .ac-team-page-empty,
+    .ac-team-member-card,
+    .ac-team-member-media,
+    .ac-team-career-card {
+        border-radius: var(--front-card-radius);
+    }
+
     .ac-global-memberships {
         background: #eef2f5;
         background-image: none;
@@ -6026,7 +6091,7 @@
         padding: 1.46rem 1.34rem 1.4rem;
         border: 1px solid rgba(15, 42, 67, 0.1);
         border-top: 3px solid rgba(15, 42, 67, 0.18);
-        border-radius: 12px;
+        border-radius: var(--front-card-radius);
     }
 
     .ac-support-story-card-icon {
@@ -6482,7 +6547,7 @@
     .ac-home-blog-card {
         border: 1px solid rgba(15, 42, 67, 0.1);
         border-top: 3px solid rgba(171, 141, 82, 0.64);
-        border-radius: 12px;
+        border-radius: var(--front-card-radius);
         overflow: hidden;
         background: #ffffff;
     }
@@ -7435,7 +7500,7 @@
     .ac-family-hero-copy {
         width: 100%;
         padding: clamp(1.7rem, 3vw, 2.45rem) clamp(1.35rem, 2.7vw, 2.15rem);
-        border-radius: 32px;
+        border-radius: var(--front-card-radius);
         background: linear-gradient(180deg, rgba(2, 17, 38, 0.64), rgba(2, 17, 38, 0.56));
     }
 
@@ -7515,7 +7580,7 @@
         min-width: 16.5rem;
         height: 3.3rem;
         padding: 0 1.45rem;
-        border-radius: 13px;
+        border-radius: var(--front-button-radius);
         font-size: 0.84rem;
         letter-spacing: 0.1em;
     }
@@ -7524,7 +7589,7 @@
         position: relative;
         min-height: 24rem;
         border: 1px dashed rgba(171, 141, 82, 0.42);
-        border-radius: 24px;
+        border-radius: var(--front-card-radius);
         overflow: hidden;
         background:
             linear-gradient(135deg, rgba(9, 26, 45, 0.06), rgba(171, 141, 82, 0.08)),
@@ -7599,18 +7664,8 @@
         min-width: 0;
         padding: 1.25rem 1.15rem 1.15rem;
         border: 1px solid rgba(15, 42, 67, 0.1);
-        border-radius: 24px;
+        border-radius: var(--front-card-radius);
         background: rgba(255, 255, 255, 0.34);
-    }
-
-    .ac-family-foundation-item::before {
-        content: '';
-        display: block;
-        width: 4.4rem;
-        height: 2px;
-        margin-bottom: 1rem;
-        border-radius: 999px;
-        background: linear-gradient(90deg, rgba(154, 119, 61, 0.95), rgba(154, 119, 61, 0.2));
     }
 
     .ac-family-foundation-item-head {
@@ -7633,8 +7688,10 @@
     }
 
     .ac-family-foundation-icon svg {
-        width: 1.3rem;
-        height: 1.3rem;
+        display: block;
+        width: 1.15rem;
+        height: 1.15rem;
+        fill: currentColor;
     }
 
     .ac-family-foundation-item h3 {
@@ -7662,7 +7719,7 @@
         margin-top: clamp(2.4rem, 4vw, 3.2rem);
         padding: clamp(1.25rem, 2vw, 1.7rem) clamp(1.15rem, 2.2vw, 1.7rem);
         border: 1px solid rgba(171, 141, 82, 0.55);
-        border-radius: 6px;
+        border-radius: var(--front-card-radius);
         background: rgba(255, 255, 255, 0.42);
     }
 
@@ -7691,7 +7748,7 @@
         min-width: min(100%, 21rem);
         min-height: 9.6rem;
         padding: 1.15rem 1rem;
-        border-radius: 18px;
+        border-radius: var(--front-card-radius);
         background: linear-gradient(180deg, rgba(7, 27, 48, 0.96), rgba(10, 39, 66, 0.98));
         border: 1px solid rgba(183, 150, 82, 0.18);
         text-align: center;
@@ -8010,7 +8067,7 @@
         min-height: 100%;
         padding: 1.35rem 1.25rem;
         border: 1px solid rgba(15, 42, 67, 0.08);
-        border-radius: 20px;
+        border-radius: var(--front-card-radius);
         background: rgba(255, 255, 255, 0.92);
     }
 
@@ -8059,7 +8116,7 @@
     .ac-family-service-copy {
         padding: 1.45rem 1.35rem;
         border: 1px solid rgba(15, 42, 67, 0.08);
-        border-radius: 22px;
+        border-radius: var(--front-card-radius);
         background: rgba(255, 255, 255, 0.94);
     }
 
@@ -8108,7 +8165,7 @@
         margin-top: 1.3rem;
         min-height: 2.9rem;
         padding: 0 1.2rem;
-        border-radius: 999px;
+        border-radius: var(--front-button-radius);
         border: 1px solid rgba(15, 42, 67, 0.12);
         background: rgba(255, 255, 255, 0.75);
         color: #13273f;
@@ -8240,7 +8297,7 @@
 
         .ac-family-hero-copy {
             max-width: 25.75rem;
-            border-radius: 22px;
+            border-radius: var(--front-card-radius);
             padding: 1.2rem 1rem 1.1rem;
             background: linear-gradient(180deg, rgba(2, 17, 38, 0.54), rgba(2, 17, 38, 0.46));
         }
@@ -8353,7 +8410,7 @@
 
         .ac-family-foundation-item {
             padding: 1.05rem 0.95rem 1rem;
-            border-radius: 20px;
+            border-radius: var(--front-card-radius);
         }
 
         .ac-family-foundation-item-head {
@@ -8483,7 +8540,7 @@
         justify-content: center;
         min-height: 16rem;
         border: 1px dashed rgba(15, 42, 67, 0.16);
-        border-radius: 22px;
+        border-radius: var(--front-card-radius);
         background: rgba(255, 255, 255, 0.88);
         color: #556476;
         text-align: center;

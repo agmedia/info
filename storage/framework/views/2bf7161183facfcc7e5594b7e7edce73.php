@@ -81,8 +81,9 @@
                 'children' => [
                     ['label' => 'ALPHA CAPITALIS Tim', 'url' => route('team.index')],
                     ['label' => 'Edukacija', 'url' => $homeUrl.'#edukacija', 'children' => [
-                        ['label' => 'Akademija', 'url' => $homeUrl.'#edukacija-akademija'],
+                        ['label' => 'Akademija', 'url' => route('pages.show', ['slug' => 'akademija'])],
                         ['label' => 'Svijet financija', 'url' => route('glossary.index')],
+                        ['label' => __('resources.page_title'), 'url' => route('resources.index')],
                     ]],
                     ['label' => 'EU projekti', 'url' => route('pages.show', ['slug' => 'eu-projekti'])],
                     ['label' => 'Karijera', 'url' => route('pages.show', ['slug' => 'karijera'])],
@@ -158,8 +159,9 @@
             ['label' => 'O nama', 'url' => $homeUrl.'#o-nama', 'children' => [
                 ['label' => 'ALPHA CAPITALIS Tim', 'url' => route('team.index')],
                 ['label' => 'Edukacija', 'url' => $homeUrl.'#edukacija', 'children' => [
-                    ['label' => 'Akademija', 'url' => $homeUrl.'#edukacija-akademija'],
+                    ['label' => 'Akademija', 'url' => route('pages.show', ['slug' => 'akademija'])],
                     ['label' => 'Svijet financija', 'url' => route('glossary.index')],
+                    ['label' => __('resources.page_title'), 'url' => route('resources.index')],
                 ]],
                 ['label' => 'EU projekti', 'url' => route('pages.show', ['slug' => 'eu-projekti'])],
                 ['label' => 'Karijera', 'url' => route('pages.show', ['slug' => 'karijera'])],

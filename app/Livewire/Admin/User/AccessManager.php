@@ -339,6 +339,7 @@ class AccessManager extends Component
             'content.slots' => __('Content / Slots'),
             'content.media' => __('Content / Media'),
             'messages.career' => __('Messages / Career'),
+            'messages.download_requests' => __('Messages / Download Requests'),
             'settings.system' => __('Settings / System'),
             'settings.local' => __('Settings / Local'),
             'settings.user' => __('Settings / User'),

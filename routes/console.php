@@ -1,6 +1,8 @@
 <?php
 
 use App\Models\User;
+use App\Services\Content\ResourceAssetImportService;
+use App\Services\Content\ResourcePublicationSyncService;
 use App\Models\Settings\Local\Region;
 use App\Services\Content\GlossaryImportService;
 use App\Services\Content\WordPressBlogImportService;
@@ -129,6 +131,81 @@ Artisan::command('content:import-glossary
         return self::SUCCESS;
     })
     ->purpose('Import finance glossary terms from a CSV export and prepare the related info page');
+
+Artisan::command('content:import-resource-assets
+    {file : Path to the WordPress XML export}
+    {--codes=* : Import only selected resource document codes}
+    {--force : Re-download assets even if local files already exist}',
+    function (ResourceAssetImportService $importer): int {
+        try {
+            $result = $importer->import((string) $this->argument('file'), [
+                'codes' => array_values(array_filter((array) $this->option('codes'))),
+                'force' => (bool) $this->option('force'),
+            ]);
+        } catch (\Throwable $exception) {
+            $this->error($exception->getMessage());
+
+            return self::FAILURE;
+        }
+
+        $this->info(sprintf(
+            'Processed %d resource document(s). Downloads localized: %d. Covers localized: %d. Errors: %d.',
+            (int) $result['processed_count'],
+            (int) $result['localized_download_count'],
+            (int) $result['localized_cover_count'],
+            (int) $result['error_count']
+        ));
+
+        foreach ($result['documents'] as $row) {
+            $this->line(sprintf(
+                '- %s [download:%s cover:%s]',
+                (string) $row['code'],
+                (string) $row['download_status'],
+                (string) $row['cover_status']
+            ));
+
+            if (($row['error'] ?? null) !== null) {
+                $this->line('  error: '.(string) $row['error']);
+            }
+        }
+
+        return self::SUCCESS;
+    })
+    ->purpose('Download resource PDFs and cover images locally from a WordPress XML export');
+
+Artisan::command('content:sync-resource-publication
+    {--codes=* : Sync only selected resource document codes}',
+    function (ResourcePublicationSyncService $syncService): int {
+        try {
+            $result = $syncService->sync([
+                'codes' => array_values(array_filter((array) $this->option('codes'))),
+            ]);
+        } catch (\Throwable $exception) {
+            $this->error($exception->getMessage());
+
+            return self::FAILURE;
+        }
+
+        $this->info(sprintf(
+            'Synced %d resource document(s). Active: %d. Inactive: %d. Remote published items: %d.',
+            (int) $result['synced_count'],
+            (int) $result['activated_count'],
+            (int) $result['deactivated_count'],
+            (int) $result['total_remote']
+        ));
+
+        foreach ($result['documents'] as $row) {
+            $this->line(sprintf(
+                '- %s [%s] %s',
+                (string) $row['code'],
+                (string) $row['status'],
+                (string) ($row['published_at'] ?? 'no-date')
+            ));
+        }
+
+        return self::SUCCESS;
+    })
+    ->purpose('Sync resource active state and publication dates from the live WordPress resources API');
 
 Artisan::command('wholesale:token {user : User ID or email} {name=wholesale-client} {--abilities=wholesale.read,categories.read} {--expires=}', function (): int {
     if (! app(\App\Services\Catalog\CatalogFeatureService::class)->useApi()) {
