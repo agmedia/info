@@ -337,7 +337,7 @@ class StorefrontFrontFeatureTest extends TestCase
             ->assertOk()
             ->assertSee('Alpha Review')
             ->assertDontSee('Beta Taxes')
-            ->assertSee('Show more')
+            ->assertSee(__('ui.blog.filters.show_more'))
             ->assertSee('<span class="front-scroll-breadcrumb-current">Finance</span>', false)
             ->assertSee('/blog/finance', false)
             ->assertSee('page=2', false)
@@ -413,6 +413,44 @@ class StorefrontFrontFeatureTest extends TestCase
             ->assertSee('/blog/news', false)
             ->assertSee('class="front-scroll-breadcrumb-link">News</a>', false)
             ->assertSee('class="front-scroll-breadcrumb-current ac-blog-breadcrumb-current"', false);
+    }
+
+    public function test_blog_article_related_posts_fallback_to_similar_titles_when_same_category_posts_are_not_similar(): void
+    {
+        $news = $this->seedBlogCategory('News', 'news');
+        $finance = $this->seedBlogCategory('Finance', 'finance');
+
+        [, $postSlug] = $this->seedBlogPost([$news->id], 'Tax relief for startups', 'tax-relief-for-startups');
+        $this->seedBlogPost([$news->id], 'Company culture retreat', 'company-culture-retreat');
+        $this->seedBlogPost([$news->id], 'Startup tax relief checklist', 'startup-tax-relief-checklist');
+        $this->seedBlogPost([$finance->id], 'Tax relief for startup founders', 'tax-relief-for-startup-founders');
+
+        $this->get('/blog/'.$postSlug)
+            ->assertOk()
+            ->assertSeeInOrder([
+                'Startup tax relief checklist',
+                'Tax relief for startup founders',
+            ])
+            ->assertDontSee('Company culture retreat');
+    }
+
+    public function test_blog_article_related_posts_prioritize_same_category_matches_before_other_similar_titles(): void
+    {
+        $news = $this->seedBlogCategory('News', 'news');
+        $finance = $this->seedBlogCategory('Finance', 'finance');
+
+        [, $postSlug] = $this->seedBlogPost([$news->id], 'Export tax credit guide', 'export-tax-credit-guide');
+        $this->seedBlogPost([$news->id], 'Export tax credit checklist', 'export-tax-credit-checklist');
+        $this->seedBlogPost([$news->id], 'Guide to export tax credits', 'guide-to-export-tax-credits');
+        $this->seedBlogPost([$news->id], 'Export credit tax planning', 'export-credit-tax-planning');
+        $this->seedBlogPost([$finance->id], 'Export tax credit guide for founders', 'export-tax-credit-guide-for-founders');
+
+        $this->get('/blog/'.$postSlug)
+            ->assertOk()
+            ->assertSee('Export tax credit checklist')
+            ->assertSee('Guide to export tax credits')
+            ->assertSee('Export credit tax planning')
+            ->assertDontSee('Export tax credit guide for founders');
     }
 
     public function test_family_business_page_shows_only_family_business_blog_posts_when_category_exists(): void
@@ -515,6 +553,15 @@ class StorefrontFrontFeatureTest extends TestCase
             'body_html' => '<p>Blog body</p>',
         ]);
 
+        BlogPostTranslation::query()->create([
+            'post_id' => $post->id,
+            'locale' => 'hr',
+            'title' => $title ?: 'Blog '.$slug,
+            'slug' => $slug,
+            'excerpt' => $excerpt ?: 'Blog excerpt',
+            'body_html' => '<p>Blog body</p>',
+        ]);
+
         if ($categoryIds !== []) {
             $post->categories()->sync(
                 collect($categoryIds)
@@ -546,6 +593,15 @@ class StorefrontFrontFeatureTest extends TestCase
             'category_id' => $category->id,
             'scope' => Category::SCOPE_BLOG,
             'locale' => 'en',
+            'name' => $name,
+            'slug' => $slug,
+            'description' => $name.' description',
+        ]);
+
+        CategoryTranslation::query()->create([
+            'category_id' => $category->id,
+            'scope' => Category::SCOPE_BLOG,
+            'locale' => 'hr',
             'name' => $name,
             'slug' => $slug,
             'description' => $name.' description',

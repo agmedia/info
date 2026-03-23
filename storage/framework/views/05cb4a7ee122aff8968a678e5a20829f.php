@@ -1,22 +1,22 @@
 <?php if (isset($component)) { $__componentOriginale0f1cdd055772eb1d4a99981c240763e = $component; } ?>
 <?php if (isset($attributes)) { $__attributesOriginale0f1cdd055772eb1d4a99981c240763e = $attributes; } ?>
-<?php $component = Illuminate\View\AnonymousComponent::resolve(['view' => 'components.admin-layout','data' => ['title' => __('Content / Pages')]] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? $attributes->all() : [])); ?>
+<?php $component = Illuminate\View\AnonymousComponent::resolve(['view' => 'components.admin-layout','data' => ['title' => __('Content / Services')]] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? $attributes->all() : [])); ?>
 <?php $component->withName('admin-layout'); ?>
 <?php if ($component->shouldRender()): ?>
 <?php $__env->startComponent($component->resolveView(), $component->data()); ?>
 <?php if (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag): ?>
 <?php $attributes = $attributes->except(\Illuminate\View\AnonymousComponent::ignoredParameterNames()); ?>
 <?php endif; ?>
-<?php $component->withAttributes(['title' => \Illuminate\View\Compilers\BladeCompiler::sanitizeComponentAttribute(__('Content / Pages'))]); ?>
+<?php $component->withAttributes(['title' => \Illuminate\View\Compilers\BladeCompiler::sanitizeComponentAttribute(__('Content / Services'))]); ?>
     <?php
 $__split = function ($name, $params = []) {
     return [$name, $params];
 };
-[$__name, $__params] = $__split('admin.content.page.manager', []);
+[$__name, $__params] = $__split('admin.content.service.manager', []);
 
 $key = null;
 
-$key ??= \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::generateKey('lw-574894542-0', null);
+$key ??= \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::generateKey('lw-1265230853-0', null);
 
 $__html = app('livewire')->mount($__name, $__params, $key);
 
@@ -38,4 +38,4 @@ if (isset($__slots)) unset($__slots);
 <?php $component = $__componentOriginale0f1cdd055772eb1d4a99981c240763e; ?>
 <?php unset($__componentOriginale0f1cdd055772eb1d4a99981c240763e); ?>
 <?php endif; ?>
-<?php /**PATH /Users/tomek/Herd/info/resources/views/admin/content/pages/index.blade.php ENDPATH**/ ?>
+<?php /**PATH /Users/tomek/Herd/info/resources/views/admin/content/services/index.blade.php ENDPATH**/ ?>

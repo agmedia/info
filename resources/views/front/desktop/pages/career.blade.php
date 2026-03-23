@@ -162,6 +162,7 @@
                                     data-msg-email-invalid="{{ __('career.validation.inline.email_invalid') }}"
                                     data-msg-cv-required="{{ __('career.validation.inline.cv_required') }}"
                                     data-msg-accept-terms="{{ __('career.validation.inline.accept_terms') }}"
+                                    data-file-empty-label="{{ __('career.form.cv_empty') }}"
                                     data-scroll-on-load="{{ $careerFormShouldScroll ? 'true' : 'false' }}"
                                     @if($careerCaptchaEnabled) data-recaptcha-form data-recaptcha-site-key="{{ $careerCaptchaSiteKey }}" data-recaptcha-action="career_application_form" @endif
                                 >
@@ -195,8 +196,14 @@
 
                                     <div>
                                         <label class="ac-career-form-label" for="career-cv">{{ __('career.form.cv') }}</label>
-                                        <input id="career-cv" type="file" name="cv" accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document" class="ac-career-form-file" required>
-                                        <p class="ac-career-form-help">{{ __('career.form.cv_help') }}</p>
+                                        <div class="ac-career-form-file-wrap">
+                                            <input id="career-cv" type="file" name="cv" accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document" class="ac-career-form-file" aria-describedby="career-cv-status career-cv-help" required>
+                                            <div class="ac-career-form-file-ui">
+                                                <span class="ac-career-form-file-button">{{ __('career.form.cv_button') }}</span>
+                                                <span id="career-cv-status" class="ac-career-form-file-name" data-file-name aria-live="polite">{{ __('career.form.cv_empty') }}</span>
+                                            </div>
+                                        </div>
+                                        <p id="career-cv-help" class="ac-career-form-help">{{ __('career.form.cv_help') }}</p>
                                         <p class="ac-career-form-error {{ $errors->has('cv') ? '' : 'hidden' }}" data-field-error="cv">@error('cv'){{ $message }}@enderror</p>
                                     </div>
 
@@ -402,11 +409,17 @@
         }
 
         .ac-career-application-copy-wrap {
+            align-items: flex-start;
             justify-content: flex-end;
             padding: clamp(2.8rem, 5vw, 4.5rem) clamp(1.5rem, 4vw, 3.5rem) clamp(4rem, 7vw, 6rem);
             background:
                 radial-gradient(120% 140% at 0% 0%, rgba(255, 255, 255, 0.74), transparent 58%),
                 linear-gradient(180deg, #f7f3ec 0%, #f8f4ec 100%);
+        }
+
+        .ac-career-application-copy h2 {
+            font-size: clamp(1.9rem, 2.5vw, 2.45rem);
+            line-height: 1.04;
         }
 
         .ac-career-application-copy-wrap::before {
@@ -508,8 +521,7 @@
         }
 
         .ac-career-form-input,
-        .ac-career-form-textarea,
-        .ac-career-form-file {
+        .ac-career-form-textarea {
             width: 100%;
             border-radius: 0;
             background: transparent;
@@ -532,17 +544,71 @@
             resize: vertical;
         }
 
-        .ac-career-form-file {
+        .ac-career-form-file-wrap {
+            position: relative;
+            border-bottom: 1px solid rgba(15, 23, 42, 0.16);
+            transition: border-color 0.18s ease, box-shadow 0.18s ease, background-color 0.18s ease;
+        }
+
+        .ac-career-form-file-wrap:focus-within {
+            border-color: #173b5d;
+        }
+
+        .ac-career-form-file-ui {
+            display: flex;
+            align-items: center;
+            gap: 0.85rem;
             min-height: 3.15rem;
             padding: 0.82rem 0;
-            border: 0;
-            border-bottom: 1px solid rgba(15, 23, 42, 0.16);
+            overflow: hidden;
+        }
+
+        .ac-career-form-file-button {
+            flex: 0 0 auto;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 2.15rem;
+            padding: 0.5rem 0.9rem;
+            border: 1px solid rgba(15, 23, 42, 0.18);
+            border-radius: 0.875rem;
+            background: rgba(255, 255, 255, 0.76);
+            color: #10213a;
+            font-size: 0.88rem;
+            line-height: 1;
+            transition: border-color 0.18s ease, background-color 0.18s ease, color 0.18s ease;
+        }
+
+        .ac-career-form-file-wrap:hover .ac-career-form-file-button,
+        .ac-career-form-file-wrap:focus-within .ac-career-form-file-button {
+            border-color: #173b5d;
+            background: rgba(236, 243, 251, 0.94);
+            color: #0f2a43;
+        }
+
+        .ac-career-form-file-name {
+            min-width: 0;
+            color: #475569;
             font-size: 0.94rem;
+            line-height: 1.55;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .ac-career-form-file {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            border: 0;
+            opacity: 0;
+            cursor: pointer;
         }
 
         .ac-career-form-input:focus,
-        .ac-career-form-textarea:focus,
-        .ac-career-form-file:focus {
+        .ac-career-form-textarea:focus {
             outline: none;
             border-color: #173b5d;
             box-shadow: none;
@@ -601,7 +667,7 @@
             width: 100%;
             padding: 0.95rem 1.35rem;
             border: 1px solid #0f2a43;
-            border-radius: 0;
+            border-radius: 0.875rem;
             background: #0f2a43;
             color: #fff;
             font-size: 0.78rem;
@@ -823,6 +889,11 @@
                 font-size: clamp(1.9rem, 7.8vw, 2.35rem);
             }
 
+            .ac-career-application-copy h2 {
+                font-size: clamp(1.7rem, 7vw, 2.05rem);
+                line-height: 1.04;
+            }
+
             .ac-career-intro-copy-wrap {
                 padding: 2.25rem 1.15rem 2rem;
             }
@@ -842,6 +913,17 @@
             .ac-career-intro-body p {
                 font-size: 0.96rem;
                 line-height: 1.7;
+            }
+
+            .ac-career-form-file-ui {
+                flex-wrap: wrap;
+                align-items: flex-start;
+                gap: 0.65rem;
+            }
+
+            .ac-career-form-file-name {
+                width: 100%;
+                white-space: normal;
             }
 
             .ac-career-intro-highlight {
@@ -898,6 +980,19 @@
                 return;
             }
 
+            const cvInput = form.querySelector('[name="cv"]');
+            const fileNameNode = form.querySelector('[data-file-name]');
+            const defaultFileLabel = form.dataset.fileEmptyLabel || '';
+
+            const updateSelectedFileName = function () {
+                if (!fileNameNode) {
+                    return;
+                }
+
+                const file = cvInput && cvInput.files && cvInput.files[0] ? cvInput.files[0] : null;
+                fileNameNode.textContent = file ? file.name : defaultFileLabel;
+            };
+
             const clearError = function (field) {
                 const errorNode = form.querySelector('[data-field-error="' + field + '"]');
                 if (!errorNode) {
@@ -951,6 +1046,8 @@
                 }
             });
 
+            updateSelectedFileName();
+
             if (form.dataset.scrollOnLoad === 'true') {
                 window.requestAnimationFrame(scrollToForm);
             }
@@ -996,6 +1093,16 @@
 
                 return valid;
             };
+
+            if (cvInput) {
+                cvInput.addEventListener('change', function () {
+                    updateSelectedFileName();
+
+                    if (cvInput.files && cvInput.files.length > 0) {
+                        clearError('cv');
+                    }
+                });
+            }
 
             form.addEventListener('submit', function (event) {
                 event.preventDefault();

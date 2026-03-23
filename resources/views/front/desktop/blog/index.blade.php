@@ -15,6 +15,7 @@
     $isCategoryArchive = $currentCategoryName !== '';
     $heroTitle = $isCategoryArchive ? $currentCategoryName : $defaultHeroTitle;
     $hasMoreCategories = $categories->count() > $categoryPreviewLimit;
+    $hiddenCategoryCount = max(0, $categories->count() - $categoryPreviewLimit);
     $baseIndexUrl = route('blog.index').($searchTerm !== '' ? '?'.http_build_query(['q' => $searchTerm]) : '');
     $hasSelectedHiddenCategory = $categories
         ->slice($categoryPreviewLimit)
@@ -66,7 +67,7 @@
             @if ($categories->isNotEmpty())
                 <section class="ac-blog-category-nav" aria-labelledby="ac-blog-category-nav-title">
                     <h2 id="ac-blog-category-nav-title" class="sr-only">{{ __('ui.blog.browse_categories') }}</h2>
-                    <div class="front-scroll-rail">
+                    <div class="front-scroll-rail ac-blog-category-rail {{ $hasMoreCategories ? 'has-more-items' : '' }}">
                         <div class="front-scroll-rail-track">
                             <a
                                 href="{{ $baseIndexUrl }}"
@@ -94,7 +95,8 @@
 
                     @if ($hasMoreCategories)
                         <details class="ac-blog-filter-more ac-blog-category-more" @open($hasSelectedHiddenCategory)>
-                            <summary class="ac-blog-filter-more-toggle">
+                            <summary class="ac-blog-filter-more-toggle ac-blog-category-more-toggle">
+                                <span class="ac-blog-category-more-count">+{{ $hiddenCategoryCount }}</span>
                                 <span class="label-more">{{ __('ui.blog.filters.show_more') }}</span>
                                 <span class="label-less">{{ __('ui.blog.filters.show_less') }}</span>
                             </summary>

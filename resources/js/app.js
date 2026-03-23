@@ -1886,6 +1886,67 @@ const initHeroStatCounters = () => {
     });
 };
 
+const fallbackAnimateScrollTo = (targetTop, options = {}) => {
+    const resolveTarget = (target) => {
+        if (typeof target === 'number' && Number.isFinite(target)) {
+            return target;
+        }
+
+        if (target instanceof HTMLElement) {
+            return window.pageYOffset + target.getBoundingClientRect().top;
+        }
+
+        if (typeof target === 'string') {
+            if (target === 'top' || target === 'start') {
+                return 0;
+            }
+
+            const matchedElement = document.querySelector(target);
+            if (matchedElement instanceof HTMLElement) {
+                return window.pageYOffset + matchedElement.getBoundingClientRect().top;
+            }
+
+            const parsedNumber = Number(target);
+            if (Number.isFinite(parsedNumber)) {
+                return parsedNumber;
+            }
+        }
+
+        return null;
+    };
+
+    const resolvedTarget = resolveTarget(targetTop);
+    if (resolvedTarget === null) {
+        return;
+    }
+
+    window.scrollTo({
+        top: Math.max(0, Math.round(resolvedTarget)),
+        behavior: options.immediate === true ? 'auto' : 'smooth',
+    });
+
+    if (typeof options.onComplete === 'function') {
+        window.setTimeout(() => options.onComplete(), options.immediate === true ? 0 : 320);
+    }
+};
+
+const initFrontSmoothScroll = () => {
+    if (typeof window === 'undefined' || typeof document === 'undefined') {
+        return;
+    }
+
+    const frontRoot = document.querySelector('.front-desktop-shell');
+    if (!(frontRoot instanceof HTMLElement)) {
+        return;
+    }
+
+    if (typeof window.__frontAnimateScrollTo === 'function') {
+        return;
+    }
+
+    window.__frontAnimateScrollTo = fallbackAnimateScrollTo;
+};
+
 const disableLegacyPwaRuntime = () => {
     if (typeof window === 'undefined') {
         return;
@@ -1939,6 +2000,7 @@ if (document.readyState === 'loading') {
         initMediaImageEditor();
         initTomSelect();
         initDashboardCharts();
+        initFrontSmoothScroll();
         initFrontVisualEffects();
         initFrontDesktopHeader();
         initHeroStatCounters();
@@ -1951,6 +2013,7 @@ if (document.readyState === 'loading') {
     initMediaImageEditor();
     initTomSelect();
     initDashboardCharts();
+    initFrontSmoothScroll();
     initFrontVisualEffects();
     initFrontDesktopHeader();
     initHeroStatCounters();
@@ -1959,6 +2022,7 @@ if (document.readyState === 'loading') {
 
 document.addEventListener('livewire:navigated', () => {
     initTomSelect();
+    initFrontSmoothScroll();
     initFrontVisualEffects();
     initFrontDesktopHeader();
     initHeroStatCounters();

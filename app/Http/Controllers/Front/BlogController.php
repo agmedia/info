@@ -13,11 +13,52 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
+use Illuminate\Support\Str;
 use Illuminate\View\View;
 
 class BlogController extends Controller
 {
     use ResolvesFrontendView;
+
+    /**
+     * @var array<int, string>
+     */
+    private const RELATED_TITLE_STOP_WORDS = [
+        'a',
+        'an',
+        'and',
+        'are',
+        'as',
+        'at',
+        'be',
+        'by',
+        'da',
+        'do',
+        'for',
+        'from',
+        'how',
+        'i',
+        'if',
+        'ili',
+        'in',
+        'into',
+        'is',
+        'it',
+        'iz',
+        'na',
+        'o',
+        'od',
+        'po',
+        'sa',
+        'se',
+        'su',
+        'the',
+        'to',
+        'u',
+        'uz',
+        'za',
+    ];
 
     public function index(Request $request): View
     {
@@ -56,26 +97,7 @@ class BlogController extends Controller
             ])
             ->firstOrFail();
 
-        $related = BlogPost::query()
-            ->where('id', '!=', $post->id)
-            ->tap(function (Builder $query): void {
-                $this->applyFrontPublishedConstraints($query);
-            })
-            ->with([
-                'translations' => fn ($query) => $query->whereIn('locale', [$locale, $fallbackLocale]),
-                'categories' => fn ($query) => $query
-                    ->where('scope', Category::SCOPE_BLOG)
-                    ->with([
-                        'translations' => fn ($translationQuery) => $translationQuery
-                            ->where('scope', Category::SCOPE_BLOG)
-                            ->whereIn('locale', [$locale, $fallbackLocale]),
-                    ]),
-                'media',
-            ])
-            ->orderByDesc('published_at')
-            ->orderByDesc('id')
-            ->limit(3)
-            ->get();
+        $related = $this->resolveRelatedPosts($post, $locale, $fallbackLocale);
 
         return view($this->frontendView($request, 'blog.show'), [
             'post' => $post,
@@ -140,7 +162,7 @@ class BlogController extends Controller
                     ->whereIn('locale', [$locale, $fallbackLocale]),
             ])
             ->orderBy('sort_order')
-            ->orderBy('id')
+            ->orderBy('_lft')
             ->get()
             ->map(fn (Category $category): array => $this->mapBlogCategory($category, $locale, $fallbackLocale))
             ->filter(fn (array $category): bool => $category['count'] > 0)
@@ -242,8 +264,229 @@ class BlogController extends Controller
             ->first()
             ?? BlogPostTranslation::query()
                 ->where('payload->legacy_path', $legacyPath)
-                ->orderByDesc('id')
-                ->first();
+            ->orderByDesc('id')
+            ->first();
+    }
+
+    /**
+     * @return Collection<int, BlogPost>
+     */
+    private function resolveRelatedPosts(BlogPost $post, string $locale, string $fallbackLocale): Collection
+    {
+        $currentTitle = $this->resolveBlogPostTitle($post, $locale, $fallbackLocale);
+        $currentCategoryIds = $post->categories
+            ->pluck('id')
+            ->map(static fn (mixed $id): int => (int) $id)
+            ->unique()
+            ->values()
+            ->all();
+
+        if ($currentTitle === '') {
+            return collect();
+        }
+
+        $candidates = BlogPost::query()
+            ->where('id', '!=', $post->id)
+            ->tap(function (Builder $query): void {
+                $this->applyFrontPublishedConstraints($query);
+            })
+            ->with([
+                'translations' => fn ($query) => $query->whereIn('locale', [$locale, $fallbackLocale]),
+                'categories' => fn ($query) => $query
+                    ->where('scope', Category::SCOPE_BLOG)
+                    ->with([
+                        'translations' => fn ($translationQuery) => $translationQuery
+                            ->where('scope', Category::SCOPE_BLOG)
+                            ->whereIn('locale', [$locale, $fallbackLocale]),
+                    ]),
+            ])
+            ->get();
+
+        $rankedCandidates = $candidates
+            ->map(function (BlogPost $candidate) use ($currentTitle, $currentCategoryIds, $locale, $fallbackLocale): array {
+                return [
+                    'id' => (int) $candidate->id,
+                    'post' => $candidate,
+                    'score' => $this->relatedTitleSimilarityScore(
+                        $currentTitle,
+                        $this->resolveBlogPostTitle($candidate, $locale, $fallbackLocale)
+                    ),
+                    'shares_category' => $this->blogPostsShareCategory($candidate, $currentCategoryIds),
+                    'published_at' => $candidate->published_at?->getTimestamp() ?? 0,
+                ];
+            })
+            ->filter(static fn (array $candidate): bool => $candidate['score'] > 0)
+            ->values()
+            ->all();
+
+        usort($rankedCandidates, static function (array $left, array $right): int {
+            return ((int) $right['shares_category'] <=> (int) $left['shares_category'])
+                ?: ($right['score'] <=> $left['score'])
+                ?: ($right['published_at'] <=> $left['published_at'])
+                ?: ($right['id'] <=> $left['id']);
+        });
+
+        $relatedIds = collect($rankedCandidates)
+            ->take(3)
+            ->pluck('id')
+            ->values();
+
+        if ($relatedIds->isEmpty()) {
+            return collect();
+        }
+
+        $relatedPosts = BlogPost::query()
+            ->whereIn('id', $relatedIds->all())
+            ->with([
+                'translations' => fn ($query) => $query->whereIn('locale', [$locale, $fallbackLocale]),
+                'categories' => fn ($query) => $query
+                    ->where('scope', Category::SCOPE_BLOG)
+                    ->with([
+                        'translations' => fn ($translationQuery) => $translationQuery
+                            ->where('scope', Category::SCOPE_BLOG)
+                            ->whereIn('locale', [$locale, $fallbackLocale]),
+                    ]),
+                'media',
+            ])
+            ->get()
+            ->keyBy('id');
+
+        return $relatedIds
+            ->map(static fn (int $id): ?BlogPost => $relatedPosts->get($id))
+            ->filter()
+            ->values();
+    }
+
+    private function resolveBlogPostTitle(BlogPost $post, string $locale, string $fallbackLocale): string
+    {
+        $translation = $post->translations->firstWhere('locale', $locale)
+            ?? $post->translations->firstWhere('locale', $fallbackLocale)
+            ?? $post->translations->first();
+
+        return trim((string) ($translation?->title ?? $post->code));
+    }
+
+    /**
+     * @param  array<int, int>  $currentCategoryIds
+     */
+    private function blogPostsShareCategory(BlogPost $candidate, array $currentCategoryIds): bool
+    {
+        if ($currentCategoryIds === []) {
+            return false;
+        }
+
+        return $candidate->categories
+            ->pluck('id')
+            ->map(static fn (mixed $id): int => (int) $id)
+            ->intersect($currentCategoryIds)
+            ->isNotEmpty();
+    }
+
+    private function relatedTitleSimilarityScore(string $currentTitle, string $candidateTitle): int
+    {
+        $currentNormalized = $this->normalizeRelatedTitle($currentTitle);
+        $candidateNormalized = $this->normalizeRelatedTitle($candidateTitle);
+
+        if ($currentNormalized === '' || $candidateNormalized === '') {
+            return 0;
+        }
+
+        if ($currentNormalized === $candidateNormalized) {
+            return 1_000;
+        }
+
+        $currentKeywords = $this->extractRelatedTitleKeywords($currentNormalized);
+        $candidateKeywords = $this->extractRelatedTitleKeywords($candidateNormalized);
+        $sharedKeywords = $this->sharedRelatedTitleKeywordCount($currentKeywords, $candidateKeywords);
+        $containsSimilarPhrase = str_contains($currentNormalized, $candidateNormalized)
+            || str_contains($candidateNormalized, $currentNormalized);
+
+        similar_text($currentNormalized, $candidateNormalized, $percent);
+
+        if ($sharedKeywords === 0 && ! $containsSimilarPhrase && $percent < 70.0) {
+            return 0;
+        }
+
+        $shorterKeywordListLength = min(count($currentKeywords), count($candidateKeywords));
+        $keywordCoverage = $sharedKeywords > 0 && $shorterKeywordListLength > 0
+            ? $sharedKeywords / $shorterKeywordListLength
+            : 0.0;
+
+        return ($sharedKeywords * 30)
+            + (int) round($keywordCoverage * 40)
+            + (int) round($percent / 5)
+            + ($containsSimilarPhrase ? 20 : 0);
+    }
+
+    private function normalizeRelatedTitle(string $title): string
+    {
+        $normalized = Str::lower(Str::ascii($title));
+        $normalized = preg_replace('/[^a-z0-9]+/', ' ', $normalized) ?? '';
+
+        return trim(preg_replace('/\s+/', ' ', $normalized) ?? '');
+    }
+
+    /**
+     * @return array<int, string>
+     */
+    private function extractRelatedTitleKeywords(string $normalizedTitle): array
+    {
+        $parts = preg_split('/\s+/', $normalizedTitle, -1, PREG_SPLIT_NO_EMPTY) ?: [];
+
+        return collect($parts)
+            ->map(fn (string $keyword): string => $this->normalizeRelatedKeyword($keyword))
+            ->filter(fn (string $keyword): bool => strlen($keyword) >= 2)
+            ->reject(fn (string $keyword): bool => in_array($keyword, self::RELATED_TITLE_STOP_WORDS, true))
+            ->unique()
+            ->values()
+            ->all();
+    }
+
+    private function normalizeRelatedKeyword(string $keyword): string
+    {
+        if (strlen($keyword) > 4 && str_ends_with($keyword, 's')) {
+            return substr($keyword, 0, -1);
+        }
+
+        return $keyword;
+    }
+
+    /**
+     * @param  array<int, string>  $currentKeywords
+     * @param  array<int, string>  $candidateKeywords
+     */
+    private function sharedRelatedTitleKeywordCount(array $currentKeywords, array $candidateKeywords): int
+    {
+        $sharedCount = 0;
+        $remainingKeywords = $candidateKeywords;
+
+        foreach ($currentKeywords as $currentKeyword) {
+            foreach ($remainingKeywords as $index => $candidateKeyword) {
+                if (! $this->relatedKeywordsMatch($currentKeyword, $candidateKeyword)) {
+                    continue;
+                }
+
+                $sharedCount++;
+                unset($remainingKeywords[$index]);
+
+                break;
+            }
+        }
+
+        return $sharedCount;
+    }
+
+    private function relatedKeywordsMatch(string $left, string $right): bool
+    {
+        if ($left === $right) {
+            return true;
+        }
+
+        if (strlen($left) < 4 || strlen($right) < 4) {
+            return false;
+        }
+
+        return str_contains($left, $right) || str_contains($right, $left);
     }
 
     /**

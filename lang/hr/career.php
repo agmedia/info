@@ -29,6 +29,8 @@ return [
         'email' => 'Email',
         'message' => 'Poruka (opcionalno)',
         'cv' => 'Upload CV-a',
+        'cv_button' => 'Odaberi datoteku',
+        'cv_empty' => 'Datoteka nije odabrana.',
         'cv_help' => 'Podržani formati: PDF, DOC i DOCX. Maksimalna veličina datoteke je 5 MB.',
         'accept_terms' => 'Slažem se s obradom osobnih podataka za potrebe selekcijskog postupka.',
         'submit' => 'Pošalji prijavu',

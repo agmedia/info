@@ -29,6 +29,8 @@ return [
         'email' => 'Email',
         'message' => 'Message (optional)',
         'cv' => 'CV upload',
+        'cv_button' => 'Choose file',
+        'cv_empty' => 'No file selected.',
         'cv_help' => 'Supported formats: PDF, DOC, and DOCX. Maximum file size is 5 MB.',
         'accept_terms' => 'I agree to the processing of personal data for recruitment purposes.',
         'submit' => 'Send application',
