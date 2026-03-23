@@ -77,6 +77,41 @@ class StorefrontFrontFeatureTest extends TestCase
             ->assertDontSee('This page has no body content.');
     }
 
+    public function test_academy_page_renders_program_copy_from_translation_payload(): void
+    {
+        $academyPage = InfoPage::query()->where('code', 'academy')->firstOrFail();
+
+        $academyPage->translations()->where('locale', 'hr')->update([
+            'payload' => [
+                'academy_programs' => [
+                    [
+                        'title' => 'Financijski seminari za SME',
+                        'intro' => 'Custom intro za prvi veliki box.',
+                        'items' => [
+                            [
+                                'title' => 'Planiranje kapitala',
+                                'text' => 'Custom tekst za prvi unutarnji box.',
+                            ],
+                        ],
+                    ],
+                    [
+                        'title' => 'Specijalističke edukacije',
+                    ],
+                ],
+            ],
+        ]);
+
+        $this->get('/akademija')
+            ->assertOk()
+            ->assertSee('Financijski seminari za SME')
+            ->assertSee('Custom intro za prvi veliki box.')
+            ->assertSee('Planiranje kapitala')
+            ->assertSee('Custom tekst za prvi unutarnji box.')
+            ->assertSee('Specijalističke edukacije')
+            ->assertDontSee('Seminari za male i srednje poduzetnike')
+            ->assertDontSee('Pribavljanje kapitala');
+    }
+
     public function test_academy_page_shows_posts_from_selected_page_source_category(): void
     {
         $academyPage = InfoPage::query()->where('code', 'academy')->firstOrFail();

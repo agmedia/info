@@ -52,7 +52,7 @@
     @if ($showCreateForm)
         <div class="admin-panel admin-form-panel p-6">
             <h2 class="admin-section-title">{{ $editingCommentId ? __('Edit Comment') : __('Add Comment') }}</h2>
-            <p class="mt-1 text-sm text-slate-600">{{ __('Use this form for testimonials and comments that should later be shown on the website homepage.') }}</p>
+            <p class="mt-1 text-sm text-slate-600">{{ __('Use this form for homepage testimonials or comments tied to a specific page, blog post or FAQ.') }}</p>
 
             <form wire:submit="createComment" class="mt-4 space-y-4">
                 <div class="grid gap-3" style="grid-template-columns: repeat(12, minmax(0, 1fr));">
@@ -64,6 +64,32 @@
                             @endforeach
                         </select>
                         @error('form.locale') <p class="mt-1 text-xs text-rose-600">{{ $message }}</p> @enderror
+                    </div>
+
+                    <div style="grid-column: span 3;">
+                        <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Target Type') }}</label>
+                        <select wire:model.live="form.target_type" data-tom-select data-tom-no-search="1" class="admin-search-input admin-select w-full rounded-xl border px-3 py-2 text-sm">
+                            @foreach ($formTargetOptions as $key => $label)
+                                <option value="{{ $key }}">{{ $label }}</option>
+                            @endforeach
+                        </select>
+                        @error('form.target_type') <p class="mt-1 text-xs text-rose-600">{{ $message }}</p> @enderror
+                    </div>
+
+                    <div style="grid-column: span 7;">
+                        <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Target Item') }}</label>
+                        <select
+                            wire:model="form.target_id"
+                            data-tom-select
+                            class="admin-search-input admin-select w-full rounded-xl border px-3 py-2 text-sm"
+                            @if (($form['target_type'] ?? 'detached') === 'detached') disabled @endif
+                        >
+                            <option value="">{{ ($form['target_type'] ?? 'detached') === 'detached' ? __('Homepage testimonial has no linked item') : __('Select item') }}</option>
+                            @foreach ($targetRecordOptions as $option)
+                                <option value="{{ $option['id'] }}">{{ $option['label'] }}</option>
+                            @endforeach
+                        </select>
+                        @error('form.target_id') <p class="mt-1 text-xs text-rose-600">{{ $message }}</p> @enderror
                     </div>
 
                     <div style="grid-column: span 4;">

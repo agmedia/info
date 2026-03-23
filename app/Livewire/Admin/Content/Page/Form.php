@@ -6,6 +6,7 @@ use App\Models\Catalog\Category\Category;
 use App\Models\Content\Resource\ResourceDocument;
 use App\Models\Content\Page\InfoPage;
 use App\Models\Content\Page\InfoPageTranslation;
+use App\Support\Content\AcademyPageDefaults;
 use App\Support\Content\ResourceDocumentGroupRegistry;
 use App\Support\Content\YouTubeUrl;
 use Illuminate\Support\Collection;
@@ -16,7 +17,7 @@ use Livewire\Component;
 
 class Form extends Component
 {
-    private const TAB_OPTIONS = ['content', 'sources', 'seo'];
+    private const TAB_OPTIONS = ['content', 'sources', 'media', 'seo'];
 
     public ?int $pageId = null;
     public string $activeTab = 'content';
@@ -48,6 +49,7 @@ class Form extends Component
         'academy_video_items' => [],
         'academy_video_title' => '',
         'academy_video_intro' => '',
+        'academy_programs' => [],
     ];
 
     public function mount(?int $pageId = null): void
@@ -68,7 +70,11 @@ class Form extends Component
 
     public function updatedFormLayout(string $layout): void
     {
-        if ($layout !== 'academy' && $this->activeTab === 'sources') {
+        if ($layout === 'academy' && $this->form['academy_programs'] === []) {
+            $this->form['academy_programs'] = $this->defaultAcademyPrograms();
+        }
+
+        if ($layout !== 'academy' && in_array($this->activeTab, ['sources', 'media'], true)) {
             $this->activeTab = 'content';
         }
     }
@@ -87,7 +93,7 @@ class Form extends Component
             return;
         }
 
-        if ($tab === 'sources' && (string) ($this->form['layout'] ?? '') !== 'academy') {
+        if (in_array($tab, ['sources', 'media'], true) && (string) ($this->form['layout'] ?? '') !== 'academy') {
             return;
         }
 
@@ -193,6 +199,7 @@ class Form extends Component
         $academyVideoTitle = trim((string) ($validated['form']['academy_video_title'] ?? ''));
         $academyVideoIntro = trim((string) ($validated['form']['academy_video_intro'] ?? ''));
         $academyVideoItems = $this->normalizeAcademyVideoItems((array) ($validated['form']['academy_video_items'] ?? []));
+        $academyPrograms = $this->normalizeAcademyPrograms((array) ($validated['form']['academy_programs'] ?? []));
 
         if ($academyVideoItems === false) {
             return null;
@@ -259,10 +266,13 @@ class Form extends Component
             } else {
                 unset($translationPayload['academy_video_section']);
             }
+
+            $translationPayload['academy_programs'] = $academyPrograms;
         } else {
             unset($translationPayload['academy_blog_section']);
             unset($translationPayload['academy_resource_section']);
             unset($translationPayload['academy_video_section']);
+            unset($translationPayload['academy_programs']);
         }
 
         $payloadToSave = $payload === [] ? null : $payload;
@@ -516,6 +526,12 @@ class Form extends Component
             'form.academy_video_items.*.youtube_url' => ['nullable', 'string', 'max:2048'],
             'form.academy_video_title' => ['nullable', 'string', 'max:255'],
             'form.academy_video_intro' => ['nullable', 'string'],
+            'form.academy_programs' => ['nullable', 'array'],
+            'form.academy_programs.*.title' => ['nullable', 'string', 'max:255'],
+            'form.academy_programs.*.intro' => ['nullable', 'string'],
+            'form.academy_programs.*.items' => ['nullable', 'array'],
+            'form.academy_programs.*.items.*.title' => ['nullable', 'string', 'max:255'],
+            'form.academy_programs.*.items.*.text' => ['nullable', 'string'],
             'form.category_ids.*' => [
                 'integer',
                 Rule::exists('categories', 'id')->where(fn ($q) => $q->where('scope', Category::SCOPE_PAGE)),
@@ -568,6 +584,7 @@ class Form extends Component
         $this->form['academy_blog_limit'] = max(1, min(24, (int) ($blogSource['limit'] ?? 3)));
         $this->form['academy_resource_document_ids'] = $this->normalizeIdList((array) ($resourceSource['document_ids'] ?? []));
         $this->form['academy_video_items'] = $this->normalizeAcademyVideoDraftItems((array) ($videoSource['items'] ?? []));
+        $this->form['academy_programs'] = $page->layout === 'academy' ? $this->defaultAcademyPrograms() : [];
 
         if ($translation) {
             $translationPayload = is_array($translation->payload) ? $translation->payload : [];
@@ -579,6 +596,9 @@ class Form extends Component
                 : [];
             $academyVideoSection = is_array($translationPayload['academy_video_section'] ?? null)
                 ? $translationPayload['academy_video_section']
+                : [];
+            $academyPrograms = $page->layout === 'academy'
+                ? AcademyPageDefaults::mergePrograms($translationPayload['academy_programs'] ?? null)
                 : [];
 
             $this->form['locale'] = $translation->locale;
@@ -594,6 +614,7 @@ class Form extends Component
             $this->form['academy_resource_intro'] = (string) ($academyResourceSection['intro'] ?? '');
             $this->form['academy_video_title'] = (string) ($academyVideoSection['title'] ?? '');
             $this->form['academy_video_intro'] = (string) ($academyVideoSection['intro'] ?? '');
+            $this->form['academy_programs'] = $academyPrograms;
             $this->form['translation_payload_text'] = $translation->payload
                 ? json_encode($translation->payload, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES)
                 : '';
@@ -604,6 +625,7 @@ class Form extends Component
             $this->form['academy_resource_intro'] = '';
             $this->form['academy_video_title'] = '';
             $this->form['academy_video_intro'] = '';
+            $this->form['academy_programs'] = $page->layout === 'academy' ? $this->defaultAcademyPrograms() : [];
         }
     }
 
@@ -640,6 +662,9 @@ class Form extends Component
         $academyVideoSection = is_array($translationPayload['academy_video_section'] ?? null)
             ? $translationPayload['academy_video_section']
             : [];
+        $this->form['academy_programs'] = (string) ($this->form['layout'] ?? '') === 'academy'
+            ? AcademyPageDefaults::mergePrograms($translationPayload['academy_programs'] ?? null)
+            : [];
         $this->form['academy_blog_title'] = (string) ($academyBlogSection['title'] ?? '');
         $this->form['academy_blog_intro'] = (string) ($academyBlogSection['intro'] ?? '');
         $this->form['academy_resource_title'] = (string) ($academyResourceSection['title'] ?? '');
@@ -665,6 +690,9 @@ class Form extends Component
         $this->form['academy_resource_intro'] = '';
         $this->form['academy_video_title'] = '';
         $this->form['academy_video_intro'] = '';
+        $this->form['academy_programs'] = (string) ($this->form['layout'] ?? '') === 'academy'
+            ? $this->defaultAcademyPrograms()
+            : [];
         $this->form['translation_payload_text'] = '';
     }
 
@@ -829,6 +857,38 @@ class Form extends Component
                 ];
             })
             ->filter()
+            ->values()
+            ->all();
+    }
+
+    /**
+     * @return array<int, array<string, mixed>>
+     */
+    private function defaultAcademyPrograms(): array
+    {
+        return AcademyPageDefaults::mergePrograms([]);
+    }
+
+    /**
+     * @param  array<int, mixed>  $programs
+     * @return array<int, array<string, mixed>>
+     */
+    private function normalizeAcademyPrograms(array $programs): array
+    {
+        return collect(AcademyPageDefaults::mergePrograms($programs))
+            ->map(function (array $program): array {
+                return [
+                    'title' => (string) ($program['title'] ?? ''),
+                    'intro' => (string) ($program['intro'] ?? ''),
+                    'items' => collect((array) ($program['items'] ?? []))
+                        ->map(fn (array $item): array => [
+                            'title' => (string) ($item['title'] ?? ''),
+                            'text' => (string) ($item['text'] ?? ''),
+                        ])
+                        ->values()
+                        ->all(),
+                ];
+            })
             ->values()
             ->all();
     }

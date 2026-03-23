@@ -239,6 +239,38 @@ class ContentBlogPagesFeatureTest extends TestCase
         $this->assertSame('Curated YouTube videos for the academy page.', (string) data_get($page->translation('en')->first()?->payload, 'academy_video_section.intro'));
     }
 
+    public function test_admin_can_save_academy_program_copy_on_info_page(): void
+    {
+        $user = $this->makeAdminUser();
+
+        Livewire::actingAs($user)
+            ->test(PageForm::class)
+            ->set('form.code', 'academy-page')
+            ->set('form.layout', 'academy')
+            ->set('form.is_active', true)
+            ->set('form.locale', 'en')
+            ->set('form.title', 'Academy')
+            ->set('form.slug', 'academy')
+            ->set('form.academy_programs.0.title', 'SME Finance Lab')
+            ->set('form.academy_programs.0.intro', 'Custom intro for the first academy card.')
+            ->set('form.academy_programs.0.items.0.title', 'Capital planning')
+            ->set('form.academy_programs.0.items.0.text', 'Custom editable copy for the first inner box.')
+            ->set('form.academy_programs.3.title', 'Tax Masterclasses')
+            ->set('form.academy_programs.3.items.1.title', 'Tax audit readiness')
+            ->call('save')
+            ->assertRedirect(route('admin.content.pages.index', ['locale' => 'en']));
+
+        $page = InfoPage::query()->where('code', 'academy-page')->first();
+
+        $this->assertNotNull($page);
+        $this->assertSame('SME Finance Lab', (string) data_get($page->translation('en')->first()?->payload, 'academy_programs.0.title'));
+        $this->assertSame('Custom intro for the first academy card.', (string) data_get($page->translation('en')->first()?->payload, 'academy_programs.0.intro'));
+        $this->assertSame('Capital planning', (string) data_get($page->translation('en')->first()?->payload, 'academy_programs.0.items.0.title'));
+        $this->assertSame('Custom editable copy for the first inner box.', (string) data_get($page->translation('en')->first()?->payload, 'academy_programs.0.items.0.text'));
+        $this->assertSame('Tax Masterclasses', (string) data_get($page->translation('en')->first()?->payload, 'academy_programs.3.title'));
+        $this->assertSame('Tax audit readiness', (string) data_get($page->translation('en')->first()?->payload, 'academy_programs.3.items.1.title'));
+    }
+
     public function test_admin_cannot_use_reserved_clean_slug_for_info_page(): void
     {
         $user = $this->makeAdminUser();

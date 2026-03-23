@@ -299,7 +299,7 @@ $__split = function ($name, $params = []) {
 
 $key = 'blog-post-media-manager-'.($postId ?? 'new').'-'.$form['locale'];
 
-$key ??= \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::generateKey('lw-2694034916-0', 'blog-post-media-manager-'.($postId ?? 'new').'-'.$form['locale']);
+$key ??= \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::generateKey('lw-2694034916-1', 'blog-post-media-manager-'.($postId ?? 'new').'-'.$form['locale']);
 
 $__html = app('livewire')->mount($__name, $__params, $key);
 

@@ -253,7 +253,7 @@ $__split = function ($name, $params = []) {
 
 $key = 'category-media-manager-'.($categoryId ?? 'new').'-'.$form['locale'];
 
-$key ??= \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::generateKey('lw-3472445617-0', 'category-media-manager-'.($categoryId ?? 'new').'-'.$form['locale']);
+$key ??= \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::generateKey('lw-3472445617-1', 'category-media-manager-'.($categoryId ?? 'new').'-'.$form['locale']);
 
 $__html = app('livewire')->mount($__name, $__params, $key);
 

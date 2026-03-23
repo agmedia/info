@@ -729,7 +729,7 @@ $__split = function ($name, $params = []) {
 
 $key = 'service-page-media-manager-'.($servicePageId ?? 'new').'-'.$form['locale'];
 
-$key ??= \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::generateKey('lw-1080228232-0', 'service-page-media-manager-'.($servicePageId ?? 'new').'-'.$form['locale']);
+$key ??= \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::generateKey('lw-1080228232-1', 'service-page-media-manager-'.($servicePageId ?? 'new').'-'.$form['locale']);
 
 $__html = app('livewire')->mount($__name, $__params, $key);
 

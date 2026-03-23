@@ -15,105 +15,31 @@
     $academyResourceSection = $academyResourceSection ?? ['title' => '', 'intro' => ''];
     $academyVideos = $academyVideos ?? collect();
     $academyVideoSection = $academyVideoSection ?? ['title' => '', 'intro' => ''];
+    $academyTestimonials = $academyTestimonials ?? collect();
+    $academyGalleryItems = $academyGalleryItems ?? collect();
     $academyVideoInitialCount = 4;
     $academyVideoHasOverflow = $academyVideos->count() > $academyVideoInitialCount;
     $academyVideoShowMoreLabel = $locale === 'hr' ? 'Pokaži još' : 'Show more';
     $academyResourceCtaLabel = $locale === 'hr' ? 'Preuzmi' : 'Download';
-
-    $academyPrograms = [
-        [
-            'title' => 'Seminari za male i srednje poduzetnike',
-            'icon' => 'growth',
-            'accent' => 'gold',
-            'intro' => 'Edukacija je namijenjena poduzetnicima koji imaju interes izraditi poslovni plan, godišnji budžet, pribaviti financiranje, pristupiti investitoru, prodati poslovne udjele i/ili napraviti prijenos poslovanja na mlađe generacije ili na menadžment.',
-            'items' => [
-                [
-                    'title' => 'Pribavljanje kapitala',
-                    'text' => 'Struktura kapitala predstavlja omjer dužničkog i vlasničkog kapitala društva, iz čega se spoznaje način na koji društvo financira imovinu s kojom generira prihode. Edukacija će polaznicima omogućiti usvajanje znanja o: vrstama izvora financiranja, modelima financiranja, namjeni pribavljenih sredstava te poslovnim procesom pribavljanja kapitala.',
-                ],
-                [
-                    'title' => 'Business Transfer',
-                    'text' => 'Podrazumijeva prijenos vlasništva društva na mlađu generaciju, drugu osobu ili drugo društvo, čime se osigurava kontinuitet postojanja i poslovne aktivnosti društva. Polaznici će moći opisati koncept prijenosa poslovanja, diskutirati o različitim opcijama izlaska iz obiteljskog poslovanja, kritički razlagati o pravovremenom planiranju prijenosa poslovanja i sl.',
-                ],
-                [
-                    'title' => 'Procjena vrijednosti',
-                    'text' => 'Procjena vrijednosti kompleksan je proces koji se koristi u mnogim situacijama: od prijenosa udjela u vlasništvu na odabrane nasljednike, inicijalne javne ponude, dokapitalizacije, davanje udjela u vlasništvu kao nagrada menadžmentu za ostvarene rezultate i dr. Sve teme vezane uz procjenu vrijednosti bit će potkrijepljene stvarnim primjerima iz prakse.',
-                ],
-                [
-                    'title' => 'Računovodstvo za male poduzetnike',
-                    'text' => 'Program edukacije namijenjen je vlasnicima malih poduzeća koji žele konkretne odgovore kroz praktične primjere, a ne teoriju. Kroz seminare polaznici će naučiti kako samostalno razumjeti financijske izvještaje, te porezne, računovodstvene i financijske poslove. Naši stručnjaci prenose konkretne slučajeve, te Vas upućuju na koje stvari trebate paziti da izbjegnete najčešće greške u poslovanju.',
-                ],
-            ],
-        ],
-        [
-            'title' => 'Specijalistički seminari',
-            'icon' => 'insight',
-            'accent' => 'blue',
-            'intro' => 'Edukacija o temama iz područja financija i računovodstva namijenjena je vlasnicima i menadžmentu, stručnjacima iz odjela financija, djelatnicima nefinancijskih odjela, početnicima u kontrolingu, reviziji, financijama i računovodstvu te korporativnim pravnicima koji trebaju više znanja i iskustva iz područja računovodstva i financija.',
-            'items' => [
-                [
-                    'title' => 'Financije za nefinancijaše',
-                    'text' => 'Kroz teorijsko predavanje, te radom na stvarnim primjerima sudionici će se upoznati s osnovnim financijskim izvještajima i njihovom analizom, upravljanjem kapitalom društva, ekonomskom profitabilnošću te financijskom vrijednošću društva. Polaznici će naučiti pravilno tumačiti informacije iz financijskih izvještaja što je iznimno važno za opstanak društva. Seminar je namijenjen djelatnicima nefinancijskih odjela, početnicima u kontrolingu, reviziji, financijama, računovodstvu te vlasnicima i menadžmentu.',
-                ],
-                [
-                    'title' => 'Financije za odvjetnike',
-                    'text' => 'Edukacija je namijenjena korporativnim pravnicima koji sve više trebaju znanja i iskustva iz područja računovodstva i financija. Kroz teorijsko predavanje i praktične primjere iz prakse detaljnije ćemo vas upoznati s osnovnim načelima računovodstva i financija s kojima se korporativni pravnici i odvjetnici svakodnevno susreću u svom radu. Također, kroz seminar polaznici će naučiti tumačiti i analizirati financijske izvještaje i pokazatelje.',
-                ],
-                [
-                    'title' => 'Analiza financijskih izvještaja',
-                    'text' => 'Obuhvaća vrednovanje prethodnog financijskog poslovanja društva i njegovog budućeg poslovanja. Polaznici će biti upoznati s pojmom financijskih izvještaja, horizontalnom i vertikalnom analizom istih, te značenjem financijskih omjera i indikatora prikazanim na stvarnim primjerima iz prakse. Postupak analize financijskih izvještaja bit će prikazan na stvarnim primjerima iz prakse.',
-                ],
-                [
-                    'title' => 'Manipulacije financijskim izvještajima',
-                    'text' => 'Kroz primjere iz prakse, seminar će omogućiti polaznicima da brže uoče neuobičajene odnose i sumnjive transakcije te spriječe ili barem umanje posljedice prijevare. Na seminaru će se prezentirati i pojasniti otkrivanje i upravljanje rizicima poslovnih prijevara. Objasnit će se dva osnovna pristupa pomoću kojih se može manipulirati financijskim izvještajima te prikazati tehnike manipulacije financijskim izvještajima.',
-                ],
-            ],
-        ],
-        [
-            'title' => 'Računovodstveni seminari',
-            'icon' => 'ledger',
-            'accent' => 'sand',
-            'intro' => 'Edukacija razvija vještine potrebne za osiguravanje pouzdanih i usporedivih informacija, razumijevanje manipulacija financijskim izvještajima te razumijevanje složenijih poslovnih aktivnosti poput spajanja i preuzimanja.',
-            'items' => [
-                [
-                    'title' => 'Forenzičko računovodstvo',
-                    'text' => 'Polaznici seminara će se upoznati s mogućim manipulacijama financijskih izvještaja, ciljevima, tehnikama i posljedicama istih. Na seminaru prolazimo kroz računovodstvena načela, politike i procjene koje su usklađene s najnovijim promjenama u računovodstvenim standardima.',
-                ],
-                [
-                    'title' => 'Menadžersko računovodstvo / Kontroling',
-                    'text' => 'Edukacija iz područja menadžerskog računovodstva i kontrolinga polaznicima omogućuje razvijanje vještina kojim će se osigurati posjedovanje pouzdanih i usporedivih informacija u očekivanim ili ostvarenim vrijednosno izraženim ciljevima. Glavni cilj je razumijevanje prošlosti, kontrola sadašnjosti i planiranje budućnosti.',
-                ],
-                [
-                    'title' => 'Poslovne kombinacije – financijski, porezni i pravni aspekti',
-                    'text' => 'Edukacija iz područja poslovnih kombinacija pružit će znanja o poslovnim aktivnostima poput spajanja i preuzimanja kao i ostalim aktivnostima koje su obuhvaćene navedenim procesima. Sukladno tome polaznicima će se prezentirati osnove procjene vrijednosti i metode kojima se ona provodi, Due Diligence proces te završetak same aktivnosti. Poseban naglasak bit će na povezanim osobama i društvima, kao i na kontroli kroz upravljačku moć.',
-                ],
-                [
-                    'title' => 'Poslovne kombinacije – financijski, porezni i pravni aspekti',
-                    'text' => 'Edukacija iz područja poslovnih kombinacija pružit će znanja o poslovnim aktivnostima poput spajanja i preuzimanja kao i ostalim aktivnostima koje su obuhvaćene navedenim procesima. Sukladno tome polaznicima će se prezentirati osnove procjene vrijednosti i metode kojima se ona provodi, Due Diligence proces te završetak same aktivnosti. Poseban naglasak bit će na povezanim osobama i društvima, kao i na kontroli kroz upravljačku moć.',
-                ],
-            ],
-        ],
-        [
-            'title' => 'Porezni seminari',
-            'icon' => 'compliance',
-            'accent' => 'slate',
-            'intro' => 'Edukacija polaznicima pruža jasan uvid u načela i metodologiju transfernih cijena te u osnove poreznog nadzora uz primjenu na konkretnim primjerima iz prakse.',
-            'items' => [
-                [
-                    'title' => 'Transferne cijene',
-                    'text' => 'Transfernim cijenama vrednuju se transakcije između povezanih osoba te bi trebale biti u skladu s uobičajenim tržišnim cijenama. Polaznici će se upoznati s načelima i metodologijom transfernih cijena, zahtjevima OECD-ovih Smjernica o transfernim cijenama te s primjenom transfernih cijena na određene specifične transakcije između povezanih društava, uključujući njihovu primjenu u praksi. Na edukaciji će na temelju primjera iz prakse biti prikazan odabir pojedine metode utvrđivanja transfernih cijena, posebnosti transfernih cijena i njihov utjecaj na osnovicu poreza na dobit.',
-                ],
-                [
-                    'title' => 'Porezni nadzor',
-                    'text' => 'Edukacija će polaznicima omogućiti uvid u osnove faza poreznog nadzora koji započinje odabirom subjekta za porezni nadzor, zatim slijedi obavijest o istome, zaključno do poreznog rješenja i mogućnosti žalbe na njega. Unutar procesa pregledava se dokumentacija, prikupljaju dodatne informacije, odnosno pojašnjenja ukoliko postoje nejasnoće. Nakon pregleda dokumentacije i prikupljanja dodatnih informacija izrađuje se zapisnik te prigovor. Navedeni segmenti pojasnit će se teoretski, ali i na praktičnim primjerima kako bi se polaznicima što kvalitetnije približio ovaj segment poslovanja.',
-                ],
-            ],
-        ],
+    $academyVideoActivateLabel = $locale === 'hr' ? 'Pokreni video' : 'Play video';
+    $academyTestimonialReadMoreLabel = $locale === 'hr' ? 'Pročitaj više' : 'Read more';
+    $academyTestimonialShowLessLabel = $locale === 'hr' ? 'Prikaži manje' : 'Show less';
+    $academyExperienceSection = [
+        'eyebrow' => $locale === 'hr' ? 'Iskustva polaznika' : 'Participant feedback',
+        'title' => $locale === 'hr' ? 'Iskustva polaznika akademije' : 'Academy participant experiences',
+        'intro' => $locale === 'hr'
+            ? 'Komentari polaznika i djelić atmosfere s edukacija.'
+            : 'Participant feedback and a glimpse of the academy sessions.',
     ];
+    $academyExperienceLayoutClass = $academyTestimonials->isNotEmpty() && $academyGalleryItems->isNotEmpty()
+        ? 'ac-academy-experience-layout--split'
+        : 'ac-academy-experience-layout--single';
+    $academyPrograms = $academyPrograms
+        ?? \App\Support\Content\AcademyPageDefaults::mergePrograms(data_get($translation?->payload, 'academy_programs'));
 @endphp
 
 @section('title', $translation?->title ?? 'Akademija')
-@section('main_class', 'w-full px-0 py-0 pb-[80px]')
+@section('main_class', 'w-full px-0 py-0')
 
 @section('content')
     @if ($topBlocks->isNotEmpty())
@@ -328,8 +254,10 @@
                                 data-academy-video-hidden
                             @endif
                         >
-                            <div class="ac-academy-video-frame-wrap">
+                            <div class="ac-academy-video-frame-wrap" data-academy-video-frame>
                                 <iframe
+                                    data-academy-video-iframe
+                                    data-base-src="{{ $video['embed_url'] }}"
                                     src="{{ $video['embed_url'] }}"
                                     title="{{ $video['title'] !== '' ? $video['title'] : $academyVideoSection['title'] }}"
                                     loading="lazy"
@@ -337,6 +265,23 @@
                                     referrerpolicy="strict-origin-when-cross-origin"
                                     allowfullscreen
                                 ></iframe>
+
+                                <button
+                                    type="button"
+                                    class="ac-academy-video-poster"
+                                    data-academy-video-activate
+                                    aria-label="{{ $academyVideoActivateLabel }}: {{ $video['title'] !== '' ? $video['title'] : $academyVideoSection['title'] }}"
+                                >
+                                    <span class="ac-academy-video-poster-media" aria-hidden="true">
+                                        <img src="{{ $video['poster_url'] }}" alt="" loading="lazy">
+                                    </span>
+                                    <span class="ac-academy-video-poster-shade" aria-hidden="true"></span>
+                                    <span class="ac-academy-video-poster-play" aria-hidden="true">
+                                        <svg viewBox="0 0 384 512" fill="currentColor" focusable="false" aria-hidden="true">
+                                            <path d="M73 39c-14.8-9.1-33.4-9.4-48.5-.9S0 62.5 0 80v352c0 17.5 9.4 33.8 24.5 42.9s33.7 8.2 48.5-.9l288-176c14.7-9 23-25 23-42.3s-8.3-33.4-23-42.3L73 39z"></path>
+                                        </svg>
+                                    </span>
+                                </button>
                             </div>
 
                             @if (($video['title'] ?? '') !== '')
@@ -355,6 +300,124 @@
                         </button>
                     </div>
                 @endif
+            </div>
+        </section>
+    @endif
+
+    @if ($academyTestimonials->isNotEmpty() || $academyGalleryItems->isNotEmpty())
+        <section class="ac-academy-experiences-section" aria-labelledby="ac-academy-experiences-title">
+            <div class="mx-auto w-full max-w-[1240px] px-6 lg:px-10">
+                <div class="ac-support-story-hero">
+                    <div class="ac-support-story-shell">
+                        <div class="ac-services-head ac-support-story-head">
+                            <div class="ac-services-eyebrow">
+                                <span class="ac-services-eyebrow-line" aria-hidden="true"></span>
+                                <p class="ac-services-kicker">{{ $academyExperienceSection['eyebrow'] }}</p>
+                                <span class="ac-services-eyebrow-line" aria-hidden="true"></span>
+                            </div>
+                            <h2 id="ac-academy-experiences-title">
+                                <span>{{ $academyExperienceSection['title'] }}</span>
+                            </h2>
+
+                            @if (($academyExperienceSection['intro'] ?? '') !== '')
+                                <p class="ac-services-intro">{{ $academyExperienceSection['intro'] }}</p>
+                            @endif
+
+                            <div class="ac-services-divider" aria-hidden="true">
+                                <span class="ac-services-divider-line"></span>
+                                <span class="ac-services-divider-glyph"></span>
+                                <span class="ac-services-divider-line"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="ac-academy-experience-layout {{ $academyExperienceLayoutClass }}">
+                    @if ($academyTestimonials->isNotEmpty())
+                        <div class="ac-academy-experience-column ac-academy-experience-column--quotes">
+                            <div class="ac-client-experiences-carousel ac-academy-testimonials-carousel">
+                                <div id="ac-academy-testimonials-splide" class="splide ac-academy-testimonials-splide" data-academy-testimonials-splide>
+                                    <div class="splide__track">
+                                        <ul class="splide__list ac-client-experiences-list">
+                                            @foreach ($academyTestimonials as $testimonial)
+                                                @php
+                                                    $company = trim((string) ($testimonial->payload['company'] ?? ''));
+                                                    $rating = max(1, min(5, (int) ($testimonial->rating ?? 5)));
+                                                @endphp
+                                                <li class="splide__slide ac-client-experiences-slide">
+                                                    <article class="ac-client-experience-card" data-academy-testimonial-card>
+                                                        <div class="ac-client-experience-card-inner">
+                                                            <div class="ac-client-experience-quote-mark" aria-hidden="true">“</div>
+                                                            <div class="ac-client-experience-content">
+                                                                <div class="ac-client-experience-rating" aria-label="{{ $rating }} / 5">
+                                                                    @for ($i = 1; $i <= 5; $i++)
+                                                                        <span class="{{ $i <= $rating ? 'is-active' : '' }}">★</span>
+                                                                    @endfor
+                                                                </div>
+                                                                <p class="ac-client-experience-body" data-academy-testimonial-body>{{ $testimonial->body }}</p>
+                                                                <button
+                                                                    type="button"
+                                                                    class="ac-client-experience-toggle"
+                                                                    data-academy-testimonial-toggle
+                                                                    data-more-label="{{ $academyTestimonialReadMoreLabel }}"
+                                                                    data-less-label="{{ $academyTestimonialShowLessLabel }}"
+                                                                    aria-expanded="false"
+                                                                    hidden
+                                                                >{{ $academyTestimonialReadMoreLabel }}</button>
+                                                            </div>
+                                                            <div class="ac-client-experience-meta">
+                                                                <h3>{{ $testimonial->author_name ?: __('Anonymous') }}</h3>
+                                                                @if ($company !== '')
+                                                                    <p>{{ $company }}</p>
+                                                                @endif
+                                                            </div>
+                                                        </div>
+                                                    </article>
+                                                </li>
+                                            @endforeach
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    @endif
+
+                    @if ($academyGalleryItems->isNotEmpty())
+                        <div class="ac-academy-experience-column ac-academy-experience-column--gallery" data-academy-gallery>
+                            <div class="ac-academy-gallery-carousel">
+                                <div id="ac-academy-gallery-splide" class="splide ac-academy-gallery-splide" data-academy-gallery-splide>
+                                    <div class="splide__track">
+                                        <ul class="splide__list">
+                                            @foreach ($academyGalleryItems as $galleryItem)
+                                                <li class="splide__slide ac-academy-gallery-slide">
+                                                    <a
+                                                        href="{{ $galleryItem['full_url'] }}"
+                                                        target="_blank"
+                                                        rel="noopener"
+                                                        class="ac-academy-gallery-link"
+                                                        data-academy-gallery-item
+                                                        data-sub-html="{{ $galleryItem['alt'] }}"
+                                                        aria-label="{{ $galleryItem['alt'] }}"
+                                                    >
+                                                        <span class="ac-academy-gallery-image-wrap">
+                                                            <img
+                                                                src="{{ $galleryItem['image_url'] }}"
+                                                                alt="{{ $galleryItem['alt'] }}"
+                                                                class="ac-academy-gallery-image"
+                                                                loading="lazy"
+                                                                decoding="async"
+                                                            >
+                                                        </span>
+                                                    </a>
+                                                </li>
+                                            @endforeach
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    @endif
+                </div>
             </div>
         </section>
     @endif
@@ -726,6 +789,7 @@
         .ac-academy-video-frame-wrap {
             position: relative;
             aspect-ratio: 16 / 9;
+            overflow: hidden;
             background: #0f1b2d;
         }
 
@@ -735,6 +799,79 @@
             width: 100%;
             height: 100%;
             border: 0;
+        }
+
+        .ac-academy-video-poster {
+            position: absolute;
+            inset: 0;
+            display: block;
+            width: 100%;
+            height: 100%;
+            padding: 0;
+            border: 0;
+            background: transparent;
+            cursor: pointer;
+            z-index: 2;
+            transition: opacity 0.24s ease, visibility 0.24s ease;
+        }
+
+        .ac-academy-video-poster-media,
+        .ac-academy-video-poster-media img {
+            display: block;
+            width: 100%;
+            height: 100%;
+        }
+
+        .ac-academy-video-poster-media img {
+            object-fit: cover;
+        }
+
+        .ac-academy-video-poster-shade {
+            position: absolute;
+            inset: 0;
+            background:
+                linear-gradient(180deg, rgba(15, 27, 45, 0.18) 0%, rgba(15, 27, 45, 0.34) 100%);
+        }
+
+        .ac-academy-video-poster-play {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: clamp(3.7rem, 10vw, 4.9rem);
+            height: clamp(3.7rem, 10vw, 4.9rem);
+            border-radius: 999px;
+            color: #0f1b2d;
+            background: rgba(255, 255, 255, 0.96);
+            box-shadow: 0 18px 36px rgba(15, 27, 45, 0.24);
+            transform: translate(-50%, -50%);
+            transition: transform 0.22s ease, box-shadow 0.22s ease;
+        }
+
+        .ac-academy-video-poster-play svg {
+            width: 1.1rem;
+            height: 1.1rem;
+            margin-left: 0.16rem;
+            display: block;
+        }
+
+        .ac-academy-video-poster:hover .ac-academy-video-poster-play,
+        .ac-academy-video-poster:focus-visible .ac-academy-video-poster-play {
+            transform: translate(-50%, -50%) scale(1.05);
+            box-shadow: 0 20px 42px rgba(15, 27, 45, 0.28);
+        }
+
+        .ac-academy-video-poster:focus-visible {
+            outline: 3px solid rgba(255, 255, 255, 0.92);
+            outline-offset: -3px;
+        }
+
+        .ac-academy-video-frame-wrap.is-active .ac-academy-video-poster {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
         }
 
         .ac-academy-video-card-body {
@@ -761,6 +898,186 @@
             padding: 0 1.35rem;
         }
 
+        .ac-academy-experiences-section {
+            padding: 0 0 8rem;
+            background:
+                linear-gradient(180deg, #ffffff 0%, #f7f3eb 100%);
+        }
+
+        .ac-academy-experience-layout {
+            display: grid;
+            gap: 1.35rem;
+            margin-top: 2rem;
+        }
+
+        .ac-academy-experience-layout--single {
+            grid-template-columns: minmax(0, 1fr);
+        }
+
+        .ac-academy-experience-column {
+            min-width: 0;
+        }
+
+        .ac-academy-experience-column--quotes {
+            display: flex;
+            aspect-ratio: 1 / 1;
+            min-height: 0;
+        }
+
+        .ac-academy-experience-column--gallery {
+            aspect-ratio: 1 / 1;
+            min-height: 0;
+        }
+
+        .ac-academy-testimonials-carousel,
+        .ac-academy-gallery-carousel,
+        .ac-academy-testimonials-splide,
+        .ac-academy-gallery-splide {
+            width: 100%;
+            height: 100%;
+        }
+
+        .ac-academy-testimonials-splide .splide__track,
+        .ac-academy-gallery-splide .splide__track,
+        .ac-academy-testimonials-splide .splide__list,
+        .ac-academy-gallery-splide .splide__list {
+            height: 100%;
+        }
+
+        .ac-academy-gallery-splide .splide__track {
+            overflow: hidden;
+            border-radius: calc(var(--front-card-radius) + 0.35rem);
+            transform: translateZ(0);
+            -webkit-mask-image: -webkit-radial-gradient(white, black);
+        }
+
+        .ac-academy-gallery-splide .splide__list,
+        .ac-academy-gallery-splide .splide__slide {
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+            transform: translateZ(0);
+        }
+
+        .ac-academy-testimonials-splide .splide__slide,
+        .ac-academy-gallery-splide .splide__slide {
+            height: 100%;
+        }
+
+        .ac-academy-gallery-splide .splide__slide {
+            overflow: hidden;
+        }
+
+        .ac-academy-testimonials-splide .ac-client-experience-card {
+            height: 100%;
+        }
+
+        .ac-academy-testimonials-splide .ac-client-experience-card-inner {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            min-height: 100%;
+            height: 100%;
+        }
+
+        .ac-academy-testimonials-splide .ac-client-experience-content {
+            justify-content: center;
+        }
+
+        .ac-academy-testimonials-splide .ac-client-experience-meta {
+            margin-top: 1.4rem;
+        }
+
+        .ac-academy-gallery-link {
+            display: block;
+            height: 100%;
+            text-decoration: none;
+            overflow: hidden;
+            border-radius: calc(var(--front-card-radius) + 0.35rem);
+            transform: translateZ(0);
+        }
+
+        .ac-academy-gallery-image-wrap {
+            display: block;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            border-radius: calc(var(--front-card-radius) + 0.35rem);
+            aspect-ratio: 1 / 1;
+            background: linear-gradient(180deg, #dfe6ee 0%, #eef2f6 100%);
+            box-shadow: 0 22px 46px rgba(15, 27, 45, 0.12);
+            isolation: isolate;
+            transform: translateZ(0);
+            -webkit-mask-image: -webkit-radial-gradient(white, black);
+        }
+
+        .ac-academy-gallery-image {
+            display: block;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: inherit;
+            transition: transform 0.45s ease;
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+            transform: translateZ(0) scale(1.001);
+        }
+
+        .ac-academy-gallery-link:hover .ac-academy-gallery-image,
+        .ac-academy-gallery-link:focus-visible .ac-academy-gallery-image {
+            transform: scale(1.03);
+        }
+
+        .ac-academy-testimonials-splide .splide__arrow,
+        .ac-academy-gallery-splide .splide__arrow {
+            width: 2.85rem;
+            height: 2.85rem;
+            border: 1px solid rgba(15, 27, 45, 0.12);
+            background: rgba(255, 255, 255, 0.96);
+            color: #0f1b2d;
+            box-shadow: 0 12px 24px rgba(15, 27, 45, 0.12);
+            opacity: 0;
+            pointer-events: none;
+            transform: translateY(-50%) scale(0.92);
+            transition: opacity 0.22s ease, transform 0.22s ease, background-color 0.22s ease, color 0.22s ease;
+        }
+
+        .ac-academy-testimonials-splide .splide__arrow svg,
+        .ac-academy-gallery-splide .splide__arrow svg {
+            fill: none;
+            stroke: currentColor;
+            stroke-width: 2.25;
+        }
+
+        .ac-academy-testimonials-splide:hover .splide__arrow,
+        .ac-academy-gallery-splide:hover .splide__arrow,
+        .ac-academy-testimonials-splide:focus-within .splide__arrow,
+        .ac-academy-gallery-splide:focus-within .splide__arrow {
+            opacity: 1;
+            pointer-events: auto;
+            transform: translateY(-50%) scale(1);
+        }
+
+        .ac-academy-testimonials-splide .splide__arrow:hover,
+        .ac-academy-gallery-splide .splide__arrow:hover {
+            background: #0f1b2d;
+            color: #fff;
+        }
+
+        .ac-academy-testimonials-splide .splide__arrow--prev,
+        .ac-academy-gallery-splide .splide__arrow--prev {
+            left: -1.05rem;
+        }
+
+        .ac-academy-testimonials-splide .splide__arrow--next,
+        .ac-academy-gallery-splide .splide__arrow--next {
+            right: -1.05rem;
+        }
+
+        .ac-academy-testimonials-splide .splide__pagination,
+        .ac-academy-gallery-splide .splide__pagination {
+            display: none;
+        }
+
         @media (min-width: 768px) {
             .ac-academy-program-grid {
                 grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -772,6 +1089,11 @@
         }
 
         @media (min-width: 1024px) {
+            .ac-academy-experience-layout--split {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+                align-items: stretch;
+            }
+
             .ac-academy-program-card {
                 padding: 1.7rem;
             }
@@ -789,6 +1111,10 @@
             .ac-academy-videos-section {
                 padding-top: 4.15rem;
                 padding-bottom: 4.3rem;
+            }
+
+            .ac-academy-experiences-section {
+                padding-bottom: 6rem;
             }
 
             .ac-academy-program-card {
@@ -821,7 +1147,19 @@
                 padding: 1rem 1rem 1.15rem;
             }
 
-            .ac-academy-resources-splide .splide__arrow {
+            .ac-academy-video-poster-play {
+                width: 3.6rem;
+                height: 3.6rem;
+            }
+
+            .ac-academy-video-poster-play svg {
+                width: 1rem;
+                height: 1rem;
+            }
+
+            .ac-academy-resources-splide .splide__arrow,
+            .ac-academy-testimonials-splide .splide__arrow,
+            .ac-academy-gallery-splide .splide__arrow {
                 display: none;
             }
 
@@ -831,7 +1169,9 @@
         }
 
         @media (hover: none) {
-            .ac-academy-resources-splide .splide__arrow {
+            .ac-academy-resources-splide .splide__arrow,
+            .ac-academy-testimonials-splide .splide__arrow,
+            .ac-academy-gallery-splide .splide__arrow {
                 opacity: 1;
                 transform: translateY(-50%) scale(1);
             }
@@ -846,6 +1186,12 @@
 @endonce
 
 @once
+    @push('styles')
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lightgallery@2.7.2/css/lightgallery-bundle.min.css">
+    @endpush
+@endonce
+
+@once
     @push('scripts')
         <script defer src="https://cdn.jsdelivr.net/npm/@splidejs/splide@4.1.4/dist/js/splide.min.js"></script>
     @endpush
@@ -853,23 +1199,96 @@
 
 @once
     @push('scripts')
+        <script defer src="https://cdn.jsdelivr.net/npm/lightgallery@2.7.2/lightgallery.min.js"></script>
+    @endpush
+@endonce
+
+@once
+    @push('scripts')
         <script>
             (function () {
+                const syncAcademyTestimonialToggles = function () {
+                    document.querySelectorAll('[data-academy-testimonial-card]').forEach(function (card) {
+                        const body = card.querySelector('[data-academy-testimonial-body]');
+                        const toggle = card.querySelector('[data-academy-testimonial-toggle]');
+
+                        if (!body || !toggle) {
+                            return;
+                        }
+
+                        if (card.classList.contains('is-expanded')) {
+                            toggle.hidden = false;
+                            toggle.textContent = toggle.dataset.lessLabel || 'Show less';
+                            toggle.setAttribute('aria-expanded', 'true');
+                            return;
+                        }
+
+                        const hasOverflow = body.scrollHeight > body.clientHeight + 1;
+                        toggle.hidden = !hasOverflow;
+                        toggle.textContent = toggle.dataset.moreLabel || 'Read more';
+                        toggle.setAttribute('aria-expanded', 'false');
+                    });
+                };
+
+                document.addEventListener('click', function (event) {
+                    const toggle = event.target.closest('[data-academy-testimonial-toggle]');
+
+                    if (!toggle) {
+                        return;
+                    }
+
+                    const card = toggle.closest('[data-academy-testimonial-card]');
+
+                    if (!card) {
+                        return;
+                    }
+
+                    const isExpanded = card.classList.toggle('is-expanded');
+                    toggle.textContent = isExpanded
+                        ? (toggle.dataset.lessLabel || 'Show less')
+                        : (toggle.dataset.moreLabel || 'Read more');
+                    toggle.setAttribute('aria-expanded', isExpanded ? 'true' : 'false');
+
+                    window.requestAnimationFrame(syncAcademyTestimonialToggles);
+                });
+
+                let academyTestimonialResizeFrame = null;
+                window.addEventListener('resize', function () {
+                    if (academyTestimonialResizeFrame !== null) {
+                        window.cancelAnimationFrame(academyTestimonialResizeFrame);
+                    }
+
+                    academyTestimonialResizeFrame = window.requestAnimationFrame(function () {
+                        academyTestimonialResizeFrame = null;
+                        syncAcademyTestimonialToggles();
+                    });
+                });
+
                 const init = function () {
                     if (typeof window.Splide !== 'function') {
                         return false;
                     }
 
-                    const sliders = document.querySelectorAll('[data-academy-resources-splide]');
-                    sliders.forEach(function (el) {
-                        if (el.dataset.splideReady === '1') {
-                            return;
-                        }
+                    const mountSlider = function (selector, optionsFactory, onMount) {
+                        document.querySelectorAll(selector).forEach(function (el) {
+                            if (el.dataset.splideReady === '1') {
+                                return;
+                            }
 
-                        el.dataset.splideReady = '1';
+                            el.dataset.splideReady = '1';
 
-                        const count = el.querySelectorAll('.splide__slide').length;
-                        new window.Splide(el, {
+                            const count = el.querySelectorAll('.splide__slide').length;
+                            const slider = new window.Splide(el, optionsFactory(count));
+                            slider.mount();
+
+                            if (typeof onMount === 'function') {
+                                window.requestAnimationFrame(onMount);
+                            }
+                        });
+                    };
+
+                    mountSlider('[data-academy-resources-splide]', function (count) {
+                        return {
                             type: count > 4 ? 'loop' : 'slide',
                             rewind: count <= 4,
                             perPage: Math.min(4, Math.max(1, count)),
@@ -886,7 +1305,61 @@
                                 900: { perPage: Math.min(2, Math.max(1, count)), gap: '1rem' },
                                 640: { perPage: 1, gap: '0.9rem' },
                             },
-                        }).mount();
+                        };
+                    });
+
+                    mountSlider('[data-academy-testimonials-splide]', function (count) {
+                        return {
+                            type: count > 1 ? 'loop' : 'slide',
+                            rewind: count <= 1,
+                            perPage: 1,
+                            perMove: 1,
+                            gap: '1rem',
+                            drag: count > 1,
+                            snap: true,
+                            pagination: false,
+                            arrows: count > 1,
+                            autoplay: count > 1,
+                            interval: 6000,
+                            pauseOnHover: true,
+                            pauseOnFocus: true,
+                            autoHeight: true,
+                            updateOnMove: true,
+                            speed: 520,
+                        };
+                    }, syncAcademyTestimonialToggles);
+
+                    mountSlider('[data-academy-gallery-splide]', function (count) {
+                        return {
+                            type: count > 1 ? 'loop' : 'slide',
+                            rewind: count <= 1,
+                            perPage: 1,
+                            perMove: 1,
+                            gap: '0.95rem',
+                            drag: count > 1,
+                            snap: true,
+                            pagination: false,
+                            arrows: count > 1,
+                            autoplay: count > 1,
+                            interval: 5000,
+                            pauseOnHover: true,
+                            pauseOnFocus: true,
+                            updateOnMove: true,
+                            speed: 520,
+                        };
+                    });
+
+                    document.querySelectorAll('[data-academy-gallery]').forEach(function (root) {
+                        if (root.dataset.lightGalleryReady === '1' || typeof window.lightGallery !== 'function') {
+                            return;
+                        }
+
+                        root.dataset.lightGalleryReady = '1';
+                        window.lightGallery(root, {
+                            selector: '[data-academy-gallery-item]',
+                            download: false,
+                            counter: false,
+                        });
                     });
 
                     return true;
@@ -912,7 +1385,229 @@
     @push('scripts')
         <script>
             (function () {
+                const framePlayers = new WeakMap();
+                const frameLeaveTimers = new WeakMap();
+                let youtubeApiPromise = null;
+
+                const syncFrameState = function (frame) {
+                    if (!frame) {
+                        return;
+                    }
+
+                    const isPreview = frame.dataset.videoPreview === '1';
+                    const isPinned = frame.dataset.videoPinned === '1';
+                    const isPlaying = frame.dataset.videoPlaying === '1';
+
+                    frame.classList.toggle('is-active', isPreview || isPinned || isPlaying);
+                };
+
+                const loadYouTubeApi = function () {
+                    if (window.YT && typeof window.YT.Player === 'function') {
+                        return Promise.resolve(window.YT);
+                    }
+
+                    if (youtubeApiPromise) {
+                        return youtubeApiPromise;
+                    }
+
+                    youtubeApiPromise = new Promise(function (resolve, reject) {
+                        const previousReady = window.onYouTubeIframeAPIReady;
+                        const existingScript = document.querySelector('script[data-youtube-iframe-api]');
+
+                        window.onYouTubeIframeAPIReady = function () {
+                            if (typeof previousReady === 'function') {
+                                previousReady();
+                            }
+
+                            resolve(window.YT);
+                        };
+
+                        if (existingScript) {
+                            return;
+                        }
+
+                        const script = document.createElement('script');
+                        script.src = 'https://www.youtube.com/iframe_api';
+                        script.async = true;
+                        script.defer = true;
+                        script.dataset.youtubeIframeApi = '1';
+                        script.onerror = reject;
+                        document.head.appendChild(script);
+                    });
+
+                    return youtubeApiPromise;
+                };
+
+                const ensureFramePlayer = function (frame) {
+                    if (!frame) {
+                        return Promise.resolve(null);
+                    }
+
+                    const cachedPlayer = framePlayers.get(frame);
+                    if (cachedPlayer) {
+                        return Promise.resolve(cachedPlayer);
+                    }
+
+                    const iframe = frame.querySelector('[data-academy-video-iframe]');
+                    if (!iframe) {
+                        return Promise.resolve(null);
+                    }
+
+                    if (!iframe.id) {
+                        iframe.id = 'academy-video-' + Math.random().toString(36).slice(2, 11);
+                    }
+
+                    return loadYouTubeApi()
+                        .then(function (YT) {
+                            const existingPlayer = framePlayers.get(frame);
+                            if (existingPlayer || !YT || typeof YT.Player !== 'function') {
+                                return existingPlayer || null;
+                            }
+
+                            const player = new YT.Player(iframe.id, {
+                                events: {
+                                    onReady: function (event) {
+                                        if (frame.dataset.videoAutoplayRequested === '1') {
+                                            frame.dataset.videoAutoplayRequested = '0';
+                                            event.target.playVideo();
+                                        }
+                                    },
+                                    onStateChange: function (event) {
+                                        if (!window.YT || !window.YT.PlayerState) {
+                                            return;
+                                        }
+
+                                        const state = event.data;
+                                        const isPlaying = state === window.YT.PlayerState.PLAYING || state === window.YT.PlayerState.BUFFERING;
+                                        frame.dataset.videoPlaying = isPlaying ? '1' : '0';
+
+                                        if (!isPlaying && frame.dataset.videoPinned !== '1' && !frame.matches(':hover')) {
+                                            frame.dataset.videoPreview = '0';
+                                        }
+
+                                        syncFrameState(frame);
+                                    },
+                                },
+                            });
+
+                            framePlayers.set(frame, player);
+
+                            return player;
+                        })
+                        .catch(function () {
+                            return null;
+                        });
+                };
+
+                const autoplayFrameFallback = function (frame) {
+                    const iframe = frame.querySelector('[data-academy-video-iframe]');
+                    if (!iframe) {
+                        return;
+                    }
+
+                    const baseSrc = iframe.dataset.baseSrc || iframe.getAttribute('src') || '';
+                    if (baseSrc === '') {
+                        return;
+                    }
+
+                    try {
+                        const url = new URL(baseSrc, window.location.origin);
+                        url.searchParams.set('autoplay', '1');
+                        url.searchParams.set('playsinline', '1');
+                        iframe.src = url.toString();
+                    } catch (error) {
+                        iframe.src = baseSrc + (baseSrc.includes('?') ? '&' : '?') + 'autoplay=1&playsinline=1';
+                    }
+                };
+
+                const setFramePreview = function (frame, active) {
+                    if (!frame || frame.dataset.videoPinned === '1' || frame.dataset.videoPlaying === '1') {
+                        return;
+                    }
+
+                    const leaveTimer = frameLeaveTimers.get(frame);
+                    if (leaveTimer) {
+                        window.clearTimeout(leaveTimer);
+                        frameLeaveTimers.delete(frame);
+                    }
+
+                    frame.dataset.videoPreview = active ? '1' : '0';
+                    syncFrameState(frame);
+                };
+
+                const pinAndPlayFrame = function (frame) {
+                    if (!frame) {
+                        return;
+                    }
+
+                    frame.dataset.videoPinned = '1';
+                    frame.dataset.videoPreview = '1';
+                    frame.dataset.videoAutoplayRequested = '1';
+                    syncFrameState(frame);
+
+                    ensureFramePlayer(frame).then(function (player) {
+                        if (player && typeof player.playVideo === 'function') {
+                            player.playVideo();
+                            return;
+                        }
+
+                        autoplayFrameFallback(frame);
+                    });
+                };
+
                 const init = function () {
+                    const hoverMedia = window.matchMedia('(hover: hover) and (pointer: fine)');
+
+                    document.querySelectorAll('[data-academy-video-frame]').forEach(function (frame) {
+                        if (frame.dataset.videoOverlayReady === '1') {
+                            return;
+                        }
+
+                        frame.dataset.videoOverlayReady = '1';
+                        frame.dataset.videoPreview = frame.dataset.videoPreview || '0';
+                        frame.dataset.videoPinned = frame.dataset.videoPinned || '0';
+                        frame.dataset.videoPlaying = frame.dataset.videoPlaying || '0';
+                        syncFrameState(frame);
+                        ensureFramePlayer(frame);
+
+                        if (hoverMedia.matches) {
+                            frame.addEventListener('pointerenter', function (event) {
+                                if (event.pointerType && event.pointerType !== 'mouse' && event.pointerType !== 'pen') {
+                                    return;
+                                }
+
+                                setFramePreview(frame, true);
+                            });
+
+                            frame.addEventListener('pointerleave', function (event) {
+                                if (event.pointerType && event.pointerType !== 'mouse' && event.pointerType !== 'pen') {
+                                    return;
+                                }
+
+                                const timer = window.setTimeout(function () {
+                                    if (frame.dataset.videoPinned !== '1' && frame.dataset.videoPlaying !== '1') {
+                                        frame.dataset.videoPreview = '0';
+                                        syncFrameState(frame);
+                                    }
+
+                                    frameLeaveTimers.delete(frame);
+                                }, 160);
+
+                                frameLeaveTimers.set(frame, timer);
+                            });
+                        }
+
+                        const button = frame.querySelector('[data-academy-video-activate]');
+                        if (!button) {
+                            return;
+                        }
+
+                        button.addEventListener('click', function (event) {
+                            event.preventDefault();
+                            pinAndPlayFrame(frame);
+                        });
+                    });
+
                     const sections = document.querySelectorAll('[data-academy-video-grid]');
 
                     sections.forEach(function (grid) {

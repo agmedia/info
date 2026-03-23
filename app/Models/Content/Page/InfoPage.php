@@ -2,6 +2,7 @@
 
 namespace App\Models\Content\Page;
 
+use App\Models\Concerns\HasConfiguredMedia;
 use App\Models\Content\Support\Comment;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -9,9 +10,12 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
+use Spatie\MediaLibrary\HasMedia;
 
-class InfoPage extends Model
+class InfoPage extends Model implements HasMedia
 {
+    use HasConfiguredMedia;
+
     protected $table = 'content_info_pages';
 
     protected $fillable = [

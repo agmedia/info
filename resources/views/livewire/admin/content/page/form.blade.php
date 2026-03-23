@@ -23,6 +23,9 @@
                     <button type="button" wire:click="setTab('sources')" class="rounded-lg border px-3 py-2 text-xs font-semibold uppercase tracking-[0.12em] {{ $activeTab === 'sources' ? 'border-slate-900 bg-slate-900 text-white' : 'border-slate-300 bg-white text-slate-700 hover:bg-slate-100' }}">
                         {{ __('Sources') }}
                     </button>
+                    <button type="button" wire:click="setTab('media')" class="rounded-lg border px-3 py-2 text-xs font-semibold uppercase tracking-[0.12em] {{ $activeTab === 'media' ? 'border-slate-900 bg-slate-900 text-white' : 'border-slate-300 bg-white text-slate-700 hover:bg-slate-100' }}">
+                        {{ __('Media') }}
+                    </button>
                 @endif
                 <button type="button" wire:click="setTab('seo')" class="rounded-lg border px-3 py-2 text-xs font-semibold uppercase tracking-[0.12em] {{ $activeTab === 'seo' ? 'border-slate-900 bg-slate-900 text-white' : 'border-slate-300 bg-white text-slate-700 hover:bg-slate-100' }}">
                     {{ __('SEO') }}
@@ -106,6 +109,65 @@
                     <label for="info-page-body-html" class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Body') }}</label>
                     <textarea id="info-page-body-html" rows="10" wire:model.live.debounce.300ms="form.body_html" data-quill-editor class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm"></textarea>
                 </div>
+
+                @if (($form['layout'] ?? '') === 'academy')
+                    <div class="mt-6 rounded-3xl border border-slate-200 bg-slate-50/80 p-5 sm:p-6">
+                        <div class="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+                            <div>
+                                <p class="admin-section-title">{{ __('Programi Akademije') }}</p>
+                                <p class="mt-2 text-sm text-slate-500">{{ __('Ovaj blok upravlja gornjim sectionom s 4 kartice na Academy stranici, slično kao strukturirani blokovi na uslugama.') }}</p>
+                            </div>
+                        </div>
+
+                        <div class="mt-6 space-y-5">
+                            @foreach ((array) ($form['academy_programs'] ?? []) as $programIndex => $program)
+                                <div wire:key="academy-program-{{ $programIndex }}" class="rounded-2xl border border-slate-200 bg-white p-4 sm:p-5">
+                                    <div class="flex flex-wrap items-center justify-between gap-2">
+                                        <h3 class="text-sm font-semibold uppercase tracking-[0.12em] text-slate-900">
+                                            {{ __('Program') }} {{ $programIndex + 1 }}
+                                        </h3>
+                                        @if (($program['accent'] ?? '') !== '')
+                                            <span class="admin-chip">{{ strtoupper((string) $program['accent']) }}</span>
+                                        @endif
+                                    </div>
+
+                                    <div class="mt-4 grid gap-4 md:grid-cols-2">
+                                        <div>
+                                            <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Naslov kartice') }}</label>
+                                            <input type="text" wire:model="form.academy_programs.{{ $programIndex }}.title" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+                                            @error('form.academy_programs.'.$programIndex.'.title') <p class="mt-1 text-xs text-rose-600">{{ $message }}</p> @enderror
+                                        </div>
+                                        <div>
+                                            <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Intro kartice') }}</label>
+                                            <textarea rows="4" wire:model="form.academy_programs.{{ $programIndex }}.intro" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm"></textarea>
+                                            @error('form.academy_programs.'.$programIndex.'.intro') <p class="mt-1 text-xs text-rose-600">{{ $message }}</p> @enderror
+                                        </div>
+                                    </div>
+
+                                    <div class="mt-5 space-y-4">
+                                        @foreach ((array) ($program['items'] ?? []) as $itemIndex => $item)
+                                            <div wire:key="academy-program-{{ $programIndex }}-item-{{ $itemIndex }}" class="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                                                <p class="text-xs font-semibold uppercase tracking-[0.12em] text-slate-500">{{ __('Box') }} {{ $itemIndex + 1 }}</p>
+
+                                                <div class="mt-3">
+                                                    <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Naslov boxa') }}</label>
+                                                    <input type="text" wire:model="form.academy_programs.{{ $programIndex }}.items.{{ $itemIndex }}.title" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+                                                    @error('form.academy_programs.'.$programIndex.'.items.'.$itemIndex.'.title') <p class="mt-1 text-xs text-rose-600">{{ $message }}</p> @enderror
+                                                </div>
+
+                                                <div class="mt-3">
+                                                    <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Tekst boxa') }}</label>
+                                                    <textarea rows="5" wire:model="form.academy_programs.{{ $programIndex }}.items.{{ $itemIndex }}.text" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm"></textarea>
+                                                    @error('form.academy_programs.'.$programIndex.'.items.'.$itemIndex.'.text') <p class="mt-1 text-xs text-rose-600">{{ $message }}</p> @enderror
+                                                </div>
+                                            </div>
+                                        @endforeach
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
+                    </div>
+                @endif
 
                 <div class="mt-3">
                     <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Page Categories (order defines primary)') }}</label>
@@ -312,6 +374,15 @@
                     @error('form.translation_payload_text') <p class="mt-1 text-xs text-rose-600">{{ $message }}</p> @enderror
                 </div>
             </div>
+        @endif
+
+        @if ($activeTab === 'media' && ($form['layout'] ?? '') === 'academy')
+            <livewire:admin.media.manager
+                :model-class="\App\Models\Content\Page\InfoPage::class"
+                :model-id="$pageId"
+                :locale="$form['locale']"
+                :wire:key="'info-page-media-manager-'.($pageId ?? 'new').'-'.$form['locale']"
+            />
         @endif
 
         <div class="admin-form-actions flex items-center gap-2 pt-2">

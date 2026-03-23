@@ -3,6 +3,7 @@
 use App\Models\Catalog\Category\Category;
 use App\Models\Content\Blog\BlogPost;
 use App\Models\Content\ContentBlock;
+use App\Models\Content\Page\InfoPage;
 use App\Models\Content\Service\ServicePage;
 use App\Models\Content\Team\TeamMember;
 
@@ -61,6 +62,20 @@ return [
                 'blog_gallery' => [
                     'label' => 'Gallery',
                     'single_file' => false,
+                    'max_upload_kb' => 8192,
+                    'accept_mime_types' => ['image/jpeg', 'image/png', 'image/webp', 'image/avif'],
+                    'conversions' => ['thumb_100x100', 'card_360x240', 'detail_960x960'],
+                    'preview_conversion' => 'card_360x240',
+                ],
+            ],
+        ],
+        InfoPage::class => [
+            'label' => 'Info Page',
+            'collections' => [
+                'academy_gallery' => [
+                    'label' => 'Academy Media Gallery',
+                    'single_file' => false,
+                    'only_keep_latest' => 24,
                     'max_upload_kb' => 8192,
                     'accept_mime_types' => ['image/jpeg', 'image/png', 'image/webp', 'image/avif'],
                     'conversions' => ['thumb_100x100', 'card_360x240', 'detail_960x960'],

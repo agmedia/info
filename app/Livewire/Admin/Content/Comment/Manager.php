@@ -10,6 +10,8 @@ use App\Services\Settings\SystemSettingsService;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
+use Illuminate\Support\Collection;
+use Illuminate\Validation\Rule;
 use Livewire\Component;
 use Livewire\WithPagination;
 
@@ -29,6 +31,8 @@ class Manager extends Component
      */
     public array $form = [
         'locale' => 'en',
+        'target_type' => 'detached',
+        'target_id' => null,
         'author_name' => '',
         'company' => '',
         'body' => '',
@@ -64,6 +68,11 @@ class Manager extends Component
         $this->resetPage();
     }
 
+    public function updatedFormTargetType(): void
+    {
+        $this->form['target_id'] = null;
+    }
+
     public function createComment(): void
     {
         $this->showCreateForm = true;
@@ -73,6 +82,13 @@ class Manager extends Component
         $company = trim((string) $payload['company']);
         $isEditing = $this->editingCommentId !== null;
         $status = Comment::STATUS_APPROVED;
+        [$commentableType, $commentableId] = $this->resolveCommentTarget($payload);
+
+        if (($payload['target_type'] ?? 'detached') !== 'detached' && (! $commentableType || ! $commentableId)) {
+            $this->addError('form.target_id', __('Odaberi valjani target.'));
+
+            return;
+        }
 
         if ($isEditing) {
             $comment = Comment::query()->find($this->editingCommentId);
@@ -84,6 +100,8 @@ class Manager extends Component
             }
 
             $comment->update([
+                'commentable_type' => $commentableType,
+                'commentable_id' => $commentableId,
                 'author_name' => trim((string) $payload['author_name']),
                 'author_email' => null,
                 'locale' => strtolower(trim((string) ($payload['locale'] ?? $this->adminLocale()))),
@@ -97,8 +115,8 @@ class Manager extends Component
             $reviewedAt = now();
 
             $comment = Comment::query()->create([
-                'commentable_type' => null,
-                'commentable_id' => null,
+                'commentable_type' => $commentableType,
+                'commentable_id' => $commentableId,
                 'author_name' => trim((string) $payload['author_name']),
                 'author_email' => null,
                 'locale' => strtolower(trim((string) ($payload['locale'] ?? $this->adminLocale()))),
@@ -128,7 +146,7 @@ class Manager extends Component
         $this->search = '';
         $this->locale = (string) ($payload['locale'] ?? $this->adminLocale());
         $this->status = $comment->status;
-        $this->target = 'detached';
+        $this->target = (string) ($payload['target_type'] ?? 'detached');
         $this->showCreateForm = false;
         $this->resetForm();
         $this->resetPage();
@@ -159,6 +177,8 @@ class Manager extends Component
         $this->showCreateForm = true;
         $this->form = [
             'locale' => strtolower((string) ($comment->locale ?: $this->adminLocale())),
+            'target_type' => $this->targetKeyFromComment($comment),
+            'target_id' => $comment->commentable_id ? (int) $comment->commentable_id : null,
             'author_name' => (string) $comment->author_name,
             'company' => trim((string) ($comment->payload['company'] ?? '')),
             'body' => (string) $comment->body,
@@ -301,6 +321,8 @@ class Manager extends Component
             'perPage' => $perPage,
             'statusOptions' => $this->statusOptions(),
             'targetOptions' => $this->targetOptions(),
+            'formTargetOptions' => $this->formTargetOptions(),
+            'targetRecordOptions' => $this->targetRecordOptions,
         ]);
     }
 
@@ -381,12 +403,32 @@ class Manager extends Component
     }
 
     /**
+     * @return array<string, string>
+     */
+    private function formTargetOptions(): array
+    {
+        return [
+            'detached' => __('Homepage Testimonials'),
+            'page' => __('Info Pages'),
+            'blog' => __('Blog Posts'),
+            'faq' => __('FAQs'),
+        ];
+    }
+
+    /**
      * @return array<string, mixed>
      */
     private function creationRules(): array
     {
         return [
             'form.locale' => ['required', 'string', 'max:12'],
+            'form.target_type' => ['required', 'string', Rule::in(array_keys($this->formTargetOptions()))],
+            'form.target_id' => [
+                'nullable',
+                'integer',
+                'min:1',
+                Rule::requiredIf(fn (): bool => (string) ($this->form['target_type'] ?? 'detached') !== 'detached'),
+            ],
             'form.author_name' => ['required', 'string', 'max:120'],
             'form.company' => ['required', 'string', 'max:160'],
             'form.body' => ['required', 'string', 'max:5000'],
@@ -464,12 +506,93 @@ class Manager extends Component
         $this->editingCommentId = null;
         $this->form = [
             'locale' => $locale,
+            'target_type' => 'detached',
+            'target_id' => null,
             'author_name' => '',
             'company' => '',
             'body' => '',
             'rating' => 5,
             'is_featured' => true,
         ];
+    }
+
+    /**
+     * @return array{0:string|null,1:int|null}
+     */
+    private function resolveCommentTarget(array $payload): array
+    {
+        $targetType = (string) ($payload['target_type'] ?? 'detached');
+        $targetId = (int) ($payload['target_id'] ?? 0);
+        $targetClass = $this->targetClass($targetType);
+
+        if (! $targetClass || $targetId <= 0) {
+            return [null, null];
+        }
+
+        $targetExists = $targetClass::query()->whereKey($targetId)->exists();
+
+        if (! $targetExists) {
+            return [null, null];
+        }
+
+        return [$targetClass, $targetId];
+    }
+
+    private function targetKeyFromComment(Comment $comment): string
+    {
+        return match ((string) ($comment->commentable_type ?? '')) {
+            BlogPost::class => 'blog',
+            InfoPage::class => 'page',
+            Faq::class => 'faq',
+            default => 'detached',
+        };
+    }
+
+    /**
+     * @return Collection<int, array{id:int,label:string}>
+     */
+    public function getTargetRecordOptionsProperty(): Collection
+    {
+        $targetType = (string) ($this->form['target_type'] ?? 'detached');
+        $targetClass = $this->targetClass($targetType);
+
+        if (! $targetClass) {
+            return collect();
+        }
+
+        $locale = strtolower(trim((string) ($this->form['locale'] ?? $this->adminLocale()))) ?: $this->adminLocale();
+        $fallbackLocale = strtolower((string) config('app.locale', 'en'));
+        $localeOptions = array_values(array_unique([$locale, $fallbackLocale]));
+
+        /** @var Collection<int, Model> $items */
+        $items = match ($targetType) {
+            'blog' => BlogPost::query()
+                ->with(['translations' => fn ($query) => $query->whereIn('locale', $localeOptions)])
+                ->orderByDesc('published_at')
+                ->orderByDesc('id')
+                ->limit(200)
+                ->get(),
+            'page' => InfoPage::query()
+                ->with(['translations' => fn ($query) => $query->whereIn('locale', $localeOptions)])
+                ->orderBy('sort_order')
+                ->orderBy('id')
+                ->limit(200)
+                ->get(),
+            'faq' => Faq::query()
+                ->with(['translations' => fn ($query) => $query->whereIn('locale', $localeOptions)])
+                ->orderBy('sort_order')
+                ->orderBy('id')
+                ->limit(200)
+                ->get(),
+            default => collect(),
+        };
+
+        return $items->map(function (Model $item) use ($locale): array {
+            return [
+                'id' => (int) $item->getKey(),
+                'label' => $this->describeTargetModel($item, $locale, false),
+            ];
+        });
     }
 
     private function adminLocale(): string

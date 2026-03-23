@@ -9,6 +9,7 @@ use App\Models\Content\Blog\BlogPost;
 use App\Models\Content\Glossary\GlossaryTerm;
 use App\Models\Content\Page\InfoPage;
 use App\Models\Content\Resource\ResourceDocument;
+use App\Models\Content\Support\Comment;
 use App\Services\Content\ContentBlockResolver;
 use App\Services\Content\GlossaryImportService;
 use App\Support\Content\ResourceDocumentGroupRegistry;
@@ -219,6 +220,16 @@ class PageController extends Controller
                 $selectedTranslation?->payload,
                 (string) $locale
             );
+            $academyTestimonials = $this->resolveAcademyTestimonials(
+                $page,
+                (string) $locale,
+                $fallbackLocale
+            );
+            $academyGalleryItems = $this->resolveAcademyGallery(
+                $page,
+                (string) $locale,
+                $fallbackLocale
+            );
 
             return view($this->frontendView($request, 'pages.academy'), [
                 'page' => $page,
@@ -231,6 +242,8 @@ class PageController extends Controller
                 'academyResourceSection' => $academyResourceSection,
                 'academyVideos' => $academyVideos,
                 'academyVideoSection' => $academyVideoSection,
+                'academyTestimonials' => $academyTestimonials,
+                'academyGalleryItems' => $academyGalleryItems,
                 'locale' => $locale,
                 'fallbackLocale' => $fallbackLocale,
             ]);
@@ -440,18 +453,21 @@ class PageController extends Controller
             ->map(function ($item): ?array {
                 $title = trim((string) data_get($item, 'title', ''));
                 $youtubeUrl = trim((string) data_get($item, 'youtube_url', ''));
-                $embedUrl = YouTubeUrl::embedUrl($youtubeUrl);
+                $parsedVideo = YouTubeUrl::parse($youtubeUrl);
+                $embedUrl = (string) ($parsedVideo['embed_url'] ?? '');
 
                 if ($embedUrl === '') {
                     return null;
                 }
 
                 $separator = str_contains($embedUrl, '?') ? '&' : '?';
+                $videoId = trim((string) ($parsedVideo['video_id'] ?? ''));
 
                 return [
                     'title' => $title,
                     'youtube_url' => $youtubeUrl,
-                    'embed_url' => $embedUrl.$separator.'rel=0&modestbranding=1',
+                    'poster_url' => $videoId !== '' ? 'https://i.ytimg.com/vi/'.$videoId.'/hqdefault.jpg' : '',
+                    'embed_url' => $embedUrl.$separator.'rel=0&modestbranding=1&playsinline=1&enablejsapi=1',
                 ];
             })
             ->filter()
@@ -474,6 +490,69 @@ class PageController extends Controller
                 : ($locale === 'hr' ? 'Online edukacija i personalizirani trening' : 'Online education and personalized training'),
             'intro' => $intro,
         ];
+    }
+
+    /**
+     * @return Collection<int, Comment>
+     */
+    private function resolveAcademyTestimonials(InfoPage $page, string $locale, string $fallbackLocale): Collection
+    {
+        $buildQuery = static fn (string $targetLocale) => Comment::query()
+            ->where('commentable_type', InfoPage::class)
+            ->where('commentable_id', $page->getKey())
+            ->where('status', Comment::STATUS_APPROVED)
+            ->where('locale', $targetLocale)
+            ->orderByDesc('is_featured')
+            ->orderByDesc('reviewed_at')
+            ->orderByDesc('created_at')
+            ->orderByDesc('id');
+
+        $rows = $buildQuery($locale)->get();
+
+        if ($rows->isEmpty() && $fallbackLocale !== $locale) {
+            $rows = $buildQuery($fallbackLocale)->get();
+        }
+
+        return $rows;
+    }
+
+    /**
+     * @return Collection<int, array{id:int,name:string,image_url:string,full_url:string,alt:string,caption:string}>
+     */
+    private function resolveAcademyGallery(InfoPage $page, string $locale, string $fallbackLocale): Collection
+    {
+        if (! method_exists($page, 'getMedia')) {
+            return collect();
+        }
+
+        return $page->getMedia('academy_gallery')
+            ->map(function ($media) use ($locale, $fallbackLocale): array {
+                $custom = (array) ($media->custom_properties ?? []);
+                $alt = trim((string) (
+                    data_get($custom, "alt.$locale")
+                    ?? data_get($custom, "alt.$fallbackLocale")
+                    ?? $media->name
+                ));
+                $caption = trim((string) (
+                    data_get($custom, "caption.$locale")
+                    ?? data_get($custom, "caption.$fallbackLocale")
+                    ?? ''
+                ));
+                $imageUrl = $media->hasGeneratedConversion('detail_960x960')
+                    ? (string) $media->getUrl('detail_960x960')
+                    : (string) $media->getUrl();
+                $fullUrl = (string) $media->getUrl();
+
+                return [
+                    'id' => (int) $media->id,
+                    'name' => (string) $media->name,
+                    'image_url' => $imageUrl !== '' ? $imageUrl : $fullUrl,
+                    'full_url' => $fullUrl,
+                    'alt' => $alt !== '' ? $alt : (string) $media->name,
+                    'caption' => $caption,
+                ];
+            })
+            ->values();
     }
 
     private function renderGlossaryPage(
