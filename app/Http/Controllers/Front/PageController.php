@@ -12,6 +12,7 @@ use App\Models\Content\Resource\ResourceDocument;
 use App\Models\Content\Support\Comment;
 use App\Services\Content\ContentBlockResolver;
 use App\Services\Content\GlossaryImportService;
+use App\Support\Content\CareerPageDefaults;
 use App\Support\Content\ResourceDocumentGroupRegistry;
 use App\Support\Content\YouTubeUrl;
 use Illuminate\Database\Eloquent\Builder;
@@ -183,9 +184,15 @@ class PageController extends Controller
         }
 
         if ($page->layout === 'career') {
+            $careerContent = $this->resolveCareerContent(
+                $selectedTranslation?->payload,
+                (string) ($selectedTranslation?->locale ?: $locale)
+            );
+
             return view($this->frontendView($request, 'pages.career'), [
                 'page' => $page,
                 'selectedTranslation' => $selectedTranslation,
+                'careerContent' => $careerContent,
                 'topBlocks' => $topBlocks,
                 'bottomBlocks' => $bottomBlocks,
                 'locale' => $locale,
@@ -257,6 +264,16 @@ class PageController extends Controller
             'locale' => $locale,
             'fallbackLocale' => $fallbackLocale,
         ]);
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function resolveCareerContent(mixed $translationPayload, string $locale): array
+    {
+        $payload = is_array($translationPayload) ? $translationPayload : [];
+
+        return CareerPageDefaults::merge($payload['career_page'] ?? null, $locale);
     }
 
     /**

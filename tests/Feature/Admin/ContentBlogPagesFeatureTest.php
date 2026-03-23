@@ -271,6 +271,49 @@ class ContentBlogPagesFeatureTest extends TestCase
         $this->assertSame('Tax audit readiness', (string) data_get($page->translation('en')->first()?->payload, 'academy_programs.3.items.1.title'));
     }
 
+    public function test_admin_can_save_career_copy_on_info_page(): void
+    {
+        $user = $this->makeAdminUser();
+
+        Livewire::actingAs($user)
+            ->test(PageForm::class)
+            ->set('form.code', 'career-page')
+            ->set('form.locale', 'en')
+            ->set('form.layout', 'career')
+            ->set('form.is_active', true)
+            ->set('form.title', 'Career')
+            ->set('form.slug', 'career')
+            ->set('form.career_intro_title', 'Grow with our team')
+            ->set('form.career_intro_highlight', 'Custom intro highlight for the career page.')
+            ->set('form.career_intro_body', 'Custom intro body copy for the career page.')
+            ->set('form.career_process_kicker', 'Application flow')
+            ->set('form.career_process_title_line_one', 'Hiring journey at')
+            ->set('form.career_process_title_line_two', 'ALPHA CAPITALIS')
+            ->set('form.career_process_intro', 'A clear overview of the hiring process.')
+            ->set('form.career_process_steps.0.step', 'Step A')
+            ->set('form.career_process_steps.0.title', 'Initial review')
+            ->set('form.career_process_steps.0.description', 'We review each application carefully.')
+            ->set('form.career_application_title', 'Join us today')
+            ->set('form.career_application_highlight', 'Custom application highlight copy.')
+            ->set('form.career_application_paragraphs.0', 'Custom application paragraph one.')
+            ->set('form.career_application_paragraphs.1', 'Custom application paragraph two.')
+            ->set('form.career_application_paragraphs.2', 'Custom application paragraph three.')
+            ->set('form.career_form_title', 'Send an open application')
+            ->call('save')
+            ->assertRedirect(route('admin.content.pages.index', ['locale' => 'en']));
+
+        $page = InfoPage::query()->where('code', 'career-page')->first();
+
+        $this->assertNotNull($page);
+        $this->assertSame('career', $page->layout);
+        $this->assertSame('Grow with our team', (string) data_get($page->translation('en')->first()?->payload, 'career_page.intro.title'));
+        $this->assertSame('Custom intro highlight for the career page.', (string) data_get($page->translation('en')->first()?->payload, 'career_page.intro.highlight'));
+        $this->assertSame('Hiring journey at', (string) data_get($page->translation('en')->first()?->payload, 'career_page.process.title_line_one'));
+        $this->assertSame('Step A', (string) data_get($page->translation('en')->first()?->payload, 'career_page.process.steps.0.step'));
+        $this->assertSame('Join us today', (string) data_get($page->translation('en')->first()?->payload, 'career_page.application.title'));
+        $this->assertSame('Send an open application', (string) data_get($page->translation('en')->first()?->payload, 'career_page.form.title'));
+    }
+
     public function test_admin_cannot_use_reserved_clean_slug_for_info_page(): void
     {
         $user = $this->makeAdminUser();

@@ -169,6 +169,140 @@
                     </div>
                 @endif
 
+                @if (($form['layout'] ?? '') === 'career')
+                    <div class="mt-6 rounded-3xl border border-slate-200 bg-slate-50/80 p-5 sm:p-6">
+                        <div>
+                            <p class="admin-section-title">{{ __('Karijera copy') }}</p>
+                            <p class="mt-2 text-sm text-slate-500">{{ __('Mijenja tekstove za hero, proces prijave, CTA blok i naslov forme na stranici Karijera.') }}</p>
+                        </div>
+
+                        <div class="mt-6 space-y-6">
+                            <div class="rounded-2xl border border-slate-200 bg-white p-4 sm:p-5">
+                                <p class="text-sm font-semibold uppercase tracking-[0.12em] text-slate-900">{{ __('Intro sekcija') }}</p>
+
+                                <div class="mt-4 grid gap-4 md:grid-cols-2">
+                                    <div>
+                                        <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Naslov') }}</label>
+                                        <input type="text" wire:model="form.career_intro_title" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+                                        @error('form.career_intro_title') <p class="mt-1 text-xs text-rose-600">{{ $message }}</p> @enderror
+                                    </div>
+
+                                    <div>
+                                        <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Istaknuti tekst') }}</label>
+                                        <textarea rows="4" wire:model="form.career_intro_highlight" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm"></textarea>
+                                        @error('form.career_intro_highlight') <p class="mt-1 text-xs text-rose-600">{{ $message }}</p> @enderror
+                                    </div>
+                                </div>
+
+                                <div class="mt-4">
+                                    <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Glavni tekst') }}</label>
+                                    <textarea rows="5" wire:model="form.career_intro_body" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm"></textarea>
+                                    @error('form.career_intro_body') <p class="mt-1 text-xs text-rose-600">{{ $message }}</p> @enderror
+                                </div>
+                            </div>
+
+                            <div class="rounded-2xl border border-slate-200 bg-white p-4 sm:p-5">
+                                <p class="text-sm font-semibold uppercase tracking-[0.12em] text-slate-900">{{ __('Proces prijave') }}</p>
+
+                                <div class="mt-4 grid gap-4 md:grid-cols-2">
+                                    <div>
+                                        <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Kicker') }}</label>
+                                        <input type="text" wire:model="form.career_process_kicker" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+                                        @error('form.career_process_kicker') <p class="mt-1 text-xs text-rose-600">{{ $message }}</p> @enderror
+                                    </div>
+
+                                    <div>
+                                        <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Uvod') }}</label>
+                                        <textarea rows="4" wire:model="form.career_process_intro" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm"></textarea>
+                                        @error('form.career_process_intro') <p class="mt-1 text-xs text-rose-600">{{ $message }}</p> @enderror
+                                    </div>
+                                </div>
+
+                                <div class="mt-4 grid gap-4 md:grid-cols-2">
+                                    <div>
+                                        <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Naslov red 1') }}</label>
+                                        <input type="text" wire:model="form.career_process_title_line_one" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+                                        @error('form.career_process_title_line_one') <p class="mt-1 text-xs text-rose-600">{{ $message }}</p> @enderror
+                                    </div>
+
+                                    <div>
+                                        <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Naslov red 2') }}</label>
+                                        <input type="text" wire:model="form.career_process_title_line_two" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+                                        @error('form.career_process_title_line_two') <p class="mt-1 text-xs text-rose-600">{{ $message }}</p> @enderror
+                                    </div>
+                                </div>
+
+                                <div class="mt-5 space-y-4">
+                                    @foreach ((array) ($form['career_process_steps'] ?? []) as $stepIndex => $step)
+                                        <div wire:key="career-process-step-{{ $stepIndex }}" class="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                                            <p class="text-xs font-semibold uppercase tracking-[0.12em] text-slate-500">{{ __('Korak') }} {{ $stepIndex + 1 }}</p>
+
+                                            <div class="mt-3 grid gap-4 md:grid-cols-2">
+                                                <div>
+                                                    <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Label') }}</label>
+                                                    <input type="text" wire:model="form.career_process_steps.{{ $stepIndex }}.step" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+                                                    @error('form.career_process_steps.'.$stepIndex.'.step') <p class="mt-1 text-xs text-rose-600">{{ $message }}</p> @enderror
+                                                </div>
+
+                                                <div>
+                                                    <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Naslov') }}</label>
+                                                    <input type="text" wire:model="form.career_process_steps.{{ $stepIndex }}.title" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+                                                    @error('form.career_process_steps.'.$stepIndex.'.title') <p class="mt-1 text-xs text-rose-600">{{ $message }}</p> @enderror
+                                                </div>
+                                            </div>
+
+                                            <div class="mt-3">
+                                                <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Opis') }}</label>
+                                                <textarea rows="4" wire:model="form.career_process_steps.{{ $stepIndex }}.description" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm"></textarea>
+                                                @error('form.career_process_steps.'.$stepIndex.'.description') <p class="mt-1 text-xs text-rose-600">{{ $message }}</p> @enderror
+                                            </div>
+                                        </div>
+                                    @endforeach
+                                </div>
+                            </div>
+
+                            <div class="rounded-2xl border border-slate-200 bg-white p-4 sm:p-5">
+                                <p class="text-sm font-semibold uppercase tracking-[0.12em] text-slate-900">{{ __('CTA sekcija') }}</p>
+
+                                <div class="mt-4 grid gap-4 md:grid-cols-2">
+                                    <div>
+                                        <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Naslov') }}</label>
+                                        <input type="text" wire:model="form.career_application_title" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+                                        @error('form.career_application_title') <p class="mt-1 text-xs text-rose-600">{{ $message }}</p> @enderror
+                                    </div>
+
+                                    <div>
+                                        <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Istaknuti tekst') }}</label>
+                                        <textarea rows="4" wire:model="form.career_application_highlight" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm"></textarea>
+                                        @error('form.career_application_highlight') <p class="mt-1 text-xs text-rose-600">{{ $message }}</p> @enderror
+                                    </div>
+                                </div>
+
+                                <div class="mt-5 space-y-4">
+                                    @foreach ((array) ($form['career_application_paragraphs'] ?? []) as $paragraphIndex => $paragraph)
+                                        <div wire:key="career-application-paragraph-{{ $paragraphIndex }}">
+                                            <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Odlomak') }} {{ $paragraphIndex + 1 }}</label>
+                                            <textarea rows="4" wire:model="form.career_application_paragraphs.{{ $paragraphIndex }}" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm"></textarea>
+                                            @error('form.career_application_paragraphs.'.$paragraphIndex) <p class="mt-1 text-xs text-rose-600">{{ $message }}</p> @enderror
+                                        </div>
+                                    @endforeach
+                                </div>
+                            </div>
+
+                            <div class="rounded-2xl border border-slate-200 bg-white p-4 sm:p-5">
+                                <p class="text-sm font-semibold uppercase tracking-[0.12em] text-slate-900">{{ __('Naslov forme') }}</p>
+                                <p class="mt-2 text-sm text-slate-500">{{ __('Ovdje se mijenja samo naslov bloka forme, npr. "Pošaljite nam svoj CV".') }}</p>
+
+                                <div class="mt-4">
+                                    <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Naslov') }}</label>
+                                    <input type="text" wire:model="form.career_form_title" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm md:max-w-xl" />
+                                    @error('form.career_form_title') <p class="mt-1 text-xs text-rose-600">{{ $message }}</p> @enderror
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                @endif
+
                 <div class="mt-3">
                     <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Page Categories (order defines primary)') }}</label>
                     <select wire:model="form.category_ids" multiple size="8" class="admin-multiselect w-full rounded-xl border border-slate-300 text-sm">

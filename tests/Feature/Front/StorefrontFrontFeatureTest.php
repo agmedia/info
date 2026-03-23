@@ -68,6 +68,72 @@ class StorefrontFrontFeatureTest extends TestCase
             ->assertSee('ALPHA CAPITALIS postoji od 2012. godine s ciljem pružanja podrške klijentima u svijetu financija kroz sve faze razvoja poslovanja.');
     }
 
+    public function test_career_page_renders_custom_copy_from_translation_payload(): void
+    {
+        $careerPage = InfoPage::query()->where('code', 'career')->firstOrFail();
+
+        $careerPage->translations()->where('locale', 'hr')->update([
+            'payload' => [
+                'career_page' => [
+                    'intro' => [
+                        'title' => 'Rasti s nama',
+                        'highlight' => 'Custom uvodni highlight za karijera stranicu.',
+                        'body' => [
+                            'Custom uvodni odlomak za karijera stranicu.',
+                        ],
+                    ],
+                    'process' => [
+                        'kicker' => 'Kako izgleda prijava',
+                        'title_line_one' => 'Proces zapošljavanja u',
+                        'title_line_two' => 'ALPHA CAPITALISU',
+                        'intro' => 'Custom intro procesa.',
+                        'steps' => [
+                            [
+                                'step' => 'Faza 01',
+                                'title' => 'Prvi kontakt',
+                                'description' => 'Custom opis prvog koraka.',
+                            ],
+                            [
+                                'step' => 'Faza 02',
+                                'title' => 'Provjera znanja',
+                                'description' => 'Custom opis drugog koraka.',
+                            ],
+                        ],
+                    ],
+                    'application' => [
+                        'title' => 'Pridruzi nam se danas',
+                        'highlight' => 'Custom CTA highlight.',
+                        'paragraphs' => [
+                            'Custom CTA odlomak 1.',
+                            'Custom CTA odlomak 2.',
+                            'Custom CTA odlomak 3.',
+                        ],
+                    ],
+                    'form' => [
+                        'title' => 'Posalji otvorenu prijavu',
+                    ],
+                ],
+            ],
+        ]);
+
+        $this->get('/karijera')
+            ->assertOk()
+            ->assertSee('Rasti s nama')
+            ->assertSee('Custom uvodni highlight za karijera stranicu.')
+            ->assertSee('Custom uvodni odlomak za karijera stranicu.')
+            ->assertSee('Kako izgleda prijava')
+            ->assertSee('Proces zapošljavanja u')
+            ->assertSee('Faza 01')
+            ->assertSee('Prvi kontakt')
+            ->assertSee('Custom opis prvog koraka.')
+            ->assertSee('Pridruzi nam se danas')
+            ->assertSee('Custom CTA highlight.')
+            ->assertSee('Custom CTA odlomak 2.')
+            ->assertSee('Posalji otvorenu prijavu')
+            ->assertDontSee('Postani dio tima')
+            ->assertDontSee('Pošaljite nam svoj CV');
+    }
+
     public function test_academy_page_renders_custom_cms_layout(): void
     {
         $this->get('/akademija')

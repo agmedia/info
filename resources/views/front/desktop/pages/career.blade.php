@@ -14,36 +14,58 @@
     $careerCaptchaSiteKey = trim((string) ($storeSettings['captcha']['recaptcha_v3_site_key'] ?? ''));
     $careerCaptchaEnabled = (bool) ($storeSettings['captcha']['recaptcha_v3_enabled'] ?? false) && $careerCaptchaSiteKey !== '';
     $careerFormShouldScroll = $errors->any() || session()->has('status');
-    $careerProcessSteps = [
+    $careerContent = is_array($careerContent ?? null) ? $careerContent : [];
+    $careerIntro = is_array($careerContent['intro'] ?? null) ? $careerContent['intro'] : [];
+    $careerProcess = is_array($careerContent['process'] ?? null) ? $careerContent['process'] : [];
+    $careerApplication = is_array($careerContent['application'] ?? null) ? $careerContent['application'] : [];
+    $careerFormContent = is_array($careerContent['form'] ?? null) ? $careerContent['form'] : [];
+    $careerIntroBody = array_values(array_filter(
+        (array) ($careerIntro['body'] ?? []),
+        static fn ($paragraph): bool => trim((string) $paragraph) !== ''
+    ));
+    $careerApplicationParagraphs = array_values(array_filter(
+        (array) ($careerApplication['paragraphs'] ?? []),
+        static fn ($paragraph): bool => trim((string) $paragraph) !== ''
+    ));
+    $careerProcessTitleAria = trim(implode(' ', array_filter([
+        (string) ($careerProcess['title_line_one'] ?? ''),
+        (string) ($careerProcess['title_line_two'] ?? ''),
+    ], static fn ($value): bool => trim((string) $value) !== '')));
+    $careerProcessIcons = [
         [
-            'step' => 'Korak 01',
-            'title' => 'Ispunjavanje prijave',
-            'description' => 'Predaja prijave stiže u naš odjel ljudskih potencijala koji je ocjenjuje i poziva kandidata na razgovor u slučaju poklapanja profila i otvorene pozicije.',
             'icon_view_box' => '0 0 384 512',
             'icon_href' => asset('front-theme/fonts/sprites/solid.svg#file-lines'),
         ],
         [
-            'step' => 'Korak 02',
-            'title' => 'Testiranje znanja',
-            'description' => 'Poziv i dolazak na opće i tehničko testiranje znanja kojim provjeravamo stručnost, pristup problemima i usklađenost s otvorenom pozicijom.',
             'icon_view_box' => '0 0 384 512',
             'icon_href' => asset('front-theme/fonts/sprites/solid.svg#clipboard-check'),
         ],
         [
-            'step' => 'Korak 03',
-            'title' => 'Razgovori',
-            'description' => 'Ljudski potencijali kontaktiraju osobe koje su zadovoljile očekivane kriterije na testiranju, nakon čega slijedi razgovor s timom i višim menadžmentom odjela.',
             'icon_view_box' => '0 0 640 512',
             'icon_href' => asset('front-theme/fonts/sprites/solid.svg#comments'),
         ],
         [
-            'step' => 'Korak 04',
-            'title' => 'Ponuda za zaposlenje i onboarding',
-            'description' => 'Kada osoba završi razgovore, slijedi završni korak selekcijskog procesa: potpis ugovora i onboarding kroz koji upoznaje naše poslovanje, vrijednosti, kulturu i kolege.',
             'icon_view_box' => '0 0 640 512',
             'icon_href' => asset('front-theme/fonts/sprites/solid.svg#user-check'),
         ],
     ];
+    $careerProcessSteps = collect((array) ($careerProcess['steps'] ?? []))
+        ->values()
+        ->map(function ($step, int $index) use ($careerProcessIcons): array {
+            $icon = $careerProcessIcons[$index] ?? [
+                'icon_view_box' => '0 0 384 512',
+                'icon_href' => asset('front-theme/fonts/sprites/solid.svg#file-lines'),
+            ];
+
+            return [
+                'step' => (string) data_get($step, 'step', ''),
+                'title' => (string) data_get($step, 'title', ''),
+                'description' => (string) data_get($step, 'description', ''),
+                'icon_view_box' => (string) $icon['icon_view_box'],
+                'icon_href' => (string) $icon['icon_href'],
+            ];
+        })
+        ->all();
 @endphp
 
 @section('title', $translation?->title ?? 'Karijera')
@@ -64,11 +86,15 @@
                         <div class="ac-career-intro-copy-wrap">
                             <div class="ac-career-intro-copy">
                                 <div class="ac-career-intro-heading">
-                                    <h2>Postani dio tima</h2>
+                                    <h2>{{ $careerIntro['title'] ?? '' }}</h2>
                                 </div>
                                 <div class="ac-career-intro-body">
-                                    <p class="ac-career-intro-highlight">ALPHA CAPITALIS postoji od 2012. godine s ciljem pružanja podrške klijentima u svijetu financija kroz sve faze razvoja poslovanja.</p>
-                                    <p>Oformili smo tim stručnjaka iz područja financija, revizije, računovodstva i poreza koji kroz zajedničko djelovanje nude cjelokupno rješenje za investitore, poduzetnike i menadžere. Članovi tima ALPHA CAPITALIS posjeduju višegodišnje iskustvo u investicijskom bankarstvu, financijskom savjetovanju, EU fonodvima, reviziji, restrukturiranju, kontrolingu i menadžerskom računovodstvu.</p>
+                                    @if (trim((string) ($careerIntro['highlight'] ?? '')) !== '')
+                                        <p class="ac-career-intro-highlight">{{ $careerIntro['highlight'] }}</p>
+                                    @endif
+                                    @foreach ($careerIntroBody as $paragraph)
+                                        <p>{{ $paragraph }}</p>
+                                    @endforeach
                                 </div>
                             </div>
                         </div>
@@ -91,14 +117,14 @@
                                 <div class="ac-services-head ac-support-story-head ac-career-process-head">
                                     <div class="ac-services-eyebrow">
                                         <span class="ac-services-eyebrow-line" aria-hidden="true"></span>
-                                        <p class="ac-services-kicker">Proces prijave</p>
+                                        <p class="ac-services-kicker">{{ $careerProcess['kicker'] ?? '' }}</p>
                                         <span class="ac-services-eyebrow-line" aria-hidden="true"></span>
                                     </div>
-                                    <h2 id="ac-career-process-title" aria-label="Selekcijski proces u ALPHA CAPITALISU">
-                                        <span>Selekcijski proces u</span>
-                                        <span>ALPHA CAPITALISU</span>
+                                    <h2 id="ac-career-process-title" aria-label="{{ $careerProcessTitleAria }}">
+                                        <span>{{ $careerProcess['title_line_one'] ?? '' }}</span>
+                                        <span>{{ $careerProcess['title_line_two'] ?? '' }}</span>
                                     </h2>
-                                    <p class="ac-services-intro">Proces je jasan, strukturiran i fokusiran na kvalitetno upoznavanje kandidata i tima.</p>
+                                    <p class="ac-services-intro">{{ $careerProcess['intro'] ?? '' }}</p>
                                     <div class="ac-services-divider" aria-hidden="true">
                                         <span class="ac-services-divider-line"></span>
                                         <span class="ac-services-divider-glyph"></span>
@@ -130,13 +156,15 @@
                         <div class="ac-career-intro-copy-wrap ac-career-application-copy-wrap">
                             <div class="ac-career-intro-copy ac-career-application-copy">
                                 <div class="ac-career-intro-heading">
-                                    <h2>Pridružite se timu ALPHA CAPITALIS!</h2>
+                                    <h2>{{ $careerApplication['title'] ?? '' }}</h2>
                                 </div>
                                 <div class="ac-career-intro-body">
-                                    <p class="ac-career-intro-highlight">Bez obzira jeste li iskusni profesionalac koji želi karijeru podići na novu razinu ili ste tek diplomirali, ALPHA CAPITALIS nudi mogućnosti za osobni i profesionalni napredak te dinamično radno okruženje koje će Vam omogućiti da postignete svoj puni potencijal.</p>
-                                    <p>Potičemo polaganje stručnih ispita, razmjenu znanja kroz interne edukacije te rotacijski program uz stručno mentorstvo za stjecanje znanja iz područja financija, revizije, računovodstva i poreza.</p>
-                                    <p>Tražimo motivirane i izvrsne osobe koje imaju želju za napretkom i stjecanjem novih znanja, a čiji je sustav vrijednosti u skladu s vrijednostima organizacije.</p>
-                                    <p>Upoznajte nas i postanite dio tima ALPHA CAPITALIS.</p>
+                                    @if (trim((string) ($careerApplication['highlight'] ?? '')) !== '')
+                                        <p class="ac-career-intro-highlight">{{ $careerApplication['highlight'] }}</p>
+                                    @endif
+                                    @foreach ($careerApplicationParagraphs as $paragraph)
+                                        <p>{{ $paragraph }}</p>
+                                    @endforeach
                                 </div>
                             </div>
                         </div>
@@ -145,7 +173,7 @@
                             <div class="ac-career-form-card">
                                 <div class="ac-career-form-head">
                                     <p class="ac-career-form-kicker">{{ __('career.form.eyebrow') }}</p>
-                                    <h3>{{ __('career.form.title') }}</h3>
+                                    <h3>{{ trim((string) ($careerFormContent['title'] ?? '')) ?: __('career.form.title') }}</h3>
                                     <p>{{ __('career.form.intro') }}</p>
                                 </div>
 

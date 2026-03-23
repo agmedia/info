@@ -7,6 +7,7 @@ use App\Models\Content\Resource\ResourceDocument;
 use App\Models\Content\Page\InfoPage;
 use App\Models\Content\Page\InfoPageTranslation;
 use App\Support\Content\AcademyPageDefaults;
+use App\Support\Content\CareerPageDefaults;
 use App\Support\Content\ResourceDocumentGroupRegistry;
 use App\Support\Content\YouTubeUrl;
 use Illuminate\Support\Collection;
@@ -50,6 +51,18 @@ class Form extends Component
         'academy_video_title' => '',
         'academy_video_intro' => '',
         'academy_programs' => [],
+        'career_intro_title' => '',
+        'career_intro_highlight' => '',
+        'career_intro_body' => '',
+        'career_process_kicker' => '',
+        'career_process_title_line_one' => '',
+        'career_process_title_line_two' => '',
+        'career_process_intro' => '',
+        'career_process_steps' => [],
+        'career_application_title' => '',
+        'career_application_highlight' => '',
+        'career_application_paragraphs' => [],
+        'career_form_title' => '',
     ];
 
     public function mount(?int $pageId = null): void
@@ -72,6 +85,10 @@ class Form extends Component
     {
         if ($layout === 'academy' && $this->form['academy_programs'] === []) {
             $this->form['academy_programs'] = $this->defaultAcademyPrograms();
+        }
+
+        if ($layout === 'career' && $this->careerFieldsAreEmpty()) {
+            $this->fillCareerFields($this->defaultCareerContent());
         }
 
         if ($layout !== 'academy' && in_array($this->activeTab, ['sources', 'media'], true)) {
@@ -200,6 +217,7 @@ class Form extends Component
         $academyVideoIntro = trim((string) ($validated['form']['academy_video_intro'] ?? ''));
         $academyVideoItems = $this->normalizeAcademyVideoItems((array) ($validated['form']['academy_video_items'] ?? []));
         $academyPrograms = $this->normalizeAcademyPrograms((array) ($validated['form']['academy_programs'] ?? []));
+        $careerContent = $this->normalizeCareerContent($validated['form']);
 
         if ($academyVideoItems === false) {
             return null;
@@ -273,6 +291,12 @@ class Form extends Component
             unset($translationPayload['academy_resource_section']);
             unset($translationPayload['academy_video_section']);
             unset($translationPayload['academy_programs']);
+        }
+
+        if ((string) ($validated['form']['layout'] ?? '') === 'career') {
+            $translationPayload['career_page'] = $careerContent;
+        } else {
+            unset($translationPayload['career_page']);
         }
 
         $payloadToSave = $payload === [] ? null : $payload;
@@ -532,6 +556,22 @@ class Form extends Component
             'form.academy_programs.*.items' => ['nullable', 'array'],
             'form.academy_programs.*.items.*.title' => ['nullable', 'string', 'max:255'],
             'form.academy_programs.*.items.*.text' => ['nullable', 'string'],
+            'form.career_intro_title' => ['nullable', 'string', 'max:255'],
+            'form.career_intro_highlight' => ['nullable', 'string'],
+            'form.career_intro_body' => ['nullable', 'string'],
+            'form.career_process_kicker' => ['nullable', 'string', 'max:255'],
+            'form.career_process_title_line_one' => ['nullable', 'string', 'max:255'],
+            'form.career_process_title_line_two' => ['nullable', 'string', 'max:255'],
+            'form.career_process_intro' => ['nullable', 'string'],
+            'form.career_process_steps' => ['nullable', 'array'],
+            'form.career_process_steps.*.step' => ['nullable', 'string', 'max:255'],
+            'form.career_process_steps.*.title' => ['nullable', 'string', 'max:255'],
+            'form.career_process_steps.*.description' => ['nullable', 'string'],
+            'form.career_application_title' => ['nullable', 'string', 'max:255'],
+            'form.career_application_highlight' => ['nullable', 'string'],
+            'form.career_application_paragraphs' => ['nullable', 'array'],
+            'form.career_application_paragraphs.*' => ['nullable', 'string'],
+            'form.career_form_title' => ['nullable', 'string', 'max:255'],
             'form.category_ids.*' => [
                 'integer',
                 Rule::exists('categories', 'id')->where(fn ($q) => $q->where('scope', Category::SCOPE_PAGE)),
@@ -600,6 +640,9 @@ class Form extends Component
             $academyPrograms = $page->layout === 'academy'
                 ? AcademyPageDefaults::mergePrograms($translationPayload['academy_programs'] ?? null)
                 : [];
+            $careerContent = $page->layout === 'career'
+                ? CareerPageDefaults::merge($translationPayload['career_page'] ?? null, (string) $translation->locale)
+                : null;
 
             $this->form['locale'] = $translation->locale;
             $this->form['title'] = $translation->title;
@@ -615,6 +658,11 @@ class Form extends Component
             $this->form['academy_video_title'] = (string) ($academyVideoSection['title'] ?? '');
             $this->form['academy_video_intro'] = (string) ($academyVideoSection['intro'] ?? '');
             $this->form['academy_programs'] = $academyPrograms;
+            if ($careerContent !== null) {
+                $this->fillCareerFields($careerContent);
+            } else {
+                $this->clearCareerFields();
+            }
             $this->form['translation_payload_text'] = $translation->payload
                 ? json_encode($translation->payload, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES)
                 : '';
@@ -626,6 +674,7 @@ class Form extends Component
             $this->form['academy_video_title'] = '';
             $this->form['academy_video_intro'] = '';
             $this->form['academy_programs'] = $page->layout === 'academy' ? $this->defaultAcademyPrograms() : [];
+            $this->clearCareerFields();
         }
     }
 
@@ -662,6 +711,9 @@ class Form extends Component
         $academyVideoSection = is_array($translationPayload['academy_video_section'] ?? null)
             ? $translationPayload['academy_video_section']
             : [];
+        $careerContent = (string) ($this->form['layout'] ?? '') === 'career'
+            ? CareerPageDefaults::merge($translationPayload['career_page'] ?? null, (string) $translation->locale)
+            : null;
         $this->form['academy_programs'] = (string) ($this->form['layout'] ?? '') === 'academy'
             ? AcademyPageDefaults::mergePrograms($translationPayload['academy_programs'] ?? null)
             : [];
@@ -671,6 +723,11 @@ class Form extends Component
         $this->form['academy_resource_intro'] = (string) ($academyResourceSection['intro'] ?? '');
         $this->form['academy_video_title'] = (string) ($academyVideoSection['title'] ?? '');
         $this->form['academy_video_intro'] = (string) ($academyVideoSection['intro'] ?? '');
+        if ($careerContent !== null) {
+            $this->fillCareerFields($careerContent);
+        } else {
+            $this->clearCareerFields();
+        }
         $this->form['translation_payload_text'] = $translation->payload
             ? json_encode($translation->payload, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES)
             : '';
@@ -693,6 +750,7 @@ class Form extends Component
         $this->form['academy_programs'] = (string) ($this->form['layout'] ?? '') === 'academy'
             ? $this->defaultAcademyPrograms()
             : [];
+        $this->clearCareerFields();
         $this->form['translation_payload_text'] = '';
     }
 
@@ -870,6 +928,14 @@ class Form extends Component
     }
 
     /**
+     * @return array<string, mixed>
+     */
+    private function defaultCareerContent(?string $locale = null): array
+    {
+        return CareerPageDefaults::merge([], (string) ($locale ?: $this->form['locale'] ?: config('app.locale', 'en')));
+    }
+
+    /**
      * @param  array<int, mixed>  $programs
      * @return array<int, array<string, mixed>>
      */
@@ -891,5 +957,116 @@ class Form extends Component
             })
             ->values()
             ->all();
+    }
+
+    private function fillCareerFields(array $careerContent): void
+    {
+        $intro = is_array($careerContent['intro'] ?? null) ? $careerContent['intro'] : [];
+        $process = is_array($careerContent['process'] ?? null) ? $careerContent['process'] : [];
+        $application = is_array($careerContent['application'] ?? null) ? $careerContent['application'] : [];
+        $form = is_array($careerContent['form'] ?? null) ? $careerContent['form'] : [];
+
+        $this->form['career_intro_title'] = (string) ($intro['title'] ?? '');
+        $this->form['career_intro_highlight'] = (string) ($intro['highlight'] ?? '');
+        $this->form['career_intro_body'] = (string) ((is_array($intro['body'] ?? null) ? $intro['body'][0] ?? '' : ''));
+        $this->form['career_process_kicker'] = (string) ($process['kicker'] ?? '');
+        $this->form['career_process_title_line_one'] = (string) ($process['title_line_one'] ?? '');
+        $this->form['career_process_title_line_two'] = (string) ($process['title_line_two'] ?? '');
+        $this->form['career_process_intro'] = (string) ($process['intro'] ?? '');
+        $this->form['career_process_steps'] = collect((array) ($process['steps'] ?? []))
+            ->map(fn ($step): array => [
+                'step' => (string) data_get($step, 'step', ''),
+                'title' => (string) data_get($step, 'title', ''),
+                'description' => (string) data_get($step, 'description', ''),
+            ])
+            ->values()
+            ->all();
+        $this->form['career_application_title'] = (string) ($application['title'] ?? '');
+        $this->form['career_application_highlight'] = (string) ($application['highlight'] ?? '');
+        $this->form['career_application_paragraphs'] = collect((array) ($application['paragraphs'] ?? []))
+            ->map(fn ($paragraph): string => (string) $paragraph)
+            ->values()
+            ->all();
+        $this->form['career_form_title'] = (string) ($form['title'] ?? '');
+    }
+
+    private function clearCareerFields(): void
+    {
+        if ((string) ($this->form['layout'] ?? '') === 'career') {
+            $this->fillCareerFields($this->defaultCareerContent());
+
+            return;
+        }
+
+        $this->form['career_intro_title'] = '';
+        $this->form['career_intro_highlight'] = '';
+        $this->form['career_intro_body'] = '';
+        $this->form['career_process_kicker'] = '';
+        $this->form['career_process_title_line_one'] = '';
+        $this->form['career_process_title_line_two'] = '';
+        $this->form['career_process_intro'] = '';
+        $this->form['career_process_steps'] = [];
+        $this->form['career_application_title'] = '';
+        $this->form['career_application_highlight'] = '';
+        $this->form['career_application_paragraphs'] = [];
+        $this->form['career_form_title'] = '';
+    }
+
+    /**
+     * @param  array<string, mixed>  $validatedForm
+     * @return array<string, mixed>
+     */
+    private function normalizeCareerContent(array $validatedForm): array
+    {
+        return CareerPageDefaults::merge([
+            'intro' => [
+                'title' => trim((string) ($validatedForm['career_intro_title'] ?? '')),
+                'highlight' => trim((string) ($validatedForm['career_intro_highlight'] ?? '')),
+                'body' => [
+                    trim((string) ($validatedForm['career_intro_body'] ?? '')),
+                ],
+            ],
+            'process' => [
+                'kicker' => trim((string) ($validatedForm['career_process_kicker'] ?? '')),
+                'title_line_one' => trim((string) ($validatedForm['career_process_title_line_one'] ?? '')),
+                'title_line_two' => trim((string) ($validatedForm['career_process_title_line_two'] ?? '')),
+                'intro' => trim((string) ($validatedForm['career_process_intro'] ?? '')),
+                'steps' => collect((array) ($validatedForm['career_process_steps'] ?? []))
+                    ->map(fn ($step): array => [
+                        'step' => trim((string) data_get($step, 'step', '')),
+                        'title' => trim((string) data_get($step, 'title', '')),
+                        'description' => trim((string) data_get($step, 'description', '')),
+                    ])
+                    ->values()
+                    ->all(),
+            ],
+            'application' => [
+                'title' => trim((string) ($validatedForm['career_application_title'] ?? '')),
+                'highlight' => trim((string) ($validatedForm['career_application_highlight'] ?? '')),
+                'paragraphs' => collect((array) ($validatedForm['career_application_paragraphs'] ?? []))
+                    ->map(fn ($paragraph): string => trim((string) $paragraph))
+                    ->values()
+                    ->all(),
+            ],
+            'form' => [
+                'title' => trim((string) ($validatedForm['career_form_title'] ?? '')),
+            ],
+        ], (string) ($validatedForm['locale'] ?? $this->form['locale'] ?? config('app.locale', 'en')));
+    }
+
+    private function careerFieldsAreEmpty(): bool
+    {
+        return trim((string) ($this->form['career_intro_title'] ?? '')) === ''
+            && trim((string) ($this->form['career_intro_highlight'] ?? '')) === ''
+            && trim((string) ($this->form['career_intro_body'] ?? '')) === ''
+            && trim((string) ($this->form['career_process_kicker'] ?? '')) === ''
+            && trim((string) ($this->form['career_process_title_line_one'] ?? '')) === ''
+            && trim((string) ($this->form['career_process_title_line_two'] ?? '')) === ''
+            && trim((string) ($this->form['career_process_intro'] ?? '')) === ''
+            && (array) ($this->form['career_process_steps'] ?? []) === []
+            && trim((string) ($this->form['career_application_title'] ?? '')) === ''
+            && trim((string) ($this->form['career_application_highlight'] ?? '')) === ''
+            && (array) ($this->form['career_application_paragraphs'] ?? []) === []
+            && trim((string) ($this->form['career_form_title'] ?? '')) === '';
     }
 }
