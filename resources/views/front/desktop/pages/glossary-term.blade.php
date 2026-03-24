@@ -36,6 +36,9 @@
         <div class="ac-page-title-copy">
             <p class="mb-3 text-xs font-semibold uppercase tracking-[0.24em] text-[rgba(232,205,142,0.94)]">{{ $glossaryPageTitle }}</p>
             <h1>{{ $termTitle }}</h1>
+            @if ($termLead !== '')
+                <p>{{ $termLead }}</p>
+            @endif
         </div>
     </x-front.page-title-band>
 
@@ -44,7 +47,7 @@
             <a href="{{ route('glossary.index') }}" class="text-sm font-medium text-[#ab8d52] underline-offset-4 hover:underline">&larr; Natrag u {{ $glossaryPageTitle }}</a>
         </div>
 
-        <article class="mt-6 border border-slate-300 bg-white px-5 py-6 sm:px-8">
+        <article class="ac-glossary-term-body mt-6 border border-slate-300 bg-white px-5 py-6 sm:px-8">
             <div class="flex flex-col gap-4 border-b border-slate-200 pb-6">
                 @if ($categories !== [])
                     <p class="text-[0.72rem] font-semibold uppercase tracking-[0.18em] text-[#ab8d52]">{{ implode(' / ', $categories) }}</p>

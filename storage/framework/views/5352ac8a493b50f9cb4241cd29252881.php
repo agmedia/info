@@ -43,6 +43,9 @@
         <div class="ac-page-title-copy">
             <p class="mb-3 text-xs font-semibold uppercase tracking-[0.24em] text-[rgba(232,205,142,0.94)]"><?php echo e($glossaryPageTitle); ?></p>
             <h1><?php echo e($termTitle); ?></h1>
+            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($termLead !== ''): ?>
+                <p><?php echo e($termLead); ?></p>
+            <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
         </div>
      <?php echo $__env->renderComponent(); ?>
 <?php endif; ?>
@@ -60,7 +63,7 @@
             <a href="<?php echo e(route('glossary.index')); ?>" class="text-sm font-medium text-[#ab8d52] underline-offset-4 hover:underline">&larr; Natrag u <?php echo e($glossaryPageTitle); ?></a>
         </div>
 
-        <article class="mt-6 border border-slate-300 bg-white px-5 py-6 sm:px-8">
+        <article class="ac-glossary-term-body mt-6 border border-slate-300 bg-white px-5 py-6 sm:px-8">
             <div class="flex flex-col gap-4 border-b border-slate-200 pb-6">
                 <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($categories !== []): ?>
                     <p class="text-[0.72rem] font-semibold uppercase tracking-[0.18em] text-[#ab8d52]"><?php echo e(implode(' / ', $categories)); ?></p>

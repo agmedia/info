@@ -2854,43 +2854,53 @@
     }
 
     .ac-page-body-inner .content-richtext ul,
-    .ac-page-body-inner .content-richtext ol {
+    .ac-page-body-inner .content-richtext ol,
+    .ac-glossary-term-body .content-richtext ul,
+    .ac-glossary-term-body .content-richtext ol {
         margin: 0 0 1.2rem 1.45rem;
         padding-left: 0.5rem;
     }
 
-    .ac-page-body-inner .content-richtext ul {
+    .ac-page-body-inner .content-richtext ul,
+    .ac-glossary-term-body .content-richtext ul {
         list-style: disc outside;
     }
 
-    .ac-page-body-inner .content-richtext ol {
+    .ac-page-body-inner .content-richtext ol,
+    .ac-glossary-term-body .content-richtext ol {
         list-style: decimal outside;
     }
 
-    .ac-page-body-inner .content-richtext li {
+    .ac-page-body-inner .content-richtext li,
+    .ac-glossary-term-body .content-richtext li {
         display: list-item;
         margin: 0 0 0.62rem;
         padding-left: 0.15rem;
     }
 
     .ac-page-body-inner .content-richtext ul li::marker,
-    .ac-page-body-inner .content-richtext ol li::marker {
+    .ac-page-body-inner .content-richtext ol li::marker,
+    .ac-glossary-term-body .content-richtext ul li::marker,
+    .ac-glossary-term-body .content-richtext ol li::marker {
         color: #ab8d52;
         font-weight: 700;
     }
 
-    .ac-page-body-inner .content-richtext li[data-list="bullet"] {
+    .ac-page-body-inner .content-richtext li[data-list="bullet"],
+    .ac-glossary-term-body .content-richtext li[data-list="bullet"] {
         position: relative;
         list-style: none;
         margin: 0 0 0.9rem;
         padding-left: 1.55rem;
     }
 
-    .ac-page-body-inner .content-richtext li[data-list="bullet"] > .ql-ui {
+    .ac-page-body-inner .content-richtext li[data-list="bullet"] > .ql-ui,
+    .ac-glossary-term-body .content-richtext li[data-list="bullet"] > .ql-ui {
         display: none;
     }
 
-    .ac-page-body-inner .content-richtext li[data-list="bullet"]::before {
+    .ac-page-body-inner .content-richtext li[data-list="bullet"]::before,
+    .ac-glossary-term-body .content-richtext li[data-list="bullet"]::before {
         content: '';
         position: absolute;
         top: 0.9em;
