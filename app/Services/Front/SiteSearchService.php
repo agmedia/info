@@ -52,9 +52,9 @@ class SiteSearchService
                     ? 'Kapital, poslovno savjetovanje, kontroling i podrška pri financijskim odlukama.'
                     : 'Capital planning, business advisory, controlling, and support for key financial decisions.',
                 'search' => $isCroatian
-                    ? 'financije kapital poslovno savjetovanje kontroling financijske odluke'
+                    ? 'financije finacije kapital poslovno savjetovanje kontroling financijske odluke'
                     : 'finance capital business advisory controlling financial decisions',
-                'url' => $homeUrl.'#odjel-financije',
+                'url' => route('finance.show'),
             ],
             [
                 'title' => $isCroatian ? 'Računovodstvo' : 'Accounting',

@@ -15,6 +15,11 @@ trait ResolvesFrontendView
 
     protected function frontendView(Request $request, string $view): string
     {
-        return 'front.'.$this->frontendVariant($request).'.'.$view;
+        $variant = $this->frontendVariant($request);
+        $candidate = 'front.'.$variant.'.'.$view;
+
+        return view()->exists($candidate)
+            ? $candidate
+            : 'front.desktop.'.$view;
     }
 }

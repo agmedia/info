@@ -6,6 +6,8 @@ use Illuminate\Support\Str;
 
 class ServicePageTemplateRegistry
 {
+    public const FINANCE = 'finance';
+
     public const FAMILY_BUSINESS = 'family_business';
 
     /**
@@ -14,6 +16,7 @@ class ServicePageTemplateRegistry
     public static function labels(): array
     {
         return [
+            self::FINANCE => 'Financije',
             self::FAMILY_BUSINESS => 'Family Business',
         ];
     }
@@ -27,6 +30,7 @@ class ServicePageTemplateRegistry
     public static function defaultCode(string $templateKey): string
     {
         return match ($templateKey) {
+            self::FINANCE => 'finance',
             self::FAMILY_BUSINESS => 'family-business',
             default => Str::of($templateKey)->replace('_', '-')->lower()->value(),
         };
@@ -38,6 +42,7 @@ class ServicePageTemplateRegistry
     public static function defaultPagePayload(string $templateKey): array
     {
         return match ($templateKey) {
+            self::FINANCE => [],
             self::FAMILY_BUSINESS => [
                 'blog_source' => [
                     'mode' => 'auto_category',
@@ -63,9 +68,12 @@ class ServicePageTemplateRegistry
     /**
      * @return array<string, mixed>
      */
-    public static function defaultTranslationPayload(string $templateKey): array
+    public static function defaultTranslationPayload(string $templateKey, ?string $locale = null): array
     {
         return match ($templateKey) {
+            self::FINANCE => FinanceServicePageDefaults::defaultsForLocale(
+                $locale ?: (string) config('app.locale', 'en')
+            ),
             self::FAMILY_BUSINESS => [
                 'hero' => [
                     'brand_title' => 'ALPHA CAPITALIS',
@@ -270,9 +278,12 @@ class ServicePageTemplateRegistry
      * @param  array<string, mixed>|null  $payload
      * @return array<string, mixed>
      */
-    public static function mergeTranslationPayload(string $templateKey, ?array $payload): array
+    public static function mergeTranslationPayload(string $templateKey, ?array $payload, ?string $locale = null): array
     {
-        return self::deepMerge(self::defaultTranslationPayload($templateKey), is_array($payload) ? $payload : []);
+        return self::deepMerge(
+            self::defaultTranslationPayload($templateKey, $locale),
+            is_array($payload) ? $payload : []
+        );
     }
 
     /**

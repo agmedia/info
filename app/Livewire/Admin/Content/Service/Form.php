@@ -18,6 +18,10 @@ class Form extends Component
 {
     private const TAB_OPTIONS = ['content', 'sources', 'seo', 'media'];
 
+    private const SOURCE_ENABLED_TEMPLATES = [
+        ServicePageTemplateRegistry::FAMILY_BUSINESS,
+    ];
+
     private const MANUAL_SELECTION_PATHS = [
         'blog_posts' => 'page_payload.blog_source.post_ids',
         'faqs' => 'page_payload.faq_source.faq_ids',
@@ -93,8 +97,11 @@ class Form extends Component
             return;
         }
 
-        $previousDefaultCode = ServicePageTemplateRegistry::defaultCode(ServicePageTemplateRegistry::FAMILY_BUSINESS);
-        if (trim((string) $this->form['code']) === '' || $this->form['code'] === $previousDefaultCode) {
+        $knownDefaultCodes = collect(array_keys(ServicePageTemplateRegistry::labels()))
+            ->map(fn (string $key): string => ServicePageTemplateRegistry::defaultCode($key))
+            ->all();
+
+        if (trim((string) $this->form['code']) === '' || in_array($this->form['code'], $knownDefaultCodes, true)) {
             $this->form['code'] = ServicePageTemplateRegistry::defaultCode($templateKey);
         }
 
@@ -112,6 +119,10 @@ class Form extends Component
     public function setTab(string $tab): void
     {
         if (! in_array($tab, self::TAB_OPTIONS, true)) {
+            return;
+        }
+
+        if ($tab === 'sources' && ! $this->templateSupportsSources()) {
             return;
         }
 
@@ -238,6 +249,7 @@ class Form extends Component
         return view('livewire.admin.content.service.form', [
             'isEdit' => (bool) $this->servicePageId,
             'templateOptions' => ServicePageTemplateRegistry::labels(),
+            'templateSupportsSources' => $this->templateSupportsSources(),
         ]);
     }
 
@@ -373,7 +385,7 @@ class Form extends Component
      */
     private function rules(): array
     {
-        return [
+        $rules = [
             'form.code' => ['required', 'string', 'max:120', Rule::unique('content_service_pages', 'code')->ignore($this->servicePageId)],
             'form.template_key' => ['required', Rule::in(array_keys(ServicePageTemplateRegistry::labels()))],
             'form.is_active' => ['boolean'],
@@ -394,26 +406,30 @@ class Form extends Component
             'form.meta_description' => ['nullable', 'string'],
 
             'form.page_payload' => ['nullable', 'array'],
-            'form.page_payload.blog_source.mode' => ['required', Rule::in(['auto_category', 'category', 'manual'])],
-            'form.page_payload.blog_source.category_id' => [
+            'form.translation_payload' => ['nullable', 'array'],
+        ];
+
+        if ($this->templateSupportsSources()) {
+            $rules['form.page_payload.blog_source.mode'] = ['required', Rule::in(['auto_category', 'category', 'manual'])];
+            $rules['form.page_payload.blog_source.category_id'] = [
                 'nullable',
                 'integer',
                 Rule::exists('categories', 'id')->where(fn ($q) => $q->where('scope', Category::SCOPE_BLOG)),
-            ],
-            'form.page_payload.blog_source.post_ids' => ['nullable', 'array'],
-            'form.page_payload.blog_source.post_ids.*' => ['integer', Rule::exists('content_blog_posts', 'id')],
-            'form.page_payload.blog_source.limit' => ['nullable', 'integer', 'min:1', 'max:24'],
-            'form.page_payload.faq_source.mode' => ['required', Rule::in(['auto_group', 'group', 'manual'])],
-            'form.page_payload.faq_source.group_code' => ['nullable', 'string', 'max:120'],
-            'form.page_payload.faq_source.faq_ids' => ['nullable', 'array'],
-            'form.page_payload.faq_source.faq_ids.*' => ['integer', Rule::exists('content_faqs', 'id')],
-            'form.page_payload.team_source.mode' => ['required', Rule::in(['auto', 'manual'])],
-            'form.page_payload.team_source.member_ids' => ['nullable', 'array'],
-            'form.page_payload.team_source.member_ids.*' => ['integer', Rule::exists('content_team_members', 'id')],
-            'form.page_payload.brochure_url' => ['nullable', 'string', 'max:2048'],
+            ];
+            $rules['form.page_payload.blog_source.post_ids'] = ['nullable', 'array'];
+            $rules['form.page_payload.blog_source.post_ids.*'] = ['integer', Rule::exists('content_blog_posts', 'id')];
+            $rules['form.page_payload.blog_source.limit'] = ['nullable', 'integer', 'min:1', 'max:24'];
+            $rules['form.page_payload.faq_source.mode'] = ['required', Rule::in(['auto_group', 'group', 'manual'])];
+            $rules['form.page_payload.faq_source.group_code'] = ['nullable', 'string', 'max:120'];
+            $rules['form.page_payload.faq_source.faq_ids'] = ['nullable', 'array'];
+            $rules['form.page_payload.faq_source.faq_ids.*'] = ['integer', Rule::exists('content_faqs', 'id')];
+            $rules['form.page_payload.team_source.mode'] = ['required', Rule::in(['auto', 'manual'])];
+            $rules['form.page_payload.team_source.member_ids'] = ['nullable', 'array'];
+            $rules['form.page_payload.team_source.member_ids.*'] = ['integer', Rule::exists('content_team_members', 'id')];
+            $rules['form.page_payload.brochure_url'] = ['nullable', 'string', 'max:2048'];
+        }
 
-            'form.translation_payload' => ['nullable', 'array'],
-        ];
+        return $rules;
     }
 
     private function loadServicePage(): void
@@ -450,7 +466,8 @@ class Form extends Component
             $this->form['meta_description'] = $translation->meta_description ?? '';
             $this->form['translation_payload'] = ServicePageTemplateRegistry::mergeTranslationPayload(
                 $servicePage->template_key,
-                $translation->payload
+                $translation->payload,
+                $translation->locale
             );
         } else {
             $this->clearTranslationFields($servicePage->template_key);
@@ -484,7 +501,8 @@ class Form extends Component
         $this->form['meta_description'] = $translation->meta_description ?? '';
         $this->form['translation_payload'] = ServicePageTemplateRegistry::mergeTranslationPayload(
             $templateKey,
-            $translation->payload
+            $translation->payload,
+            $translation->locale
         );
     }
 
@@ -494,7 +512,10 @@ class Form extends Component
         $this->form['slug'] = '';
         $this->form['meta_title'] = '';
         $this->form['meta_description'] = '';
-        $this->form['translation_payload'] = ServicePageTemplateRegistry::defaultTranslationPayload($templateKey);
+        $this->form['translation_payload'] = ServicePageTemplateRegistry::defaultTranslationPayload(
+            $templateKey,
+            (string) ($this->form['locale'] ?? config('app.locale', 'en'))
+        );
     }
 
     private function initializeTemplateDefaults(string $templateKey): void
@@ -504,7 +525,14 @@ class Form extends Component
             ? $this->form['code']
             : ServicePageTemplateRegistry::defaultCode($templateKey);
         $this->form['page_payload'] = ServicePageTemplateRegistry::defaultPagePayload($templateKey);
-        $this->form['translation_payload'] = ServicePageTemplateRegistry::defaultTranslationPayload($templateKey);
+        $this->form['translation_payload'] = ServicePageTemplateRegistry::defaultTranslationPayload(
+            $templateKey,
+            (string) ($this->form['locale'] ?? config('app.locale', 'en'))
+        );
+
+        if (! $this->templateSupportsSources($templateKey) && $this->activeTab === 'sources') {
+            $this->activeTab = 'content';
+        }
     }
 
     private function moveManualItem(string $target, int $index, int $direction): void
@@ -565,6 +593,10 @@ class Form extends Component
     {
         $merged = ServicePageTemplateRegistry::mergePagePayload((string) $this->form['template_key'], $payload);
 
+        if (! $this->templateSupportsSources()) {
+            return $merged;
+        }
+
         data_set($merged, 'blog_source.category_id', $this->nullableInt(data_get($merged, 'blog_source.category_id')));
         data_set($merged, 'blog_source.limit', max(1, min(24, (int) data_get($merged, 'blog_source.limit', 6))));
         data_set($merged, 'blog_source.post_ids', $this->normalizeIdList((array) data_get($merged, 'blog_source.post_ids', [])));
@@ -582,7 +614,7 @@ class Form extends Component
      */
     private function normalizedTranslationPayload(string $templateKey, array $payload): array
     {
-        return ServicePageTemplateRegistry::mergeTranslationPayload($templateKey, $payload);
+        return ServicePageTemplateRegistry::mergeTranslationPayload($templateKey, $payload, (string) $this->form['locale']);
     }
 
     /**
@@ -607,5 +639,14 @@ class Form extends Component
         $normalized = (int) $value;
 
         return $normalized > 0 ? $normalized : null;
+    }
+
+    private function templateSupportsSources(?string $templateKey = null): bool
+    {
+        return in_array(
+            $templateKey ?: (string) ($this->form['template_key'] ?? ''),
+            self::SOURCE_ENABLED_TEMPLATES,
+            true
+        );
     }
 }

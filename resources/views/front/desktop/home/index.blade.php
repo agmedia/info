@@ -25,7 +25,7 @@
                 'text' => 'Kapital, poslovno savjetovanje, kontroling i podrška pri financijskim odlukama.',
                 'highlights' => ['Kapital', 'Savjetovanje', 'Kontroling'],
                 'featured' => true,
-                'url' => route('contact.create'),
+                'url' => route('finance.show'),
                 'accent' => '#2f6f9f',
                 'layout_area' => 'finance',
             ],
