@@ -78,18 +78,18 @@ class FinanceServicePageDefaults
                         ],
                         [
                             'title' => 'Faza IV',
-                            'label' => 'Ponude i informacijski memorandum',
+                            'label' => 'Ugovor o povjerljivosti, memorandum i ponude',
                             'items' => [
                                 'Slanje ugovora odabranim tvrtkama',
-                                'Slanje informativnog memoranduma nakon potpisa NDA-a',
+                                'Nakon potpisivanja Ugovora o povjerljivosti podataka šalje se Informacijski memorandum',
                                 'Primanje neobvezujućih ponuda',
                             ],
                         ],
                         [
                             'title' => 'Faza V',
-                            'label' => 'Data room, pregovori i zatvaranje',
+                            'label' => 'Data room, pregovori i zatvaranje kupoprodaje',
                             'items' => [
-                                'Odabir ponuđača za pristup data roomu / prezentaciji',
+                                'Odabir ponuđača za pristup data roomu (sobi s podacima) / prezentaciji',
                                 'Pregovori u vezi s kupoprodajnim ugovorom',
                                 'Zatvaranje kupoprodaje',
                             ],
@@ -106,7 +106,7 @@ class FinanceServicePageDefaults
                 'intro' => 'Dubinsko snimanje predstavlja ključan alat za donošenje informiranih odluka u transakcijama spajanja, preuzimanja i prodaje društva. Bilo da nastupate kao kupac ili prodavatelj, naš tim pruža jasan i objektivan uvid u financijsko stanje ciljanog društva te identificira čimbenike koji mogu utjecati na vrijednost i uvjet transakcije.',
                 'help_title' => 'Pomažemo vam',
                 'help_items' => [
-                    'unaprijediti razumijevanje ciljanog društva kako bi transakcija lakše ostvarila svoje ciljeve',
+                    'unaprijediti razumijevanje ciljanog društva (čime je vjerojatnije da će transakcija postići svoje ciljeve)',
                     'detektirati rizike i nepravilnosti',
                     'utvrditi i razumjeti ključne čimbenike uspjeha (KPI)',
                     'ukazati na prednosti koje mogu biti temelj razvoja ili nedostatke koji se mogu riješiti',
@@ -130,11 +130,11 @@ class FinanceServicePageDefaults
             'capital_raising' => [
                 'title' => 'Pribavljanje kapitala',
                 'body' => [
-                    'Struktura kapitala predstavlja omjer dužničkog i vlasničkog kapitala društva. Takva podjela otkriva kako je društvo financiralo imovinu s kojom generira prihode.',
+                    'Struktura kapitala predstavlja omjer dužničkog (tuđeg) i vlasničkog kapitala društva. Takva podjela otkriva kako je društvo financiralo imovinu s kojom generira prihode.',
                     'Osnovni zadatak financijskog menadžmenta društva je pronaći optimalnu strukturu kapitala koja će odražavati najmanji stupanj rizika uz najmanji trošak kapitala.',
                     'Jedan od problema s kojim se susreću poduzetnici je pribavljanje kapitala i financiranje nastavka poslovnog projekta.',
                     'Pružamo savjetodavnu podršku u postupcima pribavljanja financiranja za investicijske projekte, rast poslovanja i optimizaciju postojeće strukture financiranja. Proces započinje analizom financijskih potreba i kapaciteta klijenta, nakon čega izrađujemo financijske projekcije i pripremamo relevantne materijale za financijske institucije i potencijalne investitore.',
-                    'U okviru usluge izrađujemo investicijske studije koje služe kao podloga za donošenje investicijskih odluka, osiguravanje financiranja i procjenu isplativosti ulaganja. Analiza obuhvaća poslovno i tržišno okruženje, investicijske troškove te projekcije financijskih rezultata i novčanih tokova, uz sagledavanje ključnih pretpostavki i rizika koji mogu utjecati na uspješnost ulaganja.',
+                    'U okviru usluge izrađujemo investicijske studije koje služe kao podloga za donošenje investicijskih odluka, osiguravanje financiranja i procjenu isplativosti ulaganja. Studije su prilagođene potrebama investitora, vlasnika i financijskih institucija te izrađene u skladu sa svrhom projekta. Analiza obuhvaća poslovno i tržišno okruženje, investicijske troškove te projekcije financijskih rezultata i novčanih tokova, uz sagledavanje ključnih pretpostavki i rizika koji mogu utjecati na uspješnost ulaganja.',
                 ],
                 'sources_title' => 'Izvori financiranja',
                 'sources' => [
@@ -213,6 +213,10 @@ class FinanceServicePageDefaults
                     'message' => 'Poruka',
                 ],
                 'submit' => 'Pošalji',
+            ],
+            'blog_section' => [
+                'title' => 'Zadnje objave i novosti',
+                'intro' => 'Zadnjih pet blog objava iz područja financija, poreza, transakcija i poslovnog savjetovanja.',
             ],
         ];
     }
@@ -416,6 +420,10 @@ class FinanceServicePageDefaults
                     'message' => 'Message',
                 ],
                 'submit' => 'Send',
+            ],
+            'blog_section' => [
+                'title' => 'Latest Posts and Updates',
+                'intro' => 'Five recent blog posts covering finance, tax, transactions, and business advisory topics.',
             ],
         ];
     }

@@ -42,7 +42,14 @@ class ServicePageTemplateRegistry
     public static function defaultPagePayload(string $templateKey): array
     {
         return match ($templateKey) {
-            self::FINANCE => [],
+            self::FINANCE => [
+                'blog_source' => [
+                    'mode' => 'auto_category',
+                    'category_id' => null,
+                    'post_ids' => [],
+                    'limit' => 5,
+                ],
+            ],
             self::FAMILY_BUSINESS => [
                 'blog_source' => [
                     'mode' => 'auto_category',
