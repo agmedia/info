@@ -1670,6 +1670,14 @@ const initFrontDesktopHeader = () => {
     const searchPanel = document.querySelector('[data-header-search-panel]');
     const searchToggles = document.querySelectorAll('[data-header-search-toggle]');
     const searchInput = document.querySelector('[data-header-search-input]');
+    const searchForm = searchPanel?.querySelector('[data-header-search-form]');
+    const searchSuggestions = searchPanel?.querySelector('[data-header-search-suggestions]');
+    const searchSuggestEndpoint = searchForm instanceof HTMLFormElement
+        ? (searchForm.dataset.searchSuggestEndpoint || '')
+        : '';
+    let searchDebounceTimer = 0;
+    let searchRequestId = 0;
+    let searchAbortController = null;
     const syncHeaderOffsetVar = () => {
         if (!(stickyBar instanceof HTMLElement)) {
             return;
@@ -1700,6 +1708,7 @@ const initFrontDesktopHeader = () => {
             return;
         }
 
+        closeSearch();
         root.classList.remove('pointer-events-none');
         overlay.classList.remove('opacity-0');
         overlay.classList.add('opacity-100');
@@ -1708,20 +1717,219 @@ const initFrontDesktopHeader = () => {
         document.body.classList.add('overflow-hidden');
     };
 
+    const setSearchState = (isOpen) => {
+        stickyHeader?.classList.toggle('is-search-open', isOpen);
+        document.body?.classList.toggle('front-header-search-open', isOpen);
+    };
+
+    const hideSearchSuggestions = () => {
+        if (!(searchSuggestions instanceof HTMLElement)) {
+            return;
+        }
+
+        searchSuggestions.classList.add('hidden');
+        searchSuggestions.replaceChildren();
+    };
+
+    const createSearchSuggestionItem = (item) => {
+        const link = document.createElement('a');
+        link.className = 'front-search-suggestion-link';
+        link.href = item.url || '#';
+
+        if (item.image_url) {
+            const mediaWrap = document.createElement('span');
+            mediaWrap.className = 'front-search-suggestion-media';
+
+            const image = document.createElement('img');
+            image.src = item.image_url;
+            image.alt = item.title || '';
+            image.loading = 'lazy';
+            image.decoding = 'async';
+            mediaWrap.append(image);
+            link.append(mediaWrap);
+        }
+
+        const body = document.createElement('span');
+        body.className = 'front-search-suggestion-body';
+
+        if (item.eyebrow || item.meta) {
+            const meta = document.createElement('span');
+            meta.className = 'front-search-suggestion-meta';
+
+            if (item.eyebrow) {
+                const eyebrow = document.createElement('span');
+                eyebrow.textContent = item.eyebrow;
+                meta.append(eyebrow);
+            }
+
+            if (item.meta) {
+                const metaText = document.createElement('span');
+                metaText.textContent = item.meta;
+                meta.append(metaText);
+            }
+
+            body.append(meta);
+        }
+
+        const title = document.createElement('strong');
+        title.className = 'front-search-suggestion-title';
+        title.textContent = item.title || '';
+        body.append(title);
+
+        if (item.excerpt) {
+            const excerpt = document.createElement('span');
+            excerpt.className = 'front-search-suggestion-excerpt';
+            excerpt.textContent = item.excerpt;
+            body.append(excerpt);
+        }
+
+        link.append(body);
+
+        return link;
+    };
+
+    const renderSearchSuggestions = (payload) => {
+        if (!(searchSuggestions instanceof HTMLElement)) {
+            return;
+        }
+
+        searchSuggestions.replaceChildren();
+
+        const sections = Array.isArray(payload?.sections) ? payload.sections : [];
+
+        if (!sections.length) {
+            const empty = document.createElement('div');
+            empty.className = 'front-search-suggestion-empty';
+            empty.textContent = window.CodexSearchLabels?.autosuggestEmpty || 'No results.';
+            searchSuggestions.append(empty);
+            searchSuggestions.classList.remove('hidden');
+            return;
+        }
+
+        sections.forEach((section) => {
+            const sectionWrap = document.createElement('section');
+            sectionWrap.className = 'front-search-suggestion-section';
+
+            const heading = document.createElement('div');
+            heading.className = 'front-search-suggestion-section-head';
+
+            const title = document.createElement('h3');
+            title.textContent = section.label || '';
+            heading.append(title);
+
+            if (typeof section.total_count === 'number') {
+                const count = document.createElement('span');
+                count.textContent = String(section.total_count);
+                heading.append(count);
+            }
+
+            sectionWrap.append(heading);
+
+            const list = document.createElement('div');
+            list.className = 'front-search-suggestion-list';
+
+            const items = Array.isArray(section.items) ? section.items : [];
+            items.forEach((item) => {
+                list.append(createSearchSuggestionItem(item));
+            });
+
+            sectionWrap.append(list);
+            searchSuggestions.append(sectionWrap);
+        });
+
+        if (payload?.results_url) {
+            const footer = document.createElement('div');
+            footer.className = 'front-search-suggestion-footer';
+
+            const viewAll = document.createElement('a');
+            viewAll.href = payload.results_url;
+            viewAll.className = 'front-search-suggestion-all';
+            viewAll.textContent = window.CodexSearchLabels?.showMore || 'Show more';
+            footer.append(viewAll);
+
+            searchSuggestions.append(footer);
+        }
+
+        searchSuggestions.classList.remove('hidden');
+    };
+
+    const fetchSearchSuggestions = (rawQuery) => {
+        const query = typeof rawQuery === 'string' ? rawQuery.trim() : '';
+
+        window.clearTimeout(searchDebounceTimer);
+
+        if (!(searchInput instanceof HTMLInputElement) || query.length < 2 || searchSuggestEndpoint === '') {
+            if (searchAbortController) {
+                searchAbortController.abort();
+                searchAbortController = null;
+            }
+            hideSearchSuggestions();
+            return;
+        }
+
+        searchDebounceTimer = window.setTimeout(async () => {
+            if (searchAbortController) {
+                searchAbortController.abort();
+            }
+
+            const currentRequestId = ++searchRequestId;
+            searchAbortController = new AbortController();
+
+            try {
+                const url = new URL(searchSuggestEndpoint, window.location.origin);
+                url.searchParams.set('q', query);
+
+                const response = await window.fetch(url.toString(), {
+                    headers: {
+                        Accept: 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest',
+                    },
+                    signal: searchAbortController.signal,
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Search suggest failed with status ${response.status}`);
+                }
+
+                const payload = await response.json();
+
+                if (currentRequestId !== searchRequestId || searchInput.value.trim() !== query) {
+                    return;
+                }
+
+                renderSearchSuggestions(payload);
+            } catch (error) {
+                if (error?.name !== 'AbortError') {
+                    console.error('Failed to fetch search suggestions', error);
+                }
+                hideSearchSuggestions();
+            }
+        }, 180);
+    };
+
     const closeSearch = () => {
         if (!searchPanel) {
             return;
         }
         searchPanel.classList.remove('is-open');
+        hideSearchSuggestions();
+        setSearchState(false);
     };
 
     const openSearch = () => {
         if (!searchPanel) {
             return;
         }
+        closeMenu();
         searchPanel.classList.add('is-open');
+        setSearchState(true);
         if (searchInput instanceof HTMLInputElement) {
-            requestAnimationFrame(() => searchInput.focus());
+            requestAnimationFrame(() => {
+                searchInput.focus();
+                if (searchInput.value.trim().length >= 2) {
+                    fetchSearchSuggestions(searchInput.value);
+                }
+            });
         }
     };
 
@@ -1761,12 +1969,57 @@ const initFrontDesktopHeader = () => {
         }
     });
 
+    if (searchInput instanceof HTMLInputElement && searchInput.dataset.boundSearchInput !== '1') {
+        searchInput.dataset.boundSearchInput = '1';
+        searchInput.addEventListener('input', (event) => {
+            fetchSearchSuggestions(event.currentTarget?.value || '');
+        });
+        searchInput.addEventListener('focus', () => {
+            if (searchInput.value.trim().length >= 2) {
+                fetchSearchSuggestions(searchInput.value);
+            }
+        });
+    }
+
+    if (searchForm instanceof HTMLFormElement && searchForm.dataset.boundSearchSubmit !== '1') {
+        searchForm.dataset.boundSearchSubmit = '1';
+        searchForm.addEventListener('submit', (event) => {
+            if (!(searchInput instanceof HTMLInputElement)) {
+                return;
+            }
+
+            if (searchInput.value.trim() === '') {
+                event.preventDefault();
+                searchInput.focus();
+                hideSearchSuggestions();
+            }
+        });
+    }
+
     if (document.body && document.body.dataset.frontHeaderEscBound !== '1') {
         document.body.dataset.frontHeaderEscBound = '1';
         document.addEventListener('keydown', (event) => {
             if (event.key === 'Escape') {
                 closeMenu();
                 closeSearch();
+            }
+        });
+    }
+
+    if (document.body && document.body.dataset.frontHeaderClickBound !== '1') {
+        document.body.dataset.frontHeaderClickBound = '1';
+        document.addEventListener('click', (event) => {
+            const target = event.target;
+
+            if (!(target instanceof Node)) {
+                return;
+            }
+
+            const clickedInsideSearch = searchPanel instanceof HTMLElement && searchPanel.contains(target);
+            const clickedToggle = Array.from(searchToggles).some((toggle) => toggle instanceof HTMLElement && toggle.contains(target));
+
+            if (!clickedInsideSearch && !clickedToggle) {
+                hideSearchSuggestions();
             }
         });
     }

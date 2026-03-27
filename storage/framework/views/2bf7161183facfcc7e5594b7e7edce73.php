@@ -57,6 +57,13 @@
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@splidejs/splide@4.1.4/dist/css/splide.min.css">
         <script defer src="https://cdn.jsdelivr.net/npm/@splidejs/splide@4.1.4/dist/js/splide.min.js"></script>
     <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+    <script>
+        window.CodexSearchLabels = <?php echo e(\Illuminate\Support\Js::from([
+            'autosuggestEmpty' => __('ui.search.autosuggest_empty'),
+            'viewAll' => __('ui.search.view_all'),
+            'showMore' => __('ui.search.show_more'),
+        ])); ?>;
+    </script>
     <?php echo app('Illuminate\Foundation\Vite')(['resources/css/app.css', 'resources/js/app.js']); ?>
     <?php echo $__env->yieldPushContent('styles'); ?>
 </head>
@@ -66,7 +73,7 @@
     $defaultLogoUrl = file_exists(public_path($defaultLogoRelativePath))
         ? asset($defaultLogoRelativePath)
         : null;
-    $headerHeroBackdropRelativePath = 'front-theme/images/hero/alpha-finance-tech.svg';
+    $headerHeroBackdropRelativePath = 'front-theme/images/hero/alpha-finance-tech.png';
     $headerHeroBackdropPath = public_path($headerHeroBackdropRelativePath);
     $headerHeroBackdropUrl = file_exists($headerHeroBackdropPath)
         ? asset($headerHeroBackdropRelativePath).'?v='.filemtime($headerHeroBackdropPath)
@@ -252,31 +259,45 @@
 
     <div class="front-header-search-panel pointer-events-none max-h-0 overflow-hidden opacity-0 transition-all duration-300" data-header-search-panel>
         <div class="w-full px-5 py-3 sm:px-8 xl:px-10">
-            <form action="<?php echo e(route('home')); ?>" method="get" class="front-header-search-form">
+            <form
+                action="<?php echo e(route('search.index')); ?>"
+                method="get"
+                class="front-header-search-form"
+                role="search"
+                data-header-search-form
+                data-search-suggest-endpoint="<?php echo e(route('search.suggest')); ?>"
+                data-search-results-endpoint="<?php echo e(route('search.index')); ?>"
+            >
                 <label for="front-header-search-input" class="sr-only">Pretraga sadržaja</label>
-                <div class="front-search-field">
-                    <span class="front-search-field-icon" aria-hidden="true">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.9">
-                            <circle cx="11" cy="11" r="7"></circle>
-                            <path d="M20 20l-3.2-3.2"></path>
-                        </svg>
-                    </span>
-                    <input
-                        id="front-header-search-input"
-                        type="search"
-                        name="q"
-                        value="<?php echo e(request('q')); ?>"
-                        class="front-search-input"
-                        placeholder="Naziv, usluga, članak..."
-                        data-header-search-input
-                    >
+                <div class="front-search-field-stack">
+                    <div class="front-search-field">
+                        <span class="front-search-field-icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.9">
+                                <circle cx="11" cy="11" r="7"></circle>
+                                <path d="M20 20l-3.2-3.2"></path>
+                            </svg>
+                        </span>
+                        <input
+                            id="front-header-search-input"
+                            type="search"
+                            name="q"
+                            value="<?php echo e(request('q')); ?>"
+                            class="front-search-input"
+                            placeholder="<?php echo e(__('ui.search.input_placeholder')); ?>"
+                            autocomplete="off"
+                            spellcheck="false"
+                            data-header-search-input
+                        >
+                    </div>
+
+                    <div class="front-search-suggestions hidden" data-header-search-suggestions></div>
                 </div>
                 <button type="submit" class="front-search-submit">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.9" aria-hidden="true">
                         <circle cx="11" cy="11" r="7"></circle>
                         <path d="M20 20l-3.2-3.2"></path>
                     </svg>
-                    <span>Pretraga</span>
+                    <span><?php echo e(__('ui.search.submit')); ?></span>
                 </button>
             </form>
         </div>

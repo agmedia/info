@@ -13,6 +13,7 @@ use App\Http\Controllers\Front\FaqController;
 use App\Http\Controllers\Front\GlossaryController;
 use App\Http\Controllers\Front\LeaseCalculatorController;
 use App\Http\Controllers\Front\PageController;
+use App\Http\Controllers\Front\SearchController;
 use App\Http\Controllers\Front\ResourceController;
 use App\Http\Controllers\Front\TeamController;
 use App\Http\Controllers\Front\StorefrontController;
@@ -74,6 +75,8 @@ Route::middleware(['front.locale', 'front.device'])
         Route::get('obiteljski-biznis', [FamilyBusinessController::class, 'show'])->name('family-business.show');
         Route::get('glossary', [GlossaryController::class, 'index'])->name('glossary.index');
         Route::get('glossary/{slug}', [GlossaryController::class, 'show'])->name('glossary.show');
+        Route::get('search/suggest', [SearchController::class, 'suggest'])->name('search.suggest');
+        Route::get('search', [SearchController::class, 'index'])->name('search.index');
 
         Route::get('pages/category/{slug}', [PageController::class, 'category'])->name('pages.category');
         Route::get('page/{slug}', function (string $slug, Request $request) {
