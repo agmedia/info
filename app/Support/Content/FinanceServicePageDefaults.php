@@ -32,7 +32,7 @@ class FinanceServicePageDefaults
                 'title' => 'Članovi Globalne Mreže',
                 'body' => [
                     'ALPHA CAPITALIS je član Pandea Global M&A, globalne mreže za akvizicije koja povezuje investitore i prodavatelje različitih biznisa. Pandea Global M&A djeluje s naglaskom na spajanja, preuzimanja, pripajanja, dokapitalizacije i razne vrste joint venture-a, a sve s ciljem plasiranja lokalnih projekata na internacionalno financijsko tržište.',
-                    'Svojim klijentima i partnerima omogućili smo pristup velikoj mreži internacionalnih investitora. Lokalnim društvima otvaramo pristup prekograničnim transakcijama, a za internacionalne investitore djelujemo kao "one stop shop" i lokalni partner. Ako imate projekt za koji vam je potreban investitor ili prodajete postojeći biznis, slobodno nam se obratite kako bismo prezentirali vaš slučaj internacionalnim investitorima.',
+                    'Svojim klijentima i partnerima omogućili smo pristup velikoj mreži internacionalnih investitora. Lokalnim društvima otvaramo pristup prekograničnim transakcijama, a za internacionalne investitore djelujemo kao „one stop shop“ i lokalni partner. Ako imate projekt za koji Vam je potreban investitor ili prodajete postojeći biznis, slobodno nam se obratite kako bismo prezentirali Vaš slučaj internacionalnim investitorima.',
                 ],
                 'logo_alt' => 'Pandea Global M&A',
             ],

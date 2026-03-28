@@ -175,6 +175,27 @@ class Form extends Component
         $this->moveManualItem($target, $index, 1);
     }
 
+    public function addTranslationListItem(string $path, string $preset = 'string'): void
+    {
+        $items = (array) data_get($this->form, 'translation_payload.'.$path, []);
+        $items[] = $this->translationListItemPreset($preset);
+
+        data_set($this->form, 'translation_payload.'.$path, array_values($items));
+    }
+
+    public function removeTranslationListItem(string $path, int $index): void
+    {
+        $items = (array) data_get($this->form, 'translation_payload.'.$path, []);
+
+        if (! array_key_exists($index, $items)) {
+            return;
+        }
+
+        unset($items[$index]);
+
+        data_set($this->form, 'translation_payload.'.$path, array_values($items));
+    }
+
     public function save()
     {
         $validated = $this->validate($this->rules());
@@ -583,6 +604,18 @@ class Form extends Component
                     'label' => (string) ($row['label'] ?? ('#'.$id)),
                 ];
             });
+    }
+
+    private function translationListItemPreset(string $preset): mixed
+    {
+        return match ($preset) {
+            'phase' => [
+                'title' => '',
+                'label' => '',
+                'items' => [''],
+            ],
+            default => '',
+        };
     }
 
     /**

@@ -1,0 +1,3 @@
+<?php echo $__env->make('front.content-blocks.types.hero_main', ['block' => $block, 'translation' => $translation, 'slot' => $slot], array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
+
+<?php /**PATH /Users/tomek/Herd/info/resources/views/front/content-blocks/types/hero_single.blade.php ENDPATH**/ ?>

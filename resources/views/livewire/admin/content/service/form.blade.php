@@ -3,6 +3,16 @@
     $pagePayload = $form['page_payload'] ?? [];
     $templateKey = $form['template_key'] ?? \App\Support\Content\ServicePageTemplateRegistry::FAMILY_BUSINESS;
     $isFinanceTemplate = $templateKey === \App\Support\Content\ServicePageTemplateRegistry::FINANCE;
+    $financeEditorSections = [
+        'finance-pandea' => __('Pandea'),
+        'finance-services-intro' => __('Services Intro'),
+        'finance-ma' => __('M&A'),
+        'finance-due-diligence' => __('Due Diligence'),
+        'finance-valuations' => __('Valuations'),
+        'finance-capital-raising' => __('Capital Raising'),
+        'finance-restructuring' => __('Restructuring'),
+        'finance-meeting' => __('Meeting'),
+    ];
 @endphp
 
 <div class="space-y-6">
@@ -151,8 +161,20 @@
             </div>
 
             @if ($isFinanceTemplate)
+                <div class="admin-panel admin-form-panel p-6">
+                    <p class="admin-section-title">{{ __('Finance Navigator') }}</p>
+                    <div class="mt-4 flex flex-wrap gap-2">
+                        @foreach ($financeEditorSections as $sectionId => $sectionLabel)
+                            <a href="#{{ $sectionId }}" class="admin-chip">{{ $sectionLabel }}</a>
+                        @endforeach
+                    </div>
+                    <p class="mt-4 text-sm text-slate-600">
+                        {{ __('Top-level finance sections are fixed by the frontend template. You can add or remove paragraphs, list rows, and sale phases below, but adding a completely new section still requires a template/code change.') }}
+                    </p>
+                </div>
+
                 <div class="grid gap-6 xl:grid-cols-2">
-                    <div class="admin-panel admin-form-panel p-6">
+                    <div id="finance-pandea" class="admin-panel admin-form-panel p-6 scroll-mt-24">
                         <p class="admin-section-title">{{ __('Pandea Network') }}</p>
 
                         <div class="mt-4">
@@ -162,10 +184,19 @@
 
                         @foreach (($translationPayload['pandea']['body'] ?? []) as $index => $paragraph)
                             <div class="mt-3">
-                                <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Paragraph') }} #{{ $index + 1 }}</label>
+                                <div class="mb-1 flex items-center justify-between gap-3">
+                                    <label class="block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Paragraph') }} #{{ $index + 1 }}</label>
+                                    <button type="button" wire:click="removeTranslationListItem('pandea.body', {{ $index }})" class="text-xs font-semibold text-rose-600 hover:text-rose-700">{{ __('Remove') }}</button>
+                                </div>
                                 <textarea rows="5" wire:model="form.translation_payload.pandea.body.{{ $index }}" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm"></textarea>
                             </div>
                         @endforeach
+
+                        <div class="mt-3">
+                            <button type="button" wire:click="addTranslationListItem('pandea.body')" class="rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-100">
+                                {{ __('Add Paragraph') }}
+                            </button>
+                        </div>
 
                         <div class="mt-3">
                             <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Logo Alt') }}</label>
@@ -173,7 +204,7 @@
                         </div>
                     </div>
 
-                    <div class="admin-panel admin-form-panel p-6">
+                    <div id="finance-services-intro" class="admin-panel admin-form-panel p-6 scroll-mt-24">
                         <p class="admin-section-title">{{ __('Services Intro') }}</p>
 
                         <div class="mt-4">
@@ -193,7 +224,7 @@
                     </div>
                 </div>
 
-                <div class="admin-panel admin-form-panel p-6">
+                <div id="finance-ma" class="admin-panel admin-form-panel p-6 scroll-mt-24">
                     <p class="admin-section-title">{{ __('M&A Section') }}</p>
 
                     <div class="mt-4 grid gap-3 md:grid-cols-2">
@@ -225,7 +256,12 @@
                     <div class="mt-6 space-y-4">
                         @foreach (($translationPayload['ma']['sale']['phases'] ?? []) as $phaseIndex => $phase)
                             <div class="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-                                <div class="grid gap-3 md:grid-cols-2">
+                                <div class="flex items-center justify-between gap-3">
+                                    <p class="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Phase Block') }} #{{ $phaseIndex + 1 }}</p>
+                                    <button type="button" wire:click="removeTranslationListItem('ma.sale.phases', {{ $phaseIndex }})" class="text-xs font-semibold text-rose-600 hover:text-rose-700">{{ __('Remove Phase') }}</button>
+                                </div>
+
+                                <div class="mt-3 grid gap-3 md:grid-cols-2">
                                     <div>
                                         <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Phase') }} #{{ $phaseIndex + 1 }}</label>
                                         <input type="text" wire:model="form.translation_payload.ma.sale.phases.{{ $phaseIndex }}.title" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
@@ -239,13 +275,28 @@
                                 <div class="mt-4 grid gap-3 lg:grid-cols-2">
                                     @foreach (($phase['items'] ?? []) as $itemIndex => $item)
                                         <div>
-                                            <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Item') }} #{{ $itemIndex + 1 }}</label>
+                                            <div class="mb-1 flex items-center justify-between gap-3">
+                                                <label class="block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Item') }} #{{ $itemIndex + 1 }}</label>
+                                                <button type="button" wire:click="removeTranslationListItem('ma.sale.phases.{{ $phaseIndex }}.items', {{ $itemIndex }})" class="text-xs font-semibold text-rose-600 hover:text-rose-700">{{ __('Remove') }}</button>
+                                            </div>
                                             <input type="text" wire:model="form.translation_payload.ma.sale.phases.{{ $phaseIndex }}.items.{{ $itemIndex }}" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
                                         </div>
                                     @endforeach
                                 </div>
+
+                                <div class="mt-4">
+                                    <button type="button" wire:click="addTranslationListItem('ma.sale.phases.{{ $phaseIndex }}.items')" class="rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-100">
+                                        {{ __('Add Item') }}
+                                    </button>
+                                </div>
                             </div>
                         @endforeach
+                    </div>
+
+                    <div class="mt-4">
+                        <button type="button" wire:click="addTranslationListItem('ma.sale.phases', 'phase')" class="rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-100">
+                            {{ __('Add Phase') }}
+                        </button>
                     </div>
 
                     <div class="mt-6 grid gap-3 md:grid-cols-2">
@@ -263,7 +314,7 @@
                 </div>
 
                 <div class="grid gap-6 xl:grid-cols-2">
-                    <div class="admin-panel admin-form-panel p-6">
+                    <div id="finance-due-diligence" class="admin-panel admin-form-panel p-6 scroll-mt-24">
                         <p class="admin-section-title">{{ __('Due Diligence') }}</p>
 
                         <div class="mt-4">
@@ -284,10 +335,19 @@
                         <div class="mt-4 space-y-3">
                             @foreach (($translationPayload['due_diligence']['help_items'] ?? []) as $index => $item)
                                 <div>
-                                    <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Help Item') }} #{{ $index + 1 }}</label>
+                                    <div class="mb-1 flex items-center justify-between gap-3">
+                                        <label class="block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Help Item') }} #{{ $index + 1 }}</label>
+                                        <button type="button" wire:click="removeTranslationListItem('due_diligence.help_items', {{ $index }})" class="text-xs font-semibold text-rose-600 hover:text-rose-700">{{ __('Remove') }}</button>
+                                    </div>
                                     <input type="text" wire:model="form.translation_payload.due_diligence.help_items.{{ $index }}" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
                                 </div>
                             @endforeach
+                        </div>
+
+                        <div class="mt-3">
+                            <button type="button" wire:click="addTranslationListItem('due_diligence.help_items')" class="rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-100">
+                                {{ __('Add Help Item') }}
+                            </button>
                         </div>
 
                         <div class="mt-3">
@@ -296,7 +356,7 @@
                         </div>
                     </div>
 
-                    <div class="admin-panel admin-form-panel p-6">
+                    <div id="finance-valuations" class="admin-panel admin-form-panel p-6 scroll-mt-24">
                         <p class="admin-section-title">{{ __('Valuations') }}</p>
 
                         <div class="mt-4">
@@ -306,10 +366,19 @@
 
                         @foreach (($translationPayload['valuations']['body'] ?? []) as $index => $paragraph)
                             <div class="mt-3">
-                                <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Paragraph') }} #{{ $index + 1 }}</label>
+                                <div class="mb-1 flex items-center justify-between gap-3">
+                                    <label class="block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Paragraph') }} #{{ $index + 1 }}</label>
+                                    <button type="button" wire:click="removeTranslationListItem('valuations.body', {{ $index }})" class="text-xs font-semibold text-rose-600 hover:text-rose-700">{{ __('Remove') }}</button>
+                                </div>
                                 <textarea rows="4" wire:model="form.translation_payload.valuations.body.{{ $index }}" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm"></textarea>
                             </div>
                         @endforeach
+
+                        <div class="mt-3">
+                            <button type="button" wire:click="addTranslationListItem('valuations.body')" class="rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-100">
+                                {{ __('Add Paragraph') }}
+                            </button>
+                        </div>
 
                         <div class="mt-3">
                             <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Methods Title') }}</label>
@@ -319,15 +388,24 @@
                         <div class="mt-4 space-y-3">
                             @foreach (($translationPayload['valuations']['methods'] ?? []) as $index => $method)
                                 <div>
-                                    <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Method') }} #{{ $index + 1 }}</label>
+                                    <div class="mb-1 flex items-center justify-between gap-3">
+                                        <label class="block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Method') }} #{{ $index + 1 }}</label>
+                                        <button type="button" wire:click="removeTranslationListItem('valuations.methods', {{ $index }})" class="text-xs font-semibold text-rose-600 hover:text-rose-700">{{ __('Remove') }}</button>
+                                    </div>
                                     <input type="text" wire:model="form.translation_payload.valuations.methods.{{ $index }}" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
                                 </div>
                             @endforeach
                         </div>
+
+                        <div class="mt-3">
+                            <button type="button" wire:click="addTranslationListItem('valuations.methods')" class="rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-100">
+                                {{ __('Add Method') }}
+                            </button>
+                        </div>
                     </div>
                 </div>
 
-                <div class="admin-panel admin-form-panel p-6">
+                <div id="finance-capital-raising" class="admin-panel admin-form-panel p-6 scroll-mt-24">
                     <p class="admin-section-title">{{ __('Capital Raising') }}</p>
 
                     <div class="mt-4">
@@ -339,10 +417,19 @@
                         <div class="space-y-3">
                             @foreach (($translationPayload['capital_raising']['body'] ?? []) as $index => $paragraph)
                                 <div>
-                                    <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Paragraph') }} #{{ $index + 1 }}</label>
+                                    <div class="mb-1 flex items-center justify-between gap-3">
+                                        <label class="block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Paragraph') }} #{{ $index + 1 }}</label>
+                                        <button type="button" wire:click="removeTranslationListItem('capital_raising.body', {{ $index }})" class="text-xs font-semibold text-rose-600 hover:text-rose-700">{{ __('Remove') }}</button>
+                                    </div>
                                     <textarea rows="4" wire:model="form.translation_payload.capital_raising.body.{{ $index }}" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm"></textarea>
                                 </div>
                             @endforeach
+
+                            <div class="pt-1">
+                                <button type="button" wire:click="addTranslationListItem('capital_raising.body')" class="rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-100">
+                                    {{ __('Add Paragraph') }}
+                                </button>
+                            </div>
                         </div>
 
                         <div>
@@ -352,16 +439,25 @@
                             <div class="mt-4 space-y-3">
                                 @foreach (($translationPayload['capital_raising']['sources'] ?? []) as $index => $source)
                                     <div>
-                                        <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Source') }} #{{ $index + 1 }}</label>
+                                        <div class="mb-1 flex items-center justify-between gap-3">
+                                            <label class="block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Source') }} #{{ $index + 1 }}</label>
+                                            <button type="button" wire:click="removeTranslationListItem('capital_raising.sources', {{ $index }})" class="text-xs font-semibold text-rose-600 hover:text-rose-700">{{ __('Remove') }}</button>
+                                        </div>
                                         <input type="text" wire:model="form.translation_payload.capital_raising.sources.{{ $index }}" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
                                     </div>
                                 @endforeach
+                            </div>
+
+                            <div class="mt-3">
+                                <button type="button" wire:click="addTranslationListItem('capital_raising.sources')" class="rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-100">
+                                    {{ __('Add Source') }}
+                                </button>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <div class="admin-panel admin-form-panel p-6">
+                <div id="finance-restructuring" class="admin-panel admin-form-panel p-6 scroll-mt-24">
                     <p class="admin-section-title">{{ __('Financial Restructuring') }}</p>
 
                     <div class="mt-4">
@@ -373,10 +469,19 @@
                         <div class="space-y-3">
                             @foreach (($translationPayload['restructuring']['body'] ?? []) as $index => $paragraph)
                                 <div>
-                                    <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Paragraph') }} #{{ $index + 1 }}</label>
+                                    <div class="mb-1 flex items-center justify-between gap-3">
+                                        <label class="block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Paragraph') }} #{{ $index + 1 }}</label>
+                                        <button type="button" wire:click="removeTranslationListItem('restructuring.body', {{ $index }})" class="text-xs font-semibold text-rose-600 hover:text-rose-700">{{ __('Remove') }}</button>
+                                    </div>
                                     <textarea rows="4" wire:model="form.translation_payload.restructuring.body.{{ $index }}" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm"></textarea>
                                 </div>
                             @endforeach
+
+                            <div class="pt-1">
+                                <button type="button" wire:click="addTranslationListItem('restructuring.body')" class="rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-100">
+                                    {{ __('Add Paragraph') }}
+                                </button>
+                            </div>
 
                             <div>
                                 <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Pre-bankruptcy Title') }}</label>
@@ -397,10 +502,19 @@
                                 <div class="mt-3 space-y-3">
                                     @foreach (($translationPayload['restructuring']['options'] ?? []) as $index => $item)
                                         <div>
-                                            <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Option') }} #{{ $index + 1 }}</label>
+                                            <div class="mb-1 flex items-center justify-between gap-3">
+                                                <label class="block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Option') }} #{{ $index + 1 }}</label>
+                                                <button type="button" wire:click="removeTranslationListItem('restructuring.options', {{ $index }})" class="text-xs font-semibold text-rose-600 hover:text-rose-700">{{ __('Remove') }}</button>
+                                            </div>
                                             <input type="text" wire:model="form.translation_payload.restructuring.options.{{ $index }}" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
                                         </div>
                                     @endforeach
+                                </div>
+
+                                <div class="mt-3">
+                                    <button type="button" wire:click="addTranslationListItem('restructuring.options')" class="rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-100">
+                                        {{ __('Add Option') }}
+                                    </button>
                                 </div>
                             </div>
 
@@ -411,10 +525,19 @@
                                 <div class="mt-3 space-y-3">
                                     @foreach (($translationPayload['restructuring']['reasons'] ?? []) as $index => $item)
                                         <div>
-                                            <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Reason') }} #{{ $index + 1 }}</label>
+                                            <div class="mb-1 flex items-center justify-between gap-3">
+                                                <label class="block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Reason') }} #{{ $index + 1 }}</label>
+                                                <button type="button" wire:click="removeTranslationListItem('restructuring.reasons', {{ $index }})" class="text-xs font-semibold text-rose-600 hover:text-rose-700">{{ __('Remove') }}</button>
+                                            </div>
                                             <input type="text" wire:model="form.translation_payload.restructuring.reasons.{{ $index }}" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
                                         </div>
                                     @endforeach
+                                </div>
+
+                                <div class="mt-3">
+                                    <button type="button" wire:click="addTranslationListItem('restructuring.reasons')" class="rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-100">
+                                        {{ __('Add Reason') }}
+                                    </button>
                                 </div>
                             </div>
 
@@ -425,17 +548,26 @@
                                 <div class="mt-3 space-y-3">
                                     @foreach (($translationPayload['restructuring']['team_services'] ?? []) as $index => $item)
                                         <div>
-                                            <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Team Service') }} #{{ $index + 1 }}</label>
+                                            <div class="mb-1 flex items-center justify-between gap-3">
+                                                <label class="block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Team Service') }} #{{ $index + 1 }}</label>
+                                                <button type="button" wire:click="removeTranslationListItem('restructuring.team_services', {{ $index }})" class="text-xs font-semibold text-rose-600 hover:text-rose-700">{{ __('Remove') }}</button>
+                                            </div>
                                             <input type="text" wire:model="form.translation_payload.restructuring.team_services.{{ $index }}" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
                                         </div>
                                     @endforeach
+                                </div>
+
+                                <div class="mt-3">
+                                    <button type="button" wire:click="addTranslationListItem('restructuring.team_services')" class="rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-100">
+                                        {{ __('Add Team Service') }}
+                                    </button>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <div class="admin-panel admin-form-panel p-6">
+                <div id="finance-meeting" class="admin-panel admin-form-panel p-6 scroll-mt-24">
                     <p class="admin-section-title">{{ __('Meeting Section') }}</p>
 
                     <div class="mt-4 grid gap-3 md:grid-cols-2">

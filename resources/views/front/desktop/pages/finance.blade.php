@@ -17,7 +17,11 @@
     $pandeaBody = array_values($pandeaSection['body'] ?? []);
     $pandeaLeadParagraph = trim((string) ($pandeaBody[0] ?? ''));
     $pandeaSecondaryParagraph = trim((string) ($pandeaBody[1] ?? ''));
-    $pandeaHeadline = trim((string) \Illuminate\Support\Str::before($pandeaLeadParagraph, ','));
+    $pandeaTitle = trim((string) ($pandeaSection['title'] ?? ''));
+    $pandeaHeadline = $pandeaTitle !== ''
+        ? $pandeaTitle
+        : trim((string) \Illuminate\Support\Str::before($pandeaLeadParagraph, ','));
+    $pandeaHeadlineLines = [$pandeaHeadline];
     $isCroatianLocale = str_starts_with(strtolower((string) $locale), 'hr');
     $phaseTableLabels = $isCroatianLocale
         ? ['step' => 'Faza', 'focus' => 'Fokus', 'activities' => 'Ključne aktivnosti']
@@ -56,6 +60,40 @@
     $financeCtaIcon = [
         'view_box' => '0 0 320 512',
         'href' => $financeSprite.'#angle-down',
+    ];
+    $financeAccentIcons = [
+        'process' => [
+            'view_box' => '0 0 384 512',
+            'href' => $financeSprite.'#file-lines',
+        ],
+        'help' => [
+            'view_box' => '0 0 512 512',
+            'href' => $financeSprite.'#bullseye',
+        ],
+        'quote' => [
+            'view_box' => '0 0 448 512',
+            'href' => $financeSprite.'#quote-right',
+        ],
+        'methods' => [
+            'view_box' => '0 0 512 512',
+            'href' => $financeSprite.'#chart-line',
+        ],
+        'sources' => [
+            'view_box' => '0 0 512 512',
+            'href' => $financeSprite.'#coins',
+        ],
+        'options' => [
+            'view_box' => '0 0 576 512',
+            'href' => $financeSprite.'#sitemap',
+        ],
+        'reasons' => [
+            'view_box' => '0 0 576 512',
+            'href' => $financeSprite.'#arrow-trend-up',
+        ],
+        'team' => [
+            'view_box' => '0 0 640 512',
+            'href' => $financeSprite.'#user-group',
+        ],
     ];
     $servicesIntroTitle = trim((string) ($servicesIntroSection['title'] ?? ''));
     $servicesIntroTitleLines = [$servicesIntroTitle];
@@ -125,13 +163,28 @@
             </div>
         </section>
 
-        <div class="mx-auto w-full max-w-[1240px] px-5 lg:px-8">
-            <section class="ac-family-section ac-family-section--intro ac-finance-network-section">
-                <div class="ac-family-ffi-banner">
-                    <div class="ac-family-ffi-banner-copy">
-                        @if ($pandeaHeadline !== '')
-                            <h3>{{ $pandeaHeadline }}</h3>
-                        @endif
+        <section class="ac-finance-network-section">
+            <div class="mx-auto w-full max-w-[1240px] px-5 lg:px-8">
+                <div class="ac-finance-network-banner">
+                    <div class="ac-finance-network-top">
+                        <div class="ac-finance-network-headcard">
+                            <div class="ac-finance-network-logo-card">
+                                <img src="{{ $pandeaLogoUrl }}" alt="{{ $pandeaSection['logo_alt'] ?? $networkName }}" class="ac-finance-network-logo">
+                            </div>
+
+                            @if ($pandeaHeadline !== '')
+                                <div class="ac-finance-network-title{{ $isCroatianLocale ? ' is-single-line' : '' }}">
+                                    <h3>
+                                        @foreach ($pandeaHeadlineLines as $line)
+                                            <span>{{ $line }}</span>
+                                        @endforeach
+                                    </h3>
+                                </div>
+                            @endif
+                        </div>
+                    </div>
+
+                    <div class="ac-finance-network-columns">
                         @if ($pandeaLeadParagraph !== '')
                             <p>{{ $pandeaLeadParagraph }}</p>
                         @endif
@@ -139,13 +192,9 @@
                             <p>{{ $pandeaSecondaryParagraph }}</p>
                         @endif
                     </div>
-
-                    <div class="ac-family-ffi-logo-wrap">
-                        <img src="{{ $pandeaLogoUrl }}" alt="{{ $pandeaSection['logo_alt'] ?? $networkName }}" class="ac-family-ffi-logo">
-                    </div>
                 </div>
-            </section>
-        </div>
+            </div>
+        </section>
 
         <section id="finance-usluge" class="ac-finance-editorial-wrap" aria-labelledby="ac-finance-services-title">
             <div class="mx-auto w-full max-w-[1240px] px-5 lg:px-8">
@@ -173,7 +222,9 @@
                 </div>
 
                 <div class="ac-finance-editorial-shell">
-                    @php($maMeta = $financeSectionMeta['ma'])
+                    @php
+                        $maMeta = $financeSectionMeta['ma'];
+                    @endphp
                     <article class="ac-finance-editorial-section">
                         <div class="ac-finance-editorial-head">
                             <div class="ac-finance-editorial-title">
@@ -203,26 +254,32 @@
 
                         @if ($maSalePhases !== [])
                             <div class="ac-finance-followup">
-                                <p class="ac-family-section-kicker">{{ $maSection['sale']['process_title'] ?? '' }}</p>
+                                <p class="ac-family-section-kicker ac-finance-kicker-label">
+                                    <span class="ac-finance-kicker-icon" aria-hidden="true">
+                                        <svg viewBox="{{ $financeAccentIcons['process']['view_box'] }}" fill="currentColor">
+                                            <use href="{{ $financeAccentIcons['process']['href'] }}"></use>
+                                        </svg>
+                                    </span>
+                                    <span>{{ $maSection['sale']['process_title'] ?? '' }}</span>
+                                </p>
+                                <p class="ac-finance-phase-caption">{{ $phaseTableLabels['activities'] }}</p>
 
                                 <div class="ac-finance-phase-table-shell">
                                     <table class="ac-finance-phase-table">
+                                        <caption class="sr-only">{{ $maSection['sale']['process_title'] ?? '' }}</caption>
                                         <thead>
                                             <tr>
-                                                <th scope="col">{{ $phaseTableLabels['step'] }}</th>
-                                                <th scope="col">{{ $phaseTableLabels['focus'] }}</th>
-                                                <th scope="col">{{ $phaseTableLabels['activities'] }}</th>
+                                                @foreach ($maSalePhases as $phase)
+                                                    <th scope="col">
+                                                        <span class="ac-finance-phase-step">{{ $phase['title'] ?? '' }}</span>
+                                                        <p class="ac-finance-phase-focus">{{ $phase['label'] ?? '' }}</p>
+                                                    </th>
+                                                @endforeach
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            @foreach ($maSalePhases as $phase)
-                                                <tr>
-                                                    <th scope="row">
-                                                        <span class="ac-finance-phase-step">{{ $phase['title'] ?? '' }}</span>
-                                                    </th>
-                                                    <td>
-                                                        <p class="ac-finance-phase-focus">{{ $phase['label'] ?? '' }}</p>
-                                                    </td>
+                                            <tr>
+                                                @foreach ($maSalePhases as $phase)
                                                     <td>
                                                         <ul class="ac-finance-phase-list">
                                                             @foreach (($phase['items'] ?? []) as $item)
@@ -237,8 +294,8 @@
                                                             @endforeach
                                                         </ul>
                                                     </td>
-                                                </tr>
-                                            @endforeach
+                                                @endforeach
+                                            </tr>
                                         </tbody>
                                     </table>
                                 </div>
@@ -255,7 +312,9 @@
                         </div>
                     </article>
 
-                    @php($dueMeta = $financeSectionMeta['due_diligence'])
+                    @php
+                        $dueMeta = $financeSectionMeta['due_diligence'];
+                    @endphp
                     <article class="ac-finance-editorial-section">
                         <div class="ac-finance-editorial-head">
                             <div class="ac-finance-editorial-title">
@@ -278,7 +337,14 @@
 
                         <div class="ac-finance-columns ac-finance-columns--two-wide">
                             <article class="ac-finance-column">
-                                <p class="ac-family-section-kicker">{{ $dueDiligenceSection['help_title'] ?? '' }}</p>
+                                <p class="ac-family-section-kicker ac-finance-kicker-label">
+                                    <span class="ac-finance-kicker-icon" aria-hidden="true">
+                                        <svg viewBox="{{ $financeAccentIcons['help']['view_box'] }}" fill="currentColor">
+                                            <use href="{{ $financeAccentIcons['help']['href'] }}"></use>
+                                        </svg>
+                                    </span>
+                                    <span>{{ $dueDiligenceSection['help_title'] ?? '' }}</span>
+                                </p>
                                 <ul class="ac-finance-list">
                                     @foreach (($dueDiligenceSection['help_items'] ?? []) as $item)
                                         <li>
@@ -294,12 +360,21 @@
                             </article>
 
                             <article class="ac-finance-column">
-                                <p>{{ $dueDiligenceSection['closing'] ?? '' }}</p>
+                                <blockquote class="ac-finance-quote">
+                                    <span class="ac-finance-quote-icon" aria-hidden="true">
+                                        <svg viewBox="{{ $financeAccentIcons['quote']['view_box'] }}" fill="currentColor">
+                                            <use href="{{ $financeAccentIcons['quote']['href'] }}"></use>
+                                        </svg>
+                                    </span>
+                                    <p>{{ $dueDiligenceSection['closing'] ?? '' }}</p>
+                                </blockquote>
                             </article>
                         </div>
                     </article>
 
-                    @php($valuationMeta = $financeSectionMeta['valuations'])
+                    @php
+                        $valuationMeta = $financeSectionMeta['valuations'];
+                    @endphp
                     <article class="ac-finance-editorial-section">
                         <div class="ac-finance-editorial-head">
                             <div class="ac-finance-editorial-title">
@@ -328,7 +403,14 @@
                             </article>
 
                             <article class="ac-finance-column">
-                                <p class="ac-family-section-kicker">{{ $valuationsSection['methods_title'] ?? '' }}</p>
+                                <p class="ac-family-section-kicker ac-finance-kicker-label">
+                                    <span class="ac-finance-kicker-icon" aria-hidden="true">
+                                        <svg viewBox="{{ $financeAccentIcons['methods']['view_box'] }}" fill="currentColor">
+                                            <use href="{{ $financeAccentIcons['methods']['href'] }}"></use>
+                                        </svg>
+                                    </span>
+                                    <span>{{ $valuationsSection['methods_title'] ?? '' }}</span>
+                                </p>
                                 <ul class="ac-finance-list">
                                     @foreach (($valuationsSection['methods'] ?? []) as $method)
                                         <li>
@@ -345,7 +427,9 @@
                         </div>
                     </article>
 
-                    @php($capitalMeta = $financeSectionMeta['capital_raising'])
+                    @php
+                        $capitalMeta = $financeSectionMeta['capital_raising'];
+                    @endphp
                     <article class="ac-finance-editorial-section">
                         <div class="ac-finance-editorial-head">
                             <div class="ac-finance-editorial-title">
@@ -377,7 +461,14 @@
                         <div class="ac-finance-followup">
                             <div class="ac-finance-columns ac-finance-columns--two-wide">
                                 <article class="ac-finance-column">
-                                    <p class="ac-family-section-kicker">{{ $capitalRaisingSection['sources_title'] ?? '' }}</p>
+                                    <p class="ac-family-section-kicker ac-finance-kicker-label">
+                                        <span class="ac-finance-kicker-icon" aria-hidden="true">
+                                            <svg viewBox="{{ $financeAccentIcons['sources']['view_box'] }}" fill="currentColor">
+                                                <use href="{{ $financeAccentIcons['sources']['href'] }}"></use>
+                                            </svg>
+                                        </span>
+                                        <span>{{ $capitalRaisingSection['sources_title'] ?? '' }}</span>
+                                    </p>
                                     <ul class="ac-finance-list">
                                         @foreach (($capitalRaisingSection['sources'] ?? []) as $source)
                                             <li>
@@ -404,7 +495,14 @@
                             <div class="ac-finance-followup">
                                 <div class="ac-finance-columns ac-finance-columns--single">
                                     <article class="ac-finance-column">
-                                        <p class="ac-family-section-kicker">{{ $capitalRaisingSection['sources_title'] ?? '' }}</p>
+                                        <p class="ac-family-section-kicker ac-finance-kicker-label">
+                                            <span class="ac-finance-kicker-icon" aria-hidden="true">
+                                                <svg viewBox="{{ $financeAccentIcons['sources']['view_box'] }}" fill="currentColor">
+                                                    <use href="{{ $financeAccentIcons['sources']['href'] }}"></use>
+                                                </svg>
+                                            </span>
+                                            <span>{{ $capitalRaisingSection['sources_title'] ?? '' }}</span>
+                                        </p>
                                         <ul class="ac-finance-list">
                                             @foreach (($capitalRaisingSection['sources'] ?? []) as $source)
                                                 <li>
@@ -423,7 +521,9 @@
                         @endif
                     </article>
 
-                    @php($restructuringMeta = $financeSectionMeta['restructuring'])
+                    @php
+                        $restructuringMeta = $financeSectionMeta['restructuring'];
+                    @endphp
                     <article class="ac-finance-editorial-section">
                         <div class="ac-finance-editorial-head">
                             <div class="ac-finance-editorial-title">
@@ -461,54 +561,77 @@
                             </div>
                         </div>
 
-                        <div class="ac-finance-columns ac-finance-columns--three">
-                            <article class="ac-finance-column">
-                                <p class="ac-family-section-kicker">{{ $restructuringSection['options_title'] ?? '' }}</p>
-                                <ul class="ac-finance-list">
-                                    @foreach (($restructuringSection['options'] ?? []) as $item)
-                                        <li>
-                                            <span class="ac-finance-list-bullet" aria-hidden="true">
-                                                <svg viewBox="{{ $financeListBullet['view_box'] }}" fill="currentColor">
-                                                    <use href="{{ $financeListBullet['href'] }}"></use>
-                                                </svg>
-                                            </span>
-                                            <span>{{ $item }}</span>
-                                        </li>
-                                    @endforeach
-                                </ul>
-                            </article>
+                        <div class="ac-finance-followup">
+                            <div class="ac-finance-restructuring-stack">
+                                <article class="ac-finance-column">
+                                    <p class="ac-family-section-kicker ac-finance-kicker-label">
+                                        <span class="ac-finance-kicker-icon" aria-hidden="true">
+                                            <svg viewBox="{{ $financeAccentIcons['options']['view_box'] }}" fill="currentColor">
+                                                <use href="{{ $financeAccentIcons['options']['href'] }}"></use>
+                                            </svg>
+                                        </span>
+                                        <span>{{ $restructuringSection['options_title'] ?? '' }}</span>
+                                    </p>
+                                    <ul class="ac-finance-list ac-finance-list--multi">
+                                        @foreach (($restructuringSection['options'] ?? []) as $item)
+                                            <li>
+                                                <span class="ac-finance-list-bullet" aria-hidden="true">
+                                                    <svg viewBox="{{ $financeListBullet['view_box'] }}" fill="currentColor">
+                                                        <use href="{{ $financeListBullet['href'] }}"></use>
+                                                    </svg>
+                                                </span>
+                                                <span>{{ $item }}</span>
+                                            </li>
+                                        @endforeach
+                                    </ul>
+                                </article>
 
-                            <article class="ac-finance-column">
-                                <p class="ac-family-section-kicker">{{ $restructuringSection['reasons_title'] ?? '' }}</p>
-                                <ul class="ac-finance-list">
-                                    @foreach (($restructuringSection['reasons'] ?? []) as $item)
-                                        <li>
-                                            <span class="ac-finance-list-bullet" aria-hidden="true">
-                                                <svg viewBox="{{ $financeListBullet['view_box'] }}" fill="currentColor">
-                                                    <use href="{{ $financeListBullet['href'] }}"></use>
-                                                </svg>
-                                            </span>
-                                            <span>{{ $item }}</span>
-                                        </li>
-                                    @endforeach
-                                </ul>
-                            </article>
+                                <article class="ac-finance-column">
+                                    <p class="ac-family-section-kicker ac-finance-kicker-label">
+                                        <span class="ac-finance-kicker-icon" aria-hidden="true">
+                                            <svg viewBox="{{ $financeAccentIcons['reasons']['view_box'] }}" fill="currentColor">
+                                                <use href="{{ $financeAccentIcons['reasons']['href'] }}"></use>
+                                            </svg>
+                                        </span>
+                                        <span>{{ $restructuringSection['reasons_title'] ?? '' }}</span>
+                                    </p>
+                                    <ul class="ac-finance-list ac-finance-list--multi">
+                                        @foreach (($restructuringSection['reasons'] ?? []) as $item)
+                                            <li>
+                                                <span class="ac-finance-list-bullet" aria-hidden="true">
+                                                    <svg viewBox="{{ $financeListBullet['view_box'] }}" fill="currentColor">
+                                                        <use href="{{ $financeListBullet['href'] }}"></use>
+                                                    </svg>
+                                                </span>
+                                                <span>{{ $item }}</span>
+                                            </li>
+                                        @endforeach
+                                    </ul>
+                                </article>
 
-                            <article class="ac-finance-column">
-                                <p class="ac-family-section-kicker">{{ $restructuringSection['team_services_title'] ?? '' }}</p>
-                                <ul class="ac-finance-list">
-                                    @foreach (($restructuringSection['team_services'] ?? []) as $item)
-                                        <li>
-                                            <span class="ac-finance-list-bullet" aria-hidden="true">
-                                                <svg viewBox="{{ $financeListBullet['view_box'] }}" fill="currentColor">
-                                                    <use href="{{ $financeListBullet['href'] }}"></use>
-                                                </svg>
-                                            </span>
-                                            <span>{{ $item }}</span>
-                                        </li>
-                                    @endforeach
-                                </ul>
-                            </article>
+                                <article class="ac-finance-column">
+                                    <p class="ac-family-section-kicker ac-finance-kicker-label">
+                                        <span class="ac-finance-kicker-icon" aria-hidden="true">
+                                            <svg viewBox="{{ $financeAccentIcons['team']['view_box'] }}" fill="currentColor">
+                                                <use href="{{ $financeAccentIcons['team']['href'] }}"></use>
+                                            </svg>
+                                        </span>
+                                        <span>{{ $restructuringSection['team_services_title'] ?? '' }}</span>
+                                    </p>
+                                    <ul class="ac-finance-list ac-finance-list--multi ac-finance-list--triple">
+                                        @foreach (($restructuringSection['team_services'] ?? []) as $item)
+                                            <li>
+                                                <span class="ac-finance-list-bullet" aria-hidden="true">
+                                                    <svg viewBox="{{ $financeListBullet['view_box'] }}" fill="currentColor">
+                                                        <use href="{{ $financeListBullet['href'] }}"></use>
+                                                    </svg>
+                                                </span>
+                                                <span>{{ $item }}</span>
+                                            </li>
+                                        @endforeach
+                                    </ul>
+                                </article>
+                            </div>
                         </div>
                     </article>
                 </div>
@@ -528,7 +651,7 @@
                         <div class="front-contact-panel front-contact-panel--direct">
                             <h2>{{ $meetingSection['visit_title'] ?? 'Posjetite nas' }}</h2>
                             <div class="mt-4 space-y-1 text-[0.89rem] leading-6 text-slate-700">
-                                <p style="white-space: nowrap;">{{ $meetingSection['visit_lines'][0] ?? '' }}</p>
+                                <p class="ac-finance-visit-line">{{ $meetingSection['visit_lines'][0] ?? '' }}</p>
                                 <p>{{ $meetingSection['visit_lines'][1] ?? '' }}</p>
                             </div>
                         </div>
@@ -743,30 +866,165 @@
 @push('styles')
     <style>
         .ac-finance-network-section {
-            margin-top: clamp(2rem, 3.6vw, 2.8rem);
-            padding-top: 0;
-            padding-bottom: clamp(2rem, 3.6vw, 2.8rem);
+            position: relative;
+            overflow: hidden;
+            margin-top: 0;
+            padding: clamp(1.45rem, 2.7vw, 2rem) 0 clamp(1.9rem, 3.2vw, 2.6rem);
+            background: linear-gradient(90deg, rgba(225, 233, 242, 0.9) 0%, rgba(247, 249, 252, 0.98) 16%, rgba(249, 250, 252, 0.98) 84%, rgba(225, 233, 242, 0.9) 100%);
         }
 
-        .ac-finance-network-section .ac-family-ffi-banner {
+        .ac-finance-network-section::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background:
+                repeating-linear-gradient(90deg, rgba(118, 145, 178, 0.11) 0 1px, transparent 1px 28px),
+                linear-gradient(90deg, rgba(223, 231, 241, 0.82) 0%, rgba(249, 250, 252, 0.96) 18%, rgba(249, 250, 252, 0.96) 82%, rgba(223, 231, 241, 0.82) 100%);
+            opacity: 1;
+            pointer-events: none;
+        }
+
+        .ac-finance-network-section::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background:
+                radial-gradient(circle at 50% 28%, rgba(255, 255, 255, 0.72) 0%, rgba(255, 255, 255, 0) 42%),
+                linear-gradient(180deg, rgba(255, 255, 255, 0.12) 0%, rgba(255, 255, 255, 0) 24%, rgba(210, 222, 236, 0.16) 100%);
+            pointer-events: none;
+        }
+
+        .ac-finance-network-banner {
             margin-top: 0;
+            position: relative;
+            z-index: 1;
+            display: grid;
+            gap: clamp(1.2rem, 2.1vw, 1.65rem);
+            padding: 0;
+            border: none;
+            border-radius: 0;
+            background: transparent;
+            box-shadow: none;
+        }
+
+        .ac-finance-network-top {
+            display: grid;
+            gap: clamp(0.75rem, 1.6vw, 1.1rem);
+            justify-items: center;
+            text-align: center;
+        }
+
+        .ac-finance-network-headcard {
+            display: inline-grid;
+            grid-template-columns: auto auto;
+            align-items: center;
+            gap: clamp(0.9rem, 1.8vw, 1.25rem);
+            width: fit-content;
+            max-width: 100%;
+            padding: clamp(1rem, 1.9vw, 1.35rem) clamp(1rem, 2.5vw, 1.85rem);
+            border-radius: 1.65rem;
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.82) 0%, rgba(244, 248, 251, 0.94) 100%);
+            border: 1px solid rgba(132, 150, 176, 0.2);
+        }
+
+        .ac-finance-network-title {
+            width: 100%;
+            min-width: 0;
+        }
+
+        .ac-finance-network-title.is-single-line {
+            width: auto;
+        }
+
+        .ac-finance-network-title h3 {
+            margin: 0;
+            max-width: none;
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(1.32rem, 1.7vw, 1.82rem);
+            line-height: 1.06;
+            font-weight: 600;
+            color: #16263d;
+            text-wrap: balance;
+            letter-spacing: -0.025em;
+            text-align: left;
+        }
+
+        .ac-finance-network-title.is-single-line h3 {
+            max-width: none;
+            white-space: nowrap;
+        }
+
+        .ac-finance-network-title h3 span {
+            display: block;
+        }
+
+        .ac-finance-network-divider {
+            display: block;
+            flex: 1 1 3.5rem;
+            min-width: 2.5rem;
+            height: 1px;
+            background: linear-gradient(90deg, rgba(151, 121, 65, 0.22) 0%, rgba(151, 121, 65, 0.08) 100%);
+        }
+
+        .ac-finance-network-title-note {
+            flex: 0 1 15rem;
+            max-width: 15rem;
+            margin: 0;
+            font-size: 0.86rem;
+            line-height: 1.5;
+            color: #41546b;
+        }
+
+        .ac-finance-network-columns {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 0.95rem 1.5rem;
+            width: 100%;
+            max-width: 70rem;
+            margin: 0 auto;
+            align-items: start;
+        }
+
+        .ac-finance-network-columns p {
+            margin: 0;
+            font-size: 0.94rem;
+            line-height: 1.74;
+            color: #26384c;
+            text-align: left;
+            white-space: pre-line;
+        }
+
+        .ac-finance-network-logo-card {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 0.9rem 1.15rem;
+            border-radius: 1.15rem;
+            background: linear-gradient(180deg, #1b2d45 0%, #223754 100%);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .ac-finance-network-logo {
+            width: min(100%, 9.5rem);
+            max-width: 9.5rem;
+            height: auto;
+            object-fit: contain;
+            filter: none;
         }
 
         .ac-finance-editorial-wrap {
             position: relative;
             overflow: hidden;
             padding: clamp(1.5rem, 2.5vw, 2rem) 0 clamp(1.7rem, 2.6vw, 2.2rem);
-            background: #f7f3eb;
-            border-top: 1px solid rgba(171, 141, 82, 0.14);
-            border-bottom: 1px solid rgba(171, 141, 82, 0.12);
+            background: linear-gradient(180deg, #f4f1eb 0%, #f8f6f1 100%);
         }
 
         .ac-finance-editorial-wrap::before {
             content: '';
             position: absolute;
             inset: 0;
-            background: repeating-linear-gradient(90deg, rgba(15, 42, 67, 0.05) 0 1px, transparent 1px 104px);
-            opacity: 0.72;
+            background: repeating-linear-gradient(90deg, rgba(53, 45, 35, 0.018) 0 1px, transparent 1px 180px);
+            opacity: 0.2;
             pointer-events: none;
         }
 
@@ -796,10 +1054,10 @@
             justify-content: center;
             min-height: 2.55rem;
             padding: 0.45rem 1.15rem;
-            border: 1px solid rgba(148, 163, 184, 0.28);
+            border: 1px solid rgba(120, 96, 58, 0.16);
             border-radius: 999px;
-            background: #ffffff;
-            color: #274265;
+            background: rgba(255, 255, 255, 0.72);
+            color: #3d3428;
             letter-spacing: 0.14em;
         }
 
@@ -807,7 +1065,7 @@
             max-width: 48rem;
             margin-right: auto;
             margin-left: auto;
-            color: #617184;
+            color: #57534e;
         }
 
         .ac-finance-editorial-wrap .ac-services-divider {
@@ -816,35 +1074,41 @@
         }
 
         .ac-finance-editorial-wrap .ac-services-divider-line {
-            background: rgba(193, 202, 214, 0.9);
+            background: rgba(120, 96, 58, 0.18);
         }
 
         .ac-finance-editorial-wrap .ac-services-divider-glyph {
             width: 2.55rem;
             height: 2.55rem;
-            border: 1px solid rgba(216, 196, 160, 0.45);
-            background: #ffffff;
+            border: 1px solid rgba(171, 141, 82, 0.28);
+            background: rgba(255, 255, 255, 0.78);
         }
 
         .ac-finance-editorial-shell {
             display: grid;
+            grid-template-columns: minmax(0, 1fr);
             gap: 0;
             margin-top: clamp(1.8rem, 3vw, 2.35rem);
-            border-top: 1px solid rgba(216, 196, 160, 0.32);
         }
 
         .ac-finance-editorial-section {
+            width: 100%;
+            min-width: 0;
             padding: clamp(2.2rem, 3vw, 3rem) 0;
-            border-bottom: 1px solid rgba(216, 196, 160, 0.32);
+        }
+
+        .ac-finance-editorial-section + .ac-finance-editorial-section {
+            padding-top: clamp(2.5rem, 3.4vw, 3.2rem);
+            border-top: 1px solid rgba(120, 96, 58, 0.14);
         }
 
         .ac-finance-editorial-section:last-child {
             padding-bottom: 0;
-            border-bottom: none;
         }
 
         .ac-finance-editorial-head {
             display: grid;
+            grid-template-columns: minmax(0, 1fr);
             gap: 1.75rem;
             align-items: start;
         }
@@ -853,6 +1117,7 @@
             display: flex;
             gap: 1.15rem;
             align-items: flex-start;
+            min-width: 0;
         }
 
         .ac-finance-editorial-badge {
@@ -870,9 +1135,9 @@
             align-items: center;
             justify-content: center;
             border-radius: 18px;
-            background: #0f1b2d;
-            color: #fff;
-            border: 1px solid rgba(15, 27, 45, 0.06);
+            background: rgba(255, 255, 255, 0.82);
+            color: #211d1a;
+            border: 1px solid rgba(171, 141, 82, 0.24);
         }
 
         .ac-finance-editorial-index {
@@ -883,8 +1148,8 @@
             min-height: 1.65rem;
             padding: 0.2rem 0.55rem;
             border-radius: 999px;
-            background: #f4ede0;
-            color: #8d6a2d;
+            background: rgba(120, 96, 58, 0.08);
+            color: #6d5633;
             font-size: 0.72rem;
             font-weight: 700;
             letter-spacing: 0.16em;
@@ -907,19 +1172,21 @@
             font-weight: 600;
             color: #0f172a;
             text-wrap: balance;
+            overflow-wrap: anywhere;
         }
 
         .ac-finance-editorial-intro {
+            min-width: 0;
             max-width: 40rem;
             font-size: 0.98rem;
             line-height: 1.7;
-            color: #314050;
+            color: #403a34;
             text-wrap: pretty;
         }
 
         .ac-finance-columns {
             display: grid;
-            gap: 1.15rem;
+            gap: 1.35rem 2rem;
             margin-top: 2rem;
         }
 
@@ -941,10 +1208,7 @@
 
         .ac-finance-column {
             min-width: 0;
-            padding: 1.35rem 1.45rem;
-            border: 1px solid rgba(216, 196, 160, 0.18);
-            border-radius: 1.45rem;
-            background: #ffffff;
+            padding-top: 0.15rem;
         }
 
         .ac-finance-column--spacious {
@@ -956,13 +1220,16 @@
             font-weight: 700;
             line-height: 1.5rem;
             color: #0f172a;
+            font-family: 'Sora', 'Public Sans', 'Segoe UI', Arial, sans-serif;
+            letter-spacing: -0.02em;
         }
 
         .ac-finance-column p {
             margin-top: 0.85rem;
             font-size: 0.98rem;
             line-height: 1.72;
-            color: #314050;
+            color: #403a34;
+            overflow-wrap: anywhere;
         }
 
         .ac-finance-column p + p {
@@ -975,7 +1242,16 @@
             gap: 0.8rem;
             padding-left: 0;
             list-style: none;
-            color: #314050;
+            color: #403a34;
+        }
+
+        .ac-finance-list--multi {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 0.95rem 1.9rem;
+        }
+
+        .ac-finance-list--triple {
+            grid-template-columns: repeat(3, minmax(0, 1fr));
         }
 
         .ac-finance-list li,
@@ -992,69 +1268,127 @@
 
         .ac-finance-followup {
             margin-top: 1.75rem;
+            min-width: 0;
+            max-width: 100%;
+        }
+
+        .ac-finance-restructuring-stack {
+            display: grid;
+            gap: 1.35rem;
+            min-width: 0;
+        }
+
+        .ac-finance-kicker-label {
+            display: inline-grid;
+            grid-template-columns: auto minmax(0, 1fr);
+            align-items: center;
+            gap: 0.6rem;
+            max-width: 100%;
+            font-family: 'Sora', 'Public Sans', 'Segoe UI', Arial, sans-serif;
+        }
+
+        .ac-finance-kicker-label span:last-child {
+            min-width: 0;
+            overflow-wrap: anywhere;
+        }
+
+        .ac-finance-kicker-icon {
+            display: inline-flex;
+            width: 1.7rem;
+            height: 1.7rem;
+            align-items: center;
+            justify-content: center;
+            border-radius: 999px;
+            border: 1px solid rgba(171, 141, 82, 0.22);
+            background: rgba(255, 255, 255, 0.56);
+            color: #6d5633;
+        }
+
+        .ac-finance-kicker-icon svg {
+            width: 0.8rem;
+            height: 0.8rem;
+        }
+
+        .ac-finance-phase-caption {
+            margin-top: 0.65rem;
+            font-size: 0.74rem;
+            font-weight: 600;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            color: #6b6258;
+            font-family: 'Sora', 'Public Sans', 'Segoe UI', Arial, sans-serif;
         }
 
         .ac-finance-phase-table-shell {
+            width: 100%;
+            min-width: 0;
             overflow-x: auto;
-            border-radius: 1.75rem;
-            background: #ffffff;
-            border: 1px solid rgba(148, 163, 184, 0.12);
+            max-width: 100%;
+            border-radius: 1rem;
+            background: rgba(255, 255, 255, 0.76);
+            border: 1px solid rgba(171, 141, 82, 0.12);
             -webkit-overflow-scrolling: touch;
         }
 
         .ac-finance-phase-table {
             width: 100%;
-            min-width: 44rem;
-            border-collapse: collapse;
+            min-width: 68rem;
+            border-collapse: separate;
+            border-spacing: 0;
+            table-layout: fixed;
         }
 
         .ac-finance-phase-table thead th {
-            padding: 1rem 1.25rem;
-            background: #f4efe6;
-            font-size: 0.72rem;
-            font-weight: 700;
-            letter-spacing: 0.16em;
-            text-transform: uppercase;
+            padding: 1.15rem 1.15rem 0.85rem;
+            background: transparent;
+            border-bottom: 1px solid rgba(171, 141, 82, 0.16);
+            border-right: 1px solid rgba(171, 141, 82, 0.12);
+            font-size: 0.76rem;
+            font-weight: 600;
             text-align: left;
-            color: #64748b;
+            color: #3f3830;
         }
 
-        .ac-finance-phase-table tbody tr:nth-child(even) {
-            background: #fbfaf7;
+        .ac-finance-phase-table thead th:last-child,
+        .ac-finance-phase-table tbody td:last-child {
+            border-right: none;
         }
 
-        .ac-finance-phase-table tbody th,
         .ac-finance-phase-table tbody td {
-            padding: 1.2rem 1.25rem;
+            padding: 0.7rem 1.15rem 1.25rem;
             vertical-align: top;
+            border-right: 1px solid rgba(171, 141, 82, 0.12);
         }
 
         .ac-finance-phase-step {
-            display: inline-flex;
+            display: block;
             font-size: 0.72rem;
             font-weight: 700;
             letter-spacing: 0.16em;
             text-transform: uppercase;
-            color: #9a773d;
+            color: #8a6a38;
+            margin-bottom: 0.5rem;
         }
 
         .ac-finance-phase-focus {
-            font-size: 1rem;
+            font-size: 0.94rem;
             font-weight: 700;
-            line-height: 1.55;
-            color: #0f172a;
+            line-height: 1.5;
+            color: #201c18;
+            font-family: 'Sora', 'Public Sans', 'Segoe UI', Arial, sans-serif;
+            letter-spacing: -0.02em;
         }
 
         .ac-finance-phase-list {
             display: grid;
-            gap: 0.75rem;
+            gap: 0.65rem;
             padding-left: 0;
             list-style: none;
-            color: #314050;
+            color: #403a34;
         }
 
         .ac-finance-phase-list li {
-            line-height: 1.7rem;
+            line-height: 1.62rem;
         }
 
         .ac-finance-list-bullet {
@@ -1065,8 +1399,8 @@
             justify-content: center;
             margin-top: 0.22rem;
             border-radius: 999px;
-            background: rgba(216, 196, 160, 0.18);
-            color: #9a773d;
+            background: rgba(171, 141, 82, 0.12);
+            color: #7d6134;
         }
 
         .ac-finance-list-bullet svg {
@@ -1074,11 +1408,48 @@
             height: 0.68rem;
         }
 
+        .ac-finance-list li span:last-child,
+        .ac-finance-phase-focus,
+        .ac-finance-phase-list li span:last-child,
+        .ac-finance-visit-line {
+            overflow-wrap: anywhere;
+        }
+
+        .ac-finance-quote {
+            position: relative;
+            margin: 0;
+            padding: 1.2rem 1.35rem 1.2rem 3.5rem;
+            border-left: 2px solid rgba(171, 141, 82, 0.26);
+            background: rgba(255, 255, 255, 0.58);
+        }
+
+        .ac-finance-quote-icon {
+            position: absolute;
+            top: 1.15rem;
+            left: 1.2rem;
+            display: inline-flex;
+            width: 1.35rem;
+            height: 1.35rem;
+            align-items: center;
+            justify-content: center;
+            color: #8a6a38;
+        }
+
+        .ac-finance-quote-icon svg {
+            width: 1rem;
+            height: 1rem;
+        }
+
+        .ac-finance-quote p {
+            margin-top: 0;
+            font-size: 1rem;
+            line-height: 1.82;
+            color: #2d2925;
+        }
+
         .ac-finance-page .ac-home-blog-card,
         .ac-finance-page .ac-home-blog-card-link,
-        .ac-finance-page .ac-finance-column,
         .ac-finance-page .ac-finance-phase-table-shell {
-            background: #ffffff;
             box-shadow: none;
         }
 
@@ -1101,17 +1472,48 @@
         }
 
         @media (max-width: 900px) {
+            .ac-finance-network-title h3,
+            .ac-finance-network-columns p {
+                max-width: none;
+            }
+
+            .ac-finance-network-title.is-single-line h3 {
+                white-space: normal;
+            }
+
+            .ac-finance-network-title {
+                width: 100%;
+            }
+
+            .ac-finance-network-headcard {
+                width: min(100%, 42rem);
+            }
+
+            .ac-finance-network-columns {
+                grid-template-columns: minmax(0, 1fr);
+                gap: 1rem;
+            }
+
+            .ac-finance-network-logo-card {
+                justify-self: center;
+            }
+
             .ac-finance-columns--two,
             .ac-finance-columns--two-wide,
             .ac-finance-columns--three {
+                grid-template-columns: minmax(0, 1fr);
+            }
+
+            .ac-finance-list--multi,
+            .ac-finance-list--triple {
                 grid-template-columns: minmax(0, 1fr);
             }
         }
 
         @media (max-width: 640px) {
             .ac-finance-network-section {
-                margin-top: 1.35rem;
-                padding-bottom: 1.35rem;
+                margin-top: 0;
+                padding: 1.15rem 0 1.55rem;
             }
 
             .ac-finance-editorial-wrap {
@@ -1123,12 +1525,20 @@
                 border-radius: 0;
             }
 
+            .ac-finance-editorial-section + .ac-finance-editorial-section {
+                padding-top: 2rem;
+            }
+
             .ac-finance-editorial-title {
+                display: grid;
+                grid-template-columns: minmax(0, 1fr);
                 align-items: flex-start;
+                gap: 0.9rem;
             }
 
             .ac-finance-editorial-badge {
                 gap: 0.45rem;
+                justify-items: start;
             }
 
             .ac-finance-editorial-icon {
@@ -1142,19 +1552,69 @@
                 height: 1.35rem;
             }
 
+            .ac-finance-network-title h3 {
+                font-size: 1.42rem;
+            }
+
+            .ac-finance-network-title h3 span {
+                display: inline;
+            }
+
+            .ac-finance-network-headcard {
+                width: 100%;
+                grid-template-columns: minmax(0, 1fr);
+                justify-items: center;
+                gap: 0.75rem;
+                padding: 0.95rem 0.9rem 1rem;
+                border-radius: 1.25rem;
+            }
+
+            .ac-finance-network-title h3 {
+                text-align: center;
+            }
+
+            .ac-finance-network-columns p {
+                font-size: 0.91rem;
+                line-height: 1.64;
+            }
+
+            .ac-finance-network-logo-card {
+                padding: 0.72rem 0.95rem;
+                border-radius: 0.9rem;
+            }
+
+            .ac-finance-network-logo {
+                width: min(100%, 8.7rem);
+                max-width: 8.7rem;
+            }
+
             .ac-finance-column {
-                padding: 1.1rem 1.05rem;
+                padding-top: 0.1rem;
+            }
+
+            .ac-finance-kicker-label {
+                width: 100%;
+                align-items: start;
+            }
+
+            .ac-finance-visit-line {
+                white-space: normal;
             }
 
             .ac-finance-phase-table {
-                min-width: 37rem;
+                min-width: 56rem;
             }
 
             .ac-finance-phase-table thead th,
-            .ac-finance-phase-table tbody th,
             .ac-finance-phase-table tbody td {
                 padding-right: 1rem;
                 padding-left: 1rem;
+            }
+        }
+
+        @media (min-width: 901px) and (max-width: 1180px) {
+            .ac-finance-list--triple {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
             }
         }
     </style>
