@@ -157,6 +157,15 @@
         }
     }
 
+    if (request()->routeIs('tax.show')) {
+        $title = $cleanupText((string) ($servicePageMetaTitle ?? $servicePageTitle ?? $title), 191);
+        $description = $cleanupText((string) ($servicePageMetaDescription ?? $description), 320);
+
+        if (trim((string) ($servicePageOgImage ?? '')) !== '') {
+            $ogImage = (string) $servicePageOgImage;
+        }
+    }
+
     if ($description === '') {
         $description = $defaultDescription;
     }

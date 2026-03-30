@@ -17,6 +17,7 @@ use App\Http\Controllers\Front\LeaseCalculatorController;
 use App\Http\Controllers\Front\PageController;
 use App\Http\Controllers\Front\SearchController;
 use App\Http\Controllers\Front\ResourceController;
+use App\Http\Controllers\Front\TaxController;
 use App\Http\Controllers\Front\TeamController;
 use App\Http\Controllers\Front\StorefrontController;
 use App\Models\Catalog\Category\Category;
@@ -76,6 +77,7 @@ Route::middleware(['front.locale', 'front.device'])
         Route::get('alpha-capitalis-tim', [TeamController::class, 'index'])->name('team.index');
         Route::get('financije', [FinanceController::class, 'show'])->name('finance.show');
         Route::get('revizija', [AuditController::class, 'show'])->name('audit.show');
+        Route::get('porezi', [TaxController::class, 'show'])->name('tax.show');
         Route::get('obiteljski-biznis', [FamilyBusinessController::class, 'show'])->name('family-business.show');
         Route::get('glossary', [GlossaryController::class, 'index'])->name('glossary.index');
         Route::get('glossary/{slug}', [GlossaryController::class, 'show'])->name('glossary.show');

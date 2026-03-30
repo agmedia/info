@@ -20,11 +20,13 @@ class Form extends Component
 
     private const SOURCE_ENABLED_TEMPLATES = [
         ServicePageTemplateRegistry::AUDIT,
+        ServicePageTemplateRegistry::TAX,
         ServicePageTemplateRegistry::FAMILY_BUSINESS,
     ];
 
     private const BLOG_SOURCE_ENABLED_TEMPLATES = [
         ServicePageTemplateRegistry::AUDIT,
+        ServicePageTemplateRegistry::TAX,
         ServicePageTemplateRegistry::FAMILY_BUSINESS,
     ];
 
@@ -595,29 +597,47 @@ class Form extends Component
      */
     private function defaultTranslationFields(string $templateKey, string $locale): array
     {
-        if ($templateKey !== ServicePageTemplateRegistry::AUDIT) {
+        if ($templateKey === ServicePageTemplateRegistry::AUDIT) {
+            if (str_starts_with(strtolower($locale), 'hr')) {
+                return [
+                    'title' => 'Revizija',
+                    'slug' => 'revizija',
+                    'meta_title' => 'Revizija',
+                    'meta_description' => 'Revizija financijskih izvještaja, revizorski uvidi i posebni revizorski angažmani.',
+                ];
+            }
+
             return [
-                'title' => '',
-                'slug' => '',
-                'meta_title' => '',
-                'meta_description' => '',
+                'title' => 'Audit',
+                'slug' => 'audit',
+                'meta_title' => 'Audit',
+                'meta_description' => 'Audit of financial statements, review engagements, and special audit services.',
             ];
         }
 
-        if (str_starts_with(strtolower($locale), 'hr')) {
+        if ($templateKey === ServicePageTemplateRegistry::TAX) {
+            if (str_starts_with(strtolower($locale), 'hr')) {
+                return [
+                    'title' => 'Porezi',
+                    'slug' => 'porezi',
+                    'meta_title' => 'Porezi',
+                    'meta_description' => 'Porezno savjetovanje, tax compliance, porezni pregledi, optimizacija, due diligence i transferne cijene.',
+                ];
+            }
+
             return [
-                'title' => 'Revizija',
-                'slug' => 'revizija',
-                'meta_title' => 'Revizija',
-                'meta_description' => 'Revizija financijskih izvještaja, revizorski uvidi i posebni revizorski angažmani.',
+                'title' => 'Tax',
+                'slug' => 'tax',
+                'meta_title' => 'Tax',
+                'meta_description' => 'Tax advisory, tax compliance, tax reviews, optimization, due diligence, and transfer pricing.',
             ];
         }
 
         return [
-            'title' => 'Audit',
-            'slug' => 'audit',
-            'meta_title' => 'Audit',
-            'meta_description' => 'Audit of financial statements, review engagements, and special audit services.',
+            'title' => '',
+            'slug' => '',
+            'meta_title' => '',
+            'meta_description' => '',
         ];
     }
 

@@ -103,8 +103,8 @@
                 'children' => [
                     ['label' => __('ui.front.desktop.nav.finance'), 'url' => route('finance.show')],
                     ['label' => __('ui.front.desktop.nav.accounting'), 'url' => $homeUrl.'#odjel-racunovodstvo'],
-                    ['label' => __('ui.front.desktop.nav.audit'), 'url' => $homeUrl.'#odjel-revizija'],
-                    ['label' => __('ui.front.desktop.nav.tax'), 'url' => $homeUrl.'#odjel-porezi'],
+                    ['label' => __('ui.front.desktop.nav.audit'), 'url' => route('audit.show')],
+                    ['label' => __('ui.front.desktop.nav.tax'), 'url' => route('tax.show')],
                     ['label' => 'EU fondovi', 'url' => $homeUrl.'#odjel-eu-fondovi'],
                     ['label' => 'Obiteljski biznis', 'url' => route('family-business.show')],
                 ],
@@ -158,8 +158,8 @@
             ['label' => 'Usluge', 'url' => $homeUrl.'#usluge', 'children' => [
                 ['label' => 'Financije', 'url' => route('finance.show')],
                 ['label' => 'Računovodstvo', 'url' => $homeUrl.'#odjel-racunovodstvo'],
-                ['label' => 'Revizija', 'url' => $homeUrl.'#odjel-revizija'],
-                ['label' => 'Porezi', 'url' => $homeUrl.'#odjel-porezi'],
+                ['label' => 'Revizija', 'url' => route('audit.show')],
+                ['label' => 'Porezi', 'url' => route('tax.show')],
                 ['label' => 'EU fondovi', 'url' => $homeUrl.'#odjel-eu-fondovi'],
                 ['label' => 'Obiteljski biznis', 'url' => route('family-business.show')],
             ]],

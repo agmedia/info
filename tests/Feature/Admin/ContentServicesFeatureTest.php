@@ -31,6 +31,22 @@ class ContentServicesFeatureTest extends TestCase
         );
     }
 
+    public function test_default_tax_service_page_is_seeded(): void
+    {
+        $page = ServicePage::query()
+            ->where('template_key', ServicePageTemplateRegistry::TAX)
+            ->with('translations')
+            ->first();
+
+        $this->assertNotNull($page);
+        $this->assertSame('tax', $page->code);
+        $this->assertTrue((bool) $page->is_active);
+        $this->assertSame(
+            'Porezi',
+            (string) $page->translations->firstWhere('locale', 'hr')?->title
+        );
+    }
+
     public function test_admin_can_open_service_pages_screen(): void
     {
         $user = $this->makeAdminUser();
@@ -38,7 +54,8 @@ class ContentServicesFeatureTest extends TestCase
         $this->actingAs($user)
             ->get('/admin/content/services?locale=hr')
             ->assertOk()
-            ->assertSee('Obiteljski biznis');
+            ->assertSee('Obiteljski biznis')
+            ->assertSee('Porezi');
     }
 
     public function test_admin_can_open_seeded_service_page_edit_screen(): void
@@ -53,6 +70,38 @@ class ContentServicesFeatureTest extends TestCase
             ->assertOk()
             ->assertSee('Edit Service Page')
             ->assertSee('Obiteljski biznis');
+    }
+
+    public function test_audit_service_page_edit_screen_shows_locked_audit_template_and_editor(): void
+    {
+        $user = $this->makeAdminUser();
+        $page = ServicePage::query()
+            ->where('template_key', ServicePageTemplateRegistry::AUDIT)
+            ->firstOrFail();
+
+        $component = Livewire::actingAs($user)
+            ->test(ServiceForm::class, ['servicePageId' => $page->id]);
+
+        $this->assertSame(ServicePageTemplateRegistry::AUDIT, $component->get('form.template_key'));
+        $this->assertStringContainsString('value="Revizija"', $component->html());
+        $this->assertStringContainsString('Audit Navigator', $component->html());
+        $this->assertStringContainsString('Overview Block', $component->html());
+    }
+
+    public function test_tax_service_page_edit_screen_shows_locked_tax_template_and_editor(): void
+    {
+        $user = $this->makeAdminUser();
+        $page = ServicePage::query()
+            ->where('template_key', ServicePageTemplateRegistry::TAX)
+            ->firstOrFail();
+
+        $component = Livewire::actingAs($user)
+            ->test(ServiceForm::class, ['servicePageId' => $page->id]);
+
+        $this->assertSame(ServicePageTemplateRegistry::TAX, $component->get('form.template_key'));
+        $this->assertStringContainsString('value="Porezi"', $component->html());
+        $this->assertStringContainsString('Tax Navigator', $component->html());
+        $this->assertStringContainsString('Compliance Block', $component->html());
     }
 
     public function test_admin_can_update_seeded_service_page(): void

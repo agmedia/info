@@ -10,6 +10,8 @@ class ServicePageTemplateRegistry
 
     public const AUDIT = 'audit';
 
+    public const TAX = 'tax';
+
     public const FAMILY_BUSINESS = 'family_business';
 
     /**
@@ -20,6 +22,7 @@ class ServicePageTemplateRegistry
         return [
             self::FINANCE => 'Financije',
             self::AUDIT => 'Revizija',
+            self::TAX => 'Porezi',
             self::FAMILY_BUSINESS => 'Family Business',
         ];
     }
@@ -35,6 +38,7 @@ class ServicePageTemplateRegistry
         return match ($templateKey) {
             self::FINANCE => 'finance',
             self::AUDIT => 'audit',
+            self::TAX => 'tax',
             self::FAMILY_BUSINESS => 'family-business',
             default => Str::of($templateKey)->replace('_', '-')->lower()->value(),
         };
@@ -55,6 +59,14 @@ class ServicePageTemplateRegistry
                 ],
             ],
             self::AUDIT => [
+                'blog_source' => [
+                    'mode' => 'auto_category',
+                    'category_id' => null,
+                    'post_ids' => [],
+                    'limit' => 6,
+                ],
+            ],
+            self::TAX => [
                 'blog_source' => [
                     'mode' => 'auto_category',
                     'category_id' => null,
@@ -94,6 +106,9 @@ class ServicePageTemplateRegistry
                 $locale ?: (string) config('app.locale', 'en')
             ),
             self::AUDIT => AuditServicePageDefaults::defaultsForLocale(
+                $locale ?: (string) config('app.locale', 'en')
+            ),
+            self::TAX => TaxServicePageDefaults::defaultsForLocale(
                 $locale ?: (string) config('app.locale', 'en')
             ),
             self::FAMILY_BUSINESS => [

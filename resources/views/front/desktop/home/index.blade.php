@@ -67,7 +67,7 @@
                 'text' => 'Porezno planiranje, usklađenost i podrška u složenim poreznim pitanjima.',
                 'highlights' => ['Planiranje', 'Zastupanje'],
                 'featured' => true,
-                'url' => route('contact.create'),
+                'url' => route('tax.show'),
                 'accent' => '#ab8d52',
                 'layout_area' => 'tax',
             ],

@@ -87,7 +87,7 @@ class SiteSearchService
                 'search' => $isCroatian
                     ? 'porezi porezno planiranje usklađenost porezna pitanja'
                     : 'tax tax planning compliance tax matters',
-                'url' => $homeUrl.'#odjel-porezi',
+                'url' => route('tax.show'),
             ],
             [
                 'title' => $isCroatian ? 'EU fondovi' : 'EU Funds',

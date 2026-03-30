@@ -1,9 +1,11 @@
 @php
     $translationPayload = $form['translation_payload'] ?? [];
     $pagePayload = $form['page_payload'] ?? [];
-    $templateKey = $form['template_key'] ?? \App\Support\Content\ServicePageTemplateRegistry::FAMILY_BUSINESS;
-    $isFinanceTemplate = $templateKey === \App\Support\Content\ServicePageTemplateRegistry::FINANCE;
-    $isAuditTemplate = $templateKey === \App\Support\Content\ServicePageTemplateRegistry::AUDIT;
+    $currentTemplateKey = $form['template_key'] ?? \App\Support\Content\ServicePageTemplateRegistry::FAMILY_BUSINESS;
+    $currentTemplateLabel = $templateOptions[$currentTemplateKey] ?? $currentTemplateKey;
+    $isFinanceTemplate = $currentTemplateKey === \App\Support\Content\ServicePageTemplateRegistry::FINANCE;
+    $isAuditTemplate = $currentTemplateKey === \App\Support\Content\ServicePageTemplateRegistry::AUDIT;
+    $isTaxTemplate = $currentTemplateKey === \App\Support\Content\ServicePageTemplateRegistry::TAX;
     $financeEditorSections = [
         'finance-pandea' => __('Pandea'),
         'finance-services-intro' => __('Services Intro'),
@@ -21,6 +23,16 @@
         'audit-value-admin' => __('Value'),
         'audit-approach-admin' => __('Approach'),
         'audit-meeting-admin' => __('Meeting'),
+    ];
+    $taxEditorSections = [
+        'tax-overview-admin' => __('Overview'),
+        'tax-services-admin' => __('Services'),
+        'tax-compliance-admin' => __('Compliance'),
+        'tax-review-admin' => __('Tax Review'),
+        'tax-optimization-admin' => __('Optimization'),
+        'tax-due-diligence-admin' => __('Due Diligence'),
+        'tax-transfer-pricing-admin' => __('Transfer Pricing'),
+        'tax-meeting-admin' => __('Meeting'),
     ];
 @endphp
 
@@ -71,11 +83,15 @@
                     </div>
                     <div style="grid-column: span 3;">
                         <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Template') }}</label>
-                        <select wire:model.live="form.template_key" data-tom-select data-tom-no-search="1" class="admin-select w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" @disabled($isEdit)>
-                            @foreach ($templateOptions as $templateKey => $templateLabel)
-                                <option value="{{ $templateKey }}">{{ $templateLabel }}</option>
-                            @endforeach
-                        </select>
+                        @if ($isEdit)
+                            <input type="text" value="{{ $currentTemplateLabel }}" readonly class="w-full rounded-xl border border-slate-300 bg-slate-100 px-3 py-2 text-sm text-slate-700" />
+                        @else
+                            <select wire:model.live="form.template_key" data-tom-select data-tom-no-search="1" class="admin-select w-full rounded-xl border border-slate-300 px-3 py-2 text-sm">
+                                @foreach ($templateOptions as $optionKey => $templateLabel)
+                                    <option value="{{ $optionKey }}" @selected($currentTemplateKey === $optionKey)>{{ $templateLabel }}</option>
+                                @endforeach
+                            </select>
+                        @endif
                         @if ($isEdit)
                             <p class="mt-1 text-xs text-slate-500">{{ __('Template is locked after creation so block structure stays stable.') }}</p>
                         @endif
@@ -1059,6 +1075,495 @@
                         </div>
                     </div>
                 </div>
+            @elseif ($isTaxTemplate)
+                <div class="admin-panel admin-form-panel p-6">
+                    <p class="admin-section-title">{{ __('Tax Navigator') }}</p>
+                    <div class="mt-4 flex flex-wrap gap-2">
+                        @foreach ($taxEditorSections as $sectionId => $sectionLabel)
+                            <a href="#{{ $sectionId }}" class="admin-chip">{{ $sectionLabel }}</a>
+                        @endforeach
+                    </div>
+                    <p class="mt-4 text-sm text-slate-600">
+                        {{ __('Porezi koristi fiksni landing layout. Ovdje uređujete copy, liste, compliance blokove i završne kontakt/blog sekcije.') }}
+                    </p>
+                </div>
+
+                <div class="grid gap-6 xl:grid-cols-2">
+                    <div id="tax-overview-admin" class="admin-panel admin-form-panel p-6 scroll-mt-24">
+                        <p class="admin-section-title">{{ __('Overview Block') }}</p>
+
+                        <div class="mt-4">
+                            <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Kicker') }}</label>
+                            <input type="text" wire:model="form.translation_payload.overview.kicker" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+                        </div>
+
+                        <div class="mt-3">
+                            <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Title') }}</label>
+                            <input type="text" wire:model="form.translation_payload.overview.title" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+                        </div>
+
+                        <div class="mt-3">
+                            <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Intro') }}</label>
+                            <textarea rows="4" wire:model="form.translation_payload.overview.intro" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm"></textarea>
+                        </div>
+
+                        <div class="mt-3">
+                            <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Highlight Title') }}</label>
+                            <input type="text" wire:model="form.translation_payload.overview.highlight_title" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+                        </div>
+
+                        @foreach (($translationPayload['overview']['body'] ?? []) as $index => $paragraph)
+                            <div class="mt-3">
+                                <div class="mb-1 flex items-center justify-between gap-3">
+                                    <label class="block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Paragraph') }} #{{ $index + 1 }}</label>
+                                    <button type="button" wire:click="removeTranslationListItem('overview.body', {{ $index }})" class="text-xs font-semibold text-rose-600 hover:text-rose-700">{{ __('Remove') }}</button>
+                                </div>
+                                <textarea rows="4" wire:model="form.translation_payload.overview.body.{{ $index }}" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm"></textarea>
+                            </div>
+                        @endforeach
+
+                        <div class="mt-3">
+                            <button type="button" wire:click="addTranslationListItem('overview.body')" class="rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-100">
+                                {{ __('Add Paragraph') }}
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="admin-panel admin-form-panel p-6">
+                        <p class="admin-section-title">{{ __('Overview Highlights') }}</p>
+
+                        <div class="mt-4">
+                            <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Highlights Title') }}</label>
+                            <input type="text" wire:model="form.translation_payload.overview.highlights_title" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+                        </div>
+
+                        @foreach (($translationPayload['overview']['highlights'] ?? []) as $index => $item)
+                            <div class="mt-3">
+                                <div class="mb-1 flex items-center justify-between gap-3">
+                                    <label class="block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Highlight') }} #{{ $index + 1 }}</label>
+                                    <button type="button" wire:click="removeTranslationListItem('overview.highlights', {{ $index }})" class="text-xs font-semibold text-rose-600 hover:text-rose-700">{{ __('Remove') }}</button>
+                                </div>
+                                <input type="text" wire:model="form.translation_payload.overview.highlights.{{ $index }}" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+                            </div>
+                        @endforeach
+
+                        <div class="mt-3">
+                            <button type="button" wire:click="addTranslationListItem('overview.highlights')" class="rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-100">
+                                {{ __('Add Highlight') }}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="tax-services-admin" class="admin-panel admin-form-panel p-6 scroll-mt-24">
+                    <p class="admin-section-title">{{ __('Services Grid') }}</p>
+
+                    <div class="mt-4 grid gap-3 md:grid-cols-2">
+                        <div>
+                            <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Kicker') }}</label>
+                            <input type="text" wire:model="form.translation_payload.services.kicker" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+                        </div>
+                        <div>
+                            <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Title') }}</label>
+                            <input type="text" wire:model="form.translation_payload.services.title" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+                        </div>
+                    </div>
+
+                    <div class="mt-3">
+                        <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Intro') }}</label>
+                        <textarea rows="4" wire:model="form.translation_payload.services.intro" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm"></textarea>
+                    </div>
+
+                    <div class="mt-6 grid gap-4 xl:grid-cols-3">
+                        @foreach (($translationPayload['services']['items'] ?? []) as $index => $item)
+                            <div class="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                                <p class="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Service Item') }} #{{ $index + 1 }}</p>
+                                <div class="mt-3">
+                                    <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Title') }}</label>
+                                    <input type="text" wire:model="form.translation_payload.services.items.{{ $index }}.title" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+                                </div>
+                                <div class="mt-3">
+                                    <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Text') }}</label>
+                                    <textarea rows="5" wire:model="form.translation_payload.services.items.{{ $index }}.text" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm"></textarea>
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+                </div>
+
+                <div id="tax-compliance-admin" class="admin-panel admin-form-panel p-6 scroll-mt-24">
+                    <p class="admin-section-title">{{ __('Compliance Block') }}</p>
+
+                    <div class="mt-4 grid gap-3 md:grid-cols-2">
+                        <div>
+                            <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Kicker') }}</label>
+                            <input type="text" wire:model="form.translation_payload.compliance.kicker" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+                        </div>
+                        <div>
+                            <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Title') }}</label>
+                            <input type="text" wire:model="form.translation_payload.compliance.title" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+                        </div>
+                    </div>
+
+                    <div class="mt-3">
+                        <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Intro') }}</label>
+                        <textarea rows="4" wire:model="form.translation_payload.compliance.intro" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm"></textarea>
+                    </div>
+
+                    <div class="mt-6 grid gap-6 xl:grid-cols-2">
+                        <div class="space-y-4">
+                            <p class="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Corporate') }}</p>
+
+                            <div>
+                                <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Title') }}</label>
+                                <input type="text" wire:model="form.translation_payload.compliance.corporate.title" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+                            </div>
+
+                            <div>
+                                <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Intro') }}</label>
+                                <textarea rows="4" wire:model="form.translation_payload.compliance.corporate.intro" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm"></textarea>
+                            </div>
+
+                            @foreach (($translationPayload['compliance']['corporate']['groups'] ?? []) as $groupIndex => $group)
+                                <div class="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                                    <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Group Title') }} #{{ $groupIndex + 1 }}</label>
+                                    <input type="text" wire:model="form.translation_payload.compliance.corporate.groups.{{ $groupIndex }}.title" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+
+                                    @foreach (($group['items'] ?? []) as $itemIndex => $item)
+                                        <div class="mt-3">
+                                            <div class="mb-1 flex items-center justify-between gap-3">
+                                                <label class="block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Item') }} #{{ $itemIndex + 1 }}</label>
+                                                <button type="button" wire:click="removeTranslationListItem('compliance.corporate.groups.{{ $groupIndex }}.items', {{ $itemIndex }})" class="text-xs font-semibold text-rose-600 hover:text-rose-700">{{ __('Remove') }}</button>
+                                            </div>
+                                            <input type="text" wire:model="form.translation_payload.compliance.corporate.groups.{{ $groupIndex }}.items.{{ $itemIndex }}" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+                                        </div>
+                                    @endforeach
+
+                                    <div class="mt-3">
+                                        <button type="button" wire:click="addTranslationListItem('compliance.corporate.groups.{{ $groupIndex }}.items')" class="rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-100">
+                                            {{ __('Add Item') }}
+                                        </button>
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
+
+                        <div class="space-y-4">
+                            <p class="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Individual') }}</p>
+
+                            <div>
+                                <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Title') }}</label>
+                                <input type="text" wire:model="form.translation_payload.compliance.individual.title" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+                            </div>
+
+                            <div>
+                                <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Intro') }}</label>
+                                <textarea rows="4" wire:model="form.translation_payload.compliance.individual.intro" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm"></textarea>
+                            </div>
+
+                            @foreach (($translationPayload['compliance']['individual']['items'] ?? []) as $index => $item)
+                                <div>
+                                    <div class="mb-1 flex items-center justify-between gap-3">
+                                        <label class="block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Item') }} #{{ $index + 1 }}</label>
+                                        <button type="button" wire:click="removeTranslationListItem('compliance.individual.items', {{ $index }})" class="text-xs font-semibold text-rose-600 hover:text-rose-700">{{ __('Remove') }}</button>
+                                    </div>
+                                    <input type="text" wire:model="form.translation_payload.compliance.individual.items.{{ $index }}" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+                                </div>
+                            @endforeach
+
+                            <div class="mt-3">
+                                <button type="button" wire:click="addTranslationListItem('compliance.individual.items')" class="rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-100">
+                                    {{ __('Add Item') }}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid gap-6 xl:grid-cols-2">
+                    <div id="tax-review-admin" class="admin-panel admin-form-panel p-6 scroll-mt-24">
+                        <p class="admin-section-title">{{ __('Tax Review') }}</p>
+
+                        <div class="mt-4">
+                            <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Kicker') }}</label>
+                            <input type="text" wire:model="form.translation_payload.review.kicker" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+                        </div>
+
+                        <div class="mt-3">
+                            <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Title') }}</label>
+                            <input type="text" wire:model="form.translation_payload.review.title" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+                        </div>
+
+                        <div class="mt-3">
+                            <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Intro') }}</label>
+                            <textarea rows="4" wire:model="form.translation_payload.review.intro" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm"></textarea>
+                        </div>
+
+                        @foreach (($translationPayload['review']['body'] ?? []) as $index => $paragraph)
+                            <div class="mt-3">
+                                <div class="mb-1 flex items-center justify-between gap-3">
+                                    <label class="block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Paragraph') }} #{{ $index + 1 }}</label>
+                                    <button type="button" wire:click="removeTranslationListItem('review.body', {{ $index }})" class="text-xs font-semibold text-rose-600 hover:text-rose-700">{{ __('Remove') }}</button>
+                                </div>
+                                <textarea rows="4" wire:model="form.translation_payload.review.body.{{ $index }}" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm"></textarea>
+                            </div>
+                        @endforeach
+
+                        <div class="mt-3">
+                            <button type="button" wire:click="addTranslationListItem('review.body')" class="rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-100">
+                                {{ __('Add Paragraph') }}
+                            </button>
+                        </div>
+
+                        <div class="mt-5">
+                            <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Highlights Title') }}</label>
+                            <input type="text" wire:model="form.translation_payload.review.highlights_title" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+                        </div>
+
+                        @foreach (($translationPayload['review']['highlights'] ?? []) as $index => $item)
+                            <div class="mt-3">
+                                <div class="mb-1 flex items-center justify-between gap-3">
+                                    <label class="block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Highlight') }} #{{ $index + 1 }}</label>
+                                    <button type="button" wire:click="removeTranslationListItem('review.highlights', {{ $index }})" class="text-xs font-semibold text-rose-600 hover:text-rose-700">{{ __('Remove') }}</button>
+                                </div>
+                                <input type="text" wire:model="form.translation_payload.review.highlights.{{ $index }}" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+                            </div>
+                        @endforeach
+
+                        <div class="mt-3">
+                            <button type="button" wire:click="addTranslationListItem('review.highlights')" class="rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-100">
+                                {{ __('Add Highlight') }}
+                            </button>
+                        </div>
+                    </div>
+
+                    <div id="tax-optimization-admin" class="admin-panel admin-form-panel p-6 scroll-mt-24">
+                        <p class="admin-section-title">{{ __('Optimization') }}</p>
+
+                        <div class="mt-4">
+                            <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Kicker') }}</label>
+                            <input type="text" wire:model="form.translation_payload.optimization.kicker" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+                        </div>
+
+                        <div class="mt-3">
+                            <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Title') }}</label>
+                            <input type="text" wire:model="form.translation_payload.optimization.title" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+                        </div>
+
+                        <div class="mt-3">
+                            <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Intro') }}</label>
+                            <textarea rows="4" wire:model="form.translation_payload.optimization.intro" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm"></textarea>
+                        </div>
+
+                        @foreach (($translationPayload['optimization']['body'] ?? []) as $index => $paragraph)
+                            <div class="mt-3">
+                                <div class="mb-1 flex items-center justify-between gap-3">
+                                    <label class="block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Paragraph') }} #{{ $index + 1 }}</label>
+                                    <button type="button" wire:click="removeTranslationListItem('optimization.body', {{ $index }})" class="text-xs font-semibold text-rose-600 hover:text-rose-700">{{ __('Remove') }}</button>
+                                </div>
+                                <textarea rows="4" wire:model="form.translation_payload.optimization.body.{{ $index }}" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm"></textarea>
+                            </div>
+                        @endforeach
+
+                        <div class="mt-3">
+                            <button type="button" wire:click="addTranslationListItem('optimization.body')" class="rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-100">
+                                {{ __('Add Paragraph') }}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid gap-6 xl:grid-cols-2">
+                    <div id="tax-due-diligence-admin" class="admin-panel admin-form-panel p-6 scroll-mt-24">
+                        <p class="admin-section-title">{{ __('Due Diligence') }}</p>
+
+                        <div class="mt-4">
+                            <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Kicker') }}</label>
+                            <input type="text" wire:model="form.translation_payload.due_diligence.kicker" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+                        </div>
+
+                        <div class="mt-3">
+                            <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Title') }}</label>
+                            <input type="text" wire:model="form.translation_payload.due_diligence.title" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+                        </div>
+
+                        <div class="mt-3">
+                            <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Intro') }}</label>
+                            <textarea rows="4" wire:model="form.translation_payload.due_diligence.intro" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm"></textarea>
+                        </div>
+
+                        @foreach (($translationPayload['due_diligence']['body'] ?? []) as $index => $paragraph)
+                            <div class="mt-3">
+                                <div class="mb-1 flex items-center justify-between gap-3">
+                                    <label class="block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Paragraph') }} #{{ $index + 1 }}</label>
+                                    <button type="button" wire:click="removeTranslationListItem('due_diligence.body', {{ $index }})" class="text-xs font-semibold text-rose-600 hover:text-rose-700">{{ __('Remove') }}</button>
+                                </div>
+                                <textarea rows="4" wire:model="form.translation_payload.due_diligence.body.{{ $index }}" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm"></textarea>
+                            </div>
+                        @endforeach
+
+                        <div class="mt-3">
+                            <button type="button" wire:click="addTranslationListItem('due_diligence.body')" class="rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-100">
+                                {{ __('Add Paragraph') }}
+                            </button>
+                        </div>
+                    </div>
+
+                    <div id="tax-transfer-pricing-admin" class="admin-panel admin-form-panel p-6 scroll-mt-24">
+                        <p class="admin-section-title">{{ __('Transfer Pricing') }}</p>
+
+                        <div class="mt-4">
+                            <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Kicker') }}</label>
+                            <input type="text" wire:model="form.translation_payload.transfer_pricing.kicker" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+                        </div>
+
+                        <div class="mt-3">
+                            <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Title') }}</label>
+                            <input type="text" wire:model="form.translation_payload.transfer_pricing.title" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+                        </div>
+
+                        <div class="mt-3">
+                            <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Intro') }}</label>
+                            <textarea rows="4" wire:model="form.translation_payload.transfer_pricing.intro" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm"></textarea>
+                        </div>
+
+                        @foreach (($translationPayload['transfer_pricing']['body'] ?? []) as $index => $paragraph)
+                            <div class="mt-3">
+                                <div class="mb-1 flex items-center justify-between gap-3">
+                                    <label class="block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Paragraph') }} #{{ $index + 1 }}</label>
+                                    <button type="button" wire:click="removeTranslationListItem('transfer_pricing.body', {{ $index }})" class="text-xs font-semibold text-rose-600 hover:text-rose-700">{{ __('Remove') }}</button>
+                                </div>
+                                <textarea rows="4" wire:model="form.translation_payload.transfer_pricing.body.{{ $index }}" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm"></textarea>
+                            </div>
+                        @endforeach
+
+                        <div class="mt-3">
+                            <button type="button" wire:click="addTranslationListItem('transfer_pricing.body')" class="rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-100">
+                                {{ __('Add Paragraph') }}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid gap-6 xl:grid-cols-2">
+                    <div class="admin-panel admin-form-panel p-6">
+                        <p class="admin-section-title">{{ __('Blog Section') }}</p>
+
+                        <div class="mt-4">
+                            <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Kicker') }}</label>
+                            <input type="text" wire:model="form.translation_payload.blog_section.kicker" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+                        </div>
+                        <div class="mt-3">
+                            <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Title') }}</label>
+                            <input type="text" wire:model="form.translation_payload.blog_section.title" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+                            <p class="mt-1 text-xs text-slate-500">{{ __('Use :category placeholder if you want the current blog category name inserted automatically.') }}</p>
+                        </div>
+                        <div class="mt-3">
+                            <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Intro') }}</label>
+                            <textarea rows="4" wire:model="form.translation_payload.blog_section.intro" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm"></textarea>
+                        </div>
+                    </div>
+
+                    <div id="tax-meeting-admin" class="admin-panel admin-form-panel p-6 scroll-mt-24">
+                        <p class="admin-section-title">{{ __('Meeting Section') }}</p>
+
+                        <div class="mt-4 grid gap-3 md:grid-cols-2">
+                            <div>
+                                <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Kicker') }}</label>
+                                <input type="text" wire:model="form.translation_payload.meeting.kicker" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+                            </div>
+                            <div>
+                                <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Title') }}</label>
+                                <input type="text" wire:model="form.translation_payload.meeting.title" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+                            </div>
+                        </div>
+
+                        <div class="mt-3">
+                            <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Intro') }}</label>
+                            <textarea rows="5" wire:model="form.translation_payload.meeting.intro" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm"></textarea>
+                        </div>
+
+                        <div class="mt-3 grid gap-3 md:grid-cols-2">
+                            <div>
+                                <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Visit Title') }}</label>
+                                <input type="text" wire:model="form.translation_payload.meeting.visit_title" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+                            </div>
+                            <div>
+                                <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Contact Title') }}</label>
+                                <input type="text" wire:model="form.translation_payload.meeting.contact_title" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+                            </div>
+                        </div>
+
+                        <div class="mt-3 grid gap-3 md:grid-cols-2">
+                            <div>
+                                <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Visit Line 1') }}</label>
+                                <input type="text" wire:model="form.translation_payload.meeting.visit_lines.0" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+                            </div>
+                            <div>
+                                <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Visit Line 2') }}</label>
+                                <input type="text" wire:model="form.translation_payload.meeting.visit_lines.1" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+                            </div>
+                        </div>
+
+                        <div class="mt-3">
+                            <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Submit Label') }}</label>
+                            <input type="text" wire:model="form.translation_payload.meeting.submit" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm md:max-w-[18rem]" />
+                        </div>
+
+                        <div class="mt-6 grid gap-3 md:grid-cols-2">
+                            <div>
+                                <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Direct Phone Label') }}</label>
+                                <input type="text" wire:model="form.translation_payload.meeting.direct_phone_label" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+                            </div>
+                            <div>
+                                <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Direct Email Label') }}</label>
+                                <input type="text" wire:model="form.translation_payload.meeting.direct_email_label" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+                            </div>
+                        </div>
+
+                        <div class="mt-6">
+                            <p class="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Form Labels') }}</p>
+
+                            <div class="mt-3 grid gap-3 md:grid-cols-2">
+                                <div>
+                                    <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('First Name') }}</label>
+                                    <input type="text" wire:model="form.translation_payload.meeting.form_labels.first_name" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+                                </div>
+                                <div>
+                                    <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Last Name') }}</label>
+                                    <input type="text" wire:model="form.translation_payload.meeting.form_labels.last_name" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+                                </div>
+                            </div>
+
+                            <div class="mt-3 grid gap-3 md:grid-cols-2">
+                                <div>
+                                    <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Company') }}</label>
+                                    <input type="text" wire:model="form.translation_payload.meeting.form_labels.company" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+                                </div>
+                                <div>
+                                    <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Phone Label') }}</label>
+                                    <input type="text" wire:model="form.translation_payload.meeting.form_labels.phone" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+                                </div>
+                            </div>
+
+                            <div class="mt-3 grid gap-3 md:grid-cols-2">
+                                <div>
+                                    <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Email Label') }}</label>
+                                    <input type="text" wire:model="form.translation_payload.meeting.form_labels.email" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+                                </div>
+                                <div>
+                                    <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Subject Label') }}</label>
+                                    <input type="text" wire:model="form.translation_payload.meeting.form_labels.subject" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+                                </div>
+                            </div>
+
+                            <div class="mt-3">
+                                <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Message Label') }}</label>
+                                <input type="text" wire:model="form.translation_payload.meeting.form_labels.message" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
             @else
             <div class="admin-panel admin-form-panel p-6">
                 <p class="admin-section-title">{{ __('Audience & FFI') }}</p>
@@ -1380,7 +1885,9 @@
                         <div class="mt-4">
                             <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Mode') }}</label>
                             <select wire:model.live="form.page_payload.blog_source.mode" data-tom-select data-tom-no-search="1" class="admin-select w-full rounded-xl border border-slate-300 px-3 py-2 text-sm">
-                                <option value="auto_category">{{ $isAuditTemplate ? __('Auto (current audit category)') : __('Auto (current family-business category)') }}</option>
+                                <option value="auto_category">
+                                    {{ $isAuditTemplate ? __('Auto (current audit category)') : ($isTaxTemplate ? __('Auto (current tax category)') : __('Auto (current family-business category)')) }}
+                                </option>
                                 <option value="category">{{ __('Specific blog category') }}</option>
                                 <option value="manual">{{ __('Manual post selection') }}</option>
                             </select>
