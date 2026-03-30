@@ -53,7 +53,7 @@
                 'text' => 'Neovisna stručna mišljenja i procjena poslovnih procesa, rizika i kontrola.',
                 'highlights' => ['Mišljenja', 'Procjene'],
                 'featured' => true,
-                'url' => route('contact.create'),
+                'url' => route('audit.show'),
                 'accent' => '#214764',
                 'layout_area' => 'audit',
             ],

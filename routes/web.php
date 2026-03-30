@@ -8,6 +8,7 @@ use App\Http\Controllers\Front\BlogController;
 use App\Http\Controllers\Front\CareerApplicationController;
 use App\Http\Controllers\Front\CollaborationAssessmentController;
 use App\Http\Controllers\Front\ContactController;
+use App\Http\Controllers\Front\AuditController;
 use App\Http\Controllers\Front\FamilyBusinessController;
 use App\Http\Controllers\Front\FinanceController;
 use App\Http\Controllers\Front\FaqController;
@@ -74,6 +75,7 @@ Route::middleware(['front.locale', 'front.device'])
         Route::get('faq', [FaqController::class, 'index'])->name('faq.index');
         Route::get('alpha-capitalis-tim', [TeamController::class, 'index'])->name('team.index');
         Route::get('financije', [FinanceController::class, 'show'])->name('finance.show');
+        Route::get('revizija', [AuditController::class, 'show'])->name('audit.show');
         Route::get('obiteljski-biznis', [FamilyBusinessController::class, 'show'])->name('family-business.show');
         Route::get('glossary', [GlossaryController::class, 'index'])->name('glossary.index');
         Route::get('glossary/{slug}', [GlossaryController::class, 'show'])->name('glossary.show');

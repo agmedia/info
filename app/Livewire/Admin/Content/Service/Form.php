@@ -19,6 +19,24 @@ class Form extends Component
     private const TAB_OPTIONS = ['content', 'sources', 'seo', 'media'];
 
     private const SOURCE_ENABLED_TEMPLATES = [
+        ServicePageTemplateRegistry::AUDIT,
+        ServicePageTemplateRegistry::FAMILY_BUSINESS,
+    ];
+
+    private const BLOG_SOURCE_ENABLED_TEMPLATES = [
+        ServicePageTemplateRegistry::AUDIT,
+        ServicePageTemplateRegistry::FAMILY_BUSINESS,
+    ];
+
+    private const FAQ_SOURCE_ENABLED_TEMPLATES = [
+        ServicePageTemplateRegistry::FAMILY_BUSINESS,
+    ];
+
+    private const TEAM_SOURCE_ENABLED_TEMPLATES = [
+        ServicePageTemplateRegistry::FAMILY_BUSINESS,
+    ];
+
+    private const BROCHURE_ENABLED_TEMPLATES = [
         ServicePageTemplateRegistry::FAMILY_BUSINESS,
     ];
 
@@ -271,6 +289,10 @@ class Form extends Component
             'isEdit' => (bool) $this->servicePageId,
             'templateOptions' => ServicePageTemplateRegistry::labels(),
             'templateSupportsSources' => $this->templateSupportsSources(),
+            'templateSupportsBlogSource' => $this->templateSupportsBlogSource(),
+            'templateSupportsFaqSource' => $this->templateSupportsFaqSource(),
+            'templateSupportsTeamSource' => $this->templateSupportsTeamSource(),
+            'templateSupportsBrochure' => $this->templateSupportsBrochure(),
         ]);
     }
 
@@ -430,7 +452,7 @@ class Form extends Component
             'form.translation_payload' => ['nullable', 'array'],
         ];
 
-        if ($this->templateSupportsSources()) {
+        if ($this->templateSupportsBlogSource()) {
             $rules['form.page_payload.blog_source.mode'] = ['required', Rule::in(['auto_category', 'category', 'manual'])];
             $rules['form.page_payload.blog_source.category_id'] = [
                 'nullable',
@@ -440,13 +462,22 @@ class Form extends Component
             $rules['form.page_payload.blog_source.post_ids'] = ['nullable', 'array'];
             $rules['form.page_payload.blog_source.post_ids.*'] = ['integer', Rule::exists('content_blog_posts', 'id')];
             $rules['form.page_payload.blog_source.limit'] = ['nullable', 'integer', 'min:1', 'max:24'];
+        }
+
+        if ($this->templateSupportsFaqSource()) {
             $rules['form.page_payload.faq_source.mode'] = ['required', Rule::in(['auto_group', 'group', 'manual'])];
             $rules['form.page_payload.faq_source.group_code'] = ['nullable', 'string', 'max:120'];
             $rules['form.page_payload.faq_source.faq_ids'] = ['nullable', 'array'];
             $rules['form.page_payload.faq_source.faq_ids.*'] = ['integer', Rule::exists('content_faqs', 'id')];
+        }
+
+        if ($this->templateSupportsTeamSource()) {
             $rules['form.page_payload.team_source.mode'] = ['required', Rule::in(['auto', 'manual'])];
             $rules['form.page_payload.team_source.member_ids'] = ['nullable', 'array'];
             $rules['form.page_payload.team_source.member_ids.*'] = ['integer', Rule::exists('content_team_members', 'id')];
+        }
+
+        if ($this->templateSupportsBrochure()) {
             $rules['form.page_payload.brochure_url'] = ['nullable', 'string', 'max:2048'];
         }
 
@@ -529,13 +560,16 @@ class Form extends Component
 
     private function clearTranslationFields(string $templateKey): void
     {
-        $this->form['title'] = '';
-        $this->form['slug'] = '';
-        $this->form['meta_title'] = '';
-        $this->form['meta_description'] = '';
+        $locale = (string) ($this->form['locale'] ?? config('app.locale', 'en'));
+        $defaults = $this->defaultTranslationFields($templateKey, $locale);
+
+        $this->form['title'] = $defaults['title'];
+        $this->form['slug'] = $defaults['slug'];
+        $this->form['meta_title'] = $defaults['meta_title'];
+        $this->form['meta_description'] = $defaults['meta_description'];
         $this->form['translation_payload'] = ServicePageTemplateRegistry::defaultTranslationPayload(
             $templateKey,
-            (string) ($this->form['locale'] ?? config('app.locale', 'en'))
+            $locale
         );
     }
 
@@ -554,6 +588,37 @@ class Form extends Component
         if (! $this->templateSupportsSources($templateKey) && $this->activeTab === 'sources') {
             $this->activeTab = 'content';
         }
+    }
+
+    /**
+     * @return array{title: string, slug: string, meta_title: string, meta_description: string}
+     */
+    private function defaultTranslationFields(string $templateKey, string $locale): array
+    {
+        if ($templateKey !== ServicePageTemplateRegistry::AUDIT) {
+            return [
+                'title' => '',
+                'slug' => '',
+                'meta_title' => '',
+                'meta_description' => '',
+            ];
+        }
+
+        if (str_starts_with(strtolower($locale), 'hr')) {
+            return [
+                'title' => 'Revizija',
+                'slug' => 'revizija',
+                'meta_title' => 'Revizija',
+                'meta_description' => 'Revizija financijskih izvještaja, revizorski uvidi i posebni revizorski angažmani.',
+            ];
+        }
+
+        return [
+            'title' => 'Audit',
+            'slug' => 'audit',
+            'meta_title' => 'Audit',
+            'meta_description' => 'Audit of financial statements, review engagements, and special audit services.',
+        ];
     }
 
     private function moveManualItem(string $target, int $index, int $direction): void
@@ -630,13 +695,24 @@ class Form extends Component
             return $merged;
         }
 
-        data_set($merged, 'blog_source.category_id', $this->nullableInt(data_get($merged, 'blog_source.category_id')));
-        data_set($merged, 'blog_source.limit', max(1, min(24, (int) data_get($merged, 'blog_source.limit', 6))));
-        data_set($merged, 'blog_source.post_ids', $this->normalizeIdList((array) data_get($merged, 'blog_source.post_ids', [])));
-        data_set($merged, 'faq_source.group_code', trim((string) data_get($merged, 'faq_source.group_code', '')));
-        data_set($merged, 'faq_source.faq_ids', $this->normalizeIdList((array) data_get($merged, 'faq_source.faq_ids', [])));
-        data_set($merged, 'team_source.member_ids', $this->normalizeIdList((array) data_get($merged, 'team_source.member_ids', [])));
-        data_set($merged, 'brochure_url', trim((string) data_get($merged, 'brochure_url', '')));
+        if ($this->templateSupportsBlogSource()) {
+            data_set($merged, 'blog_source.category_id', $this->nullableInt(data_get($merged, 'blog_source.category_id')));
+            data_set($merged, 'blog_source.limit', max(1, min(24, (int) data_get($merged, 'blog_source.limit', 6))));
+            data_set($merged, 'blog_source.post_ids', $this->normalizeIdList((array) data_get($merged, 'blog_source.post_ids', [])));
+        }
+
+        if ($this->templateSupportsFaqSource()) {
+            data_set($merged, 'faq_source.group_code', trim((string) data_get($merged, 'faq_source.group_code', '')));
+            data_set($merged, 'faq_source.faq_ids', $this->normalizeIdList((array) data_get($merged, 'faq_source.faq_ids', [])));
+        }
+
+        if ($this->templateSupportsTeamSource()) {
+            data_set($merged, 'team_source.member_ids', $this->normalizeIdList((array) data_get($merged, 'team_source.member_ids', [])));
+        }
+
+        if ($this->templateSupportsBrochure()) {
+            data_set($merged, 'brochure_url', trim((string) data_get($merged, 'brochure_url', '')));
+        }
 
         return $merged;
     }
@@ -679,6 +755,42 @@ class Form extends Component
         return in_array(
             $templateKey ?: (string) ($this->form['template_key'] ?? ''),
             self::SOURCE_ENABLED_TEMPLATES,
+            true
+        );
+    }
+
+    private function templateSupportsBlogSource(?string $templateKey = null): bool
+    {
+        return in_array(
+            $templateKey ?: (string) ($this->form['template_key'] ?? ''),
+            self::BLOG_SOURCE_ENABLED_TEMPLATES,
+            true
+        );
+    }
+
+    private function templateSupportsFaqSource(?string $templateKey = null): bool
+    {
+        return in_array(
+            $templateKey ?: (string) ($this->form['template_key'] ?? ''),
+            self::FAQ_SOURCE_ENABLED_TEMPLATES,
+            true
+        );
+    }
+
+    private function templateSupportsTeamSource(?string $templateKey = null): bool
+    {
+        return in_array(
+            $templateKey ?: (string) ($this->form['template_key'] ?? ''),
+            self::TEAM_SOURCE_ENABLED_TEMPLATES,
+            true
+        );
+    }
+
+    private function templateSupportsBrochure(?string $templateKey = null): bool
+    {
+        return in_array(
+            $templateKey ?: (string) ($this->form['template_key'] ?? ''),
+            self::BROCHURE_ENABLED_TEMPLATES,
             true
         );
     }

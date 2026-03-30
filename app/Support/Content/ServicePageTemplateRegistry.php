@@ -8,6 +8,8 @@ class ServicePageTemplateRegistry
 {
     public const FINANCE = 'finance';
 
+    public const AUDIT = 'audit';
+
     public const FAMILY_BUSINESS = 'family_business';
 
     /**
@@ -17,6 +19,7 @@ class ServicePageTemplateRegistry
     {
         return [
             self::FINANCE => 'Financije',
+            self::AUDIT => 'Revizija',
             self::FAMILY_BUSINESS => 'Family Business',
         ];
     }
@@ -31,6 +34,7 @@ class ServicePageTemplateRegistry
     {
         return match ($templateKey) {
             self::FINANCE => 'finance',
+            self::AUDIT => 'audit',
             self::FAMILY_BUSINESS => 'family-business',
             default => Str::of($templateKey)->replace('_', '-')->lower()->value(),
         };
@@ -48,6 +52,14 @@ class ServicePageTemplateRegistry
                     'category_id' => null,
                     'post_ids' => [],
                     'limit' => 5,
+                ],
+            ],
+            self::AUDIT => [
+                'blog_source' => [
+                    'mode' => 'auto_category',
+                    'category_id' => null,
+                    'post_ids' => [],
+                    'limit' => 6,
                 ],
             ],
             self::FAMILY_BUSINESS => [
@@ -79,6 +91,9 @@ class ServicePageTemplateRegistry
     {
         return match ($templateKey) {
             self::FINANCE => FinanceServicePageDefaults::defaultsForLocale(
+                $locale ?: (string) config('app.locale', 'en')
+            ),
+            self::AUDIT => AuditServicePageDefaults::defaultsForLocale(
                 $locale ?: (string) config('app.locale', 'en')
             ),
             self::FAMILY_BUSINESS => [

@@ -3,6 +3,7 @@
     $pagePayload = $form['page_payload'] ?? [];
     $templateKey = $form['template_key'] ?? \App\Support\Content\ServicePageTemplateRegistry::FAMILY_BUSINESS;
     $isFinanceTemplate = $templateKey === \App\Support\Content\ServicePageTemplateRegistry::FINANCE;
+    $isAuditTemplate = $templateKey === \App\Support\Content\ServicePageTemplateRegistry::AUDIT;
     $financeEditorSections = [
         'finance-pandea' => __('Pandea'),
         'finance-services-intro' => __('Services Intro'),
@@ -12,6 +13,14 @@
         'finance-capital-raising' => __('Capital Raising'),
         'finance-restructuring' => __('Restructuring'),
         'finance-meeting' => __('Meeting'),
+    ];
+    $auditEditorSections = [
+        'audit-overview-admin' => __('Overview'),
+        'audit-obligors-admin' => __('Obligors'),
+        'audit-services-admin' => __('Services'),
+        'audit-value-admin' => __('Value'),
+        'audit-approach-admin' => __('Approach'),
+        'audit-meeting-admin' => __('Meeting'),
     ];
 @endphp
 
@@ -666,6 +675,390 @@
                         </div>
                     </div>
                 </div>
+            @elseif ($isAuditTemplate)
+                <div class="admin-panel admin-form-panel p-6">
+                    <p class="admin-section-title">{{ __('Audit Navigator') }}</p>
+                    <div class="mt-4 flex flex-wrap gap-2">
+                        @foreach ($auditEditorSections as $sectionId => $sectionLabel)
+                            <a href="#{{ $sectionId }}" class="admin-chip">{{ $sectionLabel }}</a>
+                        @endforeach
+                    </div>
+                    <p class="mt-4 text-sm text-slate-600">
+                        {{ __('Revizija koristi fiksni landing layout. Ovdje uređujete copy sekcija, liste i završne blokove za kontakt i blog.') }}
+                    </p>
+                </div>
+
+                <div class="grid gap-6 xl:grid-cols-2">
+                    <div id="audit-overview-admin" class="admin-panel admin-form-panel p-6 scroll-mt-24">
+                        <p class="admin-section-title">{{ __('Overview Block') }}</p>
+
+                        <div class="mt-4">
+                            <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Kicker') }}</label>
+                            <input type="text" wire:model="form.translation_payload.overview.kicker" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+                        </div>
+
+                        <div class="mt-3">
+                            <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Title') }}</label>
+                            <input type="text" wire:model="form.translation_payload.overview.title" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+                        </div>
+
+                        <div class="mt-3">
+                            <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Intro') }}</label>
+                            <textarea rows="4" wire:model="form.translation_payload.overview.intro" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm"></textarea>
+                        </div>
+
+                        <div class="mt-3">
+                            <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Highlight Title') }}</label>
+                            <input type="text" wire:model="form.translation_payload.overview.highlight_title" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+                        </div>
+
+                        @foreach (($translationPayload['overview']['body'] ?? []) as $index => $paragraph)
+                            <div class="mt-3">
+                                <div class="mb-1 flex items-center justify-between gap-3">
+                                    <label class="block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Paragraph') }} #{{ $index + 1 }}</label>
+                                    <button type="button" wire:click="removeTranslationListItem('overview.body', {{ $index }})" class="text-xs font-semibold text-rose-600 hover:text-rose-700">{{ __('Remove') }}</button>
+                                </div>
+                                <textarea rows="4" wire:model="form.translation_payload.overview.body.{{ $index }}" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm"></textarea>
+                            </div>
+                        @endforeach
+
+                        <div class="mt-3">
+                            <button type="button" wire:click="addTranslationListItem('overview.body')" class="rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-100">
+                                {{ __('Add Paragraph') }}
+                            </button>
+                        </div>
+                    </div>
+
+                    <div id="audit-obligors-admin" class="admin-panel admin-form-panel p-6 scroll-mt-24">
+                        <p class="admin-section-title">{{ __('Obligors & Thresholds') }}</p>
+
+                        <div class="mt-4">
+                            <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Kicker') }}</label>
+                            <input type="text" wire:model="form.translation_payload.obligors.kicker" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+                        </div>
+
+                        <div class="mt-3">
+                            <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Title') }}</label>
+                            <input type="text" wire:model="form.translation_payload.obligors.title" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+                        </div>
+
+                        <div class="mt-3">
+                            <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Intro') }}</label>
+                            <textarea rows="4" wire:model="form.translation_payload.obligors.intro" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm"></textarea>
+                        </div>
+
+                        <div class="mt-3">
+                            <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Primary Title') }}</label>
+                            <input type="text" wire:model="form.translation_payload.obligors.primary_title" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+                        </div>
+
+                        @foreach (($translationPayload['obligors']['primary_items'] ?? []) as $index => $item)
+                            <div class="mt-3">
+                                <div class="mb-1 flex items-center justify-between gap-3">
+                                    <label class="block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Primary Item') }} #{{ $index + 1 }}</label>
+                                    <button type="button" wire:click="removeTranslationListItem('obligors.primary_items', {{ $index }})" class="text-xs font-semibold text-rose-600 hover:text-rose-700">{{ __('Remove') }}</button>
+                                </div>
+                                <input type="text" wire:model="form.translation_payload.obligors.primary_items.{{ $index }}" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+                            </div>
+                        @endforeach
+
+                        <div class="mt-3">
+                            <button type="button" wire:click="addTranslationListItem('obligors.primary_items')" class="rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-100">
+                                {{ __('Add Primary Item') }}
+                            </button>
+                        </div>
+
+                        <div class="mt-5">
+                            <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Thresholds Title') }}</label>
+                            <input type="text" wire:model="form.translation_payload.obligors.thresholds_title" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+                        </div>
+
+                        <div class="mt-3">
+                            <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Thresholds Intro') }}</label>
+                            <textarea rows="3" wire:model="form.translation_payload.obligors.thresholds_intro" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm"></textarea>
+                        </div>
+
+                        @foreach (($translationPayload['obligors']['thresholds'] ?? []) as $index => $item)
+                            <div class="mt-3">
+                                <div class="mb-1 flex items-center justify-between gap-3">
+                                    <label class="block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Threshold') }} #{{ $index + 1 }}</label>
+                                    <button type="button" wire:click="removeTranslationListItem('obligors.thresholds', {{ $index }})" class="text-xs font-semibold text-rose-600 hover:text-rose-700">{{ __('Remove') }}</button>
+                                </div>
+                                <input type="text" wire:model="form.translation_payload.obligors.thresholds.{{ $index }}" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+                            </div>
+                        @endforeach
+
+                        <div class="mt-3">
+                            <button type="button" wire:click="addTranslationListItem('obligors.thresholds')" class="rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-100">
+                                {{ __('Add Threshold') }}
+                            </button>
+                        </div>
+
+                        <div class="mt-5">
+                            <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Note') }}</label>
+                            <textarea rows="4" wire:model="form.translation_payload.obligors.note" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm"></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="audit-services-admin" class="admin-panel admin-form-panel p-6 scroll-mt-24">
+                    <p class="admin-section-title">{{ __('Audit Services') }}</p>
+
+                    <div class="mt-4 grid gap-3 md:grid-cols-2">
+                        <div>
+                            <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Kicker') }}</label>
+                            <input type="text" wire:model="form.translation_payload.services.kicker" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+                        </div>
+                        <div>
+                            <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Title') }}</label>
+                            <input type="text" wire:model="form.translation_payload.services.title" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+                        </div>
+                    </div>
+
+                    <div class="mt-3">
+                        <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Intro') }}</label>
+                        <textarea rows="4" wire:model="form.translation_payload.services.intro" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm"></textarea>
+                    </div>
+
+                    <div class="mt-6 grid gap-4 xl:grid-cols-3">
+                        @foreach (($translationPayload['services']['items'] ?? []) as $index => $item)
+                            <div class="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                                <p class="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Service Item') }} #{{ $index + 1 }}</p>
+                                <div class="mt-3">
+                                    <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Title') }}</label>
+                                    <input type="text" wire:model="form.translation_payload.services.items.{{ $index }}.title" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+                                </div>
+                                <div class="mt-3">
+                                    <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Text') }}</label>
+                                    <textarea rows="5" wire:model="form.translation_payload.services.items.{{ $index }}.text" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm"></textarea>
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+                </div>
+
+                <div class="grid gap-6 xl:grid-cols-2">
+                    <div id="audit-value-admin" class="admin-panel admin-form-panel p-6 scroll-mt-24">
+                        <p class="admin-section-title">{{ __('Value Section') }}</p>
+
+                        <div class="mt-4">
+                            <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Kicker') }}</label>
+                            <input type="text" wire:model="form.translation_payload.value.kicker" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+                        </div>
+
+                        <div class="mt-3">
+                            <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Title') }}</label>
+                            <input type="text" wire:model="form.translation_payload.value.title" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+                        </div>
+
+                        <div class="mt-3">
+                            <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Intro') }}</label>
+                            <textarea rows="4" wire:model="form.translation_payload.value.intro" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm"></textarea>
+                        </div>
+
+                        @foreach (($translationPayload['value']['benefits'] ?? []) as $index => $item)
+                            <div class="mt-3">
+                                <div class="mb-1 flex items-center justify-between gap-3">
+                                    <label class="block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Benefit') }} #{{ $index + 1 }}</label>
+                                    <button type="button" wire:click="removeTranslationListItem('value.benefits', {{ $index }})" class="text-xs font-semibold text-rose-600 hover:text-rose-700">{{ __('Remove') }}</button>
+                                </div>
+                                <input type="text" wire:model="form.translation_payload.value.benefits.{{ $index }}" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+                            </div>
+                        @endforeach
+
+                        <div class="mt-3">
+                            <button type="button" wire:click="addTranslationListItem('value.benefits')" class="rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-100">
+                                {{ __('Add Benefit') }}
+                            </button>
+                        </div>
+
+                        <div class="mt-5">
+                            <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Conclusion') }}</label>
+                            <textarea rows="4" wire:model="form.translation_payload.value.conclusion" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm"></textarea>
+                        </div>
+                    </div>
+
+                    <div id="audit-approach-admin" class="admin-panel admin-form-panel p-6 scroll-mt-24">
+                        <p class="admin-section-title">{{ __('Approach Section') }}</p>
+
+                        <div class="mt-4">
+                            <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Kicker') }}</label>
+                            <input type="text" wire:model="form.translation_payload.approach.kicker" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+                        </div>
+
+                        <div class="mt-3">
+                            <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Title') }}</label>
+                            <input type="text" wire:model="form.translation_payload.approach.title" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+                        </div>
+
+                        <div class="mt-3">
+                            <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Intro') }}</label>
+                            <textarea rows="4" wire:model="form.translation_payload.approach.intro" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm"></textarea>
+                        </div>
+
+                        <div class="mt-4">
+                            <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Principles Title') }}</label>
+                            <input type="text" wire:model="form.translation_payload.approach.principles_title" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+                        </div>
+
+                        @foreach (($translationPayload['approach']['principles'] ?? []) as $index => $item)
+                            <div class="mt-3">
+                                <div class="mb-1 flex items-center justify-between gap-3">
+                                    <label class="block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Principle') }} #{{ $index + 1 }}</label>
+                                    <button type="button" wire:click="removeTranslationListItem('approach.principles', {{ $index }})" class="text-xs font-semibold text-rose-600 hover:text-rose-700">{{ __('Remove') }}</button>
+                                </div>
+                                <input type="text" wire:model="form.translation_payload.approach.principles.{{ $index }}" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+                            </div>
+                        @endforeach
+
+                        <div class="mt-3">
+                            <button type="button" wire:click="addTranslationListItem('approach.principles')" class="rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-100">
+                                {{ __('Add Principle') }}
+                            </button>
+                        </div>
+
+                        <div class="mt-5">
+                            <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Reasons Title') }}</label>
+                            <input type="text" wire:model="form.translation_payload.approach.reasons_title" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+                        </div>
+
+                        @foreach (($translationPayload['approach']['reasons'] ?? []) as $index => $item)
+                            <div class="mt-3">
+                                <div class="mb-1 flex items-center justify-between gap-3">
+                                    <label class="block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Reason') }} #{{ $index + 1 }}</label>
+                                    <button type="button" wire:click="removeTranslationListItem('approach.reasons', {{ $index }})" class="text-xs font-semibold text-rose-600 hover:text-rose-700">{{ __('Remove') }}</button>
+                                </div>
+                                <input type="text" wire:model="form.translation_payload.approach.reasons.{{ $index }}" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+                            </div>
+                        @endforeach
+
+                        <div class="mt-3">
+                            <button type="button" wire:click="addTranslationListItem('approach.reasons')" class="rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-100">
+                                {{ __('Add Reason') }}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid gap-6 xl:grid-cols-2">
+                    <div class="admin-panel admin-form-panel p-6">
+                        <p class="admin-section-title">{{ __('Blog Section') }}</p>
+
+                        <div class="mt-4">
+                            <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Kicker') }}</label>
+                            <input type="text" wire:model="form.translation_payload.blog_section.kicker" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+                        </div>
+                        <div class="mt-3">
+                            <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Title') }}</label>
+                            <input type="text" wire:model="form.translation_payload.blog_section.title" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+                            <p class="mt-1 text-xs text-slate-500">{{ __('Use :category placeholder if you want the current blog category name inserted automatically.') }}</p>
+                        </div>
+                        <div class="mt-3">
+                            <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Intro') }}</label>
+                            <textarea rows="4" wire:model="form.translation_payload.blog_section.intro" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm"></textarea>
+                        </div>
+                    </div>
+
+                    <div id="audit-meeting-admin" class="admin-panel admin-form-panel p-6 scroll-mt-24">
+                        <p class="admin-section-title">{{ __('Meeting Section') }}</p>
+
+                        <div class="mt-4 grid gap-3 md:grid-cols-2">
+                            <div>
+                                <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Kicker') }}</label>
+                                <input type="text" wire:model="form.translation_payload.meeting.kicker" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+                            </div>
+                            <div>
+                                <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Title') }}</label>
+                                <input type="text" wire:model="form.translation_payload.meeting.title" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+                            </div>
+                        </div>
+
+                        <div class="mt-3">
+                            <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Intro') }}</label>
+                            <textarea rows="5" wire:model="form.translation_payload.meeting.intro" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm"></textarea>
+                        </div>
+
+                        <div class="mt-3 grid gap-3 md:grid-cols-2">
+                            <div>
+                                <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Visit Title') }}</label>
+                                <input type="text" wire:model="form.translation_payload.meeting.visit_title" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+                            </div>
+                            <div>
+                                <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Contact Title') }}</label>
+                                <input type="text" wire:model="form.translation_payload.meeting.contact_title" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+                            </div>
+                        </div>
+
+                        <div class="mt-3 grid gap-3 md:grid-cols-2">
+                            <div>
+                                <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Visit Line 1') }}</label>
+                                <input type="text" wire:model="form.translation_payload.meeting.visit_lines.0" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+                            </div>
+                            <div>
+                                <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Visit Line 2') }}</label>
+                                <input type="text" wire:model="form.translation_payload.meeting.visit_lines.1" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+                            </div>
+                        </div>
+
+                        <div class="mt-3">
+                            <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Submit Label') }}</label>
+                            <input type="text" wire:model="form.translation_payload.meeting.submit" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm md:max-w-[18rem]" />
+                        </div>
+
+                        <div class="mt-6 grid gap-3 md:grid-cols-2">
+                            <div>
+                                <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Direct Phone Label') }}</label>
+                                <input type="text" wire:model="form.translation_payload.meeting.direct_phone_label" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+                            </div>
+                            <div>
+                                <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Direct Email Label') }}</label>
+                                <input type="text" wire:model="form.translation_payload.meeting.direct_email_label" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+                            </div>
+                        </div>
+
+                        <div class="mt-6">
+                            <p class="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Form Labels') }}</p>
+
+                            <div class="mt-3 grid gap-3 md:grid-cols-2">
+                                <div>
+                                    <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('First Name') }}</label>
+                                    <input type="text" wire:model="form.translation_payload.meeting.form_labels.first_name" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+                                </div>
+                                <div>
+                                    <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Last Name') }}</label>
+                                    <input type="text" wire:model="form.translation_payload.meeting.form_labels.last_name" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+                                </div>
+                            </div>
+
+                            <div class="mt-3 grid gap-3 md:grid-cols-2">
+                                <div>
+                                    <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Company') }}</label>
+                                    <input type="text" wire:model="form.translation_payload.meeting.form_labels.company" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+                                </div>
+                                <div>
+                                    <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Phone Label') }}</label>
+                                    <input type="text" wire:model="form.translation_payload.meeting.form_labels.phone" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+                                </div>
+                            </div>
+
+                            <div class="mt-3 grid gap-3 md:grid-cols-2">
+                                <div>
+                                    <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Email Label') }}</label>
+                                    <input type="text" wire:model="form.translation_payload.meeting.form_labels.email" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+                                </div>
+                                <div>
+                                    <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Subject Label') }}</label>
+                                    <input type="text" wire:model="form.translation_payload.meeting.form_labels.subject" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+                                </div>
+                            </div>
+
+                            <div class="mt-3">
+                                <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Message Label') }}</label>
+                                <input type="text" wire:model="form.translation_payload.meeting.form_labels.message" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
             @else
             <div class="admin-panel admin-form-panel p-6">
                 <p class="admin-section-title">{{ __('Audience & FFI') }}</p>
@@ -979,187 +1372,197 @@
         @endif
 
         @if ($activeTab === 'sources' && $templateSupportsSources)
-            <div class="grid gap-6 xl:grid-cols-2">
-                <div class="admin-panel admin-form-panel p-6">
-                    <p class="admin-section-title">{{ __('Blog Feed') }}</p>
+            <div class="grid gap-6 {{ $templateSupportsFaqSource ? 'xl:grid-cols-2' : '' }}">
+                @if ($templateSupportsBlogSource)
+                    <div class="admin-panel admin-form-panel p-6">
+                        <p class="admin-section-title">{{ __('Blog Feed') }}</p>
 
-                    <div class="mt-4">
-                        <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Mode') }}</label>
-                        <select wire:model.live="form.page_payload.blog_source.mode" data-tom-select data-tom-no-search="1" class="admin-select w-full rounded-xl border border-slate-300 px-3 py-2 text-sm">
-                            <option value="auto_category">{{ __('Auto (current family-business category)') }}</option>
-                            <option value="category">{{ __('Specific blog category') }}</option>
-                            <option value="manual">{{ __('Manual post selection') }}</option>
-                        </select>
-                    </div>
-
-                    <div class="mt-3">
-                        <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Limit') }}</label>
-                        <input type="number" min="1" max="24" wire:model="form.page_payload.blog_source.limit" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm md:max-w-[12rem]" />
-                    </div>
-
-                    @if (($pagePayload['blog_source']['mode'] ?? 'auto_category') === 'category')
-                        <div class="mt-3">
-                            <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Blog Category') }}</label>
-                            <select wire:model="form.page_payload.blog_source.category_id" data-tom-select class="admin-select w-full rounded-xl border border-slate-300 px-3 py-2 text-sm">
-                                <option value="">{{ __('Select category') }}</option>
-                                @foreach ($this->blogCategoryOptions as $row)
-                                    <option value="{{ $row['id'] }}">{{ $row['label'] }}</option>
-                                @endforeach
+                        <div class="mt-4">
+                            <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Mode') }}</label>
+                            <select wire:model.live="form.page_payload.blog_source.mode" data-tom-select data-tom-no-search="1" class="admin-select w-full rounded-xl border border-slate-300 px-3 py-2 text-sm">
+                                <option value="auto_category">{{ $isAuditTemplate ? __('Auto (current audit category)') : __('Auto (current family-business category)') }}</option>
+                                <option value="category">{{ __('Specific blog category') }}</option>
+                                <option value="manual">{{ __('Manual post selection') }}</option>
                             </select>
                         </div>
-                    @endif
 
-                    @if (($pagePayload['blog_source']['mode'] ?? 'auto_category') === 'manual')
-                        <div class="mt-4 grid gap-3 md:grid-cols-[1fr_auto] md:items-end">
-                            <div>
-                                <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Available Posts') }}</label>
-                                <select wire:model="blogPickerId" data-tom-select class="admin-select w-full rounded-xl border border-slate-300 px-3 py-2 text-sm">
-                                    <option value="">{{ __('Select post...') }}</option>
-                                    @foreach ($this->blogPostOptions as $row)
+                        <div class="mt-3">
+                            <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Limit') }}</label>
+                            <input type="number" min="1" max="24" wire:model="form.page_payload.blog_source.limit" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm md:max-w-[12rem]" />
+                        </div>
+
+                        @if (($pagePayload['blog_source']['mode'] ?? 'auto_category') === 'category')
+                            <div class="mt-3">
+                                <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Blog Category') }}</label>
+                                <select wire:model="form.page_payload.blog_source.category_id" data-tom-select class="admin-select w-full rounded-xl border border-slate-300 px-3 py-2 text-sm">
+                                    <option value="">{{ __('Select category') }}</option>
+                                    @foreach ($this->blogCategoryOptions as $row)
                                         <option value="{{ $row['id'] }}">{{ $row['label'] }}</option>
                                     @endforeach
                                 </select>
                             </div>
-                            <button type="button" wire:click="addManualItem('blog_posts', {{ (int) ($blogPickerId ?? 0) }})" class="h-10 rounded-xl bg-cyan-700 px-4 text-sm font-semibold text-white hover:bg-cyan-800">
-                                {{ __('Add') }}
-                            </button>
-                        </div>
+                        @endif
 
-                        <div class="mt-4 space-y-2">
-                            @forelse ($this->selectedBlogPosts as $row)
-                                <div class="flex items-center justify-between gap-2 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2">
-                                    <div class="text-sm text-slate-800">{{ $row['label'] }}</div>
-                                    <div class="inline-flex items-center gap-1">
-                                        <button type="button" wire:click="moveManualItemUp('blog_posts', {{ $row['index'] }})" class="rounded-lg border border-slate-300 px-2 py-1 text-xs font-semibold text-slate-700 hover:bg-slate-100">{{ __('Up') }}</button>
-                                        <button type="button" wire:click="moveManualItemDown('blog_posts', {{ $row['index'] }})" class="rounded-lg border border-slate-300 px-2 py-1 text-xs font-semibold text-slate-700 hover:bg-slate-100">{{ __('Down') }}</button>
-                                        <button type="button" wire:click="removeManualItem('blog_posts', {{ $row['id'] }})" class="rounded-lg border border-rose-200 px-2 py-1 text-xs font-semibold text-rose-700 hover:bg-rose-50">{{ __('Remove') }}</button>
-                                    </div>
+                        @if (($pagePayload['blog_source']['mode'] ?? 'auto_category') === 'manual')
+                            <div class="mt-4 grid gap-3 md:grid-cols-[1fr_auto] md:items-end">
+                                <div>
+                                    <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Available Posts') }}</label>
+                                    <select wire:model="blogPickerId" data-tom-select class="admin-select w-full rounded-xl border border-slate-300 px-3 py-2 text-sm">
+                                        <option value="">{{ __('Select post...') }}</option>
+                                        @foreach ($this->blogPostOptions as $row)
+                                            <option value="{{ $row['id'] }}">{{ $row['label'] }}</option>
+                                        @endforeach
+                                    </select>
                                 </div>
-                            @empty
-                                <div class="rounded-xl border border-dashed border-slate-300 bg-slate-50 p-4 text-sm text-slate-500">{{ __('No blog posts selected.') }}</div>
-                            @endforelse
-                        </div>
-                    @endif
-                </div>
+                                <button type="button" wire:click="addManualItem('blog_posts', {{ (int) ($blogPickerId ?? 0) }})" class="h-10 rounded-xl bg-cyan-700 px-4 text-sm font-semibold text-white hover:bg-cyan-800">
+                                    {{ __('Add') }}
+                                </button>
+                            </div>
 
-                <div class="admin-panel admin-form-panel p-6">
-                    <p class="admin-section-title">{{ __('FAQ Feed') }}</p>
-
-                    <div class="mt-4">
-                        <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Mode') }}</label>
-                        <select wire:model.live="form.page_payload.faq_source.mode" data-tom-select data-tom-no-search="1" class="admin-select w-full rounded-xl border border-slate-300 px-3 py-2 text-sm">
-                            <option value="auto_group">{{ __('Auto (family-business FAQ group)') }}</option>
-                            <option value="group">{{ __('Specific FAQ group') }}</option>
-                            <option value="manual">{{ __('Manual FAQ selection') }}</option>
-                        </select>
+                            <div class="mt-4 space-y-2">
+                                @forelse ($this->selectedBlogPosts as $row)
+                                    <div class="flex items-center justify-between gap-2 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2">
+                                        <div class="text-sm text-slate-800">{{ $row['label'] }}</div>
+                                        <div class="inline-flex items-center gap-1">
+                                            <button type="button" wire:click="moveManualItemUp('blog_posts', {{ $row['index'] }})" class="rounded-lg border border-slate-300 px-2 py-1 text-xs font-semibold text-slate-700 hover:bg-slate-100">{{ __('Up') }}</button>
+                                            <button type="button" wire:click="moveManualItemDown('blog_posts', {{ $row['index'] }})" class="rounded-lg border border-slate-300 px-2 py-1 text-xs font-semibold text-slate-700 hover:bg-slate-100">{{ __('Down') }}</button>
+                                            <button type="button" wire:click="removeManualItem('blog_posts', {{ $row['id'] }})" class="rounded-lg border border-rose-200 px-2 py-1 text-xs font-semibold text-rose-700 hover:bg-rose-50">{{ __('Remove') }}</button>
+                                        </div>
+                                    </div>
+                                @empty
+                                    <div class="rounded-xl border border-dashed border-slate-300 bg-slate-50 p-4 text-sm text-slate-500">{{ __('No blog posts selected.') }}</div>
+                                @endforelse
+                            </div>
+                        @endif
                     </div>
+                @endif
 
-                    @if (($pagePayload['faq_source']['mode'] ?? 'auto_group') === 'group')
-                        <div class="mt-3">
-                            <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('FAQ Group') }}</label>
-                            <select wire:model="form.page_payload.faq_source.group_code" data-tom-select class="admin-select w-full rounded-xl border border-slate-300 px-3 py-2 text-sm">
-                                <option value="">{{ __('Select group') }}</option>
-                                @foreach ($this->faqGroupOptions as $row)
-                                    <option value="{{ $row['id'] }}">{{ $row['label'] }}</option>
-                                @endforeach
+                @if ($templateSupportsFaqSource)
+                    <div class="admin-panel admin-form-panel p-6">
+                        <p class="admin-section-title">{{ __('FAQ Feed') }}</p>
+
+                        <div class="mt-4">
+                            <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Mode') }}</label>
+                            <select wire:model.live="form.page_payload.faq_source.mode" data-tom-select data-tom-no-search="1" class="admin-select w-full rounded-xl border border-slate-300 px-3 py-2 text-sm">
+                                <option value="auto_group">{{ __('Auto (family-business FAQ group)') }}</option>
+                                <option value="group">{{ __('Specific FAQ group') }}</option>
+                                <option value="manual">{{ __('Manual FAQ selection') }}</option>
                             </select>
                         </div>
-                    @endif
 
-                    @if (($pagePayload['faq_source']['mode'] ?? 'auto_group') === 'manual')
-                        <div class="mt-4 grid gap-3 md:grid-cols-[1fr_auto] md:items-end">
-                            <div>
-                                <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Available FAQs') }}</label>
-                                <select wire:model="faqPickerId" data-tom-select class="admin-select w-full rounded-xl border border-slate-300 px-3 py-2 text-sm">
-                                    <option value="">{{ __('Select FAQ...') }}</option>
-                                    @foreach ($this->faqOptions as $row)
+                        @if (($pagePayload['faq_source']['mode'] ?? 'auto_group') === 'group')
+                            <div class="mt-3">
+                                <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('FAQ Group') }}</label>
+                                <select wire:model="form.page_payload.faq_source.group_code" data-tom-select class="admin-select w-full rounded-xl border border-slate-300 px-3 py-2 text-sm">
+                                    <option value="">{{ __('Select group') }}</option>
+                                    @foreach ($this->faqGroupOptions as $row)
                                         <option value="{{ $row['id'] }}">{{ $row['label'] }}</option>
                                     @endforeach
                                 </select>
                             </div>
-                            <button type="button" wire:click="addManualItem('faqs', {{ (int) ($faqPickerId ?? 0) }})" class="h-10 rounded-xl bg-cyan-700 px-4 text-sm font-semibold text-white hover:bg-cyan-800">
-                                {{ __('Add') }}
-                            </button>
-                        </div>
+                        @endif
 
-                        <div class="mt-4 space-y-2">
-                            @forelse ($this->selectedFaqs as $row)
-                                <div class="flex items-center justify-between gap-2 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2">
-                                    <div class="text-sm text-slate-800">{{ $row['label'] }}</div>
-                                    <div class="inline-flex items-center gap-1">
-                                        <button type="button" wire:click="moveManualItemUp('faqs', {{ $row['index'] }})" class="rounded-lg border border-slate-300 px-2 py-1 text-xs font-semibold text-slate-700 hover:bg-slate-100">{{ __('Up') }}</button>
-                                        <button type="button" wire:click="moveManualItemDown('faqs', {{ $row['index'] }})" class="rounded-lg border border-slate-300 px-2 py-1 text-xs font-semibold text-slate-700 hover:bg-slate-100">{{ __('Down') }}</button>
-                                        <button type="button" wire:click="removeManualItem('faqs', {{ $row['id'] }})" class="rounded-lg border border-rose-200 px-2 py-1 text-xs font-semibold text-rose-700 hover:bg-rose-50">{{ __('Remove') }}</button>
-                                    </div>
+                        @if (($pagePayload['faq_source']['mode'] ?? 'auto_group') === 'manual')
+                            <div class="mt-4 grid gap-3 md:grid-cols-[1fr_auto] md:items-end">
+                                <div>
+                                    <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Available FAQs') }}</label>
+                                    <select wire:model="faqPickerId" data-tom-select class="admin-select w-full rounded-xl border border-slate-300 px-3 py-2 text-sm">
+                                        <option value="">{{ __('Select FAQ...') }}</option>
+                                        @foreach ($this->faqOptions as $row)
+                                            <option value="{{ $row['id'] }}">{{ $row['label'] }}</option>
+                                        @endforeach
+                                    </select>
                                 </div>
-                            @empty
-                                <div class="rounded-xl border border-dashed border-slate-300 bg-slate-50 p-4 text-sm text-slate-500">{{ __('No FAQs selected.') }}</div>
-                            @endforelse
-                        </div>
-                    @endif
-                </div>
+                                <button type="button" wire:click="addManualItem('faqs', {{ (int) ($faqPickerId ?? 0) }})" class="h-10 rounded-xl bg-cyan-700 px-4 text-sm font-semibold text-white hover:bg-cyan-800">
+                                    {{ __('Add') }}
+                                </button>
+                            </div>
+
+                            <div class="mt-4 space-y-2">
+                                @forelse ($this->selectedFaqs as $row)
+                                    <div class="flex items-center justify-between gap-2 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2">
+                                        <div class="text-sm text-slate-800">{{ $row['label'] }}</div>
+                                        <div class="inline-flex items-center gap-1">
+                                            <button type="button" wire:click="moveManualItemUp('faqs', {{ $row['index'] }})" class="rounded-lg border border-slate-300 px-2 py-1 text-xs font-semibold text-slate-700 hover:bg-slate-100">{{ __('Up') }}</button>
+                                            <button type="button" wire:click="moveManualItemDown('faqs', {{ $row['index'] }})" class="rounded-lg border border-slate-300 px-2 py-1 text-xs font-semibold text-slate-700 hover:bg-slate-100">{{ __('Down') }}</button>
+                                            <button type="button" wire:click="removeManualItem('faqs', {{ $row['id'] }})" class="rounded-lg border border-rose-200 px-2 py-1 text-xs font-semibold text-rose-700 hover:bg-rose-50">{{ __('Remove') }}</button>
+                                        </div>
+                                    </div>
+                                @empty
+                                    <div class="rounded-xl border border-dashed border-slate-300 bg-slate-50 p-4 text-sm text-slate-500">{{ __('No FAQs selected.') }}</div>
+                                @endforelse
+                            </div>
+                        @endif
+                    </div>
+                @endif
             </div>
 
-            <div class="grid gap-6 xl:grid-cols-2">
-                <div class="admin-panel admin-form-panel p-6">
-                    <p class="admin-section-title">{{ __('Team Feed') }}</p>
+            @if ($templateSupportsTeamSource || $templateSupportsBrochure)
+                <div class="grid gap-6 xl:grid-cols-2">
+                    @if ($templateSupportsTeamSource)
+                        <div class="admin-panel admin-form-panel p-6">
+                            <p class="admin-section-title">{{ __('Team Feed') }}</p>
 
-                    <div class="mt-4">
-                        <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Mode') }}</label>
-                        <select wire:model.live="form.page_payload.team_source.mode" data-tom-select data-tom-no-search="1" class="admin-select w-full rounded-xl border border-slate-300 px-3 py-2 text-sm">
-                            <option value="auto">{{ __('Auto (existing family-business logic)') }}</option>
-                            <option value="manual">{{ __('Manual team selection') }}</option>
-                        </select>
-                    </div>
-
-                    @if (($pagePayload['team_source']['mode'] ?? 'auto') === 'manual')
-                        <div class="mt-4 grid gap-3 md:grid-cols-[1fr_auto] md:items-end">
-                            <div>
-                                <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Available Team Members') }}</label>
-                                <select wire:model="teamPickerId" data-tom-select class="admin-select w-full rounded-xl border border-slate-300 px-3 py-2 text-sm">
-                                    <option value="">{{ __('Select team member...') }}</option>
-                                    @foreach ($this->teamOptions as $row)
-                                        <option value="{{ $row['id'] }}">{{ $row['label'] }}</option>
-                                    @endforeach
+                            <div class="mt-4">
+                                <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Mode') }}</label>
+                                <select wire:model.live="form.page_payload.team_source.mode" data-tom-select data-tom-no-search="1" class="admin-select w-full rounded-xl border border-slate-300 px-3 py-2 text-sm">
+                                    <option value="auto">{{ __('Auto (existing family-business logic)') }}</option>
+                                    <option value="manual">{{ __('Manual team selection') }}</option>
                                 </select>
                             </div>
-                            <button type="button" wire:click="addManualItem('team_members', {{ (int) ($teamPickerId ?? 0) }})" class="h-10 rounded-xl bg-cyan-700 px-4 text-sm font-semibold text-white hover:bg-cyan-800">
-                                {{ __('Add') }}
-                            </button>
-                        </div>
 
-                        <div class="mt-4 space-y-2">
-                            @forelse ($this->selectedTeamMembers as $row)
-                                <div class="flex items-center justify-between gap-2 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2">
-                                    <div class="text-sm text-slate-800">{{ $row['label'] }}</div>
-                                    <div class="inline-flex items-center gap-1">
-                                        <button type="button" wire:click="moveManualItemUp('team_members', {{ $row['index'] }})" class="rounded-lg border border-slate-300 px-2 py-1 text-xs font-semibold text-slate-700 hover:bg-slate-100">{{ __('Up') }}</button>
-                                        <button type="button" wire:click="moveManualItemDown('team_members', {{ $row['index'] }})" class="rounded-lg border border-slate-300 px-2 py-1 text-xs font-semibold text-slate-700 hover:bg-slate-100">{{ __('Down') }}</button>
-                                        <button type="button" wire:click="removeManualItem('team_members', {{ $row['id'] }})" class="rounded-lg border border-rose-200 px-2 py-1 text-xs font-semibold text-rose-700 hover:bg-rose-50">{{ __('Remove') }}</button>
+                            @if (($pagePayload['team_source']['mode'] ?? 'auto') === 'manual')
+                                <div class="mt-4 grid gap-3 md:grid-cols-[1fr_auto] md:items-end">
+                                    <div>
+                                        <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Available Team Members') }}</label>
+                                        <select wire:model="teamPickerId" data-tom-select class="admin-select w-full rounded-xl border border-slate-300 px-3 py-2 text-sm">
+                                            <option value="">{{ __('Select team member...') }}</option>
+                                            @foreach ($this->teamOptions as $row)
+                                                <option value="{{ $row['id'] }}">{{ $row['label'] }}</option>
+                                            @endforeach
+                                        </select>
                                     </div>
+                                    <button type="button" wire:click="addManualItem('team_members', {{ (int) ($teamPickerId ?? 0) }})" class="h-10 rounded-xl bg-cyan-700 px-4 text-sm font-semibold text-white hover:bg-cyan-800">
+                                        {{ __('Add') }}
+                                    </button>
                                 </div>
-                            @empty
-                                <div class="rounded-xl border border-dashed border-slate-300 bg-slate-50 p-4 text-sm text-slate-500">{{ __('No team members selected.') }}</div>
-                            @endforelse
+
+                                <div class="mt-4 space-y-2">
+                                    @forelse ($this->selectedTeamMembers as $row)
+                                        <div class="flex items-center justify-between gap-2 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2">
+                                            <div class="text-sm text-slate-800">{{ $row['label'] }}</div>
+                                            <div class="inline-flex items-center gap-1">
+                                                <button type="button" wire:click="moveManualItemUp('team_members', {{ $row['index'] }})" class="rounded-lg border border-slate-300 px-2 py-1 text-xs font-semibold text-slate-700 hover:bg-slate-100">{{ __('Up') }}</button>
+                                                <button type="button" wire:click="moveManualItemDown('team_members', {{ $row['index'] }})" class="rounded-lg border border-slate-300 px-2 py-1 text-xs font-semibold text-slate-700 hover:bg-slate-100">{{ __('Down') }}</button>
+                                                <button type="button" wire:click="removeManualItem('team_members', {{ $row['id'] }})" class="rounded-lg border border-rose-200 px-2 py-1 text-xs font-semibold text-rose-700 hover:bg-rose-50">{{ __('Remove') }}</button>
+                                            </div>
+                                        </div>
+                                    @empty
+                                        <div class="rounded-xl border border-dashed border-slate-300 bg-slate-50 p-4 text-sm text-slate-500">{{ __('No team members selected.') }}</div>
+                                    @endforelse
+                                </div>
+                            @endif
+                        </div>
+                    @endif
+
+                    @if ($templateSupportsBrochure)
+                        <div class="admin-panel admin-form-panel p-6">
+                            <p class="admin-section-title">{{ __('Assets & Links') }}</p>
+
+                            <div class="mt-4">
+                                <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Brochure Button Label') }}</label>
+                                <input type="text" wire:model="form.translation_payload.brochure_label" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+                            </div>
+
+                            <div class="mt-3">
+                                <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Brochure URL Override') }}</label>
+                                <input type="text" wire:model="form.page_payload.brochure_url" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" placeholder="{{ __('Leave empty to keep the current brochure asset.') }}" />
+                                <p class="mt-1 text-xs text-slate-500">{{ __('This can be a relative public path or a full URL.') }}</p>
+                            </div>
                         </div>
                     @endif
                 </div>
-
-                <div class="admin-panel admin-form-panel p-6">
-                    <p class="admin-section-title">{{ __('Assets & Links') }}</p>
-
-                    <div class="mt-4">
-                        <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Brochure Button Label') }}</label>
-                        <input type="text" wire:model="form.translation_payload.brochure_label" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
-                    </div>
-
-                    <div class="mt-3">
-                        <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Brochure URL Override') }}</label>
-                        <input type="text" wire:model="form.page_payload.brochure_url" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" placeholder="{{ __('Leave empty to keep the current brochure asset.') }}" />
-                        <p class="mt-1 text-xs text-slate-500">{{ __('This can be a relative public path or a full URL.') }}</p>
-                    </div>
-                </div>
-            </div>
+            @endif
         @endif
 
         @if ($activeTab === 'seo')

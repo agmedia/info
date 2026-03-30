@@ -76,7 +76,7 @@ class SiteSearchService
                 'search' => $isCroatian
                     ? 'revizija neovisna mišljenja misljenja procesi rizici kontrole'
                     : 'audit independent opinions processes risks controls',
-                'url' => $homeUrl.'#odjel-revizija',
+                'url' => route('audit.show'),
             ],
             [
                 'title' => $isCroatian ? 'Porezi' : 'Tax',
