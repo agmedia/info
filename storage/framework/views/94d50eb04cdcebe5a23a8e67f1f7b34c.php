@@ -10,6 +10,45 @@
                 ? asset($relativePath).'?v='.filemtime($absolutePath)
                 : asset($relativePath);
         };
+        $fontAwesomeSolidSprite = asset('front-theme/fonts/sprites/solid.svg');
+        $supportJourneyIconMap = [
+            'family-tree' => [
+                'view_box' => '0 0 640 512',
+                'href' => $fontAwesomeSolidSprite.'#user-group',
+            ],
+            'handshake' => [
+                'view_box' => '0 0 640 512',
+                'href' => $fontAwesomeSolidSprite.'#handshake',
+            ],
+            'network' => [
+                'view_box' => '0 0 448 512',
+                'href' => $fontAwesomeSolidSprite.'#share-nodes',
+            ],
+            'bank' => [
+                'view_box' => '0 0 512 512',
+                'href' => $fontAwesomeSolidSprite.'#building-columns',
+            ],
+            'europe' => [
+                'view_box' => '0 0 384 512',
+                'href' => $fontAwesomeSolidSprite.'#euro-sign',
+            ],
+            'chart-grid' => [
+                'view_box' => '0 0 512 512',
+                'href' => $fontAwesomeSolidSprite.'#chart-line',
+            ],
+            'file-check' => [
+                'view_box' => '0 0 384 512',
+                'href' => $fontAwesomeSolidSprite.'#file-lines',
+            ],
+            'shield-percent' => [
+                'view_box' => '0 0 640 512',
+                'href' => $fontAwesomeSolidSprite.'#scale-balanced',
+            ],
+            'book-open' => [
+                'view_box' => '0 0 576 512',
+                'href' => $fontAwesomeSolidSprite.'#book-open',
+            ],
+        ];
 
         // Static section payloads mirror the structure we can later hydrate from backend content blocks.
         $serviceCards = [
@@ -414,77 +453,16 @@
 
             <div class="ac-support-story-grid">
                 <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $supportJourney['cards']; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $card): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                    <?php
+                        $cardIcon = $supportJourneyIconMap[$card['icon'] ?? ''] ?? [
+                            'view_box' => '0 0 512 512',
+                            'href' => $fontAwesomeSolidSprite.'#briefcase',
+                        ];
+                    ?>
                     <article class="ac-support-story-card">
                         <span class="ac-support-story-card-icon" aria-hidden="true">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.6">
-                                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php switch($card['icon'] ?? ''):
-                                    case ('family-tree'): ?>
-                                        <circle cx="7.5" cy="6.5" r="1.6"></circle>
-                                        <circle cx="16.5" cy="6.5" r="1.6"></circle>
-                                        <circle cx="12" cy="17" r="1.8"></circle>
-                                        <path d="M7.5 8.3V11h9V8.3"></path>
-                                        <path d="M12 11v4.2"></path>
-                                        <?php break; ?>
-                                    <?php case ('handshake'): ?>
-                                        <path d="M4.5 9.5 8 7.8a3 3 0 0 1 3 .2l1 .6"></path>
-                                        <path d="M19.5 9.5 16 7.8a3 3 0 0 0-3 .2l-2.4 1.5a1.7 1.7 0 0 0 1.8 2.9l1.9-1.1"></path>
-                                        <path d="m8.7 12.2 2.1 1.8"></path>
-                                        <path d="m10.7 11.6 2.2 1.9"></path>
-                                        <path d="m12.8 11.1 2.1 1.8"></path>
-                                        <path d="M4.5 9.5v5l2.6 1.4 1.6-1"></path>
-                                        <path d="M19.5 9.5v5l-2.6 1.4-1.6-1"></path>
-                                        <?php break; ?>
-                                    <?php case ('network'): ?>
-                                        <circle cx="6" cy="12" r="1.7"></circle>
-                                        <circle cx="18" cy="7" r="1.7"></circle>
-                                        <circle cx="18" cy="17" r="1.7"></circle>
-                                        <circle cx="12" cy="12" r="1.7"></circle>
-                                        <path d="M7.7 12h2.6"></path>
-                                        <path d="M13.5 10.9 16.5 8.1"></path>
-                                        <path d="M13.5 13.1 16.5 15.9"></path>
-                                        <?php break; ?>
-                                    <?php case ('bank'): ?>
-                                        <path d="M4 9.2 12 5l8 4.2"></path>
-                                        <path d="M5.5 9.5h13"></path>
-                                        <path d="M7 9.5v6.3"></path>
-                                        <path d="M12 9.5v6.3"></path>
-                                        <path d="M17 9.5v6.3"></path>
-                                        <path d="M4.8 18h14.4"></path>
-                                        <?php break; ?>
-                                    <?php case ('europe'): ?>
-                                        <circle cx="12" cy="12" r="7"></circle>
-                                        <path d="m12 7.9.55 1.1 1.21.17-.88.85.21 1.2L12 10.7l-1.09.57.21-1.2-.88-.85 1.21-.17L12 7.9Z"></path>
-                                        <path d="m16.2 10.1.4.8.88.13-.64.62.15.87-.79-.42-.79.42.15-.87-.64-.62.88-.13.4-.8Z"></path>
-                                        <path d="m15.1 14.6.38.77.85.13-.61.59.14.84-.76-.4-.77.4.15-.84-.62-.59.85-.13.39-.77Z"></path>
-                                        <path d="m8.9 14.6.38.77.85.13-.61.59.14.84-.76-.4-.77.4.15-.84-.62-.59.85-.13.39-.77Z"></path>
-                                        <?php break; ?>
-                                    <?php case ('chart-grid'): ?>
-                                        <path d="M5 18.5h14"></path>
-                                        <path d="M7.5 16v-4"></path>
-                                        <path d="M12 16V8"></path>
-                                        <path d="M16.5 16v-6"></path>
-                                        <path d="m6 10.5 3-2 2.5 1.5 4-3"></path>
-                                        <?php break; ?>
-                                    <?php case ('file-check'): ?>
-                                        <path d="M8 4.5h6l3 3V18a1.5 1.5 0 0 1-1.5 1.5h-7A1.5 1.5 0 0 1 7 18V6a1.5 1.5 0 0 1 1-1.5Z"></path>
-                                        <path d="M14 4.5V8h3"></path>
-                                        <path d="m9.8 13.2 1.6 1.6 3.1-3.3"></path>
-                                        <?php break; ?>
-                                    <?php case ('shield-percent'): ?>
-                                        <path d="m12 4 6 2.7v4.8c0 3.6-2.3 6.4-6 8-3.7-1.6-6-4.4-6-8V6.7L12 4Z"></path>
-                                        <path d="M9.4 14.8 14.8 9.4"></path>
-                                        <circle cx="9.1" cy="9.2" r=".9"></circle>
-                                        <circle cx="14.9" cy="14.8" r=".9"></circle>
-                                        <?php break; ?>
-                                    <?php case ('book-open'): ?>
-                                        <path d="M6 6.5A2.5 2.5 0 0 1 8.5 4H18v15h-9.5A2.5 2.5 0 0 0 6 21"></path>
-                                        <path d="M18 4h-9.5A2.5 2.5 0 0 0 6 6.5v12"></path>
-                                        <path d="M12 6.5v11"></path>
-                                        <?php break; ?>
-                                    <?php default: ?>
-                                        <circle cx="12" cy="12" r="7"></circle>
-                                        <path d="M12 8v4l2.8 2.2"></path>
-                                <?php endswitch; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                            <svg viewBox="<?php echo e($cardIcon['view_box']); ?>" fill="currentColor" aria-hidden="true">
+                                <use href="<?php echo e($cardIcon['href']); ?>"></use>
                             </svg>
                         </span>
                         <h3><?php echo e($card['title']); ?></h3>
@@ -749,7 +727,7 @@
         </section>
     <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
-    <?php if (! $__env->hasRenderedOnce('3ed7f035-222c-4255-8dbc-e15167fb74b2')): $__env->markAsRenderedOnce('3ed7f035-222c-4255-8dbc-e15167fb74b2'); ?>
+    <?php if (! $__env->hasRenderedOnce('d4d2078f-47ac-4dca-9a88-8f98d0217194')): $__env->markAsRenderedOnce('d4d2078f-47ac-4dca-9a88-8f98d0217194'); ?>
         <script>
             (function () {
                 const syncTestimonialToggles = function () {
