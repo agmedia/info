@@ -4,9 +4,15 @@
     $currentTemplateKey = $form['template_key'] ?? \App\Support\Content\ServicePageTemplateRegistry::FAMILY_BUSINESS;
     $currentTemplateLabel = $templateOptions[$currentTemplateKey] ?? $currentTemplateKey;
     $isFinanceTemplate = $currentTemplateKey === \App\Support\Content\ServicePageTemplateRegistry::FINANCE;
+    $isAccountingTemplate = $currentTemplateKey === \App\Support\Content\ServicePageTemplateRegistry::ACCOUNTING;
     $isAuditTemplate = $currentTemplateKey === \App\Support\Content\ServicePageTemplateRegistry::AUDIT;
     $isTaxTemplate = $currentTemplateKey === \App\Support\Content\ServicePageTemplateRegistry::TAX;
     $isEuFundsTemplate = $currentTemplateKey === \App\Support\Content\ServicePageTemplateRegistry::EU_FUNDS;
+    $accountingEditorSections = [
+        'accounting-intro-admin' => __('Overview'),
+        'accounting-meeting-admin' => __('Meeting'),
+        'accounting-blog-admin' => __('Blog'),
+    ];
     $financeEditorSections = [
         'finance-pandea' => __('Pandea'),
         'finance-services-intro' => __('Services Intro'),
@@ -47,13 +53,15 @@
         'eu-funds-blog' => 'Blog',
         'eu-funds-meeting' => 'Meeting',
     ];
-    $blogAutoCategoryLabel = $isAuditTemplate
-        ? __('Auto (current audit category)')
-        : ($isTaxTemplate
-            ? __('Auto (current tax category)')
-            : ($isEuFundsTemplate
-                ? __('Auto (current EU funds category)')
-                : __('Auto (current family-business category)')));
+    $blogAutoCategoryLabel = $isAccountingTemplate
+        ? __('Auto (current accounting category)')
+        : ($isAuditTemplate
+            ? __('Auto (current audit category)')
+            : ($isTaxTemplate
+                ? __('Auto (current tax category)')
+                : ($isEuFundsTemplate
+                    ? __('Auto (current EU funds category)')
+                    : __('Auto (current family-business category)'))));
 ?>
 
 <div class="space-y-6">
@@ -1664,6 +1672,198 @@ unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendB
                                 <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500"><?php echo e(__('Message Label')); ?></label>
                                 <input type="text" wire:model="form.translation_payload.meeting.form_labels.message" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
                             </div>
+                        </div>
+                    </div>
+                </div>
+            <?php elseif($isAccountingTemplate): ?>
+                <div class="admin-panel admin-form-panel p-6">
+                    <p class="admin-section-title"><?php echo e(__('Accounting Navigator')); ?></p>
+                    <div class="mt-4 flex flex-wrap gap-2">
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $accountingEditorSections; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $sectionId => $sectionLabel): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                            <a href="#<?php echo e($sectionId); ?>" class="admin-chip"><?php echo e($sectionLabel); ?></a>
+                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                    </div>
+                    <p class="mt-4 text-sm text-slate-600">
+                        <?php echo e(__('Računovodstvo trenutno koristi minimalni landing template: hero, kontakt forma i blog sekcija. Dodatne sadržajne sekcije možemo nadograditi kroz novi template update.')); ?>
+
+                    </p>
+                </div>
+
+                <div class="grid gap-6 xl:grid-cols-2">
+                    <div id="accounting-intro-admin" class="admin-panel admin-form-panel p-6 scroll-mt-24">
+                        <p class="admin-section-title"><?php echo e(__('Overview Block')); ?></p>
+
+                        <div class="mt-4">
+                            <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500"><?php echo e(__('Kicker')); ?></label>
+                            <input type="text" wire:model="form.translation_payload.intro_section.kicker" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+                        </div>
+
+                        <div class="mt-3">
+                            <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500"><?php echo e(__('Title')); ?></label>
+                            <input type="text" wire:model="form.translation_payload.intro_section.title" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+                        </div>
+
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = ($translationPayload['intro_section']['body'] ?? []); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $index => $paragraph): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                            <div class="mt-3">
+                                <div class="mb-1 flex items-center justify-between gap-3">
+                                    <label class="block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500"><?php echo e(__('Paragraph')); ?> #<?php echo e($index + 1); ?></label>
+                                    <button type="button" wire:click="removeTranslationListItem('intro_section.body', <?php echo e($index); ?>)" class="text-xs font-semibold text-rose-600 hover:text-rose-700"><?php echo e(__('Remove')); ?></button>
+                                </div>
+                                <textarea rows="4" wire:model="form.translation_payload.intro_section.body.<?php echo e($index); ?>" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm"></textarea>
+                            </div>
+                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+
+                        <div class="mt-3">
+                            <button type="button" wire:click="addTranslationListItem('intro_section.body')" class="rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-100">
+                                <?php echo e(__('Add Paragraph')); ?>
+
+                            </button>
+                        </div>
+
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = ($translationPayload['intro_section']['items'] ?? []); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $index => $item): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                            <div class="mt-3">
+                                <div class="mb-1 flex items-center justify-between gap-3">
+                                    <label class="block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500"><?php echo e(__('List Item')); ?> #<?php echo e($index + 1); ?></label>
+                                    <button type="button" wire:click="removeTranslationListItem('intro_section.items', <?php echo e($index); ?>)" class="text-xs font-semibold text-rose-600 hover:text-rose-700"><?php echo e(__('Remove')); ?></button>
+                                </div>
+                                <input type="text" wire:model="form.translation_payload.intro_section.items.<?php echo e($index); ?>" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+                            </div>
+                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+
+                        <div class="mt-3">
+                            <button type="button" wire:click="addTranslationListItem('intro_section.items')" class="rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-100">
+                                <?php echo e(__('Add List Item')); ?>
+
+                            </button>
+                        </div>
+
+                        <div class="mt-4">
+                            <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500"><?php echo e(__('Video Title')); ?></label>
+                            <input type="text" wire:model="form.translation_payload.intro_section.video_title" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+                        </div>
+
+                        <div class="mt-3">
+                            <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500"><?php echo e(__('YouTube URL')); ?></label>
+                            <input type="text" wire:model="form.translation_payload.intro_section.video_url" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+                        </div>
+                    </div>
+
+                    <div id="accounting-meeting-admin" class="admin-panel admin-form-panel p-6 scroll-mt-24">
+                        <p class="admin-section-title"><?php echo e(__('Meeting Block')); ?></p>
+
+                        <div class="mt-4">
+                            <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500"><?php echo e(__('Kicker')); ?></label>
+                            <input type="text" wire:model="form.translation_payload.meeting.kicker" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+                        </div>
+
+                        <div class="mt-3">
+                            <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500"><?php echo e(__('Title')); ?></label>
+                            <input type="text" wire:model="form.translation_payload.meeting.title" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+                        </div>
+
+                        <div class="mt-3">
+                            <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500"><?php echo e(__('Intro')); ?></label>
+                            <textarea rows="4" wire:model="form.translation_payload.meeting.intro" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm"></textarea>
+                        </div>
+
+                        <div class="mt-3 grid gap-3 md:grid-cols-2">
+                            <div>
+                                <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500"><?php echo e(__('Visit Title')); ?></label>
+                                <input type="text" wire:model="form.translation_payload.meeting.visit_title" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+                            </div>
+                            <div>
+                                <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500"><?php echo e(__('Contact Title')); ?></label>
+                                <input type="text" wire:model="form.translation_payload.meeting.contact_title" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+                            </div>
+                        </div>
+
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = ($translationPayload['meeting']['visit_lines'] ?? []); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $index => $line): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                            <div class="mt-3">
+                                <div class="mb-1 flex items-center justify-between gap-3">
+                                    <label class="block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500"><?php echo e(__('Visit Line')); ?> #<?php echo e($index + 1); ?></label>
+                                    <button type="button" wire:click="removeTranslationListItem('meeting.visit_lines', <?php echo e($index); ?>)" class="text-xs font-semibold text-rose-600 hover:text-rose-700"><?php echo e(__('Remove')); ?></button>
+                                </div>
+                                <input type="text" wire:model="form.translation_payload.meeting.visit_lines.<?php echo e($index); ?>" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+                            </div>
+                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+
+                        <div class="mt-3">
+                            <button type="button" wire:click="addTranslationListItem('meeting.visit_lines')" class="rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-100">
+                                <?php echo e(__('Add Visit Line')); ?>
+
+                            </button>
+                        </div>
+
+                        <div class="mt-3 grid gap-3 md:grid-cols-2">
+                            <div>
+                                <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500"><?php echo e(__('Phone Label')); ?></label>
+                                <input type="text" wire:model="form.translation_payload.meeting.direct_phone_label" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+                            </div>
+                            <div>
+                                <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500"><?php echo e(__('Email Label')); ?></label>
+                                <input type="text" wire:model="form.translation_payload.meeting.direct_email_label" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+                            </div>
+                        </div>
+
+                        <div class="mt-3">
+                            <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500"><?php echo e(__('Submit Label')); ?></label>
+                            <input type="text" wire:model="form.translation_payload.meeting.submit" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+                        </div>
+
+                        <div class="mt-4 grid gap-3 md:grid-cols-2">
+                            <div>
+                                <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500"><?php echo e(__('First Name Label')); ?></label>
+                                <input type="text" wire:model="form.translation_payload.meeting.form_labels.first_name" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+                            </div>
+                            <div>
+                                <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500"><?php echo e(__('Last Name Label')); ?></label>
+                                <input type="text" wire:model="form.translation_payload.meeting.form_labels.last_name" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+                            </div>
+                            <div>
+                                <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500"><?php echo e(__('Company Label')); ?></label>
+                                <input type="text" wire:model="form.translation_payload.meeting.form_labels.company" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+                            </div>
+                            <div>
+                                <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500"><?php echo e(__('Phone Label')); ?></label>
+                                <input type="text" wire:model="form.translation_payload.meeting.form_labels.phone" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+                            </div>
+                            <div>
+                                <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500"><?php echo e(__('Email Label')); ?></label>
+                                <input type="text" wire:model="form.translation_payload.meeting.form_labels.email" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+                            </div>
+                            <div>
+                                <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500"><?php echo e(__('Subject Label')); ?></label>
+                                <input type="text" wire:model="form.translation_payload.meeting.form_labels.subject" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+                            </div>
+                        </div>
+
+                        <div class="mt-3">
+                            <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500"><?php echo e(__('Message Label')); ?></label>
+                            <input type="text" wire:model="form.translation_payload.meeting.form_labels.message" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+                        </div>
+                    </div>
+
+                    <div id="accounting-blog-admin" class="admin-panel admin-form-panel p-6 scroll-mt-24">
+                        <p class="admin-section-title"><?php echo e(__('Blog Block')); ?></p>
+
+                        <div class="mt-4">
+                            <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500"><?php echo e(__('Kicker')); ?></label>
+                            <input type="text" wire:model="form.translation_payload.blog_section.kicker" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+                        </div>
+
+                        <div class="mt-3">
+                            <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500"><?php echo e(__('Title')); ?></label>
+                            <input type="text" wire:model="form.translation_payload.blog_section.title" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+                        </div>
+
+                        <div class="mt-3">
+                            <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500"><?php echo e(__('Intro')); ?></label>
+                            <textarea rows="4" wire:model="form.translation_payload.blog_section.intro" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm"></textarea>
+                        </div>
+
+                        <div class="mt-3">
+                            <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500"><?php echo e(__('Empty State')); ?></label>
+                            <textarea rows="3" wire:model="form.translation_payload.blog_section.empty" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm"></textarea>
                         </div>
                     </div>
                 </div>

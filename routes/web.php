@@ -10,6 +10,7 @@ use App\Http\Controllers\Front\CallPostController;
 use App\Http\Controllers\Front\CareerApplicationController;
 use App\Http\Controllers\Front\CollaborationAssessmentController;
 use App\Http\Controllers\Front\ContactController;
+use App\Http\Controllers\Front\AccountingController;
 use App\Http\Controllers\Front\AuditController;
 use App\Http\Controllers\Front\EuFundsController;
 use App\Http\Controllers\Front\EuFundsQuestionnaireController;
@@ -81,6 +82,7 @@ Route::middleware(['front.locale', 'front.device'])
         Route::get('faq', [FaqController::class, 'index'])->name('faq.index');
         Route::get('alpha-capitalis-tim', [TeamController::class, 'index'])->name('team.index');
         Route::get('financije', [FinanceController::class, 'show'])->name('finance.show');
+        Route::get('racunovodstvo', [AccountingController::class, 'show'])->name('accounting.show');
         Route::get('revizija', [AuditController::class, 'show'])->name('audit.show');
         Route::get('porezi', [TaxController::class, 'show'])->name('tax.show');
         Route::get('eu-fondovi', [EuFundsController::class, 'show'])->name('eu-funds.show');

@@ -8,6 +8,8 @@ class ServicePageTemplateRegistry
 {
     public const FINANCE = 'finance';
 
+    public const ACCOUNTING = 'accounting';
+
     public const AUDIT = 'audit';
 
     public const TAX = 'tax';
@@ -23,6 +25,7 @@ class ServicePageTemplateRegistry
     {
         return [
             self::FINANCE => 'Financije',
+            self::ACCOUNTING => 'Računovodstvo',
             self::AUDIT => 'Revizija',
             self::TAX => 'Porezi',
             self::EU_FUNDS => 'EU fondovi',
@@ -40,6 +43,7 @@ class ServicePageTemplateRegistry
     {
         return match ($templateKey) {
             self::FINANCE => 'finance',
+            self::ACCOUNTING => 'racunovodstvo',
             self::AUDIT => 'audit',
             self::TAX => 'tax',
             self::EU_FUNDS => 'eu-fondovi',
@@ -60,6 +64,14 @@ class ServicePageTemplateRegistry
                     'category_id' => null,
                     'post_ids' => [],
                     'limit' => 5,
+                ],
+            ],
+            self::ACCOUNTING => [
+                'blog_source' => [
+                    'mode' => 'auto_category',
+                    'category_id' => null,
+                    'post_ids' => [],
+                    'limit' => 6,
                 ],
             ],
             self::AUDIT => [
@@ -115,6 +127,9 @@ class ServicePageTemplateRegistry
     {
         return match ($templateKey) {
             self::FINANCE => FinanceServicePageDefaults::defaultsForLocale(
+                $locale ?: (string) config('app.locale', 'en')
+            ),
+            self::ACCOUNTING => AccountingServicePageDefaults::defaultsForLocale(
                 $locale ?: (string) config('app.locale', 'en')
             ),
             self::AUDIT => AuditServicePageDefaults::defaultsForLocale(

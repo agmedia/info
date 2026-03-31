@@ -78,7 +78,7 @@
                 'text' => 'Pouzdano vođenje poslovnih knjiga i jasni izvještaji za svakodnevno upravljanje.',
                 'highlights' => ['Knjige', 'Izvještaji'],
                 'featured' => true,
-                'url' => route('contact.create'),
+                'url' => route('accounting.show'),
                 'accent' => '#5f7f91',
                 'layout_area' => 'accounting',
             ],

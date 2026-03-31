@@ -23,6 +23,7 @@ class Form extends Component
     private const TAB_OPTIONS = ['content', 'sources', 'seo', 'media'];
 
     private const SOURCE_ENABLED_TEMPLATES = [
+        ServicePageTemplateRegistry::ACCOUNTING,
         ServicePageTemplateRegistry::AUDIT,
         ServicePageTemplateRegistry::TAX,
         ServicePageTemplateRegistry::EU_FUNDS,
@@ -30,6 +31,7 @@ class Form extends Component
     ];
 
     private const BLOG_SOURCE_ENABLED_TEMPLATES = [
+        ServicePageTemplateRegistry::ACCOUNTING,
         ServicePageTemplateRegistry::AUDIT,
         ServicePageTemplateRegistry::TAX,
         ServicePageTemplateRegistry::EU_FUNDS,
@@ -626,6 +628,24 @@ class Form extends Component
                 'slug' => 'audit',
                 'meta_title' => 'Audit',
                 'meta_description' => 'Audit of financial statements, review engagements, and special audit services.',
+            ];
+        }
+
+        if ($templateKey === ServicePageTemplateRegistry::ACCOUNTING) {
+            if (str_starts_with(strtolower($locale), 'hr')) {
+                return [
+                    'title' => 'Računovodstvo',
+                    'slug' => 'racunovodstvo',
+                    'meta_title' => 'Računovodstvo',
+                    'meta_description' => 'Računovodstvena podrška, vođenje poslovnih knjiga, obračun plaća i izvještavanje za svakodnevno poslovanje.',
+                ];
+            }
+
+            return [
+                'title' => 'Accounting',
+                'slug' => 'accounting',
+                'meta_title' => 'Accounting',
+                'meta_description' => 'Accounting support, bookkeeping, payroll processing, and reporting for day-to-day business operations.',
             ];
         }
 

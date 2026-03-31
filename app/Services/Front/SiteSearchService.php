@@ -42,7 +42,6 @@ class SiteSearchService
      */
     private function searchServices(string $normalizedQuery, string $locale): Collection
     {
-        $homeUrl = route('home');
         $isCroatian = Str::startsWith(Str::lower($locale), 'hr');
         $catalog = collect([
             [
@@ -65,7 +64,7 @@ class SiteSearchService
                 'search' => $isCroatian
                     ? 'računovodstvo racunovodstvo poslovne knjige izvještaji izvjestaji upravljanje'
                     : 'accounting bookkeeping reporting management',
-                'url' => $homeUrl.'#odjel-racunovodstvo',
+                'url' => route('accounting.show'),
             ],
             [
                 'title' => $isCroatian ? 'Revizija' : 'Audit',
