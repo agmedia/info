@@ -20,6 +20,7 @@ class Manager extends Component
     public string $modelClass = '';
     public ?int $modelId = null;
     public string $locale = '';
+    public array $onlyCollections = [];
 
     /**
      * @var array<string, mixed>
@@ -47,7 +48,7 @@ class Manager extends Component
      */
     public array $meta = [];
 
-    public function mount(string $modelClass, ?int $modelId = null, string $locale = ''): void
+    public function mount(string $modelClass, ?int $modelId = null, string $locale = '', array $onlyCollections = []): void
     {
         $knownModels = MediaProfileRegistry::modelClasses();
         abort_unless(in_array($modelClass, $knownModels, true), 404);
@@ -55,6 +56,11 @@ class Manager extends Component
         $this->modelClass = $modelClass;
         $this->modelId = $modelId;
         $this->locale = trim($locale) !== '' ? $locale : (string) (app()->getLocale() ?: config('admin_ui.locale.default', 'hr'));
+        $this->onlyCollections = collect($onlyCollections)
+            ->map(fn ($collection): string => trim((string) $collection))
+            ->filter()
+            ->values()
+            ->all();
     }
 
     public function uploadCollection(string $collectionName): void
@@ -305,7 +311,15 @@ class Manager extends Component
      */
     public function getCollectionsProperty(): array
     {
-        return MediaProfileRegistry::collectionsForModel($this->modelClass);
+        $collections = MediaProfileRegistry::collectionsForModel($this->modelClass);
+
+        if ($this->onlyCollections === []) {
+            return $collections;
+        }
+
+        return collect($collections)
+            ->only($this->onlyCollections)
+            ->all();
     }
 
     /**

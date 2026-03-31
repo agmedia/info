@@ -12,6 +12,7 @@ use App\Models\Content\Page\InfoPageTranslation;
 use App\Models\Content\Resource\ResourceDocument;
 use App\Models\Content\Resource\ResourceDocumentTranslation;
 use App\Models\Content\Support\CareerApplication;
+use App\Models\Content\Support\ContactMessage;
 use App\Models\Content\Support\Comment;
 use App\Models\Content\Team\TeamMember;
 use App\Models\Content\Team\TeamMemberTranslation;
@@ -41,6 +42,7 @@ class StorefrontFrontFeatureTest extends TestCase
         $this->get('/alpha-capitalis-tim')->assertOk();
         $this->get('/obiteljski-biznis')->assertOk();
         $this->get('/contact')->assertOk();
+        $this->get('/reference')->assertOk();
         $this->get('/ac-forma-robot')->assertOk();
         $this->get('/leasing-kalkulator')->assertOk();
 
@@ -141,6 +143,51 @@ class StorefrontFrontFeatureTest extends TestCase
             ->assertSee('ALPHA CAPITALIS AKADEMIJA')
             ->assertSee('Predavanja i edukativni sadržaj na temu korporativnih financija')
             ->assertDontSee('This page has no body content.');
+    }
+
+    public function test_references_page_renders_uploaded_logo_media_items(): void
+    {
+        Storage::fake('public');
+        config()->set('media-library.disk_name', 'public');
+        config()->set('media-library.queue_conversions_by_default', false);
+
+        $page = InfoPage::query()->create([
+            'code' => 'references-demo',
+            'layout' => 'references',
+            'is_active' => true,
+            'sort_order' => 0,
+        ]);
+
+        InfoPageTranslation::query()->create([
+            'page_id' => $page->id,
+            'locale' => 'hr',
+            'title' => 'Reference Demo',
+            'slug' => 'reference-demo',
+            'excerpt' => 'Odabrani klijenti i partneri.',
+        ]);
+
+        $page->addMedia(UploadedFile::fake()->image('puratos-logo.png', 520, 160))
+            ->usingName('Puratos Konding d.o.o.')
+            ->withCustomProperties([
+                'alt' => ['hr' => 'Puratos Konding d.o.o.'],
+                'caption' => ['hr' => 'Puratos Konding d.o.o.'],
+            ])
+            ->toMediaCollection('reference_logos');
+
+        $page->addMedia(UploadedFile::fake()->image('gauss-logo.png', 520, 160))
+            ->usingName('Gauss d.o.o.')
+            ->withCustomProperties([
+                'alt' => ['hr' => 'Gauss d.o.o.'],
+                'caption' => ['hr' => 'Gauss d.o.o.'],
+            ])
+            ->toMediaCollection('reference_logos');
+
+        $this->get('/reference-demo')
+            ->assertOk()
+            ->assertSee('Reference Demo')
+            ->assertSee('Puratos Konding d.o.o.')
+            ->assertSee('Gauss d.o.o.')
+            ->assertDontSee('Logotipi će uskoro biti dostupni i na ovoj stranici.');
     }
 
     public function test_academy_page_renders_program_copy_from_translation_payload(): void
@@ -471,6 +518,15 @@ class StorefrontFrontFeatureTest extends TestCase
             'subject' => 'Wholesale inquiry',
             'status' => 'new',
         ]);
+
+        $message = ContactMessage::query()
+            ->where('email', 'front@example.test')
+            ->latest('id')
+            ->first();
+
+        $this->assertNotNull($message);
+        $this->assertSame(ContactMessage::FORM_TYPE_CONTACT, $message->payload['form_type'] ?? null);
+        $this->assertSame('/contact', $message->payload['source_page'] ?? null);
     }
 
     public function test_family_business_contact_form_can_redirect_back_to_section(): void
@@ -493,6 +549,15 @@ class StorefrontFrontFeatureTest extends TestCase
             'subject' => 'Dogovor sastanka',
             'status' => 'new',
         ]);
+
+        $message = ContactMessage::query()
+            ->where('email', 'ana@example.test')
+            ->latest('id')
+            ->first();
+
+        $this->assertNotNull($message);
+        $this->assertSame(ContactMessage::FORM_TYPE_SERVICE_CONTACT, $message->payload['form_type'] ?? null);
+        $this->assertSame('/obiteljski-biznis', $message->payload['source_page'] ?? null);
     }
 
     public function test_contact_page_renders_official_office_data(): void
@@ -540,14 +605,14 @@ class StorefrontFrontFeatureTest extends TestCase
             'accept_terms' => '1',
         ])->assertRedirect('/ac-forma-robot');
 
-        $message = \App\Models\Content\Support\ContactMessage::query()
+        $message = ContactMessage::query()
             ->where('email', 'assessment@example.test')
             ->latest('id')
             ->first();
 
         $this->assertNotNull($message);
         $this->assertSame(__('assessment.form.default_subject'), $message->subject);
-        $this->assertSame('collaboration_assessment', $message->payload['form_type'] ?? null);
+        $this->assertSame(ContactMessage::FORM_TYPE_COLLABORATION_ASSESSMENT, $message->payload['form_type'] ?? null);
         $this->assertSame('Alpha Test d.o.o.', $message->payload['answers']['company_name'] ?? null);
         $this->assertSame('18', $message->payload['answers']['outgoing_invoices_monthly'] ?? null);
     }
@@ -639,6 +704,14 @@ class StorefrontFrontFeatureTest extends TestCase
             ->assertOk()
             ->assertSee(route('pages.show', ['slug' => 'karijera']), false)
             ->assertDontSee('#karijera', false);
+    }
+
+    public function test_home_header_links_references_navigation_item_to_clean_page_url(): void
+    {
+        $this->get('/')
+            ->assertOk()
+            ->assertSee(route('pages.show', ['slug' => 'reference']), false)
+            ->assertDontSee('#reference', false);
     }
 
     public function test_home_header_links_academy_navigation_item_to_clean_page_url(): void

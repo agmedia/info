@@ -104,6 +104,15 @@ return [
                     'conversions' => ['thumb_100x100', 'card_360x240', 'detail_960x960'],
                     'preview_conversion' => 'card_360x240',
                 ],
+                'reference_logos' => [
+                    'label' => 'Reference Logos',
+                    'single_file' => false,
+                    'only_keep_latest' => 200,
+                    'max_upload_kb' => 8192,
+                    'accept_mime_types' => ['image/jpeg', 'image/png', 'image/webp', 'image/avif', 'image/svg+xml'],
+                    'conversions' => [],
+                    'preview_conversion' => '',
+                ],
             ],
         ],
         ServicePage::class => [

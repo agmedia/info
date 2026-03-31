@@ -4,6 +4,7 @@ use App\Models\User;
 use App\Services\Content\EuFundsCallImportService;
 use App\Services\Content\ResourceAssetImportService;
 use App\Services\Content\ResourcePublicationSyncService;
+use App\Services\Content\ReferenceLogoImportService;
 use App\Models\Settings\Local\Region;
 use App\Services\Content\GlossaryImportService;
 use App\Services\Content\WordPressBlogImportService;
@@ -224,6 +225,35 @@ Artisan::command('content:import-resource-assets
         return self::SUCCESS;
     })
     ->purpose('Download resource PDFs and cover images locally from a WordPress XML export');
+
+Artisan::command('content:import-reference-logos
+    {--source=https://alphacapitalis.com/test_o_nama/ : Legacy page URL that contains the reference logo grid}
+    {--page-code=references : Info page code that owns the media collection}',
+    function (ReferenceLogoImportService $importer): int {
+        try {
+            $result = $importer->import(
+                (string) $this->option('page-code'),
+                (string) $this->option('source')
+            );
+        } catch (\Throwable $exception) {
+            $this->error($exception->getMessage());
+
+            return self::FAILURE;
+        }
+
+        $this->info(sprintf(
+            'Reference logo import finished. Parsed: %d, imported: %d, skipped: %d.',
+            (int) $result['parsed_count'],
+            (int) $result['imported_count'],
+            (int) $result['skipped_count']
+        ));
+
+        $this->line('Page: '.(string) $result['page_code']);
+        $this->line('Source: '.(string) $result['source_url']);
+
+        return self::SUCCESS;
+    })
+    ->purpose('Import legacy reference logos into the references info page media collection');
 
 Artisan::command('content:sync-resource-publication
     {--codes=* : Sync only selected resource document codes}',

@@ -163,6 +163,14 @@ return [
             'view' => ['messages.career.view'],
             'mutate' => ['messages.career.moderate'],
         ],
+        'admin.messages.contact.*' => [
+            'view' => ['messages.contact.view'],
+            'mutate' => ['messages.contact.moderate'],
+        ],
+        'admin.messages.collaboration-assessment.*' => [
+            'view' => ['messages.collaboration_assessment.view'],
+            'mutate' => ['messages.collaboration_assessment.moderate'],
+        ],
         'admin.messages.download-requests.*' => [
             'view' => ['messages.download_requests.view'],
             'mutate' => ['messages.download_requests.moderate'],

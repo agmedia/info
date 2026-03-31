@@ -216,6 +216,8 @@ Route::middleware(['admin.locale', 'auth', 'verified', 'admin.access', 'admin.ma
         });
 
         Route::prefix('messages')->as('messages.')->group(function (): void {
+            Route::view('contact', 'admin.messages.contact.index')->name('contact.index');
+            Route::view('procjena-suradnje', 'admin.messages.collaboration-assessment.index')->name('collaboration-assessment.index');
             Route::view('career-cv-form', 'admin.messages.career.index')->name('career.index');
             Route::view('download-requests', 'admin.messages.download-requests.index')->name('download-requests.index');
             Route::view('eu-fondovi-upitnik', 'admin.messages.eu-funds-questionnaire.index')->name('eu-funds-questionnaire.index');

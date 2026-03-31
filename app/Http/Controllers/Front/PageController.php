@@ -256,6 +256,24 @@ class PageController extends Controller
             ]);
         }
 
+        if ($page->layout === 'references') {
+            $referenceItems = $this->resolveReferenceLogos(
+                $page,
+                (string) $locale,
+                $fallbackLocale
+            );
+
+            return view($this->frontendView($request, 'pages.references'), [
+                'page' => $page,
+                'selectedTranslation' => $selectedTranslation,
+                'referenceItems' => $referenceItems,
+                'topBlocks' => $topBlocks,
+                'bottomBlocks' => $bottomBlocks,
+                'locale' => $locale,
+                'fallbackLocale' => $fallbackLocale,
+            ]);
+        }
+
         return view($this->frontendView($request, 'pages.show'), [
             'page' => $page,
             'selectedTranslation' => $selectedTranslation,
@@ -566,6 +584,43 @@ class PageController extends Controller
                     'image_url' => $imageUrl !== '' ? $imageUrl : $fullUrl,
                     'full_url' => $fullUrl,
                     'alt' => $alt !== '' ? $alt : (string) $media->name,
+                    'caption' => $caption,
+                ];
+            })
+            ->values();
+    }
+
+    /**
+     * @return Collection<int, array{id:int,name:string,url:string,alt:string,caption:string}>
+     */
+    private function resolveReferenceLogos(InfoPage $page, string $locale, string $fallbackLocale): Collection
+    {
+        if (! method_exists($page, 'getMedia')) {
+            return collect();
+        }
+
+        return $page->getMedia('reference_logos')
+            ->sortBy('order_column')
+            ->map(function ($media) use ($locale, $fallbackLocale): array {
+                $custom = (array) ($media->custom_properties ?? []);
+                $name = trim((string) $media->name);
+                $caption = trim((string) (
+                    data_get($custom, "caption.$locale")
+                    ?: data_get($custom, "caption.$fallbackLocale")
+                    ?: ''
+                ));
+                $alt = trim((string) (
+                    data_get($custom, "alt.$locale")
+                    ?: data_get($custom, "alt.$fallbackLocale")
+                    ?: $caption
+                    ?: $name
+                ));
+
+                return [
+                    'id' => (int) $media->id,
+                    'name' => $name !== '' ? $name : pathinfo((string) $media->file_name, PATHINFO_FILENAME),
+                    'url' => (string) $media->getUrl(),
+                    'alt' => $alt !== '' ? $alt : ($name !== '' ? $name : (string) $media->file_name),
                     'caption' => $caption,
                 ];
             })

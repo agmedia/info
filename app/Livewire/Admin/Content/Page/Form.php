@@ -91,7 +91,10 @@ class Form extends Component
             $this->fillCareerFields($this->defaultCareerContent());
         }
 
-        if ($layout !== 'academy' && in_array($this->activeTab, ['sources', 'media'], true)) {
+        if (
+            ($this->activeTab === 'sources' && ! $this->layoutSupportsSources($layout))
+            || ($this->activeTab === 'media' && ! $this->layoutSupportsMedia($layout))
+        ) {
             $this->activeTab = 'content';
         }
     }
@@ -110,7 +113,13 @@ class Form extends Component
             return;
         }
 
-        if (in_array($tab, ['sources', 'media'], true) && (string) ($this->form['layout'] ?? '') !== 'academy') {
+        $layout = (string) ($this->form['layout'] ?? '');
+
+        if ($tab === 'sources' && ! $this->layoutSupportsSources($layout)) {
+            return;
+        }
+
+        if ($tab === 'media' && ! $this->layoutSupportsMedia($layout)) {
             return;
         }
 
@@ -1068,5 +1077,15 @@ class Form extends Component
             && trim((string) ($this->form['career_application_highlight'] ?? '')) === ''
             && (array) ($this->form['career_application_paragraphs'] ?? []) === []
             && trim((string) ($this->form['career_form_title'] ?? '')) === '';
+    }
+
+    private function layoutSupportsSources(string $layout): bool
+    {
+        return $layout === 'academy';
+    }
+
+    private function layoutSupportsMedia(string $layout): bool
+    {
+        return in_array($layout, ['academy', 'references'], true);
     }
 }

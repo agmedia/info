@@ -10,6 +10,9 @@ class ContactMessage extends Model
     public const STATUS_NEW = 'new';
     public const STATUS_READ = 'read';
     public const STATUS_RESOLVED = 'resolved';
+    public const FORM_TYPE_CONTACT = 'contact';
+    public const FORM_TYPE_SERVICE_CONTACT = 'service_contact';
+    public const FORM_TYPE_COLLABORATION_ASSESSMENT = 'collaboration_assessment';
     public const FORM_TYPE_EU_FUNDS_QUESTIONNAIRE = 'eu_funds_questionnaire';
     public const SUBJECT_EU_FUNDS_QUESTIONNAIRE = 'EU Fondovi upitnik';
 

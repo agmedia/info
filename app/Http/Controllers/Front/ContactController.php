@@ -99,6 +99,8 @@ class ContactController extends Controller
             );
         }
 
+        $sourcePage = $this->resolveSourcePage($redirectTo);
+
         $message = ContactMessage::query()->create([
             'user_id' => $request->user()?->id,
             'name' => $resolvedName,
@@ -112,8 +114,13 @@ class ContactController extends Controller
             'ip_address' => $request->ip(),
             'user_agent' => (string) $request->userAgent(),
             'payload' => [
+                'form_type' => $sourcePage === '/contact'
+                    ? ContactMessage::FORM_TYPE_CONTACT
+                    : ContactMessage::FORM_TYPE_SERVICE_CONTACT,
                 'locale' => app()->getLocale(),
                 'url' => $request->fullUrl(),
+                'source_page' => $sourcePage,
+                'redirect_to' => $redirectTo,
                 'first_name' => trim((string) ($validated['first_name'] ?? '')) ?: null,
                 'last_name' => trim((string) ($validated['last_name'] ?? '')) ?: null,
                 'company' => trim((string) ($validated['company'] ?? '')) ?: null,
@@ -194,5 +201,16 @@ class ContactController extends Controller
         }
 
         return null;
+    }
+
+    private function resolveSourcePage(?string $redirectTo): string
+    {
+        if ($redirectTo === null) {
+            return '/contact';
+        }
+
+        $path = (string) parse_url($redirectTo, PHP_URL_PATH);
+
+        return $path !== '' ? $path : '/contact';
     }
 }

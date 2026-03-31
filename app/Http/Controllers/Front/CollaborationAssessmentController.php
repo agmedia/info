@@ -111,7 +111,7 @@ class CollaborationAssessmentController extends Controller
         }
 
         $payload = [
-            'form_type' => 'collaboration_assessment',
+            'form_type' => ContactMessage::FORM_TYPE_COLLABORATION_ASSESSMENT,
             'locale' => app()->getLocale(),
             'url' => $request->fullUrl(),
             'answers' => [

@@ -1063,9 +1063,19 @@ unset($__defined_vars, $__key, $__value); ?>
                     $contentNavigationActive = request()->routeIs('admin.content.navigation*');
                     $contentSlotsActive = request()->routeIs('admin.content.slots*');
                     $contentOpen = $contentCategoriesActive || $contentBlogActive || $contentCallsActive || $contentTeamActive || $contentGlossaryActive || $contentPagesActive || $contentResourcesActive || $contentServicesActive || $contentFaqsActive || $contentCommentsActive || $contentBlocksActive || $contentNavigationActive || $contentSlotsActive;
+                    $messagesContactActive = request()->routeIs('admin.messages.contact.*');
+                    $messagesCollaborationAssessmentActive = request()->routeIs('admin.messages.collaboration-assessment.*');
                     $messagesCareerActive = request()->routeIs('admin.messages.career.*');
                     $messagesDownloadRequestsActive = request()->routeIs('admin.messages.download-requests.*');
                     $messagesEuFundsQuestionnaireActive = request()->routeIs('admin.messages.eu-funds-questionnaire.*');
+                    $canViewContactMessages = auth()->user() && (
+                        auth()->user()->isA('superadmin')
+                        || auth()->user()->can('messages.contact.view')
+                    );
+                    $canViewCollaborationAssessmentMessages = auth()->user() && (
+                        auth()->user()->isA('superadmin')
+                        || auth()->user()->can('messages.collaboration_assessment.view')
+                    );
                     $canViewCareerMessages = auth()->user() && (
                         auth()->user()->isA('superadmin')
                         || auth()->user()->can('messages.career.view')
@@ -1078,7 +1088,7 @@ unset($__defined_vars, $__key, $__value); ?>
                         auth()->user()->isA('superadmin')
                         || auth()->user()->can('messages.eu_funds_questionnaire.view')
                     );
-                    $messagesOpen = $messagesCareerActive || $messagesDownloadRequestsActive || $messagesEuFundsQuestionnaireActive;
+                    $messagesOpen = $messagesContactActive || $messagesCollaborationAssessmentActive || $messagesCareerActive || $messagesDownloadRequestsActive || $messagesEuFundsQuestionnaireActive;
                     $settingsOpen = request()->routeIs('admin.settings.*');
                     $settingsSystemOpen = request()->routeIs('admin.settings.system.*');
                     $canManageUsersAccess = auth()->user() && auth()->user()->isA('superadmin');
@@ -1414,7 +1424,7 @@ unset($__defined_vars, $__key, $__value); ?>
                         </div>
                     </details>
 
-                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($canViewCareerMessages || $canViewDownloadRequestMessages || $canViewEuFundsQuestionnaireMessages): ?>
+                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($canViewContactMessages || $canViewCollaborationAssessmentMessages || $canViewCareerMessages || $canViewDownloadRequestMessages || $canViewEuFundsQuestionnaireMessages): ?>
                         <details class="group rounded-lg" <?php if($messagesOpen): ?> open <?php endif; ?>>
                             <summary class="sidebar-dropdown-summary flex cursor-pointer list-none items-center justify-between rounded-lg font-medium [&::-webkit-details-marker]:hidden [&::marker]:content-[''] <?php echo e($messagesOpen ? 'bg-slate-900 text-white' : 'text-slate-700 hover:bg-slate-100'); ?>">
                                 <span class="flex items-center gap-2">
@@ -1426,6 +1436,28 @@ unset($__defined_vars, $__key, $__value); ?>
                                 </span>
                             </summary>
                             <div class="ml-3 mt-1 space-y-1 border-l border-slate-200 pl-4">
+                                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($canViewContactMessages): ?>
+                                    <a
+                                        href="<?php echo e(route('admin.messages.contact.index')); ?>"
+                                        class="sidebar-dropdown-link block rounded-lg font-medium <?php echo e($messagesContactActive ? 'is-active-leaf' : 'text-slate-700 hover:bg-slate-100'); ?>"
+                                    >
+                                        <span class="flex items-center gap-2">
+                                            <span class="sidebar-dot"></span>
+                                            <span><?php echo e(__('admin.layout.menu.contact')); ?></span>
+                                        </span>
+                                    </a>
+                                <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($canViewCollaborationAssessmentMessages): ?>
+                                    <a
+                                        href="<?php echo e(route('admin.messages.collaboration-assessment.index')); ?>"
+                                        class="sidebar-dropdown-link block rounded-lg font-medium <?php echo e($messagesCollaborationAssessmentActive ? 'is-active-leaf' : 'text-slate-700 hover:bg-slate-100'); ?>"
+                                    >
+                                        <span class="flex items-center gap-2">
+                                            <span class="sidebar-dot"></span>
+                                            <span><?php echo e(__('admin.layout.menu.collaboration_assessment')); ?></span>
+                                        </span>
+                                    </a>
+                                <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                                 <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($canViewCareerMessages): ?>
                                     <a
                                         href="<?php echo e(route('admin.messages.career.index')); ?>"
