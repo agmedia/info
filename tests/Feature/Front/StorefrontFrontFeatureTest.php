@@ -552,6 +552,53 @@ class StorefrontFrontFeatureTest extends TestCase
         $this->assertSame('18', $message->payload['answers']['outgoing_invoices_monthly'] ?? null);
     }
 
+    public function test_eu_funds_questionnaire_page_renders(): void
+    {
+        $this->get('/eu-fondovi/upitnik')
+            ->assertOk()
+            ->assertSee(__('eu_funds_questionnaire.heading'))
+            ->assertSee(__('eu_funds_questionnaire.form.company_name'))
+            ->assertSee(__('eu_funds_questionnaire.form.planned_costs'))
+            ->assertSee(__('eu_funds_questionnaire.form.interested_services'));
+    }
+
+    public function test_eu_funds_questionnaire_form_stores_structured_message(): void
+    {
+        $this->post('/eu-fondovi/upitnik', [
+            'company_name' => 'Kreativni studio d.o.o.',
+            'company_oib' => '12345678901',
+            'company_activity' => '90.03 Umjetničko stvaralaštvo',
+            'employee_count' => '10_49',
+            'related_companies' => 'yes',
+            'project_sectors' => ['creative_industries', 'ict'],
+            'investment_location' => 'Zagreb',
+            'planned_costs' => ['equipment', 'digitalization'],
+            'investment_amount' => '100k_500k',
+            'interested_services' => ['loans', 'investment_incentives'],
+            'additional_notes' => 'Povezano društvo: Studio projekt d.o.o.',
+            'contact_name' => 'Ivana Horvat',
+            'email' => 'eu-funds@example.test',
+            'contact_phone' => '+38591111222',
+            'accept_terms' => '1',
+        ])->assertRedirect('/eu-fondovi/upitnik');
+
+        $message = \App\Models\Content\Support\ContactMessage::query()
+            ->where('email', 'eu-funds@example.test')
+            ->latest('id')
+            ->first();
+
+        $this->assertNotNull($message);
+        $this->assertSame(\App\Models\Content\Support\ContactMessage::SUBJECT_EU_FUNDS_QUESTIONNAIRE, $message->subject);
+        $this->assertSame(\App\Models\Content\Support\ContactMessage::FORM_TYPE_EU_FUNDS_QUESTIONNAIRE, $message->payload['form_type'] ?? null);
+        $this->assertSame('Kreativni studio d.o.o.', $message->payload['answers']['company_name'] ?? null);
+        $this->assertSame('12345678901', $message->payload['answers']['company_oib'] ?? null);
+        $this->assertSame('100.000,00 - 500.000,00 EUR', $message->payload['answers']['investment_amount'] ?? null);
+        $this->assertSame('10-49', $message->payload['answers']['employee_count'] ?? null);
+        $this->assertSame('Da', $message->payload['answers']['related_companies'] ?? null);
+        $this->assertSame(['Kreativne industrije', 'Informacije i komunikacije (ICT)'], $message->payload['answers']['project_sectors'] ?? null);
+        $this->assertSame(['Opremanje (strojevi, alati, oprema)', 'Digitalizacija i nabava IKT opreme - softver i hardver'], $message->payload['answers']['planned_costs'] ?? null);
+    }
+
     public function test_lease_calculator_page_renders(): void
     {
         $this->get('/leasing-kalkulator')

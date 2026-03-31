@@ -6,6 +6,7 @@
     $isFinanceTemplate = $currentTemplateKey === \App\Support\Content\ServicePageTemplateRegistry::FINANCE;
     $isAuditTemplate = $currentTemplateKey === \App\Support\Content\ServicePageTemplateRegistry::AUDIT;
     $isTaxTemplate = $currentTemplateKey === \App\Support\Content\ServicePageTemplateRegistry::TAX;
+    $isEuFundsTemplate = $currentTemplateKey === \App\Support\Content\ServicePageTemplateRegistry::EU_FUNDS;
     $financeEditorSections = [
         'finance-pandea' => __('Pandea'),
         'finance-services-intro' => __('Services Intro'),
@@ -34,6 +35,25 @@
         'tax-transfer-pricing-admin' => __('Transfer Pricing'),
         'tax-meeting-admin' => __('Meeting'),
     ];
+    $euFundsEditorSections = [
+        'eu-funds-about' => 'About',
+        'eu-funds-overview' => 'Overview',
+        'eu-funds-chart' => 'Funding Chart',
+        'eu-funds-process' => 'Process',
+        'eu-funds-calls' => 'Calls',
+        'eu-funds-resources' => 'Resources',
+        'eu-funds-laws' => 'Laws',
+        'eu-funds-testimonials' => 'Testimonials',
+        'eu-funds-blog' => 'Blog',
+        'eu-funds-meeting' => 'Meeting',
+    ];
+    $blogAutoCategoryLabel = $isAuditTemplate
+        ? __('Auto (current audit category)')
+        : ($isTaxTemplate
+            ? __('Auto (current tax category)')
+            : ($isEuFundsTemplate
+                ? __('Auto (current EU funds category)')
+                : __('Auto (current family-business category)')));
 @endphp
 
 <div class="space-y-6">
@@ -1564,6 +1584,8 @@
                         </div>
                     </div>
                 </div>
+            @elseif ($isEuFundsTemplate)
+                @include('livewire.admin.content.service.partials.eu-funds-editor')
             @else
             <div class="admin-panel admin-form-panel p-6">
                 <p class="admin-section-title">{{ __('Audience & FFI') }}</p>
@@ -1886,7 +1908,7 @@
                             <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Mode') }}</label>
                             <select wire:model.live="form.page_payload.blog_source.mode" data-tom-select data-tom-no-search="1" class="admin-select w-full rounded-xl border border-slate-300 px-3 py-2 text-sm">
                                 <option value="auto_category">
-                                    {{ $isAuditTemplate ? __('Auto (current audit category)') : ($isTaxTemplate ? __('Auto (current tax category)') : __('Auto (current family-business category)')) }}
+                                    {{ $blogAutoCategoryLabel }}
                                 </option>
                                 <option value="category">{{ __('Specific blog category') }}</option>
                                 <option value="manual">{{ __('Manual post selection') }}</option>

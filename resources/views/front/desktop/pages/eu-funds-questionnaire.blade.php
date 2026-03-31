@@ -1,0 +1,371 @@
+@extends('front.desktop.layouts.store')
+
+@section('title', __('eu_funds_questionnaire.page_title'))
+@section('main_class', 'w-full px-0 py-0')
+
+@section('content')
+    @php
+        $captchaSiteKey = trim((string) ($storeSettings['captcha']['recaptcha_v3_site_key'] ?? ''));
+        $captchaEnabled = (bool) ($storeSettings['captcha']['recaptcha_v3_enabled'] ?? false) && $captchaSiteKey !== '';
+        $contactEmail = trim((string) ($storeSettings['footer']['email_support'] ?? '')) ?: 'info@alphacapitalis.com';
+        $contactPhone = trim((string) ($storeSettings['footer']['phone'] ?? '')) ?: '+385 (1) 580 6656';
+        $contactPhoneHref = preg_replace('/\s+/', '', $contactPhone);
+        $pageTitleBreadcrumbs = [
+            ['label' => __('ui.front.desktop.footer.home'), 'url' => route('home')],
+            ['label' => __('eu_funds_questionnaire.page_title'), 'url' => route('eu-funds.show')],
+            ['label' => __('eu_funds_questionnaire.form.title'), 'current' => true],
+        ];
+        $employeeOptions = [
+            '0' => __('eu_funds_questionnaire.options.employee_count.0'),
+            '1_9' => __('eu_funds_questionnaire.options.employee_count.1_9'),
+            '10_49' => __('eu_funds_questionnaire.options.employee_count.10_49'),
+            '50_249' => __('eu_funds_questionnaire.options.employee_count.50_249'),
+            '250_plus' => __('eu_funds_questionnaire.options.employee_count.250_plus'),
+        ];
+        $relatedCompanyOptions = [
+            'yes' => __('eu_funds_questionnaire.options.related_companies.yes'),
+            'no' => __('eu_funds_questionnaire.options.related_companies.no'),
+        ];
+        $projectSectorOptions = [
+            'manufacturing' => __('eu_funds_questionnaire.options.project_sectors.manufacturing'),
+            'ict' => __('eu_funds_questionnaire.options.project_sectors.ict'),
+            'creative_industries' => __('eu_funds_questionnaire.options.project_sectors.creative_industries'),
+            'tourism' => __('eu_funds_questionnaire.options.project_sectors.tourism'),
+            'agriculture' => __('eu_funds_questionnaire.options.project_sectors.agriculture'),
+            'education' => __('eu_funds_questionnaire.options.project_sectors.education'),
+            'construction' => __('eu_funds_questionnaire.options.project_sectors.construction'),
+            'trade' => __('eu_funds_questionnaire.options.project_sectors.trade'),
+            'transport_logistics' => __('eu_funds_questionnaire.options.project_sectors.transport_logistics'),
+            'other' => __('eu_funds_questionnaire.options.project_sectors.other'),
+        ];
+        $plannedCostOptions = [
+            'construction' => __('eu_funds_questionnaire.options.planned_costs.construction'),
+            'equipment' => __('eu_funds_questionnaire.options.planned_costs.equipment'),
+            'innovation_research' => __('eu_funds_questionnaire.options.planned_costs.innovation_research'),
+            'energy_efficiency' => __('eu_funds_questionnaire.options.planned_costs.energy_efficiency'),
+            'digitalization' => __('eu_funds_questionnaire.options.planned_costs.digitalization'),
+        ];
+        $investmentAmountOptions = [
+            'up_to_100k' => __('eu_funds_questionnaire.options.investment_amount.up_to_100k'),
+            '100k_500k' => __('eu_funds_questionnaire.options.investment_amount.100k_500k'),
+            '500k_1000k' => __('eu_funds_questionnaire.options.investment_amount.500k_1000k'),
+            '1000k_2000k' => __('eu_funds_questionnaire.options.investment_amount.1000k_2000k'),
+            'over_2000k' => __('eu_funds_questionnaire.options.investment_amount.over_2000k'),
+        ];
+        $interestedServiceOptions = [
+            'loans' => __('eu_funds_questionnaire.options.interested_services.loans'),
+            'investment_incentives' => __('eu_funds_questionnaire.options.interested_services.investment_incentives'),
+            'r_and_d_support' => __('eu_funds_questionnaire.options.interested_services.r_and_d_support'),
+            'none' => __('eu_funds_questionnaire.options.interested_services.none'),
+        ];
+        $selectedProjectSectors = collect((array) old('project_sectors', []))->map(fn ($value) => (string) $value)->all();
+        $selectedPlannedCosts = collect((array) old('planned_costs', []))->map(fn ($value) => (string) $value)->all();
+        $selectedInterestedServices = collect((array) old('interested_services', []))->map(fn ($value) => (string) $value)->all();
+        $showAdditionalNotes = old('related_companies') === 'yes' || trim((string) old('additional_notes')) !== '';
+        $showProjectSectorOther = in_array('other', $selectedProjectSectors, true) || trim((string) old('project_sector_other')) !== '';
+    @endphp
+
+    <div class="front-contact-page ac-eu-questionnaire-page">
+        <x-front.page-title-band :breadcrumbs="$pageTitleBreadcrumbs">
+            <div class="ac-page-title-copy">
+                <h1>{{ __('eu_funds_questionnaire.heading') }}</h1>
+                <p>{{ __('eu_funds_questionnaire.subheading') }}</p>
+            </div>
+        </x-front.page-title-band>
+
+        <section class="front-contact-content-shell">
+            <div class="mx-auto w-full max-w-[1320px] px-4 sm:px-6 lg:px-8">
+                <div class="front-contact-layout">
+                    <form
+                        method="POST"
+                        action="{{ route('eu-funds.questionnaire.store') }}"
+                        class="front-contact-form"
+                        novalidate
+                        data-eu-funds-questionnaire-form
+                        @if($captchaEnabled) data-recaptcha-form data-recaptcha-site-key="{{ $captchaSiteKey }}" data-recaptcha-action="eu_funds_questionnaire_form" @endif
+                    >
+                        @csrf
+                        <input type="hidden" name="recaptcha_token" value="" data-recaptcha-token>
+
+                        <div class="front-contact-form-head">
+                            <p class="front-contact-section-kicker">{{ __('eu_funds_questionnaire.form.kicker') }}</p>
+                            <h2>{{ __('eu_funds_questionnaire.form.title') }}</h2>
+                            <p>{{ __('eu_funds_questionnaire.form.intro') }}</p>
+                        </div>
+
+                        @if (session('status'))
+                            <div class="front-contact-status" role="status">
+                                {{ session('status') }}
+                            </div>
+                        @endif
+
+                        <div class="grid gap-4 md:grid-cols-2">
+                            <div>
+                                <label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-500">{{ __('eu_funds_questionnaire.form.company_name') }} *</label>
+                                <input type="text" name="company_name" value="{{ old('company_name') }}" class="front-contact-input h-11 w-full text-sm" required>
+                                @error('company_name')<p class="mt-2 text-xs font-semibold text-rose-600">{{ $message }}</p>@enderror
+                            </div>
+                            <div>
+                                <label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-500">{{ __('eu_funds_questionnaire.form.company_oib') }} *</label>
+                                <input type="text" name="company_oib" value="{{ old('company_oib') }}" class="front-contact-input h-11 w-full text-sm" required>
+                                @error('company_oib')<p class="mt-2 text-xs font-semibold text-rose-600">{{ $message }}</p>@enderror
+                            </div>
+                        </div>
+
+                        <div class="mt-4">
+                            <label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-500">{{ __('eu_funds_questionnaire.form.company_activity') }} *</label>
+                            <input type="text" name="company_activity" value="{{ old('company_activity') }}" class="front-contact-input h-11 w-full text-sm" required>
+                            @error('company_activity')<p class="mt-2 text-xs font-semibold text-rose-600">{{ $message }}</p>@enderror
+                        </div>
+
+                        <fieldset class="mt-6">
+                            <legend class="mb-3 block text-xs font-semibold uppercase tracking-wide text-slate-500">{{ __('eu_funds_questionnaire.form.employee_count') }} *</legend>
+                            <div class="grid gap-3">
+                                @foreach ($employeeOptions as $value => $label)
+                                    <label class="flex items-start gap-3 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-700 transition hover:border-slate-300 hover:bg-slate-50">
+                                        <input type="radio" name="employee_count" value="{{ $value }}" class="mt-1 h-4 w-4 border-slate-300 text-slate-900 focus:ring-0" @checked(old('employee_count') === $value) required>
+                                        <span>{{ $label }}</span>
+                                    </label>
+                                @endforeach
+                            </div>
+                            @error('employee_count')<p class="mt-2 text-xs font-semibold text-rose-600">{{ $message }}</p>@enderror
+                        </fieldset>
+
+                        <fieldset class="mt-6" data-conditional-root="related_companies">
+                            <legend class="mb-3 block text-xs font-semibold uppercase tracking-wide text-slate-500">{{ __('eu_funds_questionnaire.form.related_companies') }} *</legend>
+                            <div class="grid gap-3">
+                                @foreach ($relatedCompanyOptions as $value => $label)
+                                    <label class="flex items-start gap-3 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-700 transition hover:border-slate-300 hover:bg-slate-50">
+                                        <input type="radio" name="related_companies" value="{{ $value }}" class="mt-1 h-4 w-4 border-slate-300 text-slate-900 focus:ring-0" @checked(old('related_companies') === $value) required data-conditional-toggle="related_companies">
+                                        <span>{{ $label }}</span>
+                                    </label>
+                                @endforeach
+                            </div>
+                            @error('related_companies')<p class="mt-2 text-xs font-semibold text-rose-600">{{ $message }}</p>@enderror
+
+                            <div class="mt-4 {{ $showAdditionalNotes ? '' : 'hidden' }}" data-conditional-target="related_companies">
+                                <label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-500">{{ __('eu_funds_questionnaire.form.additional_notes') }} *</label>
+                                <textarea name="additional_notes" rows="4" class="front-contact-textarea w-full text-sm" placeholder="{{ __('eu_funds_questionnaire.form.additional_notes_placeholder') }}">{{ old('additional_notes') }}</textarea>
+                                @error('additional_notes')<p class="mt-2 text-xs font-semibold text-rose-600">{{ $message }}</p>@enderror
+                            </div>
+                        </fieldset>
+
+                        <fieldset class="mt-6" data-conditional-root="project_sector_other">
+                            <legend class="mb-3 block text-xs font-semibold uppercase tracking-wide text-slate-500">{{ __('eu_funds_questionnaire.form.project_sectors') }} *</legend>
+                            <div class="grid gap-3">
+                                @foreach ($projectSectorOptions as $value => $label)
+                                    <label class="flex items-start gap-3 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-700 transition hover:border-slate-300 hover:bg-slate-50">
+                                        <input
+                                            type="checkbox"
+                                            name="project_sectors[]"
+                                            value="{{ $value }}"
+                                            class="mt-1 h-4 w-4 border-slate-300 text-slate-900 focus:ring-0"
+                                            @checked(in_array($value, $selectedProjectSectors, true))
+                                            @if ($value === 'other') data-conditional-checkbox="project_sector_other" @endif
+                                        >
+                                        <span>{{ $label }}</span>
+                                    </label>
+                                @endforeach
+                            </div>
+                            @error('project_sectors')<p class="mt-2 text-xs font-semibold text-rose-600">{{ $message }}</p>@enderror
+                            @error('project_sectors.*')<p class="mt-2 text-xs font-semibold text-rose-600">{{ $message }}</p>@enderror
+
+                            <div class="mt-4 {{ $showProjectSectorOther ? '' : 'hidden' }}" data-conditional-target="project_sector_other">
+                                <label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-500">{{ __('eu_funds_questionnaire.form.project_sector_other') }}</label>
+                                <input type="text" name="project_sector_other" value="{{ old('project_sector_other') }}" class="front-contact-input h-11 w-full text-sm" placeholder="{{ __('eu_funds_questionnaire.form.project_sector_other_placeholder') }}">
+                                @error('project_sector_other')<p class="mt-2 text-xs font-semibold text-rose-600">{{ $message }}</p>@enderror
+                            </div>
+                        </fieldset>
+
+                        <div class="mt-6">
+                            <label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-500">{{ __('eu_funds_questionnaire.form.investment_location') }} *</label>
+                            <input type="text" name="investment_location" value="{{ old('investment_location') }}" class="front-contact-input h-11 w-full text-sm" required>
+                            @error('investment_location')<p class="mt-2 text-xs font-semibold text-rose-600">{{ $message }}</p>@enderror
+                        </div>
+
+                        <fieldset class="mt-6">
+                            <legend class="mb-3 block text-xs font-semibold uppercase tracking-wide text-slate-500">{{ __('eu_funds_questionnaire.form.planned_costs') }} *</legend>
+                            <div class="grid gap-3">
+                                @foreach ($plannedCostOptions as $value => $label)
+                                    <label class="flex items-start gap-3 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-700 transition hover:border-slate-300 hover:bg-slate-50">
+                                        <input type="checkbox" name="planned_costs[]" value="{{ $value }}" class="mt-1 h-4 w-4 border-slate-300 text-slate-900 focus:ring-0" @checked(in_array($value, $selectedPlannedCosts, true))>
+                                        <span>{{ $label }}</span>
+                                    </label>
+                                @endforeach
+                            </div>
+                            @error('planned_costs')<p class="mt-2 text-xs font-semibold text-rose-600">{{ $message }}</p>@enderror
+                            @error('planned_costs.*')<p class="mt-2 text-xs font-semibold text-rose-600">{{ $message }}</p>@enderror
+                        </fieldset>
+
+                        <fieldset class="mt-6">
+                            <legend class="mb-3 block text-xs font-semibold uppercase tracking-wide text-slate-500">{{ __('eu_funds_questionnaire.form.investment_amount') }} *</legend>
+                            <div class="grid gap-3">
+                                @foreach ($investmentAmountOptions as $value => $label)
+                                    <label class="flex items-start gap-3 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-700 transition hover:border-slate-300 hover:bg-slate-50">
+                                        <input type="radio" name="investment_amount" value="{{ $value }}" class="mt-1 h-4 w-4 border-slate-300 text-slate-900 focus:ring-0" @checked(old('investment_amount') === $value) required>
+                                        <span>{{ $label }}</span>
+                                    </label>
+                                @endforeach
+                            </div>
+                            @error('investment_amount')<p class="mt-2 text-xs font-semibold text-rose-600">{{ $message }}</p>@enderror
+                        </fieldset>
+
+                        <fieldset class="mt-6">
+                            <legend class="mb-3 block text-xs font-semibold uppercase tracking-wide text-slate-500">{{ __('eu_funds_questionnaire.form.interested_services') }} *</legend>
+                            <div class="grid gap-3">
+                                @foreach ($interestedServiceOptions as $value => $label)
+                                    <label class="flex items-start gap-3 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-700 transition hover:border-slate-300 hover:bg-slate-50">
+                                        <input type="checkbox" name="interested_services[]" value="{{ $value }}" class="mt-1 h-4 w-4 border-slate-300 text-slate-900 focus:ring-0" @checked(in_array($value, $selectedInterestedServices, true))>
+                                        <span>{{ $label }}</span>
+                                    </label>
+                                @endforeach
+                            </div>
+                            @error('interested_services')<p class="mt-2 text-xs font-semibold text-rose-600">{{ $message }}</p>@enderror
+                            @error('interested_services.*')<p class="mt-2 text-xs font-semibold text-rose-600">{{ $message }}</p>@enderror
+                        </fieldset>
+
+                        <div class="mt-6 grid gap-4 md:grid-cols-2">
+                            <div>
+                                <label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-500">{{ __('eu_funds_questionnaire.form.contact_name') }} *</label>
+                                <input type="text" name="contact_name" value="{{ old('contact_name') }}" class="front-contact-input h-11 w-full text-sm" required>
+                                @error('contact_name')<p class="mt-2 text-xs font-semibold text-rose-600">{{ $message }}</p>@enderror
+                            </div>
+                            <div>
+                                <label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-500">{{ __('eu_funds_questionnaire.form.email') }} *</label>
+                                <input type="email" name="email" value="{{ old('email', auth()->user()?->email) }}" class="front-contact-input h-11 w-full text-sm" required>
+                                @error('email')<p class="mt-2 text-xs font-semibold text-rose-600">{{ $message }}</p>@enderror
+                            </div>
+                        </div>
+
+                        <div class="mt-4">
+                            <label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-500">{{ __('eu_funds_questionnaire.form.contact_phone') }} *</label>
+                            <input type="text" name="contact_phone" value="{{ old('contact_phone') }}" class="front-contact-input h-11 w-full text-sm" required>
+                            @error('contact_phone')<p class="mt-2 text-xs font-semibold text-rose-600">{{ $message }}</p>@enderror
+                        </div>
+
+                        <div class="mt-6">
+                            <label class="front-contact-consent">
+                                <input type="checkbox" name="accept_terms" value="1" class="front-contact-checkbox mt-0.5 h-4 w-4 border-slate-300 text-slate-900 focus:ring-0" @checked((bool) old('accept_terms'))>
+                                <span>{{ __('eu_funds_questionnaire.form.accept_terms_label') }}</span>
+                            </label>
+                            @error('accept_terms')<p class="mt-2 text-xs font-semibold text-rose-600">{{ $message }}</p>@enderror
+                        </div>
+
+                        @error('recaptcha_token')<p class="mt-4 text-xs font-semibold text-rose-600">{{ $message }}</p>@enderror
+
+                        <div class="front-contact-form-actions">
+                            <button type="submit" class="front-contact-submit inline-flex h-11 items-center justify-center px-6 text-sm font-semibold text-white transition">
+                                {{ __('eu_funds_questionnaire.form.submit') }}
+                            </button>
+                        </div>
+                    </form>
+
+                    <div class="mt-4 text-sm leading-6 text-slate-600">
+                        <p>{{ __('eu_funds_questionnaire.privacy_note') }}</p>
+                    </div>
+
+                    <aside class="front-contact-sidebar">
+                        <div class="front-contact-panel front-contact-panel--direct">
+                            <h2>{{ __('eu_funds_questionnaire.sidebar.title') }}</h2>
+                            <p class="front-contact-panel-intro">{{ __('eu_funds_questionnaire.sidebar.body') }}</p>
+
+                            <ul class="front-contact-direct-list">
+                                <li>
+                                    <span>{{ __('eu_funds_questionnaire.sidebar.point_1_label') }}</span>
+                                    <strong>{{ __('eu_funds_questionnaire.sidebar.point_1') }}</strong>
+                                </li>
+                                <li>
+                                    <span>{{ __('eu_funds_questionnaire.sidebar.point_2_label') }}</span>
+                                    <strong>{{ __('eu_funds_questionnaire.sidebar.point_2') }}</strong>
+                                </li>
+                                <li>
+                                    <span>{{ __('contact.direct.email') }}</span>
+                                    <a href="mailto:{{ $contactEmail }}">{{ $contactEmail }}</a>
+                                </li>
+                                <li>
+                                    <span>{{ __('contact.direct.phone') }}</span>
+                                    <a href="tel:{{ $contactPhoneHref }}">{{ $contactPhone }}</a>
+                                </li>
+                            </ul>
+                        </div>
+                    </aside>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    @if ($captchaEnabled)
+        @push('scripts')
+            <script src="https://www.google.com/recaptcha/api.js?render={{ $captchaSiteKey }}"></script>
+        @endpush
+    @endif
+
+    @push('scripts')
+        <script>
+            (function () {
+                const forms = document.querySelectorAll('[data-eu-funds-questionnaire-form]');
+
+                const bindConditionalFields = function (form) {
+                    const relatedTargets = form.querySelectorAll('[data-conditional-target="related_companies"]');
+                    const relatedInputs = form.querySelectorAll('[data-conditional-toggle="related_companies"]');
+                    const sectorOtherTargets = form.querySelectorAll('[data-conditional-target="project_sector_other"]');
+                    const sectorOtherCheckboxes = form.querySelectorAll('[data-conditional-checkbox="project_sector_other"]');
+
+                    const updateRelatedCompanies = function () {
+                        const active = Array.from(relatedInputs).some(function (input) {
+                            return input.checked && input.value === 'yes';
+                        });
+
+                        relatedTargets.forEach(function (target) {
+                            target.classList.toggle('hidden', !active);
+                        });
+                    };
+
+                    const updateProjectSectorOther = function () {
+                        const active = Array.from(sectorOtherCheckboxes).some(function (input) {
+                            return input.checked;
+                        });
+
+                        sectorOtherTargets.forEach(function (target) {
+                            target.classList.toggle('hidden', !active);
+                        });
+                    };
+
+                    relatedInputs.forEach(function (input) {
+                        input.addEventListener('change', updateRelatedCompanies);
+                    });
+                    sectorOtherCheckboxes.forEach(function (input) {
+                        input.addEventListener('change', updateProjectSectorOther);
+                    });
+
+                    updateRelatedCompanies();
+                    updateProjectSectorOther();
+                };
+
+                forms.forEach(function (form) {
+                    bindConditionalFields(form);
+
+                    form.addEventListener('submit', function (event) {
+                        event.preventDefault();
+
+                        const tokenInput = form.querySelector('[data-recaptcha-token]');
+                        const siteKey = form.dataset.recaptchaSiteKey;
+                        const action = form.dataset.recaptchaAction || 'eu_funds_questionnaire_form';
+
+                        if (!tokenInput || !window.grecaptcha || !siteKey) {
+                            form.submit();
+                            return;
+                        }
+
+                        grecaptcha.ready(function () {
+                            grecaptcha.execute(siteKey, { action: action }).then(function (token) {
+                                tokenInput.value = token || '';
+                                form.submit();
+                            });
+                        });
+                    });
+                });
+            }());
+        </script>
+    @endpush
+@endsection

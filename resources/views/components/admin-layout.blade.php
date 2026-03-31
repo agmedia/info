@@ -1023,6 +1023,7 @@
                     $catalogUseApi = app(\App\Services\Catalog\CatalogFeatureService::class)->useApi();
                     $contentCategoriesActive = request()->routeIs('admin.categories*');
                     $contentBlogActive = request()->routeIs('admin.content.blog.*');
+                    $contentCallsActive = request()->routeIs('admin.content.calls.*');
                     $contentTeamActive = request()->routeIs('admin.content.team.*');
                     $contentGlossaryActive = request()->routeIs('admin.content.glossary.*');
                     $contentPagesActive = request()->routeIs('admin.content.pages.*');
@@ -1033,9 +1034,10 @@
                     $contentBlocksActive = request()->routeIs('admin.content.blocks*');
                     $contentNavigationActive = request()->routeIs('admin.content.navigation*');
                     $contentSlotsActive = request()->routeIs('admin.content.slots*');
-                    $contentOpen = $contentCategoriesActive || $contentBlogActive || $contentTeamActive || $contentGlossaryActive || $contentPagesActive || $contentResourcesActive || $contentServicesActive || $contentFaqsActive || $contentCommentsActive || $contentBlocksActive || $contentNavigationActive || $contentSlotsActive;
+                    $contentOpen = $contentCategoriesActive || $contentBlogActive || $contentCallsActive || $contentTeamActive || $contentGlossaryActive || $contentPagesActive || $contentResourcesActive || $contentServicesActive || $contentFaqsActive || $contentCommentsActive || $contentBlocksActive || $contentNavigationActive || $contentSlotsActive;
                     $messagesCareerActive = request()->routeIs('admin.messages.career.*');
                     $messagesDownloadRequestsActive = request()->routeIs('admin.messages.download-requests.*');
+                    $messagesEuFundsQuestionnaireActive = request()->routeIs('admin.messages.eu-funds-questionnaire.*');
                     $canViewCareerMessages = auth()->user() && (
                         auth()->user()->isA('superadmin')
                         || auth()->user()->can('messages.career.view')
@@ -1044,7 +1046,11 @@
                         auth()->user()->isA('superadmin')
                         || auth()->user()->can('messages.download_requests.view')
                     );
-                    $messagesOpen = $messagesCareerActive || $messagesDownloadRequestsActive;
+                    $canViewEuFundsQuestionnaireMessages = auth()->user() && (
+                        auth()->user()->isA('superadmin')
+                        || auth()->user()->can('messages.eu_funds_questionnaire.view')
+                    );
+                    $messagesOpen = $messagesCareerActive || $messagesDownloadRequestsActive || $messagesEuFundsQuestionnaireActive;
                     $settingsOpen = request()->routeIs('admin.settings.*');
                     $settingsSystemOpen = request()->routeIs('admin.settings.system.*');
                     $canManageUsersAccess = auth()->user() && auth()->user()->isA('superadmin');
@@ -1288,6 +1294,15 @@
                                 </span>
                             </a>
                             <a
+                                href="{{ route('admin.content.calls.index') }}"
+                                class="sidebar-dropdown-link block rounded-lg font-medium {{ $contentCallsActive ? 'is-active-leaf' : 'text-slate-700 hover:bg-slate-100' }}"
+                            >
+                                <span class="flex items-center gap-2">
+                                    <span class="sidebar-dot"></span>
+                                    <span>{{ __('admin.layout.menu.calls') }}</span>
+                                </span>
+                            </a>
+                            <a
                                 href="{{ route('admin.content.team.index') }}"
                                 class="sidebar-dropdown-link block rounded-lg font-medium {{ $contentTeamActive ? 'is-active-leaf' : 'text-slate-700 hover:bg-slate-100' }}"
                             >
@@ -1371,7 +1386,7 @@
                         </div>
                     </details>
 
-                    @if ($canViewCareerMessages || $canViewDownloadRequestMessages)
+                    @if ($canViewCareerMessages || $canViewDownloadRequestMessages || $canViewEuFundsQuestionnaireMessages)
                         <details class="group rounded-lg" @if($messagesOpen) open @endif>
                             <summary class="sidebar-dropdown-summary flex cursor-pointer list-none items-center justify-between rounded-lg font-medium [&::-webkit-details-marker]:hidden [&::marker]:content-[''] {{ $messagesOpen ? 'bg-slate-900 text-white' : 'text-slate-700 hover:bg-slate-100' }}">
                                 <span class="flex items-center gap-2">
@@ -1402,6 +1417,17 @@
                                         <span class="flex items-center gap-2">
                                             <span class="sidebar-dot"></span>
                                             <span>{{ __('admin.layout.menu.download_requests') }}</span>
+                                        </span>
+                                    </a>
+                                @endif
+                                @if ($canViewEuFundsQuestionnaireMessages)
+                                    <a
+                                        href="{{ route('admin.messages.eu-funds-questionnaire.index') }}"
+                                        class="sidebar-dropdown-link block rounded-lg font-medium {{ $messagesEuFundsQuestionnaireActive ? 'is-active-leaf' : 'text-slate-700 hover:bg-slate-100' }}"
+                                    >
+                                        <span class="flex items-center gap-2">
+                                            <span class="sidebar-dot"></span>
+                                            <span>{{ __('admin.layout.menu.eu_funds_questionnaire') }}</span>
                                         </span>
                                     </a>
                                 @endif
@@ -1467,7 +1493,7 @@
                                         >
                                             <span class="flex items-center gap-2">
                                                 <span class="sidebar-dot"></span>
-                                                <span>{{ __('admin.layout.menu.blog_imports') }}</span>
+                                                <span>{{ __('admin.layout.menu.imports') }}</span>
                                             </span>
                                         </a>
                                     @endif

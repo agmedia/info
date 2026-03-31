@@ -166,6 +166,31 @@
         }
     }
 
+    if (request()->routeIs('eu-funds.show')) {
+        $title = $cleanupText((string) ($servicePageMetaTitle ?? $servicePageTitle ?? $title), 191);
+        $description = $cleanupText((string) ($servicePageMetaDescription ?? $description), 320);
+
+        if (trim((string) ($servicePageOgImage ?? '')) !== '') {
+            $ogImage = (string) $servicePageOgImage;
+        }
+    }
+
+    if (request()->routeIs('eu-funds.calls.show') && isset($callPost)) {
+        $ogType = 'article';
+        $translation = $callPost->translations->firstWhere('locale', $locale)
+            ?? $callPost->translations->firstWhere('locale', $fallbackLocale)
+            ?? $callPost->translations->first();
+        $title = $cleanupText($translation?->meta_title ?: $translation?->title ?: $title, 191);
+        $description = $cleanupText($translation?->meta_description ?: $translation?->excerpt ?: $translation?->body_html ?: $description, 320);
+
+        if (method_exists($callPost, 'getFirstMediaUrl')) {
+            $postImage = (string) ($callPost->getFirstMediaUrl('call_cover') ?: $callPost->getFirstMediaUrl());
+            if ($postImage !== '') {
+                $ogImage = $postImage;
+            }
+        }
+    }
+
     if ($description === '') {
         $description = $defaultDescription;
     }

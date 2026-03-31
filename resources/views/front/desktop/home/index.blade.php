@@ -81,7 +81,7 @@
                 'text' => 'Priprema projektnih prijedloga i usklađivanje ulaganja s aktualnim natječajima.',
                 'highlights' => ['Natječaji', 'Projekti'],
                 'featured' => true,
-                'url' => route('contact.create'),
+                'url' => route('eu-funds.show'),
                 'accent' => '#3f7c78',
                 'layout_area' => 'eu',
             ],

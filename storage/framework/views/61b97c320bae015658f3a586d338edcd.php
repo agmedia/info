@@ -1051,6 +1051,7 @@ unset($__defined_vars, $__key, $__value); ?>
                     $catalogUseApi = app(\App\Services\Catalog\CatalogFeatureService::class)->useApi();
                     $contentCategoriesActive = request()->routeIs('admin.categories*');
                     $contentBlogActive = request()->routeIs('admin.content.blog.*');
+                    $contentCallsActive = request()->routeIs('admin.content.calls.*');
                     $contentTeamActive = request()->routeIs('admin.content.team.*');
                     $contentGlossaryActive = request()->routeIs('admin.content.glossary.*');
                     $contentPagesActive = request()->routeIs('admin.content.pages.*');
@@ -1061,9 +1062,10 @@ unset($__defined_vars, $__key, $__value); ?>
                     $contentBlocksActive = request()->routeIs('admin.content.blocks*');
                     $contentNavigationActive = request()->routeIs('admin.content.navigation*');
                     $contentSlotsActive = request()->routeIs('admin.content.slots*');
-                    $contentOpen = $contentCategoriesActive || $contentBlogActive || $contentTeamActive || $contentGlossaryActive || $contentPagesActive || $contentResourcesActive || $contentServicesActive || $contentFaqsActive || $contentCommentsActive || $contentBlocksActive || $contentNavigationActive || $contentSlotsActive;
+                    $contentOpen = $contentCategoriesActive || $contentBlogActive || $contentCallsActive || $contentTeamActive || $contentGlossaryActive || $contentPagesActive || $contentResourcesActive || $contentServicesActive || $contentFaqsActive || $contentCommentsActive || $contentBlocksActive || $contentNavigationActive || $contentSlotsActive;
                     $messagesCareerActive = request()->routeIs('admin.messages.career.*');
                     $messagesDownloadRequestsActive = request()->routeIs('admin.messages.download-requests.*');
+                    $messagesEuFundsQuestionnaireActive = request()->routeIs('admin.messages.eu-funds-questionnaire.*');
                     $canViewCareerMessages = auth()->user() && (
                         auth()->user()->isA('superadmin')
                         || auth()->user()->can('messages.career.view')
@@ -1072,7 +1074,11 @@ unset($__defined_vars, $__key, $__value); ?>
                         auth()->user()->isA('superadmin')
                         || auth()->user()->can('messages.download_requests.view')
                     );
-                    $messagesOpen = $messagesCareerActive || $messagesDownloadRequestsActive;
+                    $canViewEuFundsQuestionnaireMessages = auth()->user() && (
+                        auth()->user()->isA('superadmin')
+                        || auth()->user()->can('messages.eu_funds_questionnaire.view')
+                    );
+                    $messagesOpen = $messagesCareerActive || $messagesDownloadRequestsActive || $messagesEuFundsQuestionnaireActive;
                     $settingsOpen = request()->routeIs('admin.settings.*');
                     $settingsSystemOpen = request()->routeIs('admin.settings.system.*');
                     $canManageUsersAccess = auth()->user() && auth()->user()->isA('superadmin');
@@ -1316,6 +1322,15 @@ unset($__defined_vars, $__key, $__value); ?>
                                 </span>
                             </a>
                             <a
+                                href="<?php echo e(route('admin.content.calls.index')); ?>"
+                                class="sidebar-dropdown-link block rounded-lg font-medium <?php echo e($contentCallsActive ? 'is-active-leaf' : 'text-slate-700 hover:bg-slate-100'); ?>"
+                            >
+                                <span class="flex items-center gap-2">
+                                    <span class="sidebar-dot"></span>
+                                    <span><?php echo e(__('admin.layout.menu.calls')); ?></span>
+                                </span>
+                            </a>
+                            <a
                                 href="<?php echo e(route('admin.content.team.index')); ?>"
                                 class="sidebar-dropdown-link block rounded-lg font-medium <?php echo e($contentTeamActive ? 'is-active-leaf' : 'text-slate-700 hover:bg-slate-100'); ?>"
                             >
@@ -1399,7 +1414,7 @@ unset($__defined_vars, $__key, $__value); ?>
                         </div>
                     </details>
 
-                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($canViewCareerMessages || $canViewDownloadRequestMessages): ?>
+                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($canViewCareerMessages || $canViewDownloadRequestMessages || $canViewEuFundsQuestionnaireMessages): ?>
                         <details class="group rounded-lg" <?php if($messagesOpen): ?> open <?php endif; ?>>
                             <summary class="sidebar-dropdown-summary flex cursor-pointer list-none items-center justify-between rounded-lg font-medium [&::-webkit-details-marker]:hidden [&::marker]:content-[''] <?php echo e($messagesOpen ? 'bg-slate-900 text-white' : 'text-slate-700 hover:bg-slate-100'); ?>">
                                 <span class="flex items-center gap-2">
@@ -1430,6 +1445,17 @@ unset($__defined_vars, $__key, $__value); ?>
                                         <span class="flex items-center gap-2">
                                             <span class="sidebar-dot"></span>
                                             <span><?php echo e(__('admin.layout.menu.download_requests')); ?></span>
+                                        </span>
+                                    </a>
+                                <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($canViewEuFundsQuestionnaireMessages): ?>
+                                    <a
+                                        href="<?php echo e(route('admin.messages.eu-funds-questionnaire.index')); ?>"
+                                        class="sidebar-dropdown-link block rounded-lg font-medium <?php echo e($messagesEuFundsQuestionnaireActive ? 'is-active-leaf' : 'text-slate-700 hover:bg-slate-100'); ?>"
+                                    >
+                                        <span class="flex items-center gap-2">
+                                            <span class="sidebar-dot"></span>
+                                            <span><?php echo e(__('admin.layout.menu.eu_funds_questionnaire')); ?></span>
                                         </span>
                                     </a>
                                 <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
@@ -1495,7 +1521,7 @@ unset($__defined_vars, $__key, $__value); ?>
                                         >
                                             <span class="flex items-center gap-2">
                                                 <span class="sidebar-dot"></span>
-                                                <span><?php echo e(__('admin.layout.menu.blog_imports')); ?></span>
+                                                <span><?php echo e(__('admin.layout.menu.imports')); ?></span>
                                             </span>
                                         </a>
                                     <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>

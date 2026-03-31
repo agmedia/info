@@ -37,6 +37,22 @@ return [
             'view' => ['content.blog.view'],
         ],
 
+        'admin.content.calls.create' => [
+            'view' => ['content.calls.create'],
+            'mutate' => ['content.calls.create'],
+        ],
+        'admin.content.calls.edit' => [
+            'view' => ['content.calls.update'],
+            'mutate' => ['content.calls.update'],
+            'delete' => ['content.calls.delete'],
+        ],
+        'admin.content.calls.editor-image.upload' => [
+            'mutate' => ['content.calls.create', 'content.calls.update'],
+        ],
+        'admin.content.calls.*' => [
+            'view' => ['content.calls.view'],
+        ],
+
         'admin.content.team.create' => [
             'view' => ['content.team.create'],
             'mutate' => ['content.team.create'],
@@ -150,6 +166,10 @@ return [
         'admin.messages.download-requests.*' => [
             'view' => ['messages.download_requests.view'],
             'mutate' => ['messages.download_requests.moderate'],
+        ],
+        'admin.messages.eu-funds-questionnaire.*' => [
+            'view' => ['messages.eu_funds_questionnaire.view'],
+            'mutate' => ['messages.eu_funds_questionnaire.moderate'],
         ],
 
         'admin.settings.system.runtime' => [

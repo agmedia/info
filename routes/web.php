@@ -2,13 +2,17 @@
 
 use App\Http\Controllers\Admin\AdminAiController;
 use App\Http\Controllers\Admin\BlogEditorImageController;
+use App\Http\Controllers\Admin\CallEditorImageController;
 use App\Http\Controllers\Admin\CareerApplicationDocumentController;
 use App\Http\Controllers\Admin\SystemToolsController;
 use App\Http\Controllers\Front\BlogController;
+use App\Http\Controllers\Front\CallPostController;
 use App\Http\Controllers\Front\CareerApplicationController;
 use App\Http\Controllers\Front\CollaborationAssessmentController;
 use App\Http\Controllers\Front\ContactController;
 use App\Http\Controllers\Front\AuditController;
+use App\Http\Controllers\Front\EuFundsController;
+use App\Http\Controllers\Front\EuFundsQuestionnaireController;
 use App\Http\Controllers\Front\FamilyBusinessController;
 use App\Http\Controllers\Front\FinanceController;
 use App\Http\Controllers\Front\FaqController;
@@ -22,6 +26,7 @@ use App\Http\Controllers\Front\TeamController;
 use App\Http\Controllers\Front\StorefrontController;
 use App\Models\Catalog\Category\Category;
 use App\Models\Content\Blog\BlogPost;
+use App\Models\Content\Call\CallPost;
 use App\Models\Content\ContentBlock;
 use App\Models\Content\ContentBlockSlot;
 use App\Models\Content\Glossary\GlossaryTerm;
@@ -78,6 +83,10 @@ Route::middleware(['front.locale', 'front.device'])
         Route::get('financije', [FinanceController::class, 'show'])->name('finance.show');
         Route::get('revizija', [AuditController::class, 'show'])->name('audit.show');
         Route::get('porezi', [TaxController::class, 'show'])->name('tax.show');
+        Route::get('eu-fondovi', [EuFundsController::class, 'show'])->name('eu-funds.show');
+        Route::get('eu-fondovi/upitnik', [EuFundsQuestionnaireController::class, 'create'])->name('eu-funds.questionnaire.create');
+        Route::post('eu-fondovi/upitnik', [EuFundsQuestionnaireController::class, 'store'])->name('eu-funds.questionnaire.store');
+        Route::get('eu-fondovi/pozivi/{slug}', [CallPostController::class, 'show'])->name('eu-funds.calls.show');
         Route::get('obiteljski-biznis', [FamilyBusinessController::class, 'show'])->name('family-business.show');
         Route::get('glossary', [GlossaryController::class, 'index'])->name('glossary.index');
         Route::get('glossary/{slug}', [GlossaryController::class, 'show'])->name('glossary.show');
@@ -146,6 +155,13 @@ Route::middleware(['admin.locale', 'auth', 'verified', 'admin.access', 'admin.ma
                 return view('admin.content.blog.edit', compact('post'));
             })->name('blog.edit');
 
+            Route::view('calls', 'admin.content.calls.index')->name('calls.index');
+            Route::view('calls/create', 'admin.content.calls.create')->name('calls.create');
+            Route::post('calls/editor-images', CallEditorImageController::class)->name('calls.editor-image.upload');
+            Route::get('calls/{callPost}/edit', function (CallPost $callPost) {
+                return view('admin.content.calls.edit', compact('callPost'));
+            })->name('calls.edit');
+
             Route::view('team', 'admin.content.team.index')->name('team.index');
             Route::view('team/create', 'admin.content.team.create')->name('team.create');
             Route::get('team/{member}/edit', function (TeamMember $member) {
@@ -202,6 +218,7 @@ Route::middleware(['admin.locale', 'auth', 'verified', 'admin.access', 'admin.ma
         Route::prefix('messages')->as('messages.')->group(function (): void {
             Route::view('career-cv-form', 'admin.messages.career.index')->name('career.index');
             Route::view('download-requests', 'admin.messages.download-requests.index')->name('download-requests.index');
+            Route::view('eu-fondovi-upitnik', 'admin.messages.eu-funds-questionnaire.index')->name('eu-funds-questionnaire.index');
             Route::get('career-cv-form/{careerApplication}/download', CareerApplicationDocumentController::class)
                 ->name('career.download');
         });

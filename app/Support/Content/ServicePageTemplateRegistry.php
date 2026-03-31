@@ -12,6 +12,8 @@ class ServicePageTemplateRegistry
 
     public const TAX = 'tax';
 
+    public const EU_FUNDS = 'eu_funds';
+
     public const FAMILY_BUSINESS = 'family_business';
 
     /**
@@ -23,6 +25,7 @@ class ServicePageTemplateRegistry
             self::FINANCE => 'Financije',
             self::AUDIT => 'Revizija',
             self::TAX => 'Porezi',
+            self::EU_FUNDS => 'EU fondovi',
             self::FAMILY_BUSINESS => 'Family Business',
         ];
     }
@@ -39,6 +42,7 @@ class ServicePageTemplateRegistry
             self::FINANCE => 'finance',
             self::AUDIT => 'audit',
             self::TAX => 'tax',
+            self::EU_FUNDS => 'eu-fondovi',
             self::FAMILY_BUSINESS => 'family-business',
             default => Str::of($templateKey)->replace('_', '-')->lower()->value(),
         };
@@ -72,6 +76,14 @@ class ServicePageTemplateRegistry
                     'category_id' => null,
                     'post_ids' => [],
                     'limit' => 6,
+                ],
+            ],
+            self::EU_FUNDS => [
+                'blog_source' => [
+                    'mode' => 'auto_category',
+                    'category_id' => null,
+                    'post_ids' => [],
+                    'limit' => 5,
                 ],
             ],
             self::FAMILY_BUSINESS => [
@@ -109,6 +121,9 @@ class ServicePageTemplateRegistry
                 $locale ?: (string) config('app.locale', 'en')
             ),
             self::TAX => TaxServicePageDefaults::defaultsForLocale(
+                $locale ?: (string) config('app.locale', 'en')
+            ),
+            self::EU_FUNDS => EuFundsServicePageDefaults::defaultsForLocale(
                 $locale ?: (string) config('app.locale', 'en')
             ),
             self::FAMILY_BUSINESS => [

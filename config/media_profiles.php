@@ -2,6 +2,7 @@
 
 use App\Models\Catalog\Category\Category;
 use App\Models\Content\Blog\BlogPost;
+use App\Models\Content\Call\CallPost;
 use App\Models\Content\ContentBlock;
 use App\Models\Content\Page\InfoPage;
 use App\Models\Content\Service\ServicePage;
@@ -60,6 +61,28 @@ return [
                     'preview_conversion' => 'card_360x240',
                 ],
                 'blog_gallery' => [
+                    'label' => 'Gallery',
+                    'single_file' => false,
+                    'max_upload_kb' => 8192,
+                    'accept_mime_types' => ['image/jpeg', 'image/png', 'image/webp', 'image/avif'],
+                    'conversions' => ['thumb_100x100', 'card_360x240', 'detail_960x960'],
+                    'preview_conversion' => 'card_360x240',
+                ],
+            ],
+        ],
+        CallPost::class => [
+            'label' => 'Call Post',
+            'main_collection' => 'call_cover',
+            'collections' => [
+                'call_cover' => [
+                    'label' => 'Cover Image',
+                    'single_file' => true,
+                    'max_upload_kb' => 8192,
+                    'accept_mime_types' => ['image/jpeg', 'image/png', 'image/webp', 'image/avif'],
+                    'conversions' => ['thumb_100x100', 'card_360x240', 'hero_1440x480'],
+                    'preview_conversion' => 'card_360x240',
+                ],
+                'call_gallery' => [
                     'label' => 'Gallery',
                     'single_file' => false,
                     'max_upload_kb' => 8192,

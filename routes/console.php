@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\User;
+use App\Services\Content\EuFundsCallImportService;
 use App\Services\Content\ResourceAssetImportService;
 use App\Services\Content\ResourcePublicationSyncService;
 use App\Models\Settings\Local\Region;
@@ -76,6 +77,57 @@ Artisan::command('content:import-wordpress-blog
         return self::SUCCESS;
     })
     ->purpose('Import published WordPress blog posts from a WXR XML export');
+
+Artisan::command('content:import-wordpress-calls
+    {file : Path to the WordPress XML export}
+    {--limit=0 : Number of current frontend call items to import (0 = all items)}
+    {--offset=0 : Skip the first N frontend call items}
+    {--locale=hr : Target locale for imported translations}
+    {--force : Re-download localized assets even if they already exist}',
+    function (EuFundsCallImportService $importer): int {
+        try {
+            $result = $importer->import((string) $this->argument('file'), [
+                'limit' => (int) $this->option('limit'),
+                'offset' => (int) $this->option('offset'),
+                'locale' => (string) $this->option('locale'),
+                'force' => (bool) $this->option('force'),
+                'user_id' => auth()->id(),
+            ]);
+        } catch (\Throwable $exception) {
+            $this->error($exception->getMessage());
+
+            return self::FAILURE;
+        }
+
+        $this->info(sprintf(
+            'Processed %d EU funds call item(s) in locale "%s". Localized assets: %d.',
+            (int) $result['processed_count'],
+            (string) $result['locale'],
+            (int) $result['localized_asset_count']
+        ));
+
+        if ($result['categories'] !== []) {
+            $categoryLabels = collect($result['categories'])
+                ->map(fn (array $category): string => sprintf('%s (%s)', $category['name'], $category['slug']))
+                ->implode(', ');
+
+            $this->line('Categories: '.$categoryLabels);
+        }
+
+        foreach ($result['imported'] as $row) {
+            $this->line(sprintf(
+                '- [%s] %s | %s | %s | assets:%d',
+                strtoupper((string) $row['status']),
+                (string) $row['title'],
+                (string) $row['category'],
+                strtoupper((string) $row['source']),
+                (int) $row['asset_count']
+            ));
+        }
+
+        return self::SUCCESS;
+    })
+    ->purpose('Import current EU funds call posts from a WordPress WXR XML export');
 
 Artisan::command('content:import-glossary
     {file : Path to the glossary CSV export}

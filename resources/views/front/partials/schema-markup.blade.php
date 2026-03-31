@@ -135,6 +135,15 @@
             ];
         }
 
+        if (request()->routeIs('eu-funds.*')) {
+            $breadcrumbItems[] = [
+                '@type' => 'ListItem',
+                'position' => $position++,
+                'name' => 'EU fondovi',
+                'item' => route('eu-funds.show'),
+            ];
+        }
+
         if (request()->routeIs('blog.show') && isset($post)) {
             $postTranslation = $post->translations->firstWhere('locale', $locale)
                 ?? $post->translations->firstWhere('locale', $fallbackLocale);
@@ -143,6 +152,18 @@
                 '@type' => 'ListItem',
                 'position' => $position++,
                 'name' => (string) ($postTranslation?->title ?? $post->code),
+                'item' => $currentUrl,
+            ];
+        }
+
+        if (request()->routeIs('eu-funds.calls.show') && isset($callPost)) {
+            $translation = $callPost->translations->firstWhere('locale', $locale)
+                ?? $callPost->translations->firstWhere('locale', $fallbackLocale);
+
+            $breadcrumbItems[] = [
+                '@type' => 'ListItem',
+                'position' => $position++,
+                'name' => (string) ($translation?->title ?? $callPost->code),
                 'item' => $currentUrl,
             ];
         }
@@ -275,6 +296,35 @@
         }
 
         $schemas[] = $blogSchema;
+    }
+
+    if (request()->routeIs('eu-funds.calls.show') && isset($callPost) && (bool) ($schemaSettings['blog_enabled'] ?? true)) {
+        $translation = $callPost->translations->firstWhere('locale', $locale)
+            ?? $callPost->translations->firstWhere('locale', $fallbackLocale)
+            ?? $callPost->translations->first();
+
+        $callSchema = [
+            '@context' => 'https://schema.org',
+            '@type' => 'Article',
+            'headline' => $text($translation?->meta_title ?: $translation?->title ?: $callPost->code, 191),
+            'description' => $text($translation?->meta_description ?: $translation?->excerpt ?: $defaultDescription, 320),
+            'datePublished' => optional($callPost->published_at)->toIso8601String(),
+            'dateModified' => optional($callPost->updated_at)->toIso8601String(),
+            'mainEntityOfPage' => $currentUrl,
+            'publisher' => ['@type' => 'Organization', 'name' => $businessName],
+        ];
+
+        $callImage = method_exists($callPost, 'getFirstMediaUrl')
+            ? (string) ($callPost->getFirstMediaUrl('call_cover') ?: $callPost->getFirstMediaUrl())
+            : '';
+        if ($callImage === '' && $defaultImage !== '') {
+            $callImage = $defaultImage;
+        }
+        if ($callImage !== '') {
+            $callSchema['image'] = [['@type' => 'ImageObject', 'url' => $absolute($callImage)]];
+        }
+
+        $schemas[] = $callSchema;
     }
 
     if (request()->routeIs('blog.index') && (bool) ($schemaSettings['blog_enabled'] ?? true)) {

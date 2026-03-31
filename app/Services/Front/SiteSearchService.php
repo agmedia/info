@@ -98,7 +98,7 @@ class SiteSearchService
                 'search' => $isCroatian
                     ? 'eu fondovi natječaji natjecaji projekti ulaganja prijedlozi'
                     : 'eu funds funding calls projects investments proposals',
-                'url' => $homeUrl.'#odjel-eu-fondovi',
+                'url' => route('eu-funds.show'),
             ],
             [
                 'title' => $isCroatian ? 'Obiteljski biznis' : 'Family Business',

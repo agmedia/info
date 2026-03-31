@@ -42,6 +42,11 @@ return [
             'summary' => 'Create and edit blog posts, metadata, and taxonomy links.',
         ],
 
+        'admin.content.calls.*' => [
+            'title' => 'Calls',
+            'summary' => 'Create and edit EU fund call posts, grouped by current call status.',
+        ],
+
         'admin.content.team.*' => [
             'title' => 'Team',
             'summary' => 'Manage team members, profile copy, contact links, and profile photos.',
@@ -131,6 +136,11 @@ return [
         'admin.settings.system.store-settings' => [
             'title' => 'Site Settings',
             'summary' => 'Global branding, SEO, schema, and frontend behavior settings.',
+        ],
+
+        'admin.messages.eu-funds-questionnaire.*' => [
+            'title' => 'EU Funds Questionnaire',
+            'summary' => 'Review and moderate submissions collected from the EU Funds questionnaire form.',
         ],
 
         'admin.settings.local.languages' => [

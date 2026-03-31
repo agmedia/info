@@ -13,20 +13,26 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 use Livewire\Component;
+use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
+use Livewire\WithFileUploads;
 
 class Form extends Component
 {
+    use WithFileUploads;
+
     private const TAB_OPTIONS = ['content', 'sources', 'seo', 'media'];
 
     private const SOURCE_ENABLED_TEMPLATES = [
         ServicePageTemplateRegistry::AUDIT,
         ServicePageTemplateRegistry::TAX,
+        ServicePageTemplateRegistry::EU_FUNDS,
         ServicePageTemplateRegistry::FAMILY_BUSINESS,
     ];
 
     private const BLOG_SOURCE_ENABLED_TEMPLATES = [
         ServicePageTemplateRegistry::AUDIT,
         ServicePageTemplateRegistry::TAX,
+        ServicePageTemplateRegistry::EU_FUNDS,
         ServicePageTemplateRegistry::FAMILY_BUSINESS,
     ];
 
@@ -57,6 +63,9 @@ class Form extends Component
     public ?int $faqPickerId = null;
 
     public ?int $teamPickerId = null;
+
+    /** @var array<string, TemporaryUploadedFile|null> */
+    public array $assetUploads = [];
 
     /**
      * @var array<string, string>
@@ -109,6 +118,7 @@ class Form extends Component
         $this->blogPickerId = null;
         $this->faqPickerId = null;
         $this->teamPickerId = null;
+        $this->assetUploads = [];
     }
 
     public function updatedFormTemplateKey(string $templateKey): void
@@ -452,6 +462,7 @@ class Form extends Component
 
             'form.page_payload' => ['nullable', 'array'],
             'form.translation_payload' => ['nullable', 'array'],
+            'assetUploads.*' => ['nullable', 'file', 'mimes:pdf', 'max:20480'],
         ];
 
         if ($this->templateSupportsBlogSource()) {
@@ -511,6 +522,7 @@ class Form extends Component
             $servicePage->template_key,
             $servicePage->payload
         );
+        $this->assetUploads = [];
 
         if ($translation) {
             $this->form['locale'] = $translation->locale;
@@ -558,6 +570,7 @@ class Form extends Component
             $translation->payload,
             $translation->locale
         );
+        $this->assetUploads = [];
     }
 
     private function clearTranslationFields(string $templateKey): void
@@ -573,6 +586,7 @@ class Form extends Component
             $templateKey,
             $locale
         );
+        $this->assetUploads = [];
     }
 
     private function initializeTemplateDefaults(string $templateKey): void
@@ -630,6 +644,24 @@ class Form extends Component
                 'slug' => 'tax',
                 'meta_title' => 'Tax',
                 'meta_description' => 'Tax advisory, tax compliance, tax reviews, optimization, due diligence, and transfer pricing.',
+            ];
+        }
+
+        if ($templateKey === ServicePageTemplateRegistry::EU_FUNDS) {
+            if (str_starts_with(strtolower($locale), 'hr')) {
+                return [
+                    'title' => 'EU fondovi',
+                    'slug' => 'eu-fondovi',
+                    'meta_title' => 'EU fondovi',
+                    'meta_description' => 'EU fondovi, natječaji i savjetovanje za pripremu i provedbu projekata.',
+                ];
+            }
+
+            return [
+                'title' => 'EU Funds',
+                'slug' => 'eu-funds',
+                'meta_title' => 'EU Funds',
+                'meta_description' => 'EU funds, grants, and advisory for project preparation and implementation.',
             ];
         }
 
@@ -694,6 +726,16 @@ class Form extends Component
     private function translationListItemPreset(string $preset): mixed
     {
         return match ($preset) {
+            'eu_chart_stat' => [
+                'label' => '',
+                'value' => '',
+                'share' => 0,
+                'description' => '',
+            ],
+            'eu_process_item' => [
+                'title' => '',
+                'text' => '',
+            ],
             'phase' => [
                 'title' => '',
                 'label' => '',
@@ -743,7 +785,13 @@ class Form extends Component
      */
     private function normalizedTranslationPayload(string $templateKey, array $payload): array
     {
-        return ServicePageTemplateRegistry::mergeTranslationPayload($templateKey, $payload, (string) $this->form['locale']);
+        $merged = ServicePageTemplateRegistry::mergeTranslationPayload($templateKey, $payload, (string) $this->form['locale']);
+
+        if ($templateKey === ServicePageTemplateRegistry::EU_FUNDS) {
+            $merged = $this->applyEuFundsAssetUploads($merged);
+        }
+
+        return $merged;
     }
 
     /**
@@ -813,5 +861,58 @@ class Form extends Component
             self::BROCHURE_ENABLED_TEMPLATES,
             true
         );
+    }
+
+    /**
+     * @param  array<string, mixed>  $payload
+     * @return array<string, mixed>
+     */
+    private function applyEuFundsAssetUploads(array $payload): array
+    {
+        $paths = ['calls.download_link.path'];
+
+        foreach ((array) data_get($payload, 'resources.cards', []) as $cardIndex => $card) {
+            $paths[] = "resources.cards.$cardIndex.primary_link.path";
+            $paths[] = "resources.cards.$cardIndex.secondary_link.path";
+
+            foreach ((array) ($card['groups'] ?? []) as $groupIndex => $group) {
+                foreach ((array) ($group['items'] ?? []) as $itemIndex => $item) {
+                    $paths[] = "resources.cards.$cardIndex.groups.$groupIndex.items.$itemIndex.link.path";
+                }
+            }
+        }
+
+        foreach ((array) data_get($payload, 'laws.cards', []) as $cardIndex => $card) {
+            $paths[] = "laws.cards.$cardIndex.primary_link.path";
+            $paths[] = "laws.cards.$cardIndex.secondary_link.path";
+        }
+
+        foreach ($paths as $path) {
+            $payload = $this->storeUploadedAssetAtPath($payload, $path);
+        }
+
+        return $payload;
+    }
+
+    /**
+     * @param  array<string, mixed>  $payload
+     * @return array<string, mixed>
+     */
+    private function storeUploadedAssetAtPath(array $payload, string $path): array
+    {
+        $upload = $this->assetUploads[$this->assetUploadKey($path)] ?? null;
+
+        if (! $upload instanceof TemporaryUploadedFile) {
+            return $payload;
+        }
+
+        data_set($payload, $path, $upload->store('service-assets/eu-funds', 'public'));
+
+        return $payload;
+    }
+
+    private function assetUploadKey(string $path): string
+    {
+        return str_replace('.', '_', $path);
     }
 }

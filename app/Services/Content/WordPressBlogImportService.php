@@ -21,6 +21,29 @@ use Spatie\MediaLibrary\MediaCollections\Models\Media;
 class WordPressBlogImportService
 {
     /**
+     * @return array<int, array{
+     *     wp_post_id:int|null,
+     *     title:string,
+     *     source_slug:string,
+     *     legacy_url:string,
+     *     legacy_path:string,
+     *     published_at:string|null,
+     *     excerpt:string|null,
+     *     meta_description:string|null,
+     *     body_html:string|null,
+     *     featured_image_url:string|null,
+     *     inline_image_urls:array<int,string>,
+     *     source_categories:array<int,array{slug:string,name:string}>
+     * }>
+     */
+    public function parsePublishedPosts(string $filePath): array
+    {
+        $this->extendExecutionTime();
+
+        return $this->loadPublishedPosts($this->resolveFilePath($filePath));
+    }
+
+    /**
      * @param  array{
      *     limit?:int,
      *     offset?:int,

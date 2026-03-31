@@ -18,6 +18,7 @@ class Category extends Model implements HasMedia
 
     public const SCOPE_CATALOG = 'catalog';
     public const SCOPE_BLOG = 'blog';
+    public const SCOPE_CALL = 'call';
     public const SCOPE_PAGE = 'page';
 
     /**
@@ -28,6 +29,7 @@ class Category extends Model implements HasMedia
         return [
             self::SCOPE_CATALOG,
             self::SCOPE_BLOG,
+            self::SCOPE_CALL,
             self::SCOPE_PAGE,
         ];
     }
@@ -73,6 +75,13 @@ class Category extends Model implements HasMedia
     public function blogPosts(): BelongsToMany
     {
         return $this->belongsToMany(\App\Models\Content\Blog\BlogPost::class, 'content_blog_post_category', 'category_id', 'post_id')
+            ->withPivot(['sort_order', 'is_primary'])
+            ->withTimestamps();
+    }
+
+    public function callPosts(): BelongsToMany
+    {
+        return $this->belongsToMany(\App\Models\Content\Call\CallPost::class, 'content_call_post_category', 'category_id', 'post_id')
             ->withPivot(['sort_order', 'is_primary'])
             ->withTimestamps();
     }

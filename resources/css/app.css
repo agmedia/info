@@ -6421,7 +6421,6 @@
 
     .ac-services-head h2 {
         margin-bottom: 0.88rem;
-        max-width: 27ch;
         color: #0f1e30;
     }
 
@@ -8132,6 +8131,28 @@
 
     .ac-family-section {
         margin-top: clamp(3.8rem, 7vw, 5.8rem);
+    }
+
+    .ac-eu-contact-section {
+        position: relative;
+        padding-top: clamp(2.6rem, 4vw, 3.3rem);
+        z-index: 0;
+    }
+
+    .ac-eu-contact-section::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: 50%;
+        width: 100vw;
+        transform: translateX(-50%);
+        z-index: -1;
+        background:
+            linear-gradient(180deg, rgba(238, 245, 251, 0.96) 0%, rgba(231, 240, 248, 0.96) 100%),
+            repeating-linear-gradient(90deg, rgba(15, 42, 67, 0.035) 0 1px, transparent 1px 104px);
+        border-top: 1px solid rgba(15, 42, 67, 0.08);
+        border-bottom: 1px solid rgba(15, 42, 67, 0.08);
     }
 
     .ac-family-section-head {

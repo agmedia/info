@@ -6,7 +6,9 @@ use App\Livewire\Admin\Content\Service\Form as ServiceForm;
 use App\Models\Content\Service\ServicePage;
 use App\Models\User;
 use App\Support\Content\ServicePageTemplateRegistry;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Storage;
 use Livewire\Livewire;
 use Silber\Bouncer\BouncerFacade as Bouncer;
 use Tests\TestCase;
@@ -43,6 +45,22 @@ class ContentServicesFeatureTest extends TestCase
         $this->assertTrue((bool) $page->is_active);
         $this->assertSame(
             'Porezi',
+            (string) $page->translations->firstWhere('locale', 'hr')?->title
+        );
+    }
+
+    public function test_default_eu_funds_service_page_is_seeded(): void
+    {
+        $page = ServicePage::query()
+            ->where('template_key', ServicePageTemplateRegistry::EU_FUNDS)
+            ->with('translations')
+            ->first();
+
+        $this->assertNotNull($page);
+        $this->assertSame('eu-fondovi', $page->code);
+        $this->assertTrue((bool) $page->is_active);
+        $this->assertSame(
+            'EU fondovi',
             (string) $page->translations->firstWhere('locale', 'hr')?->title
         );
     }
@@ -102,6 +120,52 @@ class ContentServicesFeatureTest extends TestCase
         $this->assertStringContainsString('value="Porezi"', $component->html());
         $this->assertStringContainsString('Tax Navigator', $component->html());
         $this->assertStringContainsString('Compliance Block', $component->html());
+    }
+
+    public function test_eu_funds_service_page_edit_screen_shows_locked_eu_funds_template_and_editor(): void
+    {
+        $user = $this->makeAdminUser();
+        $page = ServicePage::query()
+            ->where('template_key', ServicePageTemplateRegistry::EU_FUNDS)
+            ->firstOrFail();
+
+        $component = Livewire::actingAs($user)
+            ->test(ServiceForm::class, ['servicePageId' => $page->id]);
+
+        $this->assertSame(ServicePageTemplateRegistry::EU_FUNDS, $component->get('form.template_key'));
+        $this->assertStringContainsString('value="EU fondovi"', $component->html());
+        $this->assertStringContainsString('EU Funds Navigator', $component->html());
+        $this->assertStringContainsString('Resources Section', $component->html());
+
+        $component->call('setTab', 'sources');
+
+        $this->assertStringContainsString('Auto (current EU funds category)', $component->html());
+    }
+
+    public function test_admin_can_upload_pdf_asset_for_eu_funds_service_page(): void
+    {
+        Storage::fake('public');
+
+        $user = $this->makeAdminUser();
+        $page = ServicePage::query()
+            ->where('template_key', ServicePageTemplateRegistry::EU_FUNDS)
+            ->firstOrFail();
+
+        Livewire::actingAs($user)
+            ->test(ServiceForm::class, ['servicePageId' => $page->id])
+            ->set('form.locale', 'hr')
+            ->set('form.translation_payload.calls.download_link.type', 'pdf')
+            ->set('assetUploads.calls_download_link_path', UploadedFile::fake()->create('eu-fondovi.pdf', 120, 'application/pdf'))
+            ->call('save')
+            ->assertRedirect(route('admin.content.services.index', ['locale' => 'hr']));
+
+        $page->refresh();
+        $translation = $page->translation('hr')->first();
+        $storedPath = (string) ($translation?->payload['calls']['download_link']['path'] ?? '');
+
+        $this->assertNotSame('', $storedPath);
+        $this->assertStringStartsWith('service-assets/eu-funds/', $storedPath);
+        Storage::disk('public')->assertExists($storedPath);
     }
 
     public function test_admin_can_update_seeded_service_page(): void
