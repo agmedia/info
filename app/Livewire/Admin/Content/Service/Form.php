@@ -9,6 +9,7 @@ use App\Models\Content\Service\ServicePageTranslation;
 use App\Models\Content\Support\Faq;
 use App\Models\Content\Team\TeamMember;
 use App\Support\Content\ServicePageTemplateRegistry;
+use App\Support\Content\YouTubeUrl;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
@@ -23,6 +24,7 @@ class Form extends Component
     private const TAB_OPTIONS = ['content', 'sources', 'seo', 'media'];
 
     private const SOURCE_ENABLED_TEMPLATES = [
+        ServicePageTemplateRegistry::FINANCE,
         ServicePageTemplateRegistry::ACCOUNTING,
         ServicePageTemplateRegistry::AUDIT,
         ServicePageTemplateRegistry::TAX,
@@ -31,6 +33,7 @@ class Form extends Component
     ];
 
     private const BLOG_SOURCE_ENABLED_TEMPLATES = [
+        ServicePageTemplateRegistry::FINANCE,
         ServicePageTemplateRegistry::ACCOUNTING,
         ServicePageTemplateRegistry::AUDIT,
         ServicePageTemplateRegistry::TAX,
@@ -207,6 +210,40 @@ class Form extends Component
         $this->moveManualItem($target, $index, 1);
     }
 
+    public function addVideoSource(): void
+    {
+        $rows = (array) data_get($this->form, 'page_payload.video_source.items', []);
+        $rows[] = [
+            'title' => '',
+            'youtube_url' => '',
+        ];
+
+        data_set($this->form, 'page_payload.video_source.items', array_values($rows));
+    }
+
+    public function removeVideoSource(int $index): void
+    {
+        $rows = array_values((array) data_get($this->form, 'page_payload.video_source.items', []));
+
+        if (! array_key_exists($index, $rows)) {
+            return;
+        }
+
+        unset($rows[$index]);
+
+        data_set($this->form, 'page_payload.video_source.items', array_values($rows));
+    }
+
+    public function moveVideoSourceUp(int $index): void
+    {
+        $this->moveVideoSource($index, -1);
+    }
+
+    public function moveVideoSourceDown(int $index): void
+    {
+        $this->moveVideoSource($index, 1);
+    }
+
     public function addTranslationListItem(string $path, string $preset = 'string'): void
     {
         $items = (array) data_get($this->form, 'translation_payload.'.$path, []);
@@ -230,14 +267,20 @@ class Form extends Component
 
     public function save()
     {
+        $pagePayloadInput = (array) data_get($this->form, 'page_payload', []);
+        $translationPayloadInput = (array) data_get($this->form, 'translation_payload', []);
         $validated = $this->validate($this->rules());
         $wasEditing = (bool) $this->servicePageId;
         $userId = auth()->id();
 
-        $pagePayload = $this->normalizedPagePayload((array) ($validated['form']['page_payload'] ?? []));
+        $pagePayload = $this->normalizedPagePayload($pagePayloadInput);
+        if ($pagePayload === false) {
+            return null;
+        }
+
         $translationPayload = $this->normalizedTranslationPayload(
             (string) $validated['form']['template_key'],
-            (array) ($validated['form']['translation_payload'] ?? [])
+            $translationPayloadInput
         );
 
         DB::transaction(function () use ($validated, $pagePayload, $translationPayload, $userId, $wasEditing): void {
@@ -496,6 +539,14 @@ class Form extends Component
             $rules['form.page_payload.brochure_url'] = ['nullable', 'string', 'max:2048'];
         }
 
+        if ($this->templateSupportsSources()) {
+            $rules['form.page_payload.video_source.items'] = ['nullable', 'array'];
+            $rules['form.page_payload.video_source.items.*.title'] = ['nullable', 'string', 'max:255'];
+            $rules['form.page_payload.video_source.items.*.youtube_url'] = ['nullable', 'string', 'max:2048'];
+            $rules['form.translation_payload.video_section.title'] = ['nullable', 'string', 'max:255'];
+            $rules['form.translation_payload.video_section.intro'] = ['nullable', 'string'];
+        }
+
         return $rules;
     }
 
@@ -714,6 +765,19 @@ class Form extends Component
         data_set($this->form, $path, $rows);
     }
 
+    private function moveVideoSource(int $index, int $direction): void
+    {
+        $rows = array_values((array) data_get($this->form, 'page_payload.video_source.items', []));
+
+        $swapIndex = $index + $direction;
+        if ($index < 0 || $index >= count($rows) || $swapIndex < 0 || $swapIndex >= count($rows)) {
+            return;
+        }
+
+        [$rows[$index], $rows[$swapIndex]] = [$rows[$swapIndex], $rows[$index]];
+        data_set($this->form, 'page_payload.video_source.items', array_values($rows));
+    }
+
     private function manualSelectionPath(string $target): ?string
     {
         return self::MANUAL_SELECTION_PATHS[$target] ?? null;
@@ -761,21 +825,33 @@ class Form extends Component
                 'label' => '',
                 'items' => [''],
             ],
+            'download_item' => [
+                'title' => '',
+                'url' => '',
+                'label' => '',
+            ],
             default => '',
         };
     }
 
     /**
      * @param  array<string, mixed>  $payload
-     * @return array<string, mixed>
+     * @return array<string, mixed>|false
      */
-    private function normalizedPagePayload(array $payload): array
+    private function normalizedPagePayload(array $payload): array|false
     {
         $merged = ServicePageTemplateRegistry::mergePagePayload((string) $this->form['template_key'], $payload);
 
         if (! $this->templateSupportsSources()) {
             return $merged;
         }
+
+        $videoSourceItems = $this->normalizeVideoSourceItems((array) data_get($merged, 'video_source.items', []));
+        if ($videoSourceItems === false) {
+            return false;
+        }
+
+        data_set($merged, 'video_source.items', $videoSourceItems);
 
         if ($this->templateSupportsBlogSource()) {
             data_set($merged, 'blog_source.category_id', $this->nullableInt(data_get($merged, 'blog_source.category_id')));
@@ -807,6 +883,18 @@ class Form extends Component
     {
         $merged = ServicePageTemplateRegistry::mergeTranslationPayload($templateKey, $payload, (string) $this->form['locale']);
 
+        if ($templateKey === ServicePageTemplateRegistry::ACCOUNTING) {
+            $detailTitles = collect((array) data_get($merged, 'detail_sections', []))
+                ->map(fn ($section): string => trim((string) data_get($section, 'title', '')))
+                ->filter()
+                ->values()
+                ->all();
+
+            if ($detailTitles !== []) {
+                data_set($merged, 'intro_section.items', $detailTitles);
+            }
+        }
+
         if ($templateKey === ServicePageTemplateRegistry::EU_FUNDS) {
             $merged = $this->applyEuFundsAssetUploads($merged);
         }
@@ -825,6 +913,52 @@ class Form extends Component
             ->filter()
             ->values()
             ->all();
+    }
+
+    /**
+     * @param  array<int, mixed>  $items
+     * @return array<int, array{title:string, youtube_url:string}>|false
+     */
+    private function normalizeVideoSourceItems(array $items): array|false
+    {
+        $normalized = [];
+        $hasErrors = false;
+
+        foreach (array_values($items) as $index => $item) {
+            $title = trim((string) data_get($item, 'title', ''));
+            $youtubeUrl = trim((string) data_get($item, 'youtube_url', ''));
+
+            if ($title === '' && $youtubeUrl === '') {
+                continue;
+            }
+
+            if ($youtubeUrl === '') {
+                $this->addError("form.page_payload.video_source.items.$index.youtube_url", __('YouTube URL je obavezan ako je red popunjen.'));
+                $hasErrors = true;
+                continue;
+            }
+
+            $parsed = YouTubeUrl::parse($youtubeUrl);
+
+            if ($parsed === null) {
+                $this->addError("form.page_payload.video_source.items.$index.youtube_url", __('Podržani su samo valjani YouTube linkovi.'));
+                $hasErrors = true;
+                continue;
+            }
+
+            $normalized[] = [
+                'title' => $title,
+                'youtube_url' => $parsed['watch_url'],
+            ];
+        }
+
+        if ($hasErrors) {
+            $this->dispatch('notify', type: 'danger', message: __('Provjeri unesene YouTube linkove.'));
+
+            return false;
+        }
+
+        return $normalized;
     }
 
     private function nullableInt(mixed $value): ?int

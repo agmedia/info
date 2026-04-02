@@ -1,6 +1,4 @@
-@extends('front.desktop.layouts.store')
-
-@php
+<?php
     $captchaSiteKey = trim((string) ($storeSettings['captcha']['recaptcha_v3_site_key'] ?? ''));
     $captchaEnabled = (bool) ($storeSettings['captcha']['recaptcha_v3_enabled'] ?? false) && $captchaSiteKey !== '';
     $contactEmail = trim((string) ($storeSettings['footer']['email_support'] ?? '')) ?: 'info@alphacapitalis.com';
@@ -75,37 +73,37 @@
         'view_box' => '0 0 448 512',
         'href' => $taxSprite.'#quote-right',
     ];
-@endphp
+?>
 
-@section('title', $servicePageMetaTitle !== '' ? $servicePageMetaTitle : ($servicePageTitle ?? 'Porezi'))
-@section('main_class', 'w-full px-0 py-0')
+<?php $__env->startSection('title', $servicePageMetaTitle !== '' ? $servicePageMetaTitle : ($servicePageTitle ?? 'Porezi')); ?>
+<?php $__env->startSection('main_class', 'w-full px-0 py-0'); ?>
 
-@section('content')
+<?php $__env->startSection('content'); ?>
     <div class="ac-tax-page">
         <section class="ac-family-hero">
-            <div class="ac-family-hero-media" aria-hidden="true" style="background-image: url('{{ $heroBackgroundUrl }}');"></div>
+            <div class="ac-family-hero-media" aria-hidden="true" style="background-image: url('<?php echo e($heroBackgroundUrl); ?>');"></div>
             <div class="ac-family-hero-overlay"></div>
 
             <div class="mx-auto w-full max-w-[1240px] px-5 lg:px-8">
                 <div class="ac-family-hero-content">
                     <div class="ac-family-hero-shell">
                         <div class="ac-family-hero-copy">
-                            @include('front.desktop.partials.service-hero-icon-badge', ['iconUrl' => $heroBadgeIcon, 'accentColor' => $heroBadgeAccent])
+                            <?php echo $__env->make('front.desktop.partials.service-hero-icon-badge', ['iconUrl' => $heroBadgeIcon, 'accentColor' => $heroBadgeAccent], array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
                             <h1 class="ac-family-hero-title">
-                                <span class="is-brand">{{ $heroSection['brand_title'] ?? 'ALPHA CAPITALIS' }}</span>
+                                <span class="is-brand"><?php echo e($heroSection['brand_title'] ?? 'ALPHA CAPITALIS'); ?></span>
                                 <span class="is-subtitle">
-                                    <span class="is-subtitle-lead">{{ $heroSection['subtitle_lead'] ?? 'Porezno' }}</span>
-                                    <span class="is-subtitle-accent">{{ $heroSection['subtitle_accent'] ?? 'savjetovanje' }}</span>
+                                    <span class="is-subtitle-lead"><?php echo e($heroSection['subtitle_lead'] ?? 'Porezno'); ?></span>
+                                    <span class="is-subtitle-accent"><?php echo e($heroSection['subtitle_accent'] ?? 'savjetovanje'); ?></span>
                                 </span>
                             </h1>
 
-                            <p class="ac-family-hero-intro">{{ $heroSection['intro'] ?? '' }}</p>
+                            <p class="ac-family-hero-intro"><?php echo e($heroSection['intro'] ?? ''); ?></p>
 
                             <div class="ac-family-hero-actions">
-                                <a href="{{ $heroSection['cta_url'] ?? '#tax-overview' }}" class="front-action-cta">
-                                    <span>{{ $heroSection['cta_label'] ?? 'Pregledajte usluge' }}</span>
-                                    <svg viewBox="{{ $taxCtaIcon['view_box'] }}" fill="currentColor" aria-hidden="true">
-                                        <use href="{{ $taxCtaIcon['href'] }}"></use>
+                                <a href="<?php echo e($heroSection['cta_url'] ?? '#tax-overview'); ?>" class="front-action-cta">
+                                    <span><?php echo e($heroSection['cta_label'] ?? 'Pregledajte usluge'); ?></span>
+                                    <svg viewBox="<?php echo e($taxCtaIcon['view_box']); ?>" fill="currentColor" aria-hidden="true">
+                                        <use href="<?php echo e($taxCtaIcon['href']); ?>"></use>
                                     </svg>
                                 </a>
                             </div>
@@ -122,13 +120,13 @@
                         <div class="ac-services-head ac-support-story-head">
                             <div class="ac-services-eyebrow">
                                 <span class="ac-services-eyebrow-line" aria-hidden="true"></span>
-                                <p class="ac-services-kicker">{{ $overviewSection['kicker'] ?? 'POREZI' }}</p>
+                                <p class="ac-services-kicker"><?php echo e($overviewSection['kicker'] ?? 'POREZI'); ?></p>
                                 <span class="ac-services-eyebrow-line" aria-hidden="true"></span>
                             </div>
                             <h2 id="ac-tax-overview-title">
-                                <span>{{ $overviewSection['title'] ?? '' }}</span>
+                                <span><?php echo e($overviewSection['title'] ?? ''); ?></span>
                             </h2>
-                            <p class="ac-services-intro">{{ $overviewSection['intro'] ?? '' }}</p>
+                            <p class="ac-services-intro"><?php echo e($overviewSection['intro'] ?? ''); ?></p>
                             <div class="ac-services-divider" aria-hidden="true">
                                 <span class="ac-services-divider-line"></span>
                                 <span class="ac-services-divider-glyph"></span>
@@ -139,49 +137,49 @@
                 </div>
 
                 <div class="ac-tax-overview-grid">
-                    @php
+                    <?php
                         $overviewMeta = $taxSectionMeta['overview'];
-                    @endphp
+                    ?>
                     <article class="ac-tax-panel ac-tax-panel--narrative">
                         <div class="ac-tax-section-title">
                             <div class="ac-tax-badge">
                                 <span class="ac-tax-icon" aria-hidden="true">
-                                    <svg viewBox="{{ $overviewMeta['icon_view_box'] }}" fill="currentColor">
-                                        <use href="{{ $overviewMeta['icon_href'] }}"></use>
+                                    <svg viewBox="<?php echo e($overviewMeta['icon_view_box']); ?>" fill="currentColor">
+                                        <use href="<?php echo e($overviewMeta['icon_href']); ?>"></use>
                                     </svg>
                                 </span>
-                                <span class="ac-tax-index">{{ $overviewMeta['number'] }}</span>
+                                <span class="ac-tax-index"><?php echo e($overviewMeta['number']); ?></span>
                             </div>
                             <div class="ac-tax-title-copy">
-                                <h2>{{ $overviewSection['highlight_title'] ?? '' }}</h2>
+                                <h2><?php echo e($overviewSection['highlight_title'] ?? ''); ?></h2>
                             </div>
                         </div>
 
                         <div class="ac-tax-copy">
-                            @foreach ($overviewBody as $paragraph)
-                                <p>{{ $paragraph }}</p>
-                            @endforeach
+                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $overviewBody; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $paragraph): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                <p><?php echo e($paragraph); ?></p>
+                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                         </div>
                     </article>
 
                     <article class="ac-tax-panel ac-tax-panel--highlight">
-                        @if (trim((string) ($overviewSection['highlights_title'] ?? '')) !== '')
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(trim((string) ($overviewSection['highlights_title'] ?? '')) !== ''): ?>
                             <div class="ac-tax-panel-head">
-                                <h3 class="ac-tax-panel-title">{{ $overviewSection['highlights_title'] }}</h3>
+                                <h3 class="ac-tax-panel-title"><?php echo e($overviewSection['highlights_title']); ?></h3>
                             </div>
-                        @endif
+                        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
                         <ul class="ac-tax-list">
-                            @foreach ($overviewHighlights as $item)
+                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $overviewHighlights; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $item): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                                 <li>
                                     <span class="ac-tax-list-bullet" aria-hidden="true">
-                                        <svg viewBox="{{ $taxListBullet['view_box'] }}" fill="currentColor">
-                                            <use href="{{ $taxListBullet['href'] }}"></use>
+                                        <svg viewBox="<?php echo e($taxListBullet['view_box']); ?>" fill="currentColor">
+                                            <use href="<?php echo e($taxListBullet['href']); ?>"></use>
                                         </svg>
                                     </span>
-                                    <span>{{ $item }}</span>
+                                    <span><?php echo e($item); ?></span>
                                 </li>
-                            @endforeach
+                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                         </ul>
                     </article>
                 </div>
@@ -190,106 +188,106 @@
 
         <section id="tax-services" class="ac-tax-shell-section" aria-labelledby="ac-tax-services-title">
             <div class="mx-auto w-full max-w-[1240px] px-5 lg:px-8">
-                @php
+                <?php
                     $servicesMeta = $taxSectionMeta['services'];
-                @endphp
+                ?>
                 <div class="ac-tax-section-head">
                     <div class="ac-tax-section-title">
                         <div class="ac-tax-badge">
                             <span class="ac-tax-icon" aria-hidden="true">
-                                <svg viewBox="{{ $servicesMeta['icon_view_box'] }}" fill="currentColor">
-                                    <use href="{{ $servicesMeta['icon_href'] }}"></use>
+                                <svg viewBox="<?php echo e($servicesMeta['icon_view_box']); ?>" fill="currentColor">
+                                    <use href="<?php echo e($servicesMeta['icon_href']); ?>"></use>
                                 </svg>
                             </span>
-                            <span class="ac-tax-index">{{ $servicesMeta['number'] }}</span>
+                            <span class="ac-tax-index"><?php echo e($servicesMeta['number']); ?></span>
                         </div>
                         <div class="ac-tax-title-copy">
-                            <p class="ac-family-section-kicker">{{ $servicesSection['kicker'] ?? 'USLUGE' }}</p>
-                            <h2 id="ac-tax-services-title">{{ $servicesSection['title'] ?? '' }}</h2>
+                            <p class="ac-family-section-kicker"><?php echo e($servicesSection['kicker'] ?? 'USLUGE'); ?></p>
+                            <h2 id="ac-tax-services-title"><?php echo e($servicesSection['title'] ?? ''); ?></h2>
                         </div>
                     </div>
                     <div class="ac-tax-section-intro">
-                        <p>{{ $servicesSection['intro'] ?? '' }}</p>
+                        <p><?php echo e($servicesSection['intro'] ?? ''); ?></p>
                     </div>
                 </div>
 
                 <div class="ac-tax-card-grid">
-                    @foreach (($servicesSection['items'] ?? []) as $item)
+                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = ($servicesSection['items'] ?? []); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $item): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                         <article class="ac-tax-card">
-                            <span class="ac-tax-card-number">{{ str_pad((string) $loop->iteration, 2, '0', STR_PAD_LEFT) }}</span>
-                            <h3>{{ $item['title'] ?? '' }}</h3>
-                            <p>{{ $item['text'] ?? '' }}</p>
+                            <span class="ac-tax-card-number"><?php echo e(str_pad((string) $loop->iteration, 2, '0', STR_PAD_LEFT)); ?></span>
+                            <h3><?php echo e($item['title'] ?? ''); ?></h3>
+                            <p><?php echo e($item['text'] ?? ''); ?></p>
                         </article>
-                    @endforeach
+                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                 </div>
             </div>
         </section>
 
         <section id="tax-compliance" class="ac-tax-shell-section ac-tax-shell-section--muted" aria-labelledby="ac-tax-compliance-title">
             <div class="mx-auto w-full max-w-[1240px] px-5 lg:px-8">
-                @php
+                <?php
                     $complianceMeta = $taxSectionMeta['compliance'];
-                @endphp
+                ?>
                 <div class="ac-tax-section-head">
                     <div class="ac-tax-section-title">
                         <div class="ac-tax-badge">
                             <span class="ac-tax-icon" aria-hidden="true">
-                                <svg viewBox="{{ $complianceMeta['icon_view_box'] }}" fill="currentColor">
-                                    <use href="{{ $complianceMeta['icon_href'] }}"></use>
+                                <svg viewBox="<?php echo e($complianceMeta['icon_view_box']); ?>" fill="currentColor">
+                                    <use href="<?php echo e($complianceMeta['icon_href']); ?>"></use>
                                 </svg>
                             </span>
-                            <span class="ac-tax-index">{{ $complianceMeta['number'] }}</span>
+                            <span class="ac-tax-index"><?php echo e($complianceMeta['number']); ?></span>
                         </div>
                         <div class="ac-tax-title-copy">
-                            <p class="ac-family-section-kicker">{{ $complianceSection['kicker'] ?? 'TAX COMPLIANCE' }}</p>
-                            <h2 id="ac-tax-compliance-title">{{ $complianceSection['title'] ?? '' }}</h2>
+                            <p class="ac-family-section-kicker"><?php echo e($complianceSection['kicker'] ?? 'TAX COMPLIANCE'); ?></p>
+                            <h2 id="ac-tax-compliance-title"><?php echo e($complianceSection['title'] ?? ''); ?></h2>
                         </div>
                     </div>
                     <div class="ac-tax-section-intro">
-                        <p>{{ $complianceSection['intro'] ?? '' }}</p>
+                        <p><?php echo e($complianceSection['intro'] ?? ''); ?></p>
                     </div>
                 </div>
 
                 <div class="ac-tax-compliance-grid">
                     <article class="ac-tax-panel">
-                        <h3>{{ $complianceSection['corporate']['title'] ?? '' }}</h3>
-                        <p class="ac-tax-panel-intro">{{ $complianceSection['corporate']['intro'] ?? '' }}</p>
+                        <h3><?php echo e($complianceSection['corporate']['title'] ?? ''); ?></h3>
+                        <p class="ac-tax-panel-intro"><?php echo e($complianceSection['corporate']['intro'] ?? ''); ?></p>
 
                         <div class="ac-tax-group-grid">
-                            @foreach ($complianceGroups as $group)
+                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $complianceGroups; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $group): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                                 <div class="ac-tax-subpanel">
-                                    <h4>{{ $group['title'] ?? '' }}</h4>
+                                    <h4><?php echo e($group['title'] ?? ''); ?></h4>
                                     <ul class="ac-tax-list">
-                                        @foreach (($group['items'] ?? []) as $item)
+                                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = ($group['items'] ?? []); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $item): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                                             <li>
                                                 <span class="ac-tax-list-bullet" aria-hidden="true">
-                                                    <svg viewBox="{{ $taxListBullet['view_box'] }}" fill="currentColor">
-                                                        <use href="{{ $taxListBullet['href'] }}"></use>
+                                                    <svg viewBox="<?php echo e($taxListBullet['view_box']); ?>" fill="currentColor">
+                                                        <use href="<?php echo e($taxListBullet['href']); ?>"></use>
                                                     </svg>
                                                 </span>
-                                                <span>{{ $item }}</span>
+                                                <span><?php echo e($item); ?></span>
                                             </li>
-                                        @endforeach
+                                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                                     </ul>
                                 </div>
-                            @endforeach
+                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                         </div>
                     </article>
 
                     <article class="ac-tax-panel">
-                        <h3>{{ $complianceSection['individual']['title'] ?? '' }}</h3>
-                        <p class="ac-tax-panel-intro">{{ $complianceSection['individual']['intro'] ?? '' }}</p>
+                        <h3><?php echo e($complianceSection['individual']['title'] ?? ''); ?></h3>
+                        <p class="ac-tax-panel-intro"><?php echo e($complianceSection['individual']['intro'] ?? ''); ?></p>
                         <ul class="ac-tax-list">
-                            @foreach (($complianceSection['individual']['items'] ?? []) as $item)
+                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = ($complianceSection['individual']['items'] ?? []); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $item): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                                 <li>
                                     <span class="ac-tax-list-bullet" aria-hidden="true">
-                                        <svg viewBox="{{ $taxListBullet['view_box'] }}" fill="currentColor">
-                                            <use href="{{ $taxListBullet['href'] }}"></use>
+                                        <svg viewBox="<?php echo e($taxListBullet['view_box']); ?>" fill="currentColor">
+                                            <use href="<?php echo e($taxListBullet['href']); ?>"></use>
                                         </svg>
                                     </span>
-                                    <span>{{ $item }}</span>
+                                    <span><?php echo e($item); ?></span>
                                 </li>
-                            @endforeach
+                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                         </ul>
                     </article>
                 </div>
@@ -298,55 +296,55 @@
 
         <section id="tax-review" class="ac-tax-shell-section" aria-labelledby="ac-tax-review-title">
             <div class="mx-auto w-full max-w-[1240px] px-5 lg:px-8">
-                @php
+                <?php
                     $reviewMeta = $taxSectionMeta['review'];
-                @endphp
+                ?>
                 <div class="ac-tax-section-head">
                     <div class="ac-tax-section-title">
                         <div class="ac-tax-badge">
                             <span class="ac-tax-icon" aria-hidden="true">
-                                <svg viewBox="{{ $reviewMeta['icon_view_box'] }}" fill="currentColor">
-                                    <use href="{{ $reviewMeta['icon_href'] }}"></use>
+                                <svg viewBox="<?php echo e($reviewMeta['icon_view_box']); ?>" fill="currentColor">
+                                    <use href="<?php echo e($reviewMeta['icon_href']); ?>"></use>
                                 </svg>
                             </span>
-                            <span class="ac-tax-index">{{ $reviewMeta['number'] }}</span>
+                            <span class="ac-tax-index"><?php echo e($reviewMeta['number']); ?></span>
                         </div>
                         <div class="ac-tax-title-copy">
-                            <p class="ac-family-section-kicker">{{ $reviewSection['kicker'] ?? 'POREZNI PREGLED' }}</p>
-                            <h2 id="ac-tax-review-title">{{ $reviewSection['title'] ?? '' }}</h2>
+                            <p class="ac-family-section-kicker"><?php echo e($reviewSection['kicker'] ?? 'POREZNI PREGLED'); ?></p>
+                            <h2 id="ac-tax-review-title"><?php echo e($reviewSection['title'] ?? ''); ?></h2>
                         </div>
                     </div>
                     <div class="ac-tax-section-intro">
-                        <p>{{ $reviewSection['intro'] ?? '' }}</p>
+                        <p><?php echo e($reviewSection['intro'] ?? ''); ?></p>
                     </div>
                 </div>
 
                 <div class="ac-tax-rich-grid">
                     <article class="ac-tax-panel">
                         <div class="ac-tax-copy">
-                            @foreach ($reviewBody as $paragraph)
-                                <p>{{ $paragraph }}</p>
-                            @endforeach
+                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $reviewBody; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $paragraph): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                <p><?php echo e($paragraph); ?></p>
+                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                         </div>
                     </article>
 
                     <article class="ac-tax-panel ac-tax-panel--accent">
-                        @if (trim((string) ($reviewSection['highlights_title'] ?? '')) !== '')
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(trim((string) ($reviewSection['highlights_title'] ?? '')) !== ''): ?>
                             <div class="ac-tax-panel-head">
-                                <h3 class="ac-tax-panel-title">{{ $reviewSection['highlights_title'] }}</h3>
+                                <h3 class="ac-tax-panel-title"><?php echo e($reviewSection['highlights_title']); ?></h3>
                             </div>
-                        @endif
+                        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                         <ul class="ac-tax-list">
-                            @foreach ($reviewHighlights as $item)
+                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $reviewHighlights; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $item): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                                 <li>
                                     <span class="ac-tax-list-bullet" aria-hidden="true">
-                                        <svg viewBox="{{ $taxListBullet['view_box'] }}" fill="currentColor">
-                                            <use href="{{ $taxListBullet['href'] }}"></use>
+                                        <svg viewBox="<?php echo e($taxListBullet['view_box']); ?>" fill="currentColor">
+                                            <use href="<?php echo e($taxListBullet['href']); ?>"></use>
                                         </svg>
                                     </span>
-                                    <span>{{ $item }}</span>
+                                    <span><?php echo e($item); ?></span>
                                 </li>
-                            @endforeach
+                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                         </ul>
                     </article>
                 </div>
@@ -355,194 +353,194 @@
 
         <section id="tax-optimization" class="ac-tax-shell-section ac-tax-shell-section--muted" aria-labelledby="ac-tax-optimization-title">
             <div class="mx-auto w-full max-w-[1240px] px-5 lg:px-8">
-                @php
+                <?php
                     $optimizationMeta = $taxSectionMeta['optimization'];
-                @endphp
+                ?>
                 <div class="ac-tax-section-head">
                     <div class="ac-tax-section-title">
                         <div class="ac-tax-badge">
                             <span class="ac-tax-icon" aria-hidden="true">
-                                <svg viewBox="{{ $optimizationMeta['icon_view_box'] }}" fill="currentColor">
-                                    <use href="{{ $optimizationMeta['icon_href'] }}"></use>
+                                <svg viewBox="<?php echo e($optimizationMeta['icon_view_box']); ?>" fill="currentColor">
+                                    <use href="<?php echo e($optimizationMeta['icon_href']); ?>"></use>
                                 </svg>
                             </span>
-                            <span class="ac-tax-index">{{ $optimizationMeta['number'] }}</span>
+                            <span class="ac-tax-index"><?php echo e($optimizationMeta['number']); ?></span>
                         </div>
                         <div class="ac-tax-title-copy">
-                            <p class="ac-family-section-kicker">{{ $optimizationSection['kicker'] ?? 'OPTIMIZACIJA' }}</p>
-                            <h2 id="ac-tax-optimization-title">{{ $optimizationSection['title'] ?? '' }}</h2>
+                            <p class="ac-family-section-kicker"><?php echo e($optimizationSection['kicker'] ?? 'OPTIMIZACIJA'); ?></p>
+                            <h2 id="ac-tax-optimization-title"><?php echo e($optimizationSection['title'] ?? ''); ?></h2>
                         </div>
                     </div>
                     <div class="ac-tax-section-intro">
-                        <p>{{ $optimizationSection['intro'] ?? '' }}</p>
+                        <p><?php echo e($optimizationSection['intro'] ?? ''); ?></p>
                     </div>
                 </div>
 
                 <div class="ac-tax-columns ac-tax-columns--two">
                     <article class="ac-tax-panel">
                         <div class="ac-tax-copy">
-                            @foreach ($optimizationPrimaryBody as $paragraph)
-                                <p>{{ $paragraph }}</p>
-                            @endforeach
+                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $optimizationPrimaryBody; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $paragraph): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                <p><?php echo e($paragraph); ?></p>
+                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                         </div>
                     </article>
 
-                    @if ($optimizationSecondaryBody !== [])
+                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($optimizationSecondaryBody !== []): ?>
                         <article class="ac-tax-panel ac-tax-panel--accent">
-                            @foreach ($optimizationSecondaryBody as $paragraph)
+                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $optimizationSecondaryBody; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $paragraph): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                                 <blockquote class="ac-tax-quote">
                                     <span class="ac-tax-quote-icon" aria-hidden="true">
-                                        <svg viewBox="{{ $taxQuoteIcon['view_box'] }}" fill="currentColor">
-                                            <use href="{{ $taxQuoteIcon['href'] }}"></use>
+                                        <svg viewBox="<?php echo e($taxQuoteIcon['view_box']); ?>" fill="currentColor">
+                                            <use href="<?php echo e($taxQuoteIcon['href']); ?>"></use>
                                         </svg>
                                     </span>
-                                    <p>{{ $paragraph }}</p>
+                                    <p><?php echo e($paragraph); ?></p>
                                 </blockquote>
-                            @endforeach
+                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                         </article>
-                    @endif
+                    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                 </div>
             </div>
         </section>
 
         <section id="tax-due-diligence" class="ac-tax-shell-section" aria-labelledby="ac-tax-due-diligence-title">
             <div class="mx-auto w-full max-w-[1240px] px-5 lg:px-8">
-                @php
+                <?php
                     $dueMeta = $taxSectionMeta['due_diligence'];
-                @endphp
+                ?>
                 <div class="ac-tax-section-head">
                     <div class="ac-tax-section-title">
                         <div class="ac-tax-badge">
                             <span class="ac-tax-icon" aria-hidden="true">
-                                <svg viewBox="{{ $dueMeta['icon_view_box'] }}" fill="currentColor">
-                                    <use href="{{ $dueMeta['icon_href'] }}"></use>
+                                <svg viewBox="<?php echo e($dueMeta['icon_view_box']); ?>" fill="currentColor">
+                                    <use href="<?php echo e($dueMeta['icon_href']); ?>"></use>
                                 </svg>
                             </span>
-                            <span class="ac-tax-index">{{ $dueMeta['number'] }}</span>
+                            <span class="ac-tax-index"><?php echo e($dueMeta['number']); ?></span>
                         </div>
                         <div class="ac-tax-title-copy">
-                            <p class="ac-family-section-kicker">{{ $dueDiligenceSection['kicker'] ?? 'DUE DILIGENCE' }}</p>
-                            <h2 id="ac-tax-due-diligence-title">{{ $dueDiligenceSection['title'] ?? '' }}</h2>
+                            <p class="ac-family-section-kicker"><?php echo e($dueDiligenceSection['kicker'] ?? 'DUE DILIGENCE'); ?></p>
+                            <h2 id="ac-tax-due-diligence-title"><?php echo e($dueDiligenceSection['title'] ?? ''); ?></h2>
                         </div>
                     </div>
                     <div class="ac-tax-section-intro">
-                        <p>{{ $dueDiligenceSection['intro'] ?? '' }}</p>
+                        <p><?php echo e($dueDiligenceSection['intro'] ?? ''); ?></p>
                     </div>
                 </div>
 
                 <div class="ac-tax-columns ac-tax-columns--two">
                     <article class="ac-tax-panel">
                         <div class="ac-tax-copy">
-                            @foreach ($dueDiligencePrimaryBody as $paragraph)
-                                <p>{{ $paragraph }}</p>
-                            @endforeach
+                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $dueDiligencePrimaryBody; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $paragraph): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                <p><?php echo e($paragraph); ?></p>
+                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                         </div>
                     </article>
 
-                    @if ($dueDiligenceSecondaryBody !== [])
+                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($dueDiligenceSecondaryBody !== []): ?>
                         <article class="ac-tax-panel ac-tax-panel--accent">
-                            @foreach ($dueDiligenceSecondaryBody as $paragraph)
+                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $dueDiligenceSecondaryBody; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $paragraph): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                                 <blockquote class="ac-tax-quote">
                                     <span class="ac-tax-quote-icon" aria-hidden="true">
-                                        <svg viewBox="{{ $taxQuoteIcon['view_box'] }}" fill="currentColor">
-                                            <use href="{{ $taxQuoteIcon['href'] }}"></use>
+                                        <svg viewBox="<?php echo e($taxQuoteIcon['view_box']); ?>" fill="currentColor">
+                                            <use href="<?php echo e($taxQuoteIcon['href']); ?>"></use>
                                         </svg>
                                     </span>
-                                    <p>{{ $paragraph }}</p>
+                                    <p><?php echo e($paragraph); ?></p>
                                 </blockquote>
-                            @endforeach
+                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                         </article>
-                    @endif
+                    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                 </div>
             </div>
         </section>
 
         <section id="tax-transfer-pricing" class="ac-tax-shell-section ac-tax-shell-section--muted" aria-labelledby="ac-tax-transfer-pricing-title">
             <div class="mx-auto w-full max-w-[1240px] px-5 lg:px-8">
-                @php
+                <?php
                     $transferMeta = $taxSectionMeta['transfer_pricing'];
-                @endphp
+                ?>
                 <div class="ac-tax-section-head">
                     <div class="ac-tax-section-title">
                         <div class="ac-tax-badge">
                             <span class="ac-tax-icon" aria-hidden="true">
-                                <svg viewBox="{{ $transferMeta['icon_view_box'] }}" fill="currentColor">
-                                    <use href="{{ $transferMeta['icon_href'] }}"></use>
+                                <svg viewBox="<?php echo e($transferMeta['icon_view_box']); ?>" fill="currentColor">
+                                    <use href="<?php echo e($transferMeta['icon_href']); ?>"></use>
                                 </svg>
                             </span>
-                            <span class="ac-tax-index">{{ $transferMeta['number'] }}</span>
+                            <span class="ac-tax-index"><?php echo e($transferMeta['number']); ?></span>
                         </div>
                         <div class="ac-tax-title-copy">
-                            <p class="ac-family-section-kicker">{{ $transferPricingSection['kicker'] ?? 'TRANSFERNE CIJENE' }}</p>
-                            <h2 id="ac-tax-transfer-pricing-title">{{ $transferPricingSection['title'] ?? '' }}</h2>
+                            <p class="ac-family-section-kicker"><?php echo e($transferPricingSection['kicker'] ?? 'TRANSFERNE CIJENE'); ?></p>
+                            <h2 id="ac-tax-transfer-pricing-title"><?php echo e($transferPricingSection['title'] ?? ''); ?></h2>
                         </div>
                     </div>
                     <div class="ac-tax-section-intro">
-                        <p>{{ $transferPricingSection['intro'] ?? '' }}</p>
+                        <p><?php echo e($transferPricingSection['intro'] ?? ''); ?></p>
                     </div>
                 </div>
 
                 <div class="ac-tax-columns ac-tax-columns--two">
                     <article class="ac-tax-panel">
                         <div class="ac-tax-copy">
-                            @foreach ($transferPricingPrimaryBody as $paragraph)
-                                <p>{{ $paragraph }}</p>
-                            @endforeach
+                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $transferPricingPrimaryBody; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $paragraph): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                <p><?php echo e($paragraph); ?></p>
+                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                         </div>
                     </article>
 
-                    @if ($transferPricingSecondaryBody !== [])
+                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($transferPricingSecondaryBody !== []): ?>
                         <article class="ac-tax-panel ac-tax-panel--accent">
-                            @foreach ($transferPricingSecondaryBody as $paragraph)
+                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $transferPricingSecondaryBody; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $paragraph): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                                 <blockquote class="ac-tax-quote">
                                     <span class="ac-tax-quote-icon" aria-hidden="true">
-                                        <svg viewBox="{{ $taxQuoteIcon['view_box'] }}" fill="currentColor">
-                                            <use href="{{ $taxQuoteIcon['href'] }}"></use>
+                                        <svg viewBox="<?php echo e($taxQuoteIcon['view_box']); ?>" fill="currentColor">
+                                            <use href="<?php echo e($taxQuoteIcon['href']); ?>"></use>
                                         </svg>
                                     </span>
-                                    <p>{{ $paragraph }}</p>
+                                    <p><?php echo e($paragraph); ?></p>
                                 </blockquote>
-                            @endforeach
+                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                         </article>
-                    @endif
+                    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                 </div>
             </div>
         </section>
 
-        @include('front.desktop.partials.service-videos', [
+        <?php echo $__env->make('front.desktop.partials.service-videos', [
             'serviceVideoSection' => $serviceVideoSection ?? [],
             'serviceVideos' => $serviceVideos ?? [],
             'locale' => $locale ?? app()->getLocale(),
-        ])
+        ], array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
 
         <div class="mx-auto w-full max-w-[1240px] px-5 lg:px-8">
             <section id="tax-sastanak" class="ac-family-section pb-16 md:pb-24" aria-labelledby="ac-tax-meeting-title">
                 <div class="ac-family-team-showcase-head">
-                    <p class="ac-family-section-kicker">{{ $meetingSection['kicker'] ?? 'KONTAKT' }}</p>
-                    <h2 id="ac-tax-meeting-title">{{ $meetingSection['title'] ?? '' }}</h2>
-                    <p>{{ $meetingSection['intro'] ?? '' }}</p>
+                    <p class="ac-family-section-kicker"><?php echo e($meetingSection['kicker'] ?? 'KONTAKT'); ?></p>
+                    <h2 id="ac-tax-meeting-title"><?php echo e($meetingSection['title'] ?? ''); ?></h2>
+                    <p><?php echo e($meetingSection['intro'] ?? ''); ?></p>
                 </div>
 
                 <div class="mt-10 grid gap-5 lg:grid-cols-[300px_minmax(0,1fr)] lg:items-start">
                     <aside class="front-contact-sidebar">
                         <div class="front-contact-panel front-contact-panel--direct">
-                            <h2>{{ $meetingSection['visit_title'] ?? 'Posjetite nas' }}</h2>
+                            <h2><?php echo e($meetingSection['visit_title'] ?? 'Posjetite nas'); ?></h2>
                             <div class="mt-4 space-y-1 text-[0.89rem] leading-6 text-slate-700">
-                                <p>{{ $meetingSection['visit_lines'][0] ?? '' }}</p>
-                                <p>{{ $meetingSection['visit_lines'][1] ?? '' }}</p>
+                                <p><?php echo e($meetingSection['visit_lines'][0] ?? ''); ?></p>
+                                <p><?php echo e($meetingSection['visit_lines'][1] ?? ''); ?></p>
                             </div>
                         </div>
 
                         <div class="front-contact-panel front-contact-panel--direct">
-                            <h2>{{ $meetingSection['contact_title'] ?? 'Kontaktirajte nas' }}</h2>
+                            <h2><?php echo e($meetingSection['contact_title'] ?? 'Kontaktirajte nas'); ?></h2>
                             <ul class="front-contact-direct-list">
                                 <li>
-                                    <span>{{ $meetingSection['direct_phone_label'] ?? 'Telefon' }}</span>
-                                    <a href="tel:{{ $contactPhoneHref }}">{{ $contactPhone }}</a>
+                                    <span><?php echo e($meetingSection['direct_phone_label'] ?? 'Telefon'); ?></span>
+                                    <a href="tel:<?php echo e($contactPhoneHref); ?>"><?php echo e($contactPhone); ?></a>
                                 </li>
                                 <li>
-                                    <span>{{ $meetingSection['direct_email_label'] ?? 'Email' }}</span>
-                                    <a href="mailto:{{ $contactEmail }}">{{ $contactEmail }}</a>
+                                    <span><?php echo e($meetingSection['direct_email_label'] ?? 'Email'); ?></span>
+                                    <a href="mailto:<?php echo e($contactEmail); ?>"><?php echo e($contactEmail); ?></a>
                                 </li>
                             </ul>
                         </div>
@@ -550,101 +548,166 @@
 
                     <form
                         method="POST"
-                        action="{{ route('contact.store') }}"
+                        action="<?php echo e(route('contact.store')); ?>"
                         class="front-contact-form"
                         novalidate
                         data-contact-form
-                        data-msg-name-required="{{ __('contact.validation.inline.name_required') }}"
-                        data-msg-email-required="{{ __('contact.validation.inline.email_required') }}"
-                        data-msg-email-invalid="{{ __('contact.validation.inline.email_invalid') }}"
-                        data-msg-message-required="{{ __('contact.validation.inline.message_required') }}"
-                        data-msg-message-min="{{ __('contact.validation.inline.message_min') }}"
-                        data-msg-accept-terms="{{ __('contact.validation.inline.accept_terms') }}"
-                        @if($captchaEnabled) data-recaptcha-form data-recaptcha-site-key="{{ $captchaSiteKey }}" data-recaptcha-action="contact_form" @endif
+                        data-msg-name-required="<?php echo e(__('contact.validation.inline.name_required')); ?>"
+                        data-msg-email-required="<?php echo e(__('contact.validation.inline.email_required')); ?>"
+                        data-msg-email-invalid="<?php echo e(__('contact.validation.inline.email_invalid')); ?>"
+                        data-msg-message-required="<?php echo e(__('contact.validation.inline.message_required')); ?>"
+                        data-msg-message-min="<?php echo e(__('contact.validation.inline.message_min')); ?>"
+                        data-msg-accept-terms="<?php echo e(__('contact.validation.inline.accept_terms')); ?>"
+                        <?php if($captchaEnabled): ?> data-recaptcha-form data-recaptcha-site-key="<?php echo e($captchaSiteKey); ?>" data-recaptcha-action="contact_form" <?php endif; ?>
                     >
-                        @csrf
+                        <?php echo csrf_field(); ?>
                         <input type="hidden" name="recaptcha_token" value="" data-recaptcha-token>
-                        <input type="hidden" name="redirect_to" value="{{ route('tax.show') }}#tax-sastanak">
+                        <input type="hidden" name="redirect_to" value="<?php echo e(route('tax.show')); ?>#tax-sastanak">
 
-                        @if (session('status'))
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(session('status')): ?>
                             <div class="front-contact-status" role="status">
-                                {{ session('status') }}
+                                <?php echo e(session('status')); ?>
+
                             </div>
-                        @endif
+                        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
                         <div class="grid gap-4 md:grid-cols-2">
                             <div>
-                                <label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-500" for="tax-first-name">{{ $meetingFormLabels['first_name'] ?? 'Ime' }}</label>
-                                <input id="tax-first-name" type="text" name="first_name" value="{{ old('first_name') }}" class="front-contact-input h-11 w-full text-sm" required>
-                                <p class="mt-2 text-xs font-semibold text-rose-600 {{ $errors->has('first_name') ? '' : 'hidden' }}" data-field-error="first_name">@error('first_name'){{ $message }}@enderror</p>
+                                <label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-500" for="tax-first-name"><?php echo e($meetingFormLabels['first_name'] ?? 'Ime'); ?></label>
+                                <input id="tax-first-name" type="text" name="first_name" value="<?php echo e(old('first_name')); ?>" class="front-contact-input h-11 w-full text-sm" required>
+                                <p class="mt-2 text-xs font-semibold text-rose-600 <?php echo e($errors->has('first_name') ? '' : 'hidden'); ?>" data-field-error="first_name"><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__errorArgs = ['first_name'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?><?php echo e($message); ?><?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?></p>
                             </div>
                             <div>
-                                <label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-500" for="tax-last-name">{{ $meetingFormLabels['last_name'] ?? 'Prezime' }}</label>
-                                <input id="tax-last-name" type="text" name="last_name" value="{{ old('last_name') }}" class="front-contact-input h-11 w-full text-sm">
-                                <p class="mt-2 text-xs font-semibold text-rose-600 {{ $errors->has('last_name') ? '' : 'hidden' }}" data-field-error="last_name">@error('last_name'){{ $message }}@enderror</p>
+                                <label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-500" for="tax-last-name"><?php echo e($meetingFormLabels['last_name'] ?? 'Prezime'); ?></label>
+                                <input id="tax-last-name" type="text" name="last_name" value="<?php echo e(old('last_name')); ?>" class="front-contact-input h-11 w-full text-sm">
+                                <p class="mt-2 text-xs font-semibold text-rose-600 <?php echo e($errors->has('last_name') ? '' : 'hidden'); ?>" data-field-error="last_name"><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__errorArgs = ['last_name'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?><?php echo e($message); ?><?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?></p>
                             </div>
                         </div>
 
                         <div class="mt-4 grid gap-4 md:grid-cols-2">
                             <div>
-                                <label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-500" for="tax-company">{{ $meetingFormLabels['company'] ?? 'Tvrtka' }}</label>
-                                <input id="tax-company" type="text" name="company" value="{{ old('company') }}" class="front-contact-input h-11 w-full text-sm">
-                                <p class="mt-2 text-xs font-semibold text-rose-600 {{ $errors->has('company') ? '' : 'hidden' }}" data-field-error="company">@error('company'){{ $message }}@enderror</p>
+                                <label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-500" for="tax-company"><?php echo e($meetingFormLabels['company'] ?? 'Tvrtka'); ?></label>
+                                <input id="tax-company" type="text" name="company" value="<?php echo e(old('company')); ?>" class="front-contact-input h-11 w-full text-sm">
+                                <p class="mt-2 text-xs font-semibold text-rose-600 <?php echo e($errors->has('company') ? '' : 'hidden'); ?>" data-field-error="company"><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__errorArgs = ['company'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?><?php echo e($message); ?><?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?></p>
                             </div>
                             <div>
-                                <label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-500" for="tax-phone">{{ $meetingFormLabels['phone'] ?? 'Broj telefona' }}</label>
-                                <input id="tax-phone" type="text" name="phone" value="{{ old('phone') }}" class="front-contact-input h-11 w-full text-sm">
-                                <p class="mt-2 text-xs font-semibold text-rose-600 {{ $errors->has('phone') ? '' : 'hidden' }}" data-field-error="phone">@error('phone'){{ $message }}@enderror</p>
+                                <label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-500" for="tax-phone"><?php echo e($meetingFormLabels['phone'] ?? 'Broj telefona'); ?></label>
+                                <input id="tax-phone" type="text" name="phone" value="<?php echo e(old('phone')); ?>" class="front-contact-input h-11 w-full text-sm">
+                                <p class="mt-2 text-xs font-semibold text-rose-600 <?php echo e($errors->has('phone') ? '' : 'hidden'); ?>" data-field-error="phone"><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__errorArgs = ['phone'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?><?php echo e($message); ?><?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?></p>
                             </div>
                         </div>
 
                         <div class="mt-4">
-                            <label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-500" for="tax-email">{{ $meetingFormLabels['email'] ?? 'Email' }}</label>
-                            <input id="tax-email" type="email" name="email" value="{{ old('email', auth()->user()?->email) }}" class="front-contact-input h-11 w-full text-sm" required>
-                            <p class="mt-2 text-xs font-semibold text-rose-600 {{ $errors->has('email') ? '' : 'hidden' }}" data-field-error="email">@error('email'){{ $message }}@enderror</p>
+                            <label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-500" for="tax-email"><?php echo e($meetingFormLabels['email'] ?? 'Email'); ?></label>
+                            <input id="tax-email" type="email" name="email" value="<?php echo e(old('email', auth()->user()?->email)); ?>" class="front-contact-input h-11 w-full text-sm" required>
+                            <p class="mt-2 text-xs font-semibold text-rose-600 <?php echo e($errors->has('email') ? '' : 'hidden'); ?>" data-field-error="email"><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__errorArgs = ['email'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?><?php echo e($message); ?><?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?></p>
                         </div>
 
                         <div class="mt-4">
-                            <label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-500" for="tax-subject">{{ $meetingFormLabels['subject'] ?? 'Naslov poruke' }}</label>
-                            <input id="tax-subject" type="text" name="subject" value="{{ old('subject') }}" class="front-contact-input h-11 w-full text-sm">
-                            <p class="mt-2 text-xs font-semibold text-rose-600 {{ $errors->has('subject') ? '' : 'hidden' }}" data-field-error="subject">@error('subject'){{ $message }}@enderror</p>
+                            <label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-500" for="tax-subject"><?php echo e($meetingFormLabels['subject'] ?? 'Naslov poruke'); ?></label>
+                            <input id="tax-subject" type="text" name="subject" value="<?php echo e(old('subject')); ?>" class="front-contact-input h-11 w-full text-sm">
+                            <p class="mt-2 text-xs font-semibold text-rose-600 <?php echo e($errors->has('subject') ? '' : 'hidden'); ?>" data-field-error="subject"><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__errorArgs = ['subject'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?><?php echo e($message); ?><?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?></p>
                         </div>
 
                         <div class="mt-4">
-                            <label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-500" for="tax-message">{{ $meetingFormLabels['message'] ?? 'Poruka' }}</label>
-                            <textarea id="tax-message" name="message" rows="8" class="front-contact-textarea w-full text-sm" required>{{ old('message') }}</textarea>
-                            <p class="mt-2 text-xs font-semibold text-rose-600 {{ $errors->has('message') ? '' : 'hidden' }}" data-field-error="message">@error('message'){{ $message }}@enderror</p>
+                            <label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-500" for="tax-message"><?php echo e($meetingFormLabels['message'] ?? 'Poruka'); ?></label>
+                            <textarea id="tax-message" name="message" rows="8" class="front-contact-textarea w-full text-sm" required><?php echo e(old('message')); ?></textarea>
+                            <p class="mt-2 text-xs font-semibold text-rose-600 <?php echo e($errors->has('message') ? '' : 'hidden'); ?>" data-field-error="message"><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__errorArgs = ['message'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?><?php echo e($message); ?><?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?></p>
                         </div>
 
                         <div class="front-contact-consent-wrap">
                             <label class="front-contact-consent">
-                                <input type="checkbox" name="accept_terms" value="1" class="front-contact-checkbox mt-0.5 h-4 w-4 border-slate-300 text-slate-900 focus:ring-0" @checked((bool) old('accept_terms'))>
-                                <span>{{ __('contact.form.accept_terms') }}</span>
+                                <input type="checkbox" name="accept_terms" value="1" class="front-contact-checkbox mt-0.5 h-4 w-4 border-slate-300 text-slate-900 focus:ring-0" <?php if((bool) old('accept_terms')): echo 'checked'; endif; ?>>
+                                <span><?php echo e(__('contact.form.accept_terms')); ?></span>
                             </label>
-                            <p class="mt-2 text-xs font-semibold text-rose-600 {{ $errors->has('accept_terms') ? '' : 'hidden' }}" data-field-error="accept_terms">@error('accept_terms'){{ $message }}@enderror</p>
+                            <p class="mt-2 text-xs font-semibold text-rose-600 <?php echo e($errors->has('accept_terms') ? '' : 'hidden'); ?>" data-field-error="accept_terms"><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__errorArgs = ['accept_terms'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?><?php echo e($message); ?><?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?></p>
                         </div>
 
                         <div class="front-contact-form-actions">
                             <button type="submit" class="front-contact-submit inline-flex h-11 items-center justify-center px-6 text-sm font-semibold text-white transition">
-                                {{ $meetingSection['submit'] ?? 'Pošalji' }}
+                                <?php echo e($meetingSection['submit'] ?? 'Pošalji'); ?>
+
                             </button>
-                            <p class="text-xs font-semibold text-rose-600 {{ $errors->has('recaptcha_token') ? '' : 'hidden' }}" data-field-error="recaptcha_token">@error('recaptcha_token'){{ $message }}@enderror</p>
+                            <p class="text-xs font-semibold text-rose-600 <?php echo e($errors->has('recaptcha_token') ? '' : 'hidden'); ?>" data-field-error="recaptcha_token"><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__errorArgs = ['recaptcha_token'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?><?php echo e($message); ?><?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?></p>
                         </div>
                     </form>
                 </div>
             </section>
         </div>
 
-        @if (($taxPosts ?? collect())->isNotEmpty())
+        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(($taxPosts ?? collect())->isNotEmpty()): ?>
             <section class="ac-support-story ac-home-blog ac-blog-related-section ac-family-blog-section" aria-labelledby="ac-tax-blog-title">
                 <div class="mx-auto w-full max-w-[1240px] px-6 lg:px-10">
                     <div class="ac-support-story-hero">
                         <div class="ac-support-story-shell">
                             <div class="ac-services-head ac-support-story-head">
                                 <h2 id="ac-tax-blog-title">
-                                    <span>{{ $blogSection['title'] ?? '' }}</span>
+                                    <span><?php echo e($blogSection['title'] ?? ''); ?></span>
                                 </h2>
-                                <p class="ac-services-intro">{{ $blogSection['intro'] ?? '' }}</p>
+                                <p class="ac-services-intro"><?php echo e($blogSection['intro'] ?? ''); ?></p>
                                 <div class="ac-services-divider" aria-hidden="true">
                                     <span class="ac-services-divider-line"></span>
                                     <span class="ac-services-divider-glyph"></span>
@@ -658,8 +721,8 @@
                         <div id="ac-tax-blog-splide" class="splide ac-home-blog-splide" data-tax-blog-splide>
                             <div class="splide__track">
                                 <ul class="splide__list">
-                                    @foreach ($taxPosts as $post)
-                                        @php
+                                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $taxPosts; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $post): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                        <?php
                                             $translation = $post->translations->firstWhere('locale', $locale)
                                                 ?? $post->translations->firstWhere('locale', $fallbackLocale);
                                             $postSlug = trim((string) ($translation?->slug ?? ''));
@@ -676,71 +739,72 @@
                                                 ?? $primaryCategory?->translations->firstWhere('locale', $fallbackLocale);
                                             $categoryLabel = trim((string) ($categoryTranslation?->name ?? ($taxCategoryName ?? 'Novosti')));
                                             $publishedLabel = ($post->published_at ?? $post->created_at)?->translatedFormat($isCroatianLocale ? 'j. F Y.' : 'F j, Y');
-                                        @endphp
+                                        ?>
                                         <li class="splide__slide ac-home-blog-slide">
                                             <article class="ac-home-blog-card">
-                                                <a href="{{ $postUrl }}" class="ac-home-blog-card-link" aria-label="{{ $readMoreLabel }}: {{ $postTitle }}">
+                                                <a href="<?php echo e($postUrl); ?>" class="ac-home-blog-card-link" aria-label="<?php echo e($readMoreLabel); ?>: <?php echo e($postTitle); ?>">
                                                     <div class="ac-home-blog-card-media">
-                                                        @if ($postImageUrl)
+                                                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($postImageUrl): ?>
                                                             <img
-                                                                src="{{ $postImageUrl }}"
-                                                                alt="{{ $postTitle }}"
+                                                                src="<?php echo e($postImageUrl); ?>"
+                                                                alt="<?php echo e($postTitle); ?>"
                                                                 class="ac-home-blog-card-image"
                                                                 loading="lazy"
                                                                 decoding="async"
                                                             >
-                                                        @else
+                                                        <?php else: ?>
                                                             <div class="ac-home-blog-card-placeholder">
-                                                                <span>{{ __('ui.blog.title') }}</span>
+                                                                <span><?php echo e(__('ui.blog.title')); ?></span>
                                                             </div>
-                                                        @endif
+                                                        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
                                                         <div class="ac-home-blog-card-overlay">
                                                             <span class="ac-home-blog-card-overlay-kicker">
-                                                                {{ \Illuminate\Support\Str::upper(\Illuminate\Support\Str::limit($categoryLabel, 22, '')) }}
+                                                                <?php echo e(\Illuminate\Support\Str::upper(\Illuminate\Support\Str::limit($categoryLabel, 22, ''))); ?>
+
                                                             </span>
                                                             <span class="ac-home-blog-card-overlay-line" aria-hidden="true"></span>
                                                         </div>
                                                     </div>
 
                                                     <div class="ac-home-blog-card-body">
-                                                        <h3 class="ac-home-blog-card-title">{{ $postTitle }}</h3>
-                                                        <p class="ac-home-blog-card-excerpt">{{ $postExcerpt }}</p>
+                                                        <h3 class="ac-home-blog-card-title"><?php echo e($postTitle); ?></h3>
+                                                        <p class="ac-home-blog-card-excerpt"><?php echo e($postExcerpt); ?></p>
                                                     </div>
 
                                                     <div class="ac-home-blog-card-meta">
                                                         <span class="ac-home-blog-card-meta-link">
-                                                            <span>{{ $readMoreLabel }}</span>
+                                                            <span><?php echo e($readMoreLabel); ?></span>
                                                             <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                                                                 <path d="M4 12L12 4"></path>
                                                                 <path d="M6 4h6v6"></path>
                                                             </svg>
                                                         </span>
-                                                        @if ($publishedLabel)
-                                                            <span class="ac-home-blog-card-meta-date">{{ $publishedLabel }}</span>
-                                                        @endif
+                                                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($publishedLabel): ?>
+                                                            <span class="ac-home-blog-card-meta-date"><?php echo e($publishedLabel); ?></span>
+                                                        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                                                     </div>
                                                 </a>
                                             </article>
                                         </li>
-                                    @endforeach
+                                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                                 </ul>
                             </div>
                         </div>
                     </div>
                 </div>
             </section>
-        @endif
+        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
     </div>
-@endsection
+<?php $__env->stopSection(); ?>
 
-@once
-    @push('styles')
+<?php if (! $__env->hasRenderedOnce('d11e22f4-2cc3-470e-ac62-30ca0273c36d')): $__env->markAsRenderedOnce('d11e22f4-2cc3-470e-ac62-30ca0273c36d'); ?>
+    <?php $__env->startPush('styles'); ?>
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@splidejs/splide@4.1.4/dist/css/splide.min.css">
-    @endpush
-@endonce
+    <?php $__env->stopPush(); ?>
+<?php endif; ?>
 
-@push('styles')
+<?php $__env->startPush('styles'); ?>
     <style>
         .ac-tax-shell-section {
             padding: clamp(2.25rem, 4vw, 3.6rem) 0;
@@ -1213,23 +1277,23 @@
             }
         }
     </style>
-@endpush
+<?php $__env->stopPush(); ?>
 
-@include('front.desktop.contact.partials.form-script', [
+<?php echo $__env->make('front.desktop.contact.partials.form-script', [
     'captchaEnabled' => $captchaEnabled,
     'captchaSiteKey' => $captchaSiteKey,
-])
+], array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
 
-@once
-    @push('scripts')
+<?php if (! $__env->hasRenderedOnce('1ff7a9c6-188d-42e3-bcbc-b4169ace72f6')): $__env->markAsRenderedOnce('1ff7a9c6-188d-42e3-bcbc-b4169ace72f6'); ?>
+    <?php $__env->startPush('scripts'); ?>
         <script defer src="https://cdn.jsdelivr.net/npm/@splidejs/splide@4.1.4/dist/js/splide.min.js"></script>
-    @endpush
-@endonce
+    <?php $__env->stopPush(); ?>
+<?php endif; ?>
 
-@push('scripts')
+<?php $__env->startPush('scripts'); ?>
     <script>
         (function () {
-            const shouldFocusSection = {{ ($errors->any() || session('status')) ? 'true' : 'false' }};
+            const shouldFocusSection = <?php echo e(($errors->any() || session('status')) ? 'true' : 'false'); ?>;
             const section = document.getElementById('tax-sastanak');
 
             if (shouldFocusSection && section) {
@@ -1287,4 +1351,6 @@
             }, 120);
         }());
     </script>
-@endpush
+<?php $__env->stopPush(); ?>
+
+<?php echo $__env->make('front.desktop.layouts.store', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH /Users/tomek/Herd/info/resources/views/front/desktop/pages/tax.blade.php ENDPATH**/ ?>

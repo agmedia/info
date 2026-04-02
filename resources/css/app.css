@@ -8021,8 +8021,10 @@
     }
 
     .ac-family-hero-copy {
+        position: relative;
         width: 100%;
-        padding: clamp(1.7rem, 3vw, 2.45rem) clamp(1.35rem, 2.7vw, 2.15rem);
+        overflow: visible;
+        padding: clamp(3.2rem, 5vw, 4rem) clamp(1.35rem, 2.7vw, 2.15rem) clamp(1.7rem, 3vw, 2.45rem);
         border-radius: var(--front-card-radius);
         background: linear-gradient(180deg, rgba(2, 17, 38, 0.64), rgba(2, 17, 38, 0.56));
     }
@@ -8106,6 +8108,51 @@
         border-radius: var(--front-button-radius);
         font-size: 0.84rem;
         letter-spacing: 0.1em;
+    }
+
+    .ac-family-hero-actions .front-action-cta,
+    .ac-family-hero-actions .front-action-cta:hover {
+        box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.24);
+    }
+
+    .ac-family-hero-actions .front-action-cta:hover,
+    .ac-family-hero-actions .front-action-cta:focus-visible {
+        border-color: rgba(183, 150, 82, 0.92);
+        background: rgba(183, 150, 82, 0.3);
+        color: #ffffff !important;
+    }
+
+    .ac-family-hero-badge {
+        --ac-family-hero-icon-accent: #ab8d52;
+        position: absolute;
+        left: 50%;
+        top: 0;
+        transform: translate(-50%, -48%);
+        z-index: 4;
+        width: clamp(4.9rem, 7vw, 5.8rem);
+        aspect-ratio: 1;
+        display: grid;
+        place-items: center;
+        pointer-events: none;
+        background:
+            radial-gradient(circle at 30% 28%, rgba(255, 255, 255, 0.12), transparent 46%),
+            linear-gradient(180deg, rgba(2, 17, 38, 0.7) 0%, rgba(2, 17, 38, 0.62) 100%);
+        border-radius: 999px;
+        box-shadow:
+            inset 0 1px 0 rgba(255, 255, 255, 0.04),
+            0 12px 28px rgba(2, 12, 28, 0.18);
+    }
+
+    .ac-family-hero-badge::after {
+        content: none;
+    }
+
+    .ac-family-hero-badge-icon {
+        width: 66%;
+        height: 66%;
+        object-fit: contain;
+        filter: brightness(0) saturate(100%) invert(77%) sepia(27%) saturate(691%) hue-rotate(5deg) brightness(93%) contrast(88%);
+        opacity: 0.98;
     }
 
     .ac-family-image-placeholder {
@@ -8843,7 +8890,7 @@
         .ac-family-hero-copy {
             max-width: 25.75rem;
             border-radius: var(--front-card-radius);
-            padding: 1.2rem 1rem 1.1rem;
+            padding: 2.9rem 1rem 1.1rem;
             background: linear-gradient(180deg, rgba(2, 17, 38, 0.54), rgba(2, 17, 38, 0.46));
         }
 
@@ -8899,6 +8946,11 @@
             height: 3.05rem;
             font-size: 0.8rem;
             letter-spacing: 0.08em;
+        }
+
+        .ac-family-hero-badge {
+            width: clamp(4.3rem, 18vw, 4.9rem);
+            transform: translate(-50%, -50%);
         }
 
         .ac-family-faq-title-col h2 {
@@ -9042,7 +9094,7 @@
 
         .ac-family-hero-copy {
             max-width: 23.5rem;
-            padding: 1.05rem 0.9rem 1.15rem;
+            padding: 2.7rem 0.9rem 1.15rem;
             background: linear-gradient(180deg, rgba(2, 17, 38, 0.5), rgba(2, 17, 38, 0.42));
         }
 

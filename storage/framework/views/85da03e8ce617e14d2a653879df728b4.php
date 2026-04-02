@@ -1,6 +1,4 @@
-@extends('front.desktop.layouts.store')
-
-@php
+<?php
     $captchaSiteKey = trim((string) ($storeSettings['captcha']['recaptcha_v3_site_key'] ?? ''));
     $captchaEnabled = (bool) ($storeSettings['captcha']['recaptcha_v3_enabled'] ?? false) && $captchaSiteKey !== '';
     $contactEmail = trim((string) ($storeSettings['footer']['email_support'] ?? '')) ?: 'info@alphacapitalis.com';
@@ -126,37 +124,37 @@
     }
 
     $networkName = 'Pandea Global M&A';
-@endphp
+?>
 
-@section('title', $servicePageMetaTitle !== '' ? $servicePageMetaTitle : ($servicePageTitle ?? 'Financije'))
-@section('main_class', 'w-full px-0 py-0')
+<?php $__env->startSection('title', $servicePageMetaTitle !== '' ? $servicePageMetaTitle : ($servicePageTitle ?? 'Financije')); ?>
+<?php $__env->startSection('main_class', 'w-full px-0 py-0'); ?>
 
-@section('content')
+<?php $__env->startSection('content'); ?>
     <div class="ac-family-business-page ac-finance-page">
         <section class="ac-family-hero">
-            <div class="ac-family-hero-media" aria-hidden="true" style="background-image: url('{{ $heroBackgroundUrl }}');"></div>
+            <div class="ac-family-hero-media" aria-hidden="true" style="background-image: url('<?php echo e($heroBackgroundUrl); ?>');"></div>
             <div class="ac-family-hero-overlay"></div>
 
             <div class="mx-auto w-full max-w-[1240px] px-5 lg:px-8">
                 <div class="ac-family-hero-content">
                     <div class="ac-family-hero-shell">
                         <div class="ac-family-hero-copy">
-                            @include('front.desktop.partials.service-hero-icon-badge', ['iconUrl' => $heroBadgeIcon, 'accentColor' => $heroBadgeAccent])
+                            <?php echo $__env->make('front.desktop.partials.service-hero-icon-badge', ['iconUrl' => $heroBadgeIcon, 'accentColor' => $heroBadgeAccent], array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
                             <h1 class="ac-family-hero-title">
-                                <span class="is-brand">{{ $heroSection['brand_title'] ?? 'ALPHA CAPITALIS' }}</span>
+                                <span class="is-brand"><?php echo e($heroSection['brand_title'] ?? 'ALPHA CAPITALIS'); ?></span>
                                 <span class="is-subtitle">
-                                    <span class="is-subtitle-lead">{{ $heroSection['subtitle_lead'] ?? 'Savjetnici za' }}</span>
-                                    <span class="is-subtitle-accent">{{ $heroSection['subtitle_accent'] ?? 'financije' }}</span>
+                                    <span class="is-subtitle-lead"><?php echo e($heroSection['subtitle_lead'] ?? 'Savjetnici za'); ?></span>
+                                    <span class="is-subtitle-accent"><?php echo e($heroSection['subtitle_accent'] ?? 'financije'); ?></span>
                                 </span>
                             </h1>
 
-                            <p class="ac-family-hero-intro">{{ $heroSection['intro'] ?? '' }}</p>
+                            <p class="ac-family-hero-intro"><?php echo e($heroSection['intro'] ?? ''); ?></p>
 
                             <div class="ac-family-hero-actions">
-                                <a href="{{ $heroSection['cta_url'] ?? '#finance-usluge' }}" class="front-action-cta">
-                                    <span>{{ $heroSection['cta_label'] ?? 'Pregledajte usluge' }}</span>
-                                    <svg viewBox="{{ $financeCtaIcon['view_box'] }}" fill="currentColor" aria-hidden="true">
-                                        <use href="{{ $financeCtaIcon['href'] }}"></use>
+                                <a href="<?php echo e($heroSection['cta_url'] ?? '#finance-usluge'); ?>" class="front-action-cta">
+                                    <span><?php echo e($heroSection['cta_label'] ?? 'Pregledajte usluge'); ?></span>
+                                    <svg viewBox="<?php echo e($financeCtaIcon['view_box']); ?>" fill="currentColor" aria-hidden="true">
+                                        <use href="<?php echo e($financeCtaIcon['href']); ?>"></use>
                                     </svg>
                                 </a>
                             </div>
@@ -172,28 +170,28 @@
                     <div class="ac-finance-network-top">
                         <div class="ac-finance-network-headcard">
                             <div class="ac-finance-network-logo-card">
-                                <img src="{{ $pandeaLogoUrl }}" alt="{{ $pandeaSection['logo_alt'] ?? $networkName }}" class="ac-finance-network-logo">
+                                <img src="<?php echo e($pandeaLogoUrl); ?>" alt="<?php echo e($pandeaSection['logo_alt'] ?? $networkName); ?>" class="ac-finance-network-logo">
                             </div>
 
-                            @if ($pandeaHeadline !== '')
-                                <div class="ac-finance-network-title{{ $isCroatianLocale ? ' is-single-line' : '' }}">
+                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($pandeaHeadline !== ''): ?>
+                                <div class="ac-finance-network-title<?php echo e($isCroatianLocale ? ' is-single-line' : ''); ?>">
                                     <h3>
-                                        @foreach ($pandeaHeadlineLines as $line)
-                                            <span>{{ $line }}</span>
-                                        @endforeach
+                                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $pandeaHeadlineLines; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $line): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                            <span><?php echo e($line); ?></span>
+                                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                                     </h3>
                                 </div>
-                            @endif
+                            <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                         </div>
                     </div>
 
                     <div class="ac-finance-network-columns">
-                        @if ($pandeaLeadParagraph !== '')
-                            <p>{{ $pandeaLeadParagraph }}</p>
-                        @endif
-                        @if ($pandeaSecondaryParagraph !== '')
-                            <p>{{ $pandeaSecondaryParagraph }}</p>
-                        @endif
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($pandeaLeadParagraph !== ''): ?>
+                            <p><?php echo e($pandeaLeadParagraph); ?></p>
+                        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($pandeaSecondaryParagraph !== ''): ?>
+                            <p><?php echo e($pandeaSecondaryParagraph); ?></p>
+                        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                     </div>
                 </div>
             </div>
@@ -206,15 +204,15 @@
                         <div class="ac-services-head ac-support-story-head">
                             <div class="ac-services-eyebrow">
                                 <span class="ac-services-eyebrow-line" aria-hidden="true"></span>
-                                <p class="ac-services-kicker">{{ $servicesIntroSection['kicker'] ?? 'USLUGE' }}</p>
+                                <p class="ac-services-kicker"><?php echo e($servicesIntroSection['kicker'] ?? 'USLUGE'); ?></p>
                                 <span class="ac-services-eyebrow-line" aria-hidden="true"></span>
                             </div>
                             <h2 id="ac-finance-services-title">
-                                @foreach ($servicesIntroTitleLines as $line)
-                                    <span>{{ $line }}</span>
-                                @endforeach
+                                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $servicesIntroTitleLines; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $line): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                    <span><?php echo e($line); ?></span>
+                                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                             </h2>
-                            <p class="ac-services-intro">{{ $servicesIntroSection['intro'] ?? '' }}</p>
+                            <p class="ac-services-intro"><?php echo e($servicesIntroSection['intro'] ?? ''); ?></p>
                             <div class="ac-services-divider" aria-hidden="true">
                                 <span class="ac-services-divider-line"></span>
                                 <span class="ac-services-divider-glyph"></span>
@@ -225,116 +223,116 @@
                 </div>
 
                 <div class="ac-finance-editorial-shell">
-                    @php
+                    <?php
                         $maMeta = $financeSectionMeta['ma'];
-                    @endphp
+                    ?>
                     <article class="ac-finance-editorial-section">
                         <div class="ac-finance-editorial-head">
                             <div class="ac-finance-editorial-title">
                                 <div class="ac-finance-editorial-badge">
                                     <span class="ac-finance-editorial-icon" aria-hidden="true">
-                                        <svg viewBox="{{ $maMeta['icon_view_box'] }}" fill="currentColor">
-                                            <use href="{{ $maMeta['icon_href'] }}"></use>
+                                        <svg viewBox="<?php echo e($maMeta['icon_view_box']); ?>" fill="currentColor">
+                                            <use href="<?php echo e($maMeta['icon_href']); ?>"></use>
                                         </svg>
                                     </span>
-                                    <span class="ac-finance-editorial-index">{{ $maMeta['number'] }}</span>
+                                    <span class="ac-finance-editorial-index"><?php echo e($maMeta['number']); ?></span>
                                 </div>
                                 <div class="ac-finance-editorial-heading">
-                                    <h2>{{ $maSection['title'] ?? '' }}</h2>
+                                    <h2><?php echo e($maSection['title'] ?? ''); ?></h2>
                                 </div>
                             </div>
                             <div class="ac-finance-editorial-intro">
-                                <p>{{ $maSection['intro'] ?? '' }}</p>
+                                <p><?php echo e($maSection['intro'] ?? ''); ?></p>
                             </div>
                         </div>
 
                         <div class="ac-finance-columns ac-finance-columns--single">
                             <article class="ac-finance-column ac-finance-column--spacious">
-                                <h3>{{ $maSection['sale']['title'] ?? '' }}</h3>
-                                <p>{{ $maSection['sale']['body'] ?? '' }}</p>
+                                <h3><?php echo e($maSection['sale']['title'] ?? ''); ?></h3>
+                                <p><?php echo e($maSection['sale']['body'] ?? ''); ?></p>
                             </article>
                         </div>
 
-                        @if ($maSalePhases !== [])
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($maSalePhases !== []): ?>
                             <div class="ac-finance-followup">
                                 <p class="ac-family-section-kicker ac-finance-kicker-label">
                                     <span class="ac-finance-kicker-icon" aria-hidden="true">
-                                        <svg viewBox="{{ $financeAccentIcons['process']['view_box'] }}" fill="currentColor">
-                                            <use href="{{ $financeAccentIcons['process']['href'] }}"></use>
+                                        <svg viewBox="<?php echo e($financeAccentIcons['process']['view_box']); ?>" fill="currentColor">
+                                            <use href="<?php echo e($financeAccentIcons['process']['href']); ?>"></use>
                                         </svg>
                                     </span>
-                                    <span>{{ $maSection['sale']['process_title'] ?? '' }}</span>
+                                    <span><?php echo e($maSection['sale']['process_title'] ?? ''); ?></span>
                                 </p>
-                                <p class="ac-finance-phase-caption">{{ $phaseTableLabels['activities'] }}</p>
+                                <p class="ac-finance-phase-caption"><?php echo e($phaseTableLabels['activities']); ?></p>
 
                                 <div class="ac-finance-phase-table-shell">
                                     <table class="ac-finance-phase-table">
-                                        <caption class="sr-only">{{ $maSection['sale']['process_title'] ?? '' }}</caption>
+                                        <caption class="sr-only"><?php echo e($maSection['sale']['process_title'] ?? ''); ?></caption>
                                         <thead>
                                             <tr>
-                                                @foreach ($maSalePhases as $phase)
+                                                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $maSalePhases; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $phase): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                                                     <th scope="col">
-                                                        <span class="ac-finance-phase-step">{{ $phase['title'] ?? '' }}</span>
-                                                        <p class="ac-finance-phase-focus">{{ $phase['label'] ?? '' }}</p>
+                                                        <span class="ac-finance-phase-step"><?php echo e($phase['title'] ?? ''); ?></span>
+                                                        <p class="ac-finance-phase-focus"><?php echo e($phase['label'] ?? ''); ?></p>
                                                     </th>
-                                                @endforeach
+                                                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                                             </tr>
                                         </thead>
                                         <tbody>
                                             <tr>
-                                                @foreach ($maSalePhases as $phase)
+                                                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $maSalePhases; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $phase): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                                                     <td>
                                                         <ul class="ac-finance-phase-list">
-                                                            @foreach (($phase['items'] ?? []) as $item)
+                                                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = ($phase['items'] ?? []); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $item): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                                                                 <li>
                                                                     <span class="ac-finance-list-bullet" aria-hidden="true">
-                                                                        <svg viewBox="{{ $financeListBullet['view_box'] }}" fill="currentColor">
-                                                                            <use href="{{ $financeListBullet['href'] }}"></use>
+                                                                        <svg viewBox="<?php echo e($financeListBullet['view_box']); ?>" fill="currentColor">
+                                                                            <use href="<?php echo e($financeListBullet['href']); ?>"></use>
                                                                         </svg>
                                                                     </span>
-                                                                    <span>{{ $item }}</span>
+                                                                    <span><?php echo e($item); ?></span>
                                                                 </li>
-                                                            @endforeach
+                                                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                                                         </ul>
                                                     </td>
-                                                @endforeach
+                                                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                                             </tr>
                                         </tbody>
                                     </table>
                                 </div>
                             </div>
-                        @endif
+                        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
                         <div class="ac-finance-followup">
                             <div class="ac-finance-columns ac-finance-columns--single">
                                 <article class="ac-finance-column ac-finance-column--spacious">
-                                    <h3>{{ $maSection['acquisition']['title'] ?? '' }}</h3>
-                                    <p>{{ $maSection['acquisition']['body'] ?? '' }}</p>
+                                    <h3><?php echo e($maSection['acquisition']['title'] ?? ''); ?></h3>
+                                    <p><?php echo e($maSection['acquisition']['body'] ?? ''); ?></p>
                                 </article>
                             </div>
                         </div>
                     </article>
 
-                    @php
+                    <?php
                         $dueMeta = $financeSectionMeta['due_diligence'];
-                    @endphp
+                    ?>
                     <article class="ac-finance-editorial-section">
                         <div class="ac-finance-editorial-head">
                             <div class="ac-finance-editorial-title">
                                 <div class="ac-finance-editorial-badge">
                                     <span class="ac-finance-editorial-icon" aria-hidden="true">
-                                        <svg viewBox="{{ $dueMeta['icon_view_box'] }}" fill="currentColor">
-                                            <use href="{{ $dueMeta['icon_href'] }}"></use>
+                                        <svg viewBox="<?php echo e($dueMeta['icon_view_box']); ?>" fill="currentColor">
+                                            <use href="<?php echo e($dueMeta['icon_href']); ?>"></use>
                                         </svg>
                                     </span>
-                                    <span class="ac-finance-editorial-index">{{ $dueMeta['number'] }}</span>
+                                    <span class="ac-finance-editorial-index"><?php echo e($dueMeta['number']); ?></span>
                                 </div>
                                 <div class="ac-finance-editorial-heading">
-                                    <h2>{{ $dueDiligenceSection['title'] ?? '' }}</h2>
+                                    <h2><?php echo e($dueDiligenceSection['title'] ?? ''); ?></h2>
                                 </div>
                             </div>
                             <div class="ac-finance-editorial-intro">
-                                <p>{{ $dueDiligenceSection['intro'] ?? '' }}</p>
+                                <p><?php echo e($dueDiligenceSection['intro'] ?? ''); ?></p>
                             </div>
                         </div>
 
@@ -342,122 +340,122 @@
                             <article class="ac-finance-column">
                                 <p class="ac-family-section-kicker ac-finance-kicker-label">
                                     <span class="ac-finance-kicker-icon" aria-hidden="true">
-                                        <svg viewBox="{{ $financeAccentIcons['help']['view_box'] }}" fill="currentColor">
-                                            <use href="{{ $financeAccentIcons['help']['href'] }}"></use>
+                                        <svg viewBox="<?php echo e($financeAccentIcons['help']['view_box']); ?>" fill="currentColor">
+                                            <use href="<?php echo e($financeAccentIcons['help']['href']); ?>"></use>
                                         </svg>
                                     </span>
-                                    <span>{{ $dueDiligenceSection['help_title'] ?? '' }}</span>
+                                    <span><?php echo e($dueDiligenceSection['help_title'] ?? ''); ?></span>
                                 </p>
                                 <ul class="ac-finance-list">
-                                    @foreach (($dueDiligenceSection['help_items'] ?? []) as $item)
+                                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = ($dueDiligenceSection['help_items'] ?? []); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $item): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                                         <li>
                                             <span class="ac-finance-list-bullet" aria-hidden="true">
-                                                <svg viewBox="{{ $financeListBullet['view_box'] }}" fill="currentColor">
-                                                    <use href="{{ $financeListBullet['href'] }}"></use>
+                                                <svg viewBox="<?php echo e($financeListBullet['view_box']); ?>" fill="currentColor">
+                                                    <use href="<?php echo e($financeListBullet['href']); ?>"></use>
                                                 </svg>
                                             </span>
-                                            <span>{{ $item }}</span>
+                                            <span><?php echo e($item); ?></span>
                                         </li>
-                                    @endforeach
+                                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                                 </ul>
                             </article>
 
                             <article class="ac-finance-column">
                                 <blockquote class="ac-finance-quote">
                                     <span class="ac-finance-quote-icon" aria-hidden="true">
-                                        <svg viewBox="{{ $financeAccentIcons['quote']['view_box'] }}" fill="currentColor">
-                                            <use href="{{ $financeAccentIcons['quote']['href'] }}"></use>
+                                        <svg viewBox="<?php echo e($financeAccentIcons['quote']['view_box']); ?>" fill="currentColor">
+                                            <use href="<?php echo e($financeAccentIcons['quote']['href']); ?>"></use>
                                         </svg>
                                     </span>
-                                    <p>{{ $dueDiligenceSection['closing'] ?? '' }}</p>
+                                    <p><?php echo e($dueDiligenceSection['closing'] ?? ''); ?></p>
                                 </blockquote>
                             </article>
                         </div>
                     </article>
 
-                    @php
+                    <?php
                         $valuationMeta = $financeSectionMeta['valuations'];
-                    @endphp
+                    ?>
                     <article class="ac-finance-editorial-section">
                         <div class="ac-finance-editorial-head">
                             <div class="ac-finance-editorial-title">
                                 <div class="ac-finance-editorial-badge">
                                     <span class="ac-finance-editorial-icon" aria-hidden="true">
-                                        <svg viewBox="{{ $valuationMeta['icon_view_box'] }}" fill="currentColor">
-                                            <use href="{{ $valuationMeta['icon_href'] }}"></use>
+                                        <svg viewBox="<?php echo e($valuationMeta['icon_view_box']); ?>" fill="currentColor">
+                                            <use href="<?php echo e($valuationMeta['icon_href']); ?>"></use>
                                         </svg>
                                     </span>
-                                    <span class="ac-finance-editorial-index">{{ $valuationMeta['number'] }}</span>
+                                    <span class="ac-finance-editorial-index"><?php echo e($valuationMeta['number']); ?></span>
                                 </div>
                                 <div class="ac-finance-editorial-heading">
-                                    <h2>{{ $valuationsSection['title'] ?? '' }}</h2>
+                                    <h2><?php echo e($valuationsSection['title'] ?? ''); ?></h2>
                                 </div>
                             </div>
                             <div class="ac-finance-editorial-intro">
-                                <p>{{ $valuationBody[0] ?? '' }}</p>
+                                <p><?php echo e($valuationBody[0] ?? ''); ?></p>
                             </div>
                         </div>
 
                         <div class="ac-finance-columns ac-finance-columns--two-wide">
                             <article class="ac-finance-column">
-                                @foreach (array_slice($valuationBody, 1) as $paragraph)
-                                    <p>{{ $paragraph }}</p>
-                                @endforeach
+                                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = array_slice($valuationBody, 1); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $paragraph): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                    <p><?php echo e($paragraph); ?></p>
+                                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                             </article>
 
                             <article class="ac-finance-column">
                                 <p class="ac-family-section-kicker ac-finance-kicker-label">
                                     <span class="ac-finance-kicker-icon" aria-hidden="true">
-                                        <svg viewBox="{{ $financeAccentIcons['methods']['view_box'] }}" fill="currentColor">
-                                            <use href="{{ $financeAccentIcons['methods']['href'] }}"></use>
+                                        <svg viewBox="<?php echo e($financeAccentIcons['methods']['view_box']); ?>" fill="currentColor">
+                                            <use href="<?php echo e($financeAccentIcons['methods']['href']); ?>"></use>
                                         </svg>
                                     </span>
-                                    <span>{{ $valuationsSection['methods_title'] ?? '' }}</span>
+                                    <span><?php echo e($valuationsSection['methods_title'] ?? ''); ?></span>
                                 </p>
                                 <ul class="ac-finance-list">
-                                    @foreach (($valuationsSection['methods'] ?? []) as $method)
+                                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = ($valuationsSection['methods'] ?? []); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $method): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                                         <li>
                                             <span class="ac-finance-list-bullet" aria-hidden="true">
-                                                <svg viewBox="{{ $financeListBullet['view_box'] }}" fill="currentColor">
-                                                    <use href="{{ $financeListBullet['href'] }}"></use>
+                                                <svg viewBox="<?php echo e($financeListBullet['view_box']); ?>" fill="currentColor">
+                                                    <use href="<?php echo e($financeListBullet['href']); ?>"></use>
                                                 </svg>
                                             </span>
-                                            <span>{{ $method }}</span>
+                                            <span><?php echo e($method); ?></span>
                                         </li>
-                                    @endforeach
+                                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                                 </ul>
                             </article>
                         </div>
                     </article>
 
-                    @php
+                    <?php
                         $capitalMeta = $financeSectionMeta['capital_raising'];
-                    @endphp
+                    ?>
                     <article class="ac-finance-editorial-section">
                         <div class="ac-finance-editorial-head">
                             <div class="ac-finance-editorial-title">
                                 <div class="ac-finance-editorial-badge">
                                     <span class="ac-finance-editorial-icon" aria-hidden="true">
-                                        <svg viewBox="{{ $capitalMeta['icon_view_box'] }}" fill="currentColor">
-                                            <use href="{{ $capitalMeta['icon_href'] }}"></use>
+                                        <svg viewBox="<?php echo e($capitalMeta['icon_view_box']); ?>" fill="currentColor">
+                                            <use href="<?php echo e($capitalMeta['icon_href']); ?>"></use>
                                         </svg>
                                     </span>
-                                    <span class="ac-finance-editorial-index">{{ $capitalMeta['number'] }}</span>
+                                    <span class="ac-finance-editorial-index"><?php echo e($capitalMeta['number']); ?></span>
                                 </div>
                                 <div class="ac-finance-editorial-heading">
-                                    <h2>{{ $capitalRaisingSection['title'] ?? '' }}</h2>
+                                    <h2><?php echo e($capitalRaisingSection['title'] ?? ''); ?></h2>
                                 </div>
                             </div>
                             <div class="ac-finance-editorial-intro">
-                                <p>{{ $capitalBody[0] ?? '' }}</p>
+                                <p><?php echo e($capitalBody[0] ?? ''); ?></p>
                             </div>
                         </div>
 
                         <div class="ac-finance-columns ac-finance-columns--single">
                             <article class="ac-finance-column ac-finance-column--spacious">
-                                @foreach ($capitalBodyLead as $paragraph)
-                                    <p>{{ $paragraph }}</p>
-                                @endforeach
+                                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $capitalBodyLead; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $paragraph): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                    <p><?php echo e($paragraph); ?></p>
+                                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                             </article>
                         </div>
 
@@ -466,100 +464,100 @@
                                 <article class="ac-finance-column">
                                     <p class="ac-family-section-kicker ac-finance-kicker-label">
                                         <span class="ac-finance-kicker-icon" aria-hidden="true">
-                                            <svg viewBox="{{ $financeAccentIcons['sources']['view_box'] }}" fill="currentColor">
-                                                <use href="{{ $financeAccentIcons['sources']['href'] }}"></use>
+                                            <svg viewBox="<?php echo e($financeAccentIcons['sources']['view_box']); ?>" fill="currentColor">
+                                                <use href="<?php echo e($financeAccentIcons['sources']['href']); ?>"></use>
                                             </svg>
                                         </span>
-                                        <span>{{ $capitalRaisingSection['sources_title'] ?? '' }}</span>
+                                        <span><?php echo e($capitalRaisingSection['sources_title'] ?? ''); ?></span>
                                     </p>
                                     <ul class="ac-finance-list">
-                                        @foreach (($capitalRaisingSection['sources'] ?? []) as $source)
+                                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = ($capitalRaisingSection['sources'] ?? []); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $source): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                                             <li>
                                                 <span class="ac-finance-list-bullet" aria-hidden="true">
-                                                    <svg viewBox="{{ $financeListBullet['view_box'] }}" fill="currentColor">
-                                                        <use href="{{ $financeListBullet['href'] }}"></use>
+                                                    <svg viewBox="<?php echo e($financeListBullet['view_box']); ?>" fill="currentColor">
+                                                        <use href="<?php echo e($financeListBullet['href']); ?>"></use>
                                                     </svg>
                                                 </span>
-                                                <span>{{ $source }}</span>
+                                                <span><?php echo e($source); ?></span>
                                             </li>
-                                        @endforeach
+                                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                                     </ul>
                                 </article>
 
                                 <article class="ac-finance-column">
-                                    @foreach ($capitalBodyTail as $paragraph)
-                                        <p>{{ $paragraph }}</p>
-                                    @endforeach
+                                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $capitalBodyTail; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $paragraph): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                        <p><?php echo e($paragraph); ?></p>
+                                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                                 </article>
                             </div>
                         </div>
 
-                        @if ($capitalBodyLead === [] && $capitalBodyTail === [])
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($capitalBodyLead === [] && $capitalBodyTail === []): ?>
                             <div class="ac-finance-followup">
                                 <div class="ac-finance-columns ac-finance-columns--single">
                                     <article class="ac-finance-column">
                                         <p class="ac-family-section-kicker ac-finance-kicker-label">
                                             <span class="ac-finance-kicker-icon" aria-hidden="true">
-                                                <svg viewBox="{{ $financeAccentIcons['sources']['view_box'] }}" fill="currentColor">
-                                                    <use href="{{ $financeAccentIcons['sources']['href'] }}"></use>
+                                                <svg viewBox="<?php echo e($financeAccentIcons['sources']['view_box']); ?>" fill="currentColor">
+                                                    <use href="<?php echo e($financeAccentIcons['sources']['href']); ?>"></use>
                                                 </svg>
                                             </span>
-                                            <span>{{ $capitalRaisingSection['sources_title'] ?? '' }}</span>
+                                            <span><?php echo e($capitalRaisingSection['sources_title'] ?? ''); ?></span>
                                         </p>
                                         <ul class="ac-finance-list">
-                                            @foreach (($capitalRaisingSection['sources'] ?? []) as $source)
+                                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = ($capitalRaisingSection['sources'] ?? []); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $source): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                                                 <li>
                                                     <span class="ac-finance-list-bullet" aria-hidden="true">
-                                                        <svg viewBox="{{ $financeListBullet['view_box'] }}" fill="currentColor">
-                                                            <use href="{{ $financeListBullet['href'] }}"></use>
+                                                        <svg viewBox="<?php echo e($financeListBullet['view_box']); ?>" fill="currentColor">
+                                                            <use href="<?php echo e($financeListBullet['href']); ?>"></use>
                                                         </svg>
                                                     </span>
-                                                    <span>{{ $source }}</span>
+                                                    <span><?php echo e($source); ?></span>
                                                 </li>
-                                            @endforeach
+                                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                                         </ul>
                                     </article>
                                 </div>
                             </div>
-                        @endif
+                        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                     </article>
 
-                    @php
+                    <?php
                         $restructuringMeta = $financeSectionMeta['restructuring'];
-                    @endphp
+                    ?>
                     <article class="ac-finance-editorial-section">
                         <div class="ac-finance-editorial-head">
                             <div class="ac-finance-editorial-title">
                                 <div class="ac-finance-editorial-badge">
                                     <span class="ac-finance-editorial-icon" aria-hidden="true">
-                                        <svg viewBox="{{ $restructuringMeta['icon_view_box'] }}" fill="currentColor">
-                                            <use href="{{ $restructuringMeta['icon_href'] }}"></use>
+                                        <svg viewBox="<?php echo e($restructuringMeta['icon_view_box']); ?>" fill="currentColor">
+                                            <use href="<?php echo e($restructuringMeta['icon_href']); ?>"></use>
                                         </svg>
                                     </span>
-                                    <span class="ac-finance-editorial-index">{{ $restructuringMeta['number'] }}</span>
+                                    <span class="ac-finance-editorial-index"><?php echo e($restructuringMeta['number']); ?></span>
                                 </div>
                                 <div class="ac-finance-editorial-heading">
-                                    <h2>{{ $restructuringSection['title'] ?? '' }}</h2>
+                                    <h2><?php echo e($restructuringSection['title'] ?? ''); ?></h2>
                                 </div>
                             </div>
                             <div class="ac-finance-editorial-intro">
-                                <p>{{ $restructuringBody[0] ?? '' }}</p>
+                                <p><?php echo e($restructuringBody[0] ?? ''); ?></p>
                             </div>
                         </div>
 
                         <div class="ac-finance-columns ac-finance-columns--single">
                             <article class="ac-finance-column ac-finance-column--spacious">
-                                @foreach (array_slice($restructuringBody, 1) as $paragraph)
-                                    <p>{{ $paragraph }}</p>
-                                @endforeach
+                                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = array_slice($restructuringBody, 1); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $paragraph): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                    <p><?php echo e($paragraph); ?></p>
+                                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                             </article>
                         </div>
 
                         <div class="ac-finance-followup">
-                            <p class="ac-family-section-kicker">{{ $restructuringSection['prebankruptcy_title'] ?? '' }}</p>
+                            <p class="ac-family-section-kicker"><?php echo e($restructuringSection['prebankruptcy_title'] ?? ''); ?></p>
                             <div class="ac-finance-columns ac-finance-columns--single">
                                 <article class="ac-finance-column">
-                                    <p>{{ $restructuringSection['prebankruptcy_body'] ?? '' }}</p>
+                                    <p><?php echo e($restructuringSection['prebankruptcy_body'] ?? ''); ?></p>
                                 </article>
                             </div>
                         </div>
@@ -569,69 +567,69 @@
                                 <article class="ac-finance-column">
                                     <p class="ac-family-section-kicker ac-finance-kicker-label">
                                         <span class="ac-finance-kicker-icon" aria-hidden="true">
-                                            <svg viewBox="{{ $financeAccentIcons['options']['view_box'] }}" fill="currentColor">
-                                                <use href="{{ $financeAccentIcons['options']['href'] }}"></use>
+                                            <svg viewBox="<?php echo e($financeAccentIcons['options']['view_box']); ?>" fill="currentColor">
+                                                <use href="<?php echo e($financeAccentIcons['options']['href']); ?>"></use>
                                             </svg>
                                         </span>
-                                        <span>{{ $restructuringSection['options_title'] ?? '' }}</span>
+                                        <span><?php echo e($restructuringSection['options_title'] ?? ''); ?></span>
                                     </p>
                                     <ul class="ac-finance-list ac-finance-list--multi">
-                                        @foreach (($restructuringSection['options'] ?? []) as $item)
+                                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = ($restructuringSection['options'] ?? []); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $item): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                                             <li>
                                                 <span class="ac-finance-list-bullet" aria-hidden="true">
-                                                    <svg viewBox="{{ $financeListBullet['view_box'] }}" fill="currentColor">
-                                                        <use href="{{ $financeListBullet['href'] }}"></use>
+                                                    <svg viewBox="<?php echo e($financeListBullet['view_box']); ?>" fill="currentColor">
+                                                        <use href="<?php echo e($financeListBullet['href']); ?>"></use>
                                                     </svg>
                                                 </span>
-                                                <span>{{ $item }}</span>
+                                                <span><?php echo e($item); ?></span>
                                             </li>
-                                        @endforeach
+                                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                                     </ul>
                                 </article>
 
                                 <article class="ac-finance-column">
                                     <p class="ac-family-section-kicker ac-finance-kicker-label">
                                         <span class="ac-finance-kicker-icon" aria-hidden="true">
-                                            <svg viewBox="{{ $financeAccentIcons['reasons']['view_box'] }}" fill="currentColor">
-                                                <use href="{{ $financeAccentIcons['reasons']['href'] }}"></use>
+                                            <svg viewBox="<?php echo e($financeAccentIcons['reasons']['view_box']); ?>" fill="currentColor">
+                                                <use href="<?php echo e($financeAccentIcons['reasons']['href']); ?>"></use>
                                             </svg>
                                         </span>
-                                        <span>{{ $restructuringSection['reasons_title'] ?? '' }}</span>
+                                        <span><?php echo e($restructuringSection['reasons_title'] ?? ''); ?></span>
                                     </p>
                                     <ul class="ac-finance-list ac-finance-list--multi">
-                                        @foreach (($restructuringSection['reasons'] ?? []) as $item)
+                                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = ($restructuringSection['reasons'] ?? []); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $item): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                                             <li>
                                                 <span class="ac-finance-list-bullet" aria-hidden="true">
-                                                    <svg viewBox="{{ $financeListBullet['view_box'] }}" fill="currentColor">
-                                                        <use href="{{ $financeListBullet['href'] }}"></use>
+                                                    <svg viewBox="<?php echo e($financeListBullet['view_box']); ?>" fill="currentColor">
+                                                        <use href="<?php echo e($financeListBullet['href']); ?>"></use>
                                                     </svg>
                                                 </span>
-                                                <span>{{ $item }}</span>
+                                                <span><?php echo e($item); ?></span>
                                             </li>
-                                        @endforeach
+                                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                                     </ul>
                                 </article>
 
                                 <article class="ac-finance-column">
                                     <p class="ac-family-section-kicker ac-finance-kicker-label">
                                         <span class="ac-finance-kicker-icon" aria-hidden="true">
-                                            <svg viewBox="{{ $financeAccentIcons['team']['view_box'] }}" fill="currentColor">
-                                                <use href="{{ $financeAccentIcons['team']['href'] }}"></use>
+                                            <svg viewBox="<?php echo e($financeAccentIcons['team']['view_box']); ?>" fill="currentColor">
+                                                <use href="<?php echo e($financeAccentIcons['team']['href']); ?>"></use>
                                             </svg>
                                         </span>
-                                        <span>{{ $restructuringSection['team_services_title'] ?? '' }}</span>
+                                        <span><?php echo e($restructuringSection['team_services_title'] ?? ''); ?></span>
                                     </p>
                                     <ul class="ac-finance-list ac-finance-list--multi ac-finance-list--triple">
-                                        @foreach (($restructuringSection['team_services'] ?? []) as $item)
+                                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = ($restructuringSection['team_services'] ?? []); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $item): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                                             <li>
                                                 <span class="ac-finance-list-bullet" aria-hidden="true">
-                                                    <svg viewBox="{{ $financeListBullet['view_box'] }}" fill="currentColor">
-                                                        <use href="{{ $financeListBullet['href'] }}"></use>
+                                                    <svg viewBox="<?php echo e($financeListBullet['view_box']); ?>" fill="currentColor">
+                                                        <use href="<?php echo e($financeListBullet['href']); ?>"></use>
                                                     </svg>
                                                 </span>
-                                                <span>{{ $item }}</span>
+                                                <span><?php echo e($item); ?></span>
                                             </li>
-                                        @endforeach
+                                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                                     </ul>
                                 </article>
                             </div>
@@ -641,40 +639,40 @@
             </div>
         </section>
 
-        @include('front.desktop.partials.service-videos', [
+        <?php echo $__env->make('front.desktop.partials.service-videos', [
             'serviceVideoSection' => $serviceVideoSection ?? [],
             'serviceVideos' => $serviceVideos ?? [],
             'locale' => $locale ?? app()->getLocale(),
-        ])
+        ], array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
 
         <div class="mx-auto w-full max-w-[1240px] px-5 lg:px-8">
             <section id="finance-sastanak" class="ac-family-section pb-16 md:pb-24" aria-labelledby="ac-finance-meeting-title">
                 <div class="ac-family-team-showcase-head">
-                    <p class="ac-family-section-kicker">{{ $meetingSection['kicker'] ?? 'KONTAKT' }}</p>
-                    <h2 id="ac-finance-meeting-title">{{ $meetingSection['title'] ?? '' }}</h2>
-                    <p>{{ $meetingSection['intro'] ?? '' }}</p>
+                    <p class="ac-family-section-kicker"><?php echo e($meetingSection['kicker'] ?? 'KONTAKT'); ?></p>
+                    <h2 id="ac-finance-meeting-title"><?php echo e($meetingSection['title'] ?? ''); ?></h2>
+                    <p><?php echo e($meetingSection['intro'] ?? ''); ?></p>
                 </div>
 
                 <div class="mt-10 grid gap-5 lg:grid-cols-[300px_minmax(0,1fr)] lg:items-start">
                     <aside class="front-contact-sidebar">
                         <div class="front-contact-panel front-contact-panel--direct">
-                            <h2>{{ $meetingSection['visit_title'] ?? 'Posjetite nas' }}</h2>
+                            <h2><?php echo e($meetingSection['visit_title'] ?? 'Posjetite nas'); ?></h2>
                             <div class="mt-4 space-y-1 text-[0.89rem] leading-6 text-slate-700">
-                                <p class="ac-finance-visit-line">{{ $meetingSection['visit_lines'][0] ?? '' }}</p>
-                                <p>{{ $meetingSection['visit_lines'][1] ?? '' }}</p>
+                                <p class="ac-finance-visit-line"><?php echo e($meetingSection['visit_lines'][0] ?? ''); ?></p>
+                                <p><?php echo e($meetingSection['visit_lines'][1] ?? ''); ?></p>
                             </div>
                         </div>
 
                         <div class="front-contact-panel front-contact-panel--direct">
-                            <h2>{{ $meetingSection['contact_title'] ?? 'Kontaktirajte nas' }}</h2>
+                            <h2><?php echo e($meetingSection['contact_title'] ?? 'Kontaktirajte nas'); ?></h2>
                             <ul class="front-contact-direct-list">
                                 <li>
-                                    <span>{{ $meetingSection['direct_phone_label'] ?? 'Telefon' }}</span>
-                                    <a href="tel:{{ $contactPhoneHref }}">{{ $contactPhone }}</a>
+                                    <span><?php echo e($meetingSection['direct_phone_label'] ?? 'Telefon'); ?></span>
+                                    <a href="tel:<?php echo e($contactPhoneHref); ?>"><?php echo e($contactPhone); ?></a>
                                 </li>
                                 <li>
-                                    <span>{{ $meetingSection['direct_email_label'] ?? 'Email' }}</span>
-                                    <a href="mailto:{{ $contactEmail }}">{{ $contactEmail }}</a>
+                                    <span><?php echo e($meetingSection['direct_email_label'] ?? 'Email'); ?></span>
+                                    <a href="mailto:<?php echo e($contactEmail); ?>"><?php echo e($contactEmail); ?></a>
                                 </li>
                             </ul>
                         </div>
@@ -682,101 +680,166 @@
 
                     <form
                         method="POST"
-                        action="{{ route('contact.store') }}"
+                        action="<?php echo e(route('contact.store')); ?>"
                         class="front-contact-form"
                         novalidate
                         data-contact-form
-                        data-msg-name-required="{{ __('contact.validation.inline.name_required') }}"
-                        data-msg-email-required="{{ __('contact.validation.inline.email_required') }}"
-                        data-msg-email-invalid="{{ __('contact.validation.inline.email_invalid') }}"
-                        data-msg-message-required="{{ __('contact.validation.inline.message_required') }}"
-                        data-msg-message-min="{{ __('contact.validation.inline.message_min') }}"
-                        data-msg-accept-terms="{{ __('contact.validation.inline.accept_terms') }}"
-                        @if($captchaEnabled) data-recaptcha-form data-recaptcha-site-key="{{ $captchaSiteKey }}" data-recaptcha-action="contact_form" @endif
+                        data-msg-name-required="<?php echo e(__('contact.validation.inline.name_required')); ?>"
+                        data-msg-email-required="<?php echo e(__('contact.validation.inline.email_required')); ?>"
+                        data-msg-email-invalid="<?php echo e(__('contact.validation.inline.email_invalid')); ?>"
+                        data-msg-message-required="<?php echo e(__('contact.validation.inline.message_required')); ?>"
+                        data-msg-message-min="<?php echo e(__('contact.validation.inline.message_min')); ?>"
+                        data-msg-accept-terms="<?php echo e(__('contact.validation.inline.accept_terms')); ?>"
+                        <?php if($captchaEnabled): ?> data-recaptcha-form data-recaptcha-site-key="<?php echo e($captchaSiteKey); ?>" data-recaptcha-action="contact_form" <?php endif; ?>
                     >
-                        @csrf
+                        <?php echo csrf_field(); ?>
                         <input type="hidden" name="recaptcha_token" value="" data-recaptcha-token>
-                        <input type="hidden" name="redirect_to" value="{{ route('finance.show') }}#finance-sastanak">
+                        <input type="hidden" name="redirect_to" value="<?php echo e(route('finance.show')); ?>#finance-sastanak">
 
-                        @if (session('status'))
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(session('status')): ?>
                             <div class="front-contact-status" role="status">
-                                {{ session('status') }}
+                                <?php echo e(session('status')); ?>
+
                             </div>
-                        @endif
+                        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
                         <div class="grid gap-4 md:grid-cols-2">
                             <div>
-                                <label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-500" for="finance-first-name">{{ $meetingFormLabels['first_name'] ?? 'Ime' }}</label>
-                                <input id="finance-first-name" type="text" name="first_name" value="{{ old('first_name') }}" class="front-contact-input h-11 w-full text-sm" required>
-                                <p class="mt-2 text-xs font-semibold text-rose-600 {{ $errors->has('first_name') ? '' : 'hidden' }}" data-field-error="first_name">@error('first_name'){{ $message }}@enderror</p>
+                                <label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-500" for="finance-first-name"><?php echo e($meetingFormLabels['first_name'] ?? 'Ime'); ?></label>
+                                <input id="finance-first-name" type="text" name="first_name" value="<?php echo e(old('first_name')); ?>" class="front-contact-input h-11 w-full text-sm" required>
+                                <p class="mt-2 text-xs font-semibold text-rose-600 <?php echo e($errors->has('first_name') ? '' : 'hidden'); ?>" data-field-error="first_name"><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__errorArgs = ['first_name'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?><?php echo e($message); ?><?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?></p>
                             </div>
                             <div>
-                                <label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-500" for="finance-last-name">{{ $meetingFormLabels['last_name'] ?? 'Prezime' }}</label>
-                                <input id="finance-last-name" type="text" name="last_name" value="{{ old('last_name') }}" class="front-contact-input h-11 w-full text-sm">
-                                <p class="mt-2 text-xs font-semibold text-rose-600 {{ $errors->has('last_name') ? '' : 'hidden' }}" data-field-error="last_name">@error('last_name'){{ $message }}@enderror</p>
+                                <label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-500" for="finance-last-name"><?php echo e($meetingFormLabels['last_name'] ?? 'Prezime'); ?></label>
+                                <input id="finance-last-name" type="text" name="last_name" value="<?php echo e(old('last_name')); ?>" class="front-contact-input h-11 w-full text-sm">
+                                <p class="mt-2 text-xs font-semibold text-rose-600 <?php echo e($errors->has('last_name') ? '' : 'hidden'); ?>" data-field-error="last_name"><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__errorArgs = ['last_name'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?><?php echo e($message); ?><?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?></p>
                             </div>
                         </div>
 
                         <div class="mt-4 grid gap-4 md:grid-cols-2">
                             <div>
-                                <label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-500" for="finance-company">{{ $meetingFormLabels['company'] ?? 'Tvrtka' }}</label>
-                                <input id="finance-company" type="text" name="company" value="{{ old('company') }}" class="front-contact-input h-11 w-full text-sm">
-                                <p class="mt-2 text-xs font-semibold text-rose-600 {{ $errors->has('company') ? '' : 'hidden' }}" data-field-error="company">@error('company'){{ $message }}@enderror</p>
+                                <label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-500" for="finance-company"><?php echo e($meetingFormLabels['company'] ?? 'Tvrtka'); ?></label>
+                                <input id="finance-company" type="text" name="company" value="<?php echo e(old('company')); ?>" class="front-contact-input h-11 w-full text-sm">
+                                <p class="mt-2 text-xs font-semibold text-rose-600 <?php echo e($errors->has('company') ? '' : 'hidden'); ?>" data-field-error="company"><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__errorArgs = ['company'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?><?php echo e($message); ?><?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?></p>
                             </div>
                             <div>
-                                <label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-500" for="finance-phone">{{ $meetingFormLabels['phone'] ?? 'Broj telefona' }}</label>
-                                <input id="finance-phone" type="text" name="phone" value="{{ old('phone') }}" class="front-contact-input h-11 w-full text-sm">
-                                <p class="mt-2 text-xs font-semibold text-rose-600 {{ $errors->has('phone') ? '' : 'hidden' }}" data-field-error="phone">@error('phone'){{ $message }}@enderror</p>
+                                <label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-500" for="finance-phone"><?php echo e($meetingFormLabels['phone'] ?? 'Broj telefona'); ?></label>
+                                <input id="finance-phone" type="text" name="phone" value="<?php echo e(old('phone')); ?>" class="front-contact-input h-11 w-full text-sm">
+                                <p class="mt-2 text-xs font-semibold text-rose-600 <?php echo e($errors->has('phone') ? '' : 'hidden'); ?>" data-field-error="phone"><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__errorArgs = ['phone'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?><?php echo e($message); ?><?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?></p>
                             </div>
                         </div>
 
                         <div class="mt-4">
-                            <label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-500" for="finance-email">{{ $meetingFormLabels['email'] ?? 'Email' }}</label>
-                            <input id="finance-email" type="email" name="email" value="{{ old('email', auth()->user()?->email) }}" class="front-contact-input h-11 w-full text-sm" required>
-                            <p class="mt-2 text-xs font-semibold text-rose-600 {{ $errors->has('email') ? '' : 'hidden' }}" data-field-error="email">@error('email'){{ $message }}@enderror</p>
+                            <label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-500" for="finance-email"><?php echo e($meetingFormLabels['email'] ?? 'Email'); ?></label>
+                            <input id="finance-email" type="email" name="email" value="<?php echo e(old('email', auth()->user()?->email)); ?>" class="front-contact-input h-11 w-full text-sm" required>
+                            <p class="mt-2 text-xs font-semibold text-rose-600 <?php echo e($errors->has('email') ? '' : 'hidden'); ?>" data-field-error="email"><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__errorArgs = ['email'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?><?php echo e($message); ?><?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?></p>
                         </div>
 
                         <div class="mt-4">
-                            <label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-500" for="finance-subject">{{ $meetingFormLabels['subject'] ?? 'Naslov poruke' }}</label>
-                            <input id="finance-subject" type="text" name="subject" value="{{ old('subject') }}" class="front-contact-input h-11 w-full text-sm">
-                            <p class="mt-2 text-xs font-semibold text-rose-600 {{ $errors->has('subject') ? '' : 'hidden' }}" data-field-error="subject">@error('subject'){{ $message }}@enderror</p>
+                            <label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-500" for="finance-subject"><?php echo e($meetingFormLabels['subject'] ?? 'Naslov poruke'); ?></label>
+                            <input id="finance-subject" type="text" name="subject" value="<?php echo e(old('subject')); ?>" class="front-contact-input h-11 w-full text-sm">
+                            <p class="mt-2 text-xs font-semibold text-rose-600 <?php echo e($errors->has('subject') ? '' : 'hidden'); ?>" data-field-error="subject"><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__errorArgs = ['subject'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?><?php echo e($message); ?><?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?></p>
                         </div>
 
                         <div class="mt-4">
-                            <label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-500" for="finance-message">{{ $meetingFormLabels['message'] ?? 'Poruka' }}</label>
-                            <textarea id="finance-message" name="message" rows="8" class="front-contact-textarea w-full text-sm" required>{{ old('message') }}</textarea>
-                            <p class="mt-2 text-xs font-semibold text-rose-600 {{ $errors->has('message') ? '' : 'hidden' }}" data-field-error="message">@error('message'){{ $message }}@enderror</p>
+                            <label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-500" for="finance-message"><?php echo e($meetingFormLabels['message'] ?? 'Poruka'); ?></label>
+                            <textarea id="finance-message" name="message" rows="8" class="front-contact-textarea w-full text-sm" required><?php echo e(old('message')); ?></textarea>
+                            <p class="mt-2 text-xs font-semibold text-rose-600 <?php echo e($errors->has('message') ? '' : 'hidden'); ?>" data-field-error="message"><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__errorArgs = ['message'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?><?php echo e($message); ?><?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?></p>
                         </div>
 
                         <div class="front-contact-consent-wrap">
                             <label class="front-contact-consent">
-                                <input type="checkbox" name="accept_terms" value="1" class="front-contact-checkbox mt-0.5 h-4 w-4 border-slate-300 text-slate-900 focus:ring-0" @checked((bool) old('accept_terms'))>
-                                <span>{{ __('contact.form.accept_terms') }}</span>
+                                <input type="checkbox" name="accept_terms" value="1" class="front-contact-checkbox mt-0.5 h-4 w-4 border-slate-300 text-slate-900 focus:ring-0" <?php if((bool) old('accept_terms')): echo 'checked'; endif; ?>>
+                                <span><?php echo e(__('contact.form.accept_terms')); ?></span>
                             </label>
-                            <p class="mt-2 text-xs font-semibold text-rose-600 {{ $errors->has('accept_terms') ? '' : 'hidden' }}" data-field-error="accept_terms">@error('accept_terms'){{ $message }}@enderror</p>
+                            <p class="mt-2 text-xs font-semibold text-rose-600 <?php echo e($errors->has('accept_terms') ? '' : 'hidden'); ?>" data-field-error="accept_terms"><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__errorArgs = ['accept_terms'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?><?php echo e($message); ?><?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?></p>
                         </div>
 
                         <div class="front-contact-form-actions">
                             <button type="submit" class="front-contact-submit inline-flex h-11 items-center justify-center px-6 text-sm font-semibold text-white transition">
-                                {{ $meetingSection['submit'] ?? 'Pošalji' }}
+                                <?php echo e($meetingSection['submit'] ?? 'Pošalji'); ?>
+
                             </button>
-                            <p class="text-xs font-semibold text-rose-600 {{ $errors->has('recaptcha_token') ? '' : 'hidden' }}" data-field-error="recaptcha_token">@error('recaptcha_token'){{ $message }}@enderror</p>
+                            <p class="text-xs font-semibold text-rose-600 <?php echo e($errors->has('recaptcha_token') ? '' : 'hidden'); ?>" data-field-error="recaptcha_token"><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__errorArgs = ['recaptcha_token'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?><?php echo e($message); ?><?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?></p>
                         </div>
                     </form>
                 </div>
             </section>
         </div>
 
-        @if (($financePosts ?? collect())->isNotEmpty())
+        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(($financePosts ?? collect())->isNotEmpty()): ?>
             <section class="ac-support-story ac-home-blog ac-blog-related-section ac-family-blog-section" aria-labelledby="ac-finance-blog-title">
                 <div class="mx-auto w-full max-w-[1240px] px-6 lg:px-10">
                     <div class="ac-support-story-hero">
                         <div class="ac-support-story-shell">
                             <div class="ac-services-head ac-support-story-head">
                                 <h2 id="ac-finance-blog-title">
-                                    <span>{{ $blogSection['title'] ?? '' }}</span>
+                                    <span><?php echo e($blogSection['title'] ?? ''); ?></span>
                                 </h2>
-                                <p class="ac-services-intro">{{ $blogSection['intro'] ?? '' }}</p>
+                                <p class="ac-services-intro"><?php echo e($blogSection['intro'] ?? ''); ?></p>
                                 <div class="ac-services-divider" aria-hidden="true">
                                     <span class="ac-services-divider-line"></span>
                                     <span class="ac-services-divider-glyph"></span>
@@ -790,8 +853,8 @@
                         <div id="ac-finance-blog-splide" class="splide ac-home-blog-splide" data-finance-blog-splide>
                             <div class="splide__track">
                                 <ul class="splide__list">
-                                    @foreach ($financePosts as $post)
-                                        @php
+                                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $financePosts; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $post): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                        <?php
                                             $translation = $post->translations->firstWhere('locale', $locale)
                                                 ?? $post->translations->firstWhere('locale', $fallbackLocale);
                                             $postSlug = trim((string) ($translation?->slug ?? ''));
@@ -808,36 +871,37 @@
                                                 ?? $primaryCategory?->translations->firstWhere('locale', $fallbackLocale);
                                             $categoryLabel = trim((string) ($categoryTranslation?->name ?? 'Novosti'));
                                             $publishedLabel = ($post->published_at ?? $post->created_at)?->translatedFormat('j. F Y.');
-                                        @endphp
+                                        ?>
                                         <li class="splide__slide ac-home-blog-slide">
                                             <article class="ac-home-blog-card">
-                                                <a href="{{ $postUrl }}" class="ac-home-blog-card-link" aria-label="Otvori blog post: {{ $postTitle }}">
+                                                <a href="<?php echo e($postUrl); ?>" class="ac-home-blog-card-link" aria-label="Otvori blog post: <?php echo e($postTitle); ?>">
                                                     <div class="ac-home-blog-card-media">
-                                                        @if ($postImageUrl)
+                                                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($postImageUrl): ?>
                                                             <img
-                                                                src="{{ $postImageUrl }}"
-                                                                alt="{{ $postTitle }}"
+                                                                src="<?php echo e($postImageUrl); ?>"
+                                                                alt="<?php echo e($postTitle); ?>"
                                                                 class="ac-home-blog-card-image"
                                                                 loading="lazy"
                                                                 decoding="async"
                                                             >
-                                                        @else
+                                                        <?php else: ?>
                                                             <div class="ac-home-blog-card-placeholder">
-                                                                <span>{{ __('ui.blog.title') }}</span>
+                                                                <span><?php echo e(__('ui.blog.title')); ?></span>
                                                             </div>
-                                                        @endif
+                                                        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
                                                         <div class="ac-home-blog-card-overlay">
                                                             <span class="ac-home-blog-card-overlay-kicker">
-                                                                {{ \Illuminate\Support\Str::upper(\Illuminate\Support\Str::limit($categoryLabel, 22, '')) }}
+                                                                <?php echo e(\Illuminate\Support\Str::upper(\Illuminate\Support\Str::limit($categoryLabel, 22, ''))); ?>
+
                                                             </span>
                                                             <span class="ac-home-blog-card-overlay-line" aria-hidden="true"></span>
                                                         </div>
                                                     </div>
 
                                                     <div class="ac-home-blog-card-body">
-                                                        <h3 class="ac-home-blog-card-title">{{ $postTitle }}</h3>
-                                                        <p class="ac-home-blog-card-excerpt">{{ $postExcerpt }}</p>
+                                                        <h3 class="ac-home-blog-card-title"><?php echo e($postTitle); ?></h3>
+                                                        <p class="ac-home-blog-card-excerpt"><?php echo e($postExcerpt); ?></p>
                                                     </div>
 
                                                     <div class="ac-home-blog-card-meta">
@@ -848,31 +912,31 @@
                                                                 <path d="M6 4h6v6"></path>
                                                             </svg>
                                                         </span>
-                                                        @if ($publishedLabel)
-                                                            <span class="ac-home-blog-card-meta-date">{{ $publishedLabel }}</span>
-                                                        @endif
+                                                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($publishedLabel): ?>
+                                                            <span class="ac-home-blog-card-meta-date"><?php echo e($publishedLabel); ?></span>
+                                                        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                                                     </div>
                                                 </a>
                                             </article>
                                         </li>
-                                    @endforeach
+                                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                                 </ul>
                             </div>
                         </div>
                     </div>
                 </div>
             </section>
-        @endif
+        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
     </div>
-@endsection
+<?php $__env->stopSection(); ?>
 
-@once
-    @push('styles')
+<?php if (! $__env->hasRenderedOnce('3d794afa-dc4f-42b8-8599-729c491c9b2b')): $__env->markAsRenderedOnce('3d794afa-dc4f-42b8-8599-729c491c9b2b'); ?>
+    <?php $__env->startPush('styles'); ?>
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@splidejs/splide@4.1.4/dist/css/splide.min.css">
-    @endpush
-@endonce
+    <?php $__env->stopPush(); ?>
+<?php endif; ?>
 
-@push('styles')
+<?php $__env->startPush('styles'); ?>
     <style>
         .ac-finance-network-section {
             position: relative;
@@ -1627,23 +1691,23 @@
             }
         }
     </style>
-@endpush
+<?php $__env->stopPush(); ?>
 
-@include('front.desktop.contact.partials.form-script', [
+<?php echo $__env->make('front.desktop.contact.partials.form-script', [
     'captchaEnabled' => $captchaEnabled,
     'captchaSiteKey' => $captchaSiteKey,
-])
+], array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
 
-@once
-    @push('scripts')
+<?php if (! $__env->hasRenderedOnce('e288f062-7f7f-41b7-8e5f-1e76e1678849')): $__env->markAsRenderedOnce('e288f062-7f7f-41b7-8e5f-1e76e1678849'); ?>
+    <?php $__env->startPush('scripts'); ?>
         <script defer src="https://cdn.jsdelivr.net/npm/@splidejs/splide@4.1.4/dist/js/splide.min.js"></script>
-    @endpush
-@endonce
+    <?php $__env->stopPush(); ?>
+<?php endif; ?>
 
-@push('scripts')
+<?php $__env->startPush('scripts'); ?>
     <script>
         (function () {
-            const shouldFocusSection = {{ ($errors->any() || session('status')) ? 'true' : 'false' }};
+            const shouldFocusSection = <?php echo e(($errors->any() || session('status')) ? 'true' : 'false'); ?>;
             const section = document.getElementById('finance-sastanak');
 
             if (shouldFocusSection && section) {
@@ -1701,4 +1765,6 @@
             }, 120);
         }());
     </script>
-@endpush
+<?php $__env->stopPush(); ?>
+
+<?php echo $__env->make('front.desktop.layouts.store', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH /Users/tomek/Herd/info/resources/views/front/desktop/pages/finance.blade.php ENDPATH**/ ?>

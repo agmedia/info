@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Front;
 
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\Front\Concerns\ResolvesFrontendView;
+use App\Http\Controllers\Front\Concerns\ResolvesServiceVideos;
 use App\Models\Catalog\Category\Category;
 use App\Models\Content\Blog\BlogPost;
 use App\Models\Content\Service\ServicePage;
@@ -21,6 +22,7 @@ use Illuminate\View\View;
 class FamilyBusinessController extends Controller
 {
     use ResolvesFrontendView;
+    use ResolvesServiceVideos;
 
     public function show(Request $request): View
     {
@@ -37,6 +39,7 @@ class FamilyBusinessController extends Controller
             ServicePageTemplateRegistry::FAMILY_BUSINESS,
             $servicePageTranslation?->payload
         );
+        $serviceVideoPayload = $this->resolveServiceVideoPayload($pagePayload, $translationPayload);
 
         $familyBusinessCategory = $this->resolveConfiguredBlogCategory(
             (array) ($pagePayload['blog_source'] ?? []),
@@ -88,6 +91,8 @@ class FamilyBusinessController extends Controller
             'capabilitySections' => (array) ($translationPayload['capabilities'] ?? []),
             'capabilityCta' => (array) ($translationPayload['capability_cta'] ?? []),
             'teamSection' => (array) ($translationPayload['team_section'] ?? []),
+            'serviceVideoSection' => $serviceVideoPayload['section'],
+            'serviceVideos' => $serviceVideoPayload['items'],
             'meetingSection' => (array) ($translationPayload['meeting'] ?? []),
             'blogSection' => $blogSection,
             'brochureLabel' => trim((string) ($translationPayload['brochure_label'] ?? '')),

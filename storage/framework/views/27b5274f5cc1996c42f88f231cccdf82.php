@@ -1,6 +1,4 @@
-@extends('front.desktop.layouts.store')
-
-@php
+<?php
     $captchaSiteKey = trim((string) ($storeSettings['captcha']['recaptcha_v3_site_key'] ?? ''));
     $captchaEnabled = (bool) ($storeSettings['captcha']['recaptcha_v3_enabled'] ?? false) && $captchaSiteKey !== '';
     $contactEmail = trim((string) ($storeSettings['footer']['email_support'] ?? '')) ?: 'info@alphacapitalis.com';
@@ -48,35 +46,35 @@
             'is_quote' => ($aboutOrbitBlocks[3] ?? '') !== '',
         ],
     ], static fn (array $block): bool => $block['text'] !== ''));
-@endphp
+?>
 
-@section('title', $servicePageMetaTitle !== '' ? $servicePageMetaTitle : ($servicePageTitle ?? 'EU fondovi'))
-@section('main_class', 'w-full px-0 py-0')
+<?php $__env->startSection('title', $servicePageMetaTitle !== '' ? $servicePageMetaTitle : ($servicePageTitle ?? 'EU fondovi')); ?>
+<?php $__env->startSection('main_class', 'w-full px-0 py-0'); ?>
 
-@section('content')
+<?php $__env->startSection('content'); ?>
     <div class="ac-family-business-page ac-eu-page">
         <section class="ac-family-hero">
-            <div class="ac-family-hero-media" aria-hidden="true" style="background-image: url('{{ $heroBackgroundUrl }}');"></div>
+            <div class="ac-family-hero-media" aria-hidden="true" style="background-image: url('<?php echo e($heroBackgroundUrl); ?>');"></div>
             <div class="ac-family-hero-overlay"></div>
 
             <div class="mx-auto w-full max-w-[1240px] px-5 lg:px-8">
                 <div class="ac-family-hero-content">
                     <div class="ac-family-hero-shell">
                         <div class="ac-family-hero-copy">
-                            @include('front.desktop.partials.service-hero-icon-badge', ['iconUrl' => $heroBadgeIcon, 'accentColor' => $heroBadgeAccent])
+                            <?php echo $__env->make('front.desktop.partials.service-hero-icon-badge', ['iconUrl' => $heroBadgeIcon, 'accentColor' => $heroBadgeAccent], array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
                             <h1 class="ac-family-hero-title">
-                                <span class="is-brand">{{ $heroSection['brand_title'] ?? 'ALPHA CAPITALIS' }}</span>
+                                <span class="is-brand"><?php echo e($heroSection['brand_title'] ?? 'ALPHA CAPITALIS'); ?></span>
                                 <span class="is-subtitle">
-                                    <span class="is-subtitle-lead">{{ $heroSection['subtitle_lead'] ?? 'Savjetnici za' }}</span>
-                                    <span class="is-subtitle-accent">{{ $heroSection['subtitle_accent'] ?? 'EU fondove' }}</span>
+                                    <span class="is-subtitle-lead"><?php echo e($heroSection['subtitle_lead'] ?? 'Savjetnici za'); ?></span>
+                                    <span class="is-subtitle-accent"><?php echo e($heroSection['subtitle_accent'] ?? 'EU fondove'); ?></span>
                                 </span>
                             </h1>
 
-                            <p class="ac-family-hero-intro">{{ $heroSection['intro'] ?? '' }}</p>
+                            <p class="ac-family-hero-intro"><?php echo e($heroSection['intro'] ?? ''); ?></p>
 
                             <div class="ac-family-hero-actions">
-                                <a href="{{ $heroSection['cta_url'] ?? '#eu-funds-calls' }}" class="front-action-cta">
-                                    <span>{{ $heroSection['cta_label'] ?? 'Pregledajte natječaje' }}</span>
+                                <a href="<?php echo e($heroSection['cta_url'] ?? '#eu-funds-calls'); ?>" class="front-action-cta">
+                                    <span><?php echo e($heroSection['cta_label'] ?? 'Pregledajte natječaje'); ?></span>
                                     <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
                                         <path d="M12 5v14" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"></path>
                                         <path d="m6 13 6 6 6-6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></path>
@@ -96,11 +94,11 @@
                         <div class="ac-services-head ac-support-story-head ac-eu-intro-head">
                             <div class="ac-services-eyebrow">
                                 <span class="ac-services-eyebrow-line" aria-hidden="true"></span>
-                                <p class="ac-services-kicker">{{ $aboutSection['kicker'] ?? 'EU ODJEL' }}</p>
+                                <p class="ac-services-kicker"><?php echo e($aboutSection['kicker'] ?? 'EU ODJEL'); ?></p>
                                 <span class="ac-services-eyebrow-line" aria-hidden="true"></span>
                             </div>
                             <h2 id="ac-eu-about-title">
-                                <span>{{ $aboutSection['title'] ?? '' }}</span>
+                                <span><?php echo e($aboutSection['title'] ?? ''); ?></span>
                             </h2>
                             <div class="ac-services-divider" aria-hidden="true">
                                 <span class="ac-services-divider-line"></span>
@@ -113,27 +111,27 @@
 
                 <div class="ac-eu-intro-grid">
                     <div class="ac-eu-intro-stage">
-                        <div class="ac-eu-about-orbit" aria-label="{{ $locale === 'hr' ? 'Opis EU odjela' : 'EU department description' }}">
+                        <div class="ac-eu-about-orbit" aria-label="<?php echo e($locale === 'hr' ? 'Opis EU odjela' : 'EU department description'); ?>">
                             <div class="ac-eu-about-column">
-                                @foreach ($aboutLeftBlocks as $block)
+                                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $aboutLeftBlocks; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $block): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                                     <article class="ac-eu-about-block">
-                                        <p>{{ $block['text'] }}</p>
+                                        <p><?php echo e($block['text']); ?></p>
                                     </article>
-                                @endforeach
+                                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                             </div>
 
                             <div class="ac-eu-about-column">
-                                @foreach ($aboutRightBlocks as $block)
+                                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $aboutRightBlocks; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $block): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                                     <article class="ac-eu-about-block">
-                                        @if ($block['is_quote'])
+                                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($block['is_quote']): ?>
                                             <blockquote class="ac-eu-about-blockquote">
-                                                <p>{{ $block['text'] }}</p>
+                                                <p><?php echo e($block['text']); ?></p>
                                             </blockquote>
-                                        @else
-                                            <p>{{ $block['text'] }}</p>
-                                        @endif
+                                        <?php else: ?>
+                                            <p><?php echo e($block['text']); ?></p>
+                                        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                                     </article>
-                                @endforeach
+                                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                             </div>
                         </div>
                     </div>
@@ -147,11 +145,11 @@
                     <div class="ac-services-head ac-support-story-head ac-eu-editorial-head">
                         <div class="ac-services-eyebrow">
                             <span class="ac-services-eyebrow-line" aria-hidden="true"></span>
-                            <p class="ac-services-kicker">{{ $overviewSection['kicker'] ?? 'EU FONDOVI' }}</p>
+                            <p class="ac-services-kicker"><?php echo e($overviewSection['kicker'] ?? 'EU FONDOVI'); ?></p>
                             <span class="ac-services-eyebrow-line" aria-hidden="true"></span>
                         </div>
-                        <h2 id="ac-eu-overview-title">{{ $overviewSection['title'] ?? '' }}</h2>
-                        <p class="ac-services-intro">{{ $overviewSection['intro'] ?? '' }}</p>
+                        <h2 id="ac-eu-overview-title"><?php echo e($overviewSection['title'] ?? ''); ?></h2>
+                        <p class="ac-services-intro"><?php echo e($overviewSection['intro'] ?? ''); ?></p>
                         <div class="ac-services-divider" aria-hidden="true">
                             <span class="ac-services-divider-line"></span>
                             <span class="ac-services-divider-glyph"></span>
@@ -160,9 +158,9 @@
                     </div>
 
                     <div class="ac-eu-editorial-body">
-                        @foreach (($overviewSection['body'] ?? []) as $paragraph)
-                            <p>{{ $paragraph }}</p>
-                        @endforeach
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = ($overviewSection['body'] ?? []); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $paragraph): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                            <p><?php echo e($paragraph); ?></p>
+                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                     </div>
                 </div>
             </div>
@@ -172,50 +170,50 @@
             <div class="mx-auto w-full max-w-[1240px] px-5 lg:px-8">
                 <div class="ac-eu-metrics-grid">
                     <article class="ac-eu-panel ac-eu-panel--chart">
-                        <p class="ac-family-section-kicker">{{ $chartSection['kicker'] ?? 'OKVIR FINANCIRANJA' }}</p>
-                        <h2 id="ac-eu-metrics-title">{{ $chartSection['title'] ?? '' }}</h2>
-                        <p class="ac-eu-panel-intro">{{ $chartSection['intro'] ?? '' }}</p>
+                        <p class="ac-family-section-kicker"><?php echo e($chartSection['kicker'] ?? 'OKVIR FINANCIRANJA'); ?></p>
+                        <h2 id="ac-eu-metrics-title"><?php echo e($chartSection['title'] ?? ''); ?></h2>
+                        <p class="ac-eu-panel-intro"><?php echo e($chartSection['intro'] ?? ''); ?></p>
 
                         <div class="ac-eu-stat-stack">
-                            @foreach (($chartSection['stats'] ?? []) as $stat)
-                                @php
+                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = ($chartSection['stats'] ?? []); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $stat): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                <?php
                                     $share = max(8, min(100, (int) ($stat['share'] ?? 0)));
-                                @endphp
+                                ?>
                                 <div class="ac-eu-stat-row">
                                     <div class="ac-eu-stat-copy">
                                         <div class="ac-eu-stat-label-row">
-                                            <h3>{{ $stat['label'] ?? '' }}</h3>
-                                            <strong>{{ $stat['value'] ?? '' }}</strong>
+                                            <h3><?php echo e($stat['label'] ?? ''); ?></h3>
+                                            <strong><?php echo e($stat['value'] ?? ''); ?></strong>
                                         </div>
-                                        @if (!empty($stat['description'] ?? null))
-                                            <p>{{ $stat['description'] }}</p>
-                                        @endif
+                                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(!empty($stat['description'] ?? null)): ?>
+                                            <p><?php echo e($stat['description']); ?></p>
+                                        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                                     </div>
                                     <div class="ac-eu-stat-bar">
-                                        <span style="width: {{ $share }}%;"></span>
+                                        <span style="width: <?php echo e($share); ?>%;"></span>
                                     </div>
                                 </div>
-                            @endforeach
+                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                         </div>
 
-                        @if (trim((string) ($chartSection['footnote'] ?? '')) !== '')
-                            <p class="ac-eu-footnote">{{ $chartSection['footnote'] }}</p>
-                        @endif
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(trim((string) ($chartSection['footnote'] ?? '')) !== ''): ?>
+                            <p class="ac-eu-footnote"><?php echo e($chartSection['footnote']); ?></p>
+                        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                     </article>
 
                     <article class="ac-eu-panel ac-eu-panel--process">
-                        <p class="ac-family-section-kicker">{{ $processSection['kicker'] ?? 'KAKO RADIMO' }}</p>
-                        <h2>{{ $processSection['title'] ?? '' }}</h2>
-                        <p class="ac-eu-panel-intro">{{ $processSection['intro'] ?? '' }}</p>
+                        <p class="ac-family-section-kicker"><?php echo e($processSection['kicker'] ?? 'KAKO RADIMO'); ?></p>
+                        <h2><?php echo e($processSection['title'] ?? ''); ?></h2>
+                        <p class="ac-eu-panel-intro"><?php echo e($processSection['intro'] ?? ''); ?></p>
 
                         <div class="ac-eu-process-list">
-                            @foreach (($processSection['items'] ?? []) as $item)
+                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = ($processSection['items'] ?? []); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $item): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                                 <article class="ac-eu-process-card">
-                                    <span class="ac-eu-process-index">{{ str_pad((string) $loop->iteration, 2, '0', STR_PAD_LEFT) }}</span>
-                                    <h3>{{ $item['title'] ?? '' }}</h3>
-                                    <p>{{ $item['text'] ?? '' }}</p>
+                                    <span class="ac-eu-process-index"><?php echo e(str_pad((string) $loop->iteration, 2, '0', STR_PAD_LEFT)); ?></span>
+                                    <h3><?php echo e($item['title'] ?? ''); ?></h3>
+                                    <p><?php echo e($item['text'] ?? ''); ?></p>
                                 </article>
-                            @endforeach
+                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                         </div>
                     </article>
                 </div>
@@ -226,126 +224,126 @@
             <div class="mx-auto w-full max-w-[1240px] px-5 lg:px-8">
                 <div class="ac-eu-section-head">
                     <div>
-                        <p class="ac-family-section-kicker">{{ $callsSection['kicker'] ?? 'PREGLED NATJEČAJA' }}</p>
-                        <h2 id="ac-eu-calls-title">{{ $callsSection['title'] ?? '' }}</h2>
+                        <p class="ac-family-section-kicker"><?php echo e($callsSection['kicker'] ?? 'PREGLED NATJEČAJA'); ?></p>
+                        <h2 id="ac-eu-calls-title"><?php echo e($callsSection['title'] ?? ''); ?></h2>
                     </div>
 
-                    @if (!empty($callDownloadLink['url'] ?? ''))
+                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(!empty($callDownloadLink['url'] ?? '')): ?>
                         <a
-                            href="{{ $callDownloadLink['url'] }}"
+                            href="<?php echo e($callDownloadLink['url']); ?>"
                             class="ac-eu-download-button"
-                            @if($callDownloadLink['open_in_new_tab'] ?? false) target="_blank" rel="{{ $callDownloadLink['rel'] ?? 'noopener noreferrer' }}" @endif
+                            <?php if($callDownloadLink['open_in_new_tab'] ?? false): ?> target="_blank" rel="<?php echo e($callDownloadLink['rel'] ?? 'noopener noreferrer'); ?>" <?php endif; ?>
                         >
-                            <span>{{ $callDownloadLink['label'] ?: 'Preuzmite pregled natječaja' }}</span>
+                            <span><?php echo e($callDownloadLink['label'] ?: 'Preuzmite pregled natječaja'); ?></span>
                             <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
                                 <path d="M12 4v11" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"></path>
                                 <path d="m7 11 5 5 5-5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></path>
                                 <path d="M5 20h14" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"></path>
                             </svg>
                         </a>
-                    @endif
+                    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                 </div>
 
-                <p class="ac-eu-section-intro">{{ $callsSection['intro'] ?? '' }}</p>
+                <p class="ac-eu-section-intro"><?php echo e($callsSection['intro'] ?? ''); ?></p>
 
                 <div class="ac-eu-call-grid">
-                    @foreach (($callsSection['groups'] ?? []) as $group)
-                        @php
+                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = ($callsSection['groups'] ?? []); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $group): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                        <?php
                             $tone = trim((string) ($group['tone'] ?? 'pending'));
                             $groupItems = array_values((array) ($group['items'] ?? []));
                             $isCollapsibleClosedGroup = $tone === 'closed' && count($groupItems) > 6;
                             $visibleItems = $isCollapsibleClosedGroup ? array_slice($groupItems, 0, 6) : $groupItems;
                             $hiddenItems = $isCollapsibleClosedGroup ? array_slice($groupItems, 6) : [];
                             $collapseId = $isCollapsibleClosedGroup ? 'ac-eu-call-more-'.$loop->index : null;
-                        @endphp
-                        <article class="ac-eu-call-card is-{{ $tone }}">
+                        ?>
+                        <article class="ac-eu-call-card is-<?php echo e($tone); ?>">
                             <div class="ac-eu-call-card-head">
-                                <h3>{{ $group['title'] ?? '' }}</h3>
-                                <span>{{ count($groupItems) }}</span>
+                                <h3><?php echo e($group['title'] ?? ''); ?></h3>
+                                <span><?php echo e(count($groupItems)); ?></span>
                             </div>
 
                             <ul class="ac-eu-call-list">
-                                @foreach ($visibleItems as $item)
-                                    @php
+                                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $visibleItems; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $item): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                    <?php
                                         $resolvedLink = $item['resolved_link'] ?? ['url' => ''];
                                         $itemUrl = trim((string) ($resolvedLink['url'] ?? ''));
                                         $publishedLabel = trim((string) ($item['published_label'] ?? ''));
-                                    @endphp
-                                    <li class="{{ $itemUrl !== '' ? 'is-linked' : 'is-static' }}">
-                                        @if ($itemUrl !== '')
+                                    ?>
+                                    <li class="<?php echo e($itemUrl !== '' ? 'is-linked' : 'is-static'); ?>">
+                                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($itemUrl !== ''): ?>
                                             <a
-                                                href="{{ $itemUrl }}"
-                                                @if($resolvedLink['open_in_new_tab'] ?? false) target="_blank" rel="{{ $resolvedLink['rel'] ?? 'noopener noreferrer' }}" @endif
+                                                href="<?php echo e($itemUrl); ?>"
+                                                <?php if($resolvedLink['open_in_new_tab'] ?? false): ?> target="_blank" rel="<?php echo e($resolvedLink['rel'] ?? 'noopener noreferrer'); ?>" <?php endif; ?>
                                             >
-                                                <span class="ac-eu-call-item-title">{{ $item['title'] ?? '' }}</span>
+                                                <span class="ac-eu-call-item-title"><?php echo e($item['title'] ?? ''); ?></span>
                                                 <span class="ac-eu-call-item-meta">
-                                                    @if ($publishedLabel !== '')
-                                                        <span class="ac-eu-call-item-date">{{ $publishedLabel }}</span>
-                                                    @endif
+                                                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($publishedLabel !== ''): ?>
+                                                        <span class="ac-eu-call-item-date"><?php echo e($publishedLabel); ?></span>
+                                                    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                                                     <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                                                         <path d="M4 12L12 4"></path>
                                                         <path d="M6 4h6v6"></path>
                                                     </svg>
                                                 </span>
                                             </a>
-                                        @else
+                                        <?php else: ?>
                                             <div class="ac-eu-call-item-row">
-                                                <span class="ac-eu-call-item-title">{{ $item['title'] ?? '' }}</span>
-                                                @if ($publishedLabel !== '')
+                                                <span class="ac-eu-call-item-title"><?php echo e($item['title'] ?? ''); ?></span>
+                                                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($publishedLabel !== ''): ?>
                                                     <span class="ac-eu-call-item-meta">
-                                                        <span class="ac-eu-call-item-date">{{ $publishedLabel }}</span>
+                                                        <span class="ac-eu-call-item-date"><?php echo e($publishedLabel); ?></span>
                                                     </span>
-                                                @endif
+                                                <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                                             </div>
-                                        @endif
+                                        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                                     </li>
-                                @endforeach
+                                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                             </ul>
 
-                            @if ($isCollapsibleClosedGroup)
+                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($isCollapsibleClosedGroup): ?>
                                 <div
-                                    id="{{ $collapseId }}"
+                                    id="<?php echo e($collapseId); ?>"
                                     class="ac-eu-call-list-more"
                                     data-eu-call-more
                                     data-expanded="false"
                                     hidden
                                 >
                                     <ul class="ac-eu-call-list ac-eu-call-list--more">
-                                        @foreach ($hiddenItems as $item)
-                                            @php
+                                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $hiddenItems; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $item): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                            <?php
                                                 $resolvedLink = $item['resolved_link'] ?? ['url' => ''];
                                                 $itemUrl = trim((string) ($resolvedLink['url'] ?? ''));
                                                 $publishedLabel = trim((string) ($item['published_label'] ?? ''));
-                                            @endphp
-                                            <li class="{{ $itemUrl !== '' ? 'is-linked' : 'is-static' }}">
-                                                @if ($itemUrl !== '')
+                                            ?>
+                                            <li class="<?php echo e($itemUrl !== '' ? 'is-linked' : 'is-static'); ?>">
+                                                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($itemUrl !== ''): ?>
                                                     <a
-                                                        href="{{ $itemUrl }}"
-                                                        @if($resolvedLink['open_in_new_tab'] ?? false) target="_blank" rel="{{ $resolvedLink['rel'] ?? 'noopener noreferrer' }}" @endif
+                                                        href="<?php echo e($itemUrl); ?>"
+                                                        <?php if($resolvedLink['open_in_new_tab'] ?? false): ?> target="_blank" rel="<?php echo e($resolvedLink['rel'] ?? 'noopener noreferrer'); ?>" <?php endif; ?>
                                                     >
-                                                        <span class="ac-eu-call-item-title">{{ $item['title'] ?? '' }}</span>
+                                                        <span class="ac-eu-call-item-title"><?php echo e($item['title'] ?? ''); ?></span>
                                                         <span class="ac-eu-call-item-meta">
-                                                            @if ($publishedLabel !== '')
-                                                                <span class="ac-eu-call-item-date">{{ $publishedLabel }}</span>
-                                                            @endif
+                                                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($publishedLabel !== ''): ?>
+                                                                <span class="ac-eu-call-item-date"><?php echo e($publishedLabel); ?></span>
+                                                            <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                                                             <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                                                                 <path d="M4 12L12 4"></path>
                                                                 <path d="M6 4h6v6"></path>
                                                             </svg>
                                                         </span>
                                                     </a>
-                                                @else
+                                                <?php else: ?>
                                                     <div class="ac-eu-call-item-row">
-                                                        <span class="ac-eu-call-item-title">{{ $item['title'] ?? '' }}</span>
-                                                        @if ($publishedLabel !== '')
+                                                        <span class="ac-eu-call-item-title"><?php echo e($item['title'] ?? ''); ?></span>
+                                                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($publishedLabel !== ''): ?>
                                                             <span class="ac-eu-call-item-meta">
-                                                                <span class="ac-eu-call-item-date">{{ $publishedLabel }}</span>
+                                                                <span class="ac-eu-call-item-date"><?php echo e($publishedLabel); ?></span>
                                                             </span>
-                                                        @endif
+                                                        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                                                     </div>
-                                                @endif
+                                                <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                                             </li>
-                                        @endforeach
+                                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                                     </ul>
                                 </div>
 
@@ -353,20 +351,20 @@
                                     type="button"
                                     class="ac-eu-call-toggle"
                                     data-eu-call-toggle
-                                    data-target="{{ $collapseId }}"
-                                    data-label-more="{{ str_starts_with(strtolower($locale), 'hr') ? 'Pogledaj sve' : 'View all' }}"
-                                    data-label-less="{{ str_starts_with(strtolower($locale), 'hr') ? 'Prikaži manje' : 'Show less' }}"
+                                    data-target="<?php echo e($collapseId); ?>"
+                                    data-label-more="<?php echo e(str_starts_with(strtolower($locale), 'hr') ? 'Pogledaj sve' : 'View all'); ?>"
+                                    data-label-less="<?php echo e(str_starts_with(strtolower($locale), 'hr') ? 'Prikaži manje' : 'Show less'); ?>"
                                     aria-expanded="false"
-                                    aria-controls="{{ $collapseId }}"
+                                    aria-controls="<?php echo e($collapseId); ?>"
                                 >
-                                    <span>{{ str_starts_with(strtolower($locale), 'hr') ? 'Pogledaj sve' : 'View all' }}</span>
+                                    <span><?php echo e(str_starts_with(strtolower($locale), 'hr') ? 'Pogledaj sve' : 'View all'); ?></span>
                                     <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                                         <path d="M4 6L8 10L12 6"></path>
                                     </svg>
                                 </button>
-                            @endif
+                            <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                         </article>
-                    @endforeach
+                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                 </div>
             </div>
         </section>
@@ -376,74 +374,76 @@
                 <div class="ac-services-head ac-support-story-head ac-eu-centered-head">
                     <div class="ac-services-eyebrow">
                         <span class="ac-services-eyebrow-line" aria-hidden="true"></span>
-                        <p class="ac-services-kicker">{{ $resourcesSection['kicker'] ?? 'PROGRAMI PODRŠKE' }}</p>
+                        <p class="ac-services-kicker"><?php echo e($resourcesSection['kicker'] ?? 'PROGRAMI PODRŠKE'); ?></p>
                         <span class="ac-services-eyebrow-line" aria-hidden="true"></span>
                     </div>
-                    <h2 id="ac-eu-resources-title">{{ $resourcesSection['title'] ?? '' }}</h2>
-                    <p class="ac-services-intro">{{ $resourcesSection['intro'] ?? '' }}</p>
+                    <h2 id="ac-eu-resources-title"><?php echo e($resourcesSection['title'] ?? ''); ?></h2>
+                    <p class="ac-services-intro"><?php echo e($resourcesSection['intro'] ?? ''); ?></p>
                 </div>
 
                 <div class="ac-eu-resource-grid">
-                    @foreach (($resourcesSection['cards'] ?? []) as $card)
+                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = ($resourcesSection['cards'] ?? []); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $card): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                         <article class="ac-eu-resource-card">
-                            @if (!empty($card['eyebrow'] ?? null))
-                                <p class="ac-family-section-kicker">{{ $card['eyebrow'] }}</p>
-                            @endif
-                            <h3>{{ $card['title'] ?? '' }}</h3>
+                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(!empty($card['eyebrow'] ?? null)): ?>
+                                <p class="ac-family-section-kicker"><?php echo e($card['eyebrow']); ?></p>
+                            <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                            <h3><?php echo e($card['title'] ?? ''); ?></h3>
 
-                            @foreach (($card['body'] ?? []) as $paragraph)
-                                <p>{{ $paragraph }}</p>
-                            @endforeach
+                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = ($card['body'] ?? []); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $paragraph): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                <p><?php echo e($paragraph); ?></p>
+                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
-                            @foreach (($card['groups'] ?? []) as $group)
+                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = ($card['groups'] ?? []); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $group): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                                 <div class="ac-eu-resource-group">
-                                    <h4>{{ $group['label'] ?? '' }}</h4>
+                                    <h4><?php echo e($group['label'] ?? ''); ?></h4>
                                     <ul>
-                                        @foreach (($group['items'] ?? []) as $item)
-                                            @php
+                                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = ($group['items'] ?? []); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $item): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                            <?php
                                                 $resolvedLink = $item['resolved_link'] ?? ['url' => ''];
                                                 $itemUrl = trim((string) ($resolvedLink['url'] ?? ''));
-                                            @endphp
+                                            ?>
                                             <li>
-                                                @if ($itemUrl !== '')
+                                                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($itemUrl !== ''): ?>
                                                     <a
-                                                        href="{{ $itemUrl }}"
-                                                        @if($resolvedLink['open_in_new_tab'] ?? false) target="_blank" rel="{{ $resolvedLink['rel'] ?? 'noopener noreferrer' }}" @endif
-                                                    >{{ $item['title'] ?? '' }}</a>
-                                                @else
-                                                    <span>{{ $item['title'] ?? '' }}</span>
-                                                @endif
+                                                        href="<?php echo e($itemUrl); ?>"
+                                                        <?php if($resolvedLink['open_in_new_tab'] ?? false): ?> target="_blank" rel="<?php echo e($resolvedLink['rel'] ?? 'noopener noreferrer'); ?>" <?php endif; ?>
+                                                    ><?php echo e($item['title'] ?? ''); ?></a>
+                                                <?php else: ?>
+                                                    <span><?php echo e($item['title'] ?? ''); ?></span>
+                                                <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                                             </li>
-                                        @endforeach
+                                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                                     </ul>
                                 </div>
-                            @endforeach
+                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
-                            @if (!empty(($card['primary_link']['url'] ?? '')) || !empty(($card['secondary_link']['url'] ?? '')))
+                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(!empty(($card['primary_link']['url'] ?? '')) || !empty(($card['secondary_link']['url'] ?? ''))): ?>
                                 <div class="ac-eu-resource-actions">
-                                    @if (!empty($card['primary_link']['url'] ?? ''))
+                                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(!empty($card['primary_link']['url'] ?? '')): ?>
                                         <a
-                                            href="{{ $card['primary_link']['url'] }}"
+                                            href="<?php echo e($card['primary_link']['url']); ?>"
                                             class="ac-eu-inline-link"
-                                            @if($card['primary_link']['open_in_new_tab'] ?? false) target="_blank" rel="{{ $card['primary_link']['rel'] ?? 'noopener noreferrer' }}" @endif
+                                            <?php if($card['primary_link']['open_in_new_tab'] ?? false): ?> target="_blank" rel="<?php echo e($card['primary_link']['rel'] ?? 'noopener noreferrer'); ?>" <?php endif; ?>
                                         >
-                                            {{ $card['primary_link']['label'] ?: 'Saznaj vise' }}
-                                        </a>
-                                    @endif
+                                            <?php echo e($card['primary_link']['label'] ?: 'Saznaj vise'); ?>
 
-                                    @if (!empty($card['secondary_link']['url'] ?? ''))
-                                        <a
-                                            href="{{ $card['secondary_link']['url'] }}"
-                                            class="ac-eu-inline-link ac-eu-inline-link--secondary"
-                                            @if($card['secondary_link']['open_in_new_tab'] ?? false) target="_blank" rel="{{ $card['secondary_link']['rel'] ?? 'noopener noreferrer' }}" @endif
-                                        >
-                                            {{ $card['secondary_link']['label'] ?: 'Otvori dokument' }}
                                         </a>
-                                    @endif
+                                    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+
+                                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(!empty($card['secondary_link']['url'] ?? '')): ?>
+                                        <a
+                                            href="<?php echo e($card['secondary_link']['url']); ?>"
+                                            class="ac-eu-inline-link ac-eu-inline-link--secondary"
+                                            <?php if($card['secondary_link']['open_in_new_tab'] ?? false): ?> target="_blank" rel="<?php echo e($card['secondary_link']['rel'] ?? 'noopener noreferrer'); ?>" <?php endif; ?>
+                                        >
+                                            <?php echo e($card['secondary_link']['label'] ?: 'Otvori dokument'); ?>
+
+                                        </a>
+                                    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                                 </div>
-                            @endif
+                            <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                         </article>
-                    @endforeach
+                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                 </div>
             </div>
         </section>
@@ -453,76 +453,78 @@
                 <div class="ac-services-head ac-support-story-head ac-eu-centered-head">
                     <div class="ac-services-eyebrow">
                         <span class="ac-services-eyebrow-line" aria-hidden="true"></span>
-                        <p class="ac-services-kicker">{{ $lawsSection['kicker'] ?? 'ZAKONSKI OKVIR' }}</p>
+                        <p class="ac-services-kicker"><?php echo e($lawsSection['kicker'] ?? 'ZAKONSKI OKVIR'); ?></p>
                         <span class="ac-services-eyebrow-line" aria-hidden="true"></span>
                     </div>
-                    <h2 id="ac-eu-laws-title">{{ $lawsSection['title'] ?? '' }}</h2>
-                    <p class="ac-services-intro">{{ $lawsSection['intro'] ?? '' }}</p>
+                    <h2 id="ac-eu-laws-title"><?php echo e($lawsSection['title'] ?? ''); ?></h2>
+                    <p class="ac-services-intro"><?php echo e($lawsSection['intro'] ?? ''); ?></p>
                 </div>
 
                 <div class="ac-eu-law-grid">
-                    @foreach (($lawsSection['cards'] ?? []) as $card)
+                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = ($lawsSection['cards'] ?? []); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $card): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                         <article class="ac-eu-law-card">
-                            <h3>{{ $card['title'] ?? '' }}</h3>
-                            <p class="ac-eu-law-summary">{{ $card['summary'] ?? '' }}</p>
+                            <h3><?php echo e($card['title'] ?? ''); ?></h3>
+                            <p class="ac-eu-law-summary"><?php echo e($card['summary'] ?? ''); ?></p>
 
-                            @foreach (($card['lists'] ?? []) as $list)
+                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = ($card['lists'] ?? []); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $list): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                                 <div class="ac-eu-law-list-block">
-                                    <h4>{{ $list['label'] ?? '' }}</h4>
+                                    <h4><?php echo e($list['label'] ?? ''); ?></h4>
                                     <ul class="ac-eu-law-list">
-                                        @foreach (($list['items'] ?? []) as $item)
-                                            <li>{{ $item }}</li>
-                                        @endforeach
+                                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = ($list['items'] ?? []); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $item): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                            <li><?php echo e($item); ?></li>
+                                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                                     </ul>
                                 </div>
-                            @endforeach
+                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
-                            @if (trim((string) ($card['note'] ?? '')) !== '')
-                                <p class="ac-eu-law-note">{{ $card['note'] }}</p>
-                            @endif
+                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(trim((string) ($card['note'] ?? '')) !== ''): ?>
+                                <p class="ac-eu-law-note"><?php echo e($card['note']); ?></p>
+                            <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
-                            @if (!empty(($card['primary_link']['url'] ?? '')) || !empty(($card['secondary_link']['url'] ?? '')))
+                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(!empty(($card['primary_link']['url'] ?? '')) || !empty(($card['secondary_link']['url'] ?? ''))): ?>
                                 <div class="ac-eu-resource-actions">
-                                    @if (!empty($card['primary_link']['url'] ?? ''))
+                                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(!empty($card['primary_link']['url'] ?? '')): ?>
                                         <a
-                                            href="{{ $card['primary_link']['url'] }}"
+                                            href="<?php echo e($card['primary_link']['url']); ?>"
                                             class="ac-eu-inline-link"
-                                            @if($card['primary_link']['open_in_new_tab'] ?? false) target="_blank" rel="{{ $card['primary_link']['rel'] ?? 'noopener noreferrer' }}" @endif
+                                            <?php if($card['primary_link']['open_in_new_tab'] ?? false): ?> target="_blank" rel="<?php echo e($card['primary_link']['rel'] ?? 'noopener noreferrer'); ?>" <?php endif; ?>
                                         >
-                                            {{ $card['primary_link']['label'] ?: 'Vise informacija' }}
-                                        </a>
-                                    @endif
+                                            <?php echo e($card['primary_link']['label'] ?: 'Vise informacija'); ?>
 
-                                    @if (!empty($card['secondary_link']['url'] ?? ''))
-                                        <a
-                                            href="{{ $card['secondary_link']['url'] }}"
-                                            class="ac-eu-inline-link ac-eu-inline-link--secondary"
-                                            @if($card['secondary_link']['open_in_new_tab'] ?? false) target="_blank" rel="{{ $card['secondary_link']['rel'] ?? 'noopener noreferrer' }}" @endif
-                                        >
-                                            {{ $card['secondary_link']['label'] ?: 'Otvori dokument' }}
                                         </a>
-                                    @endif
+                                    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+
+                                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(!empty($card['secondary_link']['url'] ?? '')): ?>
+                                        <a
+                                            href="<?php echo e($card['secondary_link']['url']); ?>"
+                                            class="ac-eu-inline-link ac-eu-inline-link--secondary"
+                                            <?php if($card['secondary_link']['open_in_new_tab'] ?? false): ?> target="_blank" rel="<?php echo e($card['secondary_link']['rel'] ?? 'noopener noreferrer'); ?>" <?php endif; ?>
+                                        >
+                                            <?php echo e($card['secondary_link']['label'] ?: 'Otvori dokument'); ?>
+
+                                        </a>
+                                    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                                 </div>
-                            @endif
+                            <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                         </article>
-                    @endforeach
+                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                 </div>
             </div>
         </section>
 
-        @if (($euFundsTestimonials ?? collect())->isNotEmpty())
+        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(($euFundsTestimonials ?? collect())->isNotEmpty()): ?>
             <section class="ac-global-memberships ac-client-experiences ac-eu-testimonials" aria-labelledby="ac-eu-testimonials-title">
                 <div class="ac-global-memberships-shell mx-auto w-full max-w-[1240px] px-6 lg:px-10">
                     <div class="ac-services-head ac-support-story-head ac-global-memberships-head ac-client-experiences-head">
                         <div class="ac-services-eyebrow">
                             <span class="ac-services-eyebrow-line" aria-hidden="true"></span>
-                            <p class="ac-services-kicker">{{ $testimonialsSection['kicker'] ?? 'PREPORUKE KLIJENATA' }}</p>
+                            <p class="ac-services-kicker"><?php echo e($testimonialsSection['kicker'] ?? 'PREPORUKE KLIJENATA'); ?></p>
                             <span class="ac-services-eyebrow-line" aria-hidden="true"></span>
                         </div>
                         <h2 id="ac-eu-testimonials-title">
-                            <span>{{ $testimonialsSection['title'] ?? '' }}</span>
+                            <span><?php echo e($testimonialsSection['title'] ?? ''); ?></span>
                         </h2>
-                        <p class="ac-services-intro">{{ $testimonialsSection['intro'] ?? '' }}</p>
+                        <p class="ac-services-intro"><?php echo e($testimonialsSection['intro'] ?? ''); ?></p>
                         <div class="ac-services-divider" aria-hidden="true">
                             <span class="ac-services-divider-line"></span>
                             <span class="ac-services-divider-glyph"></span>
@@ -534,84 +536,84 @@
                         <div id="ac-eu-testimonials-splide" class="splide ac-client-experiences-splide" data-eu-funds-testimonials-splide>
                             <div class="splide__track">
                                 <ul class="splide__list ac-client-experiences-list">
-                                    @foreach ($euFundsTestimonials as $testimonial)
-                                        @php
+                                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $euFundsTestimonials; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $testimonial): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                        <?php
                                             $company = trim((string) ($testimonial->payload['company'] ?? ''));
                                             $rating = max(1, min(5, (int) ($testimonial->rating ?? 5)));
-                                        @endphp
+                                        ?>
                                         <li class="splide__slide ac-client-experiences-slide">
                                             <article class="ac-client-experience-card" data-eu-funds-testimonial-card>
                                                 <div class="ac-client-experience-card-inner">
                                                     <div class="ac-client-experience-quote-mark" aria-hidden="true">“</div>
                                                     <div class="ac-client-experience-content">
-                                                        <div class="ac-client-experience-rating" aria-label="{{ $rating }} / 5">
-                                                            @for ($i = 1; $i <= 5; $i++)
-                                                                <span class="{{ $i <= $rating ? 'is-active' : '' }}">★</span>
-                                                            @endfor
+                                                        <div class="ac-client-experience-rating" aria-label="<?php echo e($rating); ?> / 5">
+                                                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php for($i = 1; $i <= 5; $i++): ?>
+                                                                <span class="<?php echo e($i <= $rating ? 'is-active' : ''); ?>">★</span>
+                                                            <?php endfor; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                                                         </div>
-                                                        <p class="ac-client-experience-body" data-eu-funds-testimonial-body>{{ $testimonial->body }}</p>
+                                                        <p class="ac-client-experience-body" data-eu-funds-testimonial-body><?php echo e($testimonial->body); ?></p>
                                                         <button
                                                             type="button"
                                                             class="ac-client-experience-toggle"
                                                             data-eu-funds-testimonial-toggle
-                                                            data-more-label="{{ $testimonialReadMoreLabel }}"
-                                                            data-less-label="{{ $testimonialShowLessLabel }}"
+                                                            data-more-label="<?php echo e($testimonialReadMoreLabel); ?>"
+                                                            data-less-label="<?php echo e($testimonialShowLessLabel); ?>"
                                                             aria-expanded="false"
                                                             hidden
-                                                        >{{ $testimonialReadMoreLabel }}</button>
+                                                        ><?php echo e($testimonialReadMoreLabel); ?></button>
                                                     </div>
                                                     <div class="ac-client-experience-meta">
-                                                        <h3>{{ $testimonial->author_name ?: __('Anonymous') }}</h3>
-                                                        @if ($company !== '')
-                                                            <p>{{ $company }}</p>
-                                                        @endif
+                                                        <h3><?php echo e($testimonial->author_name ?: __('Anonymous')); ?></h3>
+                                                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($company !== ''): ?>
+                                                            <p><?php echo e($company); ?></p>
+                                                        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                                                     </div>
                                                 </div>
                                             </article>
                                         </li>
-                                    @endforeach
+                                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                                 </ul>
                             </div>
                         </div>
                     </div>
                 </div>
             </section>
-        @endif
+        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
-        @include('front.desktop.partials.service-videos', [
+        <?php echo $__env->make('front.desktop.partials.service-videos', [
             'serviceVideoSection' => $serviceVideoSection ?? [],
             'serviceVideos' => $serviceVideos ?? [],
             'locale' => $locale ?? app()->getLocale(),
-        ])
+        ], array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
 
         <div class="mx-auto w-full max-w-[1240px] px-5 lg:px-8">
             <section id="eu-funds-contact" class="ac-family-section ac-eu-contact-section pb-16 md:pb-24" aria-labelledby="ac-eu-contact-title">
                 <div class="ac-family-team-showcase-head">
-                    <p class="ac-family-section-kicker">{{ $meetingSection['kicker'] ?? 'KONTAKT' }}</p>
-                    <h2 id="ac-eu-contact-title">{{ $meetingSection['title'] ?? '' }}</h2>
-                    <p>{{ $meetingSection['intro'] ?? '' }}</p>
+                    <p class="ac-family-section-kicker"><?php echo e($meetingSection['kicker'] ?? 'KONTAKT'); ?></p>
+                    <h2 id="ac-eu-contact-title"><?php echo e($meetingSection['title'] ?? ''); ?></h2>
+                    <p><?php echo e($meetingSection['intro'] ?? ''); ?></p>
                 </div>
 
                 <div class="mt-10 grid gap-5 lg:grid-cols-[300px_minmax(0,1fr)] lg:items-start">
                     <aside class="front-contact-sidebar">
                         <div class="front-contact-panel front-contact-panel--direct">
-                            <h2>{{ $meetingSection['visit_title'] ?? 'Posjetite nas' }}</h2>
+                            <h2><?php echo e($meetingSection['visit_title'] ?? 'Posjetite nas'); ?></h2>
                             <div class="mt-4 space-y-1 text-[0.89rem] leading-6 text-slate-700">
-                                <p>{{ $meetingSection['visit_lines'][0] ?? '' }}</p>
-                                <p>{{ $meetingSection['visit_lines'][1] ?? '' }}</p>
+                                <p><?php echo e($meetingSection['visit_lines'][0] ?? ''); ?></p>
+                                <p><?php echo e($meetingSection['visit_lines'][1] ?? ''); ?></p>
                             </div>
                         </div>
 
                         <div class="front-contact-panel front-contact-panel--direct">
-                            <h2>{{ $meetingSection['contact_title'] ?? 'Kontaktirajte nas' }}</h2>
+                            <h2><?php echo e($meetingSection['contact_title'] ?? 'Kontaktirajte nas'); ?></h2>
                             <ul class="front-contact-direct-list">
                                 <li>
-                                    <span>{{ $meetingSection['direct_phone_label'] ?? 'Telefon' }}</span>
-                                    <a href="tel:{{ $contactPhoneHref }}">{{ $contactPhone }}</a>
+                                    <span><?php echo e($meetingSection['direct_phone_label'] ?? 'Telefon'); ?></span>
+                                    <a href="tel:<?php echo e($contactPhoneHref); ?>"><?php echo e($contactPhone); ?></a>
                                 </li>
                                 <li>
-                                    <span>{{ $meetingSection['direct_email_label'] ?? 'Email' }}</span>
-                                    <a href="mailto:{{ $contactEmail }}">{{ $contactEmail }}</a>
+                                    <span><?php echo e($meetingSection['direct_email_label'] ?? 'Email'); ?></span>
+                                    <a href="mailto:<?php echo e($contactEmail); ?>"><?php echo e($contactEmail); ?></a>
                                 </li>
                             </ul>
                         </div>
@@ -619,101 +621,166 @@
 
                     <form
                         method="POST"
-                        action="{{ route('contact.store') }}"
+                        action="<?php echo e(route('contact.store')); ?>"
                         class="front-contact-form"
                         novalidate
                         data-contact-form
-                        data-msg-name-required="{{ __('contact.validation.inline.name_required') }}"
-                        data-msg-email-required="{{ __('contact.validation.inline.email_required') }}"
-                        data-msg-email-invalid="{{ __('contact.validation.inline.email_invalid') }}"
-                        data-msg-message-required="{{ __('contact.validation.inline.message_required') }}"
-                        data-msg-message-min="{{ __('contact.validation.inline.message_min') }}"
-                        data-msg-accept-terms="{{ __('contact.validation.inline.accept_terms') }}"
-                        @if($captchaEnabled) data-recaptcha-form data-recaptcha-site-key="{{ $captchaSiteKey }}" data-recaptcha-action="contact_form" @endif
+                        data-msg-name-required="<?php echo e(__('contact.validation.inline.name_required')); ?>"
+                        data-msg-email-required="<?php echo e(__('contact.validation.inline.email_required')); ?>"
+                        data-msg-email-invalid="<?php echo e(__('contact.validation.inline.email_invalid')); ?>"
+                        data-msg-message-required="<?php echo e(__('contact.validation.inline.message_required')); ?>"
+                        data-msg-message-min="<?php echo e(__('contact.validation.inline.message_min')); ?>"
+                        data-msg-accept-terms="<?php echo e(__('contact.validation.inline.accept_terms')); ?>"
+                        <?php if($captchaEnabled): ?> data-recaptcha-form data-recaptcha-site-key="<?php echo e($captchaSiteKey); ?>" data-recaptcha-action="contact_form" <?php endif; ?>
                     >
-                        @csrf
+                        <?php echo csrf_field(); ?>
                         <input type="hidden" name="recaptcha_token" value="" data-recaptcha-token>
-                        <input type="hidden" name="redirect_to" value="{{ route('eu-funds.show') }}#eu-funds-contact">
+                        <input type="hidden" name="redirect_to" value="<?php echo e(route('eu-funds.show')); ?>#eu-funds-contact">
 
-                        @if (session('status'))
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(session('status')): ?>
                             <div class="front-contact-status" role="status">
-                                {{ session('status') }}
+                                <?php echo e(session('status')); ?>
+
                             </div>
-                        @endif
+                        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
                         <div class="grid gap-4 md:grid-cols-2">
                             <div>
-                                <label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-500" for="eu-first-name">{{ $meetingFormLabels['first_name'] ?? 'Ime' }}</label>
-                                <input id="eu-first-name" type="text" name="first_name" value="{{ old('first_name') }}" class="front-contact-input h-11 w-full text-sm" required>
-                                <p class="mt-2 text-xs font-semibold text-rose-600 {{ $errors->has('first_name') ? '' : 'hidden' }}" data-field-error="first_name">@error('first_name'){{ $message }}@enderror</p>
+                                <label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-500" for="eu-first-name"><?php echo e($meetingFormLabels['first_name'] ?? 'Ime'); ?></label>
+                                <input id="eu-first-name" type="text" name="first_name" value="<?php echo e(old('first_name')); ?>" class="front-contact-input h-11 w-full text-sm" required>
+                                <p class="mt-2 text-xs font-semibold text-rose-600 <?php echo e($errors->has('first_name') ? '' : 'hidden'); ?>" data-field-error="first_name"><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__errorArgs = ['first_name'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?><?php echo e($message); ?><?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?></p>
                             </div>
                             <div>
-                                <label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-500" for="eu-last-name">{{ $meetingFormLabels['last_name'] ?? 'Prezime' }}</label>
-                                <input id="eu-last-name" type="text" name="last_name" value="{{ old('last_name') }}" class="front-contact-input h-11 w-full text-sm">
-                                <p class="mt-2 text-xs font-semibold text-rose-600 {{ $errors->has('last_name') ? '' : 'hidden' }}" data-field-error="last_name">@error('last_name'){{ $message }}@enderror</p>
+                                <label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-500" for="eu-last-name"><?php echo e($meetingFormLabels['last_name'] ?? 'Prezime'); ?></label>
+                                <input id="eu-last-name" type="text" name="last_name" value="<?php echo e(old('last_name')); ?>" class="front-contact-input h-11 w-full text-sm">
+                                <p class="mt-2 text-xs font-semibold text-rose-600 <?php echo e($errors->has('last_name') ? '' : 'hidden'); ?>" data-field-error="last_name"><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__errorArgs = ['last_name'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?><?php echo e($message); ?><?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?></p>
                             </div>
                         </div>
 
                         <div class="mt-4 grid gap-4 md:grid-cols-2">
                             <div>
-                                <label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-500" for="eu-company">{{ $meetingFormLabels['company'] ?? 'Tvrtka' }}</label>
-                                <input id="eu-company" type="text" name="company" value="{{ old('company') }}" class="front-contact-input h-11 w-full text-sm">
-                                <p class="mt-2 text-xs font-semibold text-rose-600 {{ $errors->has('company') ? '' : 'hidden' }}" data-field-error="company">@error('company'){{ $message }}@enderror</p>
+                                <label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-500" for="eu-company"><?php echo e($meetingFormLabels['company'] ?? 'Tvrtka'); ?></label>
+                                <input id="eu-company" type="text" name="company" value="<?php echo e(old('company')); ?>" class="front-contact-input h-11 w-full text-sm">
+                                <p class="mt-2 text-xs font-semibold text-rose-600 <?php echo e($errors->has('company') ? '' : 'hidden'); ?>" data-field-error="company"><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__errorArgs = ['company'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?><?php echo e($message); ?><?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?></p>
                             </div>
                             <div>
-                                <label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-500" for="eu-phone">{{ $meetingFormLabels['phone'] ?? 'Broj telefona' }}</label>
-                                <input id="eu-phone" type="text" name="phone" value="{{ old('phone') }}" class="front-contact-input h-11 w-full text-sm">
-                                <p class="mt-2 text-xs font-semibold text-rose-600 {{ $errors->has('phone') ? '' : 'hidden' }}" data-field-error="phone">@error('phone'){{ $message }}@enderror</p>
+                                <label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-500" for="eu-phone"><?php echo e($meetingFormLabels['phone'] ?? 'Broj telefona'); ?></label>
+                                <input id="eu-phone" type="text" name="phone" value="<?php echo e(old('phone')); ?>" class="front-contact-input h-11 w-full text-sm">
+                                <p class="mt-2 text-xs font-semibold text-rose-600 <?php echo e($errors->has('phone') ? '' : 'hidden'); ?>" data-field-error="phone"><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__errorArgs = ['phone'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?><?php echo e($message); ?><?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?></p>
                             </div>
                         </div>
 
                         <div class="mt-4">
-                            <label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-500" for="eu-email">{{ $meetingFormLabels['email'] ?? 'Email' }}</label>
-                            <input id="eu-email" type="email" name="email" value="{{ old('email', auth()->user()?->email) }}" class="front-contact-input h-11 w-full text-sm" required>
-                            <p class="mt-2 text-xs font-semibold text-rose-600 {{ $errors->has('email') ? '' : 'hidden' }}" data-field-error="email">@error('email'){{ $message }}@enderror</p>
+                            <label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-500" for="eu-email"><?php echo e($meetingFormLabels['email'] ?? 'Email'); ?></label>
+                            <input id="eu-email" type="email" name="email" value="<?php echo e(old('email', auth()->user()?->email)); ?>" class="front-contact-input h-11 w-full text-sm" required>
+                            <p class="mt-2 text-xs font-semibold text-rose-600 <?php echo e($errors->has('email') ? '' : 'hidden'); ?>" data-field-error="email"><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__errorArgs = ['email'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?><?php echo e($message); ?><?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?></p>
                         </div>
 
                         <div class="mt-4">
-                            <label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-500" for="eu-subject">{{ $meetingFormLabels['subject'] ?? 'Naslov poruke' }}</label>
-                            <input id="eu-subject" type="text" name="subject" value="{{ old('subject') }}" class="front-contact-input h-11 w-full text-sm">
-                            <p class="mt-2 text-xs font-semibold text-rose-600 {{ $errors->has('subject') ? '' : 'hidden' }}" data-field-error="subject">@error('subject'){{ $message }}@enderror</p>
+                            <label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-500" for="eu-subject"><?php echo e($meetingFormLabels['subject'] ?? 'Naslov poruke'); ?></label>
+                            <input id="eu-subject" type="text" name="subject" value="<?php echo e(old('subject')); ?>" class="front-contact-input h-11 w-full text-sm">
+                            <p class="mt-2 text-xs font-semibold text-rose-600 <?php echo e($errors->has('subject') ? '' : 'hidden'); ?>" data-field-error="subject"><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__errorArgs = ['subject'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?><?php echo e($message); ?><?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?></p>
                         </div>
 
                         <div class="mt-4">
-                            <label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-500" for="eu-message">{{ $meetingFormLabels['message'] ?? 'Poruka' }}</label>
-                            <textarea id="eu-message" name="message" rows="8" class="front-contact-textarea w-full text-sm" required>{{ old('message') }}</textarea>
-                            <p class="mt-2 text-xs font-semibold text-rose-600 {{ $errors->has('message') ? '' : 'hidden' }}" data-field-error="message">@error('message'){{ $message }}@enderror</p>
+                            <label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-500" for="eu-message"><?php echo e($meetingFormLabels['message'] ?? 'Poruka'); ?></label>
+                            <textarea id="eu-message" name="message" rows="8" class="front-contact-textarea w-full text-sm" required><?php echo e(old('message')); ?></textarea>
+                            <p class="mt-2 text-xs font-semibold text-rose-600 <?php echo e($errors->has('message') ? '' : 'hidden'); ?>" data-field-error="message"><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__errorArgs = ['message'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?><?php echo e($message); ?><?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?></p>
                         </div>
 
                         <div class="front-contact-consent-wrap">
                             <label class="front-contact-consent">
-                                <input type="checkbox" name="accept_terms" value="1" class="front-contact-checkbox mt-0.5 h-4 w-4 border-slate-300 text-slate-900 focus:ring-0" @checked((bool) old('accept_terms'))>
-                                <span>{{ __('contact.form.accept_terms') }}</span>
+                                <input type="checkbox" name="accept_terms" value="1" class="front-contact-checkbox mt-0.5 h-4 w-4 border-slate-300 text-slate-900 focus:ring-0" <?php if((bool) old('accept_terms')): echo 'checked'; endif; ?>>
+                                <span><?php echo e(__('contact.form.accept_terms')); ?></span>
                             </label>
-                            <p class="mt-2 text-xs font-semibold text-rose-600 {{ $errors->has('accept_terms') ? '' : 'hidden' }}" data-field-error="accept_terms">@error('accept_terms'){{ $message }}@enderror</p>
+                            <p class="mt-2 text-xs font-semibold text-rose-600 <?php echo e($errors->has('accept_terms') ? '' : 'hidden'); ?>" data-field-error="accept_terms"><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__errorArgs = ['accept_terms'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?><?php echo e($message); ?><?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?></p>
                         </div>
 
                         <div class="front-contact-form-actions">
                             <button type="submit" class="front-contact-submit inline-flex h-11 items-center justify-center px-6 text-sm font-semibold text-white transition">
-                                {{ $meetingSection['submit'] ?? 'Pošalji' }}
+                                <?php echo e($meetingSection['submit'] ?? 'Pošalji'); ?>
+
                             </button>
-                            <p class="text-xs font-semibold text-rose-600 {{ $errors->has('recaptcha_token') ? '' : 'hidden' }}" data-field-error="recaptcha_token">@error('recaptcha_token'){{ $message }}@enderror</p>
+                            <p class="text-xs font-semibold text-rose-600 <?php echo e($errors->has('recaptcha_token') ? '' : 'hidden'); ?>" data-field-error="recaptcha_token"><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__errorArgs = ['recaptcha_token'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?><?php echo e($message); ?><?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?></p>
                         </div>
                     </form>
                 </div>
             </section>
         </div>
 
-        @if (($euFundsPosts ?? collect())->isNotEmpty())
+        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(($euFundsPosts ?? collect())->isNotEmpty()): ?>
             <section class="ac-support-story ac-home-blog ac-blog-related-section ac-family-blog-section" aria-labelledby="ac-eu-blog-title">
                 <div class="mx-auto w-full max-w-[1240px] px-6 lg:px-10">
                     <div class="ac-support-story-hero">
                         <div class="ac-support-story-shell">
                             <div class="ac-services-head ac-support-story-head">
                                 <h2 id="ac-eu-blog-title">
-                                    <span>{{ $blogSection['title'] ?? '' }}</span>
+                                    <span><?php echo e($blogSection['title'] ?? ''); ?></span>
                                 </h2>
-                                <p class="ac-services-intro">{{ $blogSection['intro'] ?? '' }}</p>
+                                <p class="ac-services-intro"><?php echo e($blogSection['intro'] ?? ''); ?></p>
                                 <div class="ac-services-divider" aria-hidden="true">
                                     <span class="ac-services-divider-line"></span>
                                     <span class="ac-services-divider-glyph"></span>
@@ -727,8 +794,8 @@
                         <div id="ac-eu-blog-splide" class="splide ac-home-blog-splide" data-eu-funds-blog-splide>
                             <div class="splide__track">
                                 <ul class="splide__list">
-                                    @foreach ($euFundsPosts as $post)
-                                        @php
+                                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $euFundsPosts; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $post): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                        <?php
                                             $translation = $post->translations->firstWhere('locale', $locale)
                                                 ?? $post->translations->firstWhere('locale', $fallbackLocale);
                                             $postSlug = trim((string) ($translation?->slug ?? ''));
@@ -745,36 +812,37 @@
                                                 ?? $primaryCategory?->translations->firstWhere('locale', $fallbackLocale);
                                             $categoryLabel = trim((string) ($categoryTranslation?->name ?? 'Novosti'));
                                             $publishedLabel = ($post->published_at ?? $post->created_at)?->translatedFormat('j. F Y.');
-                                        @endphp
+                                        ?>
                                         <li class="splide__slide ac-home-blog-slide">
                                             <article class="ac-home-blog-card">
-                                                <a href="{{ $postUrl }}" class="ac-home-blog-card-link" aria-label="Otvori blog post: {{ $postTitle }}">
+                                                <a href="<?php echo e($postUrl); ?>" class="ac-home-blog-card-link" aria-label="Otvori blog post: <?php echo e($postTitle); ?>">
                                                     <div class="ac-home-blog-card-media">
-                                                        @if ($postImageUrl)
+                                                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($postImageUrl): ?>
                                                             <img
-                                                                src="{{ $postImageUrl }}"
-                                                                alt="{{ $postTitle }}"
+                                                                src="<?php echo e($postImageUrl); ?>"
+                                                                alt="<?php echo e($postTitle); ?>"
                                                                 class="ac-home-blog-card-image"
                                                                 loading="lazy"
                                                                 decoding="async"
                                                             >
-                                                        @else
+                                                        <?php else: ?>
                                                             <div class="ac-home-blog-card-placeholder">
-                                                                <span>{{ __('ui.blog.title') }}</span>
+                                                                <span><?php echo e(__('ui.blog.title')); ?></span>
                                                             </div>
-                                                        @endif
+                                                        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
                                                         <div class="ac-home-blog-card-overlay">
                                                             <span class="ac-home-blog-card-overlay-kicker">
-                                                                {{ \Illuminate\Support\Str::upper(\Illuminate\Support\Str::limit($categoryLabel, 22, '')) }}
+                                                                <?php echo e(\Illuminate\Support\Str::upper(\Illuminate\Support\Str::limit($categoryLabel, 22, ''))); ?>
+
                                                             </span>
                                                             <span class="ac-home-blog-card-overlay-line" aria-hidden="true"></span>
                                                         </div>
                                                     </div>
 
                                                     <div class="ac-home-blog-card-body">
-                                                        <h3 class="ac-home-blog-card-title">{{ $postTitle }}</h3>
-                                                        <p class="ac-home-blog-card-excerpt">{{ $postExcerpt }}</p>
+                                                        <h3 class="ac-home-blog-card-title"><?php echo e($postTitle); ?></h3>
+                                                        <p class="ac-home-blog-card-excerpt"><?php echo e($postExcerpt); ?></p>
                                                     </div>
 
                                                     <div class="ac-home-blog-card-meta">
@@ -785,31 +853,31 @@
                                                                 <path d="M6 4h6v6"></path>
                                                             </svg>
                                                         </span>
-                                                        @if ($publishedLabel)
-                                                            <span class="ac-home-blog-card-meta-date">{{ $publishedLabel }}</span>
-                                                        @endif
+                                                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($publishedLabel): ?>
+                                                            <span class="ac-home-blog-card-meta-date"><?php echo e($publishedLabel); ?></span>
+                                                        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                                                     </div>
                                                 </a>
                                             </article>
                                         </li>
-                                    @endforeach
+                                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                                 </ul>
                             </div>
                         </div>
                     </div>
                 </div>
             </section>
-        @endif
+        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
     </div>
-@endsection
+<?php $__env->stopSection(); ?>
 
-@once
-    @push('styles')
+<?php if (! $__env->hasRenderedOnce('3e6f0431-b0b1-4bd5-930b-6b2723909b83')): $__env->markAsRenderedOnce('3e6f0431-b0b1-4bd5-930b-6b2723909b83'); ?>
+    <?php $__env->startPush('styles'); ?>
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@splidejs/splide@4.1.4/dist/css/splide.min.css">
-    @endpush
-@endonce
+    <?php $__env->stopPush(); ?>
+<?php endif; ?>
 
-@push('styles')
+<?php $__env->startPush('styles'); ?>
     <style>
         .ac-eu-page {
             background: linear-gradient(180deg, #faf7f1 0%, #f7f2e8 100%);
@@ -857,7 +925,7 @@
             left: var(--ac-eu-corner-stars-offset-x);
             width: var(--ac-eu-corner-stars-size);
             height: var(--ac-eu-corner-stars-size);
-            background: url('{{ asset('front-theme/images/services/Stars_of_the_European_Union_(bw).svg') }}') no-repeat center center / contain;
+            background: url('<?php echo e(asset('front-theme/images/services/Stars_of_the_European_Union_(bw).svg')); ?>') no-repeat center center / contain;
             opacity: 0.045;
             pointer-events: none;
             z-index: 0;
@@ -871,7 +939,7 @@
             right: var(--ac-eu-corner-stars-offset-x);
             width: var(--ac-eu-corner-stars-size);
             height: var(--ac-eu-corner-stars-size);
-            background: url('{{ asset('front-theme/images/services/Stars_of_the_European_Union_(bw).svg') }}') no-repeat center center / contain;
+            background: url('<?php echo e(asset('front-theme/images/services/Stars_of_the_European_Union_(bw).svg')); ?>') no-repeat center center / contain;
             opacity: 0.045;
             pointer-events: none;
             z-index: 0;
@@ -1703,20 +1771,20 @@
         }
 
     </style>
-@endpush
+<?php $__env->stopPush(); ?>
 
-@include('front.desktop.contact.partials.form-script', [
+<?php echo $__env->make('front.desktop.contact.partials.form-script', [
     'captchaEnabled' => $captchaEnabled,
     'captchaSiteKey' => $captchaSiteKey,
-])
+], array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
 
-@once
-    @push('scripts')
+<?php if (! $__env->hasRenderedOnce('65ffe80d-ff10-4728-9fe0-68d02f767a5d')): $__env->markAsRenderedOnce('65ffe80d-ff10-4728-9fe0-68d02f767a5d'); ?>
+    <?php $__env->startPush('scripts'); ?>
         <script defer src="https://cdn.jsdelivr.net/npm/@splidejs/splide@4.1.4/dist/js/splide.min.js"></script>
-    @endpush
-@endonce
+    <?php $__env->stopPush(); ?>
+<?php endif; ?>
 
-@push('scripts')
+<?php $__env->startPush('scripts'); ?>
     <script>
         (function () {
             const syncTestimonialToggles = function () {
@@ -1916,4 +1984,6 @@
             }
         })();
     </script>
-@endpush
+<?php $__env->stopPush(); ?>
+
+<?php echo $__env->make('front.desktop.layouts.store', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH /Users/tomek/Herd/info/resources/views/front/desktop/pages/eu-funds.blade.php ENDPATH**/ ?>

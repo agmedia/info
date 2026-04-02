@@ -65,6 +65,9 @@ class ServicePageTemplateRegistry
                     'post_ids' => [],
                     'limit' => 5,
                 ],
+                'video_source' => [
+                    'items' => [],
+                ],
             ],
             self::ACCOUNTING => [
                 'blog_source' => [
@@ -72,6 +75,22 @@ class ServicePageTemplateRegistry
                     'category_id' => null,
                     'post_ids' => [],
                     'limit' => 6,
+                ],
+                'video_source' => [
+                    'items' => [
+                        [
+                            'title' => 'Zašto ne raditi u obiteljskom biznisu?',
+                            'youtube_url' => 'https://www.youtube.com/watch?v=Ka__fXxmk6E&t=137s',
+                        ],
+                        [
+                            'title' => 'Prodaja obiteljskog biznisa',
+                            'youtube_url' => 'https://www.youtube.com/watch?v=GGb1Nnd2ChQ&t=115s',
+                        ],
+                        [
+                            'title' => 'ALPHA CAPITALIS: Modeli planiranja tranzicije obiteljskog biznisa',
+                            'youtube_url' => 'https://www.youtube.com/watch?v=iO2Jrt5mFpY&t=117s',
+                        ],
+                    ],
                 ],
             ],
             self::AUDIT => [
@@ -81,6 +100,9 @@ class ServicePageTemplateRegistry
                     'post_ids' => [],
                     'limit' => 6,
                 ],
+                'video_source' => [
+                    'items' => [],
+                ],
             ],
             self::TAX => [
                 'blog_source' => [
@@ -89,6 +111,9 @@ class ServicePageTemplateRegistry
                     'post_ids' => [],
                     'limit' => 6,
                 ],
+                'video_source' => [
+                    'items' => [],
+                ],
             ],
             self::EU_FUNDS => [
                 'blog_source' => [
@@ -96,6 +121,9 @@ class ServicePageTemplateRegistry
                     'category_id' => null,
                     'post_ids' => [],
                     'limit' => 5,
+                ],
+                'video_source' => [
+                    'items' => [],
                 ],
             ],
             self::FAMILY_BUSINESS => [
@@ -114,6 +142,9 @@ class ServicePageTemplateRegistry
                     'mode' => 'auto',
                     'member_ids' => [],
                 ],
+                'video_source' => [
+                    'items' => [],
+                ],
                 'brochure_url' => '',
             ],
             default => [],
@@ -125,7 +156,7 @@ class ServicePageTemplateRegistry
      */
     public static function defaultTranslationPayload(string $templateKey, ?string $locale = null): array
     {
-        return match ($templateKey) {
+        $defaults = match ($templateKey) {
             self::FINANCE => FinanceServicePageDefaults::defaultsForLocale(
                 $locale ?: (string) config('app.locale', 'en')
             ),
@@ -330,6 +361,17 @@ class ServicePageTemplateRegistry
             ],
             default => [],
         };
+
+        if (in_array($templateKey, array_keys(self::labels()), true)) {
+            $defaults = self::deepMerge([
+                'video_section' => [
+                    'title' => '',
+                    'intro' => '',
+                ],
+            ], $defaults);
+        }
+
+        return $defaults;
     }
 
     /**

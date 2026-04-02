@@ -6,6 +6,8 @@
     $contactEmail = trim((string) ($storeSettings['footer']['email_support'] ?? '')) ?: 'info@alphacapitalis.com';
     $contactPhone = trim((string) ($storeSettings['footer']['phone'] ?? '')) ?: '+385 (1) 580 6656';
     $contactPhoneHref = preg_replace('/\s+/', '', $contactPhone);
+    $heroBadgeIcon = asset('front-theme/images/services-icons/obiteljski-biznis.svg');
+    $heroBadgeAccent = '#8c6a47';
     $meetingFormLabels = $meetingSection['form_labels'] ?? [];
     $brochureLabel = $brochureLabel !== '' ? $brochureLabel : 'Preuzmite brošuru';
     $audienceIcons = [
@@ -41,6 +43,7 @@
                 <div class="ac-family-hero-content">
                     <div class="ac-family-hero-shell">
                         <div class="ac-family-hero-copy">
+                            @include('front.desktop.partials.service-hero-icon-badge', ['iconUrl' => $heroBadgeIcon, 'accentColor' => $heroBadgeAccent])
                             <h1 class="ac-family-hero-title">
                                 <span class="is-brand">{{ $heroSection['brand_title'] ?? 'ALPHA CAPITALIS' }}</span>
                                 <span class="is-subtitle">
@@ -387,7 +390,13 @@
                 </section>
             @endif
 
-                <section id="family-business-sastanak" class="ac-family-section pb-16 md:pb-24" aria-labelledby="ac-family-meeting-title">
+            @include('front.desktop.partials.service-videos', [
+                'serviceVideoSection' => $serviceVideoSection ?? [],
+                'serviceVideos' => $serviceVideos ?? [],
+                'locale' => $locale ?? app()->getLocale(),
+            ])
+
+            <section id="family-business-sastanak" class="ac-family-section pb-16 md:pb-24" aria-labelledby="ac-family-meeting-title">
                 <div class="ac-family-team-showcase-head">
                     <p class="ac-family-section-kicker">{{ $meetingSection['kicker'] ?? 'SASTANAK' }}</p>
                     <h2 id="ac-family-meeting-title">{{ $meetingSection['title'] }}</h2>
@@ -542,6 +551,12 @@
     </div>
 @endsection
 
+@once
+    @push('styles')
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@splidejs/splide@4.1.4/dist/css/splide.min.css">
+    @endpush
+@endonce
+
 @push('styles')
     <style>
         @media (min-width: 641px) {
@@ -670,6 +685,12 @@
     'captchaEnabled' => $captchaEnabled,
     'captchaSiteKey' => $captchaSiteKey,
 ])
+
+@once
+    @push('scripts')
+        <script defer src="https://cdn.jsdelivr.net/npm/@splidejs/splide@4.1.4/dist/js/splide.min.js"></script>
+    @endpush
+@endonce
 
 @push('scripts')
     <script>

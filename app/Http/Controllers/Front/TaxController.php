@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Front;
 
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\Front\Concerns\ResolvesFrontendView;
+use App\Http\Controllers\Front\Concerns\ResolvesServiceVideos;
 use App\Models\Catalog\Category\Category;
 use App\Models\Content\Blog\BlogPost;
 use App\Models\Content\Service\ServicePage;
@@ -19,6 +20,7 @@ use Illuminate\View\View;
 class TaxController extends Controller
 {
     use ResolvesFrontendView;
+    use ResolvesServiceVideos;
 
     public function show(Request $request): View
     {
@@ -35,6 +37,7 @@ class TaxController extends Controller
             $servicePageTranslation?->payload,
             (string) ($servicePageTranslation?->locale ?: $locale)
         );
+        $serviceVideoPayload = $this->resolveServiceVideoPayload($pagePayload, $translationPayload);
 
         $taxCategory = $this->resolveConfiguredBlogCategory(
             (array) ($pagePayload['blog_source'] ?? []),
@@ -71,6 +74,8 @@ class TaxController extends Controller
             'optimizationSection' => (array) ($translationPayload['optimization'] ?? []),
             'dueDiligenceSection' => (array) ($translationPayload['due_diligence'] ?? []),
             'transferPricingSection' => (array) ($translationPayload['transfer_pricing'] ?? []),
+            'serviceVideoSection' => $serviceVideoPayload['section'],
+            'serviceVideos' => $serviceVideoPayload['items'],
             'meetingSection' => (array) ($translationPayload['meeting'] ?? []),
             'blogSection' => $blogSection,
             'heroBackgroundUrl' => $this->resolveServiceHeroBackgroundUrl($servicePage),

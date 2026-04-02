@@ -10,7 +10,10 @@
     $isEuFundsTemplate = $currentTemplateKey === \App\Support\Content\ServicePageTemplateRegistry::EU_FUNDS;
     $accountingEditorSections = [
         'accounting-intro-admin' => __('Overview'),
+        'accounting-editorial-admin' => __('Editorial'),
+        'accounting-details-admin' => __('Sections 1-7'),
         'accounting-meeting-admin' => __('Meeting'),
+        'accounting-videos-admin' => __('Videos'),
         'accounting-blog-admin' => __('Blog'),
     ];
     $financeEditorSections = [
@@ -1601,7 +1604,7 @@
                         @endforeach
                     </div>
                     <p class="mt-4 text-sm text-slate-600">
-                        {{ __('Računovodstvo trenutno koristi minimalni landing template: hero, kontakt forma i blog sekcija. Dodatne sadržajne sekcije možemo nadograditi kroz novi template update.') }}
+                        {{ __('Računovodstvo sada koristi puni landing template s overview blokom, editorial sekcijom, 7 detaljnih service sekcija, video blokom, kontaktom i blogom. Ovdje uređujete sav tekstualni sadržaj tih blokova.') }}
                     </p>
                 </div>
 
@@ -1635,20 +1638,8 @@
                             </button>
                         </div>
 
-                        @foreach (($translationPayload['intro_section']['items'] ?? []) as $index => $item)
-                            <div class="mt-3">
-                                <div class="mb-1 flex items-center justify-between gap-3">
-                                    <label class="block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('List Item') }} #{{ $index + 1 }}</label>
-                                    <button type="button" wire:click="removeTranslationListItem('intro_section.items', {{ $index }})" class="text-xs font-semibold text-rose-600 hover:text-rose-700">{{ __('Remove') }}</button>
-                                </div>
-                                <input type="text" wire:model="form.translation_payload.intro_section.items.{{ $index }}" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
-                            </div>
-                        @endforeach
-
-                        <div class="mt-3">
-                            <button type="button" wire:click="addTranslationListItem('intro_section.items')" class="rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-100">
-                                {{ __('Add List Item') }}
-                            </button>
+                        <div class="mt-4 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-600">
+                            {{ __('Popis usluga u overview bloku automatski povlači naslove iz sekcija 1-7 niže u editoru.') }}
                         </div>
 
                         <div class="mt-4">
@@ -1659,6 +1650,172 @@
                         <div class="mt-3">
                             <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('YouTube URL') }}</label>
                             <input type="text" wire:model="form.translation_payload.intro_section.video_url" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+                        </div>
+                    </div>
+
+                    <div id="accounting-editorial-admin" class="admin-panel admin-form-panel p-6 scroll-mt-24 xl:col-span-2">
+                        <p class="admin-section-title">{{ __('Editorial Block') }}</p>
+
+                        <div class="mt-4 grid gap-3 md:grid-cols-2">
+                            <div>
+                                <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Eyebrow') }}</label>
+                                <input type="text" wire:model="form.translation_payload.editorial_section.eyebrow" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+                            </div>
+                            <div>
+                                <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Title') }}</label>
+                                <input type="text" wire:model="form.translation_payload.editorial_section.title" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+                            </div>
+                        </div>
+
+                        <div class="mt-3">
+                            <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Subtitle') }}</label>
+                            <textarea rows="3" wire:model="form.translation_payload.editorial_section.subtitle" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm"></textarea>
+                        </div>
+
+                        <div class="mt-6 grid gap-4 xl:grid-cols-2">
+                            @foreach (($translationPayload['editorial_section']['cards'] ?? []) as $cardIndex => $card)
+                                <div class="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                                    <p class="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Card') }} #{{ $cardIndex + 1 }}</p>
+
+                                    <div class="mt-3">
+                                        <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Title') }}</label>
+                                        <input type="text" wire:model="form.translation_payload.editorial_section.cards.{{ $cardIndex }}.title" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+                                    </div>
+
+                                    <div class="mt-3">
+                                        <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Body') }}</label>
+                                        <textarea rows="6" wire:model="form.translation_payload.editorial_section.cards.{{ $cardIndex }}.body" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm"></textarea>
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
+                    </div>
+
+                    <div id="accounting-details-admin" class="admin-panel admin-form-panel p-6 scroll-mt-24 xl:col-span-2">
+                        <p class="admin-section-title">{{ __('Service Sections 1-7') }}</p>
+                        <p class="mt-2 text-sm text-slate-500">{{ __('Naslovi ovih sekcija automatski pune gornji popis Usluge računovodstva na stranici.') }}</p>
+
+                        <div class="mt-6 space-y-5">
+                            @foreach (($translationPayload['detail_sections'] ?? []) as $sectionIndex => $section)
+                                <div class="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                                    <div class="flex flex-wrap items-center justify-between gap-3">
+                                        <p class="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Section') }} #{{ $sectionIndex + 1 }}</p>
+                                        <span class="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-500">{{ $section['slug'] ?? ('section-'.$sectionIndex) }}</span>
+                                    </div>
+
+                                    <div class="mt-4 grid gap-3 md:grid-cols-2">
+                                        <div>
+                                            <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Title') }}</label>
+                                            <input type="text" wire:model="form.translation_payload.detail_sections.{{ $sectionIndex }}.title" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+                                        </div>
+                                        <div>
+                                            <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('List Title') }}</label>
+                                            <input type="text" wire:model="form.translation_payload.detail_sections.{{ $sectionIndex }}.list_title" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+                                        </div>
+                                    </div>
+
+                                    <div class="mt-3">
+                                        <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Intro') }}</label>
+                                        <textarea rows="4" wire:model="form.translation_payload.detail_sections.{{ $sectionIndex }}.intro" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm"></textarea>
+                                    </div>
+
+                                    <div class="mt-5">
+                                        <p class="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('List Items') }}</p>
+                                        <div class="mt-3 space-y-3">
+                                            @foreach (($section['items'] ?? []) as $itemIndex => $item)
+                                                <div>
+                                                    <div class="mb-1 flex items-center justify-between gap-3">
+                                                        <label class="block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Item') }} #{{ $itemIndex + 1 }}</label>
+                                                        <button type="button" wire:click="removeTranslationListItem('detail_sections.{{ $sectionIndex }}.items', {{ $itemIndex }})" class="text-xs font-semibold text-rose-600 hover:text-rose-700">{{ __('Remove') }}</button>
+                                                    </div>
+                                                    <textarea rows="3" wire:model="form.translation_payload.detail_sections.{{ $sectionIndex }}.items.{{ $itemIndex }}" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm"></textarea>
+                                                </div>
+                                            @endforeach
+                                        </div>
+
+                                        <div class="mt-3">
+                                            <button type="button" wire:click="addTranslationListItem('detail_sections.{{ $sectionIndex }}.items')" class="rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-100">
+                                                {{ __('Add Item') }}
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <div class="mt-5">
+                                        <p class="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('After List Paragraphs') }}</p>
+                                        <div class="mt-3 space-y-3">
+                                            @foreach (($section['after_list'] ?? []) as $paragraphIndex => $paragraph)
+                                                <div>
+                                                    <div class="mb-1 flex items-center justify-between gap-3">
+                                                        <label class="block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Paragraph') }} #{{ $paragraphIndex + 1 }}</label>
+                                                        <button type="button" wire:click="removeTranslationListItem('detail_sections.{{ $sectionIndex }}.after_list', {{ $paragraphIndex }})" class="text-xs font-semibold text-rose-600 hover:text-rose-700">{{ __('Remove') }}</button>
+                                                    </div>
+                                                    <textarea rows="4" wire:model="form.translation_payload.detail_sections.{{ $sectionIndex }}.after_list.{{ $paragraphIndex }}" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm"></textarea>
+                                                </div>
+                                            @endforeach
+                                        </div>
+
+                                        <div class="mt-3">
+                                            <button type="button" wire:click="addTranslationListItem('detail_sections.{{ $sectionIndex }}.after_list')" class="rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-100">
+                                                {{ __('Add Paragraph') }}
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <div class="mt-5">
+                                        <p class="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Downloads') }}</p>
+                                        <div class="mt-3 space-y-3">
+                                            @foreach (($section['downloads'] ?? []) as $downloadIndex => $download)
+                                                <div class="rounded-xl border border-slate-200 bg-white p-3">
+                                                    <div class="grid gap-3 lg:grid-cols-[1fr_1.2fr_180px_auto] lg:items-end">
+                                                        <div>
+                                                            <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Title') }}</label>
+                                                            <input type="text" wire:model="form.translation_payload.detail_sections.{{ $sectionIndex }}.downloads.{{ $downloadIndex }}.title" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+                                                        </div>
+                                                        <div>
+                                                            <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('URL') }}</label>
+                                                            <input type="text" wire:model="form.translation_payload.detail_sections.{{ $sectionIndex }}.downloads.{{ $downloadIndex }}.url" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+                                                        </div>
+                                                        <div>
+                                                            <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Button Label') }}</label>
+                                                            <input type="text" wire:model="form.translation_payload.detail_sections.{{ $sectionIndex }}.downloads.{{ $downloadIndex }}.label" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+                                                        </div>
+                                                        <div class="flex justify-end">
+                                                            <button type="button" wire:click="removeTranslationListItem('detail_sections.{{ $sectionIndex }}.downloads', {{ $downloadIndex }})" class="rounded-lg border border-rose-200 px-3 py-2 text-xs font-semibold text-rose-700 hover:bg-rose-50">{{ __('Remove') }}</button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            @endforeach
+                                        </div>
+
+                                        <div class="mt-3">
+                                            <button type="button" wire:click="addTranslationListItem('detail_sections.{{ $sectionIndex }}.downloads', 'download_item')" class="rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-100">
+                                                {{ __('Add Download') }}
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <div class="mt-5">
+                                        <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Quote') }}</label>
+                                        <textarea rows="3" wire:model="form.translation_payload.detail_sections.{{ $sectionIndex }}.quote" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm"></textarea>
+                                    </div>
+
+                                    <div class="mt-4">
+                                        <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('CTA Text') }}</label>
+                                        <textarea rows="2" wire:model="form.translation_payload.detail_sections.{{ $sectionIndex }}.cta_text" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm"></textarea>
+                                    </div>
+
+                                    <div class="mt-3 grid gap-3 md:grid-cols-2">
+                                        <div>
+                                            <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('CTA Label') }}</label>
+                                            <input type="text" wire:model="form.translation_payload.detail_sections.{{ $sectionIndex }}.cta_label" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+                                        </div>
+                                        <div>
+                                            <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('CTA URL') }}</label>
+                                            <input type="text" wire:model="form.translation_payload.detail_sections.{{ $sectionIndex }}.cta_url" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+                                        </div>
+                                    </div>
+                                </div>
+                            @endforeach
                         </div>
                     </div>
 
@@ -1753,6 +1910,26 @@
                         <div class="mt-3">
                             <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Message Label') }}</label>
                             <input type="text" wire:model="form.translation_payload.meeting.form_labels.message" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+                        </div>
+                    </div>
+
+                    <div id="accounting-videos-admin" class="admin-panel admin-form-panel p-6 scroll-mt-24">
+                        <p class="admin-section-title">{{ __('Video Block') }}</p>
+
+                        <div class="mt-4">
+                            <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Title') }}</label>
+                            <input type="text" wire:model="form.translation_payload.video_section.title" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+                            @error('form.translation_payload.video_section.title') <p class="mt-1 text-xs text-rose-600">{{ $message }}</p> @enderror
+                        </div>
+
+                        <div class="mt-3">
+                            <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Intro') }}</label>
+                            <textarea rows="4" wire:model="form.translation_payload.video_section.intro" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm"></textarea>
+                            @error('form.translation_payload.video_section.intro') <p class="mt-1 text-xs text-rose-600">{{ $message }}</p> @enderror
+                        </div>
+
+                        <div class="mt-4 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-600">
+                            {{ __('Same video list and YouTube source links are managed under the Sources tab.') }}
                         </div>
                     </div>
 
@@ -2220,6 +2397,64 @@
                         @endif
                     </div>
                 @endif
+            </div>
+
+            <div class="grid gap-6 xl:grid-cols-2">
+                <div class="admin-panel admin-form-panel p-6">
+                    <div class="flex flex-wrap items-center justify-between gap-3">
+                        <p class="admin-section-title">{{ __('Video sadržaj') }}</p>
+                        <button type="button" wire:click="addVideoSource" class="rounded-xl bg-cyan-700 px-4 py-2 text-sm font-semibold text-white hover:bg-cyan-800">
+                            {{ __('Dodaj video') }}
+                        </button>
+                    </div>
+
+                    <p class="mt-2 text-sm text-slate-500">{{ __('Unesi naslov videa i YouTube link. Redoslijed ovdje je isti kao na stranici, a block se prikazuje prije kontakt forme ako postoji barem jedan video.') }}</p>
+
+                    <div class="mt-4 space-y-4">
+                        @forelse ((array) ($pagePayload['video_source']['items'] ?? []) as $index => $video)
+                            <div wire:key="service-video-row-{{ $index }}" class="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                                <div class="grid gap-3 md:grid-cols-[1fr_1.2fr_auto] md:items-start">
+                                    <div>
+                                        <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Naslov videa') }}</label>
+                                        <input type="text" wire:model="form.page_payload.video_source.items.{{ $index }}.title" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+                                        @error('form.page_payload.video_source.items.'.$index.'.title') <p class="mt-1 text-xs text-rose-600">{{ $message }}</p> @enderror
+                                    </div>
+
+                                    <div>
+                                        <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('YouTube URL') }}</label>
+                                        <input type="text" wire:model="form.page_payload.video_source.items.{{ $index }}.youtube_url" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" placeholder="https://www.youtube.com/watch?v=..." />
+                                        @error('form.page_payload.video_source.items.'.$index.'.youtube_url') <p class="mt-1 text-xs text-rose-600">{{ $message }}</p> @enderror
+                                    </div>
+
+                                    <div class="flex flex-wrap gap-2 md:justify-end">
+                                        <button type="button" wire:click="moveVideoSourceUp({{ $index }})" class="rounded-lg border border-slate-300 px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-100">{{ __('Up') }}</button>
+                                        <button type="button" wire:click="moveVideoSourceDown({{ $index }})" class="rounded-lg border border-slate-300 px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-100">{{ __('Down') }}</button>
+                                        <button type="button" wire:click="removeVideoSource({{ $index }})" class="rounded-lg border border-rose-200 px-3 py-2 text-xs font-semibold text-rose-700 hover:bg-rose-50">{{ __('Remove') }}</button>
+                                    </div>
+                                </div>
+                            </div>
+                        @empty
+                            <div class="rounded-xl border border-dashed border-slate-300 bg-slate-50 p-4 text-sm text-slate-500">{{ __('Nema unesenih videa.') }}</div>
+                        @endforelse
+                    </div>
+                </div>
+
+                <div class="admin-panel admin-form-panel p-6">
+                    <p class="admin-section-title">{{ __('Copy Sekcije Videa') }}</p>
+
+                    <div class="mt-4">
+                        <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Section Title') }}</label>
+                        <input type="text" wire:model="form.translation_payload.video_section.title" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+                        <p class="mt-1 text-xs text-slate-500">{{ __('Ako ostane prazno, frontend prikazuje samo videe bez naslova.') }}</p>
+                        @error('form.translation_payload.video_section.title') <p class="mt-1 text-xs text-rose-600">{{ $message }}</p> @enderror
+                    </div>
+
+                    <div class="mt-3">
+                        <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Section Intro') }}</label>
+                        <textarea rows="4" wire:model="form.translation_payload.video_section.intro" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm"></textarea>
+                        @error('form.translation_payload.video_section.intro') <p class="mt-1 text-xs text-rose-600">{{ $message }}</p> @enderror
+                    </div>
+                </div>
             </div>
 
             @if ($templateSupportsTeamSource || $templateSupportsBrochure)

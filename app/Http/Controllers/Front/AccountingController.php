@@ -10,6 +10,7 @@ use App\Models\Content\Blog\BlogPost;
 use App\Models\Content\Service\ServicePage;
 use App\Models\Content\Service\ServicePageTranslation;
 use App\Support\Content\ServicePageTemplateRegistry;
+use App\Support\Content\YouTubeUrl;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
@@ -17,7 +18,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
 
-class FinanceController extends Controller
+class AccountingController extends Controller
 {
     use ResolvesFrontendView;
     use ResolvesServiceVideos;
@@ -29,58 +30,53 @@ class FinanceController extends Controller
 
         [$servicePage, $servicePageTranslation] = $this->resolveServicePage($locale, $fallbackLocale);
         $pagePayload = ServicePageTemplateRegistry::mergePagePayload(
-            ServicePageTemplateRegistry::FINANCE,
+            ServicePageTemplateRegistry::ACCOUNTING,
             $servicePage?->payload
         );
-
         $translationPayload = ServicePageTemplateRegistry::mergeTranslationPayload(
-            ServicePageTemplateRegistry::FINANCE,
+            ServicePageTemplateRegistry::ACCOUNTING,
             $servicePageTranslation?->payload,
             (string) ($servicePageTranslation?->locale ?: $locale)
         );
         $serviceVideoPayload = $this->resolveServiceVideoPayload($pagePayload, $translationPayload);
-        $financeCategory = $this->resolveConfiguredBlogCategory(
+
+        $accountingCategory = $this->resolveConfiguredBlogCategory(
             (array) ($pagePayload['blog_source'] ?? []),
             $locale,
             $fallbackLocale
         );
-        $categoryTranslation = $financeCategory?->translations->firstWhere('locale', $locale)
-            ?? $financeCategory?->translations->firstWhere('locale', $fallbackLocale)
-            ?? $financeCategory?->translations->first();
-        $categorySlug = trim((string) ($categoryTranslation?->slug ?? ''));
-        $defaultCategoryName = str_starts_with(strtolower($locale), 'hr') ? 'Financije' : 'Finance';
+        $categoryTranslation = $accountingCategory?->translations->firstWhere('locale', $locale)
+            ?? $accountingCategory?->translations->firstWhere('locale', $fallbackLocale)
+            ?? $accountingCategory?->translations->first();
+        $defaultCategoryName = str_starts_with(strtolower($locale), 'hr') ? 'Računovodstvo' : 'Accounting';
         $categoryName = trim((string) ($categoryTranslation?->name ?? '')) ?: $defaultCategoryName;
-        $financePosts = $this->resolveFinancePosts(
+        $accountingPosts = $this->resolveAccountingPosts(
             (array) ($pagePayload['blog_source'] ?? []),
-            $financeCategory,
+            $accountingCategory,
             $locale,
             $fallbackLocale
         );
+
         $blogSection = (array) ($translationPayload['blog_section'] ?? []);
         $blogSection['title'] = str_replace(':category', $categoryName, (string) ($blogSection['title'] ?? ''));
+        $introSection = (array) ($translationPayload['intro_section'] ?? []);
+        $introVideo = $this->resolveIntroVideo((string) ($introSection['video_url'] ?? ''));
 
-        return view($this->frontendView($request, 'pages.finance'), [
-            'financePosts' => $financePosts,
-            'financeCategoryName' => $categoryName,
-            'financeArchiveUrl' => $categorySlug !== ''
-                ? url('/blog/'.$categorySlug)
-                : route('blog.index'),
+        return view($this->frontendView($request, 'pages.accounting'), [
+            'accountingPosts' => $accountingPosts,
+            'accountingCategoryName' => $categoryName,
             'heroSection' => (array) ($translationPayload['hero'] ?? []),
-            'pandeaSection' => (array) ($translationPayload['pandea'] ?? []),
-            'servicesIntroSection' => (array) ($translationPayload['services_intro'] ?? []),
-            'maSection' => (array) ($translationPayload['ma'] ?? []),
-            'dueDiligenceSection' => (array) ($translationPayload['due_diligence'] ?? []),
-            'valuationsSection' => (array) ($translationPayload['valuations'] ?? []),
-            'capitalRaisingSection' => (array) ($translationPayload['capital_raising'] ?? []),
-            'restructuringSection' => (array) ($translationPayload['restructuring'] ?? []),
-            'serviceVideoSection' => $serviceVideoPayload['section'],
-            'serviceVideos' => $serviceVideoPayload['items'],
+            'introSection' => $introSection,
+            'editorialSection' => (array) ($translationPayload['editorial_section'] ?? []),
+            'detailSections' => array_values((array) ($translationPayload['detail_sections'] ?? [])),
+            'videoSection' => $serviceVideoPayload['section'],
+            'accountingVideos' => $serviceVideoPayload['items'],
+            'bookkeepingSection' => (array) ($translationPayload['bookkeeping_section'] ?? []),
+            'introVideo' => $introVideo,
             'meetingSection' => (array) ($translationPayload['meeting'] ?? []),
             'blogSection' => $blogSection,
             'heroBackgroundUrl' => $this->resolveServiceHeroBackgroundUrl($servicePage),
-            'financeIllustrationUrl' => $this->versionedAsset('front-theme/images/services/finance-editorial-3d.svg'),
-            'pandeaLogoUrl' => $this->versionedAsset('front-theme/images/logos/pandea-logo-small.png'),
-            'servicePageTitle' => trim((string) ($servicePageTranslation?->title ?? '')) ?: 'Financije',
+            'servicePageTitle' => trim((string) ($servicePageTranslation?->title ?? '')) ?: $defaultCategoryName,
             'servicePageMetaTitle' => trim((string) ($servicePageTranslation?->meta_title ?? '')),
             'servicePageMetaDescription' => trim((string) ($servicePageTranslation?->meta_description ?? '')),
             'servicePageOgImage' => $this->resolveServiceHeroBackgroundUrl($servicePage),
@@ -99,7 +95,7 @@ class FinanceController extends Controller
         }
 
         $servicePage = ServicePage::query()
-            ->where('template_key', ServicePageTemplateRegistry::FINANCE)
+            ->where('template_key', ServicePageTemplateRegistry::ACCOUNTING)
             ->where('is_active', true)
             ->where(function (Builder $query): void {
                 $query->whereNull('published_at')
@@ -109,7 +105,7 @@ class FinanceController extends Controller
                 'translations' => fn ($query) => $query->whereIn('locale', [$locale, $fallbackLocale]),
                 'media',
             ])
-            ->orderByRaw('case when code = ? then 0 else 1 end', [ServicePageTemplateRegistry::defaultCode(ServicePageTemplateRegistry::FINANCE)])
+            ->orderByRaw('case when code = ? then 0 else 1 end', [ServicePageTemplateRegistry::defaultCode(ServicePageTemplateRegistry::ACCOUNTING)])
             ->orderBy('sort_order')
             ->orderBy('id')
             ->first();
@@ -146,20 +142,20 @@ class FinanceController extends Controller
             }
         }
 
-        return $this->resolveFinanceCategory($locale, $fallbackLocale);
+        return $this->resolveAccountingCategory($locale, $fallbackLocale);
     }
 
     /**
      * @return Collection<int, BlogPost>
      */
-    private function resolveFinancePosts(
+    private function resolveAccountingPosts(
         array $blogSource,
-        ?Category $financeCategory,
+        ?Category $accountingCategory,
         string $locale,
         string $fallbackLocale
     ): Collection {
         $mode = (string) ($blogSource['mode'] ?? 'auto_category');
-        $limit = max(1, min(12, (int) ($blogSource['limit'] ?? 5)));
+        $limit = max(1, min(12, (int) ($blogSource['limit'] ?? 6)));
 
         $baseQuery = BlogPost::query()
             ->where('is_active', true)
@@ -202,7 +198,7 @@ class FinanceController extends Controller
 
         $resolvedCategoryId = $mode === 'category'
             ? (int) ($blogSource['category_id'] ?? 0)
-            : (int) ($financeCategory?->id ?? 0);
+            : (int) ($accountingCategory?->id ?? 0);
 
         if ($resolvedCategoryId > 0) {
             $baseQuery->whereHas('categories', function (Builder $categoryQuery) use ($resolvedCategoryId): void {
@@ -217,9 +213,9 @@ class FinanceController extends Controller
             ->get();
     }
 
-    private function resolveFinanceCategory(string $locale, string $fallbackLocale): ?Category
+    private function resolveAccountingCategory(string $locale, string $fallbackLocale): ?Category
     {
-        return Category::query()
+        $match = Category::query()
             ->where('scope', Category::SCOPE_BLOG)
             ->where('is_active', true)
             ->with([
@@ -230,7 +226,7 @@ class FinanceController extends Controller
             ->get()
             ->map(fn (Category $category): array => [
                 'category' => $category,
-                'score' => $this->financeCategoryScore($category),
+                'score' => $this->accountingCategoryScore($category),
             ])
             ->sortBy(fn (array $item): string => sprintf(
                 '%03d-%05d-%05d',
@@ -238,24 +234,29 @@ class FinanceController extends Controller
                 (int) $item['category']->sort_order,
                 (int) $item['category']->id
             ))
-            ->pluck('category')
             ->first();
+
+        if (! is_array($match) || (int) ($match['score'] ?? 100) >= 100) {
+            return null;
+        }
+
+        return $match['category'];
     }
 
-    private function financeCategoryScore(Category $category): int
+    private function accountingCategoryScore(Category $category): int
     {
-        $slugCandidates = ['finance', 'financije'];
-        $nameCandidates = ['finance', 'financije'];
+        $slugCandidates = ['accounting', 'racunovodstvo', 'knjigovodstvo'];
+        $nameCandidates = ['accounting', 'racunovodstvo', 'knjigovodstvo'];
         $bestScore = 100;
-        $code = Str::of((string) $category->code)->lower()->squish()->value();
+        $code = Str::of((string) $category->code)->lower()->ascii()->squish()->value();
 
         if (in_array($code, $slugCandidates, true)) {
             return 0;
         }
 
         foreach ($category->translations as $translation) {
-            $slug = Str::of((string) $translation->slug)->lower()->squish()->value();
-            $name = Str::of((string) $translation->name)->lower()->squish()->value();
+            $slug = Str::of((string) $translation->slug)->lower()->ascii()->squish()->value();
+            $name = Str::of((string) $translation->name)->lower()->ascii()->squish()->value();
 
             if (in_array($slug, $slugCandidates, true)) {
                 return 0;
@@ -266,17 +267,69 @@ class FinanceController extends Controller
                 continue;
             }
 
-            if (str_contains($slug, 'financ') || str_contains($slug, 'finance')) {
+            if (
+                str_contains($slug, 'racun')
+                || str_contains($slug, 'account')
+                || str_contains($slug, 'knjig')
+            ) {
                 $bestScore = min($bestScore, 2);
                 continue;
             }
 
-            if (str_contains($name, 'financ') || str_contains($name, 'finance')) {
+            if (
+                str_contains($name, 'racun')
+                || str_contains($name, 'account')
+                || str_contains($name, 'knjig')
+            ) {
                 $bestScore = min($bestScore, 3);
             }
         }
 
         return $bestScore;
+    }
+
+    /**
+     * @return array{video_id:string,start_seconds:int,watch_url:string,embed_url:string,poster_url:string}|array{}
+     */
+    private function resolveIntroVideo(string $rawVideoUrl): array
+    {
+        $parsedVideo = YouTubeUrl::parse($rawVideoUrl);
+
+        if (! $parsedVideo) {
+            return [];
+        }
+
+        $separator = str_contains($parsedVideo['embed_url'], '?') ? '&' : '?';
+
+        return [
+            ...$parsedVideo,
+            'embed_url' => $parsedVideo['embed_url'].$separator.'rel=0&modestbranding=1&playsinline=1&enablejsapi=1',
+            'poster_url' => 'https://i.ytimg.com/vi/'.$parsedVideo['video_id'].'/hqdefault.jpg',
+        ];
+    }
+
+    /**
+     * @param  array<int, array<string, mixed>>  $videos
+     * @return array<int, array<string, mixed>>
+     */
+    private function resolveVideos(array $videos): array
+    {
+        return collect($videos)
+            ->map(function (array $video): ?array {
+                $resolvedVideo = $this->resolveIntroVideo((string) ($video['video_url'] ?? ''));
+
+                if ($resolvedVideo === []) {
+                    return null;
+                }
+
+                return [
+                    ...$resolvedVideo,
+                    'title' => trim((string) ($video['title'] ?? '')),
+                ];
+            })
+            ->filter()
+            ->values()
+            ->all();
     }
 
     private function resolveServiceHeroBackgroundUrl(?ServicePage $servicePage): string
@@ -289,7 +342,7 @@ class FinanceController extends Controller
             return $mediaUrl;
         }
 
-        return $this->versionedAsset('front-theme/images/services/finance-editorial-3d.svg');
+        return $this->versionedAsset('front-theme/images/services/accounting-editorial-3d.svg');
     }
 
     private function versionedAsset(string $relativePath): string

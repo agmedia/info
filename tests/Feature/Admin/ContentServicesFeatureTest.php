@@ -86,7 +86,7 @@ class ContentServicesFeatureTest extends TestCase
         $this->actingAs($user)
             ->get("/admin/content/services/{$page->id}/edit?locale=hr")
             ->assertOk()
-            ->assertSee('Edit Service Page')
+            ->assertSee('Uredi stranicu usluge')
             ->assertSee('Obiteljski biznis');
     }
 
@@ -102,8 +102,8 @@ class ContentServicesFeatureTest extends TestCase
 
         $this->assertSame(ServicePageTemplateRegistry::AUDIT, $component->get('form.template_key'));
         $this->assertStringContainsString('value="Revizija"', $component->html());
-        $this->assertStringContainsString('Audit Navigator', $component->html());
-        $this->assertStringContainsString('Overview Block', $component->html());
+        $this->assertStringContainsString('Navigacija revizije', $component->html());
+        $this->assertStringContainsString('Blok pregleda', $component->html());
     }
 
     public function test_tax_service_page_edit_screen_shows_locked_tax_template_and_editor(): void
@@ -118,8 +118,8 @@ class ContentServicesFeatureTest extends TestCase
 
         $this->assertSame(ServicePageTemplateRegistry::TAX, $component->get('form.template_key'));
         $this->assertStringContainsString('value="Porezi"', $component->html());
-        $this->assertStringContainsString('Tax Navigator', $component->html());
-        $this->assertStringContainsString('Compliance Block', $component->html());
+        $this->assertStringContainsString('Navigacija poreza', $component->html());
+        $this->assertStringContainsString('Blok usklađenosti', $component->html());
     }
 
     public function test_eu_funds_service_page_edit_screen_shows_locked_eu_funds_template_and_editor(): void
@@ -134,12 +134,12 @@ class ContentServicesFeatureTest extends TestCase
 
         $this->assertSame(ServicePageTemplateRegistry::EU_FUNDS, $component->get('form.template_key'));
         $this->assertStringContainsString('value="EU fondovi"', $component->html());
-        $this->assertStringContainsString('EU Funds Navigator', $component->html());
-        $this->assertStringContainsString('Resources Section', $component->html());
+        $this->assertStringContainsString('Navigacija EU fondova', $component->html());
+        $this->assertStringContainsString('Sekcija resursa', $component->html());
 
         $component->call('setTab', 'sources');
 
-        $this->assertStringContainsString('Auto (current EU funds category)', $component->html());
+        $this->assertStringContainsString('Auto (trenutna kategorija EU fondova)', $component->html());
     }
 
     public function test_admin_can_upload_pdf_asset_for_eu_funds_service_page(): void
