@@ -727,7 +727,7 @@
         </section>
     <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
-    <?php if (! $__env->hasRenderedOnce('68faae69-d2f1-4244-932e-1f8a7aa59bbf')): $__env->markAsRenderedOnce('68faae69-d2f1-4244-932e-1f8a7aa59bbf'); ?>
+    <?php if (! $__env->hasRenderedOnce('11706a73-6b9a-4f10-b932-0f39495844a6')): $__env->markAsRenderedOnce('11706a73-6b9a-4f10-b932-0f39495844a6'); ?>
         <script>
             (function () {
                 const syncTestimonialToggles = function () {

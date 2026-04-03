@@ -57,12 +57,12 @@
         <section class="ac-family-hero">
             <div class="ac-family-hero-media" aria-hidden="true" style="background-image: url('<?php echo e($heroBackgroundUrl); ?>');"></div>
             <div class="ac-family-hero-overlay"></div>
-            <?php echo $__env->make('front.desktop.partials.service-hero-icon-badge', ['iconUrl' => $heroBadgeIcon, 'accentColor' => $heroBadgeAccent], array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
 
             <div class="mx-auto w-full max-w-[1240px] px-5 lg:px-8">
                 <div class="ac-family-hero-content">
                     <div class="ac-family-hero-shell">
                         <div class="ac-family-hero-copy">
+                            <?php echo $__env->make('front.desktop.partials.service-hero-icon-badge', ['iconUrl' => $heroBadgeIcon, 'accentColor' => $heroBadgeAccent], array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
                             <h1 class="ac-family-hero-title">
                                 <span class="is-brand"><?php echo e($heroSection['brand_title'] ?? 'ALPHA CAPITALIS'); ?></span>
                                 <span class="is-subtitle">
@@ -651,7 +651,7 @@ unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendB
     </div>
 <?php $__env->stopSection(); ?>
 
-<?php if (! $__env->hasRenderedOnce('b737dac9-cd70-476d-80b8-af1539bbe2bc')): $__env->markAsRenderedOnce('b737dac9-cd70-476d-80b8-af1539bbe2bc'); ?>
+<?php if (! $__env->hasRenderedOnce('87c10620-158d-4f8f-af0c-1c08c06e69c6')): $__env->markAsRenderedOnce('87c10620-158d-4f8f-af0c-1c08c06e69c6'); ?>
     <?php $__env->startPush('styles'); ?>
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@splidejs/splide@4.1.4/dist/css/splide.min.css">
     <?php $__env->stopPush(); ?>
@@ -1160,7 +1160,7 @@ unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendB
     'captchaSiteKey' => $captchaSiteKey,
 ], array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
 
-<?php if (! $__env->hasRenderedOnce('6d30d8f5-54d9-4b70-98d5-44c71c825386')): $__env->markAsRenderedOnce('6d30d8f5-54d9-4b70-98d5-44c71c825386'); ?>
+<?php if (! $__env->hasRenderedOnce('b307b488-59e1-4dd6-8059-dd99e1318003')): $__env->markAsRenderedOnce('b307b488-59e1-4dd6-8059-dd99e1318003'); ?>
     <?php $__env->startPush('scripts'); ?>
         <script defer src="https://cdn.jsdelivr.net/npm/@splidejs/splide@4.1.4/dist/js/splide.min.js"></script>
     <?php $__env->stopPush(); ?>
