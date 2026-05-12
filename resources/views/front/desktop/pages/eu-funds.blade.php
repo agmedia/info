@@ -6,8 +6,6 @@
     $contactEmail = trim((string) ($storeSettings['footer']['email_support'] ?? '')) ?: 'info@alphacapitalis.com';
     $contactPhone = trim((string) ($storeSettings['footer']['phone'] ?? '')) ?: '+385 (1) 580 6656';
     $contactPhoneHref = preg_replace('/\s+/', '', $contactPhone);
-    $heroBadgeIcon = asset('front-theme/images/services-icons/eufondovi.svg');
-    $heroBadgeAccent = '#3f7c78';
     $meetingFormLabels = $meetingSection['form_labels'] ?? [];
     $testimonialReadMoreLabel = $locale === 'hr' ? 'Pročitaj više' : 'Read more';
     $testimonialShowLessLabel = $locale === 'hr' ? 'Prikaži manje' : 'Show less';
@@ -63,7 +61,6 @@
                 <div class="ac-family-hero-content">
                     <div class="ac-family-hero-shell">
                         <div class="ac-family-hero-copy">
-                            @include('front.desktop.partials.service-hero-icon-badge', ['iconUrl' => $heroBadgeIcon, 'accentColor' => $heroBadgeAccent])
                             <h1 class="ac-family-hero-title">
                                 <span class="is-brand">{{ $heroSection['brand_title'] ?? 'ALPHA CAPITALIS' }}</span>
                                 <span class="is-subtitle">

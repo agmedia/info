@@ -5,13 +5,6 @@
 
 @section('content')
     @php
-        $versionedAsset = static function (string $relativePath): string {
-            $absolutePath = public_path($relativePath);
-
-            return file_exists($absolutePath)
-                ? asset($relativePath).'?v='.filemtime($absolutePath)
-                : asset($relativePath);
-        };
         $fontAwesomeSolidSprite = asset('front-theme/fonts/sprites/solid.svg');
         $supportJourneyIconMap = [
             'family-tree' => [
@@ -52,205 +45,107 @@
             ],
         ];
 
-        // Static section payloads mirror the structure we can later hydrate from backend content blocks.
-        $serviceCards = [
-            [
-                'title' => 'Financije',
-                'tag' => 'Kapital',
-                'icon' => 'finance',
-                'icon_asset' => 'front-theme/images/services-icons/financije.svg',
-                'anchor' => 'odjel-financije',
-                'image' => 'front-theme/images/services/finance-editorial-3d.svg',
-                'text' => 'Kapital, poslovno savjetovanje, kontroling i podrška pri financijskim odlukama.',
-                'highlights' => ['Kapital', 'Savjetovanje', 'Kontroling'],
-                'featured' => true,
-                'url' => route('finance.show'),
-                'accent' => '#2f6f9f',
-                'layout_area' => 'finance',
-            ],
-            [
-                'title' => 'Računovodstvo',
-                'tag' => 'Preciznost',
-                'icon' => 'accounting',
-                'icon_asset' => 'front-theme/images/services-icons/racunovodstvo.svg',
-                'anchor' => 'odjel-racunovodstvo',
-                'image' => 'front-theme/images/services/accounting-editorial-3d.svg',
-                'text' => 'Pouzdano vođenje poslovnih knjiga i jasni izvještaji za svakodnevno upravljanje.',
-                'highlights' => ['Knjige', 'Izvještaji'],
-                'featured' => true,
-                'url' => route('accounting.show'),
-                'accent' => '#5f7f91',
-                'layout_area' => 'accounting',
-            ],
-            [
-                'title' => 'Revizija',
-                'tag' => 'Povjerenje',
-                'icon' => 'audit',
-                'icon_asset' => 'front-theme/images/services-icons/revizija.svg',
-                'anchor' => 'odjel-revizija',
-                'image' => 'front-theme/images/services/audit-editorial-3d.svg',
-                'text' => 'Neovisna stručna mišljenja i procjena poslovnih procesa, rizika i kontrola.',
-                'highlights' => ['Mišljenja', 'Procjene'],
-                'featured' => true,
-                'url' => route('audit.show'),
-                'accent' => '#214764',
-                'layout_area' => 'audit',
-            ],
-            [
-                'title' => 'Porezi',
-                'tag' => 'Usklađenost',
-                'icon' => 'tax',
-                'icon_asset' => 'front-theme/images/services-icons/porezi.svg',
-                'anchor' => 'odjel-porezi',
-                'image' => 'front-theme/images/services/tax-editorial-3d.svg',
-                'text' => 'Porezno planiranje, usklađenost i podrška u složenim poreznim pitanjima.',
-                'highlights' => ['Planiranje', 'Zastupanje'],
-                'featured' => true,
-                'url' => route('tax.show'),
-                'accent' => '#ab8d52',
-                'layout_area' => 'tax',
-            ],
-            [
-                'title' => 'EU fondovi',
-                'tag' => 'Natječaji',
-                'icon' => 'europe',
-                'icon_asset' => 'front-theme/images/services-icons/eufondovi.svg',
-                'anchor' => 'odjel-eu-fondovi',
-                'image' => 'front-theme/images/services/advisory-editorial-3d.svg',
-                'text' => 'Priprema projektnih prijedloga i usklađivanje ulaganja s aktualnim natječajima.',
-                'highlights' => ['Natječaji', 'Projekti'],
-                'featured' => true,
-                'url' => route('eu-funds.show'),
-                'accent' => '#3f7c78',
-                'layout_area' => 'eu',
-            ],
-            [
-                'title' => 'Obiteljski biznis',
-                'tag' => 'Nasljeđe',
-                'icon' => 'family',
-                'icon_asset' => 'front-theme/images/services-icons/obiteljski-biznis.svg',
-                'anchor' => 'odjel-obiteljski-biznisi',
-                'image' => 'front-theme/images/services/family-business-editorial-3d.svg',
-                'text' => 'Podrška vlasničkoj tranziciji, upravljanju i dugoročnoj stabilnosti obitelji i poslovanja.',
-                'highlights' => ['Tranzicija', 'Nasljeđivanje'],
-                'featured' => true,
-                'url' => route('family-business.show'),
-                'accent' => '#8c6a47',
-                'layout_area' => 'family',
-            ],
-        ];
-
-        $consultationCta = [
-            'eyebrow' => 'Besplatni inicijalni sastanak',
-            'title_lines' => [
-                'Izbjegnite nevolje na području',
-                'financija, računovodstva, revizije i poreza',
-            ],
-            'button' => ['label' => 'Ugovorite sastanak', 'url' => route('contact.create')],
-        ];
-
         $supportJourney = [
-            'eyebrow' => 'ALPHA CAPITALIS',
-            'title_lines' => ['Podrška klijentima u svim', 'fazama razvoja poslovanja'],
-            'text' => 'Pribavljamo kapital za razvoj poslovanja, pomažemo kod donošenja odluka oko financiranja i optimizacije bilance te postavljamo kontroling unutar organizacije.',
+            'eyebrow' => null,
+            'title_lines' => ['Stvaramo vrijednost za naše klijente u', 'svim fazama razvoja poslovanja'],
+            'text' => null,
             'cards' => [
                 [
-                    'title' => 'Obiteljski biznis',
-                    'icon' => 'family-tree',
-                    'lead' => 'Podržavamo obiteljske biznise u svim fazama poslovanja.',
-                    'list' => [
-                        'Tranzicija na mlađe generacije',
-                        'Upravljanje konfliktima i nasljeđivanjem',
-                        'Izlazna strategija',
-                        'Model korporativnog upravljanja',
-                    ],
-                ],
-                [
-                    'title' => 'Zatvaramo transakcije',
-                    'icon' => 'handshake',
-                    'lead' => 'Vodimo kupnju, prodaju, spajanja i dokapitalizacije.',
-                    'list' => [
-                        'Prijenos vlasništva na mlađe generacije, menadžment ili investitore',
-                        'Priprema dokumentacije za prodaju udjela ili dionica',
-                        'Strukturiran pristup potencijalnim investitorima',
-                    ],
-                ],
-                [
-                    'title' => 'BTP platforma',
-                    'icon' => 'network',
-                    'lead' => 'Povezujemo ulagatelje s target društvima i prodavatelje s investitorima.',
-                    'list' => [
-                        'Kupnja biznisa i dokapitalizacija',
-                        'Ulazak na tržište',
-                        'Kupnja imovine',
-                        'Projekti za ulaganje i društva na prodaju',
-                    ],
-                ],
-                [
-                    'title' => 'Pribavljano financiranje',
+                    'title' => 'Financijsko savjetovanje',
                     'icon' => 'bank',
-                    'lead' => 'Preuzimamo komunikaciju s investitorima i kreditnim institucijama.',
                     'list' => [
-                        'Poslovni plan',
-                        'Investicijska studija',
-                        'Kreditni zahtjev',
-                        'Prezentacija poslovnog modela',
+                        'Osiguravamo kapital za rast i razvoj poslovanja.',
+                        'Optimiziramo strukturu financiranja i bilancu.',
+                        'Pomažemo u donošenju strateških financijskih odluka.',
+                        'Upravljamo investicijama i mjerimo povrat na kapital.',
+                        'Preuzimamo ulogu financijskog partnera menadžmentu.',
+                        'Smanjujemo financijske rizike i povećavamo predvidljivost poslovanja.',
+                        'Pripremamo financije za ulazak investitora ili transakcije.',
+                    ],
+                ],
+                [
+                    'title' => 'Računovodstvo',
+                    'icon' => 'book-open',
+                    'list' => [
+                        'Osiguravamo točne i pouzdane financijske informacije za sigurno odlučivanje.',
+                        'Smanjujemo rizike i nesigurnost kroz usklađenost sa zakonima i standardima.',
+                        'Dajemo jasnoću u poslovne rezultate kroz pravovremeno i razumljivo izvještavanje.',
+                        'Podržavamo rast poslovanja kroz savjetodavnu ulogu, a ne samo vođenje knjiga.',
+                        'Oslobađamo vrijeme menadžmentu kako bi se fokusirao na razvoj, a ne administraciju.',
+                        'Olakšavamo pristup informacijama kroz ALPHA CLOUD i prilagodljive izvještaje.',
+                    ],
+                ],
+                [
+                    'title' => 'Revizija',
+                    'icon' => 'file-check',
+                    'list' => [
+                        'Povećavamo povjerenje u financijske izvještaje.',
+                        'Potvrđujemo usklađenost s računovodstvenim i revizorskim standardima.',
+                        'Smanjujemo rizike i neizvjesnosti za vlasnike i investitore.',
+                        'Pravovremeno otkrivamo nepravilnosti i slabosti u sustavima.',
+                        'Jačamo transparentnost i kredibilitet poslovanja.',
+                        'Štitimo interese vlasnika kroz objektivnu procjenu stanja.',
+                        'Pomažemo u unaprjeđenju internih kontrola i procesa.',
+                    ],
+                ],
+                [
+                    'title' => 'Porezi',
+                    'icon' => 'shield-percent',
+                    'list' => [
+                        'Pomažemo ostvariti porezne uštede kroz sve dostupne olakšice i poticaje.',
+                        'Osiguravamo sigurnost i usklađenost uz minimalne porezne rizike.',
+                        'Zastupamo pred poreznim tijelima dok fokus ostaje na poslovanju.',
+                        'Planiramo poreznu strategiju koja optimizira strukturu društva.',
+                        'Prevencijom uklanjamo porezne rizike prije nego nastanu.',
                     ],
                 ],
                 [
                     'title' => 'EU fondovi',
                     'icon' => 'europe',
-                    'lead' => 'Pratimo aktualne mogućnosti EU financiranja za mikro, mala i srednja poduzeća.',
                     'list' => [
-                        'Oblikovanje projektne ideje',
-                        'Priprema investicijskog plana',
-                        'Usklađivanje ulaganja s aktualnim natječajima',
+                        'Pribavljamo bespovratna sredstva.',
+                        'Pomažemo u identifikaciji relevantnih EU fondova i uspješnoj pripremi i prijavi projekata.',
+                        'Pripremamo dokumentaciju u skladu s kriterijima fondova, spremnu za odobrenje.',
+                        'Strukturiramo projekte prema pravilima fondova kako bi se povećale šanse financiranja.',
+                        'Pratimo realizaciju projekata i osiguravamo ispunjenje svih uvjeta i obveza.',
+                        'Maksimiziramo financijsku korist kroz potpore, povrat sredstava i poticaje.',
                     ],
                 ],
                 [
-                    'title' => 'Digitalno savjetovanje',
-                    'icon' => 'chart-grid',
-                    'lead' => 'Pomažemo tvrtkama da se prilagode promjenjivim tržišnim uvjetima.',
+                    'title' => 'Savjetovanje obiteljskih biznisa',
+                    'icon' => 'family-tree',
                     'list' => [
-                        'Optimizacija poslovanja',
-                        'Poboljšanje financijske stabilnosti',
-                        'Veća učinkovitost',
-                    ],
-                ],
-                [
-                    'title' => 'Izdajemo neovisna stručna izvješća/mišljenja',
-                    'icon' => 'file-check',
-                    'lead' => 'Izrađujemo neovisna mišljenja i stručne procjene za ključne odluke.',
-                    'list' => [
-                        'Revizorsko izvješće ili mišljenje',
-                        'Sumnja na korporativne prevare',
-                        'Procjena tržišne vrijednosti poslovnih udjela',
-                        'Provjera prije preuzimanja društva',
-                    ],
-                ],
-                [
-                    'title' => 'Porezno planiranje i porezno zastupanje',
-                    'icon' => 'shield-percent',
-                    'lead' => 'Savjetujemo i zastupamo klijente kod složenih poreznih pitanja.',
-                    'list' => [
-                        'Porezno planiranje',
-                        'Porezno zastupanje',
-                        'Mišljenje i procjena poreznih rizika',
-                        'Podrška pri preuzimanju društva',
-                    ],
-                ],
-                [
-                    'title' => 'Vodimo poslovne knjige',
-                    'icon' => 'book-open',
-                    'lead' => 'Otvaramo društva i vodimo poslovne knjige za domaće i strane klijente.',
-                    'list' => [
-                        'Zastupanje pred poreznom upravom i kreditnim institucijama',
-                        'Redoviti mjesečni i tjedni izvještaji',
-                        'ALPHA CLOUD pristup aplikaciji',
+                        'Usklađujemo interese obitelji, vlasništva i poslovanja kroz jasno definirane uloge i strukture.',
+                        'Pomažemo u prijenosu vlasništva na sljedeće generacije ili menadžment uz minimalne rizike.',
+                        'Savjetujemo u očuvanju vrijednosti i osiguravanju dugoročnog rasta poslovanja.',
+                        'Olakšavamo rješavanje sukoba i donošenje ključnih odluka u obiteljskom poslovanju.',
+                        'Pripremamo Društvo za tranzicije, dokapitalizacije ili prodajne transakcije.',
                     ],
                 ],
             ],
         ];
+
+        $homeServicesByTemplate = collect($serviceCards ?? [])->keyBy('template_key');
+        $homeServicesShowcaseCards = collect([
+            ['template_key' => 'accounting', 'title' => 'Računovodstvo'],
+            ['template_key' => 'audit', 'title' => 'Revizija'],
+            ['template_key' => 'finance', 'title' => 'Financije'],
+            ['template_key' => 'tax', 'title' => 'Porezi'],
+            ['template_key' => 'eu_funds', 'title' => 'EU fondovi'],
+            ['template_key' => 'family_business', 'title' => 'Obiteljski biznis'],
+        ])
+            ->map(function (array $item) use ($homeServicesByTemplate): array {
+                $card = (array) ($homeServicesByTemplate->get($item['template_key']) ?? []);
+
+                return [
+                    'title' => $item['title'],
+                    'url' => $card['url'] ?? route('services.index'),
+                    'image_url' => $card['image_url'] ?? asset('front-theme/images/services/finance-editorial-3d.svg'),
+                ];
+            })
+            ->all();
+
+        $homeServicesShowcaseText = 'ALPHA CAPITALIS čini tim stručnjaka iz područja financija, revizije, računovodstva, poreza, EU fondova i savjetovanja obiteljskog biznisa koji kroz zajedničko djelovanje nudi cjelokupno rješenje za obiteljske biznise, investitore i poduzetnike s ciljem pružanja podrške kroz sve faze razvoja poslovanja.';
 
         $globalMemberships = [
             [
@@ -320,135 +215,31 @@
         ];
     @endphp
 
-    <div class="mx-auto w-full max-w-[1240px] px-5 lg:px-8">
-        <section id="usluge" class="ac-services-modern">
-            <div class="ac-services-head ac-services-head--stacked">
-                <div class="ac-services-eyebrow">
-                    <span class="ac-services-eyebrow-line" aria-hidden="true"></span>
-                    <p class="ac-services-kicker">Usluge</p>
-                    <span class="ac-services-eyebrow-line" aria-hidden="true"></span>
-                </div>
-                <h2>
-                    <span>Ključne usluge za rast,</span>
-                    <span>stabilnost i jasne odluke</span>
-                </h2>
-                <p class="ac-services-intro">
-                    Od financija i računovodstva do revizije, poreza, EU fondova i obiteljskih tranzicija,
-                    ALPHA CAPITALIS objedinjuje ključna područja poslovne podrške na jednom mjestu.
-                </p>
-                <div class="ac-services-divider" aria-hidden="true">
-                    <span class="ac-services-divider-line"></span>
-                    <span class="ac-services-divider-glyph"></span>
-                    <span class="ac-services-divider-line"></span>
-                </div>
-            </div>
-
-            <div class="ac-services-grid ac-services-grid--orbit">
-                <div class="ac-services-orbit-lines" aria-hidden="true">
-                    <span class="ac-services-orbit-line ac-services-orbit-line--top-left"></span>
-                    <span class="ac-services-orbit-line ac-services-orbit-line--top-right"></span>
-                    <span class="ac-services-orbit-line ac-services-orbit-line--mid-left"></span>
-                    <span class="ac-services-orbit-line ac-services-orbit-line--mid-right"></span>
-                    <span class="ac-services-orbit-line ac-services-orbit-line--bottom-left"></span>
-                    <span class="ac-services-orbit-line ac-services-orbit-line--bottom-right"></span>
-                </div>
-                <div class="ac-services-center-card">
-                    <div class="ac-services-center-card-inner">
-                        <p class="ac-services-center-kicker">Usluge</p>
-                        <h3>
-                            <span>Ključne usluge za rast,</span>
-                            <span>stabilnost i jasne odluke</span>
-                        </h3>
-                        <p>
-                            Od financija i računovodstva do revizije, poreza, EU fondova i obiteljskih tranzicija,
-                            ALPHA CAPITALIS objedinjuje ključna područja poslovne podrške na jednom mjestu.
-                        </p>
-                    </div>
-                </div>
-                @foreach ($serviceCards as $card)
-                    <article
-                        id="{{ $card['anchor'] }}"
-                        class="ac-service-item {{ $card['featured'] ? 'is-featured' : '' }}"
-                        style="--ac-service-accent: {{ $card['accent'] ?? '#ab8d52' }};"
-                        data-service-area="{{ $card['layout_area'] ?? '' }}"
-                    >
-                        <a href="{{ $card['url'] ?? route('contact.create') }}" class="ac-service-card-link">
-                            <div class="ac-service-media">
-                                <img
-                                    src="{{ $versionedAsset($card['image']) }}"
-                                    alt=""
-                                    aria-hidden="true"
-                                    class="ac-service-media-art"
-                                    loading="lazy"
-                                    decoding="async"
-                                >
-                                <div class="ac-service-head-content">
-                                    <span class="ac-service-icon-wrap" aria-hidden="true">
-                                        <img
-                                            src="{{ $versionedAsset($card['icon_asset']) }}"
-                                            alt=""
-                                            aria-hidden="true"
-                                            class="ac-service-icon"
-                                            loading="lazy"
-                                            decoding="async"
-                                        >
-                                    </span>
-                                    <h3>{{ $card['title'] }}</h3>
-                                </div>
-                            </div>
-                        </a>
-                    </article>
-                @endforeach
-            </div>
-        </section>
-
-    </div>
-
-    <section class="ac-inline-cta" aria-labelledby="ac-inline-cta-title">
-        <div class="ac-inline-cta-card">
-            <div class="mx-auto grid w-full max-w-[1240px] gap-4 px-5 py-5 md:grid-cols-[minmax(0,1fr)_auto] md:items-center lg:px-8">
-                <div class="ac-inline-cta-copy">
-                    <h2 id="ac-inline-cta-title" class="ac-inline-cta-title">
-                        @foreach ($consultationCta['title_lines'] as $line)
-                            <span>{{ $line }}</span>
-                        @endforeach
-                    </h2>
-                </div>
-
-                <div class="ac-inline-cta-action">
-                    <a href="{{ $consultationCta['button']['url'] }}" class="front-action-cta">
-                        <span>{{ $consultationCta['button']['label'] }}</span>
-                        <svg class="h-3.5 w-3.5" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                            <path d="M4 12L12 4"></path>
-                            <path d="M6 4h6v6"></path>
-                        </svg>
-                    </a>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <div class="mx-auto w-full max-w-[1240px] px-5 lg:px-8">
-        <section id="poslovna-podrska" class="ac-support-story" aria-labelledby="ac-support-story-title">
+    <section id="poslovna-podrska" class="ac-support-story ac-support-story--dark" aria-labelledby="ac-support-story-title">
+        <div class="mx-auto w-full max-w-[1240px] px-5 lg:px-8">
             <div class="ac-support-story-hero">
                 <div class="ac-support-story-shell">
                     <div class="ac-services-head ac-support-story-head">
-                        <div class="ac-services-eyebrow">
-                            <span class="ac-services-eyebrow-line" aria-hidden="true"></span>
-                            <p class="ac-services-kicker">{{ $supportJourney['eyebrow'] }}</p>
-                            <span class="ac-services-eyebrow-line" aria-hidden="true"></span>
-                        </div>
+                        @if (!empty($supportJourney['eyebrow']))
+                            <div class="ac-services-eyebrow">
+                                <span class="ac-services-eyebrow-line" aria-hidden="true"></span>
+                                <p class="ac-services-kicker">{{ $supportJourney['eyebrow'] }}</p>
+                                <span class="ac-services-eyebrow-line" aria-hidden="true"></span>
+                            </div>
+                        @endif
                         <h2 id="ac-support-story-title">
                             @foreach ($supportJourney['title_lines'] as $line)
                                 <span>{{ $line }}</span>
                             @endforeach
                         </h2>
-                        <p class="ac-services-intro">{{ $supportJourney['text'] }}</p>
-                        <div class="ac-services-divider" aria-hidden="true">
-                            <span class="ac-services-divider-line"></span>
-                            <span class="ac-services-divider-glyph"></span>
-                            <span class="ac-services-divider-line"></span>
-                        </div>
+                        @if (!empty($supportJourney['text']))
+                            <p class="ac-services-intro">{{ $supportJourney['text'] }}</p>
+                            <div class="ac-services-divider" aria-hidden="true">
+                                <span class="ac-services-divider-line"></span>
+                                <span class="ac-services-divider-glyph"></span>
+                                <span class="ac-services-divider-line"></span>
+                            </div>
+                        @endif
                     </div>
                 </div>
             </div>
@@ -482,9 +273,36 @@
                     </article>
                 @endforeach
             </div>
-        </section>
-    </div>
+        </div>
+    </section>
 
+    <section class="ac-home-services-showcase" aria-labelledby="ac-home-services-showcase-title">
+        <div class="ac-home-services-showcase-inner mx-auto w-full max-w-[1240px] px-5 lg:px-8">
+            <div class="ac-home-services-showcase-copy">
+                <h2 id="ac-home-services-showcase-title" class="sr-only">Usluge Alpha Capitalisa</h2>
+                <p>{{ $homeServicesShowcaseText }}</p>
+            </div>
+
+            <div class="ac-home-services-showcase-grid">
+                @foreach ($homeServicesShowcaseCards as $card)
+                    <a href="{{ $card['url'] }}" class="ac-services-index-card ac-home-services-showcase-card">
+                        <img
+                            src="{{ $card['image_url'] }}"
+                            alt=""
+                            aria-hidden="true"
+                            loading="lazy"
+                            decoding="async"
+                        >
+                        <span class="ac-services-index-card-shade" aria-hidden="true"></span>
+                        <span class="ac-services-index-card-title">{{ $card['title'] }}</span>
+                    </a>
+                @endforeach
+            </div>
+        </div>
+    </section>
+
+    {{-- Disabled on index for now; flip to true if the client wants memberships back. --}}
+    @if (false)
     <section id="clanstva" class="ac-global-memberships" aria-labelledby="ac-global-memberships-title">
         <div class="ac-global-memberships-shell mx-auto w-full max-w-[1240px] px-6 lg:px-10">
             <div class="ac-services-head ac-support-story-head ac-global-memberships-head">
@@ -548,7 +366,10 @@
             </div>
         </div>
     </section>
+    @endif
 
+    {{-- Disabled on index for now; flip to true if the client wants latest posts back. --}}
+    @if (false)
     @if (($latestBlogPosts ?? collect())->isNotEmpty())
         <div class="mx-auto w-full max-w-[1240px] px-5 lg:px-8">
             <section id="novosti" class="ac-support-story ac-home-blog" aria-labelledby="ac-home-blog-title">
@@ -654,7 +475,10 @@
             </section>
         </div>
     @endif
+    @endif
 
+    {{-- Disabled on index for now; flip to true if the client wants testimonials back. --}}
+    @if (false)
     @if (($clientTestimonials ?? collect())->isNotEmpty())
         <section id="iskustva-klijenata" class="ac-global-memberships ac-client-experiences" aria-labelledby="ac-client-experiences-title">
             <div class="ac-global-memberships-shell mx-auto w-full max-w-[1240px] px-6 lg:px-10">
@@ -726,6 +550,7 @@
                 </div>
             </div>
         </section>
+    @endif
     @endif
 
     @once

@@ -337,7 +337,7 @@
                     <h1 class="front-hero-video-title text-white">ALPHA CAPITALIS</h1>
                     <p class="front-hero-video-subtitle mt-5 text-white/90">VAŠ KOMPAS KROZ GENERACIJE</p>
                     <div class="front-hero-cta-row mt-8 flex flex-wrap items-center justify-center gap-3">
-                        <a href="#usluge" class="front-hero-cta front-hero-cta-primary inline-flex items-center justify-center px-6 py-3 text-[11px] font-semibold uppercase tracking-[0.12em]">
+                        <a href="{{ route('services.index') }}" class="front-hero-cta front-hero-cta-primary inline-flex items-center justify-center px-6 py-3 text-[11px] font-semibold uppercase tracking-[0.12em]">
                             Naše usluge
                         </a>
                         <a href="{{ route('contact.create') }}" class="front-hero-cta front-hero-cta-secondary inline-flex items-center justify-center px-6 py-3 text-[11px] font-semibold uppercase tracking-[0.12em]">
@@ -419,6 +419,7 @@
             ['code' => 'ISO 14001:2015', 'title' => 'Sustav upravljanja okolišem', 'icon' => 'front-theme/images/certificates/iso-14001-sgs.png'],
             ['code' => 'ISO 45001:2018', 'title' => 'Sustav upravljanja zaštitom zdravlja i sigurnošću na radu', 'icon' => 'front-theme/images/certificates/iso-45001-sgs.png'],
         ])->take(1)->values();
+        $footerEuFundingLogo = 'assets/images/HR_Financira_Europska_unija_RGB_WHITE_Outline.png';
     @endphp
 
     <button type="button" class="front-footer-compass" data-scroll-top aria-label="Povratak na vrh">
@@ -555,21 +556,32 @@
             @endforeach
         </div>
 
-        <div class="front-footer-iso-grid {{ $footerIsoCertificates->count() === 1 ? 'is-single' : '' }}">
-            @foreach ($footerIsoCertificates as $certificate)
-                <div class="front-footer-iso-item">
-                    <span class="front-footer-iso-logo-wrap" aria-hidden="true">
-                        <img
-                            src="{{ asset((string) ($certificate['icon'] ?? '')) }}"
-                            alt="{{ $certificate['code'] }} certifikat"
-                            class="front-footer-iso-logo"
-                            loading="lazy"
-                            decoding="async"
-                        >
-                    </span>
-                    <p><strong>{{ $certificate['code'] }}</strong> - {{ $certificate['title'] }}</p>
-                </div>
-            @endforeach
+        <div class="front-footer-certification-row">
+            <div class="front-footer-iso-grid {{ $footerIsoCertificates->count() === 1 ? 'is-single' : '' }}">
+                @foreach ($footerIsoCertificates as $certificate)
+                    <div class="front-footer-iso-item">
+                        <span class="front-footer-iso-logo-wrap" aria-hidden="true">
+                            <img
+                                src="{{ asset((string) ($certificate['icon'] ?? '')) }}"
+                                alt="{{ $certificate['code'] }} certifikat"
+                                class="front-footer-iso-logo"
+                                loading="lazy"
+                                decoding="async"
+                            >
+                        </span>
+                        <p><strong>{{ $certificate['code'] }}</strong> - {{ $certificate['title'] }}</p>
+                    </div>
+                @endforeach
+            </div>
+            <div class="front-footer-eu-funding">
+                <img
+                    src="{{ asset($footerEuFundingLogo) }}"
+                    alt="Financira Europska unija"
+                    class="front-footer-eu-funding-logo"
+                    loading="lazy"
+                    decoding="async"
+                >
+            </div>
         </div>
 
         <div class="front-footer-legal">

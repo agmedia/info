@@ -693,24 +693,29 @@ class StorefrontFrontFeatureTest extends TestCase
         $response = $this->get('/');
 
         $response->assertOk()
-            ->assertSee('EU fondovi');
+            ->assertSee('ALPHA CAPITALIS čini tim stručnjaka')
+            ->assertSee('Stvaramo vrijednost za naše klijente u')
+            ->assertSee('EU fondovi')
+            ->assertDontSee('Globalna partnerstva i stručna članstva')
+            ->assertDontSee('Zadnje objave i novosti')
+            ->assertDontSee('Iskustva naših klijenata');
 
         $content = $response->getContent();
         $this->assertIsString($content);
 
-        $anchors = [
-            'odjel-financije',
-            'odjel-racunovodstvo',
-            'odjel-revizija',
-            'odjel-porezi',
-            'odjel-eu-fondovi',
-            'odjel-obiteljski-biznisi',
+        $serviceTitles = [
+            'Računovodstvo',
+            'Revizija',
+            'Financije',
+            'Porezi',
+            'EU fondovi',
+            'Obiteljski biznis',
         ];
 
         $positions = [];
-        foreach ($anchors as $anchor) {
-            $position = strpos($content, 'id="'.$anchor.'"');
-            $this->assertNotFalse($position, 'Missing services anchor: '.$anchor);
+        foreach ($serviceTitles as $title) {
+            $position = strpos($content, '<span class="ac-services-index-card-title">'.$title.'</span>');
+            $this->assertNotFalse($position, 'Missing services card: '.$title);
             $positions[] = $position;
         }
 
@@ -813,7 +818,7 @@ class StorefrontFrontFeatureTest extends TestCase
         $this->assertSame('/contact', $items[1]['url'] ?? null);
     }
 
-    public function test_home_renders_client_testimonials_section(): void
+    public function test_home_hides_client_testimonials_section_for_now(): void
     {
         Comment::query()->create([
             'commentable_type' => null,
@@ -831,10 +836,10 @@ class StorefrontFrontFeatureTest extends TestCase
 
         $this->get('/')
             ->assertOk()
-            ->assertSee('Iskustva naših klijenata')
-            ->assertSee('Dobili smo puno jasniju sliku profitabilnosti nakon uvodenja kontrolinga.')
-            ->assertSee('Ivan Knezevic')
-            ->assertSee('Palma D.O.O.');
+            ->assertDontSee('Iskustva naših klijenata')
+            ->assertDontSee('Dobili smo puno jasniju sliku profitabilnosti nakon uvodenja kontrolinga.')
+            ->assertDontSee('Ivan Knezevic')
+            ->assertDontSee('Palma D.O.O.');
     }
 
     public function test_blog_index_supports_filters_and_uses_blog_settings_for_pagination(): void

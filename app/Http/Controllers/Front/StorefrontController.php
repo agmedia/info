@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Front;
 use App\Http\Controllers\Controller;
 use App\Models\Content\Blog\BlogPost;
 use App\Models\Content\Support\Comment;
+use App\Services\Front\ServiceCardService;
 use App\Services\Front\StoreSettingsService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
@@ -13,6 +14,7 @@ use Illuminate\View\View;
 class StorefrontController extends Controller
 {
     public function __construct(
+        private readonly ServiceCardService $serviceCardService,
         private readonly StoreSettingsService $storeSettingsService
     ) {
     }
@@ -43,6 +45,7 @@ class StorefrontController extends Controller
             $variant === 'mobile' ? 'front.mobile.home.index' : 'front.desktop.home.index',
             [
                 'storeSettings' => $this->storeSettingsService->all(),
+                'serviceCards' => $this->serviceCardService->cards((string) $locale, $fallbackLocale),
                 'latestBlogPosts' => $latestBlogPosts,
                 'clientTestimonials' => $clientTestimonials,
                 'locale' => $locale,
