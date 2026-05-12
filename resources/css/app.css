@@ -1575,7 +1575,7 @@
 
     .front-hero-image {
         background-image: var(--front-header-hero-backdrop);
-        background-position: center top;
+        background-position: center bottom;
         background-repeat: no-repeat;
         background-size: cover;
         transform: none;
@@ -1595,43 +1595,6 @@
         pointer-events: none;
     }
     .front-hero-image::after { content: none; }
-
-    .front-hero-city-photo {
-        width: min(45vw, 840px);
-        background-image: var(--front-hero-city-photo-url);
-        background-position: 62% center;
-        background-repeat: no-repeat;
-        background-size: cover;
-        opacity: 0.82;
-        pointer-events: none;
-        z-index: 1;
-        position: absolute;
-        inset: 0;
-        -webkit-mask-image: linear-gradient(106deg, rgba(0, 0, 0, 0.99) 0%, rgba(0, 0, 0, 0.99) 36%, rgba(0, 0, 0, 0.9) 44%, rgba(0, 0, 0, 0.48) 54%, rgba(0, 0, 0, 0.12) 64%, transparent 72%);
-        mask-image: linear-gradient(106deg, rgba(0, 0, 0, 0.99) 0%, rgba(0, 0, 0, 0.99) 36%, rgba(0, 0, 0, 0.9) 44%, rgba(0, 0, 0, 0.48) 54%, rgba(0, 0, 0, 0.12) 64%, transparent 72%);
-        -webkit-mask-repeat: no-repeat;
-        mask-repeat: no-repeat;
-        -webkit-mask-size: 100% 100%;
-        mask-size: 100% 100%;
-    }
-
-    .front-hero-city-photo::before { content: none; }
-    .front-hero-city-photo::after { content: none; }
-
-    .front-hero-mark {
-        display: block;
-        right: clamp(1.5rem, 4vw, 3.5rem);
-        bottom: clamp(1.5rem, 5vh, 3.5rem);
-        width: min(14vw, 220px);
-        height: auto;
-        opacity: 0.045;
-        pointer-events: none;
-        user-select: none;
-        z-index: 1;
-        transform: none;
-        -webkit-mask-image: none;
-        mask-image: none;
-    }
 
     .front-hero-video-overlay {
         z-index: 2;

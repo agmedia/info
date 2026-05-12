@@ -35,7 +35,7 @@
             <article class="border border-slate-200 bg-white px-5 py-6 sm:px-6 lg:px-8 lg:py-8">
                 <div class="ac-page-body-inner">
                     <div class="content-richtext">
-                        {!! $translation?->body_html ?: '<p>This page has no body content.</p>' !!}
+                        {!! $translation?->body_html ?: '' !!}
                     </div>
                 </div>
             </article>

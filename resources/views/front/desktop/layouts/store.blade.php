@@ -73,7 +73,7 @@
     $defaultLogoUrl = file_exists(public_path($defaultLogoRelativePath))
         ? asset($defaultLogoRelativePath)
         : null;
-    $headerHeroBackdropRelativePath = 'front-theme/images/hero/alpha-finance-tech.png';
+    $headerHeroBackdropRelativePath = 'assets/images/Naslovna.png';
     $headerHeroBackdropPath = public_path($headerHeroBackdropRelativePath);
     $headerHeroBackdropUrl = file_exists($headerHeroBackdropPath)
         ? asset($headerHeroBackdropRelativePath).'?v='.filemtime($headerHeroBackdropPath)
@@ -147,35 +147,19 @@
         $availableLanguages = collect($frontLanguages ?? [])->filter(
             static fn (array $language): bool => (string) ($language['code'] ?? '') !== ''
         )->values();
+        $showLeaseCalculatorLink = request()->routeIs('accounting.show');
         $headerPhoneRaw = trim((string) ($storeSettings['footer']['phone'] ?? ''));
         $headerEmailRaw = trim((string) ($storeSettings['footer']['email_support'] ?? ''));
-        $headerAddressRaw = trim((string) ($storeSettings['footer']['address'] ?? ''));
         $headerPhone = $headerPhoneRaw !== '' ? $headerPhoneRaw : '+385 (1) 580 6656';
         $headerEmail = $headerEmailRaw !== '' ? $headerEmailRaw : 'info@alphacapitalis.com';
-        $headerAddress = $headerAddressRaw !== '' ? $headerAddressRaw : 'Ulica R. F. Mihanovića 9, 10110 Zagreb, Sky Office';
 
         $homeUrl = route('home');
         $mainNavigation = [
-            ['label' => 'Usluge', 'url' => $homeUrl.'#usluge', 'children' => [
-                ['label' => 'Financije', 'url' => route('finance.show')],
-                ['label' => 'Računovodstvo', 'url' => route('accounting.show')],
-                ['label' => 'Revizija', 'url' => route('audit.show')],
-                ['label' => 'Porezi', 'url' => route('tax.show')],
-                ['label' => 'EU fondovi', 'url' => route('eu-funds.show')],
-                ['label' => 'Obiteljski biznis', 'url' => route('family-business.show')],
-            ]],
-            ['label' => 'O nama', 'url' => $homeUrl.'#o-nama', 'children' => [
-                ['label' => 'ALPHA CAPITALIS Tim', 'url' => route('team.index')],
-                ['label' => 'Edukacija', 'url' => $homeUrl.'#edukacija', 'children' => [
-                    ['label' => 'Akademija', 'url' => route('pages.show', ['slug' => 'akademija'])],
-                    ['label' => 'Svijet financija', 'url' => route('glossary.index')],
-                    ['label' => __('resources.page_title'), 'url' => route('resources.index')],
-                ]],
-                ['label' => 'EU projekti', 'url' => route('pages.show', ['slug' => 'eu-projekti'])],
-                ['label' => 'Karijera', 'url' => route('pages.show', ['slug' => 'karijera'])],
-                ['label' => 'Reference', 'url' => route('pages.show', ['slug' => 'reference'])],
-            ]],
-            ['label' => 'Blog', 'url' => route('blog.index'), 'children' => []],
+            ['label' => 'Početna', 'url' => $homeUrl, 'children' => []],
+            ['label' => 'Usluge', 'url' => route('services.index'), 'children' => []],
+            ['label' => 'O nama', 'url' => route('pages.show', ['slug' => 'o-nama']), 'children' => []],
+            ['label' => 'Karijere', 'url' => route('pages.show', ['slug' => 'karijera']), 'children' => []],
+            ['label' => 'Objave', 'url' => route('blog.index'), 'children' => []],
             ['label' => 'Kontakt', 'url' => route('contact.create'), 'children' => []],
         ];
     @endphp
@@ -191,10 +175,6 @@
                     <svg class="front-meta-icon h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 8l9 6 9-6"/></svg>
                     <span>{{ $headerEmail }}</span>
                 </a>
-                <p class="front-meta-link inline-flex items-center gap-2 text-xs">
-                    <svg class="front-meta-icon h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" aria-hidden="true"><path d="M12 21s7-5.4 7-11a7 7 0 1 0-14 0c0 5.6 7 11 7 11z"/><circle cx="12" cy="10" r="2.5"/></svg>
-                    <span class="truncate">{{ $headerAddress }}</span>
-                </p>
             </div>
             <div class="front-lang-switch inline-flex items-center p-0.5 text-xs font-semibold uppercase tracking-[0.08em]">
                 <a href="{{ route('front.locale.switch', ['code' => 'hr']) }}" class="front-meta-lang {{ $activeLocale === 'hr' ? 'is-active' : '' }}" hreflang="hr">HR</a>
@@ -228,11 +208,13 @@
 
             <div class="front-header-actions hidden min-h-[84px] items-center gap-2.5 xl:flex">
                 <a href="{{ route('assessment.create') }}" class="front-action-cta">
-                    Procjena suradnje
+                    Zatraži ponudu
                 </a>
-                <a href="{{ route('lease-calculator.show') }}" class="front-action-cta front-action-cta-secondary">
-                    MSFI 16 Kalkulator
-                </a>
+                @if ($showLeaseCalculatorLink)
+                    <a href="{{ route('lease-calculator.show') }}" class="front-action-cta front-action-cta-secondary">
+                        MSFI 16 Kalkulator
+                    </a>
+                @endif
                 <span class="front-actions-separator" aria-hidden="true"></span>
                 <button type="button" class="front-search-action inline-flex h-10 w-10 items-center justify-center transition" aria-label="Pretraga" data-header-search-toggle>
                     <svg class="h-6 w-6" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" viewBox="0 0 24 24" aria-hidden="true">
@@ -344,23 +326,9 @@
 </div>
 
 @if (request()->routeIs('home'))
-    @php
-        $heroCityPhotoRelativePath = 'front-theme/images/image-from-rawpixel-id-6030607-original-2.jpg';
-        $heroCityPhotoPath = public_path($heroCityPhotoRelativePath);
-        $heroCityPhotoUrl = file_exists($heroCityPhotoPath)
-            ? asset($heroCityPhotoRelativePath).'?v='.filemtime($heroCityPhotoPath)
-            : asset($headerHeroBackdropRelativePath);
-        $heroMarkRelativePath = 'front-theme/images/branding/znak-ac-w.svg';
-        $heroMarkPath = public_path($heroMarkRelativePath);
-        $heroMarkUrl = file_exists($heroMarkPath)
-            ? asset($heroMarkRelativePath).'?v='.filemtime($heroMarkPath)
-            : asset('front-theme/images/branding/alpha-capitalis-logo.svg');
-    @endphp
     <section id="video-sadrzaj" class="front-hero-video-section w-full border-b border-black/20 bg-black">
         <div class="front-hero-video-wrap relative w-full overflow-hidden">
             <div class="front-hero-image absolute inset-0"></div>
-            <div class="front-hero-city-photo absolute inset-y-0 left-0" style="--front-hero-city-photo-url: url('{{ $heroCityPhotoUrl }}');"></div>
-            <img src="{{ $heroMarkUrl }}" alt="" aria-hidden="true" class="front-hero-mark absolute">
 
             <div class="front-hero-video-overlay absolute inset-0"></div>
 

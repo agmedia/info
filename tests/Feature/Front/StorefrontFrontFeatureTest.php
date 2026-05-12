@@ -11,6 +11,7 @@ use App\Models\Content\Page\InfoPage;
 use App\Models\Content\Page\InfoPageTranslation;
 use App\Models\Content\Resource\ResourceDocument;
 use App\Models\Content\Resource\ResourceDocumentTranslation;
+use App\Models\Content\Service\ServicePage;
 use App\Models\Content\Support\CareerApplication;
 use App\Models\Content\Support\ContactMessage;
 use App\Models\Content\Support\Comment;
@@ -18,6 +19,7 @@ use App\Models\Content\Team\TeamMember;
 use App\Models\Content\Team\TeamMemberTranslation;
 use App\Services\Front\NavigationMenuService;
 use App\Services\Settings\SystemSettingsService;
+use App\Support\Content\ServicePageTemplateRegistry;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
@@ -673,53 +675,17 @@ class StorefrontFrontFeatureTest extends TestCase
             ->assertSee(__('lease_calculator.results.lease_liability'));
     }
 
-    public function test_home_header_links_to_lease_calculator_page(): void
+    public function test_lease_calculator_header_link_only_renders_on_accounting_page(): void
     {
         $this->get('/')
+            ->assertOk()
+            ->assertDontSee('/leasing-kalkulator', false)
+            ->assertDontSee('MSFI 16 Kalkulator');
+
+        $this->get('/racunovodstvo')
             ->assertOk()
             ->assertSee('/leasing-kalkulator', false)
-            ->assertDontSee('#msfi16-kalkulator', false);
-    }
-
-    public function test_home_header_links_team_navigation_item_to_public_team_page(): void
-    {
-        $this->get('/')
-            ->assertOk()
-            ->assertSee('ALPHA CAPITALIS Tim')
-            ->assertSee(route('team.index'), false)
-            ->assertDontSee('#tim', false);
-    }
-
-    public function test_home_header_links_eu_projects_navigation_item_to_clean_page_url(): void
-    {
-        $this->get('/')
-            ->assertOk()
-            ->assertSee(route('pages.show', ['slug' => 'eu-projekti']), false)
-            ->assertDontSee('#eu-projekti', false);
-    }
-
-    public function test_home_header_links_career_navigation_item_to_clean_page_url(): void
-    {
-        $this->get('/')
-            ->assertOk()
-            ->assertSee(route('pages.show', ['slug' => 'karijera']), false)
-            ->assertDontSee('#karijera', false);
-    }
-
-    public function test_home_header_links_references_navigation_item_to_clean_page_url(): void
-    {
-        $this->get('/')
-            ->assertOk()
-            ->assertSee(route('pages.show', ['slug' => 'reference']), false)
-            ->assertDontSee('#reference', false);
-    }
-
-    public function test_home_header_links_academy_navigation_item_to_clean_page_url(): void
-    {
-        $this->get('/')
-            ->assertOk()
-            ->assertSee(route('pages.show', ['slug' => 'akademija']), false)
-            ->assertDontSee('#edukacija-akademija', false);
+            ->assertSee('MSFI 16 Kalkulator');
     }
 
     public function test_home_services_section_renders_requested_service_order(): void
@@ -752,6 +718,63 @@ class StorefrontFrontFeatureTest extends TestCase
         sort($sortedPositions);
 
         $this->assertSame($sortedPositions, $positions);
+    }
+
+    public function test_header_renders_requested_flat_navigation_links(): void
+    {
+        $this->get('/')
+            ->assertOk()
+            ->assertSee('Početna')
+            ->assertSee('/usluge', false)
+            ->assertSee('/o-nama', false)
+            ->assertSee('/karijera', false)
+            ->assertSee('Objave')
+            ->assertDontSee('front-nav-caret');
+    }
+
+    public function test_services_index_renders_cards_from_service_pages_media(): void
+    {
+        Storage::fake('public');
+        config()->set('media-library.disk_name', 'public');
+        config()->set('media-library.queue_conversions_by_default', false);
+
+        $financePage = ServicePage::query()
+            ->where('template_key', ServicePageTemplateRegistry::FINANCE)
+            ->firstOrFail();
+
+        $financePage->addMedia(UploadedFile::fake()->image('finance-card.jpg', 1200, 800))
+            ->usingName('Finance grid image')
+            ->toMediaCollection('service_hero_image');
+
+        $mediaUrl = $financePage->getFirstMediaUrl('service_hero_image', 'hero_1440x480')
+            ?: $financePage->getFirstMediaUrl('service_hero_image');
+
+        $this->get('/usluge')
+            ->assertOk()
+            ->assertSee('Financije')
+            ->assertSee('Računovodstvo')
+            ->assertSee('Revizija')
+            ->assertSee('Porezi')
+            ->assertSee('EU fondovi')
+            ->assertSee('Obiteljski biznis')
+            ->assertSee(route('finance.show'), false)
+            ->assertSee($mediaUrl, false);
+    }
+
+    public function test_about_page_exists_empty_for_admin_managed_content(): void
+    {
+        $aboutPage = InfoPage::query()
+            ->where('code', 'about-us')
+            ->with('translations')
+            ->firstOrFail();
+
+        $this->assertSame('O nama', (string) $aboutPage->translations->firstWhere('locale', 'hr')?->title);
+        $this->assertNull($aboutPage->translations->firstWhere('locale', 'hr')?->body_html);
+
+        $this->get('/o-nama')
+            ->assertOk()
+            ->assertSee('O nama')
+            ->assertDontSee('This page has no body content.');
     }
 
     public function test_navigation_menu_service_resolves_page_and_custom_links(): void
@@ -797,8 +820,8 @@ class StorefrontFrontFeatureTest extends TestCase
             'commentable_id' => null,
             'author_name' => 'Ivan Knezevic',
             'author_email' => null,
-            'locale' => 'en',
-            'body' => 'We gained a much clearer picture of profitability after implementing the controlling system.',
+            'locale' => 'hr',
+            'body' => 'Dobili smo puno jasniju sliku profitabilnosti nakon uvodenja kontrolinga.',
             'rating' => 5,
             'status' => Comment::STATUS_APPROVED,
             'is_featured' => true,
@@ -808,8 +831,8 @@ class StorefrontFrontFeatureTest extends TestCase
 
         $this->get('/')
             ->assertOk()
-            ->assertSee('What Our Clients Say')
-            ->assertSee('We gained a much clearer picture of profitability after implementing the controlling system.')
+            ->assertSee('Iskustva naših klijenata')
+            ->assertSee('Dobili smo puno jasniju sliku profitabilnosti nakon uvodenja kontrolinga.')
             ->assertSee('Ivan Knezevic')
             ->assertSee('Palma D.O.O.');
     }

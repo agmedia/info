@@ -46,12 +46,14 @@ class InfoPageSeeder extends Seeder
                     'en' => [
                         'title' => 'About Us',
                         'slug' => 'about-us',
-                        'excerpt' => 'Who we are, how we build projects, and what we value.',
+                        'excerpt' => null,
+                        'body_html' => null,
                     ],
                     'hr' => [
                         'title' => 'O nama',
                         'slug' => 'o-nama',
-                        'excerpt' => 'Tko smo, kako gradimo projekte i koje vrijednosti pratimo.',
+                        'excerpt' => null,
+                        'body_html' => null,
                     ],
                 ],
             ],
@@ -102,7 +104,9 @@ class InfoPageSeeder extends Seeder
                         'title' => $title,
                         'slug' => $slug,
                         'excerpt' => $translation['excerpt'] ?? null,
-                        'body_html' => '<p>'.$title.'</p><p>'.($translation['excerpt'] ?? '').'</p>',
+                        'body_html' => array_key_exists('body_html', $translation)
+                            ? $translation['body_html']
+                            : '<p>'.$title.'</p><p>'.($translation['excerpt'] ?? '').'</p>',
                         'meta_title' => $title,
                         'meta_description' => $translation['excerpt'] ?? null,
                         'payload' => null,

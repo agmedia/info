@@ -21,6 +21,7 @@ use App\Http\Controllers\Front\GlossaryController;
 use App\Http\Controllers\Front\LeaseCalculatorController;
 use App\Http\Controllers\Front\PageController;
 use App\Http\Controllers\Front\SearchController;
+use App\Http\Controllers\Front\ServicesController;
 use App\Http\Controllers\Front\ResourceController;
 use App\Http\Controllers\Front\TaxController;
 use App\Http\Controllers\Front\TeamController;
@@ -81,6 +82,7 @@ Route::middleware(['front.locale', 'front.device'])
             ->name('blog.legacy');
         Route::get('faq', [FaqController::class, 'index'])->name('faq.index');
         Route::get('alpha-capitalis-tim', [TeamController::class, 'index'])->name('team.index');
+        Route::get('usluge', [ServicesController::class, 'index'])->name('services.index');
         Route::get('financije', [FinanceController::class, 'show'])->name('finance.show');
         Route::get('racunovodstvo', [AccountingController::class, 'show'])->name('accounting.show');
         Route::get('revizija', [AuditController::class, 'show'])->name('audit.show');
