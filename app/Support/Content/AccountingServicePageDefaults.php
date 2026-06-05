@@ -23,10 +23,57 @@ class AccountingServicePageDefaults
             'hero' => [
                 'brand_title' => 'ALPHA CAPITALIS',
                 'subtitle_lead' => 'Računovodstvo',
-                'subtitle_accent' => 'i izvještavanje',
-                'intro' => 'Prepustite nam vođenje poslovnih knjiga, obračun plaća i pravodobno financijsko izvještavanje kako biste se mogli fokusirati na rast poslovanja i donošenje kvalitetnih odluka.',
-                'cta_label' => 'Pogledajte usluge',
-                'cta_url' => '#accounting-overview',
+                'subtitle_accent' => '',
+                'intro' => 'Precizno, pravovremeno i transparentno - preuzimamo vođenje vaših poslovnih knjiga kako biste se fokusirali na ono što zaista donosi rast.',
+                'cta_label' => '',
+                'cta_url' => '',
+            ],
+            'overview' => [
+                'kicker' => 'RAČUNOVODSTVO',
+                'title' => 'Što je računovodstvo?',
+                'intro' => '',
+                'body' => [
+                    'Računovodstvo je sustavan zapis poslovnih transakcija koji osigurava točan prikaz financijskog stanja društva. Dobro računovodstvo nije samo zakonska obveza - to je temelj za donošenje kvalitetnih poslovnih odluka.',
+                ],
+            ],
+            'services' => [
+                'kicker' => 'USLUGE',
+                'title' => 'Naše računovodstvene usluge',
+                'intro' => '',
+                'items' => [
+                    [
+                        'title' => 'Financijsko računovodstvo',
+                        'text' => 'Vođenje poslovnih knjiga, financijski izvještaji i godišnji obračuni prema hrvatskim propisima i MSFI.',
+                    ],
+                    [
+                        'title' => 'Obračun plaća',
+                        'text' => 'Kompletan obračun plaća, naknada i putnih troškova. Prijave poreza i doprinosa. JOPPD obrasci.',
+                    ],
+                    [
+                        'title' => 'Porezne prijave',
+                        'text' => 'Izrada i predaja svih poreznih prijava: PDV, porez na dobit i godišnji obračun. Pravovremeno i bez propusta.',
+                    ],
+                    [
+                        'title' => 'Upravljačko izvještavanje',
+                        'text' => 'Prilagođeni financijski izvještaji za menadžment - jasni, vizualni i fokusirani na bitne pokazatelje.',
+                    ],
+                    [
+                        'title' => 'Osnivanje i registracija',
+                        'text' => 'Podrška pri osnivanju društva, izboru pravnog oblika i uspostavi računovodstvenog sustava od prvog dana.',
+                    ],
+                    [
+                        'title' => 'Konsolidacija',
+                        'text' => 'Izrada konsolidiranih financijskih izvještaja za grupe društava. Usklađivanje internih transakcija i eliminacija.',
+                    ],
+                ],
+            ],
+            'approach' => [
+                'kicker' => 'PRISTUP',
+                'title' => 'Naš pristup',
+                'intro' => 'Nismo samo servis za vođenje knjiga. Razumijemo vaše poslovanje i proaktivno upozoravamo na porezne prilike, regulatorne promjene i financijske rizike. Vaš računovođa dostupan je kada trebate - ne samo u sezoni godišnjih obračuna.',
+                'body' => [
+                    'Nismo samo servis za vođenje knjiga. Razumijemo vaše poslovanje i proaktivno upozoravamo na porezne prilike, regulatorne promjene i financijske rizike. Vaš računovođa dostupan je kada trebate - ne samo u sezoni godišnjih obračuna.',
+                ],
             ],
             'intro_section' => [
                 'kicker' => 'RAČUNOVODSTVO',
@@ -44,8 +91,8 @@ class AccountingServicePageDefaults
                     'Registracija trgovačkih društava',
                     'Forenzičko računovodstvo',
                 ],
-                'video_title' => 'Analiza financijskih izvještaja',
-                'video_url' => 'https://www.youtube.com/watch?v=iD9QIDzQnCY',
+                'video_title' => '',
+                'video_url' => '',
             ],
             'editorial_section' => [
                 'eyebrow' => 'ALPHA CAPITALIS',
@@ -230,23 +277,11 @@ class AccountingServicePageDefaults
                 'intro' => '',
             ],
             'videos' => [
-                [
-                    'title' => 'Zašto ne raditi u obiteljskom biznisu?',
-                    'video_url' => 'https://www.youtube.com/watch?v=Ka__fXxmk6E&t=137s',
-                ],
-                [
-                    'title' => 'Prodaja obiteljskog biznisa',
-                    'video_url' => 'https://www.youtube.com/watch?v=GGb1Nnd2ChQ&t=115s',
-                ],
-                [
-                    'title' => 'ALPHA CAPITALIS: Modeli planiranja tranzicije obiteljskog biznisa',
-                    'video_url' => 'https://www.youtube.com/watch?v=iO2Jrt5mFpY&t=117s',
-                ],
             ],
             'meeting' => [
                 'kicker' => 'KONTAKT',
                 'title' => 'Razgovarajmo o vašem računovodstvu',
-                'intro' => 'Ako trebate pouzdano knjigovodstvo, obračun plaća, podršku u izvještavanju ili računovodstvenu pomoć za domaće i strane investitore, javite nam se. Zajedno ćemo definirati model podrške koji najbolje odgovara vašem poslovanju.',
+                'intro' => 'Svaki klijent dobiva računovođu koji poznaje vaš sektor i veličinu poslovanja. Javite se za besplatnu procjenu.',
                 'visit_title' => 'Posjetite nas',
                 'visit_lines' => [
                     'Ul. Roberta Frangeša Mihanovića 9,',
@@ -284,10 +319,57 @@ class AccountingServicePageDefaults
             'hero' => [
                 'brand_title' => 'ALPHA CAPITALIS',
                 'subtitle_lead' => 'Accounting',
-                'subtitle_accent' => 'and reporting',
-                'intro' => 'Leave your bookkeeping, payroll processing, and reporting obligations to us so you can stay focused on growth, operations, and better business decisions.',
-                'cta_label' => 'View services',
-                'cta_url' => '#accounting-overview',
+                'subtitle_accent' => '',
+                'intro' => 'Precise, timely, and transparent accounting - we take over your books so you can stay focused on what truly drives growth.',
+                'cta_label' => '',
+                'cta_url' => '',
+            ],
+            'overview' => [
+                'kicker' => 'ACCOUNTING',
+                'title' => 'What is accounting?',
+                'intro' => '',
+                'body' => [
+                    'Accounting is the systematic recording of business transactions that provides an accurate view of a company’s financial position. Good accounting is not only a legal obligation - it is the foundation for sound business decisions.',
+                ],
+            ],
+            'services' => [
+                'kicker' => 'SERVICES',
+                'title' => 'Our accounting services',
+                'intro' => '',
+                'items' => [
+                    [
+                        'title' => 'Financial accounting',
+                        'text' => 'Bookkeeping, financial statements, and annual accounts prepared under Croatian regulations and IFRS.',
+                    ],
+                    [
+                        'title' => 'Payroll processing',
+                        'text' => 'Complete payroll, compensation, and travel expense processing, including tax and contribution filings and JOPPD forms.',
+                    ],
+                    [
+                        'title' => 'Tax filings',
+                        'text' => 'Preparation and submission of VAT, corporate income tax, and annual tax filings on time and without omissions.',
+                    ],
+                    [
+                        'title' => 'Management reporting',
+                        'text' => 'Tailored financial reports for management - clear, visual, and focused on the key performance indicators that matter.',
+                    ],
+                    [
+                        'title' => 'Company formation and registration',
+                        'text' => 'Support with company formation, legal form selection, and accounting system setup from day one.',
+                    ],
+                    [
+                        'title' => 'Consolidation',
+                        'text' => 'Preparation of consolidated financial statements for groups, including intercompany alignment and eliminations.',
+                    ],
+                ],
+            ],
+            'approach' => [
+                'kicker' => 'APPROACH',
+                'title' => 'Our approach',
+                'intro' => 'We are not only a bookkeeping service. We understand your business and proactively point out tax opportunities, regulatory changes, and financial risks. Your accountant is available when you need them - not only during annual closing season.',
+                'body' => [
+                    'We are not only a bookkeeping service. We understand your business and proactively point out tax opportunities, regulatory changes, and financial risks. Your accountant is available when you need them - not only during annual closing season.',
+                ],
             ],
             'intro_section' => [
                 'kicker' => 'ACCOUNTING',
@@ -305,8 +387,8 @@ class AccountingServicePageDefaults
                     'Company registration support',
                     'Forensic accounting',
                 ],
-                'video_title' => 'Financial statement analysis',
-                'video_url' => 'https://www.youtube.com/watch?v=iD9QIDzQnCY',
+                'video_title' => '',
+                'video_url' => '',
             ],
             'editorial_section' => [
                 'eyebrow' => 'ALPHA CAPITALIS',
@@ -491,23 +573,11 @@ class AccountingServicePageDefaults
                 'intro' => '',
             ],
             'videos' => [
-                [
-                    'title' => 'Zašto ne raditi u obiteljskom biznisu?',
-                    'video_url' => 'https://www.youtube.com/watch?v=Ka__fXxmk6E&t=137s',
-                ],
-                [
-                    'title' => 'Prodaja obiteljskog biznisa',
-                    'video_url' => 'https://www.youtube.com/watch?v=GGb1Nnd2ChQ&t=115s',
-                ],
-                [
-                    'title' => 'ALPHA CAPITALIS: Modeli planiranja tranzicije obiteljskog biznisa',
-                    'video_url' => 'https://www.youtube.com/watch?v=iO2Jrt5mFpY&t=117s',
-                ],
             ],
             'meeting' => [
                 'kicker' => 'CONTACT',
-                'title' => 'Let us support your accounting function',
-                'intro' => 'If you need reliable bookkeeping, payroll support, reporting assistance, or accounting support for domestic or foreign investors, get in touch and we will define the right support model together.',
+                'title' => 'Let’s discuss your accounting',
+                'intro' => 'Every client gets an accountant who understands their sector and company size. Reach out for a free assessment.',
                 'visit_title' => 'Visit us',
                 'visit_lines' => [
                     'Ul. Roberta Frangeša Mihanovića 9,',

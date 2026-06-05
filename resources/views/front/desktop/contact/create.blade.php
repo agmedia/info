@@ -49,8 +49,8 @@
         ];
     @endphp
 
-    <div class="front-contact-page">
-        <x-front.page-title-band :breadcrumbs="$pageTitleBreadcrumbs">
+    <div class="front-contact-page ac-contact-page">
+        <x-front.page-title-band :breadcrumbs="$pageTitleBreadcrumbs" section-class="ac-contact-title-band">
             <div class="ac-page-title-copy">
                 <h1>{{ __('contact.heading') }}</h1>
                 <p>{{ __('contact.subheading') }}</p>

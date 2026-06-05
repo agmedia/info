@@ -12,10 +12,16 @@ class CareerPageDefaults
         $defaults = self::defaultsForLocale($locale);
         $source = is_array($payload) ? $payload : [];
 
+        if (self::looksLikeLegacyDefaultPayload($source)) {
+            $source = [];
+        }
+
         $intro = is_array($source['intro'] ?? null) ? $source['intro'] : [];
         $process = is_array($source['process'] ?? null) ? $source['process'] : [];
         $application = is_array($source['application'] ?? null) ? $source['application'] : [];
         $form = is_array($source['form'] ?? null) ? $source['form'] : [];
+        $sourceValues = is_array($source['values'] ?? null) ? array_values($source['values']) : [];
+        $sourceStories = is_array($source['stories'] ?? null) ? array_values($source['stories']) : [];
         $sourceProcessSteps = is_array($process['steps'] ?? null) ? array_values($process['steps']) : [];
         $sourceIntroBody = is_array($intro['body'] ?? null) ? array_values($intro['body']) : [];
         $sourceApplicationParagraphs = is_array($application['paragraphs'] ?? null) ? array_values($application['paragraphs']) : [];
@@ -49,6 +55,55 @@ class CareerPageDefaults
             $applicationParagraphs[] = $sourceParagraph;
         }
 
+        $values = [];
+        foreach ((array) ($defaults['values'] ?? []) as $valueIndex => $defaultValue) {
+            $sourceValue = array_key_exists($valueIndex, $sourceValues)
+                ? trim((string) $sourceValues[$valueIndex])
+                : (string) $defaultValue;
+
+            if ($sourceValue !== '') {
+                $values[] = $sourceValue;
+            }
+        }
+
+        $stories = [];
+        foreach ((array) ($defaults['stories'] ?? []) as $storyIndex => $defaultStory) {
+            $sourceStory = is_array($sourceStories[$storyIndex] ?? null) ? $sourceStories[$storyIndex] : [];
+            $defaultParagraphs = is_array($defaultStory['paragraphs'] ?? null) ? array_values($defaultStory['paragraphs']) : [];
+            $sourceParagraphs = is_array($sourceStory['paragraphs'] ?? null) ? array_values($sourceStory['paragraphs']) : [];
+            $defaultList = is_array($defaultStory['list'] ?? null) ? array_values($defaultStory['list']) : [];
+            $sourceList = is_array($sourceStory['list'] ?? null) ? array_values($sourceStory['list']) : [];
+
+            $paragraphs = [];
+            foreach ($defaultParagraphs as $paragraphIndex => $defaultParagraph) {
+                $paragraph = array_key_exists($paragraphIndex, $sourceParagraphs)
+                    ? trim((string) $sourceParagraphs[$paragraphIndex])
+                    : (string) $defaultParagraph;
+
+                if ($paragraph !== '') {
+                    $paragraphs[] = $paragraph;
+                }
+            }
+
+            $list = [];
+            foreach ($defaultList as $itemIndex => $defaultItem) {
+                $item = array_key_exists($itemIndex, $sourceList)
+                    ? trim((string) $sourceList[$itemIndex])
+                    : (string) $defaultItem;
+
+                if ($item !== '') {
+                    $list[] = $item;
+                }
+            }
+
+            $stories[] = [
+                'kicker' => self::valueOrDefault($sourceStory, 'kicker', (string) ($defaultStory['kicker'] ?? '')),
+                'title' => self::valueOrDefault($sourceStory, 'title', (string) ($defaultStory['title'] ?? '')),
+                'paragraphs' => $paragraphs,
+                'list' => $list,
+            ];
+        }
+
         return [
             'intro' => [
                 'title' => self::valueOrDefault($intro, 'title', (string) ($defaults['intro']['title'] ?? '')),
@@ -70,6 +125,8 @@ class CareerPageDefaults
             'form' => [
                 'title' => self::valueOrDefault($form, 'title', (string) ($defaults['form']['title'] ?? '')),
             ],
+            'values' => $values,
+            'stories' => $stories,
         ];
     }
 
@@ -90,51 +147,97 @@ class CareerPageDefaults
     {
         return [
             'intro' => [
-                'title' => 'Postani dio tima',
-                'highlight' => 'ALPHA CAPITALIS postoji od 2012. godine s ciljem pružanja podrške klijentima u svijetu financija kroz sve faze razvoja poslovanja.',
+                'title' => 'Mjesto gdje karijera stvarno raste',
+                'highlight' => 'Ne tražimo samo zaposlenike.',
                 'body' => [
-                    'Oformili smo tim stručnjaka iz područja financija, revizije, računovodstva i poreza koji kroz zajedničko djelovanje nude cjelokupno rješenje za investitore, poduzetnike i menadžere. Članovi tima ALPHA CAPITALIS posjeduju višegodišnje iskustvo u investicijskom bankarstvu, financijskom savjetovanju, EU fonodvima, reviziji, restrukturiranju, kontrolingu i menadžerskom računovodstvu.',
+                    'Tražimo ljude koji žele učiti, razvijati se, preuzimati odgovornost i zajedno s nama graditi nešto dugoročno.',
+                    'ALPHA CAPITALIS danas okuplja više od 70 stručnjaka iz područja računovodstva, financija, revizije, EU fondova i savjetovanja. Ono što nas povezuje nisu samo znanje i iskustvo, već način na koji radimo - zajedno, odgovorno i s jasnim ciljem razvoja.',
+                    'Kod nas ćeš raditi na stvarnim poslovnim izazovima, surađivati s iskusnim stručnjacima i imati priliku razvijati se puno brže nego u klasičnom korporativnom okruženju.',
                 ],
             ],
             'process' => [
-                'kicker' => 'Proces prijave',
-                'title_line_one' => 'Selekcijski proces u',
-                'title_line_two' => 'ALPHA CAPITALISU',
-                'intro' => 'Proces je jasan, strukturiran i fokusiran na kvalitetno upoznavanje kandidata i tima.',
+                'kicker' => 'Zašto ALPHA CAPITALIS?',
+                'title_line_one' => 'Razvoj koji nije',
+                'title_line_two' => 'samo fraza',
+                'intro' => 'Vjerujemo da se potencijal razvija kroz iskustvo, mentorstvo i prilike. Zato naši zaposlenici od prvog dana aktivno sudjeluju u projektima, surađuju s klijentima i razvijaju stručna znanja kroz rad s različitim industrijama i poslovnim izazovima.',
                 'steps' => [
                     [
-                        'step' => 'Korak 01',
-                        'title' => 'Ispunjavanje prijave',
-                        'description' => 'Predaja prijave stiže u naš odjel ljudskih potencijala koji je ocjenjuje i poziva kandidata na razgovor u slučaju poklapanja profila i otvorene pozicije.',
+                        'step' => '01',
+                        'title' => 'Povjerenje',
+                        'description' => 'Od prvog dana dobivaš prostor sudjelovati u stvarnim projektima i preuzimati odgovornost uz jasnu podršku tima.',
                     ],
                     [
-                        'step' => 'Korak 02',
-                        'title' => 'Testiranje znanja',
-                        'description' => 'Poziv i dolazak na opće i tehničko testiranje znanja kojim provjeravamo stručnost, pristup problemima i usklađenost s otvorenom pozicijom.',
+                        'step' => '02',
+                        'title' => 'Podrška',
+                        'description' => 'Učiš kroz mentorstvo, suradnju s iskusnim stručnjacima i otvoreno dijeljenje znanja unutar tima.',
                     ],
                     [
-                        'step' => 'Korak 03',
-                        'title' => 'Razgovori',
-                        'description' => 'Ljudski potencijali kontaktiraju osobe koje su zadovoljile očekivane kriterije na testiranju, nakon čega slijedi razgovor s timom i višim menadžmentom odjela.',
+                        'step' => '03',
+                        'title' => 'Prilika za razvoj',
+                        'description' => 'Radiš s različitim industrijama i poslovnim izazovima, bez čekanja godinama da pokažeš što znaš.',
                     ],
                     [
-                        'step' => 'Korak 04',
-                        'title' => 'Ponuda za zaposlenje i onboarding',
-                        'description' => 'Kada osoba završi razgovore, slijedi završni korak selekcijskog procesa: potpis ugovora i onboarding kroz koji upoznaje naše poslovanje, vrijednosti, kulturu i kolege.',
+                        'step' => '04',
+                        'title' => 'Prostor za ideje',
+                        'description' => 'Cijenimo proaktivnost, nova rješenja i ljude koji žele aktivno graditi bolji način rada.',
                     ],
                 ],
             ],
             'application' => [
-                'title' => 'Pridružite se timu ALPHA CAPITALIS!',
-                'highlight' => 'Bez obzira jeste li iskusni profesionalac koji želi karijeru podići na novu razinu ili ste tek diplomirali, ALPHA CAPITALIS nudi mogućnosti za osobni i profesionalni napredak te dinamično radno okruženje koje će Vam omogućiti da postignete svoj puni potencijal.',
+                'title' => 'Otvorene pozicije',
+                'highlight' => 'Pronađi svoje mjesto u našem timu',
                 'paragraphs' => [
-                    'Potičemo polaganje stručnih ispita, razmjenu znanja kroz interne edukacije te rotacijski program uz stručno mentorstvo za stjecanje znanja iz područja financija, revizije, računovodstva i poreza.',
-                    'Tražimo motivirane i izvrsne osobe koje imaju želju za napretkom i stjecanjem novih znanja, a čiji je sustav vrijednosti u skladu s vrijednostima organizacije.',
-                    'Upoznajte nas i postanite dio tima ALPHA CAPITALIS.',
+                    'Tražimo ambiciozne, odgovorne i proaktivne ljude koji žele razvijati svoje znanje i karijeru u okruženju koje potiče rast.',
+                    'Ne vidiš otvorenu poziciju?',
+                    'Uvijek smo otvoreni za kvalitetne ljude. Ako vjeruješ da bi bio dobar dio ALPHA CAPITALIS tima, pošalji nam svoj životopis i predstavi se. Možda upravo ti budeš naše sljedeće veliko pojačanje.',
                 ],
             ],
             'form' => [
-                'title' => 'Pošaljite nam svoj CV',
+                'title' => 'Pošalji nam svoj životopis',
+            ],
+            'values' => [
+                'povjerenje',
+                'podršku',
+                'priliku za razvoj',
+                'prostor za ideje',
+                'tim koji ih gura naprijed',
+            ],
+            'stories' => [
+                [
+                    'kicker' => 'Tim',
+                    'title' => 'Ljudi zbog kojih ostaješ',
+                    'paragraphs' => [
+                        'Možeš imati odličan posao, ali bez dobrog tima ništa nema smisla.',
+                        'U ALPHA CAPITALISU gradimo kulturu međusobnog poštovanja, suradnje i otvorene komunikacije. Vjerujemo u dijeljenje znanja, podršku među kolegama i atmosferu u kojoj ljudi mogu biti profesionalni, ali i svoji.',
+                        'Ozbiljni smo u poslu, ali vjerujemo da dobra atmosfera i kvalitetni odnosi čine veliku razliku.',
+                    ],
+                    'list' => [],
+                ],
+                [
+                    'kicker' => 'Izazovi',
+                    'title' => 'Okruženje koje te potiče na više',
+                    'paragraphs' => [
+                        'Radimo s poduzetnicima, obiteljskim tvrtkama i kompanijama koje rastu i razvijaju se. Zato ni naš posao nije rutinski.',
+                        'Svaki projekt donosi nove izazove, nova znanja i priliku da razvijaš širu poslovnu perspektivu.',
+                        'Ako voliš dinamiku, odgovornost i kontinuirani razvoj - osjećat ćeš se kao doma.',
+                    ],
+                    'list' => [],
+                ],
+                [
+                    'kicker' => 'Rast',
+                    'title' => 'Rastemo zajedno',
+                    'paragraphs' => [
+                        'ALPHA CAPITALIS nije mjesto gdje samo dolaziš odraditi posao.',
+                        'Naš cilj je stvoriti okruženje u kojem ljudi dugoročno žele ostati, razvijati se i biti ponosni na ono što zajedno gradimo.',
+                    ],
+                    'list' => [
+                        'znanje',
+                        'iskustvo',
+                        'odnose',
+                        'samostalnost',
+                        'karijeru',
+                    ],
+                ],
             ],
         ];
     }
@@ -146,51 +249,97 @@ class CareerPageDefaults
     {
         return [
             'intro' => [
-                'title' => 'Join our team',
-                'highlight' => 'ALPHA CAPITALIS has been operating since 2012 with a clear goal: supporting clients in the world of finance through every stage of business growth.',
+                'title' => 'A place where careers really grow',
+                'highlight' => 'We are not just looking for employees.',
                 'body' => [
-                    'We have built a team of experts in finance, audit, accounting and tax who work together to provide an integrated solution for investors, entrepreneurs and managers. Our team members bring years of experience in investment banking, financial advisory, EU funds, audit, restructuring, controlling and management accounting.',
+                    'We are looking for people who want to learn, develop, take responsibility and build something long-term with us.',
+                    'Today, ALPHA CAPITALIS brings together more than 70 experts in accounting, finance, audit, EU funds and advisory. What connects us is not only knowledge and experience, but the way we work - together, responsibly and with a clear development goal.',
+                    'With us, you will work on real business challenges, collaborate with experienced professionals and have the opportunity to grow faster than in a classic corporate environment.',
                 ],
             ],
             'process' => [
-                'kicker' => 'Hiring process',
-                'title_line_one' => 'Selection process at',
-                'title_line_two' => 'ALPHA CAPITALIS',
-                'intro' => 'The process is clear, structured and focused on helping candidates and the team get to know each other properly.',
+                'kicker' => 'Why ALPHA CAPITALIS?',
+                'title_line_one' => 'Development that is',
+                'title_line_two' => 'more than a phrase',
+                'intro' => 'We believe potential grows through experience, mentorship and opportunity. From day one, our people actively participate in projects, collaborate with clients and build expertise through work across industries and business challenges.',
                 'steps' => [
                     [
-                        'step' => 'Step 01',
-                        'title' => 'Application review',
-                        'description' => 'Your application reaches our people team, which reviews it and invites candidates to an interview when the profile matches an open position.',
+                        'step' => '01',
+                        'title' => 'Trust',
+                        'description' => 'From day one, you get the space to participate in real projects and take responsibility with clear team support.',
                     ],
                     [
-                        'step' => 'Step 02',
-                        'title' => 'Knowledge assessment',
-                        'description' => 'Candidates are invited to general and technical knowledge testing so we can assess expertise, problem-solving and fit for the open role.',
+                        'step' => '02',
+                        'title' => 'Support',
+                        'description' => 'You learn through mentorship, collaboration with experienced professionals and open knowledge sharing.',
                     ],
                     [
-                        'step' => 'Step 03',
-                        'title' => 'Interviews',
-                        'description' => 'Our people team contacts candidates who met the expected criteria in testing, followed by interviews with the team and senior management.',
+                        'step' => '03',
+                        'title' => 'Growth opportunity',
+                        'description' => 'You work with different industries and business challenges without waiting years to show what you can do.',
                     ],
                     [
-                        'step' => 'Step 04',
-                        'title' => 'Offer and onboarding',
-                        'description' => 'After the interviews, the final stage of the selection process follows: contract signing and onboarding through which you get to know our business, values, culture and colleagues.',
+                        'step' => '04',
+                        'title' => 'Room for ideas',
+                        'description' => 'We value proactivity, new solutions and people who want to actively build better ways of working.',
                     ],
                 ],
             ],
             'application' => [
-                'title' => 'Join the ALPHA CAPITALIS team!',
-                'highlight' => 'Whether you are an experienced professional ready to take your career to the next level or a recent graduate, ALPHA CAPITALIS offers opportunities for personal and professional growth in a dynamic work environment that helps you reach your full potential.',
+                'title' => 'Open positions',
+                'highlight' => 'Find your place in our team',
                 'paragraphs' => [
-                    'We encourage professional certifications, knowledge sharing through internal education and a rotation program with expert mentoring across finance, audit, accounting and tax.',
-                    'We are looking for motivated, high-performing people who want to keep learning and growing, and whose values align with the values of our organisation.',
-                    'Get to know us and become part of the ALPHA CAPITALIS team.',
+                    'We are looking for ambitious, responsible and proactive people who want to develop their knowledge and career in an environment that encourages growth.',
+                    'Do not see an open position?',
+                    'We are always open to quality people. If you believe you would be a good part of the ALPHA CAPITALIS team, send us your CV and introduce yourself.',
                 ],
             ],
             'form' => [
                 'title' => 'Send us your CV',
+            ],
+            'values' => [
+                'trust',
+                'support',
+                'development opportunities',
+                'room for ideas',
+                'a team that pushes them forward',
+            ],
+            'stories' => [
+                [
+                    'kicker' => 'Team',
+                    'title' => 'People who make you stay',
+                    'paragraphs' => [
+                        'You can have a great job, but without a good team it does not mean much.',
+                        'At ALPHA CAPITALIS, we build a culture of mutual respect, collaboration and open communication. We believe in knowledge sharing, support among colleagues and an atmosphere where people can be professional and still be themselves.',
+                        'We are serious about work, but we believe a good atmosphere and quality relationships make a real difference.',
+                    ],
+                    'list' => [],
+                ],
+                [
+                    'kicker' => 'Challenges',
+                    'title' => 'An environment that pushes you further',
+                    'paragraphs' => [
+                        'We work with entrepreneurs, family businesses and growing companies. That is why our work is not routine.',
+                        'Every project brings new challenges, new knowledge and an opportunity to develop a broader business perspective.',
+                        'If you like dynamics, responsibility and continuous development, you will feel at home.',
+                    ],
+                    'list' => [],
+                ],
+                [
+                    'kicker' => 'Growth',
+                    'title' => 'We grow together',
+                    'paragraphs' => [
+                        'ALPHA CAPITALIS is not a place where you only come to finish tasks.',
+                        'Our goal is to create an environment where people want to stay long-term, develop and be proud of what we build together.',
+                    ],
+                    'list' => [
+                        'knowledge',
+                        'experience',
+                        'relationships',
+                        'independence',
+                        'career',
+                    ],
+                ],
             ],
         ];
     }
@@ -202,6 +351,17 @@ class CareerPageDefaults
         }
 
         return trim((string) $values[$key]);
+    }
+
+    private static function looksLikeLegacyDefaultPayload(array $source): bool
+    {
+        $intro = is_array($source['intro'] ?? null) ? $source['intro'] : [];
+        $process = is_array($source['process'] ?? null) ? $source['process'] : [];
+        $form = is_array($source['form'] ?? null) ? $source['form'] : [];
+
+        return in_array(trim((string) ($intro['title'] ?? '')), ['Postani dio tima', 'Join our team'], true)
+            || in_array(trim((string) ($process['title_line_one'] ?? '')), ['Selekcijski proces u', 'Selection process at'], true)
+            || in_array(trim((string) ($form['title'] ?? '')), ['Pošaljite nam svoj CV', 'Send us your CV'], true);
     }
 
     private static function isCroatian(string $locale): bool

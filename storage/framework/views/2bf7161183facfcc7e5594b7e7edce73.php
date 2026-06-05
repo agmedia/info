@@ -102,11 +102,13 @@
                 'label' => __('ui.front.desktop.nav.departments'),
                 'url' => $homeUrl.'#odjeli',
                 'children' => [
-                    ['label' => __('ui.front.desktop.nav.finance'), 'url' => route('finance.show')],
-                    ['label' => __('ui.front.desktop.nav.accounting'), 'url' => route('accounting.show')],
                     ['label' => __('ui.front.desktop.nav.audit'), 'url' => route('audit.show')],
-                    ['label' => __('ui.front.desktop.nav.tax'), 'url' => route('tax.show')],
-                    ['label' => 'EU fondovi', 'url' => route('eu-funds.show')],
+                    ['label' => __('ui.front.desktop.nav.accounting'), 'url' => route('accounting.show')],
+                    ['label' => 'Savjetovanje', 'url' => route('advisory.show'), 'children' => [
+                        ['label' => 'Financijsko savjetovanje', 'url' => route('advisory.finance.show')],
+                        ['label' => 'Porezno savjetovanje', 'url' => route('advisory.tax.show')],
+                        ['label' => 'Pribavljanje financiranja', 'url' => route('advisory.funding.show')],
+                    ]],
                     ['label' => 'Obiteljski biznis', 'url' => route('family-business.show')],
                 ],
                 'open_in_new_tab' => false,
@@ -140,7 +142,7 @@
         ];
     }
 ?>
-<body class="front-desktop-shell front-preload-pending min-h-screen overflow-x-hidden antialiased" style="--front-header-hero-backdrop: url('<?php echo e($headerHeroBackdropUrl); ?>');">
+<body class="front-desktop-shell <?php echo e(request()->routeIs('audit.show') ? 'front-route-audit' : ''); ?> <?php echo e(request()->routeIs('accounting.show') ? 'front-route-accounting' : ''); ?> <?php echo e(request()->routeIs('advisory.*') ? 'front-route-advisory' : ''); ?> front-preload-pending min-h-screen overflow-x-hidden antialiased" style="--front-header-hero-backdrop: url('<?php echo e($headerHeroBackdropUrl); ?>');">
     <div id="front-initial-preloader" aria-hidden="true"></div>
     <?php
         $activeLocale = (string) ($frontLocale ?? app()->getLocale());
@@ -405,9 +407,11 @@
     <?php echo $__env->yieldContent('content'); ?>
 </main>
 
-<button type="button" class="front-footer-compass front-scroll-compass" data-scroll-top data-scroll-top-floating aria-label="Povratak na vrh">
-    <img src="<?php echo e(asset('front-theme/images/icons/znak-zlatni.svg')); ?>" alt="" aria-hidden="true" class="front-footer-compass-mark">
-</button>
+<?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if (! (request()->routeIs('audit.show') || request()->routeIs('accounting.show'))): ?>
+    <button type="button" class="front-footer-compass front-scroll-compass" data-scroll-top data-scroll-top-floating aria-label="Povratak na vrh">
+        <img src="<?php echo e(asset('front-theme/images/icons/znak-zlatni.svg')); ?>" alt="" aria-hidden="true" class="front-footer-compass-mark">
+    </button>
+<?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
 <footer class="front-footer mt-0">
     <?php
@@ -750,14 +754,17 @@
         };
 
         syncCompassBackground();
-        syncFloatingVisibility();
         window.addEventListener('resize', syncCompassBackground);
-        window.addEventListener('resize', syncFloatingVisibility);
         window.addEventListener('orientationchange', syncCompassBackground);
-        window.addEventListener('orientationchange', syncFloatingVisibility);
-        window.addEventListener('scroll', requestFloatingVisibilitySync, { passive: true });
         window.setTimeout(syncCompassBackground, 120);
-        window.setTimeout(syncFloatingVisibility, 120);
+
+        if (floatingButton) {
+            syncFloatingVisibility();
+            window.addEventListener('resize', syncFloatingVisibility);
+            window.addEventListener('orientationchange', syncFloatingVisibility);
+            window.addEventListener('scroll', requestFloatingVisibilitySync, { passive: true });
+            window.setTimeout(syncFloatingVisibility, 120);
+        }
 
         scrollTopButtons.forEach(function (button) {
             button.addEventListener('click', function () {

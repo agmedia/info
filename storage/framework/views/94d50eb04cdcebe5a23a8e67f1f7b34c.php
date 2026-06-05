@@ -3,147 +3,8 @@
 
 <?php $__env->startSection('content'); ?>
     <?php
-        $fontAwesomeSolidSprite = asset('front-theme/fonts/sprites/solid.svg');
-        $supportJourneyIconMap = [
-            'family-tree' => [
-                'view_box' => '0 0 640 512',
-                'href' => $fontAwesomeSolidSprite.'#user-group',
-            ],
-            'handshake' => [
-                'view_box' => '0 0 640 512',
-                'href' => $fontAwesomeSolidSprite.'#handshake',
-            ],
-            'network' => [
-                'view_box' => '0 0 448 512',
-                'href' => $fontAwesomeSolidSprite.'#share-nodes',
-            ],
-            'bank' => [
-                'view_box' => '0 0 512 512',
-                'href' => $fontAwesomeSolidSprite.'#building-columns',
-            ],
-            'europe' => [
-                'view_box' => '0 0 384 512',
-                'href' => $fontAwesomeSolidSprite.'#euro-sign',
-            ],
-            'chart-grid' => [
-                'view_box' => '0 0 512 512',
-                'href' => $fontAwesomeSolidSprite.'#chart-line',
-            ],
-            'file-check' => [
-                'view_box' => '0 0 384 512',
-                'href' => $fontAwesomeSolidSprite.'#file-lines',
-            ],
-            'shield-percent' => [
-                'view_box' => '0 0 640 512',
-                'href' => $fontAwesomeSolidSprite.'#scale-balanced',
-            ],
-            'book-open' => [
-                'view_box' => '0 0 576 512',
-                'href' => $fontAwesomeSolidSprite.'#book-open',
-            ],
-        ];
-
-        $supportJourney = [
-            'eyebrow' => null,
-            'title_lines' => ['Stvaramo vrijednost za naše klijente u', 'svim fazama razvoja poslovanja'],
-            'text' => null,
-            'cards' => [
-                [
-                    'title' => 'Financijsko savjetovanje',
-                    'icon' => 'bank',
-                    'list' => [
-                        'Osiguravamo kapital za rast i razvoj poslovanja.',
-                        'Optimiziramo strukturu financiranja i bilancu.',
-                        'Pomažemo u donošenju strateških financijskih odluka.',
-                        'Upravljamo investicijama i mjerimo povrat na kapital.',
-                        'Preuzimamo ulogu financijskog partnera menadžmentu.',
-                        'Smanjujemo financijske rizike i povećavamo predvidljivost poslovanja.',
-                        'Pripremamo financije za ulazak investitora ili transakcije.',
-                    ],
-                ],
-                [
-                    'title' => 'Računovodstvo',
-                    'icon' => 'book-open',
-                    'list' => [
-                        'Osiguravamo točne i pouzdane financijske informacije za sigurno odlučivanje.',
-                        'Smanjujemo rizike i nesigurnost kroz usklađenost sa zakonima i standardima.',
-                        'Dajemo jasnoću u poslovne rezultate kroz pravovremeno i razumljivo izvještavanje.',
-                        'Podržavamo rast poslovanja kroz savjetodavnu ulogu, a ne samo vođenje knjiga.',
-                        'Oslobađamo vrijeme menadžmentu kako bi se fokusirao na razvoj, a ne administraciju.',
-                        'Olakšavamo pristup informacijama kroz ALPHA CLOUD i prilagodljive izvještaje.',
-                    ],
-                ],
-                [
-                    'title' => 'Revizija',
-                    'icon' => 'file-check',
-                    'list' => [
-                        'Povećavamo povjerenje u financijske izvještaje.',
-                        'Potvrđujemo usklađenost s računovodstvenim i revizorskim standardima.',
-                        'Smanjujemo rizike i neizvjesnosti za vlasnike i investitore.',
-                        'Pravovremeno otkrivamo nepravilnosti i slabosti u sustavima.',
-                        'Jačamo transparentnost i kredibilitet poslovanja.',
-                        'Štitimo interese vlasnika kroz objektivnu procjenu stanja.',
-                        'Pomažemo u unaprjeđenju internih kontrola i procesa.',
-                    ],
-                ],
-                [
-                    'title' => 'Porezi',
-                    'icon' => 'shield-percent',
-                    'list' => [
-                        'Pomažemo ostvariti porezne uštede kroz sve dostupne olakšice i poticaje.',
-                        'Osiguravamo sigurnost i usklađenost uz minimalne porezne rizike.',
-                        'Zastupamo pred poreznim tijelima dok fokus ostaje na poslovanju.',
-                        'Planiramo poreznu strategiju koja optimizira strukturu društva.',
-                        'Prevencijom uklanjamo porezne rizike prije nego nastanu.',
-                    ],
-                ],
-                [
-                    'title' => 'EU fondovi',
-                    'icon' => 'europe',
-                    'list' => [
-                        'Pribavljamo bespovratna sredstva.',
-                        'Pomažemo u identifikaciji relevantnih EU fondova i uspješnoj pripremi i prijavi projekata.',
-                        'Pripremamo dokumentaciju u skladu s kriterijima fondova, spremnu za odobrenje.',
-                        'Strukturiramo projekte prema pravilima fondova kako bi se povećale šanse financiranja.',
-                        'Pratimo realizaciju projekata i osiguravamo ispunjenje svih uvjeta i obveza.',
-                        'Maksimiziramo financijsku korist kroz potpore, povrat sredstava i poticaje.',
-                    ],
-                ],
-                [
-                    'title' => 'Savjetovanje obiteljskih biznisa',
-                    'icon' => 'family-tree',
-                    'list' => [
-                        'Usklađujemo interese obitelji, vlasništva i poslovanja kroz jasno definirane uloge i strukture.',
-                        'Pomažemo u prijenosu vlasništva na sljedeće generacije ili menadžment uz minimalne rizike.',
-                        'Savjetujemo u očuvanju vrijednosti i osiguravanju dugoročnog rasta poslovanja.',
-                        'Olakšavamo rješavanje sukoba i donošenje ključnih odluka u obiteljskom poslovanju.',
-                        'Pripremamo Društvo za tranzicije, dokapitalizacije ili prodajne transakcije.',
-                    ],
-                ],
-            ],
-        ];
-
-        $homeServicesByTemplate = collect($serviceCards ?? [])->keyBy('template_key');
-        $homeServicesShowcaseCards = collect([
-            ['template_key' => 'accounting', 'title' => 'Računovodstvo'],
-            ['template_key' => 'audit', 'title' => 'Revizija'],
-            ['template_key' => 'finance', 'title' => 'Financije'],
-            ['template_key' => 'tax', 'title' => 'Porezi'],
-            ['template_key' => 'eu_funds', 'title' => 'EU fondovi'],
-            ['template_key' => 'family_business', 'title' => 'Obiteljski biznis'],
-        ])
-            ->map(function (array $item) use ($homeServicesByTemplate): array {
-                $card = (array) ($homeServicesByTemplate->get($item['template_key']) ?? []);
-
-                return [
-                    'title' => $item['title'],
-                    'url' => $card['url'] ?? route('services.index'),
-                    'image_url' => $card['image_url'] ?? asset('front-theme/images/services/finance-editorial-3d.svg'),
-                ];
-            })
-            ->all();
-
-        $homeServicesShowcaseText = 'ALPHA CAPITALIS čini tim stručnjaka iz područja financija, revizije, računovodstva, poreza, EU fondova i savjetovanja obiteljskog biznisa koji kroz zajedničko djelovanje nudi cjelokupno rješenje za obiteljske biznise, investitore i poduzetnike s ciljem pružanja podrške kroz sve faze razvoja poslovanja.';
+        $homeServicesShowcaseCards = array_values($primaryServicePillars ?? []);
+        $homeServicesShowcaseText = 'ALPHA CAPITALIS čini tim stručnjaka iz područja revizije, računovodstva i financijskog savjetovanja. Kroz zajedničko djelovanje pružamo cjelovita rješenja poduzećima, investitorima i poduzetnicima koji žele sigurno rasti.';
 
         $globalMemberships = [
             [
@@ -213,91 +74,14 @@
         ];
     ?>
 
-    <section id="poslovna-podrska" class="ac-support-story ac-support-story--dark" aria-labelledby="ac-support-story-title">
-        <div class="mx-auto w-full max-w-[1240px] px-5 lg:px-8">
-            <div class="ac-support-story-hero">
-                <div class="ac-support-story-shell">
-                    <div class="ac-services-head ac-support-story-head">
-                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(!empty($supportJourney['eyebrow'])): ?>
-                            <div class="ac-services-eyebrow">
-                                <span class="ac-services-eyebrow-line" aria-hidden="true"></span>
-                                <p class="ac-services-kicker"><?php echo e($supportJourney['eyebrow']); ?></p>
-                                <span class="ac-services-eyebrow-line" aria-hidden="true"></span>
-                            </div>
-                        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
-                        <h2 id="ac-support-story-title">
-                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $supportJourney['title_lines']; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $line): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                                <span><?php echo e($line); ?></span>
-                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
-                        </h2>
-                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(!empty($supportJourney['text'])): ?>
-                            <p class="ac-services-intro"><?php echo e($supportJourney['text']); ?></p>
-                            <div class="ac-services-divider" aria-hidden="true">
-                                <span class="ac-services-divider-line"></span>
-                                <span class="ac-services-divider-glyph"></span>
-                                <span class="ac-services-divider-line"></span>
-                            </div>
-                        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
-                    </div>
-                </div>
-            </div>
-
-            <div class="ac-support-story-grid">
-                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $supportJourney['cards']; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $card): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                    <?php
-                        $cardIcon = $supportJourneyIconMap[$card['icon'] ?? ''] ?? [
-                            'view_box' => '0 0 512 512',
-                            'href' => $fontAwesomeSolidSprite.'#briefcase',
-                        ];
-                    ?>
-                    <article class="ac-support-story-card">
-                        <span class="ac-support-story-card-icon" aria-hidden="true">
-                            <svg viewBox="<?php echo e($cardIcon['view_box']); ?>" fill="currentColor" aria-hidden="true">
-                                <use href="<?php echo e($cardIcon['href']); ?>"></use>
-                            </svg>
-                        </span>
-                        <h3><?php echo e($card['title']); ?></h3>
-                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(!empty($card['lead']) || !empty($card['text'])): ?>
-                            <p class="ac-support-story-card-lead"><?php echo e($card['lead'] ?? $card['text']); ?></p>
-                        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
-
-                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(!empty($card['list'])): ?>
-                            <ul class="ac-support-story-card-list">
-                                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $card['list']; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $listItem): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                                    <li><?php echo e($listItem); ?></li>
-                                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
-                            </ul>
-                        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
-                    </article>
-                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
-            </div>
-        </div>
-    </section>
-
-    <section class="ac-home-services-showcase" aria-labelledby="ac-home-services-showcase-title">
-        <div class="ac-home-services-showcase-inner mx-auto w-full max-w-[1240px] px-5 lg:px-8">
-            <div class="ac-home-services-showcase-copy">
-                <h2 id="ac-home-services-showcase-title" class="sr-only">Usluge Alpha Capitalisa</h2>
-                <p><?php echo e($homeServicesShowcaseText); ?></p>
-            </div>
-
-            <div class="ac-home-services-showcase-grid">
-                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $homeServicesShowcaseCards; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $card): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                    <a href="<?php echo e($card['url']); ?>" class="ac-services-index-card ac-home-services-showcase-card">
-                        <img
-                            src="<?php echo e($card['image_url']); ?>"
-                            alt=""
-                            aria-hidden="true"
-                            loading="lazy"
-                            decoding="async"
-                        >
-                        <span class="ac-services-index-card-shade" aria-hidden="true"></span>
-                        <span class="ac-services-index-card-title"><?php echo e($card['title']); ?></span>
-                    </a>
-                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
-            </div>
-        </div>
-    </section>
+    <?php echo $__env->make('front.desktop.partials.service-pillars-showcase', [
+        'sectionId' => 'ac-home-services-showcase',
+        'headingLevel' => 2,
+        'titleLead' => 'Stvaramo vrijednost za naše klijente u',
+        'titleAccent' => 'svim fazama razvoja poslovanja',
+        'intro' => $homeServicesShowcaseText,
+        'cards' => $homeServicesShowcaseCards,
+    ], array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
 
     
     <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(false): ?>
@@ -552,7 +336,7 @@
     <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
     <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
-    <?php if (! $__env->hasRenderedOnce('d6b63f6b-7ad2-48c6-83af-074285209302')): $__env->markAsRenderedOnce('d6b63f6b-7ad2-48c6-83af-074285209302'); ?>
+    <?php if (! $__env->hasRenderedOnce('73572b80-7017-4b25-9cbf-f5459abee94c')): $__env->markAsRenderedOnce('73572b80-7017-4b25-9cbf-f5459abee94c'); ?>
         <script>
             (function () {
                 const syncTestimonialToggles = function () {

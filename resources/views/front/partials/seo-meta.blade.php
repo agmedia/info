@@ -139,7 +139,16 @@
         }
     }
 
-    if (request()->routeIs('finance.show')) {
+    if (request()->routeIs('advisory.show')) {
+        $title = $cleanupText((string) ($servicePageMetaTitle ?? $servicePageTitle ?? $title), 191);
+        $description = $cleanupText((string) ($servicePageMetaDescription ?? $description), 320);
+
+        if (trim((string) ($servicePageOgImage ?? '')) !== '') {
+            $ogImage = (string) $servicePageOgImage;
+        }
+    }
+
+    if (request()->routeIs('finance.show') || request()->routeIs('advisory.finance.show')) {
         $title = $cleanupText((string) ($servicePageMetaTitle ?? $servicePageTitle ?? $title), 191);
         $description = $cleanupText((string) ($servicePageMetaDescription ?? $description), 320);
 
@@ -166,7 +175,7 @@
         }
     }
 
-    if (request()->routeIs('tax.show')) {
+    if (request()->routeIs('tax.show') || request()->routeIs('advisory.tax.show')) {
         $title = $cleanupText((string) ($servicePageMetaTitle ?? $servicePageTitle ?? $title), 191);
         $description = $cleanupText((string) ($servicePageMetaDescription ?? $description), 320);
 
@@ -175,7 +184,7 @@
         }
     }
 
-    if (request()->routeIs('eu-funds.show')) {
+    if (request()->routeIs('eu-funds.show') || request()->routeIs('advisory.funding.show')) {
         $title = $cleanupText((string) ($servicePageMetaTitle ?? $servicePageTitle ?? $title), 191);
         $description = $cleanupText((string) ($servicePageMetaDescription ?? $description), 320);
 

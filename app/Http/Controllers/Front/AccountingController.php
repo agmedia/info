@@ -48,6 +48,7 @@ class AccountingController extends Controller
         $categoryTranslation = $accountingCategory?->translations->firstWhere('locale', $locale)
             ?? $accountingCategory?->translations->firstWhere('locale', $fallbackLocale)
             ?? $accountingCategory?->translations->first();
+        $categorySlug = trim((string) ($categoryTranslation?->slug ?? ''));
         $defaultCategoryName = str_starts_with(strtolower($locale), 'hr') ? 'Računovodstvo' : 'Accounting';
         $categoryName = trim((string) ($categoryTranslation?->name ?? '')) ?: $defaultCategoryName;
         $accountingPosts = $this->resolveAccountingPosts(
@@ -65,10 +66,18 @@ class AccountingController extends Controller
         return view($this->frontendView($request, 'pages.accounting'), [
             'accountingPosts' => $accountingPosts,
             'accountingCategoryName' => $categoryName,
+            'accountingArchiveUrl' => $categorySlug !== ''
+                ? url('/blog/'.$categorySlug)
+                : route('blog.index'),
             'heroSection' => (array) ($translationPayload['hero'] ?? []),
+            'overviewSection' => (array) ($translationPayload['overview'] ?? []),
+            'servicesSection' => (array) ($translationPayload['services'] ?? []),
+            'approachSection' => (array) ($translationPayload['approach'] ?? []),
             'introSection' => $introSection,
             'editorialSection' => (array) ($translationPayload['editorial_section'] ?? []),
             'detailSections' => array_values((array) ($translationPayload['detail_sections'] ?? [])),
+            'serviceVideoSection' => $serviceVideoPayload['section'],
+            'serviceVideos' => $serviceVideoPayload['items'],
             'videoSection' => $serviceVideoPayload['section'],
             'accountingVideos' => $serviceVideoPayload['items'],
             'bookkeepingSection' => (array) ($translationPayload['bookkeeping_section'] ?? []),

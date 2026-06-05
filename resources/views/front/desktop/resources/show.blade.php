@@ -269,7 +269,7 @@
         .ac-resource-form-head h2 {
             margin: 0;
             color: #10213a;
-            font-family: "Playfair Display", Sans-serif;
+            font-family: 'Montserrat', sans-serif;
             font-size: clamp(1.9rem, 2.5vw, 2.45rem);
             font-weight: 600;
             line-height: 1.04;

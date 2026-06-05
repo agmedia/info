@@ -3,6 +3,7 @@
     $pagePayload = $form['page_payload'] ?? [];
     $currentTemplateKey = $form['template_key'] ?? \App\Support\Content\ServicePageTemplateRegistry::FAMILY_BUSINESS;
     $currentTemplateLabel = $templateOptions[$currentTemplateKey] ?? $currentTemplateKey;
+    $isAdvisoryTemplate = $currentTemplateKey === \App\Support\Content\ServicePageTemplateRegistry::ADVISORY;
     $isFinanceTemplate = $currentTemplateKey === \App\Support\Content\ServicePageTemplateRegistry::FINANCE;
     $isAccountingTemplate = $currentTemplateKey === \App\Support\Content\ServicePageTemplateRegistry::ACCOUNTING;
     $isAuditTemplate = $currentTemplateKey === \App\Support\Content\ServicePageTemplateRegistry::AUDIT;
@@ -56,15 +57,27 @@
         'eu-funds-blog' => 'Blog',
         'eu-funds-meeting' => 'Meeting',
     ];
+    $advisoryEditorSections = [
+        'advisory-overview-admin' => 'Overview',
+        'advisory-services-admin' => 'Services',
+        'advisory-pandea-admin' => 'Pandea',
+        'advisory-funding-admin' => 'Funding',
+        'advisory-transactions-admin' => 'Transactions',
+        'advisory-tax-admin' => 'Tax',
+        'advisory-modules-admin' => 'Modules',
+        'advisory-meeting-admin' => 'Meeting',
+    ];
     $blogAutoCategoryLabel = $isAccountingTemplate
         ? __('Auto (current accounting category)')
         : ($isAuditTemplate
             ? __('Auto (current audit category)')
-            : ($isTaxTemplate
-                ? __('Auto (current tax category)')
-                : ($isEuFundsTemplate
-                    ? __('Auto (current EU funds category)')
-                    : __('Auto (current family-business category)'))));
+            : ($isAdvisoryTemplate
+                ? __('Auto (current advisory category)')
+                : ($isTaxTemplate
+                    ? __('Auto (current tax category)')
+                    : ($isEuFundsTemplate
+                        ? __('Auto (current EU funds category)')
+                        : __('Auto (current family-business category)')))));
 @endphp
 
 <div class="space-y-6">
@@ -1957,6 +1970,8 @@
                         </div>
                     </div>
                 </div>
+            @elseif ($isAdvisoryTemplate)
+                @include('livewire.admin.content.service.partials.advisory-editor')
             @elseif ($isEuFundsTemplate)
                 @include('livewire.admin.content.service.partials.eu-funds-editor')
             @else

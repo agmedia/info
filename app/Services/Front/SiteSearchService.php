@@ -100,6 +100,17 @@ class SiteSearchService
                 'url' => route('eu-funds.show'),
             ],
             [
+                'title' => $isCroatian ? 'Savjetovanje' : 'Advisory',
+                'eyebrow' => $isCroatian ? 'Advisory' : 'Advisory',
+                'excerpt' => $isCroatian
+                    ? 'Financijsko i porezno savjetovanje te pribavljanje kapitala - sve na jednom mjestu.'
+                    : 'Financial and tax advisory, capital raising, and transaction support in one place.',
+                'search' => $isCroatian
+                    ? 'savjetovanje advisory poslovno financijsko porezno porezi eu fondovi pribavljanje financiranja due diligence procjene vrijednosti m&a spajanja preuzimanja'
+                    : 'advisory business financial tax eu funds financing due diligence valuations m&a mergers acquisitions',
+                'url' => route('advisory.show'),
+            ],
+            [
                 'title' => $isCroatian ? 'Obiteljski biznis' : 'Family Business',
                 'eyebrow' => $isCroatian ? 'Nasljeđe' : 'Legacy',
                 'excerpt' => $isCroatian

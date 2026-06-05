@@ -4,23 +4,17 @@
 @section('main_class', 'w-full px-0 py-0')
 
 @section('content')
-    <section class="ac-services-index" aria-labelledby="ac-services-index-title">
-        <h1 id="ac-services-index-title" class="sr-only">{{ $servicePageTitle ?? 'Usluge' }}</h1>
-
-        <div class="ac-services-index-grid">
-            @foreach ($serviceCards as $card)
-                <a href="{{ $card['url'] }}" class="ac-services-index-card">
-                    <img
-                        src="{{ $card['image_url'] }}"
-                        alt=""
-                        aria-hidden="true"
-                        loading="{{ $loop->index < 3 ? 'eager' : 'lazy' }}"
-                        decoding="async"
-                    >
-                    <span class="ac-services-index-card-shade" aria-hidden="true"></span>
-                    <span class="ac-services-index-card-title">{{ $card['title'] }}</span>
-                </a>
-            @endforeach
-        </div>
-    </section>
+    @include('front.desktop.partials.service-pillars-showcase', [
+        'sectionId' => 'ac-services-index',
+        'headingLevel' => 1,
+        'titleLead' => 'Naše usluge',
+        'titleAccent' => '',
+        'intro' => '',
+        'variant' => 'image',
+        'outro' => [
+            'Kroz integrirani pristup reviziji, računovodstvu i financijskom savjetovanju stvaramo dodatnu vrijednost pomažući klijentima da posluju sigurnije, transparentnije i učinkovitije.',
+            'Naša podrška omogućuje bolje upravljanje financijama, kvalitetnije strateško planiranje i donošenje odluka temeljenih na relevantnim i pravovremenim informacijama, uz smanjenje poslovnih i financijskih rizika.',
+        ],
+        'cards' => $primaryServicePillars ?? [],
+    ])
 @endsection

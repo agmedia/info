@@ -17,7 +17,7 @@
     @endphp
 
     <div class="front-contact-page ac-assessment-page" data-assessment-form-root data-locale="{{ app()->getLocale() }}">
-        <x-front.page-title-band :breadcrumbs="$pageTitleBreadcrumbs">
+        <x-front.page-title-band :breadcrumbs="$pageTitleBreadcrumbs" section-class="ac-assessment-title-band">
             <div class="ac-page-title-copy">
                 <h1>{{ __('assessment.heading') }}</h1>
                 <p>{{ __('assessment.subheading') }}</p>

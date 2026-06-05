@@ -24,9 +24,10 @@ class ServicesController extends Controller
 
         return view($this->frontendView($request, 'pages.services'), [
             'serviceCards' => $this->serviceCardService->cards((string) $locale, $fallbackLocale),
+            'primaryServicePillars' => $this->serviceCardService->primaryPillars((string) $locale, $fallbackLocale),
             'servicePageTitle' => 'Usluge',
             'servicePageMetaTitle' => 'Usluge | Alpha Capitalis',
-            'servicePageMetaDescription' => 'Pregled usluga Alpha Capitalisa: financije, racunovodstvo, revizija, porezi, EU fondovi i obiteljski biznis.',
+            'servicePageMetaDescription' => 'Pregled usluga ALPHA CAPITALISA: revizija, racunovodstvo i poslovno savjetovanje.',
             'locale' => $locale,
             'fallbackLocale' => $fallbackLocale,
         ]);

@@ -95,8 +95,6 @@
             </div>
         </div>
     </section>
-@endif
-
 @push('styles')
     <style>
         .ac-service-videos-section {
@@ -350,3 +348,4 @@
         }());
     </script>
 @endpush
+@endif

@@ -63,7 +63,7 @@
             </div>
         </x-front.page-title-band>
 
-        <div class="mx-auto w-full max-w-[1320px] px-4 sm:px-6 lg:px-8">
+        <div class="ac-blog-list-shell mx-auto w-full max-w-[1320px] px-4 sm:px-6 lg:px-8">
             @if ($categories->isNotEmpty())
                 <section class="ac-blog-category-nav" aria-labelledby="ac-blog-category-nav-title">
                     <h2 id="ac-blog-category-nav-title" class="sr-only">{{ __('ui.blog.browse_categories') }}</h2>

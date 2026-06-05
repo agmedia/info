@@ -66,10 +66,13 @@ class StorefrontFrontFeatureTest extends TestCase
     {
         $this->get('/karijera')
             ->assertOk()
-            ->assertSee('Postani dio tima')
-            ->assertSee('Selekcijski proces u ALPHA CAPITALISU')
-            ->assertSee('Pošaljite nam svoj CV')
-            ->assertSee('ALPHA CAPITALIS postoji od 2012. godine s ciljem pružanja podrške klijentima u svijetu financija kroz sve faze razvoja poslovanja.');
+            ->assertSee('Mjesto gdje karijera stvarno raste')
+            ->assertSee('Ne tražimo samo zaposlenike.')
+            ->assertSee('ALPHA CAPITALIS danas okuplja više od 70 stručnjaka')
+            ->assertSee('Razvoj koji nije samo fraza')
+            ->assertSee('Ljudi zbog kojih ostaješ')
+            ->assertSee('Otvorene pozicije')
+            ->assertSee('Pošalji nam svoj životopis');
     }
 
     public function test_career_page_renders_custom_copy_from_translation_payload(): void
@@ -694,8 +697,12 @@ class StorefrontFrontFeatureTest extends TestCase
 
         $response->assertOk()
             ->assertSee('ALPHA CAPITALIS čini tim stručnjaka')
-            ->assertSee('Stvaramo vrijednost za naše klijente u')
-            ->assertSee('EU fondovi')
+            ->assertSee('Kroz zajedničko djelovanje pružamo cjelovita rješenja poduzećima, investitorima i poduzetnicima koji žele sigurno rasti.')
+            ->assertSee('sigurnost i povjerenje u brojke')
+            ->assertSee('kontrola i jasnoća poslovanja')
+            ->assertSee('rast, optimizacija i bolji financijski izbor')
+            ->assertSee('Pomažemo vlasnicima, investitorima i upravi da imaju potpunu sigurnost u financijske izvještaje.')
+            ->assertSee('Umjesto da reagirate na probleme, možete upravljati poslovanjem na temelju pouzdanih informacija.')
             ->assertDontSee('Globalna partnerstva i stručna članstva')
             ->assertDontSee('Zadnje objave i novosti')
             ->assertDontSee('Iskustva naših klijenata');
@@ -704,17 +711,14 @@ class StorefrontFrontFeatureTest extends TestCase
         $this->assertIsString($content);
 
         $serviceTitles = [
-            'Računovodstvo',
             'Revizija',
-            'Financije',
-            'Porezi',
-            'EU fondovi',
-            'Obiteljski biznis',
+            'Računovodstvo',
+            'Savjetovanje',
         ];
 
         $positions = [];
         foreach ($serviceTitles as $title) {
-            $position = strpos($content, '<span class="ac-services-index-card-title">'.$title.'</span>');
+            $position = strpos($content, '<span class="ac-service-pillar-text-card-title">'.$title.'</span>');
             $this->assertNotFalse($position, 'Missing services card: '.$title);
             $positions[] = $position;
         }
@@ -723,6 +727,14 @@ class StorefrontFrontFeatureTest extends TestCase
         sort($sortedPositions);
 
         $this->assertSame($sortedPositions, $positions);
+        $this->assertStringNotContainsString('id="poslovna-podrska"', $content);
+        $this->assertStringNotContainsString('ac-support-story--dark', $content);
+        $this->assertStringNotContainsString('Osiguravamo kapital za rast i razvoj poslovanja.', $content);
+        $this->assertStringNotContainsString('Savjetovanje obiteljskih biznisa', $content);
+        $this->assertStringNotContainsString('<span class="ac-service-pillar-text-card-title">Financije</span>', $content);
+        $this->assertStringNotContainsString('<span class="ac-service-pillar-text-card-title">Porezi</span>', $content);
+        $this->assertStringNotContainsString('<span class="ac-service-pillar-text-card-title">EU fondovi</span>', $content);
+        $this->assertStringNotContainsString('<span class="ac-service-pillar-text-card-title">Obiteljski biznis</span>', $content);
     }
 
     public function test_header_renders_requested_flat_navigation_links(): void
@@ -737,33 +749,75 @@ class StorefrontFrontFeatureTest extends TestCase
             ->assertDontSee('front-nav-caret');
     }
 
-    public function test_services_index_renders_cards_from_service_pages_media(): void
+    public function test_services_index_renders_primary_pillars_from_brief(): void
     {
-        Storage::fake('public');
-        config()->set('media-library.disk_name', 'public');
-        config()->set('media-library.queue_conversions_by_default', false);
-
-        $financePage = ServicePage::query()
-            ->where('template_key', ServicePageTemplateRegistry::FINANCE)
-            ->firstOrFail();
-
-        $financePage->addMedia(UploadedFile::fake()->image('finance-card.jpg', 1200, 800))
-            ->usingName('Finance grid image')
-            ->toMediaCollection('service_hero_image');
-
-        $mediaUrl = $financePage->getFirstMediaUrl('service_hero_image', 'hero_1440x480')
-            ?: $financePage->getFirstMediaUrl('service_hero_image');
-
         $this->get('/usluge')
             ->assertOk()
-            ->assertSee('Financije')
-            ->assertSee('Računovodstvo')
+            ->assertSee('Naše usluge')
+            ->assertSee('ac-service-pillar-image-card', false)
             ->assertSee('Revizija')
-            ->assertSee('Porezi')
-            ->assertSee('EU fondovi')
-            ->assertSee('Obiteljski biznis')
-            ->assertSee(route('finance.show'), false)
-            ->assertSee($mediaUrl, false);
+            ->assertSee('Računovodstvo')
+            ->assertSee('Savjetovanje')
+            ->assertSee('Neovisna provjera financijskih izvještaja koja povećava povjerenje vlasnika, investitora i partnera.')
+            ->assertSee('Precizno vođenje knjiga i pravovremeno izvještavanje koje oslobađa menadžment za strateške odluke.')
+            ->assertSee('Financijsko i porezno savjetovanje te pribavljanje kapitala - sve na jednom mjestu.')
+            ->assertSee('Kroz integrirani pristup reviziji, računovodstvu i financijskom savjetovanju stvaramo dodatnu vrijednost')
+            ->assertSee('Naša podrška omogućuje bolje upravljanje financijama, kvalitetnije strateško planiranje')
+            ->assertDontSee('Tri područja poslovne podrške')
+            ->assertDontSee('Saznaj više')
+            ->assertDontSee('Obiteljski biznis')
+            ->assertSee(route('advisory.show'), false);
+    }
+
+    public function test_audit_service_page_renders_redesign_brief_flow(): void
+    {
+        $response = $this->get('/revizija');
+
+        $response->assertOk()
+            ->assertSee('Neovisna, stručna provjera vaših financijskih izvještaja.')
+            ->assertSee('Što je revizija?')
+            ->assertSee('Revizor ne zastupa menadžment ni vlasnike - zastupa istinu u brojevima.')
+            ->assertSee('Zakonska revizija obvezna je za velika i srednja društva prema Zakonu o računovodstvu')
+            ->assertSee('prihodi iznad 30 mil. EUR')
+            ->assertSee('imovina iznad 15 mil. EUR')
+            ->assertSee('Naše revizijske usluge')
+            ->assertSee('Zakonska revizija')
+            ->assertSee('Dobrovoljna revizija')
+            ->assertSee('Interna revizija')
+            ->assertSee('Revizija posebne namjene')
+            ->assertSee('Naš pristup')
+            ->assertSee('Razgovarajmo o vašem revizorskom angažmanu')
+            ->assertDontSee('Pregledajte sekcije')
+            ->assertDontSee('Što revizija donosi društvu')
+            ->assertDontSee('ac-audit-service-number', false)
+            ->assertDontSee('ac-audit-editorial-index', false);
+    }
+
+    public function test_accounting_service_page_renders_redesign_brief_flow(): void
+    {
+        $response = $this->get('/racunovodstvo');
+
+        $response->assertOk()
+            ->assertSee('Precizno, pravovremeno i transparentno - preuzimamo vođenje vaših poslovnih knjiga')
+            ->assertSee('Što je računovodstvo?')
+            ->assertSee('Računovodstvo je sustavan zapis poslovnih transakcija')
+            ->assertSee('Naše računovodstvene usluge')
+            ->assertSee('Financijsko računovodstvo')
+            ->assertSee('Obračun plaća')
+            ->assertSee('Porezne prijave')
+            ->assertSee('Upravljačko izvještavanje')
+            ->assertSee('Osnivanje i registracija')
+            ->assertSee('Konsolidacija')
+            ->assertSee('Naš pristup')
+            ->assertSee('Nismo samo servis za vođenje knjiga')
+            ->assertSee('Razgovarajmo o vašem računovodstvu')
+            ->assertDontSee('Pogledajte usluge')
+            ->assertDontSee('Rent-a-računovođa')
+            ->assertDontSee('Analiza financijskih izvještaja')
+            ->assertDontSee('Manipulacija financijskim izvještajima')
+            ->assertDontSee('Zašto ne raditi u obiteljskom biznisu?')
+            ->assertDontSee('ac-accounting-detail-section', false)
+            ->assertDontSee('ac-accounting-video-card', false);
     }
 
     public function test_about_page_exists_empty_for_admin_managed_content(): void

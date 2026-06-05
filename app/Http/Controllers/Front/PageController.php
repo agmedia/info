@@ -10,8 +10,10 @@ use App\Models\Content\Glossary\GlossaryTerm;
 use App\Models\Content\Page\InfoPage;
 use App\Models\Content\Resource\ResourceDocument;
 use App\Models\Content\Support\Comment;
+use App\Models\Content\Team\TeamMember;
 use App\Services\Content\ContentBlockResolver;
 use App\Services\Content\GlossaryImportService;
+use App\Support\Content\AboutPageDefaults;
 use App\Support\Content\CareerPageDefaults;
 use App\Support\Content\ResourceDocumentGroupRegistry;
 use App\Support\Content\YouTubeUrl;
@@ -200,6 +202,29 @@ class PageController extends Controller
             ]);
         }
 
+        if ($page->layout === 'about') {
+            $aboutTeamMembers = $this->resolveAboutTeamMembers(
+                (string) $locale,
+                $fallbackLocale
+            );
+            $aboutReferenceItems = $this->resolveAboutReferenceItems(
+                (string) $locale,
+                $fallbackLocale
+            );
+
+            return view($this->frontendView($request, 'pages.about'), [
+                'page' => $page,
+                'selectedTranslation' => $selectedTranslation,
+                'aboutContent' => AboutPageDefaults::forLocale((string) ($selectedTranslation?->locale ?: $locale)),
+                'aboutTeamMembers' => $aboutTeamMembers,
+                'aboutReferenceItems' => $aboutReferenceItems,
+                'topBlocks' => $topBlocks,
+                'bottomBlocks' => $bottomBlocks,
+                'locale' => $locale,
+                'fallbackLocale' => $fallbackLocale,
+            ]);
+        }
+
         if ($page->layout === 'academy') {
             [$academyBlogCategory, $academyBlogPosts] = $this->resolveAcademyBlogFeed(
                 $page,
@@ -292,6 +317,126 @@ class PageController extends Controller
         $payload = is_array($translationPayload) ? $translationPayload : [];
 
         return CareerPageDefaults::merge($payload['career_page'] ?? null, $locale);
+    }
+
+    /**
+     * @return Collection<int, array<string, mixed>>
+     */
+    private function resolveAboutTeamMembers(string $locale, string $fallbackLocale): Collection
+    {
+        return TeamMember::query()
+            ->where('is_active', true)
+            ->with(['translations', 'media'])
+            ->orderBy('sort_order')
+            ->orderBy('id')
+            ->limit(4)
+            ->get()
+            ->map(fn (TeamMember $member): array => $this->mapAboutTeamMember($member, $locale, $fallbackLocale))
+            ->filter(fn (array $member): bool => $member['name'] !== '')
+            ->values();
+    }
+
+    /**
+     * @return Collection<int, array{id:int,name:string,url:string,alt:string,caption:string}>
+     */
+    private function resolveAboutReferenceItems(string $locale, string $fallbackLocale): Collection
+    {
+        $referencePage = InfoPage::query()
+            ->where('code', 'references')
+            ->where('is_active', true)
+            ->where(function ($query): void {
+                $query->whereNull('published_at')
+                    ->orWhere('published_at', '<=', now());
+            })
+            ->with(['translations', 'media'])
+            ->first();
+
+        if (! $referencePage) {
+            return collect();
+        }
+
+        $priorityTerms = [
+            'tele2',
+            'tcom',
+            'koncar',
+            'dok-ing',
+            'tekstilpromet',
+            'unior',
+            'takko',
+            'inter-capital',
+            'zracna-luka-rijeka',
+            'princess-yacht',
+            'euro-cable',
+            'reference-radnik',
+            'auctor',
+            'termoplin',
+            'superigra',
+            'mlinoprom',
+            'meritus',
+            'hidroregulacija',
+            'galeb',
+            'gauss',
+        ];
+
+        return $this->resolveReferenceLogos($referencePage, $locale, $fallbackLocale)
+            ->map(function (array $item, int $index) use ($priorityTerms): array {
+                $haystack = Str::of($item['name'].' '.$item['url'])
+                    ->ascii()
+                    ->lower()
+                    ->toString();
+                $priorityIndex = collect($priorityTerms)
+                    ->search(static fn (string $term): bool => str_contains($haystack, $term));
+
+                return $item + [
+                    '_priority' => $priorityIndex === false ? PHP_INT_MAX : (int) $priorityIndex,
+                    '_order' => $index,
+                ];
+            })
+            ->sortBy([
+                ['_priority', 'asc'],
+                ['_order', 'asc'],
+            ])
+            ->take(20)
+            ->map(static function (array $item): array {
+                unset($item['_priority'], $item['_order']);
+
+                return $item;
+            })
+            ->values();
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function mapAboutTeamMember(TeamMember $member, string $locale, string $fallbackLocale): array
+    {
+        $translation = $member->translations->firstWhere('locale', $locale)
+            ?? $member->translations->firstWhere('locale', $fallbackLocale)
+            ?? $member->translations->first();
+
+        $name = trim((string) ($translation?->name ?? ''));
+        $position = trim((string) ($translation?->position ?? ''));
+        $photoUrl = (string) ($member->getFirstMediaUrl('team_photo')
+            ?: $member->getFirstMediaUrl('team_photo', 'detail_960x960'));
+
+        return [
+            'id' => (int) $member->id,
+            'name' => $name,
+            'position' => $position,
+            'photo_url' => $photoUrl,
+            'initials' => $this->initialsForName($name !== '' ? $name : (string) $member->code),
+        ];
+    }
+
+    private function initialsForName(string $value): string
+    {
+        $parts = collect(preg_split('/\s+/u', trim($value)) ?: [])
+            ->filter()
+            ->take(2)
+            ->map(static fn (string $part): string => Str::upper(Str::substr($part, 0, 1)))
+            ->implode('');
+
+        return $parts !== '' ? $parts : 'AC';
     }
 
     /**

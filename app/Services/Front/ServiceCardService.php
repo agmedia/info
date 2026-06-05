@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Schema;
 class ServiceCardService
 {
     private const TEMPLATE_ORDER = [
+        ServicePageTemplateRegistry::ADVISORY,
         ServicePageTemplateRegistry::FINANCE,
         ServicePageTemplateRegistry::ACCOUNTING,
         ServicePageTemplateRegistry::AUDIT,
@@ -46,6 +47,78 @@ class ServiceCardService
             })
             ->values()
             ->all();
+    }
+
+    /**
+     * @return array<int, array<string, mixed>>
+     */
+    public function primaryPillars(string $locale, string $fallbackLocale): array
+    {
+        $cards = collect($this->cards($locale, $fallbackLocale))->keyBy('template_key');
+        $card = static fn (string $templateKey): array => (array) ($cards->get($templateKey) ?? []);
+
+        $audit = $card(ServicePageTemplateRegistry::AUDIT);
+        $accounting = $card(ServicePageTemplateRegistry::ACCOUNTING);
+        $advisory = $card(ServicePageTemplateRegistry::ADVISORY);
+        $familyBusiness = $card(ServicePageTemplateRegistry::FAMILY_BUSINESS);
+
+        return [
+            [
+                'key' => 'audit',
+                'title' => 'Revizija',
+                'subtitle' => 'sigurnost i povjerenje u brojke',
+                'text' => 'Neovisna provjera financijskih izvještaja koja povećava povjerenje vlasnika, investitora i partnera.',
+                'bullets' => [
+                    'Pomažemo vlasnicima, investitorima i upravi da imaju potpunu sigurnost u financijske izvještaje.',
+                    'Revizija smanjuje rizik pogrešnih odluka jer potvrđuje da su podaci točni, potpuni i u skladu s propisima.',
+                    'Kroz neovisnu provjeru dobivate jasnu sliku stvarnog financijskog stanja poduzeća, što jača povjerenje banaka, partnera i regulatora.',
+                ],
+                'url' => $audit['url'] ?? route('audit.show'),
+                'image_url' => $audit['image_url'] ?? $this->versionedAsset('front-theme/images/services/audit-editorial-3d.svg'),
+                'children' => [],
+            ],
+            [
+                'key' => 'accounting',
+                'title' => 'Računovodstvo',
+                'subtitle' => 'kontrola i jasnoća poslovanja',
+                'text' => 'Precizno vođenje knjiga i pravovremeno izvještavanje koje oslobađa menadžment za strateške odluke.',
+                'bullets' => [
+                    'Omogućujemo da vaše poslovanje bude financijski uredno, pregledno i uvijek spremno za odluke.',
+                    'To znači da u svakom trenutku imate točne podatke o prihodima, troškovima i rezultatu, bez kašnjenja i nejasnoća.',
+                    'Umjesto da reagirate na probleme, možete upravljati poslovanjem na temelju pouzdanih informacija.',
+                ],
+                'url' => $accounting['url'] ?? route('accounting.show'),
+                'image_url' => $accounting['image_url'] ?? $this->versionedAsset('front-theme/images/services/accounting-editorial-3d.svg'),
+                'children' => [],
+            ],
+            [
+                'key' => 'advisory',
+                'title' => 'Savjetovanje',
+                'subtitle' => 'rast, optimizacija i bolji financijski izbor',
+                'text' => 'Financijsko i porezno savjetovanje te pribavljanje kapitala - sve na jednom mjestu.',
+                'bullets' => [
+                    'Pomažemo društvima, investitorima i poduzetnicima u donošenju kvalitetnih odluka, upravljanju rizicima i stvaranju dugoročne vrijednosti.',
+                    'Pružamo podršku u procjenama vrijednosti, due diligence postupcima, M&A procesima i strukturiranju financiranja.',
+                    'EU fondovi, bankovni krediti i porezne olakšice povezani su u okviru pribavljanja financiranja.',
+                ],
+                'url' => route('advisory.show'),
+                'image_url' => $advisory['image_url'] ?? $familyBusiness['image_url'] ?? $this->versionedAsset('front-theme/images/services/advisory-editorial-3d.svg'),
+                'children' => [
+                    [
+                        'title' => 'Financijsko savjetovanje',
+                        'url' => route('advisory.finance.show'),
+                    ],
+                    [
+                        'title' => 'Porezno savjetovanje',
+                        'url' => route('advisory.tax.show'),
+                    ],
+                    [
+                        'title' => 'Pribavljanje financiranja',
+                        'url' => route('advisory.funding.show'),
+                    ],
+                ],
+            ],
+        ];
     }
 
     /**
@@ -86,17 +159,34 @@ class ServiceCardService
 
         if ($media) {
             if ($media->hasGeneratedConversion('hero_1440x480')) {
-                return $media->getUrl('hero_1440x480');
+                return $this->mediaAssetUrl($media, 'hero_1440x480') ?? $media->getUrl('hero_1440x480');
             }
 
             if ($media->hasGeneratedConversion('card_360x240')) {
-                return $media->getUrl('card_360x240');
+                return $this->mediaAssetUrl($media, 'card_360x240') ?? $media->getUrl('card_360x240');
             }
 
-            return $media->getUrl();
+            return $this->mediaAssetUrl($media) ?? $media->getUrl();
         }
 
         return $this->versionedAsset($fallbackImage);
+    }
+
+    private function mediaAssetUrl(\Spatie\MediaLibrary\MediaCollections\Models\Media $media, ?string $conversionName = null): ?string
+    {
+        $url = $conversionName !== null ? $media->getUrl($conversionName) : $media->getUrl();
+        $path = parse_url($url, PHP_URL_PATH);
+
+        if (! is_string($path) || trim($path) === '') {
+            return null;
+        }
+
+        $relativePath = ltrim($path, '/');
+        $absolutePath = public_path($relativePath);
+
+        return file_exists($absolutePath)
+            ? asset($relativePath).'?v='.filemtime($absolutePath)
+            : null;
     }
 
     private function versionedAsset(string $relativePath): string
@@ -114,6 +204,11 @@ class ServiceCardService
     private function cardDefaults(): array
     {
         return [
+            ServicePageTemplateRegistry::ADVISORY => [
+                'title' => 'Savjetovanje',
+                'url' => route('advisory.show'),
+                'fallback_image' => 'front-theme/images/services/advisory-editorial-3d.svg',
+            ],
             ServicePageTemplateRegistry::FINANCE => [
                 'title' => 'Financije',
                 'url' => route('finance.show'),

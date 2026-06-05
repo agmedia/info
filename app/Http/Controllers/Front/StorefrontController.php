@@ -46,6 +46,7 @@ class StorefrontController extends Controller
             [
                 'storeSettings' => $this->storeSettingsService->all(),
                 'serviceCards' => $this->serviceCardService->cards((string) $locale, $fallbackLocale),
+                'primaryServicePillars' => $this->serviceCardService->primaryPillars((string) $locale, $fallbackLocale),
                 'latestBlogPosts' => $latestBlogPosts,
                 'clientTestimonials' => $clientTestimonials,
                 'locale' => $locale,

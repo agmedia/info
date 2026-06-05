@@ -638,6 +638,7 @@
                     <div class="ac-support-story-hero">
                         <div class="ac-support-story-shell">
                             <div class="ac-services-head ac-support-story-head">
+                                <p class="ac-family-section-kicker">{{ str_starts_with(strtolower((string) ($locale ?? app()->getLocale())), 'hr') ? 'NAJNOVIJE OBJAVE' : 'LATEST POSTS' }}</p>
                                 <h2 id="ac-tax-blog-title">
                                     <span>{{ $blogSection['title'] ?? '' }}</span>
                                 </h2>
@@ -921,7 +922,7 @@
 
         .ac-tax-title-copy h2 {
             margin: 0;
-            font-family: 'Playfair Display', serif;
+            font-family: 'Montserrat', sans-serif;
             font-size: clamp(1.6rem, 2.25vw, 2.3rem);
             line-height: 1.15;
             font-weight: 600;
@@ -1056,7 +1057,7 @@
             color: #0f172a;
             font-weight: 700;
             letter-spacing: -0.02em;
-            font-family: 'Sora', 'Public Sans', 'Segoe UI', Arial, sans-serif;
+            font-family: 'Montserrat', sans-serif;
         }
 
         .ac-tax-panel-head {
@@ -1126,11 +1127,6 @@
 
         .ac-tax-subpanel .ac-tax-list {
             margin-top: 0.85rem;
-        }
-
-        .ac-tax-page .ac-home-blog-card,
-        .ac-tax-page .ac-home-blog-card-link {
-            border-color: rgba(171, 141, 82, 0.16);
         }
 
         @media (min-width: 960px) {

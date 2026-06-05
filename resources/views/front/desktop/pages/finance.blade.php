@@ -770,6 +770,7 @@
                     <div class="ac-support-story-hero">
                         <div class="ac-support-story-shell">
                             <div class="ac-services-head ac-support-story-head">
+                                <p class="ac-family-section-kicker">{{ str_starts_with(strtolower((string) ($locale ?? app()->getLocale())), 'hr') ? 'NAJNOVIJE OBJAVE' : 'LATEST POSTS' }}</p>
                                 <h2 id="ac-finance-blog-title">
                                     <span>{{ $blogSection['title'] ?? '' }}</span>
                                 </h2>
@@ -945,7 +946,7 @@
         .ac-finance-network-title h3 {
             margin: 0;
             max-width: none;
-            font-family: 'Playfair Display', serif;
+            font-family: 'Montserrat', sans-serif;
             font-size: clamp(1.32rem, 1.7vw, 1.82rem);
             line-height: 1.06;
             font-weight: 600;
@@ -1172,7 +1173,7 @@
         }
 
         .ac-finance-editorial-title h2 {
-            font-family: 'Playfair Display', serif;
+            font-family: 'Montserrat', sans-serif;
             font-size: clamp(1.6rem, 2.3vw, 2.3rem);
             line-height: 1.15;
             font-weight: 600;
@@ -1226,7 +1227,7 @@
             font-weight: 700;
             line-height: 1.5rem;
             color: #0f172a;
-            font-family: 'Sora', 'Public Sans', 'Segoe UI', Arial, sans-serif;
+            font-family: 'Montserrat', sans-serif;
             letter-spacing: -0.02em;
         }
 
@@ -1290,7 +1291,7 @@
             align-items: center;
             gap: 0.6rem;
             max-width: 100%;
-            font-family: 'Sora', 'Public Sans', 'Segoe UI', Arial, sans-serif;
+            font-family: 'Montserrat', sans-serif;
         }
 
         .ac-finance-kicker-label span:last-child {
@@ -1322,7 +1323,7 @@
             letter-spacing: 0.14em;
             text-transform: uppercase;
             color: #6b6258;
-            font-family: 'Sora', 'Public Sans', 'Segoe UI', Arial, sans-serif;
+            font-family: 'Montserrat', sans-serif;
         }
 
         .ac-finance-phase-table-shell {
@@ -1381,7 +1382,7 @@
             font-weight: 700;
             line-height: 1.5;
             color: #201c18;
-            font-family: 'Sora', 'Public Sans', 'Segoe UI', Arial, sans-serif;
+            font-family: 'Montserrat', sans-serif;
             letter-spacing: -0.02em;
         }
 
@@ -1453,8 +1454,6 @@
             color: #2d2925;
         }
 
-        .ac-finance-page .ac-home-blog-card,
-        .ac-finance-page .ac-home-blog-card-link,
         .ac-finance-page .ac-finance-phase-table-shell {
             box-shadow: none;
         }

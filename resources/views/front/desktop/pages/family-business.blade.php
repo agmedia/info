@@ -518,6 +518,7 @@
                     <div class="ac-support-story-hero">
                         <div class="ac-support-story-shell">
                             <div class="ac-services-head ac-support-story-head">
+                                <p class="ac-family-section-kicker">{{ str_starts_with(strtolower((string) ($locale ?? app()->getLocale())), 'hr') ? 'NAJNOVIJE OBJAVE' : 'LATEST POSTS' }}</p>
                                 <h2 id="ac-family-blog-title">
                                     <span>{{ $blogSection['title'] }}</span>
                                 </h2>

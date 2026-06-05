@@ -95,6 +95,9 @@
         $articleCta['title_lines'],
         static fn ($line) => trim((string) $line) !== '',
     ));
+    $relatedHeadingKicker = str_starts_with(strtolower((string) ($locale ?? app()->getLocale())), 'hr')
+        ? 'NAJNOVIJE OBJAVE'
+        : 'LATEST POSTS';
     $pageTitleBreadcrumbs = [
         ['label' => __('ui.front.desktop.footer.home'), 'url' => route('home')],
         ['label' => __('ui.blog.title'), 'url' => route('blog.index')],
@@ -144,7 +147,7 @@
             </div>
         </x-front.page-title-band>
 
-        <div class="mx-auto w-full max-w-[1320px] px-4 sm:px-6 lg:px-8">
+        <div class="ac-blog-article-shell mx-auto w-full max-w-[1320px] px-4 sm:px-6 lg:px-8">
             <article class="ac-blog-article-body">
                 <div class="ac-blog-article-body-inner">
                     @if ($coverImageUrl)
@@ -174,7 +177,7 @@
                             @endphp
                             <a
                                 href="{{ $galleryImageUrl }}"
-                                class="block aspect-[3/4] overflow-hidden rounded-[18px] bg-slate-100"
+                                class="block aspect-[3/4] overflow-hidden rounded-[8px] bg-slate-100"
                                 data-blog-gallery-item
                                 data-sub-html="{{ $translation?->title ?? $post->code }}"
                             >
@@ -254,15 +257,11 @@
                     <div class="ac-support-story-hero">
                         <div class="ac-support-story-shell">
                             <div class="ac-services-head ac-support-story-head">
+                                <p class="ac-family-section-kicker">{{ $relatedHeadingKicker }}</p>
                                 <h2 id="ac-blog-related-title">
                                     <span>{{ __('ui.blog.related_title') }}</span>
                                 </h2>
                                 <p class="ac-services-intro">{{ __('ui.blog.related_intro') }}</p>
-                                <div class="ac-services-divider" aria-hidden="true">
-                                    <span class="ac-services-divider-line"></span>
-                                    <span class="ac-services-divider-glyph"></span>
-                                    <span class="ac-services-divider-line"></span>
-                                </div>
                             </div>
                         </div>
                     </div>

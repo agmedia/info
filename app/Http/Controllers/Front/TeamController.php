@@ -53,8 +53,8 @@ class TeamController extends Controller
             ->values()
             ->all();
 
-        $photoUrl = (string) ($member->getFirstMediaUrl('team_photo', 'detail_960x960')
-            ?: $member->getFirstMediaUrl('team_photo'));
+        $photoUrl = (string) ($member->getFirstMediaUrl('team_photo')
+            ?: $member->getFirstMediaUrl('team_photo', 'detail_960x960'));
         $descriptionHtml = (string) ($translation?->description_html ?? '');
         $descriptionText = trim((string) preg_replace('/\s+/u', ' ', strip_tags($descriptionHtml)));
         $descriptionExcerpt = (string) Str::limit($descriptionText, 320, '...');

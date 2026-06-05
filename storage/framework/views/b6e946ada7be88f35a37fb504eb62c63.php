@@ -95,8 +95,6 @@
             </div>
         </div>
     </section>
-<?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
-
 <?php $__env->startPush('styles'); ?>
     <style>
         .ac-service-videos-section {
@@ -350,4 +348,5 @@
         }());
     </script>
 <?php $__env->stopPush(); ?>
+<?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 <?php /**PATH /Users/tomek/Herd/info/resources/views/front/desktop/partials/service-videos.blade.php ENDPATH**/ ?>

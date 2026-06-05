@@ -13,18 +13,22 @@
 @section('main_class', 'w-full px-0 py-0')
 
 @section('content')
-    <div class="bg-[linear-gradient(180deg,#f4f7fb_0%,#ffffff_22%,#f8fbfd_100%)]">
-        <x-front.page-title-band :breadcrumbs="$pageTitleBreadcrumbs">
+    <div class="ac-team-page">
+        <x-front.page-title-band
+            :breadcrumbs="$pageTitleBreadcrumbs"
+            section-class="ac-team-title-band"
+            breadcrumb-class="ac-team-title-breadcrumb"
+        >
             <div class="ac-page-title-copy">
                 <h1>{{ __('ui.team.title') }}</h1>
                 <p>{{ __('ui.team.subtitle') }}</p>
             </div>
         </x-front.page-title-band>
 
-        <section class="pb-16 pt-8 lg:pb-24 lg:pt-12">
-            <div class="mx-auto w-full max-w-[1320px] px-4 sm:px-6 lg:px-8">
-                <div class="mb-12 grid gap-6 lg:grid-cols-[minmax(0,1.35fr)_360px] lg:items-stretch">
-                    <article class="ac-team-page-panel overflow-hidden border border-slate-200 bg-white p-7 sm:p-8 lg:p-9">
+        <section class="ac-team-section">
+            <div class="ac-team-container">
+                <div class="ac-team-intro-grid grid gap-6 lg:grid-cols-[minmax(0,1.35fr)_360px] lg:items-stretch">
+                    <article class="ac-team-page-panel ac-team-intro-panel overflow-hidden border border-slate-200 bg-white p-7 sm:p-8 lg:p-9">
                         <div class="max-w-[54rem]">
                             <p class="ac-team-kicker text-xs font-semibold uppercase text-sky-800">{{ __('ui.team.eyebrow') }}</p>
                             <h2 class="ac-team-intro-lead mt-4 max-w-[42rem] text-slate-950">
@@ -36,7 +40,7 @@
                         </div>
                     </article>
 
-                    <aside class="ac-team-page-panel overflow-hidden border border-slate-200 bg-[#103a63] p-7 text-white sm:p-8">
+                    <aside class="ac-team-page-panel ac-team-support-panel overflow-hidden border border-slate-200 bg-[#103a63] p-7 text-white sm:p-8">
                         <div>
                             <p class="ac-team-kicker text-xs font-semibold uppercase text-sky-100/80">{{ __('ui.team.support_label') }}</p>
                             <h2 class="mt-4 text-[1.65rem] font-black leading-[1.18] text-white">
@@ -63,13 +67,13 @@
                         <p class="mx-auto mt-3 max-w-[34rem] text-sm leading-7 text-slate-600">{{ __('ui.team.empty') }}</p>
                     </div>
                 @else
-                    <div class="mb-8 max-w-[52rem]">
+                    <div class="ac-team-list-head mb-8 max-w-[52rem]">
                         <p class="ac-team-kicker text-xs font-semibold uppercase text-slate-500">{{ __('ui.team.section_label') }}</p>
                         <h2 class="mt-3 text-[2rem] font-black tracking-tight text-slate-950">{{ __('ui.team.section_title') }}</h2>
                         <p class="mt-3 text-[0.95rem] leading-7 text-slate-600">{{ __('ui.team.section_intro') }}</p>
                     </div>
 
-                    <div class="space-y-6">
+                    <div class="ac-team-member-list space-y-6">
                         @foreach ($members as $member)
                             <article class="ac-team-member-card overflow-hidden border border-slate-200 bg-white p-4 sm:p-4 lg:p-5">
                                 <div class="ac-team-member-layout grid gap-4 lg:grid-cols-[220px_minmax(0,1fr)] lg:items-start lg:gap-5">
@@ -200,50 +204,218 @@
 
 @push('styles')
     <style>
-        .ac-team-intro-lead {
-            font-family: "Playfair Display", Sans-serif;
-            font-size: clamp(1.5rem, 2vw, 1.95rem);
-            font-weight: 600;
-            line-height: 1.18;
+        .ac-team-page {
+            --ac-team-bg-warm: #f6f1e7;
+            --ac-team-bg-light: #fbf6ed;
+            --ac-team-blue: #10213a;
+            --ac-team-gold: #7c653b;
+            --ac-team-line: rgba(15, 42, 67, 0.08);
+            min-height: 100vh;
+            background: var(--ac-team-bg-warm);
+            color: #101820;
+        }
+
+        .ac-team-page p {
+            margin: 0;
+        }
+
+        .ac-team-container {
+            width: min(100% - 2rem, 1320px);
+            margin: 0 auto;
+        }
+
+        .ac-team-title-band {
+            margin-bottom: 0;
+            background: var(--ac-team-bg-warm);
+            border-top-color: transparent;
+            border-bottom-color: var(--ac-team-line);
+        }
+
+        .ac-team-title-band .ac-page-title-copy h1 {
+            color: #101820;
+            font-size: 2.65rem;
+            font-weight: 700;
+            line-height: 1.1;
             letter-spacing: 0;
         }
 
+        .ac-team-title-band .ac-page-title-copy > p,
+        .ac-team-title-band .front-scroll-breadcrumb-link,
+        .ac-team-title-band .front-scroll-breadcrumb-current,
+        .ac-team-title-band .front-scroll-breadcrumb-separator {
+            color: #4f4a43;
+        }
+
+        .ac-team-title-band .ac-page-title-breadcrumb::before,
+        .ac-team-title-band .ac-page-title-breadcrumb::after {
+            background: rgba(120, 96, 58, 0.16);
+        }
+
+        .ac-team-section {
+            padding: clamp(3rem, 5.8vw, 5.5rem) 0 clamp(5rem, 7vw, 7rem);
+            background: var(--ac-team-bg-warm);
+        }
+
+        .ac-team-intro-grid {
+            margin-bottom: clamp(2.2rem, 4vw, 3rem);
+        }
+
+        .ac-team-page-panel,
+        .ac-team-page-empty,
+        .ac-team-member-card,
+        .ac-team-career-card {
+            border: 1px solid rgba(171, 141, 82, 0.12) !important;
+            border-radius: 8px;
+            background: #fff !important;
+            box-shadow: none !important;
+        }
+
+        .ac-team-support-panel {
+            color: #101820 !important;
+        }
+
+        .ac-team-support-panel h2,
+        .ac-team-career-card h2,
+        .ac-team-list-head h2 {
+            color: #101820 !important;
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 700 !important;
+            letter-spacing: 0 !important;
+        }
+
+        .ac-team-support-panel p,
+        .ac-team-intro-panel p:not(.ac-team-kicker),
+        .ac-team-list-head p:not(.ac-team-kicker),
+        .ac-team-career-card p {
+            color: #403a34 !important;
+        }
+
+        .ac-team-list-head {
+            display: grid;
+            justify-items: center;
+            margin-left: auto;
+            margin-right: auto;
+            text-align: center;
+        }
+
+        .ac-team-list-head .ac-team-kicker {
+            color: var(--ac-team-gold) !important;
+        }
+
+        .ac-team-list-head h2 {
+            max-width: 28ch;
+        }
+
+        .ac-team-list-head p:not(.ac-team-kicker) {
+            max-width: 58rem;
+            text-wrap: pretty;
+        }
+
+        .ac-team-intro-lead {
+            font-family: 'Montserrat', sans-serif;
+            font-size: clamp(1.5rem, 2vw, 1.95rem);
+            font-weight: 700;
+            line-height: 1.2;
+            letter-spacing: 0;
+            color: #101820 !important;
+        }
+
         .ac-team-kicker {
-            letter-spacing: 0.08em;
+            color: var(--ac-team-gold) !important;
+            font-size: 0.76rem !important;
+            font-weight: 700 !important;
+            letter-spacing: 0.18em;
         }
 
         .ac-team-role {
-            letter-spacing: 0.06em;
+            color: var(--ac-team-gold) !important;
+            letter-spacing: 0.08em;
         }
 
         .ac-team-cta-light.front-action-cta {
             min-width: 176px;
-            border-color: rgba(255, 255, 255, 0.22);
-            background: #ffffff;
-            color: #0f2e4b !important;
+            border-color: var(--ac-team-blue);
+            background: var(--ac-team-blue);
+            color: #ffffff !important;
             box-shadow: none;
             border-radius: var(--front-button-radius);
         }
 
         .ac-team-cta-light.front-action-cta:hover {
-            background: #f4ede0;
-            border-color: rgba(171, 141, 82, 0.68);
-            color: #0f2e4b !important;
+            background: #173b5d;
+            border-color: #173b5d;
+            color: #ffffff !important;
         }
 
         .ac-team-cta-dark.front-action-cta {
             min-width: 220px;
-            border-color: rgba(11, 44, 73, 0.92);
-            background: linear-gradient(90deg, #08111a 0%, #0b2c49 100%);
+            border-color: var(--ac-team-blue);
+            background: var(--ac-team-blue);
             color: #ffffff !important;
             box-shadow: none;
             border-radius: var(--front-button-radius);
         }
 
         .ac-team-cta-dark.front-action-cta:hover {
-            background: linear-gradient(90deg, #0d1b29 0%, #143a5c 100%);
-            border-color: rgba(171, 141, 82, 0.68);
+            background: #173b5d;
+            border-color: #173b5d;
             color: #ffffff !important;
+        }
+
+        .ac-team-member-card {
+            padding: 1rem !important;
+        }
+
+        .ac-team-member-media {
+            border-color: rgba(15, 42, 67, 0.08) !important;
+            border-radius: 8px;
+            background: #fff !important;
+        }
+
+        .ac-team-member-media > div {
+            height: 100%;
+        }
+
+        .ac-team-member-photo {
+            width: 100%;
+            height: 100% !important;
+            aspect-ratio: auto;
+            object-fit: cover;
+            object-position: center top;
+        }
+
+        .ac-team-member-photo.flex {
+            background: var(--ac-team-blue);
+        }
+
+        .ac-team-member-head {
+            border-bottom-color: rgba(15, 42, 67, 0.06) !important;
+        }
+
+        .ac-team-member-name {
+            color: #101820 !important;
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 700 !important;
+            letter-spacing: 0 !important;
+        }
+
+        .ac-team-member-card .ac-team-bio-excerpt,
+        .ac-team-member-card .ac-team-bio-content,
+        .ac-team-member-card .content-richtext {
+            color: #403a34 !important;
+        }
+
+        .ac-team-social-link {
+            border-color: rgba(15, 42, 67, 0.1) !important;
+            border-radius: 8px;
+            background: #fff !important;
+            color: var(--ac-team-blue) !important;
+        }
+
+        .ac-team-social-link:hover {
+            border-color: rgba(120, 96, 58, 0.32) !important;
+            background: #fbf6ed !important;
+            color: var(--ac-team-blue) !important;
         }
 
         .ac-team-bio {
@@ -317,7 +489,7 @@
 
         @media (min-width: 641px) {
             .ac-team-member-layout {
-                grid-template-columns: 220px minmax(0, 1fr);
+                grid-template-columns: 240px minmax(0, 1fr);
                 align-items: start;
                 column-gap: 1.25rem;
                 row-gap: 1rem;
@@ -327,7 +499,8 @@
                 grid-column: 1;
                 grid-row: 1 / span 3;
                 width: 100%;
-                max-width: 220px;
+                max-width: 240px;
+                aspect-ratio: 4 / 5.25;
                 margin-left: 0;
                 margin-right: 0;
             }
@@ -349,12 +522,17 @@
             }
         }
 
-            @media (max-width: 640px) {
-                .ac-team-member-card {
-                    padding: 1rem;
-                    border-radius: var(--front-card-radius);
-                }
+        @media (max-width: 720px) {
+            .ac-team-container {
+                width: min(100% - 1.35rem, 1320px);
+            }
 
+            .ac-team-title-band .ac-page-title-copy h1 {
+                font-size: 2.1rem;
+            }
+        }
+
+        @media (max-width: 640px) {
             .ac-team-member-layout {
                 grid-template-columns: 108px minmax(0, 1fr);
                 align-items: start;
@@ -362,16 +540,15 @@
                 row-gap: 0.85rem;
             }
 
-                .ac-team-member-media {
-                    width: 108px;
-                    max-width: 108px;
-                    margin-left: 0;
-                    margin-right: 0;
-                    border-radius: var(--front-card-radius);
-                }
+            .ac-team-member-media {
+                width: 108px;
+                max-width: 108px;
+                aspect-ratio: 4 / 5.15;
+                margin-left: 0;
+                margin-right: 0;
+            }
 
             .ac-team-member-photo {
-                aspect-ratio: 0.78;
                 object-fit: cover;
                 object-position: center top;
             }

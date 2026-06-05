@@ -37,7 +37,7 @@ class InfoPageSeeder extends Seeder
             ],
             [
                 'code' => 'about-us',
-                'layout' => 'default',
+                'layout' => 'about',
                 'show_in_footer' => true,
                 'published_at' => now()->subDays(40),
                 'sort_order' => 20,
@@ -46,14 +46,18 @@ class InfoPageSeeder extends Seeder
                     'en' => [
                         'title' => 'About Us',
                         'slug' => 'about-us',
-                        'excerpt' => null,
+                        'excerpt' => 'Our story, values, team and the trust we build with clients.',
                         'body_html' => null,
+                        'meta_title' => 'About Us | Alpha Capitalis',
+                        'meta_description' => 'Learn more about ALPHA CAPITALIS, our story, values, team, social responsibility and references.',
                     ],
                     'hr' => [
                         'title' => 'O nama',
                         'slug' => 'o-nama',
-                        'excerpt' => null,
+                        'excerpt' => 'Naša priča, vrijednosti, tim i povjerenje koje gradimo s klijentima.',
                         'body_html' => null,
+                        'meta_title' => 'O nama | Alpha Capitalis',
+                        'meta_description' => 'Upoznajte ALPHA CAPITALIS, našu priču, vrijednosti, tim, društveno odgovorno poslovanje i reference.',
                     ],
                 ],
             ],
@@ -107,8 +111,8 @@ class InfoPageSeeder extends Seeder
                         'body_html' => array_key_exists('body_html', $translation)
                             ? $translation['body_html']
                             : '<p>'.$title.'</p><p>'.($translation['excerpt'] ?? '').'</p>',
-                        'meta_title' => $title,
-                        'meta_description' => $translation['excerpt'] ?? null,
+                        'meta_title' => $translation['meta_title'] ?? $title,
+                        'meta_description' => $translation['meta_description'] ?? ($translation['excerpt'] ?? null),
                         'payload' => null,
                     ]
                 );

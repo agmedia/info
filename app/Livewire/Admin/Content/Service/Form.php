@@ -24,6 +24,7 @@ class Form extends Component
     private const TAB_OPTIONS = ['content', 'sources', 'seo', 'media'];
 
     private const SOURCE_ENABLED_TEMPLATES = [
+        ServicePageTemplateRegistry::ADVISORY,
         ServicePageTemplateRegistry::FINANCE,
         ServicePageTemplateRegistry::ACCOUNTING,
         ServicePageTemplateRegistry::AUDIT,
@@ -33,6 +34,7 @@ class Form extends Component
     ];
 
     private const BLOG_SOURCE_ENABLED_TEMPLATES = [
+        ServicePageTemplateRegistry::ADVISORY,
         ServicePageTemplateRegistry::FINANCE,
         ServicePageTemplateRegistry::ACCOUNTING,
         ServicePageTemplateRegistry::AUDIT,
@@ -679,6 +681,24 @@ class Form extends Component
                 'slug' => 'audit',
                 'meta_title' => 'Audit',
                 'meta_description' => 'Audit of financial statements, review engagements, and special audit services.',
+            ];
+        }
+
+        if ($templateKey === ServicePageTemplateRegistry::ADVISORY) {
+            if (str_starts_with(strtolower($locale), 'hr')) {
+                return [
+                    'title' => 'Savjetovanje',
+                    'slug' => 'savjetovanje',
+                    'meta_title' => 'Savjetovanje',
+                    'meta_description' => 'Financijsko i porezno savjetovanje, pribavljanje financiranja, due diligence, procjene vrijednosti i M&A savjetovanje.',
+                ];
+            }
+
+            return [
+                'title' => 'Advisory',
+                'slug' => 'advisory',
+                'meta_title' => 'Advisory',
+                'meta_description' => 'Financial and tax advisory, financing, due diligence, valuations, and M&A advisory.',
             ];
         }
 

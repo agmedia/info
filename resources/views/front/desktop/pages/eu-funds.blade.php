@@ -276,9 +276,6 @@
                                             >
                                                 <span class="ac-eu-call-item-title">{{ $item['title'] ?? '' }}</span>
                                                 <span class="ac-eu-call-item-meta">
-                                                    @if ($publishedLabel !== '')
-                                                        <span class="ac-eu-call-item-date">{{ $publishedLabel }}</span>
-                                                    @endif
                                                     <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                                                         <path d="M4 12L12 4"></path>
                                                         <path d="M6 4h6v6"></path>
@@ -288,11 +285,6 @@
                                         @else
                                             <div class="ac-eu-call-item-row">
                                                 <span class="ac-eu-call-item-title">{{ $item['title'] ?? '' }}</span>
-                                                @if ($publishedLabel !== '')
-                                                    <span class="ac-eu-call-item-meta">
-                                                        <span class="ac-eu-call-item-date">{{ $publishedLabel }}</span>
-                                                    </span>
-                                                @endif
                                             </div>
                                         @endif
                                     </li>
@@ -322,9 +314,6 @@
                                                     >
                                                         <span class="ac-eu-call-item-title">{{ $item['title'] ?? '' }}</span>
                                                         <span class="ac-eu-call-item-meta">
-                                                            @if ($publishedLabel !== '')
-                                                                <span class="ac-eu-call-item-date">{{ $publishedLabel }}</span>
-                                                            @endif
                                                             <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                                                                 <path d="M4 12L12 4"></path>
                                                                 <path d="M6 4h6v6"></path>
@@ -334,11 +323,6 @@
                                                 @else
                                                     <div class="ac-eu-call-item-row">
                                                         <span class="ac-eu-call-item-title">{{ $item['title'] ?? '' }}</span>
-                                                        @if ($publishedLabel !== '')
-                                                            <span class="ac-eu-call-item-meta">
-                                                                <span class="ac-eu-call-item-date">{{ $publishedLabel }}</span>
-                                                            </span>
-                                                        @endif
                                                     </div>
                                                 @endif
                                             </li>
@@ -368,7 +352,7 @@
             </div>
         </section>
 
-        <section class="ac-eu-section ac-eu-section--resources" aria-labelledby="ac-eu-resources-title">
+        <section id="eu-funds-resources" class="ac-eu-section ac-eu-section--resources" aria-labelledby="ac-eu-resources-title">
             <div class="mx-auto w-full max-w-[1240px] px-5 lg:px-8">
                 <div class="ac-services-head ac-support-story-head ac-eu-centered-head">
                     <div class="ac-services-eyebrow">
@@ -445,7 +429,7 @@
             </div>
         </section>
 
-        <section class="ac-eu-section ac-eu-section--laws" aria-labelledby="ac-eu-laws-title">
+        <section id="eu-funds-laws" class="ac-eu-section ac-eu-section--laws" aria-labelledby="ac-eu-laws-title">
             <div class="mx-auto w-full max-w-[1240px] px-5 lg:px-8">
                 <div class="ac-services-head ac-support-story-head ac-eu-centered-head">
                     <div class="ac-services-eyebrow">
@@ -707,6 +691,7 @@
                     <div class="ac-support-story-hero">
                         <div class="ac-support-story-shell">
                             <div class="ac-services-head ac-support-story-head">
+                                <p class="ac-family-section-kicker">{{ str_starts_with(strtolower((string) ($locale ?? app()->getLocale())), 'hr') ? 'NAJNOVIJE OBJAVE' : 'LATEST POSTS' }}</p>
                                 <h2 id="ac-eu-blog-title">
                                     <span>{{ $blogSection['title'] ?? '' }}</span>
                                 </h2>
@@ -915,7 +900,7 @@
         .ac-eu-panel h2,
         .ac-eu-section-head h2,
         .ac-eu-centered-head h2 {
-            font-family: 'Playfair Display', serif;
+            font-family: 'Montserrat', sans-serif;
             font-size: clamp(1.55rem, 2.2vw, 2.32rem);
             line-height: 1.08;
             font-weight: 600;
@@ -1001,7 +986,7 @@
             position: absolute;
             top: 1.1rem;
             left: 1.15rem;
-            font-family: 'Playfair Display', serif;
+            font-family: 'Montserrat', sans-serif;
             font-size: 3.2rem;
             line-height: 1;
             font-weight: 700;
@@ -1253,7 +1238,7 @@
             border: 2px solid rgba(15, 23, 42, 0.86);
             background: #0f172a;
             color: #f8f6f1 !important;
-            font-family: 'Sora', 'Public Sans', 'Segoe UI', Arial, sans-serif;
+            font-family: 'Montserrat', sans-serif;
             font-size: 0.84rem;
             font-weight: 600;
             letter-spacing: 0.07em;
@@ -1551,8 +1536,6 @@
             padding-bottom: clamp(2.8rem, 4vw, 3.8rem);
         }
 
-        .ac-eu-page .ac-home-blog-card,
-        .ac-eu-page .ac-home-blog-card-link,
         .ac-eu-page .ac-client-experience-card {
             border-color: rgba(171, 141, 82, 0.16);
         }

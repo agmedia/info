@@ -6,6 +6,8 @@ use Illuminate\Support\Str;
 
 class ServicePageTemplateRegistry
 {
+    public const ADVISORY = 'advisory';
+
     public const FINANCE = 'finance';
 
     public const ACCOUNTING = 'accounting';
@@ -24,6 +26,7 @@ class ServicePageTemplateRegistry
     public static function labels(): array
     {
         return [
+            self::ADVISORY => 'Savjetovanje',
             self::FINANCE => 'Financije',
             self::ACCOUNTING => 'Računovodstvo',
             self::AUDIT => 'Revizija',
@@ -42,6 +45,7 @@ class ServicePageTemplateRegistry
     public static function defaultCode(string $templateKey): string
     {
         return match ($templateKey) {
+            self::ADVISORY => 'advisory',
             self::FINANCE => 'finance',
             self::ACCOUNTING => 'racunovodstvo',
             self::AUDIT => 'audit',
@@ -58,6 +62,17 @@ class ServicePageTemplateRegistry
     public static function defaultPagePayload(string $templateKey): array
     {
         return match ($templateKey) {
+            self::ADVISORY => [
+                'blog_source' => [
+                    'mode' => 'auto_category',
+                    'category_id' => null,
+                    'post_ids' => [],
+                    'limit' => 6,
+                ],
+                'video_source' => [
+                    'items' => [],
+                ],
+            ],
             self::FINANCE => [
                 'blog_source' => [
                     'mode' => 'auto_category',
@@ -77,20 +92,7 @@ class ServicePageTemplateRegistry
                     'limit' => 6,
                 ],
                 'video_source' => [
-                    'items' => [
-                        [
-                            'title' => 'Zašto ne raditi u obiteljskom biznisu?',
-                            'youtube_url' => 'https://www.youtube.com/watch?v=Ka__fXxmk6E&t=137s',
-                        ],
-                        [
-                            'title' => 'Prodaja obiteljskog biznisa',
-                            'youtube_url' => 'https://www.youtube.com/watch?v=GGb1Nnd2ChQ&t=115s',
-                        ],
-                        [
-                            'title' => 'ALPHA CAPITALIS: Modeli planiranja tranzicije obiteljskog biznisa',
-                            'youtube_url' => 'https://www.youtube.com/watch?v=iO2Jrt5mFpY&t=117s',
-                        ],
-                    ],
+                    'items' => [],
                 ],
             ],
             self::AUDIT => [
@@ -157,6 +159,9 @@ class ServicePageTemplateRegistry
     public static function defaultTranslationPayload(string $templateKey, ?string $locale = null): array
     {
         $defaults = match ($templateKey) {
+            self::ADVISORY => AdvisoryServicePageDefaults::defaultsForLocale(
+                $locale ?: (string) config('app.locale', 'en')
+            ),
             self::FINANCE => FinanceServicePageDefaults::defaultsForLocale(
                 $locale ?: (string) config('app.locale', 'en')
             ),
