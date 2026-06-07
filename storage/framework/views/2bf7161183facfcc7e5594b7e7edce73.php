@@ -142,7 +142,7 @@
         ];
     }
 ?>
-<body class="front-desktop-shell <?php echo e(request()->routeIs('audit.show') ? 'front-route-audit' : ''); ?> <?php echo e(request()->routeIs('accounting.show') ? 'front-route-accounting' : ''); ?> <?php echo e(request()->routeIs('advisory.*') ? 'front-route-advisory' : ''); ?> front-preload-pending min-h-screen overflow-x-hidden antialiased" style="--front-header-hero-backdrop: url('<?php echo e($headerHeroBackdropUrl); ?>');">
+<body class="front-desktop-shell <?php echo e(request()->routeIs('home') ? 'front-route-home' : ''); ?> <?php echo e(request()->routeIs('audit.show') ? 'front-route-audit' : ''); ?> <?php echo e(request()->routeIs('accounting.show') ? 'front-route-accounting' : ''); ?> <?php echo e(request()->routeIs('advisory.*') ? 'front-route-advisory' : ''); ?> <?php echo e(request()->routeIs('eu-funds.show') ? 'front-route-eu-funds' : ''); ?> front-preload-pending min-h-screen overflow-x-hidden antialiased" style="--front-header-hero-backdrop: url('<?php echo e($headerHeroBackdropUrl); ?>');">
     <div id="front-initial-preloader" aria-hidden="true"></div>
     <?php
         $activeLocale = (string) ($frontLocale ?? app()->getLocale());

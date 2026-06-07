@@ -632,6 +632,17 @@ class StorefrontFrontFeatureTest extends TestCase
             ->assertSee(__('eu_funds_questionnaire.form.interested_services'));
     }
 
+    public function test_eu_funds_questionnaire_validation_errors_render_inline_only(): void
+    {
+        $this->followingRedirects()
+            ->post('/eu-fondovi/upitnik', [])
+            ->assertOk()
+            ->assertSee(__('eu_funds_questionnaire.validation.required', [
+                'attribute' => __('eu_funds_questionnaire.form.company_name'),
+            ]))
+            ->assertDontSee('data-flash-message', false);
+    }
+
     public function test_eu_funds_questionnaire_form_stores_structured_message(): void
     {
         $this->post('/eu-fondovi/upitnik', [
@@ -818,6 +829,54 @@ class StorefrontFrontFeatureTest extends TestCase
             ->assertDontSee('Zašto ne raditi u obiteljskom biznisu?')
             ->assertDontSee('ac-accounting-detail-section', false)
             ->assertDontSee('ac-accounting-video-card', false);
+    }
+
+    public function test_advisory_service_page_renders_structured_hub_flow(): void
+    {
+        $response = $this->get('/savjetovanje');
+
+        $response->assertOk()
+            ->assertSee('Poslovno savjetovanje')
+            ->assertSee('Što je poslovno savjetovanje?')
+            ->assertSee('Savjetovanje povezuje financijsku analizu, porezno planiranje')
+            ->assertSee('Usluge poslovnog savjetovanja')
+            ->assertSee('Pribavljanje financiranja')
+            ->assertSee('M&amp;A savjetovanje', false)
+            ->assertSee('Due diligence')
+            ->assertSee('Procjene vrijednosti')
+            ->assertSee('Porezno savjetovanje')
+            ->assertSee('EU fondovi i poticaji')
+            ->assertSee('ALPHA CAPITALIS je član Pandea Global M&amp;A', false)
+            ->assertSee('Dostupni izvori financiranja')
+            ->assertSee('Otvoreni natječaji')
+            ->assertSee('Zatvoreni natječaji')
+            ->assertSee('Financijski instrumenti')
+            ->assertSee('Porezne olakšice')
+            ->assertSee('Bankovni krediti')
+            ->assertSee('Razgovarajmo o vašim poslovnim odlukama')
+            ->assertSee('/savjetovanje/financijsko-savjetovanje#advisory-ma', false)
+            ->assertSee('/savjetovanje/porezno-savjetovanje', false)
+            ->assertSee('/eu-fondovi#eu-funds-calls', false)
+            ->assertDontSee('Pogledajte usluge')
+            ->assertDontSee('poveznice su postavljene samo tamo gdje već postoji lokalni blog zapis ili lokalni dokument')
+            ->assertDontSee('>01<', false)
+            ->assertDontSee('ac-advisory-detail-card', false);
+    }
+
+    public function test_advisory_subpages_share_service_card_style_without_decorative_numbers(): void
+    {
+        foreach ([
+            '/savjetovanje/financijsko-savjetovanje' => 'Spajanja i preuzimanja (M&amp;A)',
+            '/savjetovanje/porezno-savjetovanje' => 'Porezna mišljenja',
+            '/savjetovanje/pribavljanje-financiranja' => 'Usluge EU fondova',
+        ] as $uri => $expectedText) {
+            $this->get($uri)
+                ->assertOk()
+                ->assertSee($expectedText, false)
+                ->assertSee('ac-audit-service-card', false)
+                ->assertDontSee('>01<', false)
+                ->assertDontSee('ac-advisory-detail-card', false);
+        }
     }
 
     public function test_about_page_exists_empty_for_admin_managed_content(): void

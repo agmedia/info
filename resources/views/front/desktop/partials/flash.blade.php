@@ -20,7 +20,7 @@
     $globalErrorMessages = collect($errors->getBag('default')->getMessages())
         ->except(['product_option_value_id'])
         ->flatten();
-    $showGlobalErrorSummary = !request()->routeIs('assessment.*');
+    $showGlobalErrorSummary = !request()->routeIs('assessment.*') && !request()->routeIs('eu-funds.questionnaire.*');
 @endphp
 
 @if ($showGlobalErrorSummary && $globalErrorMessages->isNotEmpty())

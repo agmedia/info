@@ -43,6 +43,11 @@ return [
         'accept_terms_label' => 'Slažem se s privolom za obradu osobnih podataka.',
         'submit' => 'Pošalji',
     ],
+    'sections' => [
+        'company' => 'Podaci o poduzeću',
+        'investment' => 'Ulaganje i projekt',
+        'services' => 'Usluge i kontakt',
+    ],
     'options' => [
         'employee_count' => [
             '0' => '0',

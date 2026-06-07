@@ -147,7 +147,7 @@
             </div>
         </x-front.page-title-band>
 
-        <div class="ac-blog-article-shell mx-auto w-full max-w-[1320px] px-4 sm:px-6 lg:px-8">
+        <div class="ac-blog-article-shell ac-blog-post-article-shell mx-auto w-full max-w-[1320px] px-4 sm:px-6 lg:px-8">
             <article class="ac-blog-article-body">
                 <div class="ac-blog-article-body-inner">
                     @if ($coverImageUrl)

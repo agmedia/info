@@ -157,7 +157,7 @@
 <?php unset($__componentOriginale6a101278d02d7bbbf9e98ee1142bf75); ?>
 <?php endif; ?>
 
-        <div class="ac-blog-article-shell mx-auto w-full max-w-[1320px] px-4 sm:px-6 lg:px-8">
+        <div class="ac-blog-article-shell ac-blog-post-article-shell mx-auto w-full max-w-[1320px] px-4 sm:px-6 lg:px-8">
             <article class="ac-blog-article-body">
                 <div class="ac-blog-article-body-inner">
                     <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($coverImageUrl): ?>

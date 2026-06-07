@@ -65,8 +65,8 @@
         $showProjectSectorOther = in_array('other', $selectedProjectSectors, true) || trim((string) old('project_sector_other')) !== '';
     @endphp
 
-    <div class="front-contact-page ac-eu-questionnaire-page">
-        <x-front.page-title-band :breadcrumbs="$pageTitleBreadcrumbs">
+    <div class="front-contact-page ac-assessment-page ac-eu-questionnaire-page">
+        <x-front.page-title-band :breadcrumbs="$pageTitleBreadcrumbs" section-class="ac-assessment-title-band ac-eu-questionnaire-title-band">
             <div class="ac-page-title-copy">
                 <h1>{{ __('eu_funds_questionnaire.heading') }}</h1>
                 <p>{{ __('eu_funds_questionnaire.subheading') }}</p>
@@ -75,11 +75,11 @@
 
         <section class="front-contact-content-shell">
             <div class="mx-auto w-full max-w-[1320px] px-4 sm:px-6 lg:px-8">
-                <div class="front-contact-layout">
+                <div class="front-contact-layout ac-assessment-layout">
                     <form
                         method="POST"
                         action="{{ route('eu-funds.questionnaire.store') }}"
-                        class="front-contact-form"
+                        class="front-contact-form ac-assessment-form ac-eu-questionnaire-form"
                         novalidate
                         data-eu-funds-questionnaire-form
                         @if($captchaEnabled) data-recaptcha-form data-recaptcha-site-key="{{ $captchaSiteKey }}" data-recaptcha-action="eu_funds_questionnaire_form" @endif
@@ -99,159 +99,177 @@
                             </div>
                         @endif
 
-                        <div class="grid gap-4 md:grid-cols-2">
-                            <div>
-                                <label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-500">{{ __('eu_funds_questionnaire.form.company_name') }} *</label>
-                                <input type="text" name="company_name" value="{{ old('company_name') }}" class="front-contact-input h-11 w-full text-sm" required>
-                                @error('company_name')<p class="mt-2 text-xs font-semibold text-rose-600">{{ $message }}</p>@enderror
+                        <div class="ac-assessment-section">
+                            <div class="ac-assessment-section-head">
+                                <h3>{{ __('eu_funds_questionnaire.sections.company') }}</h3>
                             </div>
-                            <div>
-                                <label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-500">{{ __('eu_funds_questionnaire.form.company_oib') }} *</label>
-                                <input type="text" name="company_oib" value="{{ old('company_oib') }}" class="front-contact-input h-11 w-full text-sm" required>
-                                @error('company_oib')<p class="mt-2 text-xs font-semibold text-rose-600">{{ $message }}</p>@enderror
+
+                            <div class="ac-assessment-grid">
+                                <div class="ac-assessment-field">
+                                    <label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-500">{{ __('eu_funds_questionnaire.form.company_name') }} *</label>
+                                    <input type="text" name="company_name" value="{{ old('company_name') }}" class="front-contact-input h-11 w-full text-sm" required>
+                                    @error('company_name')<p class="mt-2 text-xs font-semibold text-rose-600">{{ $message }}</p>@enderror
+                                </div>
+                                <div class="ac-assessment-field">
+                                    <label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-500">{{ __('eu_funds_questionnaire.form.company_oib') }} *</label>
+                                    <input type="text" name="company_oib" value="{{ old('company_oib') }}" class="front-contact-input h-11 w-full text-sm" required>
+                                    @error('company_oib')<p class="mt-2 text-xs font-semibold text-rose-600">{{ $message }}</p>@enderror
+                                </div>
+                            </div>
+
+                            <div class="ac-assessment-field ac-assessment-field--full">
+                                <label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-500">{{ __('eu_funds_questionnaire.form.company_activity') }} *</label>
+                                <input type="text" name="company_activity" value="{{ old('company_activity') }}" class="front-contact-input h-11 w-full text-sm" required>
+                                @error('company_activity')<p class="mt-2 text-xs font-semibold text-rose-600">{{ $message }}</p>@enderror
+                            </div>
+
+                            <fieldset class="ac-assessment-field ac-assessment-field--full">
+                                <legend class="ac-eu-questionnaire-legend">{{ __('eu_funds_questionnaire.form.employee_count') }} *</legend>
+                                <div class="ac-eu-questionnaire-option-grid ac-eu-questionnaire-option-grid--compact">
+                                    @foreach ($employeeOptions as $value => $label)
+                                        <label class="ac-eu-questionnaire-option">
+                                            <input type="radio" name="employee_count" value="{{ $value }}" @checked(old('employee_count') === $value) required>
+                                            <span>{{ $label }}</span>
+                                        </label>
+                                    @endforeach
+                                </div>
+                                @error('employee_count')<p class="mt-2 text-xs font-semibold text-rose-600">{{ $message }}</p>@enderror
+                            </fieldset>
+
+                            <fieldset class="ac-assessment-field ac-assessment-field--full" data-conditional-root="related_companies">
+                                <legend class="ac-eu-questionnaire-legend">{{ __('eu_funds_questionnaire.form.related_companies') }} *</legend>
+                                <div class="ac-eu-questionnaire-option-grid ac-eu-questionnaire-option-grid--binary">
+                                    @foreach ($relatedCompanyOptions as $value => $label)
+                                        <label class="ac-eu-questionnaire-option">
+                                            <input type="radio" name="related_companies" value="{{ $value }}" @checked(old('related_companies') === $value) required data-conditional-toggle="related_companies">
+                                            <span>{{ $label }}</span>
+                                        </label>
+                                    @endforeach
+                                </div>
+                                @error('related_companies')<p class="mt-2 text-xs font-semibold text-rose-600">{{ $message }}</p>@enderror
+
+                                <div class="ac-eu-questionnaire-conditional {{ $showAdditionalNotes ? '' : 'hidden' }}" data-conditional-target="related_companies">
+                                    <label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-500">{{ __('eu_funds_questionnaire.form.additional_notes') }} *</label>
+                                    <textarea name="additional_notes" rows="4" class="front-contact-textarea ac-assessment-textarea w-full text-sm" placeholder="{{ __('eu_funds_questionnaire.form.additional_notes_placeholder') }}">{{ old('additional_notes') }}</textarea>
+                                    @error('additional_notes')<p class="mt-2 text-xs font-semibold text-rose-600">{{ $message }}</p>@enderror
+                                </div>
+                            </fieldset>
+                        </div>
+
+                        <div class="ac-assessment-section">
+                            <div class="ac-assessment-section-head">
+                                <h3>{{ __('eu_funds_questionnaire.sections.investment') }}</h3>
+                            </div>
+
+                            <fieldset class="ac-assessment-field ac-assessment-field--full" data-conditional-root="project_sector_other">
+                                <legend class="ac-eu-questionnaire-legend">{{ __('eu_funds_questionnaire.form.project_sectors') }} *</legend>
+                                <div class="ac-eu-questionnaire-option-grid">
+                                    @foreach ($projectSectorOptions as $value => $label)
+                                        <label class="ac-eu-questionnaire-option">
+                                            <input
+                                                type="checkbox"
+                                                name="project_sectors[]"
+                                                value="{{ $value }}"
+                                                @checked(in_array($value, $selectedProjectSectors, true))
+                                                @if ($value === 'other') data-conditional-checkbox="project_sector_other" @endif
+                                            >
+                                            <span>{{ $label }}</span>
+                                        </label>
+                                    @endforeach
+                                </div>
+                                @error('project_sectors')<p class="mt-2 text-xs font-semibold text-rose-600">{{ $message }}</p>@enderror
+                                @error('project_sectors.*')<p class="mt-2 text-xs font-semibold text-rose-600">{{ $message }}</p>@enderror
+
+                                <div class="ac-eu-questionnaire-conditional {{ $showProjectSectorOther ? '' : 'hidden' }}" data-conditional-target="project_sector_other">
+                                    <label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-500">{{ __('eu_funds_questionnaire.form.project_sector_other') }}</label>
+                                    <input type="text" name="project_sector_other" value="{{ old('project_sector_other') }}" class="front-contact-input h-11 w-full text-sm" placeholder="{{ __('eu_funds_questionnaire.form.project_sector_other_placeholder') }}">
+                                    @error('project_sector_other')<p class="mt-2 text-xs font-semibold text-rose-600">{{ $message }}</p>@enderror
+                                </div>
+                            </fieldset>
+
+                            <div class="ac-assessment-field ac-assessment-field--full">
+                                <label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-500">{{ __('eu_funds_questionnaire.form.investment_location') }} *</label>
+                                <input type="text" name="investment_location" value="{{ old('investment_location') }}" class="front-contact-input h-11 w-full text-sm" required>
+                                @error('investment_location')<p class="mt-2 text-xs font-semibold text-rose-600">{{ $message }}</p>@enderror
+                            </div>
+
+                            <fieldset class="ac-assessment-field ac-assessment-field--full">
+                                <legend class="ac-eu-questionnaire-legend">{{ __('eu_funds_questionnaire.form.planned_costs') }} *</legend>
+                                <div class="ac-eu-questionnaire-option-grid">
+                                    @foreach ($plannedCostOptions as $value => $label)
+                                        <label class="ac-eu-questionnaire-option">
+                                            <input type="checkbox" name="planned_costs[]" value="{{ $value }}" @checked(in_array($value, $selectedPlannedCosts, true))>
+                                            <span>{{ $label }}</span>
+                                        </label>
+                                    @endforeach
+                                </div>
+                                @error('planned_costs')<p class="mt-2 text-xs font-semibold text-rose-600">{{ $message }}</p>@enderror
+                                @error('planned_costs.*')<p class="mt-2 text-xs font-semibold text-rose-600">{{ $message }}</p>@enderror
+                            </fieldset>
+
+                            <fieldset class="ac-assessment-field ac-assessment-field--full">
+                                <legend class="ac-eu-questionnaire-legend">{{ __('eu_funds_questionnaire.form.investment_amount') }} *</legend>
+                                <div class="ac-eu-questionnaire-option-grid">
+                                    @foreach ($investmentAmountOptions as $value => $label)
+                                        <label class="ac-eu-questionnaire-option">
+                                            <input type="radio" name="investment_amount" value="{{ $value }}" @checked(old('investment_amount') === $value) required>
+                                            <span>{{ $label }}</span>
+                                        </label>
+                                    @endforeach
+                                </div>
+                                @error('investment_amount')<p class="mt-2 text-xs font-semibold text-rose-600">{{ $message }}</p>@enderror
+                            </fieldset>
+                        </div>
+
+                        <div class="ac-assessment-section">
+                            <div class="ac-assessment-section-head">
+                                <h3>{{ __('eu_funds_questionnaire.sections.services') }}</h3>
+                            </div>
+
+                            <fieldset class="ac-assessment-field ac-assessment-field--full">
+                                <legend class="ac-eu-questionnaire-legend">{{ __('eu_funds_questionnaire.form.interested_services') }} *</legend>
+                                <div class="ac-eu-questionnaire-option-grid">
+                                    @foreach ($interestedServiceOptions as $value => $label)
+                                        <label class="ac-eu-questionnaire-option">
+                                            <input type="checkbox" name="interested_services[]" value="{{ $value }}" @checked(in_array($value, $selectedInterestedServices, true))>
+                                            <span>{{ $label }}</span>
+                                        </label>
+                                    @endforeach
+                                </div>
+                                @error('interested_services')<p class="mt-2 text-xs font-semibold text-rose-600">{{ $message }}</p>@enderror
+                                @error('interested_services.*')<p class="mt-2 text-xs font-semibold text-rose-600">{{ $message }}</p>@enderror
+                            </fieldset>
+
+                            <div class="ac-assessment-grid">
+                                <div class="ac-assessment-field">
+                                    <label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-500">{{ __('eu_funds_questionnaire.form.contact_name') }} *</label>
+                                    <input type="text" name="contact_name" value="{{ old('contact_name') }}" class="front-contact-input h-11 w-full text-sm" required>
+                                    @error('contact_name')<p class="mt-2 text-xs font-semibold text-rose-600">{{ $message }}</p>@enderror
+                                </div>
+                                <div class="ac-assessment-field">
+                                    <label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-500">{{ __('eu_funds_questionnaire.form.email') }} *</label>
+                                    <input type="email" name="email" value="{{ old('email', auth()->user()?->email) }}" class="front-contact-input h-11 w-full text-sm" required>
+                                    @error('email')<p class="mt-2 text-xs font-semibold text-rose-600">{{ $message }}</p>@enderror
+                                </div>
+                            </div>
+
+                            <div class="ac-assessment-field ac-assessment-field--full">
+                                <label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-500">{{ __('eu_funds_questionnaire.form.contact_phone') }} *</label>
+                                <input type="text" name="contact_phone" value="{{ old('contact_phone') }}" class="front-contact-input h-11 w-full text-sm" required>
+                                @error('contact_phone')<p class="mt-2 text-xs font-semibold text-rose-600">{{ $message }}</p>@enderror
                             </div>
                         </div>
 
-                        <div class="mt-4">
-                            <label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-500">{{ __('eu_funds_questionnaire.form.company_activity') }} *</label>
-                            <input type="text" name="company_activity" value="{{ old('company_activity') }}" class="front-contact-input h-11 w-full text-sm" required>
-                            @error('company_activity')<p class="mt-2 text-xs font-semibold text-rose-600">{{ $message }}</p>@enderror
-                        </div>
-
-                        <fieldset class="mt-6">
-                            <legend class="mb-3 block text-xs font-semibold uppercase tracking-wide text-slate-500">{{ __('eu_funds_questionnaire.form.employee_count') }} *</legend>
-                            <div class="grid gap-3">
-                                @foreach ($employeeOptions as $value => $label)
-                                    <label class="flex items-start gap-3 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-700 transition hover:border-slate-300 hover:bg-slate-50">
-                                        <input type="radio" name="employee_count" value="{{ $value }}" class="mt-1 h-4 w-4 border-slate-300 text-slate-900 focus:ring-0" @checked(old('employee_count') === $value) required>
-                                        <span>{{ $label }}</span>
-                                    </label>
-                                @endforeach
-                            </div>
-                            @error('employee_count')<p class="mt-2 text-xs font-semibold text-rose-600">{{ $message }}</p>@enderror
-                        </fieldset>
-
-                        <fieldset class="mt-6" data-conditional-root="related_companies">
-                            <legend class="mb-3 block text-xs font-semibold uppercase tracking-wide text-slate-500">{{ __('eu_funds_questionnaire.form.related_companies') }} *</legend>
-                            <div class="grid gap-3">
-                                @foreach ($relatedCompanyOptions as $value => $label)
-                                    <label class="flex items-start gap-3 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-700 transition hover:border-slate-300 hover:bg-slate-50">
-                                        <input type="radio" name="related_companies" value="{{ $value }}" class="mt-1 h-4 w-4 border-slate-300 text-slate-900 focus:ring-0" @checked(old('related_companies') === $value) required data-conditional-toggle="related_companies">
-                                        <span>{{ $label }}</span>
-                                    </label>
-                                @endforeach
-                            </div>
-                            @error('related_companies')<p class="mt-2 text-xs font-semibold text-rose-600">{{ $message }}</p>@enderror
-
-                            <div class="mt-4 {{ $showAdditionalNotes ? '' : 'hidden' }}" data-conditional-target="related_companies">
-                                <label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-500">{{ __('eu_funds_questionnaire.form.additional_notes') }} *</label>
-                                <textarea name="additional_notes" rows="4" class="front-contact-textarea w-full text-sm" placeholder="{{ __('eu_funds_questionnaire.form.additional_notes_placeholder') }}">{{ old('additional_notes') }}</textarea>
-                                @error('additional_notes')<p class="mt-2 text-xs font-semibold text-rose-600">{{ $message }}</p>@enderror
-                            </div>
-                        </fieldset>
-
-                        <fieldset class="mt-6" data-conditional-root="project_sector_other">
-                            <legend class="mb-3 block text-xs font-semibold uppercase tracking-wide text-slate-500">{{ __('eu_funds_questionnaire.form.project_sectors') }} *</legend>
-                            <div class="grid gap-3">
-                                @foreach ($projectSectorOptions as $value => $label)
-                                    <label class="flex items-start gap-3 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-700 transition hover:border-slate-300 hover:bg-slate-50">
-                                        <input
-                                            type="checkbox"
-                                            name="project_sectors[]"
-                                            value="{{ $value }}"
-                                            class="mt-1 h-4 w-4 border-slate-300 text-slate-900 focus:ring-0"
-                                            @checked(in_array($value, $selectedProjectSectors, true))
-                                            @if ($value === 'other') data-conditional-checkbox="project_sector_other" @endif
-                                        >
-                                        <span>{{ $label }}</span>
-                                    </label>
-                                @endforeach
-                            </div>
-                            @error('project_sectors')<p class="mt-2 text-xs font-semibold text-rose-600">{{ $message }}</p>@enderror
-                            @error('project_sectors.*')<p class="mt-2 text-xs font-semibold text-rose-600">{{ $message }}</p>@enderror
-
-                            <div class="mt-4 {{ $showProjectSectorOther ? '' : 'hidden' }}" data-conditional-target="project_sector_other">
-                                <label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-500">{{ __('eu_funds_questionnaire.form.project_sector_other') }}</label>
-                                <input type="text" name="project_sector_other" value="{{ old('project_sector_other') }}" class="front-contact-input h-11 w-full text-sm" placeholder="{{ __('eu_funds_questionnaire.form.project_sector_other_placeholder') }}">
-                                @error('project_sector_other')<p class="mt-2 text-xs font-semibold text-rose-600">{{ $message }}</p>@enderror
-                            </div>
-                        </fieldset>
-
-                        <div class="mt-6">
-                            <label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-500">{{ __('eu_funds_questionnaire.form.investment_location') }} *</label>
-                            <input type="text" name="investment_location" value="{{ old('investment_location') }}" class="front-contact-input h-11 w-full text-sm" required>
-                            @error('investment_location')<p class="mt-2 text-xs font-semibold text-rose-600">{{ $message }}</p>@enderror
-                        </div>
-
-                        <fieldset class="mt-6">
-                            <legend class="mb-3 block text-xs font-semibold uppercase tracking-wide text-slate-500">{{ __('eu_funds_questionnaire.form.planned_costs') }} *</legend>
-                            <div class="grid gap-3">
-                                @foreach ($plannedCostOptions as $value => $label)
-                                    <label class="flex items-start gap-3 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-700 transition hover:border-slate-300 hover:bg-slate-50">
-                                        <input type="checkbox" name="planned_costs[]" value="{{ $value }}" class="mt-1 h-4 w-4 border-slate-300 text-slate-900 focus:ring-0" @checked(in_array($value, $selectedPlannedCosts, true))>
-                                        <span>{{ $label }}</span>
-                                    </label>
-                                @endforeach
-                            </div>
-                            @error('planned_costs')<p class="mt-2 text-xs font-semibold text-rose-600">{{ $message }}</p>@enderror
-                            @error('planned_costs.*')<p class="mt-2 text-xs font-semibold text-rose-600">{{ $message }}</p>@enderror
-                        </fieldset>
-
-                        <fieldset class="mt-6">
-                            <legend class="mb-3 block text-xs font-semibold uppercase tracking-wide text-slate-500">{{ __('eu_funds_questionnaire.form.investment_amount') }} *</legend>
-                            <div class="grid gap-3">
-                                @foreach ($investmentAmountOptions as $value => $label)
-                                    <label class="flex items-start gap-3 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-700 transition hover:border-slate-300 hover:bg-slate-50">
-                                        <input type="radio" name="investment_amount" value="{{ $value }}" class="mt-1 h-4 w-4 border-slate-300 text-slate-900 focus:ring-0" @checked(old('investment_amount') === $value) required>
-                                        <span>{{ $label }}</span>
-                                    </label>
-                                @endforeach
-                            </div>
-                            @error('investment_amount')<p class="mt-2 text-xs font-semibold text-rose-600">{{ $message }}</p>@enderror
-                        </fieldset>
-
-                        <fieldset class="mt-6">
-                            <legend class="mb-3 block text-xs font-semibold uppercase tracking-wide text-slate-500">{{ __('eu_funds_questionnaire.form.interested_services') }} *</legend>
-                            <div class="grid gap-3">
-                                @foreach ($interestedServiceOptions as $value => $label)
-                                    <label class="flex items-start gap-3 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-700 transition hover:border-slate-300 hover:bg-slate-50">
-                                        <input type="checkbox" name="interested_services[]" value="{{ $value }}" class="mt-1 h-4 w-4 border-slate-300 text-slate-900 focus:ring-0" @checked(in_array($value, $selectedInterestedServices, true))>
-                                        <span>{{ $label }}</span>
-                                    </label>
-                                @endforeach
-                            </div>
-                            @error('interested_services')<p class="mt-2 text-xs font-semibold text-rose-600">{{ $message }}</p>@enderror
-                            @error('interested_services.*')<p class="mt-2 text-xs font-semibold text-rose-600">{{ $message }}</p>@enderror
-                        </fieldset>
-
-                        <div class="mt-6 grid gap-4 md:grid-cols-2">
-                            <div>
-                                <label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-500">{{ __('eu_funds_questionnaire.form.contact_name') }} *</label>
-                                <input type="text" name="contact_name" value="{{ old('contact_name') }}" class="front-contact-input h-11 w-full text-sm" required>
-                                @error('contact_name')<p class="mt-2 text-xs font-semibold text-rose-600">{{ $message }}</p>@enderror
-                            </div>
-                            <div>
-                                <label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-500">{{ __('eu_funds_questionnaire.form.email') }} *</label>
-                                <input type="email" name="email" value="{{ old('email', auth()->user()?->email) }}" class="front-contact-input h-11 w-full text-sm" required>
-                                @error('email')<p class="mt-2 text-xs font-semibold text-rose-600">{{ $message }}</p>@enderror
-                            </div>
-                        </div>
-
-                        <div class="mt-4">
-                            <label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-500">{{ __('eu_funds_questionnaire.form.contact_phone') }} *</label>
-                            <input type="text" name="contact_phone" value="{{ old('contact_phone') }}" class="front-contact-input h-11 w-full text-sm" required>
-                            @error('contact_phone')<p class="mt-2 text-xs font-semibold text-rose-600">{{ $message }}</p>@enderror
-                        </div>
-
-                        <div class="mt-6">
+                        <div class="front-contact-consent-wrap">
                             <label class="front-contact-consent">
                                 <input type="checkbox" name="accept_terms" value="1" class="front-contact-checkbox mt-0.5 h-4 w-4 border-slate-300 text-slate-900 focus:ring-0" @checked((bool) old('accept_terms'))>
                                 <span>{{ __('eu_funds_questionnaire.form.accept_terms_label') }}</span>
                             </label>
                             @error('accept_terms')<p class="mt-2 text-xs font-semibold text-rose-600">{{ $message }}</p>@enderror
+                            @error('recaptcha_token')<p class="mt-2 text-xs font-semibold text-rose-600">{{ $message }}</p>@enderror
                         </div>
 
-                        @error('recaptcha_token')<p class="mt-4 text-xs font-semibold text-rose-600">{{ $message }}</p>@enderror
+                        <p class="ac-eu-questionnaire-privacy">{{ __('eu_funds_questionnaire.privacy_note') }}</p>
 
                         <div class="front-contact-form-actions">
                             <button type="submit" class="front-contact-submit inline-flex h-11 items-center justify-center px-6 text-sm font-semibold text-white transition">
@@ -259,10 +277,6 @@
                             </button>
                         </div>
                     </form>
-
-                    <div class="mt-4 text-sm leading-6 text-slate-600">
-                        <p>{{ __('eu_funds_questionnaire.privacy_note') }}</p>
-                    </div>
 
                     <aside class="front-contact-sidebar">
                         <div class="front-contact-panel front-contact-panel--direct">

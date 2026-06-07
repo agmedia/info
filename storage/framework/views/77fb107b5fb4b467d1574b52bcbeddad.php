@@ -427,6 +427,18 @@ unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendB
             margin: 0 auto;
         }
 
+        @media (min-width: 640px) {
+            .ac-career-container {
+                width: min(100% - 3rem, 1272px);
+            }
+        }
+
+        @media (min-width: 1024px) {
+            .ac-career-container {
+                width: min(100% - 4rem, 1256px);
+            }
+        }
+
         .ac-career-title-band {
             margin-bottom: 0;
             background: var(--ac-career-bg-warm);

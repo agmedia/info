@@ -70,6 +70,8 @@ class EuFundsController extends Controller
             'overviewSection' => (array) ($translationPayload['overview'] ?? []),
             'chartSection' => (array) ($translationPayload['chart'] ?? []),
             'processSection' => (array) ($translationPayload['process'] ?? []),
+            'approachSection' => (array) ($translationPayload['approach'] ?? []),
+            'sourceModulesSection' => (array) ($translationPayload['source_modules'] ?? []),
             'callsSection' => $this->resolveCallsSection((array) ($translationPayload['calls'] ?? []), $locale, $fallbackLocale),
             'resourcesSection' => $resourcesSection,
             'lawsSection' => $this->resolveCardsSection((array) ($translationPayload['laws'] ?? [])),
@@ -322,9 +324,13 @@ class EuFundsController extends Controller
 
         $section['groups'] = collect((array) ($section['groups'] ?? []))
             ->map(function (array $group): array {
+                $group['tone'] = $this->resolveCallGroupTone((string) ($group['tone'] ?? $group['title'] ?? 'pending'));
+                $group['status_label'] = $this->callStatusLabel((string) $group['tone']);
                 $group['items'] = collect((array) ($group['items'] ?? []))
                     ->map(function (array $item): array {
                         $item['resolved_link'] = $this->resolveLink($item['link'] ?? null);
+                        $item['date_label'] = '';
+                        $item['date_value'] = '';
 
                         return $item;
                     })
@@ -338,7 +344,7 @@ class EuFundsController extends Controller
     }
 
     /**
-     * @return array<int, array{title:string,tone:string,items:array<int,array{title:string,published_label:string,resolved_link:array<string,mixed>}>}>
+     * @return array<int, array{title:string,tone:string,status_label:string,items:array<int,array{title:string,date_label:string,date_value:string,resolved_link:array<string,mixed>}>}>
      */
     private function resolveCallGroupsFromContent(string $locale, string $fallbackLocale): array
     {
@@ -388,11 +394,7 @@ class EuFundsController extends Controller
                     ?? $group->translations->first();
 
                 $groupTitle = trim((string) ($translation?->name ?? $group->code));
-                $groupTone = match ((string) ($translation?->slug ?? $group->code)) {
-                    'otvoreni-pozivi' => 'open',
-                    'zatvoreni-pozivi' => 'closed',
-                    default => 'pending',
-                };
+                $groupTone = $this->resolveCallGroupTone((string) ($translation?->slug ?? $group->code));
 
                 $items = $group->callPosts
                     ->sortByDesc(fn (CallPost $post): int => ($post->published_at ?? $post->created_at)?->getTimestamp() ?? 0)
@@ -405,10 +407,12 @@ class EuFundsController extends Controller
                         $hasContent = trim((string) ($translation?->body_html ?? '')) !== ''
                             || trim((string) ($translation?->excerpt ?? '')) !== ''
                             || $post->getFirstMediaUrl('call_cover') !== '';
+                        $dateMeta = $this->resolveCallDateMeta($post, $translation);
 
                         return [
                             'title' => (string) ($translation?->title ?? $post->code),
-                            'published_label' => (string) (($post->published_at ?? $post->created_at)?->translatedFormat('j. n. Y.') ?? ''),
+                            'date_label' => $dateMeta['label'],
+                            'date_value' => $dateMeta['value'],
                             'resolved_link' => [
                                 'label' => '',
                                 'url' => $hasContent && $slug !== ''
@@ -426,12 +430,105 @@ class EuFundsController extends Controller
                 return [
                     'title' => $groupTitle,
                     'tone' => $groupTone,
+                    'status_label' => $this->callStatusLabel($groupTone),
                     'items' => $items,
                 ];
             })
             ->filter(fn (array $group): bool => $group['items'] !== [])
             ->values()
             ->all();
+    }
+
+    private function resolveCallGroupTone(string $value): string
+    {
+        $normalized = Str::of($value)->lower()->ascii()->replace(['_', '-'], ' ')->squish()->value();
+
+        if (str_contains($normalized, 'otvoren') || str_contains($normalized, 'open')) {
+            return 'open';
+        }
+
+        if (str_contains($normalized, 'zatvoren') || str_contains($normalized, 'closed')) {
+            return 'closed';
+        }
+
+        return 'pending';
+    }
+
+    private function callStatusLabel(string $tone): string
+    {
+        return match ($tone) {
+            'open' => 'Otvoreno',
+            'closed' => 'Zatvoreno',
+            default => 'U najavi',
+        };
+    }
+
+    /**
+     * @return array{label:string,value:string}
+     */
+    private function resolveCallDateMeta(CallPost $post, ?\App\Models\Content\Call\CallPostTranslation $translation): array
+    {
+        foreach ([$translation?->payload, $post->payload] as $payload) {
+            if (! is_array($payload)) {
+                continue;
+            }
+
+            foreach (['application_deadline', 'deadline_at', 'deadline', 'rok_za_prijavu'] as $key) {
+                $date = $this->formatCallDate($payload[$key] ?? null);
+
+                if ($date !== '') {
+                    return [
+                        'label' => 'Rok za prijavu',
+                        'value' => $date,
+                    ];
+                }
+            }
+
+            foreach (['updated_at', 'azurirano'] as $key) {
+                $date = $this->formatCallDate($payload[$key] ?? null);
+
+                if ($date !== '') {
+                    return [
+                        'label' => 'Ažurirano',
+                        'value' => $date,
+                    ];
+                }
+            }
+        }
+
+        if ($post->published_at) {
+            return [
+                'label' => 'Objavljeno',
+                'value' => $post->published_at->translatedFormat('j. n. Y.'),
+            ];
+        }
+
+        if ($post->updated_at) {
+            return [
+                'label' => 'Ažurirano',
+                'value' => $post->updated_at->translatedFormat('j. n. Y.'),
+            ];
+        }
+
+        return [
+            'label' => '',
+            'value' => '',
+        ];
+    }
+
+    private function formatCallDate(mixed $value): string
+    {
+        $rawValue = trim((string) $value);
+
+        if ($rawValue === '') {
+            return '';
+        }
+
+        try {
+            return \Illuminate\Support\Carbon::parse($rawValue)->translatedFormat('j. n. Y.');
+        } catch (\Throwable) {
+            return '';
+        }
     }
 
     /**
@@ -476,8 +573,11 @@ class EuFundsController extends Controller
                 $title = Str::of((string) ($card['title'] ?? ''))->lower()->ascii()->value();
                 $label = Str::of((string) ($card['primary_link']['label'] ?? ''))->lower()->ascii()->value();
                 $url = trim((string) ($card['primary_link']['url'] ?? ''));
-                $looksLikeQuestionnaireCard = str_contains($title, 'eu fond')
-                    && str_contains($label, 'upitnik');
+                $looksLikeQuestionnaireCard = str_contains($label, 'upitnik') && (
+                    str_contains($title, 'eu fond')
+                    || str_contains($title, 'projektni')
+                    || str_contains($url, '/eu-fondovi/upitnik')
+                );
                 $targetsLegacyQuestionnaire = str_contains($url, 'alphacapitalis.com/eu-fondovi-upitnik');
 
                 if (! $looksLikeQuestionnaireCard && ! $targetsLegacyQuestionnaire) {

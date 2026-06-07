@@ -15,7 +15,7 @@ class EuFundsServicePageFeatureTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_eu_funds_service_page_renders_five_latest_posts_below_contact_section(): void
+    public function test_eu_funds_service_page_renders_five_latest_posts_below_service_cta(): void
     {
         config()->set('app.locale', 'hr');
         config()->set('app.fallback_locale', 'hr');
@@ -73,7 +73,7 @@ class EuFundsServicePageFeatureTest extends TestCase
         $response = $this->get('/eu-fondovi');
 
         $response->assertOk()
-            ->assertSeeText('Novosti iz kategorije EU fondovi')
+            ->assertSeeText('Objave iz kategorije EU fondovi')
             ->assertSeeText('EU fondovi objava 01')
             ->assertSeeText('EU fondovi objava 02')
             ->assertSeeText('EU fondovi objava 03')
@@ -81,17 +81,20 @@ class EuFundsServicePageFeatureTest extends TestCase
             ->assertSeeText('EU fondovi objava 05')
             ->assertDontSeeText('EU fondovi objava 06')
             ->assertSee('data-eu-funds-blog-splide', false)
-            ->assertSee('https://cdn.jsdelivr.net/npm/@splidejs/splide@4.1.4/dist/js/splide.min.js', false);
+            ->assertSee('https://cdn.jsdelivr.net/npm/@splidejs/splide@4.1.4/dist/js/splide.min.js', false)
+            ->assertSee('id="eu-funds-cta"', false)
+            ->assertDontSee('id="eu-funds-contact"', false)
+            ->assertDontSee('front-contact-form', false);
 
         $content = $response->getContent();
         $this->assertIsString($content);
 
-        $contactPosition = strpos($content, 'id="eu-funds-contact"');
+        $ctaPosition = strpos($content, 'id="eu-funds-cta"');
         $blogPosition = strpos($content, 'id="ac-eu-blog-title"');
 
-        $this->assertNotFalse($contactPosition);
+        $this->assertNotFalse($ctaPosition);
         $this->assertNotFalse($blogPosition);
-        $this->assertLessThan($blogPosition, $contactPosition);
+        $this->assertLessThan($blogPosition, $ctaPosition);
     }
 
     public function test_eu_funds_service_page_prefers_call_posts_from_content_module(): void
@@ -159,16 +162,41 @@ class EuFundsServicePageFeatureTest extends TestCase
 
         $response->assertOk()
             ->assertSeeText('Otvoreni pozivi')
+            ->assertSeeText('Otvoreno')
             ->assertSeeText('Integrator')
+            ->assertSeeText('Objavljeno:')
             ->assertSee('/eu-fondovi/pozivi/integrator', false);
     }
 
-    public function test_eu_funds_service_page_links_questionnaire_cta_to_internal_page(): void
+    public function test_eu_funds_service_page_renders_service_layout_and_separate_sources(): void
     {
         $response = $this->get('/eu-fondovi');
 
         $response->assertOk()
+            ->assertSeeText('EU fondovi')
+            ->assertSeeText('Što su EU fondovi?')
+            ->assertSeeText('Naše usluge')
+            ->assertSeeText('Analiza i odabir natječaja')
+            ->assertSeeText('Izrada projektne prijave')
+            ->assertSeeText('Provedba i koordinacija projekta')
+            ->assertSeeText('Naš pristup')
+            ->assertSeeText('Dostupni izvori financiranja')
+            ->assertSeeText('Otvoreni natječaji')
+            ->assertSeeText('Natječaji u najavi')
+            ->assertSeeText('Financijski instrumenti')
+            ->assertSeeText('HBOR krediti')
+            ->assertSeeText('HAMAG zajmovi')
+            ->assertSeeText('Porezne olakšice, zakoni i uredbe')
+            ->assertSeeText('Razgovarajmo o vašem projektu')
             ->assertSee(route('eu-funds.questionnaire.create'), false)
-            ->assertDontSee('https://alphacapitalis.com/eu-fondovi-upitnik/', false);
+            ->assertDontSeeText('Pregledajte natječaje')
+            ->assertDontSeeText('VFO, Mehanizam oporavka')
+            ->assertDontSeeText('14+ mlrd EUR')
+            ->assertDontSeeText('11+ mlrd EUR')
+            ->assertDontSeeText('6,3 mlrd EUR')
+            ->assertDontSee('https://alphacapitalis.com/eu-fondovi-upitnik/', false)
+            ->assertDontSeeText('poveznice su postavljene samo tamo gdje već postoji lokalni blog zapis ili lokalni dokument')
+            ->assertDontSee('ac-eu-process-index', false)
+            ->assertDontSee('>01<', false);
     }
 }

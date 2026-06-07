@@ -142,7 +142,7 @@
         ];
     }
 @endphp
-<body class="front-desktop-shell {{ request()->routeIs('audit.show') ? 'front-route-audit' : '' }} {{ request()->routeIs('accounting.show') ? 'front-route-accounting' : '' }} {{ request()->routeIs('advisory.*') ? 'front-route-advisory' : '' }} front-preload-pending min-h-screen overflow-x-hidden antialiased" style="--front-header-hero-backdrop: url('{{ $headerHeroBackdropUrl }}');">
+<body class="front-desktop-shell {{ request()->routeIs('home') ? 'front-route-home' : '' }} {{ request()->routeIs('audit.show') ? 'front-route-audit' : '' }} {{ request()->routeIs('accounting.show') ? 'front-route-accounting' : '' }} {{ request()->routeIs('advisory.*') ? 'front-route-advisory' : '' }} {{ request()->routeIs('eu-funds.show') ? 'front-route-eu-funds' : '' }} front-preload-pending min-h-screen overflow-x-hidden antialiased" style="--front-header-hero-backdrop: url('{{ $headerHeroBackdropUrl }}');">
     <div id="front-initial-preloader" aria-hidden="true"></div>
     @php
         $activeLocale = (string) ($frontLocale ?? app()->getLocale());

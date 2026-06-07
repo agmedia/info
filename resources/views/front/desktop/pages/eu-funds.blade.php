@@ -1,563 +1,336 @@
 @extends('front.desktop.layouts.store')
 
 @php
-    $captchaSiteKey = trim((string) ($storeSettings['captcha']['recaptcha_v3_site_key'] ?? ''));
-    $captchaEnabled = (bool) ($storeSettings['captcha']['recaptcha_v3_enabled'] ?? false) && $captchaSiteKey !== '';
-    $contactEmail = trim((string) ($storeSettings['footer']['email_support'] ?? '')) ?: 'info@alphacapitalis.com';
-    $contactPhone = trim((string) ($storeSettings['footer']['phone'] ?? '')) ?: '+385 (1) 580 6656';
-    $contactPhoneHref = preg_replace('/\s+/', '', $contactPhone);
-    $meetingFormLabels = $meetingSection['form_labels'] ?? [];
-    $testimonialReadMoreLabel = $locale === 'hr' ? 'Pročitaj više' : 'Read more';
-    $testimonialShowLessLabel = $locale === 'hr' ? 'Prikaži manje' : 'Show less';
-    $callDownloadLink = $callsSection['download_link'] ?? ['url' => ''];
-    $aboutParagraphs = array_values(array_filter(array_map(
-        static fn ($paragraph): string => trim((string) $paragraph),
-        (array) ($aboutSection['body'] ?? [])
-    ), static fn (string $paragraph): bool => $paragraph !== ''));
-    $aboutOrbitBlocks = $aboutParagraphs;
+    $overviewBody = array_values((array) ($overviewSection['body'] ?? []));
+    $serviceItems = array_values((array) ($processSection['items'] ?? []));
+    $approachBody = array_values((array) ($approachSection['body'] ?? []));
+    $sourceCards = array_values((array) ($sourceModulesSection['items'] ?? []));
+    $callGroups = array_values((array) ($callsSection['groups'] ?? []));
+    $resourceCards = array_values((array) ($resourcesSection['cards'] ?? []));
+    $lawCards = array_values((array) ($lawsSection['cards'] ?? []));
+    $meetingTitle = trim((string) ($meetingSection['title'] ?? '')) ?: 'Razgovarajmo o vašem projektu';
+    $meetingIntro = trim((string) ($meetingSection['intro'] ?? '')) ?: 'Javite nam se i zajedno ćemo procijeniti koji su izvori financiranja dostupni za vaš projekt.';
+    $meetingLinkLabel = trim((string) ($meetingSection['contact_title'] ?? '')) ?: 'Kontaktirajte nas';
+    $isCroatianLocale = str_starts_with(strtolower((string) ($locale ?? app()->getLocale())), 'hr');
+    $readMoreLabel = $isCroatianLocale ? 'Opširnije' : 'Read more';
+    $currentHost = request()->getHost();
+    $sameOriginAssetUrl = static function (?string $url) use ($currentHost): string {
+        $assetUrl = trim((string) $url);
+        $assetHost = parse_url($assetUrl, PHP_URL_HOST);
 
-    if (count($aboutOrbitBlocks) > 4) {
-        $aboutOrbitBlocks = [
-            $aboutOrbitBlocks[0],
-            $aboutOrbitBlocks[1],
-            $aboutOrbitBlocks[2],
-            implode(' ', array_slice($aboutOrbitBlocks, 3)),
-        ];
-    }
+        if ($assetUrl === '' || ($assetHost !== null && $assetHost !== $currentHost)) {
+            return $assetUrl;
+        }
 
-    $aboutOrbitBlocks = array_pad($aboutOrbitBlocks, 4, '');
-    $aboutLeftBlocks = array_values(array_filter([
-        [
-            'text' => $aboutOrbitBlocks[0] ?? '',
-            'is_quote' => false,
-        ],
-        [
-            'text' => $aboutOrbitBlocks[2] ?? '',
-            'is_quote' => false,
-        ],
-    ], static fn (array $block): bool => $block['text'] !== ''));
-    $aboutRightBlocks = array_values(array_filter([
-        [
-            'text' => $aboutOrbitBlocks[1] ?? '',
-            'is_quote' => false,
-        ],
-        [
-            'text' => $aboutOrbitBlocks[3] ?? '',
-            'is_quote' => ($aboutOrbitBlocks[3] ?? '') !== '',
-        ],
-    ], static fn (array $block): bool => $block['text'] !== ''));
+        $assetPath = parse_url($assetUrl, PHP_URL_PATH);
+        $assetQuery = parse_url($assetUrl, PHP_URL_QUERY);
+
+        if (is_string($assetPath) && $assetPath !== '') {
+            return $assetPath.($assetQuery ? '?'.$assetQuery : '');
+        }
+
+        return $assetUrl;
+    };
+    $resolveContentUrl = static function (?string $url): string {
+        $target = trim((string) $url);
+
+        if ($target === '' || str_starts_with($target, '#') || str_starts_with($target, 'http://') || str_starts_with($target, 'https://')) {
+            return $target;
+        }
+
+        return url(str_starts_with($target, '/') ? $target : '/'.$target);
+    };
+    $heroImageUrl = $sameOriginAssetUrl((string) $heroBackgroundUrl);
+    $hasEuFundsPosts = ($euFundsPosts ?? collect())->isNotEmpty();
+    $hasServiceVideos = collect($serviceVideos ?? [])->isNotEmpty();
 @endphp
 
 @section('title', $servicePageMetaTitle !== '' ? $servicePageMetaTitle : ($servicePageTitle ?? 'EU fondovi'))
 @section('main_class', 'w-full px-0 py-0')
 
 @section('content')
-    <div class="ac-family-business-page ac-eu-page">
-        <section class="ac-family-hero">
-            <div class="ac-family-hero-media" aria-hidden="true" style="background-image: url('{{ $heroBackgroundUrl }}');"></div>
+    <div class="ac-family-business-page ac-audit-page ac-eu-service-page">
+        <section class="ac-family-hero ac-service-hero ac-service-hero--eu-funds">
+            <div class="ac-family-hero-media" aria-hidden="true" style="--audit-hero-image: url('{{ $heroImageUrl }}'); background-image: url('{{ $heroImageUrl }}');">
+                <img src="{{ $heroImageUrl }}" alt="" class="ac-family-hero-media-image" loading="eager" decoding="async">
+            </div>
             <div class="ac-family-hero-overlay"></div>
 
             <div class="mx-auto w-full max-w-[1240px] px-5 lg:px-8">
                 <div class="ac-family-hero-content">
                     <div class="ac-family-hero-shell">
-                        <div class="ac-family-hero-copy">
+                        <div class="ac-family-hero-copy ac-service-hero-card">
                             <h1 class="ac-family-hero-title">
                                 <span class="is-brand">{{ $heroSection['brand_title'] ?? 'ALPHA CAPITALIS' }}</span>
                                 <span class="is-subtitle">
-                                    <span class="is-subtitle-lead">{{ $heroSection['subtitle_lead'] ?? 'Savjetnici za' }}</span>
-                                    <span class="is-subtitle-accent">{{ $heroSection['subtitle_accent'] ?? 'EU fondove' }}</span>
+                                    <span class="is-subtitle-lead">{{ $heroSection['subtitle_lead'] ?? 'EU fondovi' }}</span>
+                                    @if (trim((string) ($heroSection['subtitle_accent'] ?? '')) !== '')
+                                        <span class="is-subtitle-accent">{{ $heroSection['subtitle_accent'] }}</span>
+                                    @endif
                                 </span>
                             </h1>
 
                             <p class="ac-family-hero-intro">{{ $heroSection['intro'] ?? '' }}</p>
-
-                            <div class="ac-family-hero-actions">
-                                <a href="{{ $heroSection['cta_url'] ?? '#eu-funds-calls' }}" class="front-action-cta">
-                                    <span>{{ $heroSection['cta_label'] ?? 'Pregledajte natječaje' }}</span>
-                                    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                                        <path d="M12 5v14" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"></path>
-                                        <path d="m6 13 6 6 6-6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></path>
-                                    </svg>
-                                </a>
-                            </div>
                         </div>
                     </div>
                 </div>
             </div>
         </section>
 
-        <section class="ac-eu-section ac-eu-section--intro ac-blog-related-section" aria-labelledby="ac-eu-about-title">
-            <div class="mx-auto w-full max-w-[1240px] px-5 lg:px-8">
-                <div class="ac-support-story-hero">
-                    <div class="ac-support-story-shell">
-                        <div class="ac-services-head ac-support-story-head ac-eu-intro-head">
-                            <div class="ac-services-eyebrow">
-                                <span class="ac-services-eyebrow-line" aria-hidden="true"></span>
-                                <p class="ac-services-kicker">{{ $aboutSection['kicker'] ?? 'EU ODJEL' }}</p>
-                                <span class="ac-services-eyebrow-line" aria-hidden="true"></span>
-                            </div>
-                            <h2 id="ac-eu-about-title">
-                                <span>{{ $aboutSection['title'] ?? '' }}</span>
-                            </h2>
-                            <div class="ac-services-divider" aria-hidden="true">
-                                <span class="ac-services-divider-line"></span>
-                                <span class="ac-services-divider-glyph"></span>
-                                <span class="ac-services-divider-line"></span>
-                            </div>
+        <section id="eu-funds-overview" class="ac-audit-editorial-wrap" aria-labelledby="ac-eu-overview-title">
+            <div class="mx-auto w-full max-w-[1120px] px-5 lg:px-8">
+                <div class="ac-audit-editorial-shell">
+                    <article class="ac-audit-editorial-section ac-audit-editorial-section--overview">
+                        <div class="ac-audit-section-head ac-audit-section-head--center">
+                            <p class="ac-family-section-kicker">{{ $overviewSection['kicker'] ?? 'EU FONDOVI' }}</p>
+                            <h2 id="ac-eu-overview-title">{{ $overviewSection['title'] ?? 'Što su EU fondovi?' }}</h2>
                         </div>
-                    </div>
-                </div>
 
-                <div class="ac-eu-intro-grid">
-                    <div class="ac-eu-intro-stage">
-                        <div class="ac-eu-about-orbit" aria-label="{{ $locale === 'hr' ? 'Opis EU odjela' : 'EU department description' }}">
-                            <div class="ac-eu-about-column">
-                                @foreach ($aboutLeftBlocks as $block)
-                                    <article class="ac-eu-about-block">
-                                        <p>{{ $block['text'] }}</p>
-                                    </article>
-                                @endforeach
-                            </div>
-
-                            <div class="ac-eu-about-column">
-                                @foreach ($aboutRightBlocks as $block)
-                                    <article class="ac-eu-about-block">
-                                        @if ($block['is_quote'])
-                                            <blockquote class="ac-eu-about-blockquote">
-                                                <p>{{ $block['text'] }}</p>
-                                            </blockquote>
-                                        @else
-                                            <p>{{ $block['text'] }}</p>
-                                        @endif
-                                    </article>
-                                @endforeach
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <section class="ac-eu-section ac-eu-section--overview" aria-labelledby="ac-eu-overview-title">
-            <div class="mx-auto w-full max-w-[1240px] px-5 lg:px-8">
-                <div class="ac-eu-editorial-content">
-                    <div class="ac-services-head ac-support-story-head ac-eu-editorial-head">
-                        <div class="ac-services-eyebrow">
-                            <span class="ac-services-eyebrow-line" aria-hidden="true"></span>
-                            <p class="ac-services-kicker">{{ $overviewSection['kicker'] ?? 'EU FONDOVI' }}</p>
-                            <span class="ac-services-eyebrow-line" aria-hidden="true"></span>
-                        </div>
-                        <h2 id="ac-eu-overview-title">{{ $overviewSection['title'] ?? '' }}</h2>
-                        <p class="ac-services-intro">{{ $overviewSection['intro'] ?? '' }}</p>
-                        <div class="ac-services-divider" aria-hidden="true">
-                            <span class="ac-services-divider-line"></span>
-                            <span class="ac-services-divider-glyph"></span>
-                            <span class="ac-services-divider-line"></span>
-                        </div>
-                    </div>
-
-                    <div class="ac-eu-editorial-body">
-                        @foreach (($overviewSection['body'] ?? []) as $paragraph)
-                            <p>{{ $paragraph }}</p>
-                        @endforeach
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <section class="ac-eu-section ac-eu-section--metrics" aria-labelledby="ac-eu-metrics-title">
-            <div class="mx-auto w-full max-w-[1240px] px-5 lg:px-8">
-                <div class="ac-eu-metrics-grid">
-                    <article class="ac-eu-panel ac-eu-panel--chart">
-                        <p class="ac-family-section-kicker">{{ $chartSection['kicker'] ?? 'OKVIR FINANCIRANJA' }}</p>
-                        <h2 id="ac-eu-metrics-title">{{ $chartSection['title'] ?? '' }}</h2>
-                        <p class="ac-eu-panel-intro">{{ $chartSection['intro'] ?? '' }}</p>
-
-                        <div class="ac-eu-stat-stack">
-                            @foreach (($chartSection['stats'] ?? []) as $stat)
-                                @php
-                                    $share = max(8, min(100, (int) ($stat['share'] ?? 0)));
-                                @endphp
-                                <div class="ac-eu-stat-row">
-                                    <div class="ac-eu-stat-copy">
-                                        <div class="ac-eu-stat-label-row">
-                                            <h3>{{ $stat['label'] ?? '' }}</h3>
-                                            <strong>{{ $stat['value'] ?? '' }}</strong>
-                                        </div>
-                                        @if (!empty($stat['description'] ?? null))
-                                            <p>{{ $stat['description'] }}</p>
-                                        @endif
-                                    </div>
-                                    <div class="ac-eu-stat-bar">
-                                        <span style="width: {{ $share }}%;"></span>
-                                    </div>
-                                </div>
+                        <div class="ac-audit-copy ac-audit-copy--full">
+                            @foreach ($overviewBody as $paragraph)
+                                @if (trim((string) $paragraph) !== '')
+                                    <p>{{ $paragraph }}</p>
+                                @endif
                             @endforeach
                         </div>
-
-                        @if (trim((string) ($chartSection['footnote'] ?? '')) !== '')
-                            <p class="ac-eu-footnote">{{ $chartSection['footnote'] }}</p>
-                        @endif
                     </article>
 
-                    <article class="ac-eu-panel ac-eu-panel--process">
-                        <p class="ac-family-section-kicker">{{ $processSection['kicker'] ?? 'KAKO RADIMO' }}</p>
-                        <h2>{{ $processSection['title'] ?? '' }}</h2>
-                        <p class="ac-eu-panel-intro">{{ $processSection['intro'] ?? '' }}</p>
+                    <article id="eu-funds-services" class="ac-audit-editorial-section">
+                        <div class="ac-audit-section-head ac-audit-section-head--center">
+                            <p class="ac-family-section-kicker">{{ $processSection['kicker'] ?? 'USLUGE' }}</p>
+                            <h2>{{ $processSection['title'] ?? 'Naše usluge' }}</h2>
+                            @if (trim((string) ($processSection['intro'] ?? '')) !== '')
+                                <p>{{ $processSection['intro'] }}</p>
+                            @endif
+                        </div>
 
-                        <div class="ac-eu-process-list">
-                            @foreach (($processSection['items'] ?? []) as $item)
-                                <article class="ac-eu-process-card">
-                                    <span class="ac-eu-process-index">{{ str_pad((string) $loop->iteration, 2, '0', STR_PAD_LEFT) }}</span>
+                        <div class="ac-audit-card-grid">
+                            @foreach ($serviceItems as $item)
+                                <article class="ac-audit-service-card">
                                     <h3>{{ $item['title'] ?? '' }}</h3>
                                     <p>{{ $item['text'] ?? '' }}</p>
                                 </article>
                             @endforeach
                         </div>
                     </article>
-                </div>
-            </div>
-        </section>
 
-        <section id="eu-funds-calls" class="ac-eu-section ac-eu-section--calls" aria-labelledby="ac-eu-calls-title">
-            <div class="mx-auto w-full max-w-[1240px] px-5 lg:px-8">
-                <div class="ac-eu-section-head">
-                    <div>
-                        <p class="ac-family-section-kicker">{{ $callsSection['kicker'] ?? 'PREGLED NATJEČAJA' }}</p>
-                        <h2 id="ac-eu-calls-title">{{ $callsSection['title'] ?? '' }}</h2>
-                    </div>
+                    <article id="eu-funds-approach" class="ac-audit-editorial-section">
+                        <div class="ac-audit-section-head ac-audit-section-head--center">
+                            <p class="ac-family-section-kicker">{{ $approachSection['kicker'] ?? 'PRISTUP' }}</p>
+                            <h2>{{ $approachSection['title'] ?? 'Naš pristup' }}</h2>
+                        </div>
 
-                    @if (!empty($callDownloadLink['url'] ?? ''))
-                        <a
-                            href="{{ $callDownloadLink['url'] }}"
-                            class="ac-eu-download-button"
-                            @if($callDownloadLink['open_in_new_tab'] ?? false) target="_blank" rel="{{ $callDownloadLink['rel'] ?? 'noopener noreferrer' }}" @endif
-                        >
-                            <span>{{ $callDownloadLink['label'] ?: 'Preuzmite pregled natječaja' }}</span>
-                            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                                <path d="M12 4v11" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"></path>
-                                <path d="m7 11 5 5 5-5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></path>
-                                <path d="M5 20h14" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"></path>
-                            </svg>
-                        </a>
-                    @endif
-                </div>
+                        <blockquote class="ac-audit-copy ac-audit-copy--full ac-audit-approach-copy">
+                            @foreach ($approachBody as $paragraph)
+                                @if (trim((string) $paragraph) !== '')
+                                    <p>{{ $paragraph }}</p>
+                                @endif
+                            @endforeach
+                        </blockquote>
+                    </article>
 
-                <p class="ac-eu-section-intro">{{ $callsSection['intro'] ?? '' }}</p>
+                    <article id="eu-funds-sources" class="ac-audit-editorial-section">
+                        <div class="ac-audit-section-head ac-audit-section-head--center">
+                            <p class="ac-family-section-kicker">{{ $sourceModulesSection['kicker'] ?? 'IZVORI FINANCIRANJA' }}</p>
+                            <h2>{{ $sourceModulesSection['title'] ?? 'Dostupni izvori financiranja' }}</h2>
+                            @if (trim((string) ($sourceModulesSection['intro'] ?? '')) !== '')
+                                <p>{{ $sourceModulesSection['intro'] }}</p>
+                            @endif
+                        </div>
 
-                <div class="ac-eu-call-grid">
-                    @foreach (($callsSection['groups'] ?? []) as $group)
-                        @php
-                            $tone = trim((string) ($group['tone'] ?? 'pending'));
-                            $groupItems = array_values((array) ($group['items'] ?? []));
-                            $isCollapsibleClosedGroup = $tone === 'closed' && count($groupItems) > 6;
-                            $visibleItems = $isCollapsibleClosedGroup ? array_slice($groupItems, 0, 6) : $groupItems;
-                            $hiddenItems = $isCollapsibleClosedGroup ? array_slice($groupItems, 6) : [];
-                            $collapseId = $isCollapsibleClosedGroup ? 'ac-eu-call-more-'.$loop->index : null;
-                        @endphp
-                        <article class="ac-eu-call-card is-{{ $tone }}">
-                            <div class="ac-eu-call-card-head">
-                                <h3>{{ $group['title'] ?? '' }}</h3>
-                                <span>{{ count($groupItems) }}</span>
+                        <div class="ac-advisory-module-grid">
+                            @foreach ($sourceCards as $module)
+                                @php $moduleUrl = $resolveContentUrl($module['url'] ?? ''); @endphp
+                                <article class="ac-advisory-source-card ac-eu-source-card">
+                                    <h3>{{ $module['title'] ?? '' }}</h3>
+                                    <p>{{ $module['text'] ?? '' }}</p>
+                                    @if ($moduleUrl !== '')
+                                        <a href="{{ $moduleUrl }}" class="ac-advisory-card-link">{{ $readMoreLabel }}</a>
+                                    @endif
+                                </article>
+                            @endforeach
+                        </div>
+
+                        @if ($callGroups !== [])
+                            <div id="eu-funds-calls" class="ac-eu-call-module" aria-labelledby="ac-eu-calls-title">
+                                <div class="ac-audit-section-head ac-audit-section-head--center ac-advisory-subhead">
+                                    <p class="ac-family-section-kicker">{{ $callsSection['kicker'] ?? 'NATJEČAJI' }}</p>
+                                    <h3 id="ac-eu-calls-title">{{ $callsSection['title'] ?? 'Natječaji prema statusu' }}</h3>
+                                    @if (trim((string) ($callsSection['intro'] ?? '')) !== '')
+                                        <p>{{ $callsSection['intro'] }}</p>
+                                    @endif
+                                </div>
+
+                                <div class="ac-eu-call-group-grid">
+                                    @foreach ($callGroups as $group)
+                                        @php
+                                            $tone = trim((string) ($group['tone'] ?? 'pending')) ?: 'pending';
+                                            $items = array_values((array) ($group['items'] ?? []));
+                                            $visibleItems = array_slice($items, 0, 5);
+                                            $hiddenItems = array_slice($items, 5);
+                                            $statusLabel = trim((string) ($group['status_label'] ?? '')) ?: match ($tone) {
+                                                'open' => 'Otvoreno',
+                                                'closed' => 'Zatvoreno',
+                                                default => 'U najavi',
+                                            };
+                                        @endphp
+                                        <article id="eu-funds-calls-{{ $tone }}" class="ac-eu-call-group-card is-{{ $tone }}">
+                                            <div class="ac-eu-call-group-head">
+                                                <h3>{{ $group['title'] ?? $statusLabel }}</h3>
+                                                <span class="ac-eu-status-badge is-{{ $tone }}">{{ $statusLabel }}</span>
+                                            </div>
+
+                                            <ul class="ac-eu-call-list">
+                                                @foreach ($visibleItems as $item)
+                                                    @include('front.desktop.pages.partials.eu-funds-call-item', ['item' => $item])
+                                                @endforeach
+                                            </ul>
+
+                                            @if ($hiddenItems !== [])
+                                                <details class="ac-eu-call-details">
+                                                    <summary>{{ $isCroatianLocale ? 'Pogledaj sve natječaje' : 'View all calls' }}</summary>
+                                                    <ul class="ac-eu-call-list ac-eu-call-list--details">
+                                                        @foreach ($hiddenItems as $item)
+                                                            @include('front.desktop.pages.partials.eu-funds-call-item', ['item' => $item])
+                                                        @endforeach
+                                                    </ul>
+                                                </details>
+                                            @endif
+                                        </article>
+                                    @endforeach
+                                </div>
+                            </div>
+                        @endif
+                    </article>
+
+                    <article id="eu-funds-programs" class="ac-audit-editorial-section">
+                        <div class="ac-audit-section-head ac-audit-section-head--center">
+                            <p class="ac-family-section-kicker">{{ $resourcesSection['kicker'] ?? 'PROGRAMI I INSTRUMENTI' }}</p>
+                            <h2>{{ $resourcesSection['title'] ?? 'HBOR, HAMAG i ostali izvori potpore' }}</h2>
+                            @if (trim((string) ($resourcesSection['intro'] ?? '')) !== '')
+                                <p>{{ $resourcesSection['intro'] }}</p>
+                            @endif
+                        </div>
+
+                        <div class="ac-eu-program-grid">
+                            @foreach ($resourceCards as $card)
+                                <article class="ac-advisory-text-panel ac-eu-program-card">
+                                    @if (trim((string) ($card['eyebrow'] ?? '')) !== '')
+                                        <p class="ac-family-section-kicker">{{ $card['eyebrow'] }}</p>
+                                    @endif
+                                    <h2>{{ $card['title'] ?? '' }}</h2>
+
+                                    @foreach ((array) ($card['body'] ?? []) as $paragraph)
+                                        @if (trim((string) $paragraph) !== '')
+                                            <p>{{ $paragraph }}</p>
+                                        @endif
+                                    @endforeach
+
+                                    @foreach ((array) ($card['groups'] ?? []) as $group)
+                                        <div class="ac-eu-program-list-block">
+                                            <h3>{{ $group['label'] ?? '' }}</h3>
+                                            <ul class="ac-advisory-list">
+                                                @foreach ((array) ($group['items'] ?? []) as $item)
+                                                    @php
+                                                        $resolvedLink = $item['resolved_link'] ?? ['url' => ''];
+                                                        $itemUrl = trim((string) ($resolvedLink['url'] ?? ''));
+                                                    @endphp
+                                                    <li>
+                                                        @if ($itemUrl !== '')
+                                                            <a href="{{ $itemUrl }}" @if($resolvedLink['open_in_new_tab'] ?? false) target="_blank" rel="{{ $resolvedLink['rel'] ?? 'noopener noreferrer' }}" @endif>{{ $item['title'] ?? '' }}</a>
+                                                        @else
+                                                            {{ $item['title'] ?? '' }}
+                                                        @endif
+                                                    </li>
+                                                @endforeach
+                                            </ul>
+                                        </div>
+                                    @endforeach
+
+                                    @if (!empty($card['primary_link']['url'] ?? '') || !empty($card['secondary_link']['url'] ?? ''))
+                                        <div class="ac-eu-program-actions">
+                                            @if (!empty($card['primary_link']['url'] ?? ''))
+                                                <a
+                                                    href="{{ $card['primary_link']['url'] }}"
+                                                    class="ac-advisory-card-link"
+                                                    @if($card['primary_link']['open_in_new_tab'] ?? false) target="_blank" rel="{{ $card['primary_link']['rel'] ?? 'noopener noreferrer' }}" @endif
+                                                >{{ $card['primary_link']['label'] ?: $readMoreLabel }}</a>
+                                            @endif
+
+                                            @if (!empty($card['secondary_link']['url'] ?? ''))
+                                                <a
+                                                    href="{{ $card['secondary_link']['url'] }}"
+                                                    class="ac-advisory-card-link"
+                                                    @if($card['secondary_link']['open_in_new_tab'] ?? false) target="_blank" rel="{{ $card['secondary_link']['rel'] ?? 'noopener noreferrer' }}" @endif
+                                                >{{ $card['secondary_link']['label'] ?: $readMoreLabel }}</a>
+                                            @endif
+                                        </div>
+                                    @endif
+                                </article>
+                            @endforeach
+                        </div>
+                    </article>
+
+                    @if ($lawCards !== [])
+                        <article id="eu-funds-laws" class="ac-audit-editorial-section">
+                            <div class="ac-audit-section-head ac-audit-section-head--center">
+                                <p class="ac-family-section-kicker">{{ $lawsSection['kicker'] ?? 'ZAKONI I UREDBE' }}</p>
+                                <h2>{{ $lawsSection['title'] ?? 'Porezne olakšice, zakoni i uredbe' }}</h2>
+                                @if (trim((string) ($lawsSection['intro'] ?? '')) !== '')
+                                    <p>{{ $lawsSection['intro'] }}</p>
+                                @endif
                             </div>
 
-                            <ul class="ac-eu-call-list">
-                                @foreach ($visibleItems as $item)
-                                    @php
-                                        $resolvedLink = $item['resolved_link'] ?? ['url' => ''];
-                                        $itemUrl = trim((string) ($resolvedLink['url'] ?? ''));
-                                        $publishedLabel = trim((string) ($item['published_label'] ?? ''));
-                                    @endphp
-                                    <li class="{{ $itemUrl !== '' ? 'is-linked' : 'is-static' }}">
-                                        @if ($itemUrl !== '')
-                                            <a
-                                                href="{{ $itemUrl }}"
-                                                @if($resolvedLink['open_in_new_tab'] ?? false) target="_blank" rel="{{ $resolvedLink['rel'] ?? 'noopener noreferrer' }}" @endif
-                                            >
-                                                <span class="ac-eu-call-item-title">{{ $item['title'] ?? '' }}</span>
-                                                <span class="ac-eu-call-item-meta">
-                                                    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                                                        <path d="M4 12L12 4"></path>
-                                                        <path d="M6 4h6v6"></path>
-                                                    </svg>
-                                                </span>
-                                            </a>
-                                        @else
-                                            <div class="ac-eu-call-item-row">
-                                                <span class="ac-eu-call-item-title">{{ $item['title'] ?? '' }}</span>
+                            <div class="ac-eu-program-grid">
+                                @foreach ($lawCards as $card)
+                                    <article class="ac-advisory-text-panel ac-eu-program-card">
+                                        <h2>{{ $card['title'] ?? '' }}</h2>
+                                        @if (trim((string) ($card['summary'] ?? '')) !== '')
+                                            <p>{{ $card['summary'] }}</p>
+                                        @endif
+
+                                        @foreach ((array) ($card['lists'] ?? []) as $list)
+                                            <div class="ac-eu-program-list-block">
+                                                <h3>{{ $list['label'] ?? '' }}</h3>
+                                                <ul class="ac-advisory-list">
+                                                    @foreach ((array) ($list['items'] ?? []) as $item)
+                                                        <li>{{ $item }}</li>
+                                                    @endforeach
+                                                </ul>
+                                            </div>
+                                        @endforeach
+
+                                        @if (trim((string) ($card['note'] ?? '')) !== '')
+                                            <p class="ac-eu-program-note">{{ $card['note'] }}</p>
+                                        @endif
+
+                                        @if (!empty($card['primary_link']['url'] ?? '') || !empty($card['secondary_link']['url'] ?? ''))
+                                            <div class="ac-eu-program-actions">
+                                                @if (!empty($card['primary_link']['url'] ?? ''))
+                                                    <a
+                                                        href="{{ $card['primary_link']['url'] }}"
+                                                        class="ac-advisory-card-link"
+                                                        @if($card['primary_link']['open_in_new_tab'] ?? false) target="_blank" rel="{{ $card['primary_link']['rel'] ?? 'noopener noreferrer' }}" @endif
+                                                    >{{ $card['primary_link']['label'] ?: $readMoreLabel }}</a>
+                                                @endif
+
+                                                @if (!empty($card['secondary_link']['url'] ?? ''))
+                                                    <a
+                                                        href="{{ $card['secondary_link']['url'] }}"
+                                                        class="ac-advisory-card-link"
+                                                        @if($card['secondary_link']['open_in_new_tab'] ?? false) target="_blank" rel="{{ $card['secondary_link']['rel'] ?? 'noopener noreferrer' }}" @endif
+                                                    >{{ $card['secondary_link']['label'] ?: $readMoreLabel }}</a>
+                                                @endif
                                             </div>
                                         @endif
-                                    </li>
+                                    </article>
                                 @endforeach
-                            </ul>
-
-                            @if ($isCollapsibleClosedGroup)
-                                <div
-                                    id="{{ $collapseId }}"
-                                    class="ac-eu-call-list-more"
-                                    data-eu-call-more
-                                    data-expanded="false"
-                                    hidden
-                                >
-                                    <ul class="ac-eu-call-list ac-eu-call-list--more">
-                                        @foreach ($hiddenItems as $item)
-                                            @php
-                                                $resolvedLink = $item['resolved_link'] ?? ['url' => ''];
-                                                $itemUrl = trim((string) ($resolvedLink['url'] ?? ''));
-                                                $publishedLabel = trim((string) ($item['published_label'] ?? ''));
-                                            @endphp
-                                            <li class="{{ $itemUrl !== '' ? 'is-linked' : 'is-static' }}">
-                                                @if ($itemUrl !== '')
-                                                    <a
-                                                        href="{{ $itemUrl }}"
-                                                        @if($resolvedLink['open_in_new_tab'] ?? false) target="_blank" rel="{{ $resolvedLink['rel'] ?? 'noopener noreferrer' }}" @endif
-                                                    >
-                                                        <span class="ac-eu-call-item-title">{{ $item['title'] ?? '' }}</span>
-                                                        <span class="ac-eu-call-item-meta">
-                                                            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                                                                <path d="M4 12L12 4"></path>
-                                                                <path d="M6 4h6v6"></path>
-                                                            </svg>
-                                                        </span>
-                                                    </a>
-                                                @else
-                                                    <div class="ac-eu-call-item-row">
-                                                        <span class="ac-eu-call-item-title">{{ $item['title'] ?? '' }}</span>
-                                                    </div>
-                                                @endif
-                                            </li>
-                                        @endforeach
-                                    </ul>
-                                </div>
-
-                                <button
-                                    type="button"
-                                    class="ac-eu-call-toggle"
-                                    data-eu-call-toggle
-                                    data-target="{{ $collapseId }}"
-                                    data-label-more="{{ str_starts_with(strtolower($locale), 'hr') ? 'Pogledaj sve' : 'View all' }}"
-                                    data-label-less="{{ str_starts_with(strtolower($locale), 'hr') ? 'Prikaži manje' : 'Show less' }}"
-                                    aria-expanded="false"
-                                    aria-controls="{{ $collapseId }}"
-                                >
-                                    <span>{{ str_starts_with(strtolower($locale), 'hr') ? 'Pogledaj sve' : 'View all' }}</span>
-                                    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                                        <path d="M4 6L8 10L12 6"></path>
-                                    </svg>
-                                </button>
-                            @endif
-                        </article>
-                    @endforeach
-                </div>
-            </div>
-        </section>
-
-        <section id="eu-funds-resources" class="ac-eu-section ac-eu-section--resources" aria-labelledby="ac-eu-resources-title">
-            <div class="mx-auto w-full max-w-[1240px] px-5 lg:px-8">
-                <div class="ac-services-head ac-support-story-head ac-eu-centered-head">
-                    <div class="ac-services-eyebrow">
-                        <span class="ac-services-eyebrow-line" aria-hidden="true"></span>
-                        <p class="ac-services-kicker">{{ $resourcesSection['kicker'] ?? 'PROGRAMI PODRŠKE' }}</p>
-                        <span class="ac-services-eyebrow-line" aria-hidden="true"></span>
-                    </div>
-                    <h2 id="ac-eu-resources-title">{{ $resourcesSection['title'] ?? '' }}</h2>
-                    <p class="ac-services-intro">{{ $resourcesSection['intro'] ?? '' }}</p>
-                </div>
-
-                <div class="ac-eu-resource-grid">
-                    @foreach (($resourcesSection['cards'] ?? []) as $card)
-                        <article class="ac-eu-resource-card">
-                            @if (!empty($card['eyebrow'] ?? null))
-                                <p class="ac-family-section-kicker">{{ $card['eyebrow'] }}</p>
-                            @endif
-                            <h3>{{ $card['title'] ?? '' }}</h3>
-
-                            @foreach (($card['body'] ?? []) as $paragraph)
-                                <p>{{ $paragraph }}</p>
-                            @endforeach
-
-                            @foreach (($card['groups'] ?? []) as $group)
-                                <div class="ac-eu-resource-group">
-                                    <h4>{{ $group['label'] ?? '' }}</h4>
-                                    <ul>
-                                        @foreach (($group['items'] ?? []) as $item)
-                                            @php
-                                                $resolvedLink = $item['resolved_link'] ?? ['url' => ''];
-                                                $itemUrl = trim((string) ($resolvedLink['url'] ?? ''));
-                                            @endphp
-                                            <li>
-                                                @if ($itemUrl !== '')
-                                                    <a
-                                                        href="{{ $itemUrl }}"
-                                                        @if($resolvedLink['open_in_new_tab'] ?? false) target="_blank" rel="{{ $resolvedLink['rel'] ?? 'noopener noreferrer' }}" @endif
-                                                    >{{ $item['title'] ?? '' }}</a>
-                                                @else
-                                                    <span>{{ $item['title'] ?? '' }}</span>
-                                                @endif
-                                            </li>
-                                        @endforeach
-                                    </ul>
-                                </div>
-                            @endforeach
-
-                            @if (!empty(($card['primary_link']['url'] ?? '')) || !empty(($card['secondary_link']['url'] ?? '')))
-                                <div class="ac-eu-resource-actions">
-                                    @if (!empty($card['primary_link']['url'] ?? ''))
-                                        <a
-                                            href="{{ $card['primary_link']['url'] }}"
-                                            class="ac-eu-inline-link"
-                                            @if($card['primary_link']['open_in_new_tab'] ?? false) target="_blank" rel="{{ $card['primary_link']['rel'] ?? 'noopener noreferrer' }}" @endif
-                                        >
-                                            {{ $card['primary_link']['label'] ?: 'Saznaj vise' }}
-                                        </a>
-                                    @endif
-
-                                    @if (!empty($card['secondary_link']['url'] ?? ''))
-                                        <a
-                                            href="{{ $card['secondary_link']['url'] }}"
-                                            class="ac-eu-inline-link ac-eu-inline-link--secondary"
-                                            @if($card['secondary_link']['open_in_new_tab'] ?? false) target="_blank" rel="{{ $card['secondary_link']['rel'] ?? 'noopener noreferrer' }}" @endif
-                                        >
-                                            {{ $card['secondary_link']['label'] ?: 'Otvori dokument' }}
-                                        </a>
-                                    @endif
-                                </div>
-                            @endif
-                        </article>
-                    @endforeach
-                </div>
-            </div>
-        </section>
-
-        <section id="eu-funds-laws" class="ac-eu-section ac-eu-section--laws" aria-labelledby="ac-eu-laws-title">
-            <div class="mx-auto w-full max-w-[1240px] px-5 lg:px-8">
-                <div class="ac-services-head ac-support-story-head ac-eu-centered-head">
-                    <div class="ac-services-eyebrow">
-                        <span class="ac-services-eyebrow-line" aria-hidden="true"></span>
-                        <p class="ac-services-kicker">{{ $lawsSection['kicker'] ?? 'ZAKONSKI OKVIR' }}</p>
-                        <span class="ac-services-eyebrow-line" aria-hidden="true"></span>
-                    </div>
-                    <h2 id="ac-eu-laws-title">{{ $lawsSection['title'] ?? '' }}</h2>
-                    <p class="ac-services-intro">{{ $lawsSection['intro'] ?? '' }}</p>
-                </div>
-
-                <div class="ac-eu-law-grid">
-                    @foreach (($lawsSection['cards'] ?? []) as $card)
-                        <article class="ac-eu-law-card">
-                            <h3>{{ $card['title'] ?? '' }}</h3>
-                            <p class="ac-eu-law-summary">{{ $card['summary'] ?? '' }}</p>
-
-                            @foreach (($card['lists'] ?? []) as $list)
-                                <div class="ac-eu-law-list-block">
-                                    <h4>{{ $list['label'] ?? '' }}</h4>
-                                    <ul class="ac-eu-law-list">
-                                        @foreach (($list['items'] ?? []) as $item)
-                                            <li>{{ $item }}</li>
-                                        @endforeach
-                                    </ul>
-                                </div>
-                            @endforeach
-
-                            @if (trim((string) ($card['note'] ?? '')) !== '')
-                                <p class="ac-eu-law-note">{{ $card['note'] }}</p>
-                            @endif
-
-                            @if (!empty(($card['primary_link']['url'] ?? '')) || !empty(($card['secondary_link']['url'] ?? '')))
-                                <div class="ac-eu-resource-actions">
-                                    @if (!empty($card['primary_link']['url'] ?? ''))
-                                        <a
-                                            href="{{ $card['primary_link']['url'] }}"
-                                            class="ac-eu-inline-link"
-                                            @if($card['primary_link']['open_in_new_tab'] ?? false) target="_blank" rel="{{ $card['primary_link']['rel'] ?? 'noopener noreferrer' }}" @endif
-                                        >
-                                            {{ $card['primary_link']['label'] ?: 'Vise informacija' }}
-                                        </a>
-                                    @endif
-
-                                    @if (!empty($card['secondary_link']['url'] ?? ''))
-                                        <a
-                                            href="{{ $card['secondary_link']['url'] }}"
-                                            class="ac-eu-inline-link ac-eu-inline-link--secondary"
-                                            @if($card['secondary_link']['open_in_new_tab'] ?? false) target="_blank" rel="{{ $card['secondary_link']['rel'] ?? 'noopener noreferrer' }}" @endif
-                                        >
-                                            {{ $card['secondary_link']['label'] ?: 'Otvori dokument' }}
-                                        </a>
-                                    @endif
-                                </div>
-                            @endif
-                        </article>
-                    @endforeach
-                </div>
-            </div>
-        </section>
-
-        @if (($euFundsTestimonials ?? collect())->isNotEmpty())
-            <section class="ac-global-memberships ac-client-experiences ac-eu-testimonials" aria-labelledby="ac-eu-testimonials-title">
-                <div class="ac-global-memberships-shell mx-auto w-full max-w-[1240px] px-6 lg:px-10">
-                    <div class="ac-services-head ac-support-story-head ac-global-memberships-head ac-client-experiences-head">
-                        <div class="ac-services-eyebrow">
-                            <span class="ac-services-eyebrow-line" aria-hidden="true"></span>
-                            <p class="ac-services-kicker">{{ $testimonialsSection['kicker'] ?? 'PREPORUKE KLIJENATA' }}</p>
-                            <span class="ac-services-eyebrow-line" aria-hidden="true"></span>
-                        </div>
-                        <h2 id="ac-eu-testimonials-title">
-                            <span>{{ $testimonialsSection['title'] ?? '' }}</span>
-                        </h2>
-                        <p class="ac-services-intro">{{ $testimonialsSection['intro'] ?? '' }}</p>
-                        <div class="ac-services-divider" aria-hidden="true">
-                            <span class="ac-services-divider-line"></span>
-                            <span class="ac-services-divider-glyph"></span>
-                            <span class="ac-services-divider-line"></span>
-                        </div>
-                    </div>
-
-                    <div class="ac-client-experiences-carousel">
-                        <div id="ac-eu-testimonials-splide" class="splide ac-client-experiences-splide" data-eu-funds-testimonials-splide>
-                            <div class="splide__track">
-                                <ul class="splide__list ac-client-experiences-list">
-                                    @foreach ($euFundsTestimonials as $testimonial)
-                                        @php
-                                            $company = trim((string) ($testimonial->payload['company'] ?? ''));
-                                            $rating = max(1, min(5, (int) ($testimonial->rating ?? 5)));
-                                        @endphp
-                                        <li class="splide__slide ac-client-experiences-slide">
-                                            <article class="ac-client-experience-card" data-eu-funds-testimonial-card>
-                                                <div class="ac-client-experience-card-inner">
-                                                    <div class="ac-client-experience-quote-mark" aria-hidden="true">“</div>
-                                                    <div class="ac-client-experience-content">
-                                                        <div class="ac-client-experience-rating" aria-label="{{ $rating }} / 5">
-                                                            @for ($i = 1; $i <= 5; $i++)
-                                                                <span class="{{ $i <= $rating ? 'is-active' : '' }}">★</span>
-                                                            @endfor
-                                                        </div>
-                                                        <p class="ac-client-experience-body" data-eu-funds-testimonial-body>{{ $testimonial->body }}</p>
-                                                        <button
-                                                            type="button"
-                                                            class="ac-client-experience-toggle"
-                                                            data-eu-funds-testimonial-toggle
-                                                            data-more-label="{{ $testimonialReadMoreLabel }}"
-                                                            data-less-label="{{ $testimonialShowLessLabel }}"
-                                                            aria-expanded="false"
-                                                            hidden
-                                                        >{{ $testimonialReadMoreLabel }}</button>
-                                                    </div>
-                                                    <div class="ac-client-experience-meta">
-                                                        <h3>{{ $testimonial->author_name ?: __('Anonymous') }}</h3>
-                                                        @if ($company !== '')
-                                                            <p>{{ $company }}</p>
-                                                        @endif
-                                                    </div>
-                                                </div>
-                                            </article>
-                                        </li>
-                                    @endforeach
-                                </ul>
                             </div>
-                        </div>
-                    </div>
+                        </article>
+                    @endif
                 </div>
-            </section>
-        @endif
+            </div>
+        </section>
 
         @include('front.desktop.partials.service-videos', [
             'serviceVideoSection' => $serviceVideoSection ?? [],
@@ -565,142 +338,32 @@
             'locale' => $locale ?? app()->getLocale(),
         ])
 
-        <div class="mx-auto w-full max-w-[1240px] px-5 lg:px-8">
-            <section id="eu-funds-contact" class="ac-family-section ac-eu-contact-section pb-16 md:pb-24" aria-labelledby="ac-eu-contact-title">
-                <div class="ac-family-team-showcase-head">
-                    <p class="ac-family-section-kicker">{{ $meetingSection['kicker'] ?? 'KONTAKT' }}</p>
-                    <h2 id="ac-eu-contact-title">{{ $meetingSection['title'] ?? '' }}</h2>
-                    <p>{{ $meetingSection['intro'] ?? '' }}</p>
+        <section id="eu-funds-cta" class="ac-service-cta-section" aria-labelledby="ac-eu-meeting-title">
+            <div class="ac-service-cta-container">
+                <div class="ac-service-cta-card">
+                    <div class="ac-service-cta-copy">
+                        <h2 id="ac-eu-meeting-title">{{ $meetingTitle }}</h2>
+                        <p>{{ $meetingIntro }}</p>
+                    </div>
+
+                    <a href="{{ route('contact.create') }}" class="ac-service-cta-link">
+                        <span>{{ $meetingLinkLabel }}</span>
+                    </a>
                 </div>
+            </div>
+        </section>
 
-                <div class="mt-10 grid gap-5 lg:grid-cols-[300px_minmax(0,1fr)] lg:items-start">
-                    <aside class="front-contact-sidebar">
-                        <div class="front-contact-panel front-contact-panel--direct">
-                            <h2>{{ $meetingSection['visit_title'] ?? 'Posjetite nas' }}</h2>
-                            <div class="mt-4 space-y-1 text-[0.89rem] leading-6 text-slate-700">
-                                <p>{{ $meetingSection['visit_lines'][0] ?? '' }}</p>
-                                <p>{{ $meetingSection['visit_lines'][1] ?? '' }}</p>
-                            </div>
-                        </div>
-
-                        <div class="front-contact-panel front-contact-panel--direct">
-                            <h2>{{ $meetingSection['contact_title'] ?? 'Kontaktirajte nas' }}</h2>
-                            <ul class="front-contact-direct-list">
-                                <li>
-                                    <span>{{ $meetingSection['direct_phone_label'] ?? 'Telefon' }}</span>
-                                    <a href="tel:{{ $contactPhoneHref }}">{{ $contactPhone }}</a>
-                                </li>
-                                <li>
-                                    <span>{{ $meetingSection['direct_email_label'] ?? 'Email' }}</span>
-                                    <a href="mailto:{{ $contactEmail }}">{{ $contactEmail }}</a>
-                                </li>
-                            </ul>
-                        </div>
-                    </aside>
-
-                    <form
-                        method="POST"
-                        action="{{ route('contact.store') }}"
-                        class="front-contact-form"
-                        novalidate
-                        data-contact-form
-                        data-msg-name-required="{{ __('contact.validation.inline.name_required') }}"
-                        data-msg-email-required="{{ __('contact.validation.inline.email_required') }}"
-                        data-msg-email-invalid="{{ __('contact.validation.inline.email_invalid') }}"
-                        data-msg-message-required="{{ __('contact.validation.inline.message_required') }}"
-                        data-msg-message-min="{{ __('contact.validation.inline.message_min') }}"
-                        data-msg-accept-terms="{{ __('contact.validation.inline.accept_terms') }}"
-                        @if($captchaEnabled) data-recaptcha-form data-recaptcha-site-key="{{ $captchaSiteKey }}" data-recaptcha-action="contact_form" @endif
-                    >
-                        @csrf
-                        <input type="hidden" name="recaptcha_token" value="" data-recaptcha-token>
-                        <input type="hidden" name="redirect_to" value="{{ route('eu-funds.show') }}#eu-funds-contact">
-
-                        @if (session('status'))
-                            <div class="front-contact-status" role="status">
-                                {{ session('status') }}
-                            </div>
-                        @endif
-
-                        <div class="grid gap-4 md:grid-cols-2">
-                            <div>
-                                <label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-500" for="eu-first-name">{{ $meetingFormLabels['first_name'] ?? 'Ime' }}</label>
-                                <input id="eu-first-name" type="text" name="first_name" value="{{ old('first_name') }}" class="front-contact-input h-11 w-full text-sm" required>
-                                <p class="mt-2 text-xs font-semibold text-rose-600 {{ $errors->has('first_name') ? '' : 'hidden' }}" data-field-error="first_name">@error('first_name'){{ $message }}@enderror</p>
-                            </div>
-                            <div>
-                                <label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-500" for="eu-last-name">{{ $meetingFormLabels['last_name'] ?? 'Prezime' }}</label>
-                                <input id="eu-last-name" type="text" name="last_name" value="{{ old('last_name') }}" class="front-contact-input h-11 w-full text-sm">
-                                <p class="mt-2 text-xs font-semibold text-rose-600 {{ $errors->has('last_name') ? '' : 'hidden' }}" data-field-error="last_name">@error('last_name'){{ $message }}@enderror</p>
-                            </div>
-                        </div>
-
-                        <div class="mt-4 grid gap-4 md:grid-cols-2">
-                            <div>
-                                <label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-500" for="eu-company">{{ $meetingFormLabels['company'] ?? 'Tvrtka' }}</label>
-                                <input id="eu-company" type="text" name="company" value="{{ old('company') }}" class="front-contact-input h-11 w-full text-sm">
-                                <p class="mt-2 text-xs font-semibold text-rose-600 {{ $errors->has('company') ? '' : 'hidden' }}" data-field-error="company">@error('company'){{ $message }}@enderror</p>
-                            </div>
-                            <div>
-                                <label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-500" for="eu-phone">{{ $meetingFormLabels['phone'] ?? 'Broj telefona' }}</label>
-                                <input id="eu-phone" type="text" name="phone" value="{{ old('phone') }}" class="front-contact-input h-11 w-full text-sm">
-                                <p class="mt-2 text-xs font-semibold text-rose-600 {{ $errors->has('phone') ? '' : 'hidden' }}" data-field-error="phone">@error('phone'){{ $message }}@enderror</p>
-                            </div>
-                        </div>
-
-                        <div class="mt-4">
-                            <label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-500" for="eu-email">{{ $meetingFormLabels['email'] ?? 'Email' }}</label>
-                            <input id="eu-email" type="email" name="email" value="{{ old('email', auth()->user()?->email) }}" class="front-contact-input h-11 w-full text-sm" required>
-                            <p class="mt-2 text-xs font-semibold text-rose-600 {{ $errors->has('email') ? '' : 'hidden' }}" data-field-error="email">@error('email'){{ $message }}@enderror</p>
-                        </div>
-
-                        <div class="mt-4">
-                            <label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-500" for="eu-subject">{{ $meetingFormLabels['subject'] ?? 'Naslov poruke' }}</label>
-                            <input id="eu-subject" type="text" name="subject" value="{{ old('subject') }}" class="front-contact-input h-11 w-full text-sm">
-                            <p class="mt-2 text-xs font-semibold text-rose-600 {{ $errors->has('subject') ? '' : 'hidden' }}" data-field-error="subject">@error('subject'){{ $message }}@enderror</p>
-                        </div>
-
-                        <div class="mt-4">
-                            <label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-500" for="eu-message">{{ $meetingFormLabels['message'] ?? 'Poruka' }}</label>
-                            <textarea id="eu-message" name="message" rows="8" class="front-contact-textarea w-full text-sm" required>{{ old('message') }}</textarea>
-                            <p class="mt-2 text-xs font-semibold text-rose-600 {{ $errors->has('message') ? '' : 'hidden' }}" data-field-error="message">@error('message'){{ $message }}@enderror</p>
-                        </div>
-
-                        <div class="front-contact-consent-wrap">
-                            <label class="front-contact-consent">
-                                <input type="checkbox" name="accept_terms" value="1" class="front-contact-checkbox mt-0.5 h-4 w-4 border-slate-300 text-slate-900 focus:ring-0" @checked((bool) old('accept_terms'))>
-                                <span>{{ __('contact.form.accept_terms') }}</span>
-                            </label>
-                            <p class="mt-2 text-xs font-semibold text-rose-600 {{ $errors->has('accept_terms') ? '' : 'hidden' }}" data-field-error="accept_terms">@error('accept_terms'){{ $message }}@enderror</p>
-                        </div>
-
-                        <div class="front-contact-form-actions">
-                            <button type="submit" class="front-contact-submit inline-flex h-11 items-center justify-center px-6 text-sm font-semibold text-white transition">
-                                {{ $meetingSection['submit'] ?? 'Pošalji' }}
-                            </button>
-                            <p class="text-xs font-semibold text-rose-600 {{ $errors->has('recaptcha_token') ? '' : 'hidden' }}" data-field-error="recaptcha_token">@error('recaptcha_token'){{ $message }}@enderror</p>
-                        </div>
-                    </form>
-                </div>
-            </section>
-        </div>
-
-        @if (($euFundsPosts ?? collect())->isNotEmpty())
-            <section class="ac-support-story ac-home-blog ac-blog-related-section ac-family-blog-section" aria-labelledby="ac-eu-blog-title">
+        @if ($hasEuFundsPosts)
+            <section class="ac-support-story ac-home-blog ac-blog-related-section ac-family-blog-section ac-audit-blog-section ac-eu-blog-section" aria-labelledby="ac-eu-blog-title">
                 <div class="mx-auto w-full max-w-[1240px] px-6 lg:px-10">
                     <div class="ac-support-story-hero">
                         <div class="ac-support-story-shell">
                             <div class="ac-services-head ac-support-story-head">
-                                <p class="ac-family-section-kicker">{{ str_starts_with(strtolower((string) ($locale ?? app()->getLocale())), 'hr') ? 'NAJNOVIJE OBJAVE' : 'LATEST POSTS' }}</p>
+                                <p class="ac-family-section-kicker">{{ $isCroatianLocale ? 'NAJNOVIJE OBJAVE' : 'LATEST POSTS' }}</p>
                                 <h2 id="ac-eu-blog-title">
                                     <span>{{ $blogSection['title'] ?? '' }}</span>
                                 </h2>
                                 <p class="ac-services-intro">{{ $blogSection['intro'] ?? '' }}</p>
-                                <div class="ac-services-divider" aria-hidden="true">
-                                    <span class="ac-services-divider-line"></span>
-                                    <span class="ac-services-divider-glyph"></span>
-                                    <span class="ac-services-divider-line"></span>
-                                </div>
                             </div>
                         </div>
                     </div>
@@ -719,25 +382,31 @@
                                             $postExcerpt = trim((string) ($translation?->excerpt ?? '')) ?: __('ui.blog.excerpt_fallback');
                                             $postExcerpt = \Illuminate\Support\Str::limit($postExcerpt, 180, '...', true);
                                             $postImage = $post->getFirstMedia('blog_cover');
-                                            $postImageUrl = $postImage?->getUrl();
+                                            $postImageSource = $postImage
+                                                ? ($postImage->hasGeneratedConversion('card_360x240') ? $postImage->getUrl('card_360x240') : $postImage->getUrl())
+                                                : '';
+                                            $postImageUrl = $sameOriginAssetUrl($postImageSource);
                                             $primaryCategory = $post->categories
                                                 ->sortByDesc(fn ($category) => (int) ($category->pivot->is_primary ?? false))
                                                 ->first();
                                             $categoryTranslation = $primaryCategory?->translations->firstWhere('locale', $locale)
                                                 ?? $primaryCategory?->translations->firstWhere('locale', $fallbackLocale);
                                             $categoryLabel = trim((string) ($categoryTranslation?->name ?? 'Novosti'));
-                                            $publishedLabel = ($post->published_at ?? $post->created_at)?->translatedFormat('j. F Y.');
+                                            $publishedLabel = ($post->published_at ?? $post->created_at)?->translatedFormat($isCroatianLocale ? 'j. F Y.' : 'F j, Y');
                                         @endphp
                                         <li class="splide__slide ac-home-blog-slide">
                                             <article class="ac-home-blog-card">
-                                                <a href="{{ $postUrl }}" class="ac-home-blog-card-link" aria-label="Otvori blog post: {{ $postTitle }}">
+                                                <a href="{{ $postUrl }}" class="ac-home-blog-card-link" aria-label="{{ $readMoreLabel }}: {{ $postTitle }}">
                                                     <div class="ac-home-blog-card-media">
                                                         @if ($postImageUrl)
                                                             <img
                                                                 src="{{ $postImageUrl }}"
                                                                 alt="{{ $postTitle }}"
                                                                 class="ac-home-blog-card-image"
-                                                                loading="lazy"
+                                                                width="360"
+                                                                height="240"
+                                                                sizes="(min-width: 1180px) 384px, (min-width: 760px) 50vw, 100vw"
+                                                                loading="eager"
                                                                 decoding="async"
                                                             >
                                                         @else
@@ -761,7 +430,7 @@
 
                                                     <div class="ac-home-blog-card-meta">
                                                         <span class="ac-home-blog-card-meta-link">
-                                                            <span>Opširnije</span>
+                                                            <span>{{ $readMoreLabel }}</span>
                                                             <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                                                                 <path d="M4 12L12 4"></path>
                                                                 <path d="M6 4h6v6"></path>
@@ -785,1115 +454,73 @@
     </div>
 @endsection
 
-@once
-    @push('styles')
-        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@splidejs/splide@4.1.4/dist/css/splide.min.css">
-    @endpush
-@endonce
-
-@push('styles')
-    <style>
-        .ac-eu-page {
-            background: linear-gradient(180deg, #faf7f1 0%, #f7f2e8 100%);
-        }
-
-        .ac-eu-page .ac-eu-section {
-            position: relative;
-            padding: clamp(2.8rem, 4vw, 4rem) 0;
-            background: transparent !important;
-            border-color: transparent !important;
-            overflow: visible !important;
-        }
-
-        .ac-eu-page .ac-eu-section::before {
-            content: none !important;
-            display: none !important;
-        }
-
-        .ac-eu-page .ac-eu-section--metrics,
-        .ac-eu-page .ac-eu-section--laws,
-        .ac-eu-page .ac-eu-testimonials {
-            background: linear-gradient(180deg, #f1ece2 0%, #f8f5ef 100%) !important;
-        }
-
-        .ac-eu-page .ac-eu-section--intro.ac-blog-related-section {
-            --ac-eu-corner-stars-size: min(37.4rem, 39.1vw);
-            --ac-eu-corner-stars-offset-x: calc(var(--ac-eu-corner-stars-size) * -0.52);
-            --ac-eu-corner-stars-offset-y: calc(var(--ac-eu-corner-stars-size) * -0.52);
-            margin-top: 0;
-            padding-top: clamp(2.6rem, 4vw, 3.8rem);
-            background:
-                linear-gradient(180deg, rgba(255, 255, 255, 0.34), rgba(255, 255, 255, 0.08)),
-                repeating-linear-gradient(90deg, rgba(15, 42, 67, 0.05) 0 1px, transparent 1px 24px),
-                radial-gradient(54% 76% at 86% 18%, rgba(65, 122, 176, 0.16), transparent 62%),
-                radial-gradient(38% 56% at 12% 84%, rgba(171, 141, 82, 0.08), transparent 68%),
-                linear-gradient(120deg, #eef3f7 0%, #e7eef4 48%, #dde7f0 100%) !important;
-            overflow: hidden !important;
-        }
-
-        .ac-eu-page .ac-eu-section--intro.ac-blog-related-section::before {
-            content: '' !important;
-            display: block !important;
-            position: absolute;
-            top: var(--ac-eu-corner-stars-offset-y);
-            left: var(--ac-eu-corner-stars-offset-x);
-            width: var(--ac-eu-corner-stars-size);
-            height: var(--ac-eu-corner-stars-size);
-            background: url('{{ asset('front-theme/images/services/Stars_of_the_European_Union_(bw).svg') }}') no-repeat center center / contain;
-            opacity: 0.045;
-            pointer-events: none;
-            z-index: 0;
-        }
-
-        .ac-eu-page .ac-eu-section--intro.ac-blog-related-section::after {
-            content: '';
-            display: block !important;
-            position: absolute;
-            bottom: var(--ac-eu-corner-stars-offset-y);
-            right: var(--ac-eu-corner-stars-offset-x);
-            width: var(--ac-eu-corner-stars-size);
-            height: var(--ac-eu-corner-stars-size);
-            background: url('{{ asset('front-theme/images/services/Stars_of_the_European_Union_(bw).svg') }}') no-repeat center center / contain;
-            opacity: 0.045;
-            pointer-events: none;
-            z-index: 0;
-            transform: rotate(180deg);
-            transform-origin: center;
-        }
-
-        .ac-eu-page .ac-eu-section--intro > .mx-auto {
-            position: relative;
-            z-index: 1;
-        }
-
-        .ac-eu-intro-grid {
-            position: relative;
-            z-index: 1;
-        }
-
-        .ac-eu-panel,
-        .ac-eu-resource-card,
-        .ac-eu-law-card {
-            border: 1px solid rgba(171, 141, 82, 0.14);
-            box-shadow: 0 18px 44px rgba(58, 86, 120, 0.08);
-        }
-
-        .ac-eu-section--overview {
-            padding-top: 0.2rem;
-        }
-
-        .ac-eu-intro-head {
-            margin-bottom: 1.7rem;
-        }
-
-        .ac-eu-intro-head h2,
-        .ac-eu-intro-head .ac-services-intro {
-            text-align: center;
-        }
-
-        .ac-eu-intro-head .ac-services-eyebrow,
-        .ac-eu-intro-head .ac-services-divider {
-            justify-content: center;
-        }
-
-        .ac-eu-editorial-head h2,
-        .ac-eu-panel h2,
-        .ac-eu-section-head h2,
-        .ac-eu-centered-head h2 {
-            font-family: 'Montserrat', sans-serif;
-            font-size: clamp(1.55rem, 2.2vw, 2.32rem);
-            line-height: 1.08;
-            font-weight: 600;
-            color: #0f172a;
-        }
-
-        .ac-eu-about-block p,
-        .ac-eu-editorial-body p,
-        .ac-eu-panel p,
-        .ac-eu-resource-card p,
-        .ac-eu-law-card p {
-            margin: 0;
-            font-size: 1rem;
-            line-height: 1.8;
-            color: #403a34;
-            text-wrap: pretty;
-        }
-
-        .ac-eu-editorial-body p + p,
-        .ac-eu-resource-card p + p {
-            margin-top: 0.95rem;
-        }
-
-        .ac-eu-intro-stage {
-            position: relative;
-            max-width: 1040px;
-            margin: 0 auto;
-            padding: 0.35rem 0 0;
-        }
-
-        .ac-eu-about-orbit {
-            display: grid;
-            grid-template-columns: repeat(2, minmax(0, 1fr));
-            gap: clamp(2rem, 3vw, 2.8rem);
-            max-width: 980px;
-            margin: 0 auto;
-            position: relative;
-            z-index: 1;
-            align-items: start;
-        }
-
-        .ac-eu-about-orbit::before {
-            content: '';
-            position: absolute;
-            top: 1rem;
-            bottom: 1rem;
-            left: 50%;
-            width: 1px;
-            background: linear-gradient(180deg, transparent 0%, rgba(150, 167, 183, 0.34) 14%, rgba(150, 167, 183, 0.34) 86%, transparent 100%);
-            transform: translateX(-50%);
-        }
-
-        .ac-eu-about-column {
-            display: grid;
-            align-content: start;
-            gap: clamp(2rem, 3vw, 2.8rem);
-        }
-
-        .ac-eu-about-column:first-child {
-            padding-right: clamp(0.35rem, 0.8vw, 0.75rem);
-        }
-
-        .ac-eu-about-column:last-child {
-            padding-left: clamp(0.35rem, 0.8vw, 0.75rem);
-        }
-
-        .ac-eu-about-block {
-            position: relative;
-            padding: 0;
-        }
-
-        .ac-eu-about-blockquote {
-            position: relative;
-            margin: 0;
-            padding: 1.4rem 1.5rem 1.45rem 3.9rem;
-            border-left: 4px solid rgba(76, 118, 163, 0.26);
-            background: transparent;
-            box-shadow: none;
-        }
-
-        .ac-eu-about-blockquote::before {
-            content: '\201C';
-            position: absolute;
-            top: 1.1rem;
-            left: 1.15rem;
-            font-family: 'Montserrat', sans-serif;
-            font-size: 3.2rem;
-            line-height: 1;
-            font-weight: 700;
-            color: rgba(76, 118, 163, 0.9);
-        }
-
-        .ac-eu-about-blockquote p {
-            font-style: normal;
-            color: #24384f;
-        }
-
-        .ac-eu-chip-list {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 0.6rem;
-            list-style: none;
-            padding: 0;
-            margin: 0;
-        }
-
-        .ac-eu-chip-list li {
-            display: inline-flex;
-            align-items: center;
-            min-height: 2.35rem;
-            padding: 0.55rem 0.9rem;
-            border-radius: 999px;
-            background: rgba(120, 96, 58, 0.08);
-            color: #6d5633;
-            font-size: 0.88rem;
-            line-height: 1.3;
-        }
-
-        .ac-eu-editorial-content {
-            max-width: 1040px;
-            margin: 0 auto;
-        }
-
-        .ac-eu-editorial-head {
-            max-width: 50rem;
-            margin: 0 auto;
-            text-align: center;
-            padding-top: 0.35rem;
-        }
-
-        .ac-eu-editorial-head .ac-services-eyebrow {
-            justify-content: center;
-        }
-
-        .ac-eu-editorial-head .ac-services-intro {
-            max-width: 48rem;
-            margin-left: auto;
-            margin-right: auto;
-            color: #57534e;
-            text-align: center;
-        }
-
-        .ac-eu-editorial-head .ac-services-divider {
-            justify-content: center;
-        }
-
-        .ac-eu-editorial-body {
-            max-width: 62rem;
-            margin: 1.7rem auto 0;
-        }
-
-        .ac-eu-centered-head .ac-services-intro {
-            max-width: 48rem;
-            margin-left: auto;
-            margin-right: auto;
-            color: #57534e;
-        }
-
-        .ac-eu-metrics-grid,
-        .ac-eu-resource-grid,
-        .ac-eu-law-grid {
-            display: grid;
-            gap: 1.35rem;
-        }
-
-        .ac-eu-panel {
-            padding: 1.6rem;
-            border-radius: 22px;
-        }
-
-        .ac-eu-section--metrics .ac-eu-panel {
-            padding: 0;
-            border: none;
-            border-radius: 0;
-            background: transparent;
-            box-shadow: none;
-        }
-
-        .ac-eu-panel-intro {
-            margin-top: 0;
-            color: #57534e;
-        }
-
-        .ac-eu-section--metrics .ac-family-section-kicker {
-            margin: 0 0 0.85rem;
-            color: #7c653b;
-            font-size: 0.76rem;
-            font-weight: 700;
-            letter-spacing: 0.16em;
-            line-height: 1.2;
-            text-transform: uppercase;
-        }
-
-        .ac-eu-section--metrics .ac-eu-panel h2 {
-            margin-bottom: 1.15rem;
-        }
-
-        .ac-eu-stat-stack {
-            margin-top: 2.1rem;
-            display: grid;
-            gap: 1.1rem;
-        }
-
-        .ac-eu-stat-row {
-            display: grid;
-            gap: 0.72rem;
-            padding: 1rem 1.05rem 1.05rem;
-            border: 1px solid rgba(171, 141, 82, 0.12);
-            border-radius: 18px;
-            background: rgba(255, 255, 255, 0.62);
-        }
-
-        .ac-eu-stat-copy {
-            display: grid;
-            gap: 0.45rem;
-        }
-
-        .ac-eu-stat-label-row {
-            display: flex;
-            flex-wrap: wrap;
-            align-items: baseline;
-            justify-content: space-between;
-            gap: 0.8rem;
-        }
-
-        .ac-eu-stat-label-row h3,
-        .ac-eu-process-card h3,
-        .ac-eu-call-card h3,
-        .ac-eu-resource-card h3,
-        .ac-eu-law-card h3 {
-            font-size: 1.02rem;
-            font-weight: 700;
-            line-height: 1.45;
-            color: #0f172a;
-        }
-
-        .ac-eu-stat-label-row h3 {
-            margin: 0;
-        }
-
-        .ac-eu-stat-label-row strong {
-            font-size: 1rem;
-            font-weight: 700;
-            color: #6d5633;
-        }
-
-        .ac-eu-stat-copy p {
-            color: #57534e;
-        }
-
-        .ac-eu-stat-bar {
-            width: 100%;
-            height: 0.8rem;
-            border-radius: 999px;
-            background: rgba(120, 96, 58, 0.08);
-            overflow: hidden;
-        }
-
-        .ac-eu-stat-bar span {
-            display: block;
-            height: 100%;
-            border-radius: inherit;
-            background: #b89862;
-        }
-
-        .ac-eu-footnote {
-            margin-top: 1.45rem;
-            padding-top: 1.15rem;
-            border-top: 1px solid rgba(171, 141, 82, 0.14);
-            color: #57534e;
-        }
-
-        .ac-eu-process-list {
-            display: grid;
-            gap: 1rem;
-            margin-top: 2.1rem;
-        }
-
-        .ac-eu-process-card {
-            position: relative;
-            padding: 1.2rem 1.15rem 1.2rem 3.9rem;
-            border: 1px solid rgba(171, 141, 82, 0.12);
-            border-radius: 18px;
-            background: rgba(255, 255, 255, 0.52);
-        }
-
-        .ac-eu-process-card h3 {
-            margin: 0 0 0.5rem;
-        }
-
-        .ac-eu-process-index {
-            position: absolute;
-            top: 1.15rem;
-            left: 1.15rem;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            width: 2rem;
-            height: 2rem;
-            border-radius: 999px;
-            background: rgba(120, 96, 58, 0.08);
-            color: #6d5633;
-            font-size: 0.76rem;
-            font-weight: 700;
-            letter-spacing: 0.1em;
-        }
-
-        .ac-eu-section-head {
-            display: flex;
-            flex-direction: column;
-            gap: 1rem;
-            align-items: flex-start;
-            justify-content: space-between;
-        }
-
-        .ac-eu-section-intro {
-            max-width: 58rem;
-            margin-top: 1rem;
-            font-size: 0.99rem;
-            line-height: 1.74;
-            color: #57534e;
-        }
-
-        .ac-eu-page .front-action-cta,
-        .ac-eu-page .front-contact-submit,
-        .ac-eu-download-button,
-        .ac-eu-inline-link,
-        .ac-eu-inline-link--secondary {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            min-height: 2.7rem;
-            padding: 0.62rem 1rem;
-            border-radius: 10px;
-            border: 2px solid rgba(15, 23, 42, 0.86);
-            background: #0f172a;
-            color: #f8f6f1 !important;
-            font-family: 'Montserrat', sans-serif;
-            font-size: 0.84rem;
-            font-weight: 600;
-            letter-spacing: 0.07em;
-            line-height: 1;
-            text-decoration: none;
-            box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.14);
-            transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
-        }
-
-        .ac-eu-page .ac-family-hero-actions .front-action-cta {
-            border-color: rgba(248, 246, 241, 0.38);
-        }
-
-        .ac-eu-download-button {
-            gap: 0.7rem;
-            min-height: 3rem;
-            padding: 0.75rem 1.15rem;
-        }
-
-        .ac-eu-download-button span,
-        .ac-eu-download-button svg {
-            color: inherit !important;
-            opacity: 1;
-        }
-
-        .ac-eu-page .front-action-cta:hover,
-        .ac-eu-page .front-contact-submit:hover,
-        .ac-eu-download-button:hover,
-        .ac-eu-inline-link:hover,
-        .ac-eu-inline-link--secondary:hover {
-            background: #123250;
-            color: #ffffff !important;
-            border-color: #123250;
-            box-shadow: 0 14px 24px rgba(15, 42, 67, 0.12);
-            transform: translateY(-1px);
-        }
-
-        .ac-eu-page .ac-family-hero-actions .front-action-cta:hover,
-        .ac-eu-page .ac-family-hero-actions .front-action-cta:focus-visible {
-            background: rgba(183, 150, 82, 0.3);
-            color: #ffffff !important;
-            border-color: rgba(183, 150, 82, 0.92);
-            box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.24);
-            transform: none;
-        }
-
-        .ac-eu-download-button svg {
-            width: 1.05rem;
-            height: 1.05rem;
-        }
-
-        .ac-eu-call-grid {
-            display: grid;
-            gap: 1.15rem;
-            margin-top: 1.8rem;
-        }
-
-        .ac-eu-call-card {
-            padding: 1.25rem 1.15rem 1.05rem;
-            border-radius: 22px;
-            border: 1px solid rgba(171, 141, 82, 0.12);
-            box-shadow: none;
-        }
-
-        .ac-eu-call-card.is-pending {
-            background: rgba(255, 255, 255, 0.7);
-        }
-
-        .ac-eu-call-card.is-open {
-            background: rgba(255, 255, 255, 0.78);
-            border-color: rgba(171, 141, 82, 0.16);
-        }
-
-        .ac-eu-call-card.is-closed {
-            background: rgba(249, 246, 240, 0.72);
-        }
-
-        .ac-eu-call-card-head {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 0.75rem;
-            margin-bottom: 0.95rem;
-        }
-
-        .ac-eu-call-card-head span {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            min-width: 2rem;
-            height: 2rem;
-            padding: 0 0.55rem;
-            border-radius: 999px;
-            background: rgba(120, 96, 58, 0.08);
-            color: #6d5633;
-            font-size: 0.78rem;
-            font-weight: 700;
-        }
-
-        .ac-eu-call-list {
-            display: grid;
-            gap: 0;
-            list-style: none;
-            margin: 0;
-            padding: 0;
-        }
-
-        .ac-eu-call-list li {
-            min-width: 0;
-            border-top: 1px solid rgba(171, 141, 82, 0.12);
-        }
-
-        .ac-eu-call-list li a,
-        .ac-eu-call-item-row {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 1rem;
-            padding: 0.95rem 0.15rem;
-            font-size: 0.94rem;
-            line-height: 1.55;
-        }
-
-        .ac-eu-call-list li a {
-            color: #0f172a;
-            text-decoration: none;
-            transition: color 0.2s ease;
-        }
-
-        .ac-eu-call-list li a:hover {
-            color: #123250;
-        }
-
-        .ac-eu-call-item-title {
-            min-width: 0;
-            flex: 1 1 auto;
-        }
-
-        .ac-eu-call-item-meta {
-            display: inline-flex;
-            align-items: center;
-            justify-content: flex-end;
-            gap: 0.75rem;
-            flex: none;
-            color: #6b7280;
-            white-space: nowrap;
-        }
-
-        .ac-eu-call-item-date {
-            font-size: 0.78rem;
-            font-weight: 600;
-            letter-spacing: 0.04em;
-            text-transform: uppercase;
-            color: #78716c;
-        }
-
-        .ac-eu-call-list li a svg {
-            width: 0.92rem;
-            height: 0.92rem;
-            flex: none;
-        }
-
-        .ac-eu-call-list--more {
-            padding-top: 0.1rem;
-        }
-
-        .ac-eu-call-list-more {
-            overflow: hidden;
-            max-height: 0;
-            opacity: 0;
-            margin-top: 0;
-            transition: max-height 0.34s ease, opacity 0.24s ease, margin-top 0.34s ease;
-        }
-
-        .ac-eu-call-list-more[data-expanded="true"] {
-            opacity: 1;
-            margin-top: 0.15rem;
-        }
-
-        .ac-eu-call-toggle {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.55rem;
-            margin-top: 0.95rem;
-            padding: 0;
-            border: 0;
-            background: transparent;
-            color: #0f172a;
-            font-size: 0.82rem;
-            font-weight: 700;
-            letter-spacing: 0.06em;
-            text-transform: uppercase;
-            cursor: pointer;
-            transition: color 0.2s ease;
-        }
-
-        .ac-eu-call-toggle:hover {
-            color: #123250;
-        }
-
-        .ac-eu-call-toggle svg {
-            width: 0.95rem;
-            height: 0.95rem;
-            transition: transform 0.24s ease;
-        }
-
-        .ac-eu-call-toggle[aria-expanded="true"] svg {
-            transform: rotate(180deg);
-        }
-
-        .ac-eu-centered-head {
-            max-width: 52rem;
-            margin: 0 auto 2rem;
-            text-align: center;
-        }
-
-        .ac-eu-centered-head .ac-services-eyebrow {
-            justify-content: center;
-        }
-
-        .ac-eu-resource-card,
-        .ac-eu-law-card {
-            padding: 1.45rem 1.2rem;
-            border-radius: 22px;
-        }
-
-        .ac-eu-resource-card h4,
-        .ac-eu-law-list-block h4 {
-            margin-top: 1rem;
-            font-size: 0.82rem;
-            font-weight: 700;
-            letter-spacing: 0.14em;
-            text-transform: uppercase;
-            color: #6d5633;
-        }
-
-        .ac-eu-resource-group ul,
-        .ac-eu-law-list {
-            display: grid;
-            gap: 0.55rem;
-            list-style: none;
-            padding: 0;
-            margin: 0.75rem 0 0;
-        }
-
-        .ac-eu-resource-group li,
-        .ac-eu-law-list li {
-            position: relative;
-            padding-left: 1.1rem;
-            font-size: 0.93rem;
-            line-height: 1.6;
-            color: #403a34;
-        }
-
-        .ac-eu-resource-group li::before,
-        .ac-eu-law-list li::before {
-            content: '';
-            position: absolute;
-            top: 0.62rem;
-            left: 0;
-            width: 0.42rem;
-            height: 0.42rem;
-            border-radius: 999px;
-            background: #8a7047;
-        }
-
-        .ac-eu-resource-group a {
-            color: #0f172a;
-            text-decoration: underline;
-            text-decoration-color: rgba(171, 141, 82, 0.34);
-            text-underline-offset: 0.18em;
-        }
-
-        .ac-eu-resource-actions {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 0.75rem;
-            margin-top: 1.2rem;
-        }
-
-        .ac-eu-law-summary {
-            margin-top: 0.8rem;
-        }
-
-        .ac-eu-law-note {
-            margin-top: 1rem;
-            padding: 0.95rem 1rem;
-            border-radius: 18px;
-            background: rgba(249, 246, 240, 0.88);
-            color: #6d5633;
-        }
-
-        .ac-eu-testimonials {
-            padding-top: clamp(2.8rem, 4vw, 3.8rem);
-            padding-bottom: clamp(2.8rem, 4vw, 3.8rem);
-        }
-
-        .ac-eu-page .ac-client-experience-card {
-            border-color: rgba(171, 141, 82, 0.16);
-        }
-
-        .ac-eu-page .front-contact-input:focus,
-        .ac-eu-page .front-contact-textarea:focus {
-            box-shadow: none;
-            outline: 2px solid rgba(171, 141, 82, 0.22);
-            outline-offset: 0;
-        }
-
-        @media (min-width: 960px) {
-            .ac-eu-intro-stage {
-                min-height: 22rem;
-            }
-
-            .ac-eu-metrics-grid {
-                grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.05fr);
-                gap: 3.25rem;
-                align-items: start;
-            }
-
-            .ac-eu-panel--chart {
-                padding-right: 0.35rem;
-            }
-
-            .ac-eu-panel--process {
-                padding-left: 0.35rem;
-            }
-
-            .ac-eu-resource-grid {
-                grid-template-columns: repeat(3, minmax(0, 1fr));
-            }
-
-            .ac-eu-law-grid {
-                grid-template-columns: repeat(3, minmax(0, 1fr));
-            }
-
-            .ac-eu-section-head {
-                flex-direction: row;
-                align-items: flex-end;
-            }
-        }
-
-        @media (max-width: 820px) {
-            .ac-eu-page .ac-eu-section--intro.ac-blog-related-section {
-                --ac-eu-corner-stars-size: 12.75rem;
-                --ac-eu-corner-stars-offset-x: calc(var(--ac-eu-corner-stars-size) * -0.52);
-                --ac-eu-corner-stars-offset-y: calc(var(--ac-eu-corner-stars-size) * -0.52);
-            }
-
-            .ac-eu-page .ac-eu-section--intro.ac-blog-related-section::before {
-                opacity: 0.03;
-            }
-
-            .ac-eu-page .ac-eu-section--intro.ac-blog-related-section::after {
-                opacity: 0.03;
-            }
-
-            .ac-eu-about-orbit {
-                grid-template-columns: repeat(2, minmax(0, 1fr));
-                gap: 1.2rem 1.4rem;
-            }
-
-            .ac-eu-about-orbit::before {
-                content: none;
-            }
-
-            .ac-eu-about-column {
-                gap: 1.2rem;
-            }
-
-            .ac-eu-about-column:first-child,
-            .ac-eu-about-column:last-child {
-                padding-left: 0;
-                padding-right: 0;
-            }
-
-        }
-
-        @media (max-width: 639px) {
-            .ac-eu-page .ac-eu-section {
-                padding: 2.5rem 0;
-            }
-
-            .ac-eu-page .ac-eu-section--intro.ac-blog-related-section {
-                --ac-eu-corner-stars-size: 11.05rem;
-                --ac-eu-corner-stars-offset-x: calc(var(--ac-eu-corner-stars-size) * -0.52);
-                --ac-eu-corner-stars-offset-y: calc(var(--ac-eu-corner-stars-size) * -0.52);
-            }
-
-            .ac-eu-page .ac-eu-section--intro.ac-blog-related-section::before {
-                opacity: 0.022;
-            }
-
-            .ac-eu-page .ac-eu-section--intro.ac-blog-related-section::after {
-                opacity: 0.022;
-            }
-
-            .ac-eu-panel,
-            .ac-eu-call-card,
-            .ac-eu-resource-card,
-            .ac-eu-law-card {
-                border-radius: 18px;
-            }
-
-            .ac-eu-about-orbit {
-                grid-template-columns: minmax(0, 1fr);
-                gap: 1rem;
-            }
-
-            .ac-eu-about-column {
-                gap: 1rem;
-            }
-
-            .ac-eu-intro-stage {
-                padding: 0;
-            }
-
-            .ac-eu-process-card {
-                padding-left: 3.5rem;
-            }
-
-            .ac-eu-stat-row {
-                padding: 0.9rem 0.9rem 0.95rem;
-            }
-
-            .ac-eu-section-head {
-                align-items: stretch;
-            }
-
-            .ac-eu-download-button {
-                width: 100%;
-            }
-
-            .ac-eu-call-list li a,
-            .ac-eu-call-item-row {
-                align-items: flex-start;
-                flex-direction: column;
-            }
-
-            .ac-eu-call-item-meta {
-                justify-content: flex-start;
-            }
-        }
-
-    </style>
-@endpush
-
-@include('front.desktop.contact.partials.form-script', [
-    'captchaEnabled' => $captchaEnabled,
-    'captchaSiteKey' => $captchaSiteKey,
-])
-
-@once
+@if ($hasEuFundsPosts || $hasServiceVideos)
+    @once
+        @push('styles')
+            <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@splidejs/splide@4.1.4/dist/css/splide.min.css">
+        @endpush
+    @endonce
+
+    @once
+        @push('scripts')
+            <script defer src="https://cdn.jsdelivr.net/npm/@splidejs/splide@4.1.4/dist/js/splide.min.js"></script>
+        @endpush
+    @endonce
+@endif
+
+@if ($hasEuFundsPosts)
     @push('scripts')
-        <script defer src="https://cdn.jsdelivr.net/npm/@splidejs/splide@4.1.4/dist/js/splide.min.js"></script>
-    @endpush
-@endonce
-
-@push('scripts')
-    <script>
-        (function () {
-            const syncTestimonialToggles = function () {
-                document.querySelectorAll('[data-eu-funds-testimonial-card]').forEach(function (card) {
-                    const body = card.querySelector('[data-eu-funds-testimonial-body]');
-                    const toggle = card.querySelector('[data-eu-funds-testimonial-toggle]');
-
-                    if (!body || !toggle) {
-                        return;
+        <script>
+            (function () {
+                const initEuFundsBlogSlider = function () {
+                    if (typeof window.Splide !== 'function') {
+                        return false;
                     }
 
-                    if (card.classList.contains('is-expanded')) {
-                        toggle.hidden = false;
-                        toggle.textContent = toggle.dataset.lessLabel || 'Show less';
-                        toggle.setAttribute('aria-expanded', 'true');
-                        return;
-                    }
-
-                    const hasOverflow = body.scrollHeight > body.clientHeight + 1;
-                    toggle.hidden = !hasOverflow;
-                    toggle.textContent = toggle.dataset.moreLabel || 'Read more';
-                    toggle.setAttribute('aria-expanded', 'false');
-                });
-            };
-
-            const syncCallExpanders = function () {
-                document.querySelectorAll('[data-eu-call-more][data-expanded="true"]').forEach(function (content) {
-                    content.style.maxHeight = content.scrollHeight + 'px';
-                });
-            };
-
-            const initCallExpanders = function () {
-                document.querySelectorAll('[data-eu-call-toggle]').forEach(function (button) {
-                    if (button.dataset.callToggleReady === '1') {
-                        return;
-                    }
-
-                    button.dataset.callToggleReady = '1';
-
-                    const targetId = button.getAttribute('data-target');
-                    const content = targetId ? document.getElementById(targetId) : null;
-                    if (!content) {
-                        return;
-                    }
-
-                    const labelNode = button.querySelector('span');
-                    const moreLabel = button.dataset.labelMore || 'View all';
-                    const lessLabel = button.dataset.labelLess || 'Show less';
-
-                    const setExpanded = function (expanded) {
-                        button.setAttribute('aria-expanded', expanded ? 'true' : 'false');
-                        content.dataset.expanded = expanded ? 'true' : 'false';
-
-                        if (labelNode) {
-                            labelNode.textContent = expanded ? lessLabel : moreLabel;
-                        }
-                    };
-
-                    setExpanded(false);
-
-                    button.addEventListener('click', function () {
-                        const expanded = button.getAttribute('aria-expanded') === 'true';
-
-                        if (expanded) {
-                            content.style.maxHeight = content.scrollHeight + 'px';
-
-                            window.requestAnimationFrame(function () {
-                                setExpanded(false);
-                                content.style.maxHeight = '0px';
-
-                                const onCollapseEnd = function (event) {
-                                    if (event.propertyName !== 'max-height') {
-                                        return;
-                                    }
-
-                                    content.hidden = true;
-                                    content.removeEventListener('transitionend', onCollapseEnd);
-                                };
-
-                                content.addEventListener('transitionend', onCollapseEnd);
-                            });
-
-                            return;
-                        }
-
-                        content.hidden = false;
-                        content.style.maxHeight = '0px';
-                        setExpanded(true);
-
-                        window.requestAnimationFrame(function () {
-                            content.style.maxHeight = content.scrollHeight + 'px';
-                        });
-                    });
-                });
-            };
-
-            document.addEventListener('click', function (event) {
-                const toggle = event.target.closest('[data-eu-funds-testimonial-toggle]');
-
-                if (!toggle) {
-                    return;
-                }
-
-                const card = toggle.closest('[data-eu-funds-testimonial-card]');
-
-                if (!card) {
-                    return;
-                }
-
-                const isExpanded = card.classList.toggle('is-expanded');
-                toggle.textContent = isExpanded
-                    ? (toggle.dataset.lessLabel || 'Show less')
-                    : (toggle.dataset.moreLabel || 'Read more');
-                toggle.setAttribute('aria-expanded', isExpanded ? 'true' : 'false');
-
-                window.requestAnimationFrame(syncTestimonialToggles);
-            });
-
-            let resizeFrame = null;
-            window.addEventListener('resize', function () {
-                if (resizeFrame !== null) {
-                    window.cancelAnimationFrame(resizeFrame);
-                }
-
-                resizeFrame = window.requestAnimationFrame(function () {
-                    resizeFrame = null;
-                    syncTestimonialToggles();
-                    syncCallExpanders();
-                });
-            });
-
-            const init = function () {
-                if (typeof window.Splide !== 'function') {
-                    return false;
-                }
-
-                const mountSlider = function (selector, optionsFactory) {
-                    document.querySelectorAll(selector).forEach(function (el) {
+                    document.querySelectorAll('[data-eu-funds-blog-splide]').forEach(function (el) {
                         if (el.dataset.splideReady === '1') {
                             return;
                         }
 
                         el.dataset.splideReady = '1';
+
                         const count = el.querySelectorAll('.splide__slide').length;
-                        const slider = new window.Splide(el, optionsFactory(count));
+                        const slider = new window.Splide(el, {
+                            type: 'slide',
+                            perPage: Math.min(3, Math.max(1, count)),
+                            perMove: 1,
+                            gap: '1.25rem',
+                            drag: count > 1,
+                            snap: true,
+                            rewind: count > 1,
+                            pagination: count > 1,
+                            arrows: count > 1,
+                            updateOnMove: true,
+                            speed: 520,
+                            breakpoints: {
+                                1180: { perPage: Math.min(2, Math.max(1, count)) },
+                                760: { perPage: 1, gap: '1rem' },
+                            },
+                        });
+
                         slider.mount();
                     });
+
+                    return true;
                 };
 
-                mountSlider('[data-eu-funds-testimonials-splide]', function (count) {
-                    return {
-                        type: 'slide',
-                        perPage: 2,
-                        perMove: 1,
-                        gap: '1rem',
-                        arrows: count > 1,
-                        pagination: count > 1,
-                        rewind: count > 1,
-                        breakpoints: {
-                            900: { perPage: 1 },
-                        },
-                    };
-                });
+                if (initEuFundsBlogSlider()) {
+                    return;
+                }
 
-                mountSlider('[data-eu-funds-blog-splide]', function (count) {
-                    return {
-                        type: 'slide',
-                        perPage: Math.min(3, Math.max(1, count)),
-                        perMove: 1,
-                        gap: '1.1rem',
-                        arrows: count > 1,
-                        pagination: count > 1,
-                        rewind: count > 1,
-                        breakpoints: {
-                            1024: { perPage: Math.min(2, Math.max(1, count)) },
-                            700: { perPage: 1 },
-                        },
-                    };
-                });
-
-                initCallExpanders();
-                window.requestAnimationFrame(syncTestimonialToggles);
-                window.requestAnimationFrame(syncCallExpanders);
-
-                return true;
-            };
-
-            if (!init()) {
-                let tries = 0;
-                const interval = window.setInterval(function () {
-                    tries += 1;
-
-                    if (init() || tries > 30) {
-                        window.clearInterval(interval);
+                let attempts = 0;
+                const timer = window.setInterval(function () {
+                    attempts += 1;
+                    if (initEuFundsBlogSlider() || attempts > 40) {
+                        window.clearInterval(timer);
                     }
-                }, 200);
-            }
-        })();
-    </script>
-@endpush
+                }, 120);
+            }());
+        </script>
+    @endpush
+@endif

@@ -27,52 +27,12 @@
 
         <section class="ac-team-section">
             <div class="ac-team-container">
-                <div class="ac-team-intro-grid grid gap-6 lg:grid-cols-[minmax(0,1.35fr)_360px] lg:items-stretch">
-                    <article class="ac-team-page-panel ac-team-intro-panel overflow-hidden border border-slate-200 bg-white p-7 sm:p-8 lg:p-9">
-                        <div class="max-w-[54rem]">
-                            <p class="ac-team-kicker text-xs font-semibold uppercase text-sky-800">{{ __('ui.team.eyebrow') }}</p>
-                            <h2 class="ac-team-intro-lead mt-4 max-w-[42rem] text-slate-950">
-                                {{ __('ui.team.intro_lead') }}
-                            </h2>
-                            <p class="mt-5 max-w-[46rem] text-[0.98rem] leading-8 text-slate-600">
-                                {{ __('ui.team.intro_body') }}
-                            </p>
-                        </div>
-                    </article>
-
-                    <aside class="ac-team-page-panel ac-team-support-panel overflow-hidden border border-slate-200 bg-[#103a63] p-7 text-white sm:p-8">
-                        <div>
-                            <p class="ac-team-kicker text-xs font-semibold uppercase text-sky-100/80">{{ __('ui.team.support_label') }}</p>
-                            <h2 class="mt-4 text-[1.65rem] font-black leading-[1.18] text-white">
-                                {{ __('ui.team.support_title') }}
-                            </h2>
-                            <p class="mt-4 text-[0.95rem] leading-8 text-sky-50/88">
-                                {{ __('ui.team.support_text') }}
-                            </p>
-
-                            <a href="{{ route('contact.create') }}" class="front-action-cta ac-team-cta-light mt-7">
-                                <span>{{ __('ui.team.contact_button') }}</span>
-                                <svg class="h-3.5 w-3.5" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                                    <path d="M4 12L12 4"></path>
-                                    <path d="M6 4h6v6"></path>
-                                </svg>
-                            </a>
-                        </div>
-                    </aside>
-                </div>
-
                 @if ($members->isEmpty())
                     <div class="ac-team-page-empty border border-dashed border-slate-300 bg-white/80 px-6 py-14 text-center shadow-[0_18px_54px_rgba(15,23,42,0.06)]">
                         <h2 class="text-2xl font-black tracking-tight text-slate-950">{{ __('ui.team.empty_title') }}</h2>
                         <p class="mx-auto mt-3 max-w-[34rem] text-sm leading-7 text-slate-600">{{ __('ui.team.empty') }}</p>
                     </div>
                 @else
-                    <div class="ac-team-list-head mb-8 max-w-[52rem]">
-                        <p class="ac-team-kicker text-xs font-semibold uppercase text-slate-500">{{ __('ui.team.section_label') }}</p>
-                        <h2 class="mt-3 text-[2rem] font-black tracking-tight text-slate-950">{{ __('ui.team.section_title') }}</h2>
-                        <p class="mt-3 text-[0.95rem] leading-7 text-slate-600">{{ __('ui.team.section_intro') }}</p>
-                    </div>
-
                     <div class="ac-team-member-list space-y-6">
                         @foreach ($members as $member)
                             <article class="ac-team-member-card overflow-hidden border border-slate-200 bg-white p-4 sm:p-4 lg:p-5">
@@ -222,6 +182,18 @@
         .ac-team-container {
             width: min(100% - 2rem, 1320px);
             margin: 0 auto;
+        }
+
+        @media (min-width: 640px) {
+            .ac-team-container {
+                width: min(100% - 3rem, 1272px);
+            }
+        }
+
+        @media (min-width: 1024px) {
+            .ac-team-container {
+                width: min(100% - 4rem, 1256px);
+            }
         }
 
         .ac-team-title-band {

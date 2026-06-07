@@ -22,8 +22,8 @@ class AdvisoryServicePageDefaults
         return [
             'hero' => [
                 'brand_title' => 'ALPHA CAPITALIS',
-                'subtitle_lead' => 'Poslovno',
-                'subtitle_accent' => 'savjetovanje',
+                'subtitle_lead' => 'Poslovno savjetovanje',
+                'subtitle_accent' => '',
                 'intro' => 'Savjetovanje (Advisory) obuhvaća stručnu podršku u financijskim, poreznim i investicijskim pitanjima. Cilj je pomoći društvima, investitorima i poduzetnicima u donošenju kvalitetnih odluka, upravljanju rizicima te stvaranju dugoročne vrijednosti.',
                 'cta_label' => '',
                 'cta_url' => '',
@@ -33,12 +33,13 @@ class AdvisoryServicePageDefaults
                 'title' => 'Što je poslovno savjetovanje?',
                 'body' => [
                     'Financijsko savjetovanje obuhvaća sve strateške usluge vezane uz vrijednost, kapital i transakcije vašeg poslovanja — od procjene vrijednosti društva do strukturiranja financiranja i podrške u preuzimanjima i spajanjima.',
+                    'Savjetovanje povezuje financijsku analizu, porezno planiranje, razumijevanje tržišta i praktičnu podršku u provedbi odluka. Cilj je klijentima omogućiti jasniji uvid u rizike, prilike i opcije koje imaju u važnim poslovnim situacijama.',
                 ],
             ],
             'services_intro' => [
                 'kicker' => 'USLUGE POSLOVNOG SAVJETOVANJA',
-                'title' => 'Naše usluge',
-                'intro' => 'Naš tim kombinira transakcijsko iskustvo, financijsku analizu i strukturiran proces rada kako bismo klijentima osigurali kvalitetnu pripremu, jasne materijale i podršku u donošenju odluka.',
+                'title' => 'Usluge poslovnog savjetovanja',
+                'intro' => '',
             ],
             'service_cards' => [
                 [
@@ -47,36 +48,48 @@ class AdvisoryServicePageDefaults
                     'url' => '/savjetovanje/pribavljanje-financiranja',
                 ],
                 [
+                    'title' => 'M&A savjetovanje',
+                    'text' => 'Podrška u procesima spajanja i preuzimanja — od strateškog pozicioniranja do pregovaranja i zatvaranja transakcije.',
+                    'url' => '/savjetovanje/financijsko-savjetovanje#advisory-ma',
+                ],
+                [
                     'title' => 'Due diligence',
                     'text' => 'Dubinsko financijsko snimanje ciljnog društva. Identifikacija rizika, prilagodbi i ključnih nalaza za odluku o transakciji.',
-                    'url' => '#advisory-due-diligence',
+                    'url' => '/savjetovanje/financijsko-savjetovanje#advisory-due-diligence',
                 ],
                 [
                     'title' => 'Procjene vrijednosti',
                     'text' => 'Procjena vrijednosti društva, imovine i udjela. Za transakcije, računovodstvene potrebe, sporove ili internu upotrebu menadžmenta.',
-                    'url' => '#advisory-procjene-vrijednosti',
+                    'url' => '/savjetovanje/financijsko-savjetovanje#advisory-procjene-vrijednosti',
                 ],
                 [
-                    'title' => 'M&A savjetovanje',
-                    'text' => 'Podrška u procesima spajanja i preuzimanja — od strateškog pozicioniranja do pregovaranja i zatvaranja transakcije.',
-                    'url' => '#advisory-ma',
+                    'title' => 'Porezno savjetovanje',
+                    'text' => 'Podrška u poreznom planiranju, usklađenosti, poreznim pregledima, transfernim cijenama, poreznim nadzorima i transakcijama.',
+                    'url' => '/savjetovanje/porezno-savjetovanje',
+                ],
+                [
+                    'title' => 'EU fondovi i poticaji',
+                    'text' => 'Savjetovanje i podrška u prijavi na EU bespovratna sredstva — od identifikacije natječaja do ishođenja ugovora o dodjeli i provedbe projekta.',
+                    'url' => '/eu-fondovi',
                 ],
             ],
             'pandea' => [
                 'title' => 'ALPHA CAPITALIS je član Pandea Global M&A',
                 'body' => [
-                    'ALPHA CAPITALIS je član Pandea Global M&A, globalne mreže za akvizicije koja povezuje investitore i prodavatelje različitih biznisa. Pandea Global M&A djeluje s naglaskom na spajanja, preuzimanja, pripajanja, dokapitalizacije i razne vrste joint venture-a, a sve s ciljem plasiranja lokalnih projekata na internacionalno financijsko tržište.',
-                    'Svojim klijentima i partnerima omogućili smo pristup velikoj mreži internacionalnih investitora. Lokalnim društvima otvaramo pristup prekograničnim transakcijama, a za internacionalne investitore djelujemo kao „one stop shop“ i lokalni partner. Ako imate projekt za koji Vam je potreban investitor ili prodajete postojeći biznis, slobodno nam se obratite kako bismo prezentirali Vaš slučaj internacionalnim investitorima.',
+                    'ALPHA CAPITALIS je član Pandea Global M&A, globalne mreže za akvizicije koja povezuje investitore i prodavatelje različitih biznisa. Pandea Global M&A djeluje s naglaskom na spajanja, preuzimanja, pripajanja, dokapitalizacije i različite vrste joint venture-a, s ciljem plasiranja lokalnih projekata na međunarodno financijsko tržište.',
+                    'Svojim klijentima i partnerima omogućujemo pristup širokoj mreži međunarodnih investitora. Lokalnim društvima otvaramo pristup prekograničnim transakcijama, a za međunarodne investitore djelujemo kao one stop shop i lokalni partner.',
+                    'Ako imate projekt za koji vam je potreban investitor ili prodajete postojeći biznis, možete nam se obratiti kako bismo vaš slučaj prezentirali međunarodnim investitorima.',
                 ],
                 'logo_alt' => 'Pandea Global M&A',
             ],
             'funding' => [
                 'title' => 'Pribavljanje financiranja',
+                'intro' => 'Pružamo podršku u strukturiranju i pribavljanju financiranja kroz bankovne kredite, EU bespovratna sredstva, poticajne instrumente i private equity kapital. Cilj je pronaći optimalnu kombinaciju izvora financiranja u skladu s investicijskim planovima, novčanim tokom i dugoročnom održivošću poslovanja.',
                 'cards' => [
                     [
                         'title' => 'EU fondovi',
-                        'text' => 'Savjetovanje i podrška u prijavi na EU bespovratna sredstva — od identifikacije do ishođenja ugovora o dodjeli.',
-                        'url' => '/savjetovanje/pribavljanje-financiranja',
+                        'text' => 'EU bespovratna sredstva, nacionalni instrumenti potpore i projektna podrška od identifikacije poziva do provedbe.',
+                        'url' => '/eu-fondovi',
                     ],
                     [
                         'title' => 'Bankovni krediti',
@@ -91,9 +104,9 @@ class AdvisoryServicePageDefaults
                 ],
                 'overview_title' => 'EU fondovi',
                 'overview_body' => [
-                    'EU fondovi su instrumenti financiranja kojima Europska unija podupire razvoj poduzetništva, inovacija, digitalne i zelene tranzicije te infrastrukture. Poduzetnicima su na raspolaganju bespovratna sredstva i javni programi potpore, a uz EU programe dostupni su i nacionalni instrumenti - HBOR krediti, HAMAG zajmovi te porezne olakšice temeljem zakona o poticanju ulaganja i istraživačko-razvojnim projektima.',
+                    'EU fondovi su instrumenti financiranja kojima Europska unija podupire razvoj poduzetništva, inovacija, digitalne i zelene tranzicije te infrastrukture. Poduzetnicima su na raspolaganju bespovratna sredstva iz Višegodišnjeg financijskog okvira 2021.–2027., a uz EU programe dostupni su i nacionalni instrumenti potpore — HBOR krediti, HAMAG zajmovi te porezne olakšice temeljem Zakona o poticanju ulaganja i istraživačko-razvojnim projektima.',
                 ],
-                'services_title' => 'Naše usluge',
+                'services_title' => 'Usluge EU fondova',
                 'services' => [
                     [
                         'title' => 'Analiza i odabir natječaja',
@@ -120,25 +133,12 @@ class AdvisoryServicePageDefaults
                         'text' => 'Kontinuirano pratimo nove pozive i pravovremeno vas obavještavamo o prilikama relevantnim za vaše poslovanje.',
                     ],
                 ],
-                'advisory_cards' => [
-                    [
-                        'title' => 'Financijsko savjetovanje',
-                        'text' => 'Analiza financijske podobnosti projekta i identificiranje optimalnih izvora EU sufinanciranja.',
-                    ],
-                    [
-                        'title' => 'Podrška pri prijavi',
-                        'text' => 'Priprema projektne dokumentacije, pisanje prijave i koordinacija s tijelima u sustavu upravljanja fondovima.',
-                    ],
-                    [
-                        'title' => 'Strukturiranje financiranja',
-                        'text' => 'Kombiniranje EU bespovratnih sredstava s komercijalnim kreditima, vlastitim izvorima i poreznim olakšicama.',
-                    ],
-                ],
+                'advisory_cards' => [],
             ],
             'source_modules' => [
                 'kicker' => 'DOSTUPNI IZVORI FINANCIRANJA',
-                'title' => 'Zasebni moduli za natječaje, instrumente i olakšice',
-                'intro' => 'Dostupni izvori financiranja odvojeni su od opisa usluge savjetovanja kako bi korisnik jasno razlikovao stručnu podršku od informativnih pregleda.',
+                'title' => 'Dostupni izvori financiranja',
+                'intro' => '',
                 'items' => [
                     [
                         'title' => 'Otvoreni natječaji',
@@ -156,9 +156,14 @@ class AdvisoryServicePageDefaults
                         'url' => '/eu-fondovi#eu-funds-resources',
                     ],
                     [
-                        'title' => 'Porezne olakšice (ZoPU - Zakon o poticanju ulaganja)',
+                        'title' => 'Porezne olakšice',
                         'text' => 'Poticaji, zakoni i porezne olakšice dostupni za investicijske projekte.',
                         'url' => '/eu-fondovi#eu-funds-laws',
+                    ],
+                    [
+                        'title' => 'Bankovni krediti',
+                        'text' => 'Sažetak podrške pri pripremi i strukturiranju kreditnih zahtjeva.',
+                        'url' => '/savjetovanje/pribavljanje-financiranja#advisory-bankovni-krediti',
                     ],
                 ],
             ],
@@ -166,13 +171,15 @@ class AdvisoryServicePageDefaults
                 'title' => 'Bankovni krediti',
                 'body' => [
                     'Pružamo podršku u pripremi i strukturiranju kreditnih zahtjeva kako bismo povećali vjerojatnost odobrenja financiranja i osigurali optimalne uvjete za klijenta.',
-                    'Sudjelujemo u komunikaciji s bankama i drugim financijskim institucijama, pripremi potrebne dokumentacije te pregovorima vezanim uz uvjete financiranja. Cilj nam je pronaći rješenje koje odgovara investicijskim planovima, novčanom toku i dugoročnoj održivosti poslovanja.',
+                    'Sudjelujemo u komunikaciji s bankama i drugim financijskim institucijama, pripremi potrebne dokumentacije te pregovorima vezanim uz uvjete financiranja.',
+                    'Cilj nam je pronaći rješenje koje odgovara investicijskim planovima, novčanom toku i dugoročnoj održivosti poslovanja.',
                 ],
             ],
             'zopu' => [
                 'title' => 'Zakon o poticanju ulaganja',
                 'body' => [
-                    'Pomažemo društvima u ostvarivanju prava na porezne olakšice i državne potpore dostupne temeljem Zakona o poticanju ulaganja. Analiziramo investicijske projekte, procjenjujemo ispunjavaju li uvjete za ostvarivanje poticaja te pružamo podršku tijekom cijelog procesa prijave i provedbe. Naš cilj je pomoći klijentima maksimalno iskoristiti dostupne pogodnosti i povećati isplativost planiranih ulaganja.',
+                    'Pomažemo društvima u ostvarivanju prava na porezne olakšice i državne potpore dostupne temeljem Zakona o poticanju ulaganja. Analiziramo investicijske projekte, procjenjujemo ispunjavaju li uvjete za ostvarivanje poticaja te pružamo podršku tijekom cijelog procesa prijave i provedbe.',
+                    'Cilj je pomoći klijentima maksimalno iskoristiti dostupne pogodnosti i povećati isplativost planiranih ulaganja.',
                 ],
             ],
             'ma' => [
@@ -192,7 +199,6 @@ class AdvisoryServicePageDefaults
                 'body' => [
                     'Pružamo usluge procjene vrijednosti trgovačkih društava za potrebe vlasnika, investitora i financijskih institucija. Procjene se izrađuju u svrhu prodaje društva, otkupa manjinskih udjela te dokapitalizacija.',
                     'Proces procjene temelji se na analizi poslovanja društva, tržišnog okruženja i financijskih informacija. Na temelju provedenih analiza izrađuje se financijski model te utvrđuje procijenjena vrijednost društva.',
-                    'Pri procjeni vrijednosti primjenjujemo uobičajene tržišne metode vrednovanja, uključujući metodu diskontiranih novčanih tokova, metodu usporedivih transakcija i metodu usporedivih kompanija, ovisno o svrsi procjene i karakteristikama društva.',
                 ],
                 'methods_title' => 'Metode vrednovanja',
                 'methods' => [
@@ -206,7 +212,7 @@ class AdvisoryServicePageDefaults
                 'intro' => 'Dubinsko snimanje predstavlja ključan alat za donošenje informiranih odluka u transakcijama spajanja, preuzimanja i prodaje društva. Bilo da nastupate kao kupac ili prodavatelj, naš tim pruža jasan i objektivan uvid u financijsko stanje ciljanog društva te identificira čimbenike koji mogu utjecati na vrijednost i uvjet transakcije.',
                 'help_title' => 'Pomažemo vam:',
                 'help_items' => [
-                    'unaprijediti razumijevanje ciljanog društva (čime je vjerojatnije da će transakcija postići svoje ciljeve)',
+                    'unaprijediti razumijevanje ciljanog društva',
                     'detektirati rizike i nepravilnosti',
                     'utvrditi i razumjeti ključne čimbenike uspjeha (KPI)',
                     'ukazati na prednosti koje mogu biti temelj razvoja ili nedostatke koji se mogu riješiti',
@@ -280,16 +286,16 @@ class AdvisoryServicePageDefaults
             ],
             'approach' => [
                 'kicker' => 'NAŠ PRISTUP',
-                'title' => 'Strukturiran pristup poslovnom savjetovanju',
+                'title' => 'Naš pristup',
                 'body' => [
-                    'Svaki angažman započinjemo razumijevanjem poslovnog modela, financijske i porezne pozicije te potencijalnih rizika klijenta.',
-                    'Analiziramo relevantne podatke, regulatorni okvir i poslovne okolnosti kako bismo preporučili rješenja koja su jasna, provediva i dugoročno održiva.',
+                    'Svaki savjetodavni angažman započinjemo razumijevanjem poslovnog konteksta, ciljeva i ključnih rizika. Analiziramo financijske podatke, tržišni položaj, porezne i regulatorne okolnosti te specifičnosti projekta kako bismo predložili rješenja koja su jasna, provediva i usmjerena na stvaranje dugoročne vrijednosti.',
+                    'Naš pristup spaja strateško razmišljanje i praktičnu provedbu — od početne analize do konkretnih odluka, dokumentacije, komunikacije s dionicima i provedbe projekta.',
                 ],
             ],
             'meeting' => [
                 'kicker' => 'KONTAKT',
-                'title' => 'Razgovarajmo o poslovnom savjetovanju',
-                'intro' => 'Naš tim analizirat će vaš slučaj i predložiti optimalan pristup.',
+                'title' => 'Razgovarajmo o vašim poslovnim odlukama',
+                'intro' => 'Javite nam se i zajedno ćemo procijeniti koji oblik savjetodavne podrške najbolje odgovara vašim ciljevima, fazi poslovanja i konkretnom izazovu.',
                 'contact_title' => 'Kontaktirajte nas',
             ],
             'blog_section' => [

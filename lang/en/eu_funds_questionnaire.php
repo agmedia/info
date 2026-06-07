@@ -43,6 +43,11 @@ return [
         'accept_terms_label' => 'I agree to the consent for personal data processing.',
         'submit' => 'Submit',
     ],
+    'sections' => [
+        'company' => 'Company details',
+        'investment' => 'Investment and project',
+        'services' => 'Services and contact',
+    ],
     'options' => [
         'employee_count' => [
             '0' => '0',

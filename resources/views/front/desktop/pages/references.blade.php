@@ -73,7 +73,7 @@
                     </div>
                 @else
                     <article class="ac-reference-empty">
-                        <p class="ac-reference-kicker">{{ __('Alpha Capitalis') }}</p>
+                        <p class="ac-reference-kicker">{{ __('ALPHA CAPITALIS') }}</p>
                         <h2>{{ $emptyStateTitle }}</h2>
                         <p>{{ $emptyStateText }}</p>
                     </article>
@@ -99,6 +99,20 @@
         .ac-references-blocks {
             width: min(100% - 2rem, 1320px);
             margin: 0 auto;
+        }
+
+        @media (min-width: 640px) {
+            .ac-references-container,
+            .ac-references-blocks {
+                width: min(100% - 3rem, 1272px);
+            }
+        }
+
+        @media (min-width: 1024px) {
+            .ac-references-container,
+            .ac-references-blocks {
+                width: min(100% - 4rem, 1256px);
+            }
         }
 
         .ac-references-blocks--top {

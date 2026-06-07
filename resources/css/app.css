@@ -291,6 +291,19 @@
     line-height: 1.18;
 }
 
+.front-route-home .ac-service-pillar-text-card {
+    text-align: left;
+}
+
+.front-route-home .ac-service-pillar-text-card-title {
+    font-size: clamp(1.34rem, 1.72vw, 1.72rem);
+}
+
+.front-route-home .ac-service-pillar-text-card-subtitle {
+    margin-right: 0;
+    margin-left: 0;
+}
+
 .ac-service-pillar-text-card ul {
     display: grid;
     gap: 0.58rem;
@@ -1625,7 +1638,10 @@
     .front-route-accounting .front-header-meta,
     .front-route-advisory .front-site-header,
     .front-route-advisory .front-header-main,
-    .front-route-advisory .front-header-meta {
+    .front-route-advisory .front-header-meta,
+    .front-route-eu-funds .front-site-header,
+    .front-route-eu-funds .front-header-main,
+    .front-route-eu-funds .front-header-meta {
         transform: none;
         -webkit-backface-visibility: visible;
         backface-visibility: visible;
@@ -1633,13 +1649,15 @@
 
     .front-route-audit .front-header-meta,
     .front-route-accounting .front-header-meta,
-    .front-route-advisory .front-header-meta {
+    .front-route-advisory .front-header-meta,
+    .front-route-eu-funds .front-header-meta {
         background-image: linear-gradient(90deg, rgba(4, 10, 18, 0.92) 0%, rgba(8, 18, 30, 0.86) 100%);
     }
 
     .front-route-audit,
     .front-route-accounting,
-    .front-route-advisory {
+    .front-route-advisory,
+    .front-route-eu-funds {
         text-rendering: auto;
     }
 
@@ -5190,6 +5208,10 @@
         width: 100%;
     }
 
+    .ac-assessment-grid > .ac-assessment-field--full {
+        grid-column: 1 / -1;
+    }
+
     .ac-assessment-field--tall-control .front-contact-input {
         min-height: 6.75rem;
         padding-top: 0.85rem;
@@ -5305,6 +5327,102 @@
         font-size: 1.02rem;
         line-height: 1.2;
         font-weight: 700;
+    }
+
+    .ac-eu-questionnaire-form .ac-assessment-section {
+        gap: 1.05rem;
+    }
+
+    .ac-eu-questionnaire-legend {
+        display: block;
+        width: 100%;
+        margin: 0 0 0.65rem;
+        color: #6f6255;
+        font-size: 0.74rem;
+        font-weight: 700;
+        letter-spacing: 0.1em;
+        line-height: 1.45;
+        text-transform: uppercase;
+    }
+
+    .ac-eu-questionnaire-option-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 0.65rem;
+    }
+
+    .ac-eu-questionnaire-option-grid--compact {
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+    }
+
+    .ac-eu-questionnaire-option-grid--binary {
+        grid-template-columns: repeat(2, minmax(0, 12rem));
+        max-width: 28rem;
+    }
+
+    .ac-eu-questionnaire-option {
+        display: flex;
+        align-items: flex-start;
+        gap: 0.65rem;
+        min-height: 2.75rem;
+        border: 1px solid rgba(171, 141, 82, 0.16);
+        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.72);
+        padding: 0.75rem 0.85rem;
+        color: #2f3744;
+        font-size: 0.875rem;
+        line-height: 1.45;
+        cursor: pointer;
+        transition: border-color 0.18s ease, background-color 0.18s ease, box-shadow 0.18s ease;
+    }
+
+    .ac-eu-questionnaire-option:hover {
+        border-color: rgba(171, 141, 82, 0.34);
+        background: rgba(255, 255, 255, 0.94);
+    }
+
+    .ac-eu-questionnaire-option:has(input:checked) {
+        border-color: rgba(15, 42, 67, 0.28);
+        background: rgba(255, 255, 255, 0.98);
+        box-shadow: inset 0 0 0 1px rgba(15, 42, 67, 0.08);
+    }
+
+    .ac-eu-questionnaire-option input {
+        flex: 0 0 auto;
+        width: 1rem;
+        height: 1rem;
+        margin-top: 0.15rem;
+        accent-color: #0f172a;
+    }
+
+    .ac-eu-questionnaire-option span {
+        min-width: 0;
+    }
+
+    .ac-eu-questionnaire-conditional {
+        margin-top: 1rem;
+    }
+
+    .ac-eu-questionnaire-privacy {
+        margin: -0.15rem 0 0;
+        color: #6f6255;
+        font-size: 0.82rem;
+        line-height: 1.6;
+    }
+
+    @media (max-width: 1024px) {
+        .ac-eu-questionnaire-option-grid--compact {
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+        }
+    }
+
+    @media (max-width: 760px) {
+        .ac-eu-questionnaire-option-grid,
+        .ac-eu-questionnaire-option-grid--compact,
+        .ac-eu-questionnaire-option-grid--binary {
+            grid-template-columns: minmax(0, 1fr);
+            max-width: none;
+        }
     }
 
     .ac-lease-page {
@@ -8381,6 +8499,160 @@
         text-wrap: balance;
     }
 
+    @media (min-width: 761px) {
+        :is(
+            .ac-about-page .ac-about-title-band,
+            .ac-team-page .ac-team-title-band,
+            .ac-references-page .ac-references-title-band,
+            .ac-career-page .ac-career-title-band,
+            .ac-contact-page .ac-contact-title-band,
+            .ac-assessment-page .ac-assessment-title-band,
+            .ac-blog-page:not(.ac-blog-article-page) .ac-blog-title-band
+        ) {
+            padding: clamp(1.05rem, 2vw, 1.45rem) 0;
+        }
+
+        :is(
+            .ac-about-page .ac-about-title-band,
+            .ac-team-page .ac-team-title-band,
+            .ac-references-page .ac-references-title-band,
+            .ac-career-page .ac-career-title-band,
+            .ac-contact-page .ac-contact-title-band,
+            .ac-assessment-page .ac-assessment-title-band,
+            .ac-blog-page:not(.ac-blog-article-page) .ac-blog-title-band
+        ) .ac-page-title-hero {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) minmax(12rem, 34rem);
+            align-items: center;
+            gap: clamp(1.5rem, 4vw, 4rem);
+        }
+
+        :is(
+            .ac-about-page .ac-about-title-band,
+            .ac-team-page .ac-team-title-band,
+            .ac-references-page .ac-references-title-band,
+            .ac-career-page .ac-career-title-band,
+            .ac-contact-page .ac-contact-title-band,
+            .ac-assessment-page .ac-assessment-title-band,
+            .ac-blog-page:not(.ac-blog-article-page) .ac-blog-title-band
+        ) .ac-page-title-panel {
+            grid-column: 1;
+            grid-row: 1;
+            max-width: none;
+            margin: 0;
+            padding: 0;
+            gap: 0.55rem;
+            justify-items: start;
+            text-align: left;
+        }
+
+        :is(
+            .ac-about-page .ac-about-title-band,
+            .ac-team-page .ac-team-title-band,
+            .ac-references-page .ac-references-title-band,
+            .ac-career-page .ac-career-title-band,
+            .ac-contact-page .ac-contact-title-band,
+            .ac-assessment-page .ac-assessment-title-band,
+            .ac-blog-page:not(.ac-blog-article-page) .ac-blog-title-band
+        ) .ac-page-title-copy {
+            gap: 0.45rem;
+            justify-items: start;
+            text-align: left;
+        }
+
+        :is(
+            .ac-about-page .ac-about-title-band,
+            .ac-team-page .ac-team-title-band,
+            .ac-references-page .ac-references-title-band,
+            .ac-career-page .ac-career-title-band,
+            .ac-contact-page .ac-contact-title-band,
+            .ac-assessment-page .ac-assessment-title-band,
+            .ac-blog-page:not(.ac-blog-article-page) .ac-blog-title-band
+        ) .ac-page-title-copy h1 {
+            font-size: clamp(1.75rem, 2.15vw, 2.25rem);
+            line-height: 1.08;
+        }
+
+        :is(
+            .ac-about-page .ac-about-title-band,
+            .ac-team-page .ac-team-title-band,
+            .ac-references-page .ac-references-title-band,
+            .ac-career-page .ac-career-title-band,
+            .ac-contact-page .ac-contact-title-band,
+            .ac-assessment-page .ac-assessment-title-band,
+            .ac-blog-page:not(.ac-blog-article-page) .ac-blog-title-band
+        ) .ac-page-title-copy > p {
+            max-width: 42rem;
+            font-size: clamp(0.92rem, 0.95vw, 1rem);
+            line-height: 1.55;
+            text-align: left;
+        }
+
+        :is(
+            .ac-about-page .ac-about-title-band,
+            .ac-team-page .ac-team-title-band,
+            .ac-references-page .ac-references-title-band,
+            .ac-career-page .ac-career-title-band,
+            .ac-contact-page .ac-contact-title-band,
+            .ac-assessment-page .ac-assessment-title-band,
+            .ac-blog-page:not(.ac-blog-article-page) .ac-blog-title-band
+        ) .ac-page-title-breadcrumb {
+            grid-column: 2;
+            grid-row: 1;
+            justify-content: flex-end;
+            gap: 0.5rem;
+            min-width: 0;
+            margin-bottom: 0;
+        }
+
+        :is(
+            .ac-about-page .ac-about-title-band,
+            .ac-team-page .ac-team-title-band,
+            .ac-references-page .ac-references-title-band,
+            .ac-career-page .ac-career-title-band,
+            .ac-contact-page .ac-contact-title-band,
+            .ac-assessment-page .ac-assessment-title-band,
+            .ac-blog-page:not(.ac-blog-article-page) .ac-blog-title-band
+        ) .ac-page-title-breadcrumb::before,
+        :is(
+            .ac-about-page .ac-about-title-band,
+            .ac-team-page .ac-team-title-band,
+            .ac-references-page .ac-references-title-band,
+            .ac-career-page .ac-career-title-band,
+            .ac-contact-page .ac-contact-title-band,
+            .ac-assessment-page .ac-assessment-title-band,
+            .ac-blog-page:not(.ac-blog-article-page) .ac-blog-title-band
+        ) .ac-page-title-breadcrumb::after {
+            content: none;
+        }
+
+        :is(
+            .ac-about-page .ac-about-title-band,
+            .ac-team-page .ac-team-title-band,
+            .ac-references-page .ac-references-title-band,
+            .ac-career-page .ac-career-title-band,
+            .ac-contact-page .ac-contact-title-band,
+            .ac-assessment-page .ac-assessment-title-band,
+            .ac-blog-page:not(.ac-blog-article-page) .ac-blog-title-band
+        ) .ac-page-title-breadcrumb .front-scroll-breadcrumb-track {
+            justify-content: flex-end;
+            max-width: 100%;
+        }
+
+        :is(
+            .ac-about-page .ac-about-title-band,
+            .ac-team-page .ac-team-title-band,
+            .ac-references-page .ac-references-title-band,
+            .ac-career-page .ac-career-title-band,
+            .ac-contact-page .ac-contact-title-band,
+            .ac-assessment-page .ac-assessment-title-band,
+            .ac-blog-page:not(.ac-blog-article-page) .ac-blog-title-band
+        ) :is(.front-scroll-breadcrumb-link, .front-scroll-breadcrumb-current, .front-scroll-breadcrumb-separator) {
+            font-size: 0.72rem;
+            letter-spacing: 0.075em;
+        }
+    }
+
     .ac-page-title-actions {
         display: flex;
         align-items: center;
@@ -10470,9 +10742,35 @@
         background: linear-gradient(135deg, rgba(255, 255, 255, 0.82), rgba(248, 243, 232, 0.72));
     }
 
+    .ac-advisory-network-head {
+        display: grid;
+        grid-template-columns: auto minmax(0, 1fr);
+        align-items: center;
+        gap: 1.15rem;
+    }
+
+    .ac-advisory-network-logo-card {
+        display: flex;
+        width: min(12rem, 100%);
+        min-height: 4.5rem;
+        align-items: center;
+        justify-content: center;
+        padding: 0.78rem 0.95rem;
+        border: 1px solid rgba(171, 141, 82, 0.14);
+        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.88);
+    }
+
+    .ac-advisory-network-logo {
+        display: block;
+        width: 100%;
+        max-width: 10rem;
+        height: auto;
+    }
+
     .ac-advisory-network-copy {
         display: grid;
-        grid-template-columns: repeat(2, minmax(0, 1fr));
+        grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
         gap: 1rem;
         margin-top: 1.1rem;
     }
@@ -10494,6 +10792,198 @@
         font-weight: 800;
         letter-spacing: 0.08em;
         text-transform: uppercase;
+    }
+
+    .ac-eu-service-page .ac-service-hero .ac-family-hero-title .is-subtitle {
+        max-width: 8.5em;
+    }
+
+    .ac-eu-source-card {
+        min-height: 100%;
+    }
+
+    .ac-eu-call-module {
+        margin-top: clamp(2.2rem, 4vw, 3.25rem);
+    }
+
+    .ac-eu-call-group-grid,
+    .ac-eu-program-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 1rem;
+        margin-top: 1.55rem;
+    }
+
+    .ac-eu-call-group-card {
+        display: flex;
+        min-height: 100%;
+        flex-direction: column;
+        padding: 1.15rem;
+        border: 1px solid rgba(171, 141, 82, 0.14);
+        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.86);
+        box-shadow: 0 14px 32px rgba(58, 86, 120, 0.06);
+    }
+
+    .ac-eu-call-group-head {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 0.8rem;
+        margin-bottom: 0.85rem;
+    }
+
+    .ac-eu-call-group-head h3 {
+        margin: 0;
+        color: #101820;
+        font-family: 'Montserrat', sans-serif;
+        font-size: 1rem;
+        font-weight: 800;
+        line-height: 1.38;
+    }
+
+    .ac-eu-status-badge {
+        display: inline-flex;
+        flex: none;
+        align-items: center;
+        justify-content: center;
+        min-height: 1.8rem;
+        border: 1px solid rgba(171, 141, 82, 0.22);
+        border-radius: 999px;
+        padding: 0.35rem 0.65rem;
+        font-size: 0.72rem;
+        font-weight: 800;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+    }
+
+    .ac-eu-status-badge.is-open {
+        border-color: rgba(22, 101, 52, 0.22);
+        background: rgba(220, 252, 231, 0.7);
+        color: #166534;
+    }
+
+    .ac-eu-status-badge.is-pending {
+        border-color: rgba(146, 64, 14, 0.18);
+        background: rgba(255, 247, 237, 0.8);
+        color: #92400e;
+    }
+
+    .ac-eu-status-badge.is-closed {
+        border-color: rgba(71, 85, 105, 0.18);
+        background: rgba(241, 245, 249, 0.9);
+        color: #475569;
+    }
+
+    .ac-eu-call-list {
+        display: grid;
+        gap: 0;
+        margin: 0;
+        padding: 0;
+        list-style: none;
+    }
+
+    .ac-eu-call-list li {
+        border-top: 1px solid rgba(171, 141, 82, 0.13);
+    }
+
+    .ac-eu-call-list li:first-child {
+        border-top: 0;
+    }
+
+    .ac-eu-call-list a,
+    .ac-eu-call-item-row {
+        display: grid;
+        gap: 0.32rem;
+        padding: 0.82rem 0;
+        color: #1f2937;
+        font-size: 0.91rem;
+        line-height: 1.45;
+        text-decoration: none;
+    }
+
+    .ac-eu-call-list a:hover {
+        color: #9a773d;
+    }
+
+    .ac-eu-call-item-title {
+        min-width: 0;
+        font-weight: 650;
+    }
+
+    .ac-eu-call-item-date {
+        color: #6f6a63;
+        font-size: 0.76rem;
+        font-weight: 750;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+    }
+
+    .ac-eu-call-details {
+        margin-top: 0.85rem;
+        padding-top: 0.85rem;
+        border-top: 1px solid rgba(171, 141, 82, 0.13);
+    }
+
+    .ac-eu-call-details summary {
+        color: #9a773d;
+        cursor: pointer;
+        font-size: 0.78rem;
+        font-weight: 850;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+    }
+
+    .ac-eu-call-list--details {
+        margin-top: 0.65rem;
+    }
+
+    .ac-eu-program-grid {
+        align-items: stretch;
+    }
+
+    .ac-eu-program-card {
+        min-height: 100%;
+    }
+
+    .ac-eu-program-card .ac-family-section-kicker {
+        margin-bottom: 0.7rem;
+    }
+
+    .ac-eu-program-list-block {
+        margin-top: 1rem;
+    }
+
+    .ac-eu-program-list-block h3 {
+        margin: 0 0 0.7rem;
+        color: #6d5633;
+        font-family: 'Montserrat', sans-serif;
+        font-size: 0.78rem;
+        font-weight: 850;
+        letter-spacing: 0.12em;
+        line-height: 1.35;
+        text-transform: uppercase;
+    }
+
+    .ac-eu-program-list-block a {
+        color: inherit;
+        text-decoration: underline;
+        text-decoration-color: rgba(171, 141, 82, 0.38);
+        text-underline-offset: 0.18em;
+    }
+
+    .ac-eu-program-note {
+        margin-top: 1rem;
+        border-left: 3px solid rgba(171, 141, 82, 0.4);
+        padding-left: 0.9rem;
+        color: #6d5633 !important;
+    }
+
+    .ac-eu-program-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.8rem;
+        margin-top: 1.1rem;
     }
 
     .ac-advisory-subhead {
@@ -10708,14 +11198,16 @@
 
     .front-route-audit .ac-audit-page :is(h1, h2, h3, p, blockquote),
     .front-route-accounting .ac-audit-page :is(h1, h2, h3, p, blockquote),
-    .front-route-advisory .ac-audit-page :is(h1, h2, h3, p, blockquote) {
+    .front-route-advisory .ac-audit-page :is(h1, h2, h3, p, blockquote),
+    .front-route-eu-funds .ac-audit-page :is(h1, h2, h3, p, blockquote) {
         text-wrap: wrap;
     }
 
     @supports (-moz-appearance: none) {
         .front-route-audit .ac-service-hero .ac-family-hero-media,
         .front-route-accounting .ac-service-hero .ac-family-hero-media,
-        .front-route-advisory .ac-service-hero .ac-family-hero-media {
+        .front-route-advisory .ac-service-hero .ac-family-hero-media,
+        .front-route-eu-funds .ac-service-hero .ac-family-hero-media {
             background-image: var(--audit-hero-image);
             background-position: center;
             background-repeat: no-repeat;
@@ -10724,13 +11216,15 @@
 
         .front-route-audit .ac-service-hero .ac-family-hero-media-image,
         .front-route-accounting .ac-service-hero .ac-family-hero-media-image,
-        .front-route-advisory .ac-service-hero .ac-family-hero-media-image {
+        .front-route-advisory .ac-service-hero .ac-family-hero-media-image,
+        .front-route-eu-funds .ac-service-hero .ac-family-hero-media-image {
             display: none;
         }
 
         .front-route-audit .ac-service-hero .ac-family-hero-overlay,
         .front-route-accounting .ac-service-hero .ac-family-hero-overlay,
-        .front-route-advisory .ac-service-hero .ac-family-hero-overlay {
+        .front-route-advisory .ac-service-hero .ac-family-hero-overlay,
+        .front-route-eu-funds .ac-service-hero .ac-family-hero-overlay {
             background: rgba(6, 20, 36, 0.68);
         }
 
@@ -10742,7 +11236,10 @@
         .front-route-accounting .ac-audit-page .ac-audit-blog-section,
         .front-route-advisory .ac-audit-editorial-wrap,
         .front-route-advisory .ac-service-cta-section,
-        .front-route-advisory .ac-audit-page .ac-audit-blog-section {
+        .front-route-advisory .ac-audit-page .ac-audit-blog-section,
+        .front-route-eu-funds .ac-audit-editorial-wrap,
+        .front-route-eu-funds .ac-service-cta-section,
+        .front-route-eu-funds .ac-audit-page .ac-audit-blog-section {
             background: #f6f1e7;
         }
     }
@@ -10781,7 +11278,9 @@
         .ac-advisory-three-grid,
         .ac-advisory-detail-grid,
         .ac-advisory-module-grid,
-        .ac-advisory-network-copy {
+        .ac-advisory-network-copy,
+        .ac-eu-call-group-grid,
+        .ac-eu-program-grid {
             grid-template-columns: minmax(0, 1fr);
         }
 
@@ -10922,6 +11421,10 @@
         .ac-service-cta-card {
             gap: 0.9rem;
             padding: 1.18rem 1rem 1.25rem;
+        }
+
+        .ac-advisory-network-head {
+            grid-template-columns: minmax(0, 1fr);
         }
 
         .ac-service-cta-copy h2 {
@@ -11312,6 +11815,21 @@
         }
     }
 
+    @media (max-width: 760px) {
+        .ac-advisory-page .ac-service-hero .ac-family-hero-title .is-subtitle {
+            width: 100%;
+            max-width: 100%;
+            font-size: clamp(2.04rem, 8.2vw, 2.34rem);
+            line-height: 1.04;
+            text-wrap: balance;
+        }
+
+        .ac-advisory-page .ac-service-hero .ac-family-hero-title .is-subtitle-lead {
+            white-space: normal;
+            overflow-wrap: normal;
+        }
+    }
+
     .ac-blog-card {
         min-height: 100%;
     }
@@ -11422,6 +11940,11 @@
         background: rgba(255, 255, 255, 0.84);
         box-shadow: none;
         overflow: hidden;
+    }
+
+    .ac-blog-post-article-shell .ac-blog-article-body {
+        width: 100%;
+        max-width: none;
     }
 
     .ac-blog-article-body-inner {

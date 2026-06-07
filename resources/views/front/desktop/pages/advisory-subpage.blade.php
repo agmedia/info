@@ -15,6 +15,7 @@
     $dueDiligence = (array) ($content['due_diligence'] ?? []);
     $tax = (array) ($content['tax'] ?? []);
     $meeting = (array) ($content['meeting'] ?? []);
+    $pandeaLogo = trim((string) ($pandeaLogoUrl ?? ''));
     $currentHost = request()->getHost();
     $sameOriginAssetUrl = static function (?string $url) use ($currentHost): string {
         $assetUrl = trim((string) $url);
@@ -79,6 +80,9 @@
                             <div class="ac-audit-section-head ac-audit-section-head--center">
                                 <p class="ac-family-section-kicker">PRIBAVLJANJE FINANCIRANJA</p>
                                 <h2 id="ac-advisory-subpage-title">{{ $funding['title'] ?? 'Pribavljanje financiranja' }}</h2>
+                                @if (trim((string) ($funding['intro'] ?? '')) !== '')
+                                    <p>{{ $funding['intro'] }}</p>
+                                @endif
                             </div>
 
                             <div class="ac-advisory-three-grid">
@@ -101,11 +105,14 @@
                                 @endforeach
                             </div>
 
-                            <div class="ac-advisory-detail-grid">
+                            <div class="ac-audit-section-head ac-audit-section-head--center ac-advisory-subhead">
+                                <h3>{{ $funding['services_title'] ?? 'Usluge EU fondova' }}</h3>
+                            </div>
+
+                            <div class="ac-audit-card-grid">
                                 @foreach ((array) ($funding['services'] ?? []) as $item)
-                                    <article class="ac-advisory-detail-card">
-                                        <span>{{ str_pad((string) $loop->iteration, 2, '0', STR_PAD_LEFT) }}</span>
-                                        <h4>{{ $item['title'] ?? '' }}</h4>
+                                    <article class="ac-audit-service-card">
+                                        <h3>{{ $item['title'] ?? '' }}</h3>
                                         <p>{{ $item['text'] ?? '' }}</p>
                                     </article>
                                 @endforeach
@@ -114,13 +121,13 @@
 
                         <article class="ac-audit-editorial-section">
                             <div class="ac-advisory-two-col">
-                                <section class="ac-advisory-text-panel">
+                                <section id="advisory-bankovni-krediti" class="ac-advisory-text-panel">
                                     <h2>{{ $bankLoans['title'] ?? 'Bankovni krediti' }}</h2>
                                     @foreach ((array) ($bankLoans['body'] ?? []) as $paragraph)
                                         <p>{{ $paragraph }}</p>
                                     @endforeach
                                 </section>
-                                <section class="ac-advisory-text-panel">
+                                <section id="advisory-zopu" class="ac-advisory-text-panel">
                                     <h2>{{ $zopu['title'] ?? 'Zakon o poticanju ulaganja' }}</h2>
                                     @foreach ((array) ($zopu['body'] ?? []) as $paragraph)
                                         <p>{{ $paragraph }}</p>
@@ -133,7 +140,9 @@
                             <div class="ac-audit-section-head ac-audit-section-head--center">
                                 <p class="ac-family-section-kicker">{{ $sourceModules['kicker'] ?? 'DOSTUPNI IZVORI FINANCIRANJA' }}</p>
                                 <h2>{{ $sourceModules['title'] ?? '' }}</h2>
-                                <p>{{ $sourceModules['intro'] ?? '' }}</p>
+                                @if (trim((string) ($sourceModules['intro'] ?? '')) !== '')
+                                    <p>{{ $sourceModules['intro'] ?? '' }}</p>
+                                @endif
                             </div>
                             <div class="ac-advisory-module-grid">
                                 @foreach ((array) ($sourceModules['items'] ?? []) as $module)
@@ -149,7 +158,7 @@
                             </div>
                         </article>
                     @elseif ($type === 'tax')
-                        <article class="ac-audit-editorial-section">
+                        <article id="advisory-ma" class="ac-audit-editorial-section">
                             <div class="ac-audit-section-head ac-audit-section-head--center">
                                 <p class="ac-family-section-kicker">POREZNO SAVJETOVANJE</p>
                                 <h2 id="ac-advisory-subpage-title">{{ $tax['title'] ?? 'Porezno savjetovanje' }}</h2>
@@ -162,11 +171,10 @@
                                 @endforeach
                             </div>
 
-                            <div class="ac-advisory-detail-grid">
+                            <div class="ac-audit-card-grid">
                                 @foreach ((array) ($tax['services'] ?? []) as $item)
-                                    <article class="ac-advisory-detail-card">
-                                        <span>{{ str_pad((string) $loop->iteration, 2, '0', STR_PAD_LEFT) }}</span>
-                                        <h4>{{ $item['title'] ?? '' }}</h4>
+                                    <article class="ac-audit-service-card">
+                                        <h3>{{ $item['title'] ?? '' }}</h3>
                                         <p>{{ $item['text'] ?? '' }}</p>
                                     </article>
                                 @endforeach
@@ -174,7 +182,7 @@
                         </article>
 
                         <article class="ac-audit-editorial-section">
-                            <div class="ac-advisory-service-grid">
+                            <div class="ac-audit-card-grid">
                                 @foreach ((array) ($tax['cards'] ?? []) as $card)
                                     <article class="ac-audit-service-card">
                                         <h3>{{ $card['title'] ?? '' }}</h3>
@@ -197,8 +205,17 @@
                             </div>
 
                             <div class="ac-advisory-network-panel">
-                                <p class="ac-family-section-kicker">Pandea Global M&amp;A</p>
-                                <h2>{{ $pandea['title'] ?? '' }}</h2>
+                                <div class="ac-advisory-network-head">
+                                    @if ($pandeaLogo !== '')
+                                        <div class="ac-advisory-network-logo-card">
+                                            <img src="{{ $pandeaLogo }}" alt="{{ $pandea['logo_alt'] ?? 'Pandea Global M&A' }}" class="ac-advisory-network-logo" loading="lazy" decoding="async">
+                                        </div>
+                                    @endif
+                                    <div>
+                                        <p class="ac-family-section-kicker">Pandea Global M&amp;A</p>
+                                        <h2>{{ $pandea['title'] ?? '' }}</h2>
+                                    </div>
+                                </div>
                                 <div class="ac-advisory-network-copy">
                                     @foreach ((array) ($pandea['body'] ?? []) as $paragraph)
                                         <p>{{ $paragraph }}</p>
@@ -227,7 +244,7 @@
 
                         <article class="ac-audit-editorial-section">
                             <div class="ac-advisory-two-col">
-                                <section class="ac-advisory-text-panel">
+                                <section id="advisory-due-diligence" class="ac-advisory-text-panel">
                                     <p class="ac-family-section-kicker">DUE DILIGENCE</p>
                                     <h2>{{ $dueDiligence['title'] ?? 'Due diligence' }}</h2>
                                     <p>{{ $dueDiligence['intro'] ?? '' }}</p>
@@ -240,7 +257,7 @@
                                     <p>{{ $dueDiligence['closing'] ?? '' }}</p>
                                 </section>
 
-                                <section class="ac-advisory-text-panel">
+                                <section id="advisory-procjene-vrijednosti" class="ac-advisory-text-panel">
                                     <p class="ac-family-section-kicker">PROCJENE VRIJEDNOSTI</p>
                                     <h2>{{ $valuations['title'] ?? 'Procjene vrijednosti' }}</h2>
                                     @foreach ((array) ($valuations['body'] ?? []) as $paragraph)

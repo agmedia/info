@@ -26,7 +26,7 @@ class ServicesController extends Controller
             'serviceCards' => $this->serviceCardService->cards((string) $locale, $fallbackLocale),
             'primaryServicePillars' => $this->serviceCardService->primaryPillars((string) $locale, $fallbackLocale),
             'servicePageTitle' => 'Usluge',
-            'servicePageMetaTitle' => 'Usluge | Alpha Capitalis',
+            'servicePageMetaTitle' => 'Usluge | ALPHA CAPITALIS',
             'servicePageMetaDescription' => 'Pregled usluga ALPHA CAPITALISA: revizija, racunovodstvo i poslovno savjetovanje.',
             'locale' => $locale,
             'fallbackLocale' => $fallbackLocale,

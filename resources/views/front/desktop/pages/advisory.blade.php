@@ -18,6 +18,7 @@
     $approach = (array) ($content['approach'] ?? []);
     $meeting = (array) ($content['meeting'] ?? []);
     $blog = (array) ($content['blog_section'] ?? ($content['blog'] ?? []));
+    $pandeaLogo = trim((string) ($pandeaLogoUrl ?? ''));
     $isCroatianLocale = str_starts_with(strtolower((string) ($locale ?? app()->getLocale())), 'hr');
     $readMoreLabel = $isCroatianLocale ? 'Opširnije' : 'Read more';
     $currentHost = request()->getHost();
@@ -109,7 +110,7 @@
                             @endif
                         </div>
 
-                        <div class="ac-advisory-service-grid">
+                        <div class="ac-audit-card-grid">
                             @foreach ($serviceCards as $card)
                                 @php $cardUrl = $resolveContentUrl($card['url'] ?? ''); @endphp
                                 <article class="ac-audit-service-card ac-advisory-link-card">
@@ -125,8 +126,17 @@
 
                     <article class="ac-audit-editorial-section">
                         <div class="ac-advisory-network-panel">
-                            <p class="ac-family-section-kicker">Pandea Global M&amp;A</p>
-                            <h2>{{ $pandea['title'] ?? '' }}</h2>
+                            <div class="ac-advisory-network-head">
+                                @if ($pandeaLogo !== '')
+                                    <div class="ac-advisory-network-logo-card">
+                                        <img src="{{ $pandeaLogo }}" alt="{{ $pandea['logo_alt'] ?? 'Pandea Global M&A' }}" class="ac-advisory-network-logo" loading="lazy" decoding="async">
+                                    </div>
+                                @endif
+                                <div>
+                                    <p class="ac-family-section-kicker">Pandea Global M&amp;A</p>
+                                    <h2>{{ $pandea['title'] ?? '' }}</h2>
+                                </div>
+                            </div>
                             <div class="ac-advisory-network-copy">
                                 @foreach ((array) ($pandea['body'] ?? []) as $paragraph)
                                     <p>{{ $paragraph }}</p>
@@ -139,6 +149,9 @@
                         <div class="ac-audit-section-head ac-audit-section-head--center">
                             <p class="ac-family-section-kicker">PRIBAVLJANJE FINANCIRANJA</p>
                             <h2>{{ $funding['title'] ?? 'Pribavljanje financiranja' }}</h2>
+                            @if (trim((string) ($funding['intro'] ?? '')) !== '')
+                                <p>{{ $funding['intro'] }}</p>
+                            @endif
                         </div>
 
                         <div class="ac-advisory-three-grid">
@@ -164,24 +177,25 @@
                         <div class="ac-audit-section-head ac-audit-section-head--center ac-advisory-subhead">
                             <h3>{{ $funding['services_title'] ?? 'Naše usluge' }}</h3>
                         </div>
-                        <div class="ac-advisory-detail-grid">
+                        <div class="ac-audit-card-grid">
                             @foreach ((array) ($funding['services'] ?? []) as $item)
-                                <article class="ac-advisory-detail-card">
-                                    <span>{{ str_pad((string) $loop->iteration, 2, '0', STR_PAD_LEFT) }}</span>
-                                    <h4>{{ $item['title'] ?? '' }}</h4>
+                                <article class="ac-audit-service-card">
+                                    <h3>{{ $item['title'] ?? '' }}</h3>
                                     <p>{{ $item['text'] ?? '' }}</p>
                                 </article>
                             @endforeach
                         </div>
 
-                        <div class="ac-advisory-three-grid">
-                            @foreach ((array) ($funding['advisory_cards'] ?? []) as $card)
-                                <article class="ac-audit-service-card">
-                                    <h3>{{ $card['title'] ?? '' }}</h3>
-                                    <p>{{ $card['text'] ?? '' }}</p>
-                                </article>
-                            @endforeach
-                        </div>
+                        @if (! empty($funding['advisory_cards'] ?? []))
+                            <div class="ac-advisory-three-grid">
+                                @foreach ((array) ($funding['advisory_cards'] ?? []) as $card)
+                                    <article class="ac-audit-service-card">
+                                        <h3>{{ $card['title'] ?? '' }}</h3>
+                                        <p>{{ $card['text'] ?? '' }}</p>
+                                    </article>
+                                @endforeach
+                            </div>
+                        @endif
                     </article>
 
                     <article class="ac-audit-editorial-section">
@@ -199,6 +213,29 @@
                                     <p>{{ $paragraph }}</p>
                                 @endforeach
                             </section>
+                        </div>
+                    </article>
+
+                    <article class="ac-audit-editorial-section">
+                        <div class="ac-audit-section-head ac-audit-section-head--center">
+                            <p class="ac-family-section-kicker">{{ $sourceModules['kicker'] ?? 'DOSTUPNI IZVORI FINANCIRANJA' }}</p>
+                            <h2>{{ $sourceModules['title'] ?? '' }}</h2>
+                            @if (trim((string) ($sourceModules['intro'] ?? '')) !== '')
+                                <p>{{ $sourceModules['intro'] }}</p>
+                            @endif
+                        </div>
+
+                        <div class="ac-advisory-module-grid">
+                            @foreach ((array) ($sourceModules['items'] ?? []) as $module)
+                                @php $moduleUrl = $resolveContentUrl($module['url'] ?? ''); @endphp
+                                <article class="ac-advisory-source-card">
+                                    <h3>{{ $module['title'] ?? '' }}</h3>
+                                    <p>{{ $module['text'] ?? '' }}</p>
+                                    @if ($moduleUrl !== '')
+                                        <a href="{{ $moduleUrl }}" class="ac-advisory-card-link">{{ $readMoreLabel }}</a>
+                                    @endif
+                                </article>
+                            @endforeach
                         </div>
                     </article>
 
@@ -275,17 +312,16 @@
                             <h3>{{ $tax['services_title'] ?? 'Naše porezne usluge' }}</h3>
                         </div>
 
-                        <div class="ac-advisory-detail-grid">
+                        <div class="ac-audit-card-grid">
                             @foreach ((array) ($tax['services'] ?? []) as $item)
-                                <article class="ac-advisory-detail-card">
-                                    <span>{{ str_pad((string) $loop->iteration, 2, '0', STR_PAD_LEFT) }}</span>
-                                    <h4>{{ $item['title'] ?? '' }}</h4>
+                                <article class="ac-audit-service-card">
+                                    <h3>{{ $item['title'] ?? '' }}</h3>
                                     <p>{{ $item['text'] ?? '' }}</p>
                                 </article>
                             @endforeach
                         </div>
 
-                        <div class="ac-advisory-service-grid">
+                        <div class="ac-audit-card-grid">
                             @foreach ((array) ($tax['cards'] ?? []) as $card)
                                 <article class="ac-audit-service-card">
                                     <h3>{{ $card['title'] ?? '' }}</h3>
@@ -298,29 +334,6 @@
                             <h3>{{ $tax['approach_title'] ?? '' }}</h3>
                             @foreach ((array) ($tax['approach_body'] ?? []) as $paragraph)
                                 <p>{{ $paragraph }}</p>
-                            @endforeach
-                        </div>
-                    </article>
-
-                    <article class="ac-audit-editorial-section">
-                        <div class="ac-audit-section-head ac-audit-section-head--center">
-                            <p class="ac-family-section-kicker">{{ $sourceModules['kicker'] ?? 'DOSTUPNI IZVORI FINANCIRANJA' }}</p>
-                            <h2>{{ $sourceModules['title'] ?? '' }}</h2>
-                            @if (trim((string) ($sourceModules['intro'] ?? '')) !== '')
-                                <p>{{ $sourceModules['intro'] }}</p>
-                            @endif
-                        </div>
-
-                        <div class="ac-advisory-module-grid">
-                            @foreach ((array) ($sourceModules['items'] ?? []) as $module)
-                                @php $moduleUrl = $resolveContentUrl($module['url'] ?? ''); @endphp
-                                <article class="ac-advisory-source-card">
-                                    <h3>{{ $module['title'] ?? '' }}</h3>
-                                    <p>{{ $module['text'] ?? '' }}</p>
-                                    @if ($moduleUrl !== '')
-                                        <a href="{{ $moduleUrl }}" class="ac-advisory-card-link">{{ $readMoreLabel }}</a>
-                                    @endif
-                                </article>
                             @endforeach
                         </div>
                     </article>

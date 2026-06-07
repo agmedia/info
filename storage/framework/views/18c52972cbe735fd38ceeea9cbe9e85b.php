@@ -468,6 +468,20 @@
             margin: 0 auto;
         }
 
+        @media (min-width: 640px) {
+            .ac-about-container,
+            .ac-about-blocks {
+                width: min(100% - 3rem, 1272px);
+            }
+        }
+
+        @media (min-width: 1024px) {
+            .ac-about-container,
+            .ac-about-blocks {
+                width: min(100% - 4rem, 1256px);
+            }
+        }
+
         .ac-about-blocks {
             padding: 2.5rem 0 0;
         }

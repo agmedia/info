@@ -64,7 +64,7 @@ return new class extends Migration
             'hr' => [
                 'title' => 'Savjetovanje',
                 'slug' => 'savjetovanje',
-                'meta_title' => 'Savjetovanje',
+                'meta_title' => 'Poslovno savjetovanje',
                 'meta_description' => 'Financijsko i porezno savjetovanje, pribavljanje financiranja, due diligence, procjene vrijednosti i M&A savjetovanje.',
             ],
             'en' => [
