@@ -20,7 +20,9 @@
     $globalErrorMessages = collect($errors->getBag('default')->getMessages())
         ->except(['product_option_value_id'])
         ->flatten();
-    $showGlobalErrorSummary = !request()->routeIs('assessment.*') && !request()->routeIs('eu-funds.questionnaire.*');
+    $showGlobalErrorSummary = !request()->routeIs('assessment.*')
+        && !request()->routeIs('eu-funds.questionnaire.*')
+        && !request()->is('eu-fondovi/upitnik');
 ?>
 
 <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($showGlobalErrorSummary && $globalErrorMessages->isNotEmpty()): ?>

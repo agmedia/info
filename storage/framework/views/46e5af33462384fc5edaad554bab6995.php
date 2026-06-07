@@ -46,7 +46,7 @@
 <?php $__env->startSection('main_class', 'w-full px-0 py-0'); ?>
 
 <?php $__env->startSection('content'); ?>
-    <div class="ac-family-business-page ac-audit-page ac-advisory-page">
+    <div class="ac-family-business-page ac-audit-page ac-advisory-page <?php echo e($type === 'tax' ? 'ac-service-band-even' : ''); ?>">
         <section class="ac-family-hero ac-service-hero ac-service-hero--advisory">
             <div class="ac-family-hero-media" aria-hidden="true" style="--audit-hero-image: url('<?php echo e($heroImageUrl); ?>'); background-image: url('<?php echo e($heroImageUrl); ?>');">
                 <img src="<?php echo e($heroImageUrl); ?>" alt="" class="ac-family-hero-media-image" loading="eager" decoding="async">

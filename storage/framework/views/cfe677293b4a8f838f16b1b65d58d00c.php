@@ -55,7 +55,7 @@
 <?php $__env->startSection('main_class', 'w-full px-0 py-0'); ?>
 
 <?php $__env->startSection('content'); ?>
-    <div class="ac-family-business-page ac-audit-page ac-advisory-page">
+    <div class="ac-family-business-page ac-audit-page ac-advisory-page ac-service-band-even">
         <section class="ac-family-hero ac-service-hero ac-service-hero--advisory">
             <div class="ac-family-hero-media" aria-hidden="true" style="--audit-hero-image: url('<?php echo e($heroImageUrl); ?>'); background-image: url('<?php echo e($heroImageUrl); ?>');">
                 <img src="<?php echo e($heroImageUrl); ?>" alt="" class="ac-family-hero-media-image" loading="eager" decoding="async">
@@ -475,13 +475,13 @@
 <?php $__env->stopSection(); ?>
 
 <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($hasAdvisoryPosts || $hasServiceVideos): ?>
-    <?php if (! $__env->hasRenderedOnce('77450c5c-6a4a-4072-87cd-914f6c1ec343')): $__env->markAsRenderedOnce('77450c5c-6a4a-4072-87cd-914f6c1ec343'); ?>
+    <?php if (! $__env->hasRenderedOnce('40e6775b-9e3f-4acf-99ca-273007957e4c')): $__env->markAsRenderedOnce('40e6775b-9e3f-4acf-99ca-273007957e4c'); ?>
         <?php $__env->startPush('styles'); ?>
             <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@splidejs/splide@4.1.4/dist/css/splide.min.css">
         <?php $__env->stopPush(); ?>
     <?php endif; ?>
 
-    <?php if (! $__env->hasRenderedOnce('3c6e9959-7d38-4a2e-8620-104ff06b0f89')): $__env->markAsRenderedOnce('3c6e9959-7d38-4a2e-8620-104ff06b0f89'); ?>
+    <?php if (! $__env->hasRenderedOnce('5cf78e03-9486-4c39-8cc9-be7784f08ea9')): $__env->markAsRenderedOnce('5cf78e03-9486-4c39-8cc9-be7784f08ea9'); ?>
         <?php $__env->startPush('scripts'); ?>
             <script defer src="https://cdn.jsdelivr.net/npm/@splidejs/splide@4.1.4/dist/js/splide.min.js"></script>
         <?php $__env->stopPush(); ?>

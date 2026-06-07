@@ -57,7 +57,7 @@
 @section('main_class', 'w-full px-0 py-0')
 
 @section('content')
-    <div class="ac-family-business-page ac-audit-page ac-advisory-page">
+    <div class="ac-family-business-page ac-audit-page ac-advisory-page ac-service-band-even">
         <section class="ac-family-hero ac-service-hero ac-service-hero--advisory">
             <div class="ac-family-hero-media" aria-hidden="true" style="--audit-hero-image: url('{{ $heroImageUrl }}'); background-image: url('{{ $heroImageUrl }}');">
                 <img src="{{ $heroImageUrl }}" alt="" class="ac-family-hero-media-image" loading="eager" decoding="async">

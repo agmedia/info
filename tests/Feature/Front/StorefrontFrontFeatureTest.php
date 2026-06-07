@@ -634,13 +634,15 @@ class StorefrontFrontFeatureTest extends TestCase
 
     public function test_eu_funds_questionnaire_validation_errors_render_inline_only(): void
     {
-        $this->followingRedirects()
+        $this->from('/eu-fondovi/upitnik')
+            ->followingRedirects()
             ->post('/eu-fondovi/upitnik', [])
             ->assertOk()
             ->assertSee(__('eu_funds_questionnaire.validation.required', [
                 'attribute' => __('eu_funds_questionnaire.form.company_name'),
             ]))
-            ->assertDontSee('data-flash-message', false);
+            ->assertDontSee('border border-rose-200 bg-rose-50', false)
+            ->assertDontSee('list-disc space-y-1 pl-5', false);
     }
 
     public function test_eu_funds_questionnaire_form_stores_structured_message(): void
