@@ -80,6 +80,7 @@
             .ac-career-page,
             .ac-contact-page,
             .ac-assessment-page,
+            .ac-lease-page,
             .ac-blog-page,
             .ac-family-business-page
         ) {
@@ -111,6 +112,7 @@
             .ac-career-page,
             .ac-contact-page,
             .ac-assessment-page,
+            .ac-lease-page,
             .ac-blog-page,
             .ac-family-business-page
         )) .front-fixed-watermark {
@@ -145,6 +147,7 @@
             .ac-career-page,
             .ac-contact-page,
             .ac-assessment-page,
+            .ac-lease-page,
             .ac-blog-page,
             .ac-family-business-page
         )) .front-content-shell {
@@ -165,6 +168,7 @@
             .ac-career-page .ac-career-title-band,
             .ac-contact-page .ac-contact-title-band,
             .ac-assessment-page .ac-assessment-title-band,
+            .ac-lease-page .ac-lease-title-band,
             .ac-blog-page .ac-blog-title-band
         ) {
             background-image: none;
@@ -178,6 +182,7 @@
             .ac-career-page .ac-career-title-band,
             .ac-contact-page .ac-contact-title-band,
             .ac-assessment-page .ac-assessment-title-band,
+            .ac-lease-page .ac-lease-title-band,
             .ac-blog-page .ac-blog-title-band
         ) :is(
             .ac-page-title-hero,
@@ -215,6 +220,9 @@
             .front-contact-content-shell,
             .front-contact-map-shell,
             .ac-assessment-title-band,
+            .ac-lease-title-band,
+            .ac-lease-shell,
+            .ac-lease-results,
             .ac-blog-title-band,
             .ac-blog-list-shell,
             .ac-blog-article-shell,
@@ -252,6 +260,9 @@
             .front-contact-content-shell,
             .front-contact-map-shell,
             .ac-assessment-title-band,
+            .ac-lease-title-band,
+            .ac-lease-shell,
+            .ac-lease-results,
             .ac-blog-title-band,
             .ac-blog-list-shell,
             .ac-blog-article-shell,

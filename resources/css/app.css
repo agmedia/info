@@ -4922,12 +4922,14 @@
     }
 
     .ac-assessment-page,
-    .ac-contact-page {
+    .ac-contact-page,
+    .ac-lease-page {
         background: linear-gradient(180deg, #f6f1e7 0%, #f7f2e9 100%);
     }
 
     .ac-assessment-page .ac-assessment-title-band,
-    .ac-contact-page .ac-contact-title-band {
+    .ac-contact-page .ac-contact-title-band,
+    .ac-lease-page .ac-lease-title-band {
         background: linear-gradient(180deg, #f6f1e7 0%, #f7f2e9 100%);
         border-top-color: rgba(120, 96, 58, 0.12);
         border-bottom-color: rgba(120, 96, 58, 0.14);
@@ -4936,7 +4938,9 @@
     .ac-assessment-page .ac-page-title-breadcrumb::before,
     .ac-assessment-page .ac-page-title-breadcrumb::after,
     .ac-contact-page .ac-page-title-breadcrumb::before,
-    .ac-contact-page .ac-page-title-breadcrumb::after {
+    .ac-contact-page .ac-page-title-breadcrumb::after,
+    .ac-lease-page .ac-page-title-breadcrumb::before,
+    .ac-lease-page .ac-page-title-breadcrumb::after {
         background: rgba(120, 96, 58, 0.16);
     }
 
@@ -4945,12 +4949,16 @@
     .ac-assessment-page .front-scroll-breadcrumb-separator,
     .ac-contact-page .front-scroll-breadcrumb-link,
     .ac-contact-page .front-scroll-breadcrumb-current,
-    .ac-contact-page .front-scroll-breadcrumb-separator {
+    .ac-contact-page .front-scroll-breadcrumb-separator,
+    .ac-lease-page .front-scroll-breadcrumb-link,
+    .ac-lease-page .front-scroll-breadcrumb-current,
+    .ac-lease-page .front-scroll-breadcrumb-separator {
         color: #403a34;
     }
 
     .ac-assessment-page .ac-page-title-copy h1,
-    .ac-contact-page .ac-page-title-copy h1 {
+    .ac-contact-page .ac-page-title-copy h1,
+    .ac-lease-page .ac-page-title-copy h1 {
         color: #101820;
         font-size: clamp(1.95rem, 2.65vw, 2.65rem);
         font-weight: 700;
@@ -4966,7 +4974,12 @@
     .ac-contact-page .front-contact-form-head > p:last-child,
     .ac-contact-page .front-contact-panel-intro,
     .ac-contact-page .front-contact-help p,
-    .ac-contact-page .front-contact-office-body p {
+    .ac-contact-page .front-contact-office-body p,
+    .ac-lease-page .ac-page-title-copy > p,
+    .ac-lease-page .ac-lease-intro p,
+    .ac-lease-page .ac-lease-card-head p:last-child,
+    .ac-lease-page .ac-lease-results-head > p:last-child,
+    .ac-lease-page .ac-lease-disclaimer {
         color: #4f4a43;
     }
 
@@ -5896,6 +5909,138 @@
 
     .ac-lease-disclaimer a:hover {
         color: #ab8d52;
+    }
+
+    .ac-lease-page .ac-lease-card,
+    .ac-lease-page .ac-lease-table-wrap,
+    .ac-lease-page .ac-lease-results-empty {
+        border: 1px solid rgba(171, 141, 82, 0.12);
+        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.82);
+        box-shadow: none;
+    }
+
+    .ac-lease-page .ac-lease-card-head {
+        border-bottom-color: rgba(120, 96, 58, 0.14);
+        background: rgba(255, 255, 255, 0.58);
+    }
+
+    .ac-lease-page .ac-lease-kicker,
+    .ac-lease-page .ac-lease-row.is-output .ac-lease-row-label span {
+        color: #6f6255;
+    }
+
+    .ac-lease-page .ac-lease-card-head h2,
+    .ac-lease-page .ac-lease-results-head h2,
+    .ac-lease-page .ac-lease-row-label label,
+    .ac-lease-page .ac-lease-row-label span,
+    .ac-lease-page .ac-lease-output,
+    .ac-lease-page .ac-lease-calendar-title,
+    .ac-lease-page .ac-lease-disclaimer strong,
+    .ac-lease-page .ac-lease-disclaimer a {
+        color: #101820;
+    }
+
+    .ac-lease-page .ac-lease-row {
+        border-bottom-color: rgba(120, 96, 58, 0.14);
+    }
+
+    .ac-lease-page .ac-lease-input,
+    .ac-lease-page .ac-lease-output,
+    .ac-lease-page .ac-lease-date-field,
+    .ac-lease-page .ac-lease-calendar,
+    .ac-lease-page .ac-lease-calendar-year {
+        border-color: rgba(171, 141, 82, 0.18);
+        background: rgba(255, 255, 255, 0.92);
+    }
+
+    .ac-lease-page .ac-lease-output {
+        background: rgba(255, 255, 255, 0.62);
+    }
+
+    .ac-lease-page .ac-lease-input:focus,
+    .ac-lease-page .ac-lease-date-field:focus-within,
+    .ac-lease-page .ac-lease-date-field.is-open,
+    .ac-lease-page .ac-lease-calendar-year:focus {
+        border-color: rgba(171, 141, 82, 0.42);
+        box-shadow: 0 0 0 3px rgba(171, 141, 82, 0.16);
+    }
+
+    .ac-lease-page .ac-lease-date-trigger,
+    .ac-lease-page .ac-lease-calendar-nav {
+        background: rgba(171, 141, 82, 0.12);
+        color: #403a34;
+    }
+
+    .ac-lease-page .ac-lease-date-trigger:hover,
+    .ac-lease-page .ac-lease-calendar-nav:hover {
+        background: rgba(171, 141, 82, 0.2);
+        color: #101820;
+    }
+
+    .ac-lease-page .ac-lease-calendar-weekdays span {
+        color: #6f6255;
+    }
+
+    .ac-lease-page .ac-lease-calendar-day {
+        color: #403a34;
+    }
+
+    .ac-lease-page .ac-lease-calendar-day:hover {
+        background: rgba(171, 141, 82, 0.12);
+        color: #101820;
+    }
+
+    .ac-lease-page .ac-lease-calendar-day.is-selected {
+        border-color: #101820;
+        background: #101820;
+        color: #ffffff;
+    }
+
+    .ac-lease-page .ac-lease-submit {
+        border-color: #101820;
+        background: #101820;
+        color: #ffffff;
+    }
+
+    .ac-lease-page .ac-lease-submit:hover {
+        border-color: #123250;
+        background: #123250;
+        color: #ffffff;
+    }
+
+    .ac-lease-page .ac-lease-reset {
+        border-color: rgba(171, 141, 82, 0.22);
+        background: rgba(255, 255, 255, 0.72);
+        color: #101820;
+    }
+
+    .ac-lease-page .ac-lease-reset:hover {
+        border-color: rgba(171, 141, 82, 0.38);
+        background: rgba(255, 255, 255, 0.92);
+        color: #101820;
+    }
+
+    .ac-lease-page .ac-lease-table thead th {
+        background: #101820;
+        color: #ffffff;
+    }
+
+    .ac-lease-page .ac-lease-table thead th:first-child {
+        border-top-left-radius: 8px;
+    }
+
+    .ac-lease-page .ac-lease-table thead th:last-child {
+        border-top-right-radius: 8px;
+    }
+
+    .ac-lease-page .ac-lease-table tbody td {
+        border-top-color: rgba(120, 96, 58, 0.14);
+        color: #403a34;
+    }
+
+    .ac-lease-page .ac-lease-table tbody tr:nth-child(even) td {
+        background: rgba(255, 255, 255, 0.42);
     }
 
     @media (min-width: 761px) {
@@ -8507,6 +8652,7 @@
             .ac-career-page .ac-career-title-band,
             .ac-contact-page .ac-contact-title-band,
             .ac-assessment-page .ac-assessment-title-band,
+            .ac-lease-page .ac-lease-title-band,
             .ac-blog-page:not(.ac-blog-article-page) .ac-blog-title-band
         ) {
             padding: clamp(1.05rem, 2vw, 1.45rem) 0;
@@ -8519,6 +8665,7 @@
             .ac-career-page .ac-career-title-band,
             .ac-contact-page .ac-contact-title-band,
             .ac-assessment-page .ac-assessment-title-band,
+            .ac-lease-page .ac-lease-title-band,
             .ac-blog-page:not(.ac-blog-article-page) .ac-blog-title-band
         ) .ac-page-title-hero {
             display: grid;
@@ -8534,6 +8681,7 @@
             .ac-career-page .ac-career-title-band,
             .ac-contact-page .ac-contact-title-band,
             .ac-assessment-page .ac-assessment-title-band,
+            .ac-lease-page .ac-lease-title-band,
             .ac-blog-page:not(.ac-blog-article-page) .ac-blog-title-band
         ) .ac-page-title-panel {
             grid-column: 1;
@@ -8553,6 +8701,7 @@
             .ac-career-page .ac-career-title-band,
             .ac-contact-page .ac-contact-title-band,
             .ac-assessment-page .ac-assessment-title-band,
+            .ac-lease-page .ac-lease-title-band,
             .ac-blog-page:not(.ac-blog-article-page) .ac-blog-title-band
         ) .ac-page-title-copy {
             gap: 0.45rem;
@@ -8567,6 +8716,7 @@
             .ac-career-page .ac-career-title-band,
             .ac-contact-page .ac-contact-title-band,
             .ac-assessment-page .ac-assessment-title-band,
+            .ac-lease-page .ac-lease-title-band,
             .ac-blog-page:not(.ac-blog-article-page) .ac-blog-title-band
         ) .ac-page-title-copy h1 {
             font-size: clamp(1.75rem, 2.15vw, 2.25rem);
@@ -8580,6 +8730,7 @@
             .ac-career-page .ac-career-title-band,
             .ac-contact-page .ac-contact-title-band,
             .ac-assessment-page .ac-assessment-title-band,
+            .ac-lease-page .ac-lease-title-band,
             .ac-blog-page:not(.ac-blog-article-page) .ac-blog-title-band
         ) .ac-page-title-copy > p {
             max-width: 42rem;
@@ -8595,6 +8746,7 @@
             .ac-career-page .ac-career-title-band,
             .ac-contact-page .ac-contact-title-band,
             .ac-assessment-page .ac-assessment-title-band,
+            .ac-lease-page .ac-lease-title-band,
             .ac-blog-page:not(.ac-blog-article-page) .ac-blog-title-band
         ) .ac-page-title-breadcrumb {
             grid-column: 2;
@@ -8612,6 +8764,7 @@
             .ac-career-page .ac-career-title-band,
             .ac-contact-page .ac-contact-title-band,
             .ac-assessment-page .ac-assessment-title-band,
+            .ac-lease-page .ac-lease-title-band,
             .ac-blog-page:not(.ac-blog-article-page) .ac-blog-title-band
         ) .ac-page-title-breadcrumb::before,
         :is(
@@ -8621,6 +8774,7 @@
             .ac-career-page .ac-career-title-band,
             .ac-contact-page .ac-contact-title-band,
             .ac-assessment-page .ac-assessment-title-band,
+            .ac-lease-page .ac-lease-title-band,
             .ac-blog-page:not(.ac-blog-article-page) .ac-blog-title-band
         ) .ac-page-title-breadcrumb::after {
             content: none;

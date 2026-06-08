@@ -1,51 +1,67 @@
-@extends('front.desktop.layouts.store')
+<?php $__env->startSection('title', __('lease_calculator.page_title')); ?>
+<?php $__env->startSection('main_class', 'w-full px-0 py-0'); ?>
 
-@section('title', __('lease_calculator.page_title'))
-@section('main_class', 'w-full px-0 py-0')
-
-@section('content')
-    @php
+<?php $__env->startSection('content'); ?>
+    <?php
         $contactEmail = trim((string) ($storeSettings['footer']['email_support'] ?? '')) ?: 'info@alphacapitalis.com';
         $pageTitleBreadcrumbs = [
             ['label' => __('ui.front.desktop.footer.home'), 'url' => route('home')],
             ['label' => __('lease_calculator.page_title'), 'current' => true],
         ];
-    @endphp
+    ?>
 
     <div class="ac-lease-page" data-lease-calculator-root>
-        <x-front.page-title-band :breadcrumbs="$pageTitleBreadcrumbs" section-class="ac-lease-title-band">
+        <?php if (isset($component)) { $__componentOriginale6a101278d02d7bbbf9e98ee1142bf75 = $component; } ?>
+<?php if (isset($attributes)) { $__attributesOriginale6a101278d02d7bbbf9e98ee1142bf75 = $attributes; } ?>
+<?php $component = Illuminate\View\AnonymousComponent::resolve(['view' => 'components.front.page-title-band','data' => ['breadcrumbs' => $pageTitleBreadcrumbs,'sectionClass' => 'ac-lease-title-band']] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? $attributes->all() : [])); ?>
+<?php $component->withName('front.page-title-band'); ?>
+<?php if ($component->shouldRender()): ?>
+<?php $__env->startComponent($component->resolveView(), $component->data()); ?>
+<?php if (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag): ?>
+<?php $attributes = $attributes->except(\Illuminate\View\AnonymousComponent::ignoredParameterNames()); ?>
+<?php endif; ?>
+<?php $component->withAttributes(['breadcrumbs' => \Illuminate\View\Compilers\BladeCompiler::sanitizeComponentAttribute($pageTitleBreadcrumbs),'section-class' => 'ac-lease-title-band']); ?>
             <div class="ac-page-title-copy">
-                <h1>{{ __('lease_calculator.heading') }}</h1>
-                <p>{{ __('lease_calculator.subheading') }}</p>
+                <h1><?php echo e(__('lease_calculator.heading')); ?></h1>
+                <p><?php echo e(__('lease_calculator.subheading')); ?></p>
             </div>
-        </x-front.page-title-band>
+         <?php echo $__env->renderComponent(); ?>
+<?php endif; ?>
+<?php if (isset($__attributesOriginale6a101278d02d7bbbf9e98ee1142bf75)): ?>
+<?php $attributes = $__attributesOriginale6a101278d02d7bbbf9e98ee1142bf75; ?>
+<?php unset($__attributesOriginale6a101278d02d7bbbf9e98ee1142bf75); ?>
+<?php endif; ?>
+<?php if (isset($__componentOriginale6a101278d02d7bbbf9e98ee1142bf75)): ?>
+<?php $component = $__componentOriginale6a101278d02d7bbbf9e98ee1142bf75; ?>
+<?php unset($__componentOriginale6a101278d02d7bbbf9e98ee1142bf75); ?>
+<?php endif; ?>
 
         <section class="ac-lease-shell">
             <div class="mx-auto w-full max-w-[1320px] px-4 sm:px-6 lg:px-8">
                 <div class="ac-lease-intro">
-                    <p>{{ __('lease_calculator.intro') }}</p>
+                    <p><?php echo e(__('lease_calculator.intro')); ?></p>
                 </div>
 
                 <section class="ac-lease-card">
                     <div class="ac-lease-card-head">
-                        <p class="ac-lease-kicker">{{ __('lease_calculator.form.kicker') }}</p>
-                        <h2>{{ __('lease_calculator.form.title') }}</h2>
-                        <p>{{ __('lease_calculator.form.intro') }}</p>
+                        <p class="ac-lease-kicker"><?php echo e(__('lease_calculator.form.kicker')); ?></p>
+                        <h2><?php echo e(__('lease_calculator.form.title')); ?></h2>
+                        <p><?php echo e(__('lease_calculator.form.intro')); ?></p>
                     </div>
 
                     <form
                         class="ac-lease-form"
                         data-lease-calculator
-                        data-locale="{{ app()->getLocale() }}"
-                        data-error-required="{{ __('lease_calculator.form.validation_required') }}"
-                        data-error-range="{{ __('lease_calculator.form.validation_range') }}"
-                        data-error-numeric="{{ __('lease_calculator.form.validation_numeric') }}"
+                        data-locale="<?php echo e(app()->getLocale()); ?>"
+                        data-error-required="<?php echo e(__('lease_calculator.form.validation_required')); ?>"
+                        data-error-range="<?php echo e(__('lease_calculator.form.validation_range')); ?>"
+                        data-error-numeric="<?php echo e(__('lease_calculator.form.validation_numeric')); ?>"
                         novalidate
                     >
                         <div class="ac-lease-rows">
                             <div class="ac-lease-row">
                                 <div class="ac-lease-row-label">
-                                    <label for="lease-start-date">{{ __('lease_calculator.form.start_date') }}</label>
+                                    <label for="lease-start-date"><?php echo e(__('lease_calculator.form.start_date')); ?></label>
                                 </div>
                                 <div class="ac-lease-row-control">
                                     <div class="ac-lease-date-field" data-lease-date-field="lease-start-date">
@@ -56,7 +72,7 @@
                                             class="ac-lease-date-trigger"
                                             data-lease-date-trigger="lease-start-date"
                                             aria-expanded="false"
-                                            aria-label="{{ __('lease_calculator.form.open_calendar') }}: {{ __('lease_calculator.form.start_date') }}"
+                                            aria-label="<?php echo e(__('lease_calculator.form.open_calendar')); ?>: <?php echo e(__('lease_calculator.form.start_date')); ?>"
                                         >
                                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" aria-hidden="true">
                                                 <rect x="3" y="5" width="18" height="16" rx="2"></rect>
@@ -65,15 +81,15 @@
                                         </button>
                                         <div class="ac-lease-calendar" data-lease-calendar-panel hidden>
                                             <div class="ac-lease-calendar-head">
-                                                <button type="button" class="ac-lease-calendar-nav" data-lease-calendar-prev aria-label="{{ __('lease_calculator.form.previous_month') }}">
+                                                <button type="button" class="ac-lease-calendar-nav" data-lease-calendar-prev aria-label="<?php echo e(__('lease_calculator.form.previous_month')); ?>">
                                                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.9" aria-hidden="true">
                                                         <path d="M15 18l-6-6 6-6"></path>
                                                     </svg>
                                                 </button>
                                                 <div class="ac-lease-calendar-title" data-lease-calendar-title></div>
-                                                <label class="sr-only" for="lease-start-year">{{ __('lease_calculator.form.select_year') }}</label>
+                                                <label class="sr-only" for="lease-start-year"><?php echo e(__('lease_calculator.form.select_year')); ?></label>
                                                 <select id="lease-start-year" class="ac-lease-calendar-year" data-lease-calendar-year></select>
-                                                <button type="button" class="ac-lease-calendar-nav" data-lease-calendar-next aria-label="{{ __('lease_calculator.form.next_month') }}">
+                                                <button type="button" class="ac-lease-calendar-nav" data-lease-calendar-next aria-label="<?php echo e(__('lease_calculator.form.next_month')); ?>">
                                                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.9" aria-hidden="true">
                                                         <path d="M9 18l6-6-6-6"></path>
                                                     </svg>
@@ -88,7 +104,7 @@
 
                             <div class="ac-lease-row">
                                 <div class="ac-lease-row-label">
-                                    <label for="lease-monthly-payment">{{ __('lease_calculator.form.monthly_payment') }}</label>
+                                    <label for="lease-monthly-payment"><?php echo e(__('lease_calculator.form.monthly_payment')); ?></label>
                                 </div>
                                 <div class="ac-lease-row-control">
                                     <input
@@ -97,14 +113,14 @@
                                         name="monthly_payment"
                                         class="ac-lease-input"
                                         inputmode="decimal"
-                                        placeholder="{{ __('lease_calculator.form.monthly_payment_placeholder') }}"
+                                        placeholder="<?php echo e(__('lease_calculator.form.monthly_payment_placeholder')); ?>"
                                     >
                                 </div>
                             </div>
 
                             <div class="ac-lease-row">
                                 <div class="ac-lease-row-label">
-                                    <label for="lease-interest-rate">{{ __('lease_calculator.form.interest_rate') }}</label>
+                                    <label for="lease-interest-rate"><?php echo e(__('lease_calculator.form.interest_rate')); ?></label>
                                 </div>
                                 <div class="ac-lease-row-control">
                                     <input
@@ -113,14 +129,14 @@
                                         name="interest_rate"
                                         class="ac-lease-input"
                                         inputmode="decimal"
-                                        placeholder="{{ __('lease_calculator.form.interest_rate_placeholder') }}"
+                                        placeholder="<?php echo e(__('lease_calculator.form.interest_rate_placeholder')); ?>"
                                     >
                                 </div>
                             </div>
 
                             <div class="ac-lease-row">
                                 <div class="ac-lease-row-label">
-                                    <label for="lease-end-date">{{ __('lease_calculator.form.end_date') }}</label>
+                                    <label for="lease-end-date"><?php echo e(__('lease_calculator.form.end_date')); ?></label>
                                 </div>
                                 <div class="ac-lease-row-control">
                                     <div class="ac-lease-date-field" data-lease-date-field="lease-end-date">
@@ -131,7 +147,7 @@
                                             class="ac-lease-date-trigger"
                                             data-lease-date-trigger="lease-end-date"
                                             aria-expanded="false"
-                                            aria-label="{{ __('lease_calculator.form.open_calendar') }}: {{ __('lease_calculator.form.end_date') }}"
+                                            aria-label="<?php echo e(__('lease_calculator.form.open_calendar')); ?>: <?php echo e(__('lease_calculator.form.end_date')); ?>"
                                         >
                                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" aria-hidden="true">
                                                 <rect x="3" y="5" width="18" height="16" rx="2"></rect>
@@ -140,15 +156,15 @@
                                         </button>
                                         <div class="ac-lease-calendar" data-lease-calendar-panel hidden>
                                             <div class="ac-lease-calendar-head">
-                                                <button type="button" class="ac-lease-calendar-nav" data-lease-calendar-prev aria-label="{{ __('lease_calculator.form.previous_month') }}">
+                                                <button type="button" class="ac-lease-calendar-nav" data-lease-calendar-prev aria-label="<?php echo e(__('lease_calculator.form.previous_month')); ?>">
                                                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.9" aria-hidden="true">
                                                         <path d="M15 18l-6-6 6-6"></path>
                                                     </svg>
                                                 </button>
                                                 <div class="ac-lease-calendar-title" data-lease-calendar-title></div>
-                                                <label class="sr-only" for="lease-end-year">{{ __('lease_calculator.form.select_year') }}</label>
+                                                <label class="sr-only" for="lease-end-year"><?php echo e(__('lease_calculator.form.select_year')); ?></label>
                                                 <select id="lease-end-year" class="ac-lease-calendar-year" data-lease-calendar-year></select>
-                                                <button type="button" class="ac-lease-calendar-nav" data-lease-calendar-next aria-label="{{ __('lease_calculator.form.next_month') }}">
+                                                <button type="button" class="ac-lease-calendar-nav" data-lease-calendar-next aria-label="<?php echo e(__('lease_calculator.form.next_month')); ?>">
                                                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.9" aria-hidden="true">
                                                         <path d="M9 18l6-6-6-6"></path>
                                                     </svg>
@@ -163,7 +179,7 @@
 
                             <div class="ac-lease-row is-output" data-lease-output-row hidden>
                                 <div class="ac-lease-row-label">
-                                    <span>{{ __('lease_calculator.outputs.months') }}</span>
+                                    <span><?php echo e(__('lease_calculator.outputs.months')); ?></span>
                                 </div>
                                 <div class="ac-lease-row-control">
                                     <output class="ac-lease-output" data-lease-output="months">—</output>
@@ -172,7 +188,7 @@
 
                             <div class="ac-lease-row is-output" data-lease-output-row hidden>
                                 <div class="ac-lease-row-label">
-                                    <span>{{ __('lease_calculator.outputs.total_lease') }}</span>
+                                    <span><?php echo e(__('lease_calculator.outputs.total_lease')); ?></span>
                                 </div>
                                 <div class="ac-lease-row-control">
                                     <output class="ac-lease-output" data-lease-output="total_lease">—</output>
@@ -181,7 +197,7 @@
 
                             <div class="ac-lease-row is-output" data-lease-output-row hidden>
                                 <div class="ac-lease-row-label">
-                                    <span>{{ __('lease_calculator.outputs.initial_liability') }}</span>
+                                    <span><?php echo e(__('lease_calculator.outputs.initial_liability')); ?></span>
                                 </div>
                                 <div class="ac-lease-row-control">
                                     <output class="ac-lease-output" data-lease-output="initial_liability">—</output>
@@ -190,7 +206,7 @@
 
                             <div class="ac-lease-row is-output" data-lease-output-row hidden>
                                 <div class="ac-lease-row-label">
-                                    <span>{{ __('lease_calculator.outputs.monthly_depreciation') }}</span>
+                                    <span><?php echo e(__('lease_calculator.outputs.monthly_depreciation')); ?></span>
                                 </div>
                                 <div class="ac-lease-row-control">
                                     <output class="ac-lease-output" data-lease-output="monthly_depreciation">—</output>
@@ -199,7 +215,7 @@
 
                             <div class="ac-lease-row is-output" data-lease-output-row hidden>
                                 <div class="ac-lease-row-label">
-                                    <span>{{ __('lease_calculator.outputs.interest_total') }}</span>
+                                    <span><?php echo e(__('lease_calculator.outputs.interest_total')); ?></span>
                                 </div>
                                 <div class="ac-lease-row-control">
                                     <output class="ac-lease-output" data-lease-output="interest_total">—</output>
@@ -210,30 +226,30 @@
                         <p class="ac-lease-form-error" data-lease-error hidden></p>
 
                         <div class="ac-lease-form-actions">
-                            <button type="submit" class="ac-lease-submit">{{ __('lease_calculator.form.calculate') }}</button>
-                            <button type="reset" class="ac-lease-reset">{{ __('lease_calculator.form.reset') }}</button>
+                            <button type="submit" class="ac-lease-submit"><?php echo e(__('lease_calculator.form.calculate')); ?></button>
+                            <button type="reset" class="ac-lease-reset"><?php echo e(__('lease_calculator.form.reset')); ?></button>
                         </div>
                     </form>
                 </section>
 
                 <section class="ac-lease-results" data-lease-results hidden>
                     <div class="ac-lease-results-head">
-                        <p class="ac-lease-kicker">{{ __('lease_calculator.results.kicker') }}</p>
-                        <h2>{{ __('lease_calculator.results.title') }}</h2>
-                        <p>{{ __('lease_calculator.results.intro') }}</p>
+                        <p class="ac-lease-kicker"><?php echo e(__('lease_calculator.results.kicker')); ?></p>
+                        <h2><?php echo e(__('lease_calculator.results.title')); ?></h2>
+                        <p><?php echo e(__('lease_calculator.results.intro')); ?></p>
                     </div>
 
                     <div class="ac-lease-table-wrap" data-lease-results-table hidden>
                         <table class="ac-lease-table">
                             <thead>
                                 <tr>
-                                    <th>{{ __('lease_calculator.results.period') }}</th>
-                                    <th>{{ __('lease_calculator.results.date') }}</th>
-                                    <th>{{ __('lease_calculator.results.lease_liability') }}</th>
-                                    <th>{{ __('lease_calculator.results.liability_reduction') }}</th>
-                                    <th>{{ __('lease_calculator.results.depreciation_expense') }}</th>
-                                    <th>{{ __('lease_calculator.results.lease_payment') }}</th>
-                                    <th>{{ __('lease_calculator.results.interest_expense') }}</th>
+                                    <th><?php echo e(__('lease_calculator.results.period')); ?></th>
+                                    <th><?php echo e(__('lease_calculator.results.date')); ?></th>
+                                    <th><?php echo e(__('lease_calculator.results.lease_liability')); ?></th>
+                                    <th><?php echo e(__('lease_calculator.results.liability_reduction')); ?></th>
+                                    <th><?php echo e(__('lease_calculator.results.depreciation_expense')); ?></th>
+                                    <th><?php echo e(__('lease_calculator.results.lease_payment')); ?></th>
+                                    <th><?php echo e(__('lease_calculator.results.interest_expense')); ?></th>
                                 </tr>
                             </thead>
                             <tbody data-lease-results-body></tbody>
@@ -241,16 +257,17 @@
                     </div>
 
                     <p class="ac-lease-disclaimer">
-                        <strong>{{ __('lease_calculator.disclaimer_label') }}:</strong>
-                        {{ __('lease_calculator.disclaimer') }}
-                        <a href="mailto:{{ $contactEmail }}">{{ $contactEmail }}</a>.
+                        <strong><?php echo e(__('lease_calculator.disclaimer_label')); ?>:</strong>
+                        <?php echo e(__('lease_calculator.disclaimer')); ?>
+
+                        <a href="mailto:<?php echo e($contactEmail); ?>"><?php echo e($contactEmail); ?></a>.
                     </p>
                 </section>
             </div>
         </section>
     </div>
 
-    @push('scripts')
+    <?php $__env->startPush('scripts'); ?>
         <script>
             (function () {
                 const root = document.querySelector('[data-lease-calculator-root]');
@@ -830,5 +847,7 @@
                 resetResults();
             }());
         </script>
-    @endpush
-@endsection
+    <?php $__env->stopPush(); ?>
+<?php $__env->stopSection(); ?>
+
+<?php echo $__env->make('front.desktop.layouts.store', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH /Users/tomek/Herd/info/resources/views/front/desktop/tools/lease-calculator.blade.php ENDPATH**/ ?>
