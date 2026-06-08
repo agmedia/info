@@ -228,7 +228,8 @@
                                 <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($story['list'] !== []): ?>
                                     <ul class="ac-career-story-list">
                                         <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $story['list']; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $item): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                                            <li><?php echo e($item); ?></li>
+
+                                            <li> <span aria-hidden="true">✓</span> <?php echo e($item); ?></li>
                                         <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                                     </ul>
                                 <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
@@ -731,7 +732,7 @@ unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendB
         .ac-career-openings {
             position: relative;
             overflow: hidden;
-            padding: clamp(3rem, 6vw, 5.8rem) 0 clamp(5.2rem, 8vw, 7.4rem);
+            padding: clamp(3rem, 6vw, 5.8rem) 0 clamp(5.2rem, 8vw, 5.4rem);
             border-bottom: 1px solid var(--ac-career-section-line);
         }
 

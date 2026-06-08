@@ -480,7 +480,7 @@
 
         .ac-about-title-band {
             margin-bottom: 0;
-            background: var(--ac-about-bg-warm);
+            background-color: var(--ac-about-bg-warm);
             border-top-color: transparent;
             border-bottom-color: rgba(15, 42, 67, 0.08);
         }
@@ -523,21 +523,21 @@
 
         .ac-about-hero {
             padding: clamp(3.8rem, 6.5vw, 7rem) 0 clamp(4.8rem, 8vw, 8rem);
-            background: var(--ac-about-bg-warm);
+            background-color: var(--ac-about-bg-warm);
         }
 
         .ac-about-values,
         .ac-about-team,
         .ac-about-responsibility {
             padding: clamp(3rem, 6vw, 5.8rem) 0 clamp(5.2rem, 8vw, 7.4rem);
-            background: var(--ac-about-bg-light);
+            background-color: var(--ac-about-bg-light);
         }
 
         .ac-about-why,
         .ac-about-culture,
         .ac-about-references {
             padding: clamp(3rem, 6vw, 5.8rem) 0 clamp(5.2rem, 8vw, 7.4rem);
-            background: var(--ac-about-bg-warm);
+            background-color: var(--ac-about-bg-warm);
         }
 
         .ac-about-hero-grid {
@@ -658,26 +658,16 @@
 
         .ac-about-hero-media {
             position: relative;
-            display: grid;
-            align-content: start;
             justify-self: end;
-            width: min(100%, 38rem);
-            gap: 0.75rem;
-            min-height: 0;
+            width: min(100%, 43rem);
+            min-height: clamp(34rem, 44vw, 42rem);
         }
 
-        .ac-about-hero-collage {
-            position: relative;
-            display: grid;
-            grid-template-columns: repeat(2, minmax(0, 1fr));
-            gap: 0.75rem;
-        }
-
+        .ac-about-hero-collage,
         .ac-about-hero-bottom {
-            display: grid;
-            grid-template-columns: repeat(2, minmax(0, 1fr));
-            gap: 0.75rem;
-            align-items: stretch;
+            position: absolute;
+            inset: 0;
+            display: block;
         }
 
         .ac-about-image,
@@ -693,7 +683,7 @@
         }
 
         .ac-about-image {
-            position: relative;
+            position: absolute;
             overflow: hidden;
             background: #fff;
             box-shadow: 0 22px 46px rgba(15, 42, 67, 0.12);
@@ -707,33 +697,46 @@
         }
 
         .ac-about-image--large {
-            grid-column: 1 / -1;
+            top: 0;
+            left: 47%;
             z-index: 1;
-            aspect-ratio: 16 / 8.4;
+            width: 60%;
+            height: 44%;
         }
 
         .ac-about-image--team {
+            top: 13%;
+            left: 0;
             z-index: 2;
-            aspect-ratio: 4 / 2.8;
+            width: 43%;
+            height: 31%;
         }
 
         .ac-about-image--workshop {
+            left: 8%;
+            bottom: 6%;
             z-index: 1;
-            aspect-ratio: 4 / 2.8;
+            width: 43%;
+            height: 33%;
         }
 
         .ac-about-image--bottom {
+            right: 6%;
+            bottom: 9%;
             z-index: 1;
-            aspect-ratio: 4 / 2.8;
+            width: 38%;
+            height: 43%;
         }
 
         .ac-about-stat-card {
-            position: relative;
-            z-index: 1;
+            position: absolute;
+            right: 0;
+            bottom: 0;
+            z-index: 3;
             display: grid;
             align-content: center;
             gap: 0.25rem;
-            width: 100%;
+            width: min(16rem, 34%);
             padding: 1.1rem;
             background: rgba(255, 255, 255, 0.94);
             color: #101820;
@@ -916,18 +919,7 @@
             grid-template-rows: minmax(0, 1fr);
             min-height: clamp(14rem, 32vw, 31.25rem);
             border-color: rgba(154, 119, 61, 0.18);
-            background:
-                linear-gradient(135deg, rgba(154, 119, 61, 0.1) 0%, rgba(154, 119, 61, 0) 46%),
-                linear-gradient(180deg, #ffffff 0%, #fbf7ef 100%);
-        }
-
-        .ac-about-member-cta-card::before {
-            content: '';
-            position: absolute;
-            inset: 1rem;
-            border: 1px solid rgba(154, 119, 61, 0.14);
-            border-radius: 6px;
-            pointer-events: none;
+            background: #fff;
         }
 
         .ac-about-member-cta-link {
@@ -1167,7 +1159,8 @@
                 gap: 0.75rem;
             }
 
-            .ac-about-hero-collage {
+            .ac-about-hero-collage,
+            .ac-about-hero-bottom {
                 position: relative;
                 inset: auto;
                 display: grid;
@@ -1175,15 +1168,12 @@
                 gap: 0.75rem;
             }
 
-            .ac-about-hero-bottom {
-                grid-template-columns: repeat(2, minmax(0, 1fr));
-            }
-
             .ac-about-image,
             .ac-about-stat-card {
                 position: relative;
                 inset: auto;
                 width: auto;
+                height: auto;
             }
 
             .ac-about-image {
@@ -1201,14 +1191,66 @@
                 aspect-ratio: 4 / 3;
             }
 
-            .ac-about-value-grid,
-            .ac-about-stat-grid,
-            .ac-about-member-grid {
+            .ac-about-value-grid {
                 grid-template-columns: minmax(0, 1fr);
             }
 
+            .ac-about-stat-grid,
+            .ac-about-member-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+
+            .ac-about-stat-grid {
+                gap: 0.55rem;
+                margin-top: 1.35rem;
+            }
+
+            .ac-about-stat-item {
+                min-height: 6.15rem;
+                padding: 0.78rem;
+            }
+
+            .ac-about-stat-item strong {
+                font-size: 1.95rem;
+            }
+
+            .ac-about-stat-item span {
+                font-size: 0.76rem;
+                line-height: 1.32;
+            }
+
+            .ac-about-member-grid {
+                gap: 0.55rem;
+            }
+
             .ac-about-member-photo {
-                aspect-ratio: 4 / 4.85;
+                aspect-ratio: 4 / 5.1;
+            }
+
+            .ac-about-member-card > div:last-child {
+                min-height: 4.9rem;
+                padding: 0.72rem;
+            }
+
+            .ac-about-member-card h3 {
+                font-size: 0.88rem;
+                line-height: 1.16;
+            }
+
+            .ac-about-member-card p {
+                margin-top: 0.34rem;
+                font-size: 0.64rem;
+                line-height: 1.35;
+            }
+
+            .ac-about-member-cta-card {
+                min-height: auto;
+            }
+
+            .ac-about-member-cta-button {
+                min-height: 2.5rem;
+                padding: 0.7rem 0.76rem;
+                font-size: 0.66rem;
             }
 
             .ac-about-value-card {

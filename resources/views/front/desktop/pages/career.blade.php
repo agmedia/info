@@ -216,7 +216,8 @@
                                 @if ($story['list'] !== [])
                                     <ul class="ac-career-story-list">
                                         @foreach ($story['list'] as $item)
-                                            <li>{{ $item }}</li>
+
+                                            <li> <span aria-hidden="true">✓</span> {{ $item }}</li>
                                         @endforeach
                                     </ul>
                                 @endif
@@ -669,7 +670,7 @@
         .ac-career-openings {
             position: relative;
             overflow: hidden;
-            padding: clamp(3rem, 6vw, 5.8rem) 0 clamp(5.2rem, 8vw, 7.4rem);
+            padding: clamp(3rem, 6vw, 5.8rem) 0 clamp(5.2rem, 8vw, 5.4rem);
             border-bottom: 1px solid var(--ac-career-section-line);
         }
 

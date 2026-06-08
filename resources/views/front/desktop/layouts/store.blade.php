@@ -66,6 +66,276 @@
     </script>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @stack('styles')
+    <style>
+        .front-desktop-shell {
+            --front-cream-title-bg: #f6f1e7;
+            --front-fixed-watermark: url("{{ asset('front-theme/images/bck-logo.png') }}");
+            --front-fixed-watermark-size: clamp(38rem, 58vw, 70rem);
+        }
+
+        .front-desktop-shell :is(
+            .ac-about-page,
+            .ac-team-page,
+            .ac-references-page,
+            .ac-career-page,
+            .ac-contact-page,
+            .ac-assessment-page,
+            .ac-blog-page,
+            .ac-family-business-page
+        ) {
+            position: relative;
+        }
+
+        .front-desktop-shell :is(
+            .ac-family-hero,
+            .ac-service-hero,
+            .front-hero-video-section
+        ) {
+            position: relative;
+            z-index: 4;
+        }
+
+        .front-fixed-watermark {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 2;
+            overflow: hidden;
+            pointer-events: none;
+        }
+
+        .front-desktop-shell:has(:is(
+            .ac-about-page,
+            .ac-team-page,
+            .ac-references-page,
+            .ac-career-page,
+            .ac-contact-page,
+            .ac-assessment-page,
+            .ac-blog-page,
+            .ac-family-business-page
+        )) .front-fixed-watermark {
+            display: block;
+        }
+
+        .front-fixed-watermark::before {
+            content: "";
+            position: absolute;
+            top: 50%;
+            left: 0;
+            width: var(--front-fixed-watermark-size);
+            aspect-ratio: 1 / 1;
+            transform: translate(-18%, -50%);
+            background-image: var(--front-fixed-watermark);
+            background-position: center center;
+            background-repeat: no-repeat;
+            background-size: contain;
+            pointer-events: none;
+        }
+
+        .front-content-shell {
+            isolation: isolate;
+            position: relative;
+            z-index: 1;
+        }
+
+        .front-desktop-shell:has(:is(
+            .ac-about-page,
+            .ac-team-page,
+            .ac-references-page,
+            .ac-career-page,
+            .ac-contact-page,
+            .ac-assessment-page,
+            .ac-blog-page,
+            .ac-family-business-page
+        )) .front-content-shell {
+            background: transparent;
+        }
+
+        .front-header-meta,
+        .front-site-header,
+        .front-footer {
+            position: relative;
+            z-index: 3;
+        }
+
+        .front-desktop-shell :is(
+            .ac-about-page .ac-about-title-band,
+            .ac-team-page .ac-team-title-band,
+            .ac-references-page .ac-references-title-band,
+            .ac-career-page .ac-career-title-band,
+            .ac-contact-page .ac-contact-title-band,
+            .ac-assessment-page .ac-assessment-title-band,
+            .ac-blog-page .ac-blog-title-band
+        ) {
+            background-image: none;
+            isolation: auto;
+        }
+
+        .front-desktop-shell :is(
+            .ac-about-page .ac-about-title-band,
+            .ac-team-page .ac-team-title-band,
+            .ac-references-page .ac-references-title-band,
+            .ac-career-page .ac-career-title-band,
+            .ac-contact-page .ac-contact-title-band,
+            .ac-assessment-page .ac-assessment-title-band,
+            .ac-blog-page .ac-blog-title-band
+        ) :is(
+            .ac-page-title-hero,
+            .ac-page-title-breadcrumb,
+            .ac-page-title-panel,
+            .ac-page-title-copy,
+            .ac-blog-article-head,
+            .ac-blog-article-title,
+            .ac-blog-article-meta
+        ) {
+            position: relative;
+            z-index: 5;
+        }
+
+        .front-desktop-shell :is(
+            .ac-about-title-band,
+            .ac-about-hero,
+            .ac-about-values,
+            .ac-about-why,
+            .ac-about-team,
+            .ac-about-culture,
+            .ac-about-responsibility,
+            .ac-about-references,
+            .ac-team-title-band,
+            .ac-team-section,
+            .ac-references-title-band,
+            .ac-references-section,
+            .ac-career-title-band,
+            .ac-career-hero,
+            .ac-career-impact,
+            .ac-career-stories,
+            .ac-career-openings,
+            .ac-contact-title-band,
+            .front-contact-offices-shell,
+            .front-contact-content-shell,
+            .front-contact-map-shell,
+            .ac-assessment-title-band,
+            .ac-blog-title-band,
+            .ac-blog-list-shell,
+            .ac-blog-article-shell,
+            .ac-blog-related-section,
+            .ac-inline-cta,
+            .ac-audit-editorial-wrap,
+            .ac-service-cta-section,
+            .ac-audit-blog-section,
+            .ac-family-section
+        ) {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .front-desktop-shell :is(
+            .ac-about-title-band,
+            .ac-about-hero,
+            .ac-about-values,
+            .ac-about-why,
+            .ac-about-team,
+            .ac-about-culture,
+            .ac-about-responsibility,
+            .ac-about-references,
+            .ac-team-title-band,
+            .ac-team-section,
+            .ac-references-title-band,
+            .ac-references-section,
+            .ac-career-title-band,
+            .ac-career-hero,
+            .ac-career-impact,
+            .ac-career-stories,
+            .ac-career-openings,
+            .ac-contact-title-band,
+            .front-contact-offices-shell,
+            .front-contact-content-shell,
+            .front-contact-map-shell,
+            .ac-assessment-title-band,
+            .ac-blog-title-band,
+            .ac-blog-list-shell,
+            .ac-blog-article-shell,
+            .ac-blog-related-section,
+            .ac-inline-cta,
+            .ac-audit-editorial-wrap,
+            .ac-service-cta-section,
+            .ac-audit-blog-section,
+            .ac-family-section
+        ) > * {
+            position: relative;
+            z-index: 5;
+        }
+
+        .front-desktop-shell .ac-inline-cta {
+            z-index: auto;
+        }
+
+        .front-desktop-shell .ac-inline-cta :is(
+            .ac-inline-cta-card,
+            .ac-inline-cta-copy,
+            .ac-inline-cta-title,
+            .ac-inline-cta-action,
+            .front-action-cta
+        ) {
+            position: relative;
+            z-index: 5;
+        }
+
+        .front-desktop-shell .front-contact-map-shell :is(
+            .front-contact-map-tabs,
+            .front-contact-map-tab,
+            .front-contact-map-stage,
+            .front-contact-map-panel,
+            .front-contact-map-frame,
+            .front-contact-map-frame iframe
+        ) {
+            position: relative;
+            z-index: 5;
+        }
+
+        .front-desktop-shell:is(
+            .front-route-audit,
+            .front-route-accounting,
+            .front-route-advisory,
+            .front-route-eu-funds
+        ) :is(
+            .ac-audit-editorial-wrap > .mx-auto,
+            .ac-audit-blog-section > .mx-auto
+        ) {
+            z-index: auto;
+        }
+
+        .front-desktop-shell:is(
+            .front-route-audit,
+            .front-route-accounting,
+            .front-route-advisory,
+            .front-route-eu-funds
+        ) .ac-audit-editorial-section {
+            z-index: auto;
+        }
+
+        .front-desktop-shell:is(
+            .front-route-audit,
+            .front-route-accounting,
+            .front-route-advisory,
+            .front-route-eu-funds
+        ) .ac-audit-editorial-section::before {
+            z-index: 0;
+        }
+
+        .front-desktop-shell:is(
+            .front-route-audit,
+            .front-route-accounting,
+            .front-route-advisory,
+            .front-route-eu-funds
+        ) :is(
+            .ac-audit-editorial-section > *,
+            .ac-audit-blog-section > .mx-auto > *
+        ) {
+            position: relative;
+            z-index: 5;
+        }
+    </style>
 </head>
 @php
     $mainNavigation = app(\App\Services\Front\NavigationMenuService::class)->forLocale((string) app()->getLocale());
@@ -401,6 +671,7 @@
 @endif
 
 <main @if (request()->routeIs('home')) id="usluge" @endif class="front-content-shell @yield('main_class', 'mx-auto w-full max-w-7xl px-6 py-10')">
+    <div class="front-fixed-watermark" aria-hidden="true"></div>
     @include('front.desktop.partials.flash')
     @yield('content')
 </main>
