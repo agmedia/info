@@ -21,6 +21,7 @@ use App\Http\Controllers\Front\FaqController;
 use App\Http\Controllers\Front\GlossaryController;
 use App\Http\Controllers\Front\LeaseCalculatorController;
 use App\Http\Controllers\Front\PageController;
+use App\Http\Controllers\Front\PublicStorageController;
 use App\Http\Controllers\Front\SearchController;
 use App\Http\Controllers\Front\ServicesController;
 use App\Http\Controllers\Front\ResourceController;
@@ -43,6 +44,10 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
+
+Route::get('storage/{path}', PublicStorageController::class)
+    ->where('path', '.*')
+    ->name('public-storage.show');
 
 Route::middleware(['front.locale', 'front.device'])
     ->group(function (): void {
