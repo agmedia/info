@@ -430,7 +430,7 @@
             ['label' => 'Početna', 'url' => $homeUrl, 'children' => []],
             ['label' => 'Usluge', 'url' => route('services.index'), 'children' => []],
             ['label' => 'O nama', 'url' => route('pages.show', ['slug' => 'o-nama']), 'children' => []],
-            ['label' => 'Karijere', 'url' => route('pages.show', ['slug' => 'karijera']), 'children' => []],
+            ['label' => 'Karijera', 'url' => route('pages.show', ['slug' => 'karijera']), 'children' => []],
             ['label' => 'Objave', 'url' => route('blog.index'), 'children' => []],
             ['label' => 'Kontakt', 'url' => route('contact.create'), 'children' => []],
         ];
