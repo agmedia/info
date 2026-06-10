@@ -618,7 +618,7 @@
             <div class="front-hero-video-content absolute inset-0 flex items-center justify-center px-6 text-center">
                 <div>
                     <h1 class="front-hero-video-title text-white">ALPHA CAPITALIS</h1>
-                    <p class="front-hero-video-subtitle mt-5 text-white/90">VAŠ KOMPAS KROZ GENERACIJE</p>
+                    <p class="front-hero-video-subtitle mt-5 text-white/90">VAŠ KOMPAS KROZ SVIJET FINANCIJA</p>
                     <div class="front-hero-cta-row mt-8 flex flex-wrap items-center justify-center gap-3">
                         <a href="{{ route('services.index') }}" class="front-hero-cta front-hero-cta-primary inline-flex items-center justify-center px-6 py-3 text-[11px] font-semibold uppercase tracking-[0.12em]">
                             Naše usluge
