@@ -15,35 +15,12 @@
     $aboutTeamMembers = collect($aboutTeamMembers ?? [])->values();
     $aboutPreviewTeamMembers = $aboutTeamMembers->take(3)->values();
     $aboutReferenceItems = collect($aboutReferenceItems ?? [])->values();
-    $aboutHeroPhotos = [
-        [
-            'class' => 'ac-about-image--large',
-            'src' => asset('front-theme/images/about/alpha-about-office-zagreb.jpg'),
-            'alt' => str_starts_with(strtolower((string) $locale), 'hr')
-                ? 'ALPHA CAPITALIS tim u zagrebačkom uredu'
-                : 'ALPHA CAPITALIS team in the Zagreb office',
-        ],
-        [
-            'class' => 'ac-about-image--team',
-            'src' => asset('front-theme/images/about/alpha-about-team.jpg'),
-            'alt' => str_starts_with(strtolower((string) $locale), 'hr')
-                ? 'ALPHA CAPITALIS tim u uredu'
-                : 'ALPHA CAPITALIS team in the office',
-        ],
-        [
-            'class' => 'ac-about-image--workshop',
-            'src' => asset('front-theme/images/about/alpha-about-workshop.jpg'),
-            'alt' => str_starts_with(strtolower((string) $locale), 'hr')
-                ? 'Timska radionica u uredskom prostoru'
-                : 'Team workshop in an office space',
-        ],
-    ];
-    $aboutBottomPhoto = [
-        'class' => 'ac-about-image--bottom',
-        'src' => asset('front-theme/images/careers/alpha-career-workshop-room.jpg'),
+    $aboutHeroPhoto = [
+        'class' => 'ac-about-image--hero',
+        'src' => asset('front-theme/images/about/o-nama-alpha-capitalis.jpg'),
         'alt' => str_starts_with(strtolower((string) $locale), 'hr')
-            ? 'Timski razgovor u ALPHA CAPITALIS uredu'
-            : 'Team discussion in the ALPHA CAPITALIS office',
+            ? 'ALPHA CAPITALIS tim'
+            : 'ALPHA CAPITALIS team',
     ];
     $referencePageUrl = route('pages.show', ['slug' => 'reference']);
     $teamButtonLabel = str_starts_with(strtolower((string) $locale), 'hr') ? 'Upoznaj cijeli tim' : 'Meet the full team';
@@ -127,38 +104,21 @@
                     </div>
 
                     <div class="ac-about-hero-media">
-                        <div class="ac-about-hero-collage" aria-label="<?php echo e(str_starts_with(strtolower((string) $locale), 'hr') ? 'Fotografije tima i ureda' : 'Team and office photos'); ?>">
-                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $aboutHeroPhotos; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $photo): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                                <figure class="ac-about-image <?php echo e($photo['class']); ?>">
-                                    <img
-                                        src="<?php echo e($photo['src']); ?>"
-                                        alt="<?php echo e($photo['alt']); ?>"
-                                        width="760"
-                                        height="520"
-                                        loading="<?php echo e($loop->first ? 'eager' : 'lazy'); ?>"
-                                        decoding="async"
-                                        <?php if($loop->first): ?> fetchpriority="high" <?php endif; ?>
-                                    >
-                                </figure>
-                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
-                        </div>
+                        <figure class="ac-about-image <?php echo e($aboutHeroPhoto['class']); ?>">
+                            <img
+                                src="<?php echo e($aboutHeroPhoto['src']); ?>"
+                                alt="<?php echo e($aboutHeroPhoto['alt']); ?>"
+                                width="1386"
+                                height="925"
+                                loading="eager"
+                                decoding="async"
+                                fetchpriority="high"
+                            >
+                        </figure>
 
-                        <div class="ac-about-hero-bottom">
-                            <div class="ac-about-stat-card">
-                                <strong>600+</strong>
-                                <span><?php echo e($heroStatLabel); ?></span>
-                            </div>
-
-                            <figure class="ac-about-image <?php echo e($aboutBottomPhoto['class']); ?>">
-                                <img
-                                    src="<?php echo e($aboutBottomPhoto['src']); ?>"
-                                    alt="<?php echo e($aboutBottomPhoto['alt']); ?>"
-                                    width="430"
-                                    height="320"
-                                    loading="lazy"
-                                    decoding="async"
-                                >
-                            </figure>
+                        <div class="ac-about-stat-card">
+                            <strong>600+</strong>
+                            <span><?php echo e($heroStatLabel); ?></span>
                         </div>
                     </div>
                 </div>
@@ -671,15 +631,7 @@
         .ac-about-hero-media {
             position: relative;
             justify-self: end;
-            width: min(100%, 43rem);
-            min-height: clamp(34rem, 44vw, 42rem);
-        }
-
-        .ac-about-hero-collage,
-        .ac-about-hero-bottom {
-            position: absolute;
-            inset: 0;
-            display: block;
+            width: min(100%, 45rem);
         }
 
         .ac-about-image,
@@ -695,7 +647,7 @@
         }
 
         .ac-about-image {
-            position: absolute;
+            position: relative;
             overflow: hidden;
             background: #fff;
             box-shadow: 0 22px 46px rgba(15, 42, 67, 0.12);
@@ -708,47 +660,20 @@
             object-fit: cover;
         }
 
-        .ac-about-image--large {
-            top: 0;
-            left: 47%;
-            z-index: 1;
-            width: 60%;
-            height: 44%;
-        }
-
-        .ac-about-image--team {
-            top: 13%;
-            left: 0;
-            z-index: 2;
-            width: 43%;
-            height: 31%;
-        }
-
-        .ac-about-image--workshop {
-            left: 8%;
-            bottom: 6%;
-            z-index: 1;
-            width: 43%;
-            height: 33%;
-        }
-
-        .ac-about-image--bottom {
-            right: 6%;
-            bottom: 9%;
-            z-index: 1;
-            width: 38%;
-            height: 43%;
+        .ac-about-image--hero {
+            width: 100%;
+            aspect-ratio: 1386 / 925;
         }
 
         .ac-about-stat-card {
             position: absolute;
-            right: 0;
-            bottom: 0;
-            z-index: 3;
+            right: clamp(0.85rem, 2.2vw, 1.35rem);
+            bottom: clamp(-5.6rem, -6vw, -3.4rem);
+            z-index: 2;
             display: grid;
             align-content: center;
             gap: 0.25rem;
-            width: min(16rem, 34%);
+            width: min(16rem, calc(100% - 2rem));
             padding: 1.1rem;
             background: rgba(255, 255, 255, 0.94);
             color: #101820;
@@ -1168,39 +1093,6 @@
             .ac-about-hero-media {
                 display: grid;
                 min-height: 0;
-                gap: 0.75rem;
-            }
-
-            .ac-about-hero-collage,
-            .ac-about-hero-bottom {
-                position: relative;
-                inset: auto;
-                display: grid;
-                grid-template-columns: repeat(2, minmax(0, 1fr));
-                gap: 0.75rem;
-            }
-
-            .ac-about-image,
-            .ac-about-stat-card {
-                position: relative;
-                inset: auto;
-                width: auto;
-                height: auto;
-            }
-
-            .ac-about-image {
-                aspect-ratio: 16 / 10;
-            }
-
-            .ac-about-image--large {
-                grid-column: 1 / -1;
-                aspect-ratio: 16 / 9;
-            }
-
-            .ac-about-image--team,
-            .ac-about-image--workshop,
-            .ac-about-image--bottom {
-                aspect-ratio: 4 / 3;
             }
 
             .ac-about-value-grid {
@@ -1316,11 +1208,6 @@
             }
         }
 
-        @media (max-width: 520px) {
-            .ac-about-hero-bottom {
-                grid-template-columns: minmax(0, 1fr);
-            }
-        }
     </style>
 <?php $__env->stopPush(); ?>
 

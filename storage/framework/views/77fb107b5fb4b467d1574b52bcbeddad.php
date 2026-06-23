@@ -84,6 +84,8 @@
             'alt' => 'Timska radionica u uredskom prostoru',
         ],
     ];
+    $careerCollageTopPhotos = array_slice($careerCollagePhotos, 0, 2);
+    $careerCollageBottomPhotos = array_slice($careerCollagePhotos, 2);
 ?>
 
 <?php $__env->startSection('title', $careerPageTitle); ?>
@@ -156,7 +158,7 @@
                     </div>
 
                     <div class="ac-career-collage" aria-label="Fotografije ureda i tima">
-                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $careerCollagePhotos; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $photo): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $careerCollageTopPhotos; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $photo): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                             <figure class="ac-career-photo <?php echo e($photo['class']); ?>">
                                 <img
                                     src="<?php echo e($photo['src']); ?>"
@@ -169,6 +171,7 @@
                                 >
                             </figure>
                         <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+
                         <div class="ac-career-video-teaser">
                             <span class="ac-career-video-play" aria-hidden="true">▶</span>
                             <div>
@@ -180,6 +183,19 @@
                             <strong>70+</strong>
                             <span>stručnjaka iz financija, revizije, računovodstva i savjetovanja</span>
                         </div>
+
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $careerCollageBottomPhotos; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $photo): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                            <figure class="ac-career-photo <?php echo e($photo['class']); ?>">
+                                <img
+                                    src="<?php echo e($photo['src']); ?>"
+                                    alt="<?php echo e($photo['alt']); ?>"
+                                    width="760"
+                                    height="520"
+                                    loading="lazy"
+                                    decoding="async"
+                                >
+                            </figure>
+                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                     </div>
                 </div>
             </div>
@@ -588,8 +604,10 @@ unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendB
         }
 
         .ac-career-collage {
-            position: relative;
-            min-height: clamp(34rem, 44vw, 42rem);
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            align-items: stretch;
+            gap: clamp(0.75rem, 1.5vw, 1rem);
             min-width: 0;
         }
 
@@ -605,8 +623,11 @@ unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendB
         }
 
         .ac-career-photo {
-            position: absolute;
+            position: relative;
             overflow: hidden;
+            width: 100%;
+            aspect-ratio: 4 / 3;
+            margin: 0;
             background: #fff;
             box-shadow: 0 22px 46px rgba(15, 42, 67, 0.12);
         }
@@ -622,50 +643,12 @@ unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendB
             object-fit: cover;
         }
 
-        .ac-career-photo--one {
-            top: 13%;
-            left: 0;
-            z-index: 1;
-            width: 43%;
-            height: 31%;
-        }
-
-        .ac-career-photo--two {
-            top: 0;
-            left: 47%;
-            z-index: 1;
-            width:60%;
-            height: 44%;
-        }
-
-
-
-        .ac-career-photo--four {
-            left: 14%;
-            bottom: 3%;
-            z-index: 1;
-            width: 43%;
-            height: 33%;
-        }
-
-        .ac-career-photo--five {
-            right: 8%;
-            bottom: 9%;
-            z-index: 1;
-            width: 31%;
-            height: 43%;
-        }
-
         .ac-career-video-teaser {
-            position: absolute;
-            left: 2.5%;
-            top: 48%;
-            z-index: 3;
             display: flex;
             align-items: center;
             gap: 0.9rem;
-            width: min(25rem, 55%);
-            padding: 1.1rem 1.2rem;
+            min-height: 100%;
+            padding: clamp(1rem, 1.7vw, 1.2rem);
             background: rgba(255, 255, 255, 0.94);
             color: #101820;
             box-shadow: 0 18px 38px rgba(15, 42, 67, 0.12);
@@ -702,14 +685,11 @@ unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendB
         }
 
         .ac-career-stat-card {
-            position: absolute;
-            right: 0;
-            bottom: 0%;
-            z-index: 3;
             display: grid;
+            align-content: center;
             gap: 0.25rem;
-            width: min(16rem, 34%);
-            padding: 1.1rem;
+            min-height: 100%;
+            padding: clamp(1rem, 1.7vw, 1.2rem);
             background: rgba(255, 255, 255, 0.94);
             color: #101820;
             box-shadow: 0 18px 38px rgba(15, 42, 67, 0.1);
@@ -1173,42 +1153,7 @@ unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendB
             }
 
             .ac-career-collage {
-                display: grid;
-                grid-template-columns: repeat(2, minmax(0, 1fr));
                 gap: 0.75rem;
-                min-height: 0;
-            }
-
-            .ac-career-photo,
-            .ac-career-video-teaser {
-                position: relative;
-                inset: auto;
-                width: auto;
-                height: auto;
-            }
-
-            .ac-career-stat-card {
-                position: relative;
-                inset: auto;
-                width: auto;
-            }
-
-            .ac-career-photo {
-                aspect-ratio: 4 / 3;
-            }
-
-            .ac-career-photo--one,
-            .ac-career-video-teaser {
-                grid-column: 1 / -1;
-            }
-
-            .ac-career-photo--one {
-                aspect-ratio: 16 / 9;
-            }
-
-            .ac-career-photo--two,
-            .ac-career-photo--five {
-                aspect-ratio: 3 / 4;
             }
 
             .ac-career-form-file-ui {
@@ -1227,18 +1172,6 @@ unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendB
         @media (max-width: 520px) {
             .ac-career-collage {
                 grid-template-columns: minmax(0, 1fr);
-            }
-
-            .ac-career-photo--one,
-            .ac-career-photo--two,
-            .ac-career-photo--five {
-                aspect-ratio: 4 / 3;
-            }
-
-            .ac-career-photo--one,
-            .ac-career-video-teaser,
-            .ac-career-stat-card {
-                grid-column: auto;
             }
 
             .ac-career-story-card,
