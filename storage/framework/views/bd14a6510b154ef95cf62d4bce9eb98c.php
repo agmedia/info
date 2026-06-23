@@ -252,13 +252,13 @@
 <?php $__env->stopSection(); ?>
 
 <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($hasAccountingPosts || $hasServiceVideos): ?>
-    <?php if (! $__env->hasRenderedOnce('2dfb9194-22fb-4333-b5dd-6cf08f8d0078')): $__env->markAsRenderedOnce('2dfb9194-22fb-4333-b5dd-6cf08f8d0078'); ?>
+    <?php if (! $__env->hasRenderedOnce('0019f3aa-5d0d-428b-a67d-456201456cc8')): $__env->markAsRenderedOnce('0019f3aa-5d0d-428b-a67d-456201456cc8'); ?>
         <?php $__env->startPush('styles'); ?>
             <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@splidejs/splide@4.1.4/dist/css/splide.min.css">
         <?php $__env->stopPush(); ?>
     <?php endif; ?>
 
-    <?php if (! $__env->hasRenderedOnce('a5de632d-7032-40c6-99b4-ba013f5dbfbc')): $__env->markAsRenderedOnce('a5de632d-7032-40c6-99b4-ba013f5dbfbc'); ?>
+    <?php if (! $__env->hasRenderedOnce('c323537b-dcce-4c67-8448-30f5050dce8e')): $__env->markAsRenderedOnce('c323537b-dcce-4c67-8448-30f5050dce8e'); ?>
         <?php $__env->startPush('scripts'); ?>
             <script defer src="https://cdn.jsdelivr.net/npm/@splidejs/splide@4.1.4/dist/js/splide.min.js"></script>
         <?php $__env->stopPush(); ?>

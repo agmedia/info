@@ -59,7 +59,7 @@ class AdvisoryController extends Controller
             'serviceVideos' => $serviceVideoPayload['items'],
             'heroBackgroundUrl' => $this->resolveServiceHeroBackgroundUrl($servicePage),
             'servicePageTitle' => trim((string) ($servicePageTranslation?->title ?? '')) ?: 'Savjetovanje',
-            'servicePageMetaTitle' => trim((string) ($servicePageTranslation?->meta_title ?? '')) ?: 'Poslovno savjetovanje | ALPHA CAPITALIS',
+            'servicePageMetaTitle' => trim((string) ($servicePageTranslation?->meta_title ?? '')) ?: 'Savjetovanje | ALPHA CAPITALIS',
             'servicePageMetaDescription' => trim((string) ($servicePageTranslation?->meta_description ?? '')) ?: 'Financijsko i porezno savjetovanje, pribavljanje financiranja, due diligence, procjene vrijednosti i M&A savjetovanje.',
             'servicePageOgImage' => $this->resolveServiceHeroBackgroundUrl($servicePage),
             'pandeaLogoUrl' => $this->versionedAsset('front-theme/images/logos/pandea-global-ma-logo.png'),
@@ -70,7 +70,7 @@ class AdvisoryController extends Controller
 
     public function financial(Request $request): View
     {
-        return $this->subpage($request, 'financial');
+        return $this->subpage($request, 'ma');
     }
 
     public function tax(Request $request): View
@@ -83,6 +83,31 @@ class AdvisoryController extends Controller
         return $this->subpage($request, 'funding');
     }
 
+    public function ma(Request $request): View
+    {
+        return $this->subpage($request, 'ma');
+    }
+
+    public function dueDiligence(Request $request): View
+    {
+        return $this->subpage($request, 'due_diligence');
+    }
+
+    public function valuations(Request $request): View
+    {
+        return $this->subpage($request, 'valuations');
+    }
+
+    public function bankLoans(Request $request): View
+    {
+        return $this->subpage($request, 'bank_loans');
+    }
+
+    public function investmentIncentives(Request $request): View
+    {
+        return $this->subpage($request, 'zopu');
+    }
+
     private function subpage(Request $request, string $type): View
     {
         $locale = app()->getLocale();
@@ -90,20 +115,57 @@ class AdvisoryController extends Controller
         [$servicePage, $servicePageTranslation, $pagePayload, $translationPayload] = $this->resolveAdvisoryPayload($locale, $fallbackLocale);
         $serviceVideoPayload = $this->resolveServiceVideoPayload($pagePayload, $translationPayload);
 
-        $subpage = match ($type) {
+        $detailPages = [
+            'ma' => [
+                'title' => 'Prodaja i kupnja poduzeća (M&A)',
+                'intro' => (string) data_get($translationPayload, 'ma.overview_body.0', ''),
+                'meta_title' => 'Prodaja i kupnja poduzeća (M&A) | ALPHA CAPITALIS',
+                'meta_description' => 'Savjetovanje u prodaji i kupnji poduzeća, pripremi transakcije, procjeni vrijednosti i pregovorima.',
+            ],
+            'due_diligence' => [
+                'title' => 'Dubinska snimanja (Due Diligence)',
+                'intro' => (string) data_get($translationPayload, 'due_diligence.overview_body.0', ''),
+                'meta_title' => 'Dubinska snimanja (Due Diligence) | ALPHA CAPITALIS',
+                'meta_description' => 'Dubinska analiza poslovanja, financijskih rezultata, rizika i prilika prije transakcija i strateških odluka.',
+            ],
+            'valuations' => [
+                'title' => 'Procjena vrijednosti društva',
+                'intro' => (string) data_get($translationPayload, 'valuations.overview_body.0', ''),
+                'meta_title' => 'Procjena vrijednosti društva | ALPHA CAPITALIS',
+                'meta_description' => 'Procjena vrijednosti društva, financijsko modeliranje i stručna podloga za transakcije i strateške odluke.',
+            ],
             'tax' => [
-                'type' => 'tax',
                 'title' => 'Porezno savjetovanje',
                 'intro' => (string) data_get($translationPayload, 'tax.overview_body.0', ''),
                 'meta_title' => 'Porezno savjetovanje | ALPHA CAPITALIS',
-                'meta_description' => 'Porezna mišljenja, tax compliance, porezni pregled, optimizacija, due diligence i transferne cijene.',
+                'meta_description' => 'Porezno planiranje, analiza poreznih rizika, porezna mišljenja, PDV savjetovanje i porezna podrška transakcijama.',
             ],
+            'bank_loans' => [
+                'title' => 'Bankovni krediti',
+                'intro' => (string) data_get($translationPayload, 'bank_loans.overview_body.0', ''),
+                'meta_title' => 'Bankovni krediti | ALPHA CAPITALIS',
+                'meta_description' => 'Podrška pri pribavljanju bankovnog financiranja, pripremi dokumentacije, projekcija i pregovorima s bankama.',
+            ],
+            'zopu' => [
+                'title' => 'Zakon o poticanju ulaganja',
+                'intro' => (string) data_get($translationPayload, 'zopu.overview_body.0', ''),
+                'meta_title' => 'Zakon o poticanju ulaganja | ALPHA CAPITALIS',
+                'meta_description' => 'Podrška pri korištenju potpora prema Zakonu o poticanju ulaganja i provedbi investicijskih projekata.',
+            ],
+        ];
+
+        $subpage = match ($type) {
             'funding' => [
                 'type' => 'funding',
                 'title' => 'Pribavljanje financiranja',
-                'intro' => (string) data_get($translationPayload, 'funding.overview_body.0', ''),
+                'intro' => (string) data_get($translationPayload, 'funding.intro', ''),
                 'meta_title' => 'Pribavljanje financiranja | ALPHA CAPITALIS',
                 'meta_description' => 'EU fondovi, bankovni krediti, Zakon o poticanju ulaganja i strukturiranje financiranja.',
+            ],
+            'ma', 'due_diligence', 'valuations', 'tax', 'bank_loans', 'zopu' => [
+                'type' => 'detail',
+                'detail_key' => $type,
+                ...$detailPages[$type],
             ],
             default => [
                 'type' => 'financial',

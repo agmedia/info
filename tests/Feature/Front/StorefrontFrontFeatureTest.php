@@ -838,46 +838,63 @@ class StorefrontFrontFeatureTest extends TestCase
         $response = $this->get('/savjetovanje');
 
         $response->assertOk()
-            ->assertSee('Poslovno savjetovanje')
-            ->assertSee('Što je poslovno savjetovanje?')
-            ->assertSee('Savjetovanje povezuje financijsku analizu, porezno planiranje')
-            ->assertSee('Usluge poslovnog savjetovanja')
+            ->assertSee('Savjetovanje')
+            ->assertSee('Savjetovanje (Advisory) pruža stručnu podršku društvima, investitorima i poduzetnicima u donošenju financijskih i strateških odluka te stvaranju dugoročne vrijednosti.')
+            ->assertSee('Što je savjetovanje?')
+            ->assertSee('Savjetovanje (Advisory) pruža stručnu podršku društvima, investitorima i poduzetnicima u donošenju strateških financijskih odluka kroz usluge spajanja i preuzimanja')
+            ->assertSee('Usluge savjetovanja')
             ->assertSee('Pribavljanje financiranja')
             ->assertSee('M&amp;A savjetovanje', false)
-            ->assertSee('Due diligence')
-            ->assertSee('Procjene vrijednosti')
+            ->assertSee('Dubinska snimanja (Due Diligence)')
+            ->assertSee('Procjena vrijednosti društva')
             ->assertSee('Porezno savjetovanje')
-            ->assertSee('EU fondovi i poticaji')
             ->assertSee('ALPHA CAPITALIS je član Pandea Global M&amp;A', false)
-            ->assertSee('Dostupni izvori financiranja')
-            ->assertSee('Otvoreni natječaji')
-            ->assertSee('Zatvoreni natječaji')
-            ->assertSee('Financijski instrumenti')
-            ->assertSee('Porezne olakšice')
-            ->assertSee('Bankovni krediti')
+            ->assertSee('Naš pristup')
             ->assertSee('Razgovarajmo o vašim poslovnim odlukama')
-            ->assertSee('/savjetovanje/financijsko-savjetovanje#advisory-ma', false)
+            ->assertSee('/savjetovanje/prodaja-i-kupnja-poduzeca', false)
+            ->assertSee('/savjetovanje/dubinska-snimanja', false)
+            ->assertSee('/savjetovanje/procjena-vrijednosti-drustva', false)
             ->assertSee('/savjetovanje/porezno-savjetovanje', false)
-            ->assertSee('/eu-fondovi#eu-funds-calls', false)
+            ->assertSee('ac-advisory-services-section', false)
+            ->assertSee('ac-advisory-service-card-grid', false)
+            ->assertSee('ac-audit-approach-copy', false)
+            ->assertDontSee('EU fondovi i poticaji')
+            ->assertDontSee('Dostupni izvori financiranja')
+            ->assertDontSee('Otvoreni natječaji')
+            ->assertDontSee('Bankovni krediti')
+            ->assertDontSee('ac-advisory-approach-panel', false)
             ->assertDontSee('Pogledajte usluge')
+            ->assertDontSee('Poslovno savjetovanje')
             ->assertDontSee('poveznice su postavljene samo tamo gdje već postoji lokalni blog zapis ili lokalni dokument')
             ->assertDontSee('>01<', false)
             ->assertDontSee('ac-advisory-detail-card', false);
     }
 
-    public function test_advisory_subpages_share_service_card_style_without_decorative_numbers(): void
+    public function test_advisory_subpages_share_revizija_style_without_decorative_numbers(): void
     {
         foreach ([
-            '/savjetovanje/financijsko-savjetovanje' => 'Spajanja i preuzimanja (M&amp;A)',
-            '/savjetovanje/porezno-savjetovanje' => 'Porezna mišljenja',
-            '/savjetovanje/pribavljanje-financiranja' => 'Usluge EU fondova',
+            '/savjetovanje/pribavljanje-financiranja' => 'Pribavljanje financiranja obuhvaća podršku društvima',
+            '/savjetovanje/pribavljanje-financiranja/bankovni-krediti' => 'Što su bankovni krediti?',
+            '/savjetovanje/pribavljanje-financiranja/zakon-o-poticanju-ulaganja' => 'Što je Zakon o poticanju ulaganja?',
+            '/savjetovanje/prodaja-i-kupnja-poduzeca' => 'Što je prodaja i kupnja poduzeća?',
+            '/savjetovanje/dubinska-snimanja' => 'Što je dubinsko snimanje (Due Diligence)?',
+            '/savjetovanje/procjena-vrijednosti-drustva' => 'Što je procjena vrijednosti?',
+            '/savjetovanje/porezno-savjetovanje' => 'Što je porezno savjetovanje?',
         ] as $uri => $expectedText) {
-            $this->get($uri)
+            $response = $this->get($uri);
+
+            $response
                 ->assertOk()
                 ->assertSee($expectedText, false)
-                ->assertSee('ac-audit-service-card', false)
+                ->assertSee('ac-audit-editorial-section', false)
                 ->assertDontSee('>01<', false)
                 ->assertDontSee('ac-advisory-detail-card', false);
+
+            if ($uri !== '/savjetovanje/pribavljanje-financiranja') {
+                $response
+                    ->assertSee('ac-advisory-check-grid', false)
+                    ->assertSee('ac-advisory-check-pill', false);
+            }
         }
     }
 

@@ -13,6 +13,16 @@
     $dueDiligence = (array) ($content['due_diligence'] ?? []);
     $tax = (array) ($content['tax'] ?? []);
     $meeting = (array) ($content['meeting'] ?? []);
+    $detailSections = [
+        'ma' => $ma,
+        'due_diligence' => $dueDiligence,
+        'valuations' => $valuations,
+        'tax' => $tax,
+        'bank_loans' => $bankLoans,
+        'zopu' => $zopu,
+    ];
+    $detailKey = (string) ($subpage['detail_key'] ?? '');
+    $detail = (array) ($detailSections[$detailKey] ?? []);
     $pandeaLogo = trim((string) ($pandeaLogoUrl ?? ''));
     $currentHost = request()->getHost();
     $sameOriginAssetUrl = static function (?string $url) use ($currentHost): string {
@@ -46,7 +56,7 @@
 <?php $__env->startSection('main_class', 'w-full px-0 py-0'); ?>
 
 <?php $__env->startSection('content'); ?>
-    <div class="ac-family-business-page ac-audit-page ac-advisory-page <?php echo e($type === 'tax' ? 'ac-service-band-even' : ''); ?>">
+    <div class="ac-family-business-page ac-audit-page ac-advisory-page <?php echo e($detailKey === 'tax' ? 'ac-service-band-even' : ''); ?>">
         <section class="ac-family-hero ac-service-hero ac-service-hero--advisory">
             <div class="ac-family-hero-media" aria-hidden="true" style="--audit-hero-image: url('<?php echo e($heroImageUrl); ?>'); background-image: url('<?php echo e($heroImageUrl); ?>');">
                 <img src="<?php echo e($heroImageUrl); ?>" alt="" class="ac-family-hero-media-image" loading="eager" decoding="async">
@@ -96,178 +106,96 @@
                                 <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                             </div>
 
-                            <div class="ac-advisory-feature-block">
-                                <h3><?php echo e($funding['overview_title'] ?? 'EU fondovi'); ?></h3>
-                                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = (array) ($funding['overview_body'] ?? []); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $paragraph): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                                    <p><?php echo e($paragraph); ?></p>
-                                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
-                            </div>
-
-                            <div class="ac-audit-section-head ac-audit-section-head--center ac-advisory-subhead">
-                                <h3><?php echo e($funding['services_title'] ?? 'Usluge EU fondova'); ?></h3>
-                            </div>
-
-                            <div class="ac-audit-card-grid">
-                                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = (array) ($funding['services'] ?? []); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $item): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                                    <article class="ac-audit-service-card">
-                                        <h3><?php echo e($item['title'] ?? ''); ?></h3>
-                                        <p><?php echo e($item['text'] ?? ''); ?></p>
-                                    </article>
-                                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
-                            </div>
                         </article>
-
-                        <article class="ac-audit-editorial-section">
-                            <div class="ac-advisory-two-col">
-                                <section id="advisory-bankovni-krediti" class="ac-advisory-text-panel">
-                                    <h2><?php echo e($bankLoans['title'] ?? 'Bankovni krediti'); ?></h2>
-                                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = (array) ($bankLoans['body'] ?? []); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $paragraph): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                                        <p><?php echo e($paragraph); ?></p>
-                                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
-                                </section>
-                                <section id="advisory-zopu" class="ac-advisory-text-panel">
-                                    <h2><?php echo e($zopu['title'] ?? 'Zakon o poticanju ulaganja'); ?></h2>
-                                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = (array) ($zopu['body'] ?? []); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $paragraph): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                                        <p><?php echo e($paragraph); ?></p>
-                                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
-                                </section>
-                            </div>
-                        </article>
-
-                        <article class="ac-audit-editorial-section">
+                    <?php elseif($type === 'detail'): ?>
+                        <article class="ac-audit-editorial-section ac-audit-editorial-section--overview">
                             <div class="ac-audit-section-head ac-audit-section-head--center">
-                                <p class="ac-family-section-kicker"><?php echo e($sourceModules['kicker'] ?? 'DOSTUPNI IZVORI FINANCIRANJA'); ?></p>
-                                <h2><?php echo e($sourceModules['title'] ?? ''); ?></h2>
-                                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(trim((string) ($sourceModules['intro'] ?? '')) !== ''): ?>
-                                    <p><?php echo e($sourceModules['intro'] ?? ''); ?></p>
-                                <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                                <p class="ac-family-section-kicker"><?php echo e($detail['kicker'] ?? \Illuminate\Support\Str::upper((string) ($detail['title'] ?? $subpage['title'] ?? 'Savjetovanje'))); ?></p>
+                                <h2 id="ac-advisory-subpage-title"><?php echo e($detail['overview_title'] ?? ($detail['title'] ?? ($subpage['title'] ?? 'Savjetovanje'))); ?></h2>
                             </div>
-                            <div class="ac-advisory-module-grid">
-                                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = (array) ($sourceModules['items'] ?? []); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $module): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                                    <?php $moduleUrl = $resolveContentUrl($module['url'] ?? ''); ?>
-                                    <article class="ac-advisory-source-card">
-                                        <h3><?php echo e($module['title'] ?? ''); ?></h3>
-                                        <p><?php echo e($module['text'] ?? ''); ?></p>
-                                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($moduleUrl !== ''): ?>
-                                            <a href="<?php echo e($moduleUrl); ?>" class="ac-advisory-card-link"><?php echo e(str_starts_with(strtolower((string) $locale), 'hr') ? 'Opširnije' : 'Read more'); ?></a>
+
+                            <div class="ac-audit-copy ac-audit-copy--full">
+                                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = (array) ($detail['overview_body'] ?? []); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $paragraph): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(trim((string) $paragraph) !== ''): ?>
+                                        <p><?php echo e($paragraph); ?></p>
+                                    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                            </div>
+                        </article>
+
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if((bool) ($detail['show_pandea'] ?? false)): ?>
+                            <article class="ac-audit-editorial-section">
+                                <div class="ac-advisory-network-panel">
+                                    <div class="ac-advisory-network-head">
+                                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($pandeaLogo !== ''): ?>
+                                            <div class="ac-advisory-network-logo-card">
+                                                <img src="<?php echo e($pandeaLogo); ?>" alt="<?php echo e($pandea['logo_alt'] ?? 'Pandea Global M&A'); ?>" class="ac-advisory-network-logo" loading="lazy" decoding="async">
+                                            </div>
                                         <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
-                                    </article>
-                                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
-                            </div>
-                        </article>
-                    <?php elseif($type === 'tax'): ?>
-                        <article id="advisory-ma" class="ac-audit-editorial-section">
-                            <div class="ac-audit-section-head ac-audit-section-head--center">
-                                <p class="ac-family-section-kicker">POREZNO SAVJETOVANJE</p>
-                                <h2 id="ac-advisory-subpage-title"><?php echo e($tax['title'] ?? 'Porezno savjetovanje'); ?></h2>
-                            </div>
-
-                            <div class="ac-advisory-feature-block">
-                                <h3><?php echo e($tax['overview_title'] ?? 'Što je porezno savjetovanje?'); ?></h3>
-                                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = (array) ($tax['overview_body'] ?? []); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $paragraph): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                                    <p><?php echo e($paragraph); ?></p>
-                                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
-                            </div>
-
-                            <div class="ac-audit-card-grid">
-                                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = (array) ($tax['services'] ?? []); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $item): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                                    <article class="ac-audit-service-card">
-                                        <h3><?php echo e($item['title'] ?? ''); ?></h3>
-                                        <p><?php echo e($item['text'] ?? ''); ?></p>
-                                    </article>
-                                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
-                            </div>
-                        </article>
+                                        <div>
+                                            <p class="ac-family-section-kicker">Pandea Global M&amp;A</p>
+                                            <h2><?php echo e($pandea['title'] ?? ''); ?></h2>
+                                        </div>
+                                    </div>
+                                    <div class="ac-advisory-network-copy">
+                                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = (array) ($pandea['body'] ?? []); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $paragraph): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                            <p><?php echo e($paragraph); ?></p>
+                                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                                    </div>
+                                </div>
+                            </article>
+                        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
                         <article class="ac-audit-editorial-section">
-                            <div class="ac-audit-card-grid">
-                                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = (array) ($tax['cards'] ?? []); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $card): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                                    <article class="ac-audit-service-card">
-                                        <h3><?php echo e($card['title'] ?? ''); ?></h3>
-                                        <p><?php echo e($card['text'] ?? ''); ?></p>
-                                    </article>
+                            <div class="ac-audit-section-head ac-audit-section-head--center">
+                                <p class="ac-family-section-kicker">USLUGE</p>
+                                <h2><?php echo e($detail['services_title'] ?? 'Naše usluge'); ?></h2>
+                                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = (array) ($detail['services_body'] ?? []); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $paragraph): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(trim((string) $paragraph) !== ''): ?>
+                                        <p><?php echo e($paragraph); ?></p>
+                                    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                                 <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                             </div>
-                            <div class="ac-advisory-feature-block">
-                                <h3><?php echo e($tax['approach_title'] ?? ''); ?></h3>
-                                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = (array) ($tax['approach_body'] ?? []); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $paragraph): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                                    <p><?php echo e($paragraph); ?></p>
-                                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
-                            </div>
+
+                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(! empty($detail['help_items'] ?? [])): ?>
+                                <div class="ac-audit-section-head ac-audit-section-head--center ac-advisory-subhead">
+                                    <h3><?php echo e($detail['help_title'] ?? 'U okviru usluge pomažemo u:'); ?></h3>
+                                </div>
+                                <div class="ac-advisory-check-grid">
+                                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = (array) ($detail['help_items'] ?? []); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $item): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                        <div class="ac-advisory-check-pill">
+                                            <span class="ac-advisory-check-mark" aria-hidden="true">&#10003;</span>
+                                            <span><?php echo e($item); ?></span>
+                                        </div>
+                                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                                </div>
+                            <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                         </article>
+
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(trim((string) ($detail['approach_title'] ?? '')) !== '' || ! empty($detail['approach_body'] ?? [])): ?>
+                            <article class="ac-audit-editorial-section">
+                                <div class="ac-audit-section-head ac-audit-section-head--center">
+                                    <p class="ac-family-section-kicker">PRISTUP</p>
+                                    <h2><?php echo e($detail['approach_title'] ?? 'Naš pristup'); ?></h2>
+                                </div>
+
+                                <blockquote class="ac-audit-copy ac-audit-copy--full ac-audit-approach-copy">
+                                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = (array) ($detail['approach_body'] ?? []); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $paragraph): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(trim((string) $paragraph) !== ''): ?>
+                                            <p><?php echo e($paragraph); ?></p>
+                                        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                                </blockquote>
+                            </article>
+                        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                     <?php else: ?>
                         <article class="ac-audit-editorial-section">
                             <div class="ac-audit-section-head ac-audit-section-head--center">
-                                <p class="ac-family-section-kicker">FINANCIJSKO SAVJETOVANJE</p>
-                                <h2 id="ac-advisory-subpage-title"><?php echo e($subpage['title'] ?? 'Financijsko savjetovanje'); ?></h2>
-                            </div>
-
-                            <div class="ac-advisory-network-panel">
-                                <div class="ac-advisory-network-head">
-                                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($pandeaLogo !== ''): ?>
-                                        <div class="ac-advisory-network-logo-card">
-                                            <img src="<?php echo e($pandeaLogo); ?>" alt="<?php echo e($pandea['logo_alt'] ?? 'Pandea Global M&A'); ?>" class="ac-advisory-network-logo" loading="lazy" decoding="async">
-                                        </div>
-                                    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
-                                    <div>
-                                        <p class="ac-family-section-kicker">Pandea Global M&amp;A</p>
-                                        <h2><?php echo e($pandea['title'] ?? ''); ?></h2>
-                                    </div>
-                                </div>
-                                <div class="ac-advisory-network-copy">
-                                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = (array) ($pandea['body'] ?? []); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $paragraph): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                                        <p><?php echo e($paragraph); ?></p>
-                                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
-                                </div>
-                            </div>
-                        </article>
-
-                        <article class="ac-audit-editorial-section">
-                            <div class="ac-audit-section-head ac-audit-section-head--center">
-                                <p class="ac-family-section-kicker">M&amp;A SAVJETOVANJE</p>
-                                <h2><?php echo e($ma['title'] ?? 'Spajanja i preuzimanja (M&A)'); ?></h2>
-                                <p><?php echo e($ma['intro'] ?? ''); ?></p>
-                            </div>
-                            <div class="ac-advisory-two-col">
-                                <article class="ac-audit-service-card">
-                                    <h3><?php echo e($ma['sale']['title'] ?? 'Prodaja poduzeća'); ?></h3>
-                                    <p><?php echo e($ma['sale']['body'] ?? ''); ?></p>
-                                </article>
-                                <article class="ac-audit-service-card">
-                                    <h3><?php echo e($ma['acquisition']['title'] ?? 'Kupnja poduzeća'); ?></h3>
-                                    <p><?php echo e($ma['acquisition']['body'] ?? ''); ?></p>
-                                </article>
-                            </div>
-                        </article>
-
-                        <article class="ac-audit-editorial-section">
-                            <div class="ac-advisory-two-col">
-                                <section id="advisory-due-diligence" class="ac-advisory-text-panel">
-                                    <p class="ac-family-section-kicker">DUE DILIGENCE</p>
-                                    <h2><?php echo e($dueDiligence['title'] ?? 'Due diligence'); ?></h2>
-                                    <p><?php echo e($dueDiligence['intro'] ?? ''); ?></p>
-                                    <h3><?php echo e($dueDiligence['help_title'] ?? 'Pomažemo vam:'); ?></h3>
-                                    <ul class="ac-advisory-list">
-                                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = (array) ($dueDiligence['help_items'] ?? []); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $item): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                                            <li><?php echo e($item); ?></li>
-                                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
-                                    </ul>
-                                    <p><?php echo e($dueDiligence['closing'] ?? ''); ?></p>
-                                </section>
-
-                                <section id="advisory-procjene-vrijednosti" class="ac-advisory-text-panel">
-                                    <p class="ac-family-section-kicker">PROCJENE VRIJEDNOSTI</p>
-                                    <h2><?php echo e($valuations['title'] ?? 'Procjene vrijednosti'); ?></h2>
-                                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = (array) ($valuations['body'] ?? []); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $paragraph): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                                        <p><?php echo e($paragraph); ?></p>
-                                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
-                                    <h3><?php echo e($valuations['methods_title'] ?? 'Metode vrednovanja'); ?></h3>
-                                    <ul class="ac-advisory-list">
-                                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = (array) ($valuations['methods'] ?? []); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $method): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                                            <li><?php echo e($method); ?></li>
-                                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
-                                    </ul>
-                                </section>
+                                <p class="ac-family-section-kicker">SAVJETOVANJE</p>
+                                <h2 id="ac-advisory-subpage-title"><?php echo e($subpage['title'] ?? 'Savjetovanje'); ?></h2>
+                                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(trim((string) ($subpage['intro'] ?? '')) !== ''): ?>
+                                    <p><?php echo e($subpage['intro']); ?></p>
+                                <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                             </div>
                         </article>
                     <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>

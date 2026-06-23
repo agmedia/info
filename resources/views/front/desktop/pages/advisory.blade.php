@@ -101,7 +101,7 @@
                         </div>
                     </article>
 
-                    <article id="advisory-usluge" class="ac-audit-editorial-section">
+                    <article id="advisory-usluge" class="ac-audit-editorial-section ac-advisory-services-section">
                         <div class="ac-audit-section-head ac-audit-section-head--center">
                             <p class="ac-family-section-kicker">{{ $servicesIntro['kicker'] ?? 'USLUGE POSLOVNOG SAVJETOVANJA' }}</p>
                             <h2>{{ $servicesIntro['title'] ?? 'Naše usluge' }}</h2>
@@ -110,7 +110,7 @@
                             @endif
                         </div>
 
-                        <div class="ac-audit-card-grid">
+                        <div class="ac-audit-card-grid ac-advisory-service-card-grid">
                             @foreach ($serviceCards as $card)
                                 @php $cardUrl = $resolveContentUrl($card['url'] ?? ''); @endphp
                                 <article class="ac-audit-service-card ac-advisory-link-card">
@@ -145,212 +145,19 @@
                         </div>
                     </article>
 
-                    <article id="advisory-pribavljanje-financiranja" class="ac-audit-editorial-section">
-                        <div class="ac-audit-section-head ac-audit-section-head--center">
-                            <p class="ac-family-section-kicker">PRIBAVLJANJE FINANCIRANJA</p>
-                            <h2>{{ $funding['title'] ?? 'Pribavljanje financiranja' }}</h2>
-                            @if (trim((string) ($funding['intro'] ?? '')) !== '')
-                                <p>{{ $funding['intro'] }}</p>
-                            @endif
-                        </div>
-
-                        <div class="ac-advisory-three-grid">
-                            @foreach ((array) ($funding['cards'] ?? []) as $card)
-                                @php $cardUrl = $resolveContentUrl($card['url'] ?? ''); @endphp
-                                <article class="ac-audit-service-card ac-advisory-link-card">
-                                    <h3>{{ $card['title'] ?? '' }}</h3>
-                                    <p>{{ $card['text'] ?? '' }}</p>
-                                    @if ($cardUrl !== '')
-                                        <a href="{{ $cardUrl }}" class="ac-advisory-card-link">{{ $readMoreLabel }}</a>
-                                    @endif
-                                </article>
-                            @endforeach
-                        </div>
-
-                        <div class="ac-advisory-feature-block">
-                            <h3>{{ $funding['overview_title'] ?? 'EU fondovi' }}</h3>
-                            @foreach ((array) ($funding['overview_body'] ?? []) as $paragraph)
-                                <p>{{ $paragraph }}</p>
-                            @endforeach
-                        </div>
-
-                        <div class="ac-audit-section-head ac-audit-section-head--center ac-advisory-subhead">
-                            <h3>{{ $funding['services_title'] ?? 'Naše usluge' }}</h3>
-                        </div>
-                        <div class="ac-audit-card-grid">
-                            @foreach ((array) ($funding['services'] ?? []) as $item)
-                                <article class="ac-audit-service-card">
-                                    <h3>{{ $item['title'] ?? '' }}</h3>
-                                    <p>{{ $item['text'] ?? '' }}</p>
-                                </article>
-                            @endforeach
-                        </div>
-
-                        @if (! empty($funding['advisory_cards'] ?? []))
-                            <div class="ac-advisory-three-grid">
-                                @foreach ((array) ($funding['advisory_cards'] ?? []) as $card)
-                                    <article class="ac-audit-service-card">
-                                        <h3>{{ $card['title'] ?? '' }}</h3>
-                                        <p>{{ $card['text'] ?? '' }}</p>
-                                    </article>
-                                @endforeach
-                            </div>
-                        @endif
-                    </article>
-
-                    <article class="ac-audit-editorial-section">
-                        <div class="ac-advisory-two-col">
-                            <section id="advisory-bankovni-krediti" class="ac-advisory-text-panel">
-                                <h2>{{ $bankLoans['title'] ?? 'Bankovni krediti' }}</h2>
-                                @foreach ((array) ($bankLoans['body'] ?? []) as $paragraph)
-                                    <p>{{ $paragraph }}</p>
-                                @endforeach
-                            </section>
-
-                            <section id="advisory-zopu" class="ac-advisory-text-panel">
-                                <h2>{{ $zopu['title'] ?? 'Zakon o poticanju ulaganja' }}</h2>
-                                @foreach ((array) ($zopu['body'] ?? []) as $paragraph)
-                                    <p>{{ $paragraph }}</p>
-                                @endforeach
-                            </section>
-                        </div>
-                    </article>
-
-                    <article class="ac-audit-editorial-section">
-                        <div class="ac-audit-section-head ac-audit-section-head--center">
-                            <p class="ac-family-section-kicker">{{ $sourceModules['kicker'] ?? 'DOSTUPNI IZVORI FINANCIRANJA' }}</p>
-                            <h2>{{ $sourceModules['title'] ?? '' }}</h2>
-                            @if (trim((string) ($sourceModules['intro'] ?? '')) !== '')
-                                <p>{{ $sourceModules['intro'] }}</p>
-                            @endif
-                        </div>
-
-                        <div class="ac-advisory-module-grid">
-                            @foreach ((array) ($sourceModules['items'] ?? []) as $module)
-                                @php $moduleUrl = $resolveContentUrl($module['url'] ?? ''); @endphp
-                                <article class="ac-advisory-source-card">
-                                    <h3>{{ $module['title'] ?? '' }}</h3>
-                                    <p>{{ $module['text'] ?? '' }}</p>
-                                    @if ($moduleUrl !== '')
-                                        <a href="{{ $moduleUrl }}" class="ac-advisory-card-link">{{ $readMoreLabel }}</a>
-                                    @endif
-                                </article>
-                            @endforeach
-                        </div>
-                    </article>
-
-                    <article id="advisory-ma" class="ac-audit-editorial-section">
-                        <div class="ac-audit-section-head ac-audit-section-head--center">
-                            <p class="ac-family-section-kicker">M&amp;A SAVJETOVANJE</p>
-                            <h2>{{ $ma['title'] ?? 'Spajanja i preuzimanja (M&A)' }}</h2>
-                            @if (trim((string) ($ma['intro'] ?? '')) !== '')
-                                <p>{{ $ma['intro'] }}</p>
-                            @endif
-                        </div>
-
-                        <div class="ac-advisory-two-col">
-                            <article class="ac-audit-service-card">
-                                <h3>{{ $ma['sale']['title'] ?? 'Prodaja poduzeća' }}</h3>
-                                <p>{{ $ma['sale']['body'] ?? '' }}</p>
-                            </article>
-                            <article class="ac-audit-service-card">
-                                <h3>{{ $ma['acquisition']['title'] ?? 'Kupnja poduzeća' }}</h3>
-                                <p>{{ $ma['acquisition']['body'] ?? '' }}</p>
-                            </article>
-                        </div>
-                    </article>
-
-                    <article class="ac-audit-editorial-section">
-                        <div class="ac-advisory-two-col">
-                            <section id="advisory-due-diligence" class="ac-advisory-text-panel">
-                                <p class="ac-family-section-kicker">DUE DILIGENCE</p>
-                                <h2>{{ $dueDiligence['title'] ?? 'Due diligence' }}</h2>
-                                @if (trim((string) ($dueDiligence['intro'] ?? '')) !== '')
-                                    <p>{{ $dueDiligence['intro'] }}</p>
-                                @endif
-                                <h3>{{ $dueDiligence['help_title'] ?? 'Pomažemo vam:' }}</h3>
-                                <ul class="ac-advisory-list">
-                                    @foreach ((array) ($dueDiligence['help_items'] ?? []) as $item)
-                                        <li>{{ $item }}</li>
-                                    @endforeach
-                                </ul>
-                                @if (trim((string) ($dueDiligence['closing'] ?? '')) !== '')
-                                    <p>{{ $dueDiligence['closing'] }}</p>
-                                @endif
-                            </section>
-
-                            <section id="advisory-procjene-vrijednosti" class="ac-advisory-text-panel">
-                                <p class="ac-family-section-kicker">PROCJENE VRIJEDNOSTI</p>
-                                <h2>{{ $valuations['title'] ?? 'Procjene vrijednosti' }}</h2>
-                                @foreach ((array) ($valuations['body'] ?? []) as $paragraph)
-                                    <p>{{ $paragraph }}</p>
-                                @endforeach
-                                <h3>{{ $valuations['methods_title'] ?? 'Metode vrednovanja' }}</h3>
-                                <ul class="ac-advisory-list">
-                                    @foreach ((array) ($valuations['methods'] ?? []) as $method)
-                                        <li>{{ $method }}</li>
-                                    @endforeach
-                                </ul>
-                            </section>
-                        </div>
-                    </article>
-
-                    <article id="advisory-porezno-savjetovanje" class="ac-audit-editorial-section">
-                        <div class="ac-audit-section-head ac-audit-section-head--center">
-                            <p class="ac-family-section-kicker">POREZNO SAVJETOVANJE</p>
-                            <h2>{{ $tax['title'] ?? 'Porezno savjetovanje' }}</h2>
-                        </div>
-
-                        <div class="ac-advisory-feature-block">
-                            <h3>{{ $tax['overview_title'] ?? 'Što je porezno savjetovanje?' }}</h3>
-                            @foreach ((array) ($tax['overview_body'] ?? []) as $paragraph)
-                                <p>{{ $paragraph }}</p>
-                            @endforeach
-                        </div>
-
-                        <div class="ac-audit-section-head ac-audit-section-head--center ac-advisory-subhead">
-                            <h3>{{ $tax['services_title'] ?? 'Naše porezne usluge' }}</h3>
-                        </div>
-
-                        <div class="ac-audit-card-grid">
-                            @foreach ((array) ($tax['services'] ?? []) as $item)
-                                <article class="ac-audit-service-card">
-                                    <h3>{{ $item['title'] ?? '' }}</h3>
-                                    <p>{{ $item['text'] ?? '' }}</p>
-                                </article>
-                            @endforeach
-                        </div>
-
-                        <div class="ac-audit-card-grid">
-                            @foreach ((array) ($tax['cards'] ?? []) as $card)
-                                <article class="ac-audit-service-card">
-                                    <h3>{{ $card['title'] ?? '' }}</h3>
-                                    <p>{{ $card['text'] ?? '' }}</p>
-                                </article>
-                            @endforeach
-                        </div>
-
-                        <div class="ac-advisory-feature-block">
-                            <h3>{{ $tax['approach_title'] ?? '' }}</h3>
-                            @foreach ((array) ($tax['approach_body'] ?? []) as $paragraph)
-                                <p>{{ $paragraph }}</p>
-                            @endforeach
-                        </div>
-                    </article>
-
                     <article class="ac-audit-editorial-section">
                         <div class="ac-audit-section-head ac-audit-section-head--center">
                             <p class="ac-family-section-kicker">{{ $approach['kicker'] ?? 'NAŠ PRISTUP' }}</p>
                             <h2>{{ $approach['title'] ?? '' }}</h2>
                         </div>
 
-                        <div class="ac-advisory-approach-panel">
-                            <div class="ac-audit-copy ac-audit-copy--full ac-advisory-copy">
-                                @foreach ((array) ($approach['body'] ?? []) as $paragraph)
+                        <blockquote class="ac-audit-copy ac-audit-copy--full ac-audit-approach-copy">
+                            @foreach ((array) ($approach['body'] ?? []) as $paragraph)
+                                @if (trim((string) $paragraph) !== '')
                                     <p>{{ $paragraph }}</p>
-                                @endforeach
-                            </div>
-                        </div>
+                                @endif
+                            @endforeach
+                        </blockquote>
                     </article>
                 </div>
             </div>

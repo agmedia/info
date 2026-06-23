@@ -22,23 +22,22 @@ class AdvisoryServicePageDefaults
         return [
             'hero' => [
                 'brand_title' => 'ALPHA CAPITALIS',
-                'subtitle_lead' => 'Poslovno savjetovanje',
+                'subtitle_lead' => 'Savjetovanje',
                 'subtitle_accent' => '',
-                'intro' => 'Savjetovanje (Advisory) obuhvaća stručnu podršku u financijskim, poreznim i investicijskim pitanjima. Cilj je pomoći društvima, investitorima i poduzetnicima u donošenju kvalitetnih odluka, upravljanju rizicima te stvaranju dugoročne vrijednosti.',
+                'intro' => 'Savjetovanje (Advisory) pruža stručnu podršku društvima, investitorima i poduzetnicima u donošenju financijskih i strateških odluka te stvaranju dugoročne vrijednosti.',
                 'cta_label' => '',
                 'cta_url' => '',
             ],
             'overview' => [
-                'kicker' => 'ŠTO JE POSLOVNO SAVJETOVANJE?',
-                'title' => 'Što je poslovno savjetovanje?',
+                'kicker' => 'ŠTO JE SAVJETOVANJE?',
+                'title' => 'Što je savjetovanje?',
                 'body' => [
-                    'Financijsko savjetovanje obuhvaća sve strateške usluge vezane uz vrijednost, kapital i transakcije vašeg poslovanja — od procjene vrijednosti društva do strukturiranja financiranja i podrške u preuzimanjima i spajanjima.',
-                    'Savjetovanje povezuje financijsku analizu, porezno planiranje, razumijevanje tržišta i praktičnu podršku u provedbi odluka. Cilj je klijentima omogućiti jasniji uvid u rizike, prilike i opcije koje imaju u važnim poslovnim situacijama.',
+                    'Savjetovanje (Advisory) pruža stručnu podršku društvima, investitorima i poduzetnicima u donošenju strateških financijskih odluka kroz usluge spajanja i preuzimanja, procjene vrijednosti, dubinska snimanja, pribavljanje kapitala i financijsko restrukturiranje, s ciljem upravljanja rizicima i stvaranja dugoročne vrijednosti.',
                 ],
             ],
             'services_intro' => [
-                'kicker' => 'USLUGE POSLOVNOG SAVJETOVANJA',
-                'title' => 'Usluge poslovnog savjetovanja',
+                'kicker' => 'USLUGE SAVJETOVANJA',
+                'title' => 'Usluge savjetovanja',
                 'intro' => '',
             ],
             'service_cards' => [
@@ -50,27 +49,22 @@ class AdvisoryServicePageDefaults
                 [
                     'title' => 'M&A savjetovanje',
                     'text' => 'Podrška u procesima spajanja i preuzimanja — od strateškog pozicioniranja do pregovaranja i zatvaranja transakcije.',
-                    'url' => '/savjetovanje/financijsko-savjetovanje#advisory-ma',
+                    'url' => '/savjetovanje/prodaja-i-kupnja-poduzeca',
                 ],
                 [
-                    'title' => 'Due diligence',
-                    'text' => 'Dubinsko financijsko snimanje ciljnog društva. Identifikacija rizika, prilagodbi i ključnih nalaza za odluku o transakciji.',
-                    'url' => '/savjetovanje/financijsko-savjetovanje#advisory-due-diligence',
+                    'title' => 'Dubinska snimanja (Due Diligence)',
+                    'text' => 'Detaljna analiza poslovanja društva radi jasnog uvida u financijsko stanje, rizike i prilike prije važnih odluka ili transakcija.',
+                    'url' => '/savjetovanje/dubinska-snimanja',
                 ],
                 [
-                    'title' => 'Procjene vrijednosti',
-                    'text' => 'Procjena vrijednosti društva, imovine i udjela. Za transakcije, računovodstvene potrebe, sporove ili internu upotrebu menadžmenta.',
-                    'url' => '/savjetovanje/financijsko-savjetovanje#advisory-procjene-vrijednosti',
+                    'title' => 'Procjena vrijednosti društva',
+                    'text' => 'Procjena ekonomske vrijednosti društva kao podloga za prodaju, kupnju, dokapitalizaciju i druge strateške aktivnosti.',
+                    'url' => '/savjetovanje/procjena-vrijednosti-drustva',
                 ],
                 [
                     'title' => 'Porezno savjetovanje',
                     'text' => 'Podrška u poreznom planiranju, usklađenosti, poreznim pregledima, transfernim cijenama, poreznim nadzorima i transakcijama.',
                     'url' => '/savjetovanje/porezno-savjetovanje',
-                ],
-                [
-                    'title' => 'EU fondovi i poticaji',
-                    'text' => 'Savjetovanje i podrška u prijavi na EU bespovratna sredstva — od identifikacije natječaja do ishođenja ugovora o dodjeli i provedbe projekta.',
-                    'url' => '/eu-fondovi',
                 ],
             ],
             'pandea' => [
@@ -84,7 +78,7 @@ class AdvisoryServicePageDefaults
             ],
             'funding' => [
                 'title' => 'Pribavljanje financiranja',
-                'intro' => 'Pružamo podršku u strukturiranju i pribavljanju financiranja kroz bankovne kredite, EU bespovratna sredstva, poticajne instrumente i private equity kapital. Cilj je pronaći optimalnu kombinaciju izvora financiranja u skladu s investicijskim planovima, novčanim tokom i dugoročnom održivošću poslovanja.',
+                'intro' => 'Pribavljanje financiranja obuhvaća podršku društvima u pronalasku odgovarajućih izvora kapitala za rast poslovanja, investicije i ostvarenje strateških ciljeva.',
                 'cards' => [
                     [
                         'title' => 'EU fondovi',
@@ -94,12 +88,12 @@ class AdvisoryServicePageDefaults
                     [
                         'title' => 'Bankovni krediti',
                         'text' => 'Strukturiranje kreditnih zahtjeva i podrška u pregovorima s financijskim institucijama.',
-                        'url' => '#advisory-bankovni-krediti',
+                        'url' => '/savjetovanje/pribavljanje-financiranja/bankovni-krediti',
                     ],
                     [
                         'title' => 'Zakon o poticanju ulaganja',
                         'text' => 'Podrška u korištenju poreznih olakšica i poticaja za investicijske projekte temeljem ZoPU-a.',
-                        'url' => '#advisory-zopu',
+                        'url' => '/savjetovanje/pribavljanje-financiranja/zakon-o-poticanju-ulaganja',
                     ],
                 ],
                 'overview_title' => 'EU fondovi',
@@ -169,119 +163,156 @@ class AdvisoryServicePageDefaults
             ],
             'bank_loans' => [
                 'title' => 'Bankovni krediti',
-                'body' => [
-                    'Pružamo podršku u pripremi i strukturiranju kreditnih zahtjeva kako bismo povećali vjerojatnost odobrenja financiranja i osigurali optimalne uvjete za klijenta.',
-                    'Sudjelujemo u komunikaciji s bankama i drugim financijskim institucijama, pripremi potrebne dokumentacije te pregovorima vezanim uz uvjete financiranja.',
-                    'Cilj nam je pronaći rješenje koje odgovara investicijskim planovima, novčanom toku i dugoročnoj održivosti poslovanja.',
+                'kicker' => 'BANKOVNI KREDITI',
+                'overview_title' => 'Što su bankovni krediti?',
+                'overview_body' => [
+                    'Bankovni krediti predstavljaju jedan od najčešćih izvora financiranja poslovanja, investicija i razvoja društava. Omogućuju poduzetnicima i društvima osiguravanje potrebnih sredstava za rast, povećanje kapaciteta, financiranje projekata ili optimizaciju postojeće financijske strukture.',
+                ],
+                'services_title' => 'Naše usluge',
+                'services_body' => [
+                    'Pružamo podršku klijentima u procesu pribavljanja bankovnog financiranja, od analize financijskih potreba i pripreme dokumentacije do komunikacije s financijskim institucijama. Naš pristup usmjeren je na pronalazak optimalnih kreditnih rješenja koja odgovaraju poslovnim ciljevima i financijskim mogućnostima klijenta.',
+                ],
+                'help_title' => 'U okviru usluge pomažemo u:',
+                'help_items' => [
+                    'analizi potreba za financiranjem',
+                    'pripremi financijskih projekcija i investicijskih podloga',
+                    'strukturiranju kreditnog zahtjeva',
+                    'komunikaciji i pregovorima s bankama',
+                    'analizi uvjeta financiranja',
+                    'odabiru najpovoljnije strukture kredita',
+                ],
+                'approach_title' => 'Naš pristup',
+                'approach_body' => [
+                    'Proces započinjemo detaljnom analizom poslovanja, postojećih obveza i planova razvoja društva. Na temelju razumijevanja poslovnog modela pripremamo kvalitetne financijske materijale i podržavamo klijenta kroz cijeli proces financiranja, s ciljem osiguranja održivog i učinkovitog kreditnog rješenja.',
                 ],
             ],
             'zopu' => [
                 'title' => 'Zakon o poticanju ulaganja',
-                'body' => [
-                    'Pomažemo društvima u ostvarivanju prava na porezne olakšice i državne potpore dostupne temeljem Zakona o poticanju ulaganja. Analiziramo investicijske projekte, procjenjujemo ispunjavaju li uvjete za ostvarivanje poticaja te pružamo podršku tijekom cijelog procesa prijave i provedbe.',
-                    'Cilj je pomoći klijentima maksimalno iskoristiti dostupne pogodnosti i povećati isplativost planiranih ulaganja.',
+                'kicker' => 'ZAKON O POTICANJU ULAGANJA',
+                'overview_title' => 'Što je Zakon o poticanju ulaganja?',
+                'overview_body' => [
+                    'Zakon o poticanju ulaganja predstavlja okvir za korištenje dostupnih potpora namijenjenih poticanju investicija, otvaranju novih radnih mjesta i povećanju konkurentnosti društava. Kroz različite oblike potpora omogućuje se smanjenje troškova ulaganja i stvaranje povoljnijih uvjeta za razvoj poslovanja.',
+                ],
+                'services_title' => 'Naše usluge',
+                'services_body' => [
+                    'Pružamo stručnu podršku društvima u pripremi i provedbi investicijskih projekata koji mogu ostvariti pravo na potpore prema Zakonu o poticanju ulaganja. Naš pristup obuhvaća analizu prihvatljivosti projekta, pripremu potrebne dokumentacije te podršku kroz cijeli proces realizacije ulaganja.',
+                ],
+                'help_title' => 'U okviru usluge pomažemo u:',
+                'help_items' => [
+                    'analizi mogućnosti korištenja potpora',
+                    'procjeni prihvatljivosti investicijskog projekta',
+                    'pripremi investicijske dokumentacije i prijavne dokumentacije',
+                    'definiranju ključnih pokazatelja ulaganja',
+                    'komunikaciji s nadležnim institucijama',
+                    'praćenju provedbe investicijskih aktivnosti',
+                ],
+                'approach_title' => 'Naš pristup',
+                'approach_body' => [
+                    'Proces započinjemo razumijevanjem poslovnih ciljeva klijenta i planirane investicije. Analiziramo potencijalne mogućnosti ostvarivanja potpora te strukturiramo projekt na način koji omogućuje učinkovitu provedbu ulaganja i dugoročnu poslovnu vrijednost.',
                 ],
             ],
             'ma' => [
-                'title' => 'Spajanja i preuzimanja (M&A)',
-                'intro' => 'Pružamo financijsko savjetovanje u postupcima spajanja, preuzimanja i prodaje društava. Usluge su usmjerene na strukturiranje transakcije, financijsku analizu poslovanja i podršku klijentima tijekom cijelog procesa provedbe.',
-                'sale' => [
-                    'title' => 'Prodaja poduzeća',
-                    'body' => 'Rad započinje definiranjem ciljeva transakcije i analizom financijskih informacija društva. Na temelju provedenih analiza izrađujemo procjenu vrijednosti te pripremamo transakcijske materijale namijenjene potencijalnim kupcima ili investitorima. U nastavku pružamo financijsku podršku tijekom komunikacije sa zainteresiranim stranama, postupka dubinskog snimanja te tijekom pregovora o uvjetima transakcije.',
+                'title' => 'Prodaja i kupnja poduzeća (M&A)',
+                'kicker' => 'M&A SAVJETOVANJE',
+                'overview_title' => 'Što je prodaja i kupnja poduzeća?',
+                'overview_body' => [
+                    'Prodaja i kupnja poduzeća predstavljaju složene poslovne procese koji uključuju prijenos vlasništva, pronalazak odgovarajućih partnera i strukturiranje transakcije s ciljem ostvarivanja optimalne vrijednosti za sve uključene strane.',
                 ],
-                'acquisition' => [
-                    'title' => 'Kupnja poduzeća',
-                    'body' => 'Naš tim stručnjaka pruža podršku u svim fazama procesa kupnje poduzeća. Nudimo usluge dubinskog snimanja prije akvizicije te podršku nakon zaključenja transakcije, uz strateško savjetovanje o mehanizmima zaključenja i pomoć u pregovorima oko Ugovora o kupoprodaji udjela (SPA), s ciljem osiguravanja glatke i učinkovite tranzicije.',
+                'show_pandea' => true,
+                'services_title' => 'Naše usluge',
+                'services_body' => [
+                    'Pružamo stručnu podršku vlasnicima i investitorima kroz cijeli proces prodaje ili kupnje poduzeća – od početne analize i pripreme transakcije do pregovora i zaključenja posla. Naš pristup usmjeren je na učinkovito upravljanje procesom, zaštitu interesa klijenta i ostvarenje najboljih mogućih uvjeta transakcije.',
+                ],
+                'help_title' => 'U okviru usluge pomažemo u:',
+                'help_items' => [
+                    'analizi poslovanja i pripremi društva za prodaju',
+                    'procjeni vrijednosti poduzeća',
+                    'strukturiranju transakcije',
+                    'pripremi transakcijske dokumentacije',
+                    'identifikaciji potencijalnih kupaca ili investitora',
+                    'analizi ciljanih društava za akviziciju',
+                    'podršci tijekom dubinskog snimanja i pregovora',
+                    'pripremi i provedbi procesa zaključenja transakcije',
+                ],
+                'approach_title' => 'Naš pristup',
+                'approach_body' => [
+                    'Proces započinjemo razumijevanjem ciljeva vlasnika ili investitora te analizom financijskog i poslovnog položaja društva. Kroz strukturirani proces, financijsku analizu i koordinaciju svih aktivnosti pomažemo klijentima donijeti informirane odluke i uspješno realizirati transakciju.',
                 ],
             ],
             'valuations' => [
-                'title' => 'Procjene vrijednosti',
-                'body' => [
-                    'Pružamo usluge procjene vrijednosti trgovačkih društava za potrebe vlasnika, investitora i financijskih institucija. Procjene se izrađuju u svrhu prodaje društva, otkupa manjinskih udjela te dokapitalizacija.',
-                    'Proces procjene temelji se na analizi poslovanja društva, tržišnog okruženja i financijskih informacija. Na temelju provedenih analiza izrađuje se financijski model te utvrđuje procijenjena vrijednost društva.',
+                'title' => 'Procjena vrijednosti društva',
+                'kicker' => 'PROCJENA VRIJEDNOSTI',
+                'overview_title' => 'Što je procjena vrijednosti?',
+                'overview_body' => [
+                    'Procjena vrijednosti predstavlja proces utvrđivanja ekonomske vrijednosti društva na temelju analize poslovanja, financijskih rezultata, tržišnih uvjeta i budućeg potencijala rasta. Koristi se kao podloga za donošenje odluka u procesima prodaje, kupnje, dokapitalizacije i drugih strateških aktivnosti.',
                 ],
-                'methods_title' => 'Metode vrednovanja',
-                'methods' => [
-                    'Metoda diskontiranih novčanih tokova (DCF)',
-                    'Metoda usporedivih transakcija',
-                    'Metoda usporedivih kompanija',
+                'services_title' => 'Naše usluge',
+                'services_body' => [
+                    'Pružamo usluge procjene vrijednosti trgovačkih društava vlasnicima, investitorima i financijskim institucijama, prilagođavajući pristup svrsi i specifičnostima svakog pojedinog projekta. Naš cilj je pružiti objektivan i pouzdan uvid u vrijednost društva te ključne čimbenike koji na nju utječu.',
+                ],
+                'help_title' => 'U okviru usluge pomažemo u:',
+                'help_items' => [
+                    'analizi poslovanja i financijskih pokazatelja društva',
+                    'izradi financijskih modela i projekcija',
+                    'procjeni budućih novčanih tokova i potencijala rasta',
+                    'primjeni odgovarajućih metoda vrednovanja',
+                    'podršci kod prodaje društva, akvizicija i dokapitalizacija',
+                    'pružanju stručne podloge za pregovore i strateške odluke',
+                ],
+                'approach_title' => 'Naš pristup',
+                'approach_body' => [
+                    'Proces započinjemo razumijevanjem poslovnog modela, financijske pozicije i cilja procjene. Primjenom relevantnih tržišnih metoda vrednovanja, uključujući metodu diskontiranih novčanih tokova, usporedivih transakcija i usporedivih društava, izrađujemo procjenu koja pruža jasnu osnovu za donošenje kvalitetnih poslovnih odluka.',
                 ],
             ],
             'due_diligence' => [
-                'title' => 'Due diligence',
-                'intro' => 'Dubinsko snimanje predstavlja ključan alat za donošenje informiranih odluka u transakcijama spajanja, preuzimanja i prodaje društva. Bilo da nastupate kao kupac ili prodavatelj, naš tim pruža jasan i objektivan uvid u financijsko stanje ciljanog društva te identificira čimbenike koji mogu utjecati na vrijednost i uvjet transakcije.',
-                'help_title' => 'Pomažemo vam:',
-                'help_items' => [
-                    'unaprijediti razumijevanje ciljanog društva',
-                    'detektirati rizike i nepravilnosti',
-                    'utvrditi i razumjeti ključne čimbenike uspjeha (KPI)',
-                    'ukazati na prednosti koje mogu biti temelj razvoja ili nedostatke koji se mogu riješiti',
+                'title' => 'Dubinska snimanja (Due Diligence)',
+                'kicker' => 'DUE DILIGENCE',
+                'overview_title' => 'Što je dubinsko snimanje (Due Diligence)?',
+                'overview_body' => [
+                    'Dubinsko snimanje predstavlja detaljnu analizu poslovanja društva s ciljem dobivanja jasnog i objektivnog uvida u financijsko stanje, poslovne rizike i potencijalnu vrijednost društva prije donošenja važnih poslovnih odluka ili provedbe transakcije.',
                 ],
-                'closing' => 'Naš pristup usmjeren je na razumijevanje stvarne financijske snage poslovanja, održivosti ostvarenih rezultata te pravodobno prepoznavanje rizika i prilika.',
+                'services_title' => 'Naše usluge',
+                'services_body' => [
+                    'Pružamo usluge dubinskog snimanja kupcima, prodavateljima i investitorima u procesima spajanja, preuzimanja i drugih poslovnih transakcija. Naš pristup usmjeren je na prepoznavanje ključnih čimbenika koji utječu na vrijednost društva te pravovremeno identificiranje rizika i prilika.',
+                ],
+                'help_title' => 'U okviru usluge pomažemo u:',
+                'help_items' => [
+                    'analizi financijskih rezultata i poslovanja društva',
+                    'procjeni održivosti ostvarenih rezultata',
+                    'identifikaciji ključnih rizika i potencijalnih nepravilnosti',
+                    'analizi ključnih pokazatelja uspješnosti (KPI)',
+                    'razumijevanju poslovnog modela i tržišnog položaja',
+                    'prepoznavanju područja za unapređenje i stvaranje dodatne vrijednosti',
+                ],
+                'approach_title' => 'Naš pristup',
+                'approach_body' => [
+                    'Proces započinjemo detaljnom analizom dostupnih financijskih i poslovnih podataka. Kroz strukturirani pristup i razumijevanje poslovanja društva pružamo pouzdanu podlogu za donošenje informiranih odluka, smanjenje rizika i uspješnu realizaciju poslovnih ciljeva.',
+                ],
             ],
             'tax' => [
                 'title' => 'Porezno savjetovanje',
+                'kicker' => 'POREZNO SAVJETOVANJE',
                 'overview_title' => 'Što je porezno savjetovanje?',
                 'overview_body' => [
-                    'Porezno savjetovanje obuhvaća analizu poreznih obveza, procjenu rizika, usklađenost s propisima i podršku u donošenju poslovnih odluka. U radu povezujemo relevantne zakone, službena mišljenja Porezne uprave, međunarodne porezne ugovore, OECD smjernice i praksu Europskog suda pravde kako bi preporuke bile jasne, primjenjive i poslovno održive.',
+                    'Porezno savjetovanje obuhvaća stručnu podršku u razumijevanju i upravljanju poreznim obvezama, procjeni poreznih rizika i donošenju poslovnih odluka usklađenih s važećim propisima. Cilj je osigurati poreznu učinkovitost, usklađenost poslovanja i dugoročnu održivost.',
                 ],
-                'services_title' => 'Naše porezne usluge',
-                'services' => [
-                    [
-                        'title' => 'Porezna mišljenja',
-                        'text' => 'Pisano stručno mišljenje za specifične poslovne ili osobne situacije uz jasno tumačenje relevantnih propisa, porezne prakse i preporučenog postupanja.',
-                    ],
-                    [
-                        'title' => 'Tax Compliance',
-                        'text' => 'Priprema, pregled i podnošenje poreznih prijava te kontinuirana podrška pravnim i fizičkim osobama u pravodobnom ispunjavanju poreznih obveza.',
-                    ],
-                    [
-                        'title' => 'Porezni pregled',
-                        'text' => 'Analiza porezne pozicije i simulacija poreznog nadzora radi pravodobnog prepoznavanja rizika, pripreme dokumentacije i bolje spremnosti za postupke nadzora.',
-                    ],
-                    [
-                        'title' => 'Porezna optimizacija',
-                        'text' => 'Sustavna analiza poslovanja s ciljem prepoznavanja zakonitih mogućnosti za smanjenje poreznog opterećenja uz očuvanje usklađenosti i operativne učinkovitosti.',
-                    ],
-                    [
-                        'title' => 'Porezni due diligence',
-                        'text' => 'Dubinska analiza porezne pozicije društva prije kupnje, prodaje, spajanja, ulaganja ili drugih strateških transakcija.',
-                    ],
-                    [
-                        'title' => 'Transferne cijene',
-                        'text' => 'Izrada dokumentacije, transfernih politika i savjetovanje o povezanim transakcijama u skladu s lokalnim pravilima i OECD smjernicama.',
-                    ],
+                'services_title' => 'Naše usluge',
+                'services_body' => [
+                    'Pružamo porezno savjetovanje pravnim i fizičkim osobama kroz analizu porezne pozicije, planiranje poslovnih aktivnosti i podršku u svakodnevnim poreznim pitanjima, kao i kod složenijih poslovnih transakcija. Naš pristup temelji se na povezivanju poreznih propisa, poslovnih ciljeva i praktične primjene.',
                 ],
-                'cards' => [
-                    [
-                        'title' => 'Porezno planiranje',
-                        'text' => 'Optimizacija poreznog položaja kroz pravovremeno planiranje transakcija, restrukturiranja i raspodjele dobiti.',
-                    ],
-                    [
-                        'title' => 'PDV savjetovanje',
-                        'text' => 'Savjetovanje u kompleksnim PDV pitanjima — prekogranične transakcije, oslobođenja, usklađenost s EU direktivama.',
-                    ],
-                    [
-                        'title' => 'Transfer cijene',
-                        'text' => 'Izrada politika transfernih cijena i dokumentacije za međunarodne grupe. Usklađenost s OECD smjernicama.',
-                    ],
-                    [
-                        'title' => 'Porezni nadzori',
-                        'text' => 'Zastupanje i podrška u postupcima poreznog nadzora. Priprema odgovora i žalbenih postupaka.',
-                    ],
-                    [
-                        'title' => 'M&A porezno savjetovanje',
-                        'text' => 'Porezna due diligence i strukturiranje transakcija kako bi se minimiziralo porezno opterećenje kupca i prodavatelja.',
-                    ],
-                    [
-                        'title' => 'Međunarodno oporezivanje',
-                        'text' => 'Savjetovanje u pitanjima rezidentnosti, ugovora o izbjegavanju dvostrukog oporezivanja i raspodjele dobiti.',
-                    ],
+                'help_title' => 'U okviru usluge pomažemo u:',
+                'help_items' => [
+                    'poreznom planiranju i optimizaciji',
+                    'analizi poreznih rizika i usklađenosti poslovanja',
+                    'pripremi poreznih mišljenja i stručnih tumačenja',
+                    'podršci kod poreznih nadzora',
+                    'PDV savjetovanju i međunarodnim poreznim pitanjima',
+                    'transfernim cijenama i povezanim transakcijama',
+                    'poreznom savjetovanju kod poslovnih restrukturiranja i M&A transakcija',
                 ],
-                'approach_title' => 'Strukturiran pristup koji povezuje regulatorne zahtjeve i poslovnu praksu',
+                'approach_title' => 'Naš pristup',
                 'approach_body' => [
-                    'Svaki angažman započinjemo razumijevanjem poslovnog modela, porezne pozicije i potencijalnih rizika klijenta. Analiziramo relevantne propise, praksu poreznih tijela i poslovne okolnosti kako bismo preporučili rješenja koja su istovremeno zakonita, operativno provediva i dugoročno održiva.',
-                    'Fokus stavljamo na jasnoću preporuka, praktičnu primjenu i proaktivno upravljanje poreznim rizicima — od svakodnevne usklađenosti do složenih transakcija i poreznih nadzora.',
+                    'Svaki angažman započinjemo razumijevanjem poslovnog modela, financijske i porezne pozicije klijenta te specifičnih poslovnih okolnosti. Analiziramo relevantne propise i poreznu praksu kako bismo preporučili rješenja koja su zakonita, praktično provediva i usmjerena na smanjenje rizika te stvaranje dugoročne vrijednosti.',
                 ],
             ],
             'approach' => [
@@ -301,7 +332,7 @@ class AdvisoryServicePageDefaults
             'blog_section' => [
                 'kicker' => 'OBJAVE',
                 'title' => 'Savjetovanje',
-                'intro' => 'Zadnje objave i novosti iz područja financija, poreza, transakcija i poslovnog savjetovanja.',
+                'intro' => 'Zadnje objave i novosti iz područja financija, poreza, transakcija i savjetovanja.',
             ],
         ];
     }

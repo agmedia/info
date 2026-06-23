@@ -139,7 +139,7 @@
         }
     }
 
-    if (request()->routeIs('advisory.show')) {
+    if (request()->routeIs('advisory.*')) {
         $title = $cleanupText((string) ($servicePageMetaTitle ?? $servicePageTitle ?? $title), 191);
         $description = $cleanupText((string) ($servicePageMetaDescription ?? $description), 320);
 

@@ -91,8 +91,13 @@ Route::middleware(['front.locale', 'front.device'])
         Route::get('usluge', [ServicesController::class, 'index'])->name('services.index');
         Route::get('savjetovanje', [AdvisoryController::class, 'show'])->name('advisory.show');
         Route::get('savjetovanje/financijsko-savjetovanje', [AdvisoryController::class, 'financial'])->name('advisory.finance.show');
+        Route::get('savjetovanje/prodaja-i-kupnja-poduzeca', [AdvisoryController::class, 'ma'])->name('advisory.ma.show');
+        Route::get('savjetovanje/dubinska-snimanja', [AdvisoryController::class, 'dueDiligence'])->name('advisory.due-diligence.show');
+        Route::get('savjetovanje/procjena-vrijednosti-drustva', [AdvisoryController::class, 'valuations'])->name('advisory.valuations.show');
         Route::get('savjetovanje/porezno-savjetovanje', [AdvisoryController::class, 'tax'])->name('advisory.tax.show');
         Route::get('savjetovanje/pribavljanje-financiranja', [AdvisoryController::class, 'funding'])->name('advisory.funding.show');
+        Route::get('savjetovanje/pribavljanje-financiranja/bankovni-krediti', [AdvisoryController::class, 'bankLoans'])->name('advisory.bank-loans.show');
+        Route::get('savjetovanje/pribavljanje-financiranja/zakon-o-poticanju-ulaganja', [AdvisoryController::class, 'investmentIncentives'])->name('advisory.investment-incentives.show');
         Route::get('financije', [FinanceController::class, 'show'])->name('finance.show');
         Route::get('racunovodstvo', [AccountingController::class, 'show'])->name('accounting.show');
         Route::get('revizija', [AuditController::class, 'show'])->name('audit.show');

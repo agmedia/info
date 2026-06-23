@@ -10419,6 +10419,7 @@
 
     .ac-audit-editorial-shell {
         display: grid;
+        grid-template-columns: minmax(0, 1fr);
         gap: 0;
         margin-top: 0;
     }
@@ -10607,6 +10608,44 @@
         line-height: 1.7;
     }
 
+    .ac-advisory-services-section {
+        width: min(calc(100vw - clamp(2rem, 6vw, 7rem)), 1540px);
+        max-width: none;
+        margin-right: auto;
+        margin-left: 50%;
+        transform: translateX(-50%);
+    }
+
+    .ac-advisory-services-section .ac-audit-section-head {
+        max-width: 52rem;
+        margin-right: auto;
+        margin-left: auto;
+    }
+
+    .ac-advisory-service-card-grid {
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+        gap: 1rem;
+    }
+
+    .ac-advisory-service-card-grid .ac-audit-service-card {
+        padding: 1.28rem 1.15rem 1.15rem;
+    }
+
+    .ac-advisory-service-card-grid .ac-audit-service-card h3 {
+        font-size: 1rem;
+        line-height: 1.42;
+    }
+
+    .ac-advisory-service-card-grid .ac-audit-service-card p {
+        font-size: 0.9rem;
+        line-height: 1.64;
+    }
+
+    .ac-advisory-service-card-grid .ac-advisory-card-link {
+        padding-top: 0.9rem;
+        font-size: 0.78rem;
+    }
+
     .ac-advisory-page .ac-service-hero .ac-family-hero-title .is-subtitle {
         font-size: clamp(3.15rem, 5.1vw, 5.15rem);
     }
@@ -10755,6 +10794,40 @@
         height: 0.38rem;
         border-radius: 999px;
         background: #ab8d52;
+    }
+
+    .ac-advisory-check-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 1rem 1.1rem;
+        margin-top: 1.55rem;
+    }
+
+    .ac-advisory-check-pill {
+        display: flex;
+        min-width: 0;
+        min-height: 3.15rem;
+        align-items: center;
+        gap: 0.55rem;
+        padding: 0.78rem 1rem;
+        border: 1px solid rgba(171, 141, 82, 0.14);
+        border-radius: 6px;
+        background: rgba(255, 255, 255, 0.86);
+        color: #111827;
+        font-family: 'Montserrat', sans-serif;
+        font-size: 0.92rem;
+        font-weight: 700;
+        line-height: 1.35;
+        letter-spacing: 0;
+        box-shadow: 0 12px 26px -24px rgba(15, 23, 42, 0.3);
+    }
+
+    .ac-advisory-check-mark {
+        flex: 0 0 auto;
+        color: #9a773d;
+        font-size: 0.95rem;
+        font-weight: 800;
+        line-height: 1;
     }
 
     .ac-advisory-note {
@@ -11473,6 +11546,10 @@
             font-size: 4.15rem;
         }
 
+        .ac-advisory-service-card-grid {
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+        }
+
         .ac-service-cta-copy h2 {
             font-size: 1.55rem;
         }
@@ -11487,7 +11564,14 @@
     }
 
     @media (max-width: 900px) {
+        .ac-advisory-services-section {
+            width: 100%;
+            margin-left: 0;
+            transform: none;
+        }
+
         .ac-audit-card-grid,
+        .ac-advisory-service-card-grid,
         .ac-advisory-toc-grid,
         .ac-advisory-number-grid,
         .ac-advisory-phase-grid,
@@ -11506,6 +11590,10 @@
 
         .ac-advisory-stat-grid,
         .ac-advisory-two-col {
+            grid-template-columns: minmax(0, 1fr);
+        }
+
+        .ac-advisory-check-grid {
             grid-template-columns: minmax(0, 1fr);
         }
 
@@ -11587,12 +11675,19 @@
         .ac-advisory-stat-grid,
         .ac-advisory-two-col,
         .ac-advisory-phase-grid,
+        .ac-advisory-check-grid,
         .ac-advisory-checklist-grid,
         .ac-advisory-service-grid,
         .ac-advisory-three-grid,
         .ac-advisory-detail-grid,
         .ac-advisory-module-grid {
             margin-top: 1.35rem;
+        }
+
+        .ac-advisory-check-pill {
+            min-height: 2.85rem;
+            padding: 0.72rem 0.9rem;
+            font-size: 0.88rem;
         }
 
         .ac-advisory-toc-card h3 {
