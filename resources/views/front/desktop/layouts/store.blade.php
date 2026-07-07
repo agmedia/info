@@ -71,6 +71,7 @@
             --front-cream-title-bg: #f6f1e7;
             --front-fixed-watermark: url("{{ asset('front-theme/images/bck-logo.png') }}");
             --front-fixed-watermark-size: clamp(38rem, 58vw, 70rem);
+            --front-fixed-watermark-opacity: 0.42;
         }
 
         .front-desktop-shell :is(
@@ -131,6 +132,7 @@
             background-position: center center;
             background-repeat: no-repeat;
             background-size: contain;
+            opacity: var(--front-fixed-watermark-opacity);
             pointer-events: none;
         }
 

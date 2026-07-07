@@ -1,6 +1,10 @@
 <?php
     $overviewBody = array_values($overviewSection['body'] ?? []);
     $obligorsIntro = trim((string) ($obligorsSection['intro'] ?? ''));
+    $obligorsPrimaryTitle = trim((string) ($obligorsSection['primary_title'] ?? ''));
+    $obligorsPrimaryItems = array_values((array) ($obligorsSection['primary_items'] ?? []));
+    $obligorsNote = trim((string) ($obligorsSection['note'] ?? ''));
+    $useObligorsList = ($obligorsSection['display_mode'] ?? '') === 'list' && $obligorsPrimaryItems !== [];
     $auditServices = array_values($servicesSection['items'] ?? []);
     $approachBody = array_values($approachSection['body'] ?? []);
     $approachIntro = trim((string) ($approachSection['intro'] ?? ''));
@@ -89,8 +93,45 @@
                             <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                         </div>
 
-                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($obligorsIntro !== ''): ?>
-                            <p class="ac-audit-note ac-audit-note--overview"><?php echo e($obligorsIntro); ?></p>
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($obligorsIntro !== '' || $useObligorsList || $obligorsNote !== ''): ?>
+                            <div class="ac-audit-note ac-audit-note--overview ac-audit-obligors-note">
+                                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($useObligorsList): ?>
+                                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($obligorsPrimaryTitle !== ''): ?>
+                                        <h3><?php echo e($obligorsPrimaryTitle); ?></h3>
+                                    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+
+                                    <ul>
+                                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $obligorsPrimaryItems; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $item): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                            <?php
+                                                $itemText = is_array($item) ? trim((string) ($item['text'] ?? '')) : trim((string) $item);
+                                                $children = is_array($item) ? array_values((array) ($item['children'] ?? [])) : [];
+                                            ?>
+
+                                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($itemText !== ''): ?>
+                                                <li>
+                                                    <span><?php echo e($itemText); ?></span>
+
+                                                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($children !== []): ?>
+                                                        <ul>
+                                                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $children; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $child): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                                                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(trim((string) $child) !== ''): ?>
+                                                                    <li><?php echo e($child); ?></li>
+                                                                <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                                                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                                                        </ul>
+                                                    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                                                </li>
+                                            <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                                    </ul>
+                                <?php elseif($obligorsIntro !== ''): ?>
+                                    <p><?php echo e($obligorsIntro); ?></p>
+                                <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+
+                                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($obligorsNote !== ''): ?>
+                                    <p class="ac-audit-obligors-note-conclusion"><?php echo e($obligorsNote); ?></p>
+                                <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                            </div>
                         <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                     </article>
 
@@ -103,7 +144,7 @@
                             <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                         </div>
 
-                        <div class="ac-audit-card-grid">
+                        <div class="ac-audit-card-grid ac-audit-services-card-grid">
                             <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $auditServices; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $item): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                                 <article class="ac-audit-service-card">
                                     <h3><?php echo e($item['title'] ?? ''); ?></h3>
@@ -255,13 +296,13 @@
 <?php $__env->stopSection(); ?>
 
 <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($hasAuditPosts || $hasServiceVideos): ?>
-    <?php if (! $__env->hasRenderedOnce('5eee3a7a-fb45-4a90-972b-3fd7dbcaad1a')): $__env->markAsRenderedOnce('5eee3a7a-fb45-4a90-972b-3fd7dbcaad1a'); ?>
+    <?php if (! $__env->hasRenderedOnce('d57eb301-e875-40ec-8346-fe4bc9b47ccd')): $__env->markAsRenderedOnce('d57eb301-e875-40ec-8346-fe4bc9b47ccd'); ?>
         <?php $__env->startPush('styles'); ?>
             <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@splidejs/splide@4.1.4/dist/css/splide.min.css">
         <?php $__env->stopPush(); ?>
     <?php endif; ?>
 
-    <?php if (! $__env->hasRenderedOnce('75cd73a0-365a-4277-845c-16017abe508b')): $__env->markAsRenderedOnce('75cd73a0-365a-4277-845c-16017abe508b'); ?>
+    <?php if (! $__env->hasRenderedOnce('9fdaaae1-c4c1-4a62-8e20-71babd344744')): $__env->markAsRenderedOnce('9fdaaae1-c4c1-4a62-8e20-71babd344744'); ?>
         <?php $__env->startPush('scripts'); ?>
             <script defer src="https://cdn.jsdelivr.net/npm/@splidejs/splide@4.1.4/dist/js/splide.min.js"></script>
         <?php $__env->stopPush(); ?>

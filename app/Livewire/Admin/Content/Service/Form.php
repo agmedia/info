@@ -672,7 +672,7 @@ class Form extends Component
                     'title' => 'Revizija',
                     'slug' => 'revizija',
                     'meta_title' => 'Revizija',
-                    'meta_description' => 'Revizija financijskih izvještaja, revizorski uvidi i posebni revizorski angažmani.',
+                    'meta_description' => 'Revizija financijskih izvještaja, konsolidiranih izvještaja, uvidi, ESG i specijalizirani revizorski angažmani.',
                 ];
             }
 
@@ -680,7 +680,7 @@ class Form extends Component
                 'title' => 'Audit',
                 'slug' => 'audit',
                 'meta_title' => 'Audit',
-                'meta_description' => 'Audit of financial statements, review engagements, and special audit services.',
+                'meta_description' => 'Audit of financial statements, consolidated statements, review engagements, ESG, and specialized audit engagements.',
             ];
         }
 

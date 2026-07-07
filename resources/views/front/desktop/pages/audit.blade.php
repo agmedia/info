@@ -3,6 +3,10 @@
 @php
     $overviewBody = array_values($overviewSection['body'] ?? []);
     $obligorsIntro = trim((string) ($obligorsSection['intro'] ?? ''));
+    $obligorsPrimaryTitle = trim((string) ($obligorsSection['primary_title'] ?? ''));
+    $obligorsPrimaryItems = array_values((array) ($obligorsSection['primary_items'] ?? []));
+    $obligorsNote = trim((string) ($obligorsSection['note'] ?? ''));
+    $useObligorsList = ($obligorsSection['display_mode'] ?? '') === 'list' && $obligorsPrimaryItems !== [];
     $auditServices = array_values($servicesSection['items'] ?? []);
     $approachBody = array_values($approachSection['body'] ?? []);
     $approachIntro = trim((string) ($approachSection['intro'] ?? ''));
@@ -91,8 +95,45 @@
                             @endforeach
                         </div>
 
-                        @if ($obligorsIntro !== '')
-                            <p class="ac-audit-note ac-audit-note--overview">{{ $obligorsIntro }}</p>
+                        @if ($obligorsIntro !== '' || $useObligorsList || $obligorsNote !== '')
+                            <div class="ac-audit-note ac-audit-note--overview ac-audit-obligors-note">
+                                @if ($useObligorsList)
+                                    @if ($obligorsPrimaryTitle !== '')
+                                        <h3>{{ $obligorsPrimaryTitle }}</h3>
+                                    @endif
+
+                                    <ul>
+                                        @foreach ($obligorsPrimaryItems as $item)
+                                            @php
+                                                $itemText = is_array($item) ? trim((string) ($item['text'] ?? '')) : trim((string) $item);
+                                                $children = is_array($item) ? array_values((array) ($item['children'] ?? [])) : [];
+                                            @endphp
+
+                                            @if ($itemText !== '')
+                                                <li>
+                                                    <span>{{ $itemText }}</span>
+
+                                                    @if ($children !== [])
+                                                        <ul>
+                                                            @foreach ($children as $child)
+                                                                @if (trim((string) $child) !== '')
+                                                                    <li>{{ $child }}</li>
+                                                                @endif
+                                                            @endforeach
+                                                        </ul>
+                                                    @endif
+                                                </li>
+                                            @endif
+                                        @endforeach
+                                    </ul>
+                                @elseif ($obligorsIntro !== '')
+                                    <p>{{ $obligorsIntro }}</p>
+                                @endif
+
+                                @if ($obligorsNote !== '')
+                                    <p class="ac-audit-obligors-note-conclusion">{{ $obligorsNote }}</p>
+                                @endif
+                            </div>
                         @endif
                     </article>
 
@@ -105,7 +146,7 @@
                             @endif
                         </div>
 
-                        <div class="ac-audit-card-grid">
+                        <div class="ac-audit-card-grid ac-audit-services-card-grid">
                             @foreach ($auditServices as $item)
                                 <article class="ac-audit-service-card">
                                     <h3>{{ $item['title'] ?? '' }}</h3>

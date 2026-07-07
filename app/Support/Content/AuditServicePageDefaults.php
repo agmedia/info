@@ -40,11 +40,24 @@ class AuditServicePageDefaults
             'obligors' => [
                 'kicker' => 'OBVEZNICI',
                 'title' => 'Obveznici revizije',
-                'intro' => 'Zakonska revizija obvezna je za velika i srednja društva prema Zakonu o računovodstvu, te za sva dionička društva neovisno o veličini. Prag za obveznu reviziju: prihodi iznad 30 mil. EUR, imovina iznad 15 mil. EUR ili više od 25 zaposlenih (zadovoljeni 2 od 3 kriterija u 2 uzastopne godine).',
-                'primary_title' => 'Zakonska revizija obvezna je za',
+                'intro' => '',
+                'display_mode' => 'list',
+                'primary_title' => 'Revizija je zakonska obveza za:',
                 'primary_items' => [
-                    'velika i srednja društva prema Zakonu o računovodstvu',
-                    'sva dionička društva neovisno o veličini',
+                    'srednja i velika trgovačka društva',
+                    'društva od javnog interesa',
+                    [
+                        'text' => 'dionička društva, komanditna društva, društva s ograničenom odgovornošću koja u godini koja prethodi reviziji prelaze barem dva od sljedeća tri uvjeta:',
+                        'children' => [
+                            'ukupna aktiva 2.500.000 eura',
+                            'ukupni prihod 5.000.000 eura',
+                            'prosječan broj zaposlenika tijekom poslovne godine iznosi najmanje 25',
+                        ],
+                    ],
+                    'društva uključena u statusne promjene',
+                    'korisnike EU sredstava kada je to propisano pravilima financiranja',
+                    'neprofitne organizacije koje su u prethodnoj godini ostvarile ukupan prihod veći od 398.168,43 eura do uključivo 1.327.228,08 eura (podliježu revizijskom uvidu)',
+                    'neprofitne organizacije koje su u prethodnoj godini ostvarile ukupan prihod veći od 1.327.228,08 eura (podliježu reviziji)',
                 ],
                 'thresholds_title' => 'Prag za obveznu reviziju',
                 'thresholds_intro' => 'Prag za obveznu reviziju primjenjuje se kada su zadovoljena 2 od 3 kriterija u 2 uzastopne godine:',
@@ -53,7 +66,7 @@ class AuditServicePageDefaults
                     'imovina iznad 15 mil. EUR',
                     'više od 25 zaposlenih',
                 ],
-                'note' => 'Revizija se može ugovoriti i dobrovoljno za društva koja žele povećati kredibilitet kod banaka, investitora ili poslovnih partnera, bez zakonske obveze.',
+                'note' => 'Provedena revizija stvara dodanu vrijednost kako za upravu, tako i za vlasnike, banke i investitore, stoga ju društva mogu ugovoriti i dobrovoljno, kako bi unaprijedili svoje poslovanje.',
             ],
             'services' => [
                 'kicker' => 'USLUGE',
@@ -61,20 +74,28 @@ class AuditServicePageDefaults
                 'intro' => '',
                 'items' => [
                     [
-                        'title' => 'Zakonska revizija',
-                        'text' => 'Revizija financijskih izvještaja prema MSFI i Zakonu o reviziji. Transparentan angažman od planiranja do mišljenja.',
+                        'title' => 'Revizija financijskih izvještaja',
+                        'text' => 'Revizija financijskih izvještaja u skladu sa Zakonom o reviziji i Međunarodnim revizijskim standardima. Neovisno i objektivno revizorsko mišljenje za veću vjerodostojnost financijskih informacija.',
                     ],
                     [
-                        'title' => 'Dobrovoljna revizija',
-                        'text' => 'Za društva koja žele povećati kredibilitet kod banaka, investitora ili poslovnih partnera, bez zakonske obveze.',
+                        'title' => 'Konsolidirani financijski izvještaji',
+                        'text' => 'Revizija konsolidiranih financijskih izvještaja grupa društava s fokusom na kvalitetu procesa konsolidacije i transparentnost izvještavanja.',
                     ],
                     [
-                        'title' => 'Interna revizija',
-                        'text' => 'Procjena internih kontrola i upravljačkih procesa. Preporuke za jačanje sustava nadzora i smanjenje operativnog rizika.',
+                        'title' => 'Pregledi i uvidi',
+                        'text' => 'Uvid u financijske izvještaje i pregledi financijskih informacija koji pružaju ograničeno uvjerenje o pouzdanosti financijskih podataka.',
                     ],
                     [
-                        'title' => 'Revizija posebne namjene',
-                        'text' => 'Angažmani vezani uz transakcije, restrukturiranja, stečajne postupke ili posebne zahtjeve dioničara.',
+                        'title' => 'Održivost i ESG',
+                        'text' => 'Angažmani s izražavanjem ograničenog uvjerenja o izvještajima o održivosti i drugim nefinancijskim informacijama sukladno regulatornim zahtjevima i dobrim praksama.',
+                    ],
+                    [
+                        'title' => 'Specijalizirani revizorski angažmani',
+                        'text' => 'Revizija financijskih izvještaja za posebne namjene, revizija EU projekata, revizija statusnih promjena i kapitala te ostali angažmani prilagođeni specifičnim potrebama klijenata.',
+                    ],
+                    [
+                        'title' => 'IT revizija',
+                        'text' => 'Procjena informacijskih sustava i IT kontrola s ciljem povećanja sigurnosti, pouzdanosti i učinkovitosti poslovnih procesa.',
                     ],
                 ],
             ],
@@ -156,14 +177,24 @@ class AuditServicePageDefaults
             'obligors' => [
                 'kicker' => 'OBLIGATIONS',
                 'title' => 'Entities subject to statutory audit',
-                'intro' => 'Statutory audit is mandatory for public-interest entities, large and medium-sized undertakings, and parent companies of large and medium-sized groups. It may also apply to joint-stock companies, limited liability companies, and limited partnerships when statutory thresholds are exceeded.',
-                'primary_title' => 'Statutory audit is mandatory for',
+                'intro' => '',
+                'display_mode' => 'list',
+                'primary_title' => 'Audit is a statutory obligation for:',
                 'primary_items' => [
+                    'medium-sized and large companies',
                     'public-interest entities',
-                    'large and medium-sized undertakings',
-                    'parent companies of large and medium-sized groups',
-                    'companies involved in status changes where an audit is required',
-                    'EU funds beneficiaries when financing rules require an audit',
+                    [
+                        'text' => 'joint-stock companies, limited partnerships, and limited liability companies that in the year preceding the audit exceed at least two of the following three criteria:',
+                        'children' => [
+                            'total assets of EUR 2,500,000',
+                            'total revenue of EUR 5,000,000',
+                            'an average number of employees during the financial year of at least 25',
+                        ],
+                    ],
+                    'companies involved in status changes',
+                    'EU funds beneficiaries when required by financing rules',
+                    'non-profit organizations whose total revenue in the previous year exceeded EUR 398,168.43 up to and including EUR 1,327,228.08 (subject to review)',
+                    'non-profit organizations whose total revenue in the previous year exceeded EUR 1,327,228.08 (subject to audit)',
                 ],
                 'thresholds_title' => 'Thresholds for joint-stock, limited liability, and limited partnership companies',
                 'thresholds_intro' => 'If the company is not already subject to audit on another basis, the obligation applies when it exceeds two of the following three criteria in the year preceding the audit:',
@@ -172,7 +203,7 @@ class AuditServicePageDefaults
                     'net revenue above EUR 5,000,000',
                     'an average of at least 25 workers during the financial year',
                 ],
-                'note' => 'An audit may also be engaged voluntarily by companies that want to increase credibility with banks, investors, or business partners without a statutory obligation.',
+                'note' => 'A completed audit creates added value for management, owners, banks, and investors, so companies may also engage it voluntarily to improve their business.',
             ],
             'services' => [
                 'kicker' => 'SERVICES',
@@ -180,20 +211,28 @@ class AuditServicePageDefaults
                 'intro' => '',
                 'items' => [
                     [
-                        'title' => 'Statutory audit',
-                        'text' => 'Audit of financial statements under IFRS and the Audit Act. A transparent engagement from planning to audit opinion.',
+                        'title' => 'Audit of financial statements',
+                        'text' => 'Audit of financial statements in accordance with the Audit Act and International Standards on Auditing, with an independent and objective audit opinion for greater credibility of financial information.',
                     ],
                     [
-                        'title' => 'Voluntary audit',
-                        'text' => 'For companies that want to increase credibility with banks, investors, or business partners without a statutory obligation.',
+                        'title' => 'Consolidated financial statements',
+                        'text' => 'Audit of consolidated financial statements for groups of companies, focused on the quality of the consolidation process and transparent reporting.',
                     ],
                     [
-                        'title' => 'Internal audit',
-                        'text' => 'Assessment of internal controls and governance processes, with recommendations for stronger oversight and lower operational risk.',
+                        'title' => 'Reviews and insights',
+                        'text' => 'Review engagements and reviews of financial information that provide limited assurance about the reliability of financial data.',
                     ],
                     [
-                        'title' => 'Special-purpose audit',
-                        'text' => 'Engagements connected to transactions, restructurings, insolvency proceedings, or specific shareholder requirements.',
+                        'title' => 'Sustainability and ESG',
+                        'text' => 'Limited assurance engagements for sustainability reports and other non-financial information in line with regulatory requirements and good practice.',
+                    ],
+                    [
+                        'title' => 'Specialized audit engagements',
+                        'text' => 'Audits of special-purpose financial statements, EU project audits, audits of status changes and capital, and other engagements tailored to specific client needs.',
+                    ],
+                    [
+                        'title' => 'IT audit',
+                        'text' => 'Assessment of information systems and IT controls to increase the security, reliability, and efficiency of business processes.',
                     ],
                 ],
             ],

@@ -10387,7 +10387,7 @@
     }
 
     :is(.front-route-audit, .front-route-accounting, .front-route-advisory, .front-route-eu-funds) .ac-service-hero {
-        border-bottom: 1px solid rgba(120, 96, 58, 0.16);
+        border-bottom: 1px solid rgba(120, 96, 58, 0.06);
     }
 
     .ac-audit-editorial-wrap,
@@ -10468,7 +10468,7 @@
         z-index: -1;
         width: 100vw;
         transform: translateX(-50%);
-        border-top: 1px solid rgba(120, 96, 58, 0.12);
+        border-top: 1px solid rgba(120, 96, 58, 0.05);
         background: var(--ac-audit-bg-warm);
     }
 
@@ -10477,7 +10477,7 @@
     }
 
     :is(.front-route-audit, .front-route-accounting, .front-route-advisory, .front-route-eu-funds) .ac-audit-editorial-section:first-child::before {
-        border-top-color: rgba(255, 255, 255, 0.45);
+        border-top-color: rgba(255, 255, 255, 0.24);
     }
 
     .ac-audit-section-head {
@@ -10576,11 +10576,79 @@
         line-height: 1.74;
     }
 
+    .ac-audit-obligors-note {
+        display: grid;
+        gap: 0.8rem;
+        max-width: 64rem;
+        margin-right: auto;
+        margin-left: auto;
+    }
+
+    .ac-audit-obligors-note h3 {
+        margin: 0;
+        color: #151b26;
+        font-family: 'Montserrat', sans-serif;
+        font-size: 0.96rem;
+        font-weight: 700;
+        line-height: 1.45;
+    }
+
+    .ac-audit-obligors-note ul {
+        display: grid;
+        gap: 0.52rem;
+        margin: 0;
+        padding-left: 0;
+        list-style: none;
+    }
+
+    .ac-audit-obligors-note li {
+        position: relative;
+        color: #2f2b26;
+        font-size: 0.95rem;
+        line-height: 1.58;
+        padding-left: 1.45rem;
+    }
+
+    .ac-audit-obligors-note li::before {
+        content: '\2713';
+        position: absolute;
+        top: 0.02rem;
+        left: 0;
+        color: #9a773d;
+        font-family: 'Montserrat', sans-serif;
+        font-size: 0.92rem;
+        font-weight: 800;
+        line-height: 1.35;
+    }
+
+    .ac-audit-obligors-note li ul {
+        gap: 0.3rem;
+        margin-top: 0.4rem;
+        padding-left: 0.2rem;
+        list-style: none;
+    }
+
+    .ac-audit-obligors-note li ul li {
+        font-size: 0.93rem;
+        padding-left: 1.35rem;
+    }
+
+    .ac-audit-obligors-note-conclusion {
+        margin: 0.45rem 0 0;
+        color: #403a34;
+        font-size: 0.96rem;
+        line-height: 1.68;
+    }
+
     .ac-audit-card-grid {
         display: grid;
         grid-template-columns: repeat(2, minmax(0, 1fr));
         gap: 1rem;
         margin-top: 2rem;
+    }
+
+    .ac-audit-services-card-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
     }
 
     .ac-audit-service-card {
@@ -11370,8 +11438,8 @@
 
     :is(.front-route-audit, .front-route-accounting, .front-route-advisory, .front-route-eu-funds) .ac-service-cta-section {
         padding: clamp(3.6rem, 6vw, 5.2rem) 0;
-        border-top: 1px solid rgba(120, 96, 58, 0.12);
-        border-bottom: 1px solid rgba(120, 96, 58, 0.1);
+        border-top: 1px solid rgba(120, 96, 58, 0.05);
+        border-bottom: 1px solid rgba(120, 96, 58, 0.045);
         background: var(--ac-service-cta-band-bg);
     }
 
@@ -11382,7 +11450,7 @@
     }
 
     :is(.front-route-audit, .front-route-accounting, .front-route-advisory, .front-route-eu-funds) .ac-audit-blog-section {
-        border-top: 1px solid rgba(120, 96, 58, 0.12);
+        border-top: 1px solid rgba(120, 96, 58, 0.05);
         background: var(--ac-service-blog-band-bg);
     }
 
