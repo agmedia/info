@@ -1,0 +1,66 @@
+{
+  "_ace-l_m6_80p.js": {
+    "file": "assets/ace-l_m6_80p.js",
+    "name": "ace",
+    "isDynamicEntry": true,
+    "imports": [
+      "resources/js/app.js"
+    ]
+  },
+  "_ext-language_tools-DiI-h7n4.js": {
+    "file": "assets/ext-language_tools-DiI-h7n4.js",
+    "name": "ext-language_tools",
+    "isDynamicEntry": true,
+    "imports": [
+      "resources/js/app.js"
+    ]
+  },
+  "_mode-html-D9ndP_P4.js": {
+    "file": "assets/mode-html-D9ndP_P4.js",
+    "name": "mode-html",
+    "isDynamicEntry": true,
+    "imports": [
+      "resources/js/app.js"
+    ]
+  },
+  "_theme-tomorrow_night-C2h4sCfD.js": {
+    "file": "assets/theme-tomorrow_night-C2h4sCfD.js",
+    "name": "theme-tomorrow_night",
+    "isDynamicEntry": true,
+    "imports": [
+      "resources/js/app.js"
+    ]
+  },
+  "resources/css/app.css": {
+    "file": "assets/app-BFWIsILR.css",
+    "src": "resources/css/app.css",
+    "isEntry": true,
+    "name": "app",
+    "names": [
+      "app.css"
+    ]
+  },
+  "resources/images/icons/znak-zlatni.svg": {
+    "file": "assets/znak-zlatni-Cq1-Emy3.svg",
+    "src": "resources/images/icons/znak-zlatni.svg"
+  },
+  "resources/images/patterns/usluge-lines.svg": {
+    "file": "assets/usluge-lines-CnQ7ARt6.svg",
+    "src": "resources/images/patterns/usluge-lines.svg"
+  },
+  "resources/js/app.js": {
+    "file": "assets/app-D0zreqZm.js",
+    "name": "app",
+    "src": "resources/js/app.js",
+    "isEntry": true,
+    "dynamicImports": [
+      "_ace-l_m6_80p.js",
+      "_ext-language_tools-DiI-h7n4.js",
+      "_mode-html-D9ndP_P4.js",
+      "_theme-tomorrow_night-C2h4sCfD.js"
+    ],
+    "css": [
+      "assets/app-8Ofu9GWj.css"
+    ]
+  }
+}
