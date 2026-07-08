@@ -147,6 +147,11 @@ class Form extends Component
             $this->form['slot_frontend_variant'] = $suggestedSurface;
         }
 
+        $suggestedPlacement = $this->suggestedPlacementForType($type);
+        if ($suggestedPlacement !== null && array_key_exists($suggestedPlacement, $this->placements)) {
+            $this->form['slot_placement'] = $suggestedPlacement;
+        }
+
         $currentItemType = $this->itemTypeForBlockType($type);
         $existingType = $this->itemTypeForBlockType($this->lastType);
 
@@ -239,6 +244,39 @@ class Form extends Component
         $this->form['selected_item_ids'] = $rows;
     }
 
+    public function addHomeStat(): void
+    {
+        $this->form['home_stats'] = array_values((array) ($this->form['home_stats'] ?? []));
+        $this->form['home_stats'][] = ['value' => '', 'suffix' => '+', 'label' => ''];
+    }
+
+    public function removeHomeStat(int $index): void
+    {
+        $rows = array_values((array) ($this->form['home_stats'] ?? []));
+        unset($rows[$index]);
+        $this->form['home_stats'] = array_values($rows);
+    }
+
+    public function addHomeService(): void
+    {
+        $this->form['home_services'] = array_values((array) ($this->form['home_services'] ?? []));
+        $this->form['home_services'][] = [
+            'title' => '',
+            'subtitle' => '',
+            'text' => '',
+            'bullets_text' => '',
+            'url' => '',
+            'action_label' => 'Detaljnije',
+        ];
+    }
+
+    public function removeHomeService(int $index): void
+    {
+        $rows = array_values((array) ($this->form['home_services'] ?? []));
+        unset($rows[$index]);
+        $this->form['home_services'] = array_values($rows);
+    }
+
     public function save()
     {
         $validated = $this->validate($this->rules());
@@ -268,6 +306,46 @@ class Form extends Component
             $translationPayload['custom_classes'] = $customClasses;
         } else {
             unset($translationPayload['custom_classes']);
+        }
+
+        $blockType = (string) ($validated['form']['type'] ?? '');
+        foreach (['kicker', 'secondary_cta_label', 'secondary_cta_url', 'title_accent', 'stats', 'services'] as $homePayloadKey) {
+            unset($translationPayload[$homePayloadKey]);
+        }
+
+        if ($blockType === 'home_hero') {
+            $kicker = trim((string) ($validated['form']['home_kicker'] ?? ''));
+            $secondaryCtaLabel = trim((string) ($validated['form']['secondary_cta_label'] ?? ''));
+            $secondaryCtaUrl = trim((string) ($validated['form']['secondary_cta_url'] ?? ''));
+
+            if ($kicker !== '') {
+                $translationPayload['kicker'] = $kicker;
+            }
+            if ($secondaryCtaLabel !== '') {
+                $translationPayload['secondary_cta_label'] = $secondaryCtaLabel;
+            }
+            if ($secondaryCtaUrl !== '') {
+                $translationPayload['secondary_cta_url'] = $secondaryCtaUrl;
+            }
+        }
+
+        if ($blockType === 'home_stats') {
+            $stats = $this->normalizeHomeStats($validated['form']['home_stats'] ?? []);
+            if ($stats !== []) {
+                $translationPayload['stats'] = $stats;
+            }
+        }
+
+        if ($blockType === 'home_services') {
+            $titleAccent = trim((string) ($validated['form']['title_accent'] ?? ''));
+            $services = $this->homeServicesPayloadRows($validated['form']['home_services'] ?? []);
+
+            if ($titleAccent !== '') {
+                $translationPayload['title_accent'] = $titleAccent;
+            }
+            if ($services !== []) {
+                $translationPayload['services'] = $services;
+            }
         }
 
         $itemsLimit = (int) ($validated['form']['items_limit'] ?? 0);
@@ -438,6 +516,21 @@ class Form extends Component
             'form.subtitle' => ['nullable', 'string'],
             'form.cta_label' => ['nullable', 'string', 'max:120'],
             'form.cta_url' => ['nullable', 'string', 'max:2048'],
+            'form.home_kicker' => ['nullable', 'string', 'max:180'],
+            'form.secondary_cta_label' => ['nullable', 'string', 'max:120'],
+            'form.secondary_cta_url' => ['nullable', 'string', 'max:2048'],
+            'form.title_accent' => ['nullable', 'string', 'max:255'],
+            'form.home_stats' => ['nullable', 'array', 'max:6'],
+            'form.home_stats.*.value' => ['nullable', 'string', 'max:40'],
+            'form.home_stats.*.suffix' => ['nullable', 'string', 'max:10'],
+            'form.home_stats.*.label' => ['nullable', 'string', 'max:160'],
+            'form.home_services' => ['nullable', 'array', 'max:12'],
+            'form.home_services.*.title' => ['nullable', 'string', 'max:160'],
+            'form.home_services.*.subtitle' => ['nullable', 'string', 'max:220'],
+            'form.home_services.*.text' => ['nullable', 'string', 'max:700'],
+            'form.home_services.*.bullets_text' => ['nullable', 'string', 'max:4000'],
+            'form.home_services.*.url' => ['nullable', 'string', 'max:2048'],
+            'form.home_services.*.action_label' => ['nullable', 'string', 'max:80'],
             'form.bg_css' => ['nullable', 'string', 'max:6000'],
             'form.custom_classes' => ['nullable', 'string', 'max:1000'],
             'form.items_limit' => ['nullable', 'integer', 'min:1', 'max:50'],
@@ -483,6 +576,12 @@ class Form extends Component
             'subtitle' => '',
             'cta_label' => '',
             'cta_url' => '',
+            'home_kicker' => '',
+            'secondary_cta_label' => '',
+            'secondary_cta_url' => '',
+            'title_accent' => '',
+            'home_stats' => $this->defaultHomeStats(),
+            'home_services' => $this->defaultHomeServices(),
             'bg_css' => '',
             'custom_classes' => '',
             'items_limit' => 6,
@@ -549,6 +648,12 @@ class Form extends Component
 
         $this->form['bg_css'] = (string) ($translationPayload['bg_css'] ?? '');
         $this->form['custom_classes'] = (string) ($translationPayload['custom_classes'] ?? '');
+        $this->form['home_kicker'] = (string) ($translationPayload['kicker'] ?? '');
+        $this->form['secondary_cta_label'] = (string) ($translationPayload['secondary_cta_label'] ?? '');
+        $this->form['secondary_cta_url'] = (string) ($translationPayload['secondary_cta_url'] ?? '');
+        $this->form['title_accent'] = (string) ($translationPayload['title_accent'] ?? '');
+        $this->form['home_stats'] = $this->normalizeHomeStats($translationPayload['stats'] ?? [], true);
+        $this->form['home_services'] = $this->normalizeHomeServices($translationPayload['services'] ?? [], true);
         $this->form['items_limit'] = (int) ($translationPayload['items_limit'] ?? 6);
         $this->form['reviews_featured_only'] = (bool) ($translationPayload['reviews_featured_only'] ?? false);
         $blogSource = (string) ($translationPayload['blog_source'] ?? 'latest');
@@ -625,6 +730,12 @@ class Form extends Component
         $this->form['cta_url'] = $translation->cta_url ?? '';
         $this->form['bg_css'] = (string) ($translationPayload['bg_css'] ?? '');
         $this->form['custom_classes'] = (string) ($translationPayload['custom_classes'] ?? '');
+        $this->form['home_kicker'] = (string) ($translationPayload['kicker'] ?? '');
+        $this->form['secondary_cta_label'] = (string) ($translationPayload['secondary_cta_label'] ?? '');
+        $this->form['secondary_cta_url'] = (string) ($translationPayload['secondary_cta_url'] ?? '');
+        $this->form['title_accent'] = (string) ($translationPayload['title_accent'] ?? '');
+        $this->form['home_stats'] = $this->normalizeHomeStats($translationPayload['stats'] ?? [], true);
+        $this->form['home_services'] = $this->normalizeHomeServices($translationPayload['services'] ?? [], true);
         $this->form['items_limit'] = (int) ($translationPayload['items_limit'] ?? 6);
         $this->form['reviews_featured_only'] = (bool) ($translationPayload['reviews_featured_only'] ?? false);
         $blogSource = (string) ($translationPayload['blog_source'] ?? 'latest');
@@ -676,6 +787,12 @@ class Form extends Component
             || trim((string) ($translation->body_html ?? '')) !== ''
             || trim((string) ($payload['bg_css'] ?? '')) !== ''
             || trim((string) ($payload['custom_classes'] ?? '')) !== ''
+            || trim((string) ($payload['kicker'] ?? '')) !== ''
+            || trim((string) ($payload['secondary_cta_label'] ?? '')) !== ''
+            || trim((string) ($payload['secondary_cta_url'] ?? '')) !== ''
+            || trim((string) ($payload['title_accent'] ?? '')) !== ''
+            || ! empty($payload['stats'] ?? [])
+            || ! empty($payload['services'] ?? [])
             || (int) ($payload['items_limit'] ?? 0) > 0
             || (bool) ($payload['reviews_featured_only'] ?? false);
     }
@@ -688,6 +805,12 @@ class Form extends Component
         $this->form['cta_url'] = '';
         $this->form['bg_css'] = '';
         $this->form['custom_classes'] = '';
+        $this->form['home_kicker'] = '';
+        $this->form['secondary_cta_label'] = '';
+        $this->form['secondary_cta_url'] = '';
+        $this->form['title_accent'] = '';
+        $this->form['home_stats'] = $this->defaultHomeStats();
+        $this->form['home_services'] = $this->defaultHomeServices();
         $this->form['items_limit'] = 6;
         $this->form['reviews_featured_only'] = false;
         $this->form['blog_source'] = 'latest';
@@ -786,6 +909,149 @@ class Form extends Component
         return [];
     }
 
+    /**
+     * @return array<int, array{value: string, suffix: string, label: string}>
+     */
+    private function defaultHomeStats(): array
+    {
+        return [
+            ['value' => '300', 'suffix' => '+', 'label' => 'Odrađenih projekata'],
+            ['value' => '600', 'suffix' => '+', 'label' => 'Redovnih klijenata'],
+            ['value' => '60', 'suffix' => '+', 'label' => 'Kvalificiranih stručnjaka'],
+        ];
+    }
+
+    /**
+     * @return array<int, array{title: string, subtitle: string, text: string, bullets_text: string, url: string, action_label: string}>
+     */
+    private function defaultHomeServices(): array
+    {
+        return [
+            [
+                'title' => 'Revizija',
+                'subtitle' => 'sigurnost i povjerenje u brojke',
+                'text' => 'Neovisna provjera financijskih izvještaja koja povećava povjerenje vlasnika, investitora i partnera.',
+                'bullets_text' => implode("\n", [
+                    'Pomažemo vlasnicima, investitorima i upravi da imaju potpunu sigurnost u financijske izvještaje.',
+                    'Revizija smanjuje rizik pogrešnih odluka jer potvrđuje da su podaci točni, potpuni i u skladu s propisima.',
+                    'Kroz neovisnu provjeru dobivate jasnu sliku stvarnog financijskog stanja poduzeća, što jača povjerenje banaka, partnera i regulatora.',
+                ]),
+                'url' => '/revizija',
+                'action_label' => 'Detaljnije',
+            ],
+            [
+                'title' => 'Računovodstvo',
+                'subtitle' => 'kontrola i jasnoća poslovanja',
+                'text' => 'Precizno vođenje knjiga i pravovremeno izvještavanje koje oslobađa menadžment za strateške odluke.',
+                'bullets_text' => implode("\n", [
+                    'Omogućujemo da vaše poslovanje bude financijski uredno, pregledno i uvijek spremno za odluke.',
+                    'To znači da u svakom trenutku imate točne podatke o prihodima, troškovima i rezultatu, bez kašnjenja i nejasnoća.',
+                    'Umjesto da reagirate na probleme, možete upravljati poslovanjem na temelju pouzdanih informacija.',
+                ]),
+                'url' => '/racunovodstvo',
+                'action_label' => 'Detaljnije',
+            ],
+            [
+                'title' => 'Savjetovanje',
+                'subtitle' => 'rast, optimizacija i bolji financijski izbor',
+                'text' => 'Financijsko i porezno savjetovanje te pribavljanje kapitala - sve na jednom mjestu.',
+                'bullets_text' => implode("\n", [
+                    'Pomažemo društvima, investitorima i poduzetnicima u donošenju kvalitetnih odluka, upravljanju rizicima i stvaranju dugoročne vrijednosti.',
+                    'Pružamo podršku u procjenama vrijednosti, due diligence postupcima, M&A procesima i strukturiranju financiranja.',
+                    'EU fondovi, bankovni krediti i porezne olakšice povezani su u okviru pribavljanja financiranja.',
+                ]),
+                'url' => '/savjetovanje',
+                'action_label' => 'Detaljnije',
+            ],
+        ];
+    }
+
+    /**
+     * @return array<int, array{value: string, suffix: string, label: string}>
+     */
+    private function normalizeHomeStats(mixed $stats, bool $useDefaultsWhenEmpty = false): array
+    {
+        $rows = collect(is_array($stats) ? $stats : [])
+            ->map(static function (mixed $row): array {
+                $row = is_array($row) ? $row : [];
+
+                return [
+                    'value' => trim((string) ($row['value'] ?? '')),
+                    'suffix' => trim((string) ($row['suffix'] ?? '')),
+                    'label' => trim((string) ($row['label'] ?? '')),
+                ];
+            })
+            ->filter(static fn (array $row): bool => $row['value'] !== '' || $row['label'] !== '')
+            ->values()
+            ->all();
+
+        return $rows !== [] || ! $useDefaultsWhenEmpty
+            ? $rows
+            : $this->defaultHomeStats();
+    }
+
+    /**
+     * @return array<int, array{title: string, subtitle: string, text: string, bullets_text: string, url: string, action_label: string}>
+     */
+    private function normalizeHomeServices(mixed $services, bool $useDefaultsWhenEmpty = false): array
+    {
+        $rows = collect(is_array($services) ? $services : [])
+            ->map(static function (mixed $row): array {
+                $row = is_array($row) ? $row : [];
+                $bullets = collect((array) ($row['bullets'] ?? []))
+                    ->map(static fn (mixed $bullet): string => trim((string) $bullet))
+                    ->filter(static fn (string $bullet): bool => $bullet !== '')
+                    ->values()
+                    ->all();
+                $bulletsText = trim((string) ($row['bullets_text'] ?? ''));
+                if ($bulletsText === '' && $bullets !== []) {
+                    $bulletsText = implode("\n", $bullets);
+                }
+
+                return [
+                    'title' => trim((string) ($row['title'] ?? '')),
+                    'subtitle' => trim((string) ($row['subtitle'] ?? '')),
+                    'text' => trim((string) ($row['text'] ?? '')),
+                    'bullets_text' => $bulletsText,
+                    'url' => trim((string) ($row['url'] ?? '')),
+                    'action_label' => trim((string) ($row['action_label'] ?? '')),
+                ];
+            })
+            ->filter(static fn (array $row): bool => $row['title'] !== '')
+            ->values()
+            ->all();
+
+        return $rows !== [] || ! $useDefaultsWhenEmpty
+            ? $rows
+            : $this->defaultHomeServices();
+    }
+
+    /**
+     * @return array<int, array<string, mixed>>
+     */
+    private function homeServicesPayloadRows(mixed $services): array
+    {
+        return collect($this->normalizeHomeServices($services))
+            ->map(static function (array $row): array {
+                $bullets = preg_split('/\R/u', (string) ($row['bullets_text'] ?? '')) ?: [];
+
+                return [
+                    'title' => $row['title'],
+                    'subtitle' => $row['subtitle'],
+                    'text' => $row['text'],
+                    'bullets' => collect($bullets)
+                        ->map(static fn (string $bullet): string => trim($bullet))
+                        ->filter(static fn (string $bullet): bool => $bullet !== '')
+                        ->values()
+                        ->all(),
+                    'url' => $row['url'],
+                    'action_label' => $row['action_label'],
+                ];
+            })
+            ->values()
+            ->all();
+    }
+
     private function savePrimarySlot(ContentBlock $block, array $validated, ?int $userId): void
     {
         $slotData = [
@@ -840,6 +1106,9 @@ class Form extends Component
     {
         $priority = [
             'banner',
+            'home_hero',
+            'home_stats',
+            'home_services',
             'desktop_hero_banner',
             'full_width_image_slider',
             'dual_image_cta',
@@ -870,6 +1139,9 @@ class Form extends Component
     {
         return match ($type) {
             'mobile_hero_banner' => 'mobile',
+            'home_hero',
+            'home_stats',
+            'home_services',
             'desktop_hero_banner',
             'full_width_image_slider',
             'dual_image_cta',
@@ -879,9 +1151,28 @@ class Form extends Component
         };
     }
 
+    private function suggestedPlacementForType(string $type): ?string
+    {
+        return match ($type) {
+            'home_hero' => 'home.hero',
+            'home_stats' => 'home.stats',
+            'home_services' => 'home.services',
+            default => null,
+        };
+    }
+
     private function defaultTemplateForType(string $type): string
     {
         return match ($type) {
+            'home_hero' => <<<'BLADE'
+@include('front.content-blocks.types.home_hero')
+BLADE,
+            'home_stats' => <<<'BLADE'
+@include('front.content-blocks.types.home_stats')
+BLADE,
+            'home_services' => <<<'BLADE'
+@include('front.content-blocks.types.home_services')
+BLADE,
             'banner' => <<<'BLADE'
 @php
     $basePayload = is_array($block->payload ?? null) ? $block->payload : [];

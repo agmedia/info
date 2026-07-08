@@ -22,6 +22,7 @@ use App\Services\Settings\SystemSettingsService;
 use App\Support\Content\ServicePageTemplateRegistry;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
@@ -50,6 +51,109 @@ class StorefrontFrontFeatureTest extends TestCase
 
         $this->assertNotNull($post);
         $this->assertNotNull($page);
+    }
+
+    public function test_home_page_renders_admin_managed_content_blocks(): void
+    {
+        Cache::flush();
+
+        $hero = ContentBlock::query()->create([
+            'code' => 'test-home-hero',
+            'name' => 'Test Home Hero',
+            'type' => 'home_hero',
+            'is_active' => true,
+            'payload' => null,
+        ]);
+        $hero->translations()->create([
+            'locale' => 'hr',
+            'title' => 'TEST HERO TITLE',
+            'subtitle' => 'TEST HERO SUBTITLE',
+            'cta_label' => 'Primarni gumb',
+            'cta_url' => '/usluge',
+            'payload' => [
+                'secondary_cta_label' => 'Sekundarni gumb',
+                'secondary_cta_url' => '/contact',
+            ],
+        ]);
+        $hero->slots()->create([
+            'placement' => 'home.hero',
+            'frontend_variant' => 'desktop',
+            'target_type' => null,
+            'target_ref' => null,
+            'sort_order' => 0,
+            'is_active' => true,
+        ]);
+
+        $stats = ContentBlock::query()->create([
+            'code' => 'test-home-stats',
+            'name' => 'Test Home Stats',
+            'type' => 'home_stats',
+            'is_active' => true,
+            'payload' => null,
+        ]);
+        $stats->translations()->create([
+            'locale' => 'hr',
+            'title' => 'Stats',
+            'payload' => [
+                'stats' => [
+                    ['value' => '123', 'suffix' => '+', 'label' => 'Test projekata'],
+                    ['value' => '45', 'suffix' => '+', 'label' => 'Test klijenata'],
+                    ['value' => '6', 'suffix' => '+', 'label' => 'Test stručnjaka'],
+                ],
+            ],
+        ]);
+        $stats->slots()->create([
+            'placement' => 'home.stats',
+            'frontend_variant' => 'desktop',
+            'target_type' => null,
+            'target_ref' => null,
+            'sort_order' => 0,
+            'is_active' => true,
+        ]);
+
+        $services = ContentBlock::query()->create([
+            'code' => 'test-home-services',
+            'name' => 'Test Home Services',
+            'type' => 'home_services',
+            'is_active' => true,
+            'payload' => null,
+        ]);
+        $services->translations()->create([
+            'locale' => 'hr',
+            'title' => 'Test usluge naslov',
+            'subtitle' => 'Test usluge uvod.',
+            'payload' => [
+                'title_accent' => 'test istaknuti dio',
+                'services' => [
+                    [
+                        'title' => 'Test usluga',
+                        'subtitle' => '',
+                        'text' => 'Tekst test usluge iz admin bloka.',
+                        'url' => '/usluge',
+                        'action_label' => 'Detaljnije',
+                    ],
+                ],
+            ],
+        ]);
+        $services->slots()->create([
+            'placement' => 'home.services',
+            'frontend_variant' => 'desktop',
+            'target_type' => null,
+            'target_ref' => null,
+            'sort_order' => 0,
+            'is_active' => true,
+        ]);
+
+        $this->withHeaders([
+            'User-Agent' => 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
+        ])
+            ->get('/')
+            ->assertOk()
+            ->assertSee('TEST HERO TITLE')
+            ->assertSee('Primarni gumb')
+            ->assertSee('Test projekata')
+            ->assertSee('Test usluge naslov')
+            ->assertSee('Tekst test usluge iz admin bloka.');
     }
 
     public function test_info_page_uses_clean_url_and_legacy_page_url_redirects(): void

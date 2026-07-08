@@ -36,6 +36,7 @@ unset($__defined_vars, $__key, $__value); ?>
         <meta name="csrf-token" content="<?php echo e(csrf_token()); ?>">
 
         <title><?php echo e($title ? $title.' | ALPHA ADMIN' : 'ALPHA ADMIN'); ?></title>
+        <link rel="icon" href="<?php echo e(asset('favicon.ico')); ?>" sizes="any">
 
         <?php echo app('Illuminate\Foundation\Vite')(['resources/css/app.css', 'resources/js/app.js']); ?>
         <style>

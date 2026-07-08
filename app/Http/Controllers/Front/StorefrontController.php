@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Front;
 use App\Http\Controllers\Controller;
 use App\Models\Content\Blog\BlogPost;
 use App\Models\Content\Support\Comment;
+use App\Services\Content\ContentBlockResolver;
 use App\Services\Front\ServiceCardService;
 use App\Services\Front\StoreSettingsService;
 use Illuminate\Http\Request;
@@ -14,6 +15,7 @@ use Illuminate\View\View;
 class StorefrontController extends Controller
 {
     public function __construct(
+        private readonly ContentBlockResolver $contentBlockResolver,
         private readonly ServiceCardService $serviceCardService,
         private readonly StoreSettingsService $storeSettingsService
     ) {
@@ -24,6 +26,9 @@ class StorefrontController extends Controller
         $locale = app()->getLocale();
         $fallbackLocale = (string) config('app.fallback_locale', config('app.locale', 'en'));
         $variant = (string) $request->attributes->get('frontend_variant', 'desktop');
+        $homeHeroBlocks = $this->contentBlockResolver->forPlacement('home.hero', $locale, null, null, $variant);
+        $homeStatsBlocks = $this->contentBlockResolver->forPlacement('home.stats', $locale, null, null, $variant);
+        $homeServicesBlocks = $this->contentBlockResolver->forPlacement('home.services', $locale, null, null, $variant);
         $latestBlogPosts = BlogPost::query()
             ->where('is_active', true)
             ->where(function ($q): void {
@@ -45,6 +50,9 @@ class StorefrontController extends Controller
             $variant === 'mobile' ? 'front.mobile.home.index' : 'front.desktop.home.index',
             [
                 'storeSettings' => $this->storeSettingsService->all(),
+                'homeHeroBlocks' => $homeHeroBlocks,
+                'homeStatsBlocks' => $homeStatsBlocks,
+                'homeServicesBlocks' => $homeServicesBlocks,
                 'serviceCards' => $this->serviceCardService->cards((string) $locale, $fallbackLocale),
                 'primaryServicePillars' => $this->serviceCardService->primaryPillars((string) $locale, $fallbackLocale),
                 'latestBlogPosts' => $latestBlogPosts,

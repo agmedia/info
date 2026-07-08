@@ -74,14 +74,18 @@
         ];
     ?>
 
-    <?php echo $__env->make('front.desktop.partials.service-pillars-showcase', [
-        'sectionId' => 'ac-home-services-showcase',
-        'headingLevel' => 2,
-        'titleLead' => 'Stvaramo vrijednost za naše klijente u',
-        'titleAccent' => 'svim fazama razvoja poslovanja',
-        'intro' => $homeServicesShowcaseText,
-        'cards' => $homeServicesShowcaseCards,
-    ], array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
+    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(collect($homeServicesBlocks ?? [])->isNotEmpty()): ?>
+        <?php echo $__env->make('components.content-placement', ['items' => $homeServicesBlocks], array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
+    <?php else: ?>
+        <?php echo $__env->make('front.desktop.partials.service-pillars-showcase', [
+            'sectionId' => 'ac-home-services-showcase',
+            'headingLevel' => 2,
+            'titleLead' => 'Stvaramo vrijednost za naše klijente u',
+            'titleAccent' => 'svim fazama razvoja poslovanja',
+            'intro' => $homeServicesShowcaseText,
+            'cards' => $homeServicesShowcaseCards,
+        ], array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
+    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
     
     <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(false): ?>
@@ -336,7 +340,7 @@
     <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
     <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
-    <?php if (! $__env->hasRenderedOnce('9abd3651-975d-4e73-9d49-a29cca6629d5')): $__env->markAsRenderedOnce('9abd3651-975d-4e73-9d49-a29cca6629d5'); ?>
+    <?php if (! $__env->hasRenderedOnce('27894870-f614-42d4-b0d7-2a73f4e50fe2')): $__env->markAsRenderedOnce('27894870-f614-42d4-b0d7-2a73f4e50fe2'); ?>
         <script>
             (function () {
                 const syncTestimonialToggles = function () {

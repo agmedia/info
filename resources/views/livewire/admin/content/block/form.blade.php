@@ -1,5 +1,9 @@
 @php
     $isBlogGridThree = ($form['type'] ?? '') === 'blog_grid_3';
+    $blockType = (string) ($form['type'] ?? '');
+    $isHomeHero = $blockType === 'home_hero';
+    $isHomeStats = $blockType === 'home_stats';
+    $isHomeServices = $blockType === 'home_services';
 @endphp
 
 <div class="space-y-6">
@@ -187,6 +191,112 @@
                             <input type="text" wire:model="form.cta_url" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" placeholder="{{ __('/contact or https://...') }}" />
                         </div>
                     </div>
+
+                    @if ($isHomeHero)
+                        <div class="mt-3 grid gap-3 md:grid-cols-3">
+                            <div>
+                                <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Kicker') }}</label>
+                                <input type="text" wire:model="form.home_kicker" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+                                @error('form.home_kicker') <p class="mt-1 text-xs text-rose-600">{{ $message }}</p> @enderror
+                            </div>
+                            <div>
+                                <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Secondary CTA Label') }}</label>
+                                <input type="text" wire:model="form.secondary_cta_label" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+                                @error('form.secondary_cta_label') <p class="mt-1 text-xs text-rose-600">{{ $message }}</p> @enderror
+                            </div>
+                            <div>
+                                <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Secondary CTA URL') }}</label>
+                                <input type="text" wire:model="form.secondary_cta_url" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" placeholder="{{ __('/kontakt or https://...') }}" />
+                                @error('form.secondary_cta_url') <p class="mt-1 text-xs text-rose-600">{{ $message }}</p> @enderror
+                            </div>
+                        </div>
+                    @endif
+
+                    @if ($isHomeStats)
+                        <div class="mt-5">
+                            <div class="flex items-center justify-between gap-3">
+                                <p class="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Stat Items') }}</p>
+                                <button type="button" wire:click="addHomeStat" class="rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-100">{{ __('Add Stat') }}</button>
+                            </div>
+                            <div class="mt-3 space-y-3">
+                                @foreach (($form['home_stats'] ?? []) as $index => $stat)
+                                    <div wire:key="home-stat-{{ $index }}" class="rounded-xl border border-slate-200 bg-slate-50 p-3">
+                                        <div class="mb-3 flex items-center justify-between gap-3">
+                                            <p class="text-xs font-semibold uppercase tracking-[0.12em] text-slate-500">{{ __('Stat') }} {{ $index + 1 }}</p>
+                                            <button type="button" wire:click="removeHomeStat({{ $index }})" class="text-xs font-semibold text-rose-600 hover:text-rose-700">{{ __('Remove') }}</button>
+                                        </div>
+                                        <div class="grid gap-3 md:grid-cols-[1fr_0.5fr_2fr]">
+                                            <div>
+                                                <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Number') }}</label>
+                                                <input type="text" wire:model="form.home_stats.{{ $index }}.value" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+                                            </div>
+                                            <div>
+                                                <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Suffix') }}</label>
+                                                <input type="text" wire:model="form.home_stats.{{ $index }}.suffix" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+                                            </div>
+                                            <div>
+                                                <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Label') }}</label>
+                                                <input type="text" wire:model="form.home_stats.{{ $index }}.label" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                @endforeach
+                            </div>
+                        </div>
+                    @endif
+
+                    @if ($isHomeServices)
+                        <div class="mt-3">
+                            <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Title Accent') }}</label>
+                            <input type="text" wire:model="form.title_accent" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+                            @error('form.title_accent') <p class="mt-1 text-xs text-rose-600">{{ $message }}</p> @enderror
+                        </div>
+
+                        <div class="mt-5">
+                            <div class="flex items-center justify-between gap-3">
+                                <p class="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Service Cards') }}</p>
+                                <button type="button" wire:click="addHomeService" class="rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-100">{{ __('Add Service') }}</button>
+                            </div>
+                            <div class="mt-3 space-y-3">
+                                @foreach (($form['home_services'] ?? []) as $index => $service)
+                                    <div wire:key="home-service-{{ $index }}" class="rounded-xl border border-slate-200 bg-slate-50 p-3">
+                                        <div class="mb-3 flex items-center justify-between gap-3">
+                                            <p class="text-xs font-semibold uppercase tracking-[0.12em] text-slate-500">{{ __('Service') }} {{ $index + 1 }}</p>
+                                            <button type="button" wire:click="removeHomeService({{ $index }})" class="text-xs font-semibold text-rose-600 hover:text-rose-700">{{ __('Remove') }}</button>
+                                        </div>
+                                        <div class="grid gap-3 md:grid-cols-2">
+                                            <div>
+                                                <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Title') }}</label>
+                                                <input type="text" wire:model="form.home_services.{{ $index }}.title" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+                                            </div>
+                                            <div>
+                                                <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Subtitle') }}</label>
+                                                <input type="text" wire:model="form.home_services.{{ $index }}.subtitle" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+                                            </div>
+                                        </div>
+                                        <div class="mt-3">
+                                            <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Text') }}</label>
+                                            <textarea rows="3" wire:model="form.home_services.{{ $index }}.text" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm"></textarea>
+                                        </div>
+                                        <div class="mt-3">
+                                            <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Bullets') }}</label>
+                                            <textarea rows="4" wire:model="form.home_services.{{ $index }}.bullets_text" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" placeholder="{{ __('One item per line') }}"></textarea>
+                                        </div>
+                                        <div class="mt-3 grid gap-3 md:grid-cols-2">
+                                            <div>
+                                                <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('URL') }}</label>
+                                                <input type="text" wire:model="form.home_services.{{ $index }}.url" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+                                            </div>
+                                            <div>
+                                                <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Action Label') }}</label>
+                                                <input type="text" wire:model="form.home_services.{{ $index }}.action_label" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                @endforeach
+                            </div>
+                        </div>
+                    @endif
 
                     @if (($form['type'] ?? '') === 'five_star_reviews_carousel' || ($form['type'] ?? '') === 'blogs_carousel')
                         <div class="mt-3">

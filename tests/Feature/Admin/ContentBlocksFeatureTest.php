@@ -187,10 +187,10 @@ class ContentBlocksFeatureTest extends TestCase
             ->assertSet('form.items_limit', 3)
             ->assertSet('form.slot_target_type', 'page')
             ->assertSet('form.slot_target_ref', 'akademija')
-            ->assertSee('Sources')
+            ->assertSee(__('Sources'))
             ->call('setTab', 'sources')
             ->assertSet('activeTab', 'sources')
-            ->assertSee('Blog Category')
+            ->assertSee(__('Blog Category'))
             ->assertSee('Case Study');
     }
 

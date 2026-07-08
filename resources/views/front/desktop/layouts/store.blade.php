@@ -361,6 +361,58 @@
     $headerHeroBackdropUrl = file_exists($headerHeroBackdropPath)
         ? asset($headerHeroBackdropRelativePath).'?v='.filemtime($headerHeroBackdropPath)
         : asset($headerHeroBackdropRelativePath);
+    $homeHeroItems = collect($homeHeroBlocks ?? []);
+    $homeStatsItems = collect($homeStatsBlocks ?? []);
+    $homeHeroItem = $homeHeroItems->first(fn ($item): bool => (string) (($item['block'] ?? null)?->type ?? '') === 'home_hero')
+        ?? $homeHeroItems->first();
+    $homeStatsItem = $homeStatsItems->first(fn ($item): bool => (string) (($item['block'] ?? null)?->type ?? '') === 'home_stats')
+        ?? $homeStatsItems->first();
+    $homeHeroBlock = $homeHeroItem['block'] ?? null;
+    $homeHeroTranslation = $homeHeroItem['translation'] ?? null;
+    $homeStatsBlock = $homeStatsItem['block'] ?? null;
+    $homeStatsTranslation = $homeStatsItem['translation'] ?? null;
+    $homeHeroPayload = array_merge(
+        is_array($homeHeroBlock?->payload ?? null) ? $homeHeroBlock->payload : [],
+        is_array($homeHeroTranslation?->payload ?? null) ? $homeHeroTranslation->payload : [],
+    );
+    $homeStatsPayload = array_merge(
+        is_array($homeStatsBlock?->payload ?? null) ? $homeStatsBlock->payload : [],
+        is_array($homeStatsTranslation?->payload ?? null) ? $homeStatsTranslation->payload : [],
+    );
+    $homeHeroMediaUrl = $homeHeroBlock?->getFirstMediaUrl('block_background', 'hero_1440x480') ?: '';
+    if ($homeHeroMediaUrl === '') {
+        $homeHeroMediaUrl = $homeHeroBlock?->getFirstMediaUrl('block_background') ?: '';
+    }
+    if ($homeHeroMediaUrl !== '') {
+        $headerHeroBackdropUrl = $homeHeroMediaUrl;
+    }
+
+    $homeHeroTitle = trim((string) ($homeHeroTranslation?->title ?? '')) ?: 'ALPHA CAPITALIS';
+    $homeHeroSubtitle = trim((string) ($homeHeroTranslation?->subtitle ?? '')) ?: 'VAŠ KOMPAS KROZ SVIJET FINANCIJA';
+    $homeHeroPrimaryLabel = trim((string) ($homeHeroTranslation?->cta_label ?? '')) ?: 'Naše usluge';
+    $homeHeroPrimaryUrl = trim((string) ($homeHeroTranslation?->cta_url ?? '')) ?: route('services.index');
+    $homeHeroSecondaryLabel = trim((string) ($homeHeroPayload['secondary_cta_label'] ?? '')) ?: 'Ugovori sastanak';
+    $homeHeroSecondaryUrl = trim((string) ($homeHeroPayload['secondary_cta_url'] ?? '')) ?: route('contact.create');
+    $homeHeroKicker = trim((string) ($homeHeroPayload['kicker'] ?? ''));
+    $homeStats = collect((array) ($homeStatsPayload['stats'] ?? []))
+        ->map(static function ($stat): array {
+            $stat = is_array($stat) ? $stat : [];
+
+            return [
+                'value' => trim((string) ($stat['value'] ?? '')),
+                'suffix' => trim((string) ($stat['suffix'] ?? '')),
+                'label' => trim((string) ($stat['label'] ?? '')),
+            ];
+        })
+        ->filter(static fn (array $stat): bool => $stat['value'] !== '' || $stat['label'] !== '')
+        ->values();
+    if ($homeStats->isEmpty()) {
+        $homeStats = collect([
+            ['value' => '300', 'suffix' => '+', 'label' => 'Odrađenih projekata'],
+            ['value' => '600', 'suffix' => '+', 'label' => 'Redovnih klijenata'],
+            ['value' => '60', 'suffix' => '+', 'label' => 'Kvalificiranih stručnjaka'],
+        ]);
+    }
 
     if (empty($mainNavigation)) {
         $homeUrl = route('home');
@@ -619,15 +671,22 @@
 
             <div class="front-hero-video-content absolute inset-0 flex items-center justify-center px-6 text-center">
                 <div>
-                    <h1 class="front-hero-video-title text-white">ALPHA CAPITALIS</h1>
-                    <p class="front-hero-video-subtitle mt-5 text-white/90">VAŠ KOMPAS KROZ SVIJET FINANCIJA</p>
+                    @if ($homeHeroKicker !== '')
+                        <p class="front-kicker mb-4 justify-center text-white/80">{{ $homeHeroKicker }}</p>
+                    @endif
+                    <h1 class="front-hero-video-title text-white">{{ $homeHeroTitle }}</h1>
+                    <p class="front-hero-video-subtitle mt-5 text-white/90">{{ $homeHeroSubtitle }}</p>
                     <div class="front-hero-cta-row mt-8 flex flex-wrap items-center justify-center gap-3">
-                        <a href="{{ route('services.index') }}" class="front-hero-cta front-hero-cta-primary inline-flex items-center justify-center px-6 py-3 text-[11px] font-semibold uppercase tracking-[0.12em]">
-                            Naše usluge
-                        </a>
-                        <a href="{{ route('contact.create') }}" class="front-hero-cta front-hero-cta-secondary inline-flex items-center justify-center px-6 py-3 text-[11px] font-semibold uppercase tracking-[0.12em]">
-                            Ugovori sastanak
-                        </a>
+                        @if ($homeHeroPrimaryLabel !== '' && $homeHeroPrimaryUrl !== '')
+                            <a href="{{ $homeHeroPrimaryUrl }}" class="front-hero-cta front-hero-cta-primary inline-flex items-center justify-center px-6 py-3 text-[11px] font-semibold uppercase tracking-[0.12em]">
+                                {{ $homeHeroPrimaryLabel }}
+                            </a>
+                        @endif
+                        @if ($homeHeroSecondaryLabel !== '' && $homeHeroSecondaryUrl !== '')
+                            <a href="{{ $homeHeroSecondaryUrl }}" class="front-hero-cta front-hero-cta-secondary inline-flex items-center justify-center px-6 py-3 text-[11px] font-semibold uppercase tracking-[0.12em]">
+                                {{ $homeHeroSecondaryLabel }}
+                            </a>
+                        @endif
                     </div>
                 </div>
             </div>
@@ -635,49 +694,46 @@
         </div>
         <div class="front-hero-stats-card relative z-10" data-home-hero-stats>
             <div class="grid w-full grid-cols-2 md:grid-cols-3">
-                <article class="front-hero-stat-card px-6 py-8 text-center" data-home-hero-stat style="--front-hero-stat-delay: 0ms;">
+                @foreach ($homeStats->take(3) as $stat)
+                    @php
+                        $statValue = (string) ($stat['value'] ?? '');
+                        $statSuffix = (string) ($stat['suffix'] ?? '');
+                        $statLabel = (string) ($stat['label'] ?? '');
+                        $statCountTo = preg_replace('/[^0-9]/', '', $statValue);
+                        $statDisplayValue = $statValue.$statSuffix;
+                    @endphp
+                <article class="front-hero-stat-card {{ $loop->last ? 'front-hero-stat-card--wide' : '' }} px-6 py-8 text-center" data-home-hero-stat style="--front-hero-stat-delay: {{ $loop->index * 320 }}ms;">
                     <span class="front-hero-stat-icon mx-auto inline-flex h-11 w-11 items-center justify-center rounded-full" aria-hidden="true">
-                        <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8">
-                            <path d="M4 19h16"/>
-                            <rect x="6" y="11" width="2.8" height="6" rx="1"/>
-                            <rect x="10.6" y="8" width="2.8" height="9" rx="1"/>
-                            <rect x="15.2" y="5" width="2.8" height="12" rx="1"/>
-                        </svg>
+                        @if ($loop->first)
+                            <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8">
+                                <path d="M4 19h16"/>
+                                <rect x="6" y="11" width="2.8" height="6" rx="1"/>
+                                <rect x="10.6" y="8" width="2.8" height="9" rx="1"/>
+                                <rect x="15.2" y="5" width="2.8" height="12" rx="1"/>
+                            </svg>
+                        @elseif ($loop->iteration === 2)
+                            <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8">
+                                <path d="M17 21v-2a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v2"/>
+                                <circle cx="10" cy="7" r="4"/>
+                                <path d="M22 21v-2a4 4 0 0 0-3-3.87"/>
+                                <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                            </svg>
+                        @else
+                            <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8">
+                                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                                <circle cx="12" cy="7" r="4"/>
+                            </svg>
+                        @endif
                     </span>
-                    <div class="front-hero-stat-value-shell" data-home-hero-display data-home-hero-display-value="300+">
-                        <p class="front-hero-stat-value" data-home-hero-count data-count-to="300" data-count-suffix="+">300</p>
+                    <div class="front-hero-stat-value-shell" data-home-hero-display data-home-hero-display-value="{{ $statDisplayValue }}">
+                        <p class="front-hero-stat-value" data-home-hero-count data-count-to="{{ $statCountTo !== '' ? $statCountTo : $statValue }}" data-count-suffix="{{ $statSuffix }}">{{ $statValue }}</p>
                     </div>
                     <span class="front-hero-stat-accent" aria-hidden="true"></span>
-                    <p class="front-hero-stat-label">Odrađenih projekata</p>
+                    @if ($statLabel !== '')
+                        <p class="front-hero-stat-label">{{ $statLabel }}</p>
+                    @endif
                 </article>
-                <article class="front-hero-stat-card px-6 py-8 text-center" data-home-hero-stat style="--front-hero-stat-delay: 320ms;">
-                    <span class="front-hero-stat-icon mx-auto inline-flex h-11 w-11 items-center justify-center rounded-full" aria-hidden="true">
-                        <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8">
-                            <path d="M17 21v-2a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v2"/>
-                            <circle cx="10" cy="7" r="4"/>
-                            <path d="M22 21v-2a4 4 0 0 0-3-3.87"/>
-                            <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
-                        </svg>
-                    </span>
-                    <div class="front-hero-stat-value-shell" data-home-hero-display data-home-hero-display-value="600+">
-                        <p class="front-hero-stat-value" data-home-hero-count data-count-to="600" data-count-suffix="+">600</p>
-                    </div>
-                    <span class="front-hero-stat-accent" aria-hidden="true"></span>
-                    <p class="front-hero-stat-label">Redovnih klijenata</p>
-                </article>
-                <article class="front-hero-stat-card front-hero-stat-card--wide px-6 py-8 text-center" data-home-hero-stat style="--front-hero-stat-delay: 640ms;">
-                    <span class="front-hero-stat-icon mx-auto inline-flex h-11 w-11 items-center justify-center rounded-full" aria-hidden="true">
-                        <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8">
-                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-                            <circle cx="12" cy="7" r="4"/>
-                        </svg>
-                    </span>
-                    <div class="front-hero-stat-value-shell" data-home-hero-display data-home-hero-display-value="60+">
-                        <p class="front-hero-stat-value" data-home-hero-count data-count-to="60" data-count-suffix="+">60</p>
-                    </div>
-                    <span class="front-hero-stat-accent" aria-hidden="true"></span>
-                    <p class="front-hero-stat-label">Kvalificiranih stručnjaka</p>
-                </article>
+                @endforeach
             </div>
         </div>
     </section>

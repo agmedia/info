@@ -21,6 +21,33 @@ class ContentBlockSlotSeeder extends Seeder
 
         $records = [
             [
+                'block_code' => 'home-alpha-hero',
+                'placement' => 'home.hero',
+                'target_type' => null,
+                'target_ref' => null,
+                'sort_order' => 0,
+                'is_active' => true,
+                'frontend_variant' => 'desktop',
+            ],
+            [
+                'block_code' => 'home-alpha-stats',
+                'placement' => 'home.stats',
+                'target_type' => null,
+                'target_ref' => null,
+                'sort_order' => 0,
+                'is_active' => true,
+                'frontend_variant' => 'desktop',
+            ],
+            [
+                'block_code' => 'home-alpha-services',
+                'placement' => 'home.services',
+                'target_type' => null,
+                'target_ref' => null,
+                'sort_order' => 0,
+                'is_active' => true,
+                'frontend_variant' => 'desktop',
+            ],
+            [
                 'block_code' => 'home-hero-main',
                 'placement' => 'home.hero',
                 'target_type' => null,

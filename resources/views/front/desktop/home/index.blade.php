@@ -76,14 +76,18 @@
         ];
     @endphp
 
-    @include('front.desktop.partials.service-pillars-showcase', [
-        'sectionId' => 'ac-home-services-showcase',
-        'headingLevel' => 2,
-        'titleLead' => 'Stvaramo vrijednost za naše klijente u',
-        'titleAccent' => 'svim fazama razvoja poslovanja',
-        'intro' => $homeServicesShowcaseText,
-        'cards' => $homeServicesShowcaseCards,
-    ])
+    @if (collect($homeServicesBlocks ?? [])->isNotEmpty())
+        @include('components.content-placement', ['items' => $homeServicesBlocks])
+    @else
+        @include('front.desktop.partials.service-pillars-showcase', [
+            'sectionId' => 'ac-home-services-showcase',
+            'headingLevel' => 2,
+            'titleLead' => 'Stvaramo vrijednost za naše klijente u',
+            'titleAccent' => 'svim fazama razvoja poslovanja',
+            'intro' => $homeServicesShowcaseText,
+            'cards' => $homeServicesShowcaseCards,
+        ])
+    @endif
 
     {{-- Disabled on index for now; flip to true if the client wants memberships back. --}}
     @if (false)

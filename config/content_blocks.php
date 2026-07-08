@@ -20,11 +20,16 @@ return [
         'dual_image_cta' => 'Desktop Dual Image CTA',
         'mobile_hero_banner' => 'Mobile Hero Banner',
         'hero_highlights_strip' => 'Hero Highlights Strip',
+        'home_hero' => 'Home Hero (Alpha)',
+        'home_stats' => 'Home Stats (Alpha)',
+        'home_services' => 'Home Services (Alpha)',
         'custom' => 'Custom',
     ],
 
     'placements' => [
         'home.hero' => 'Home Hero',
+        'home.stats' => 'Home Stats',
+        'home.services' => 'Home Services',
         'home.hero_benefits' => 'Home Hero Benefits',
         'home.before_products' => 'Home Before Content',
         'home.categories' => 'Home Categories',
