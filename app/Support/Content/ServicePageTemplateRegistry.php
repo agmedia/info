@@ -6,6 +6,8 @@ use Illuminate\Support\Str;
 
 class ServicePageTemplateRegistry
 {
+    public const SERVICES_INDEX = 'services_index';
+
     public const ADVISORY = 'advisory';
 
     public const FINANCE = 'finance';
@@ -26,6 +28,7 @@ class ServicePageTemplateRegistry
     public static function labels(): array
     {
         return [
+            self::SERVICES_INDEX => 'Usluge',
             self::ADVISORY => 'Savjetovanje',
             self::FINANCE => 'Financije',
             self::ACCOUNTING => 'Računovodstvo',
@@ -34,6 +37,59 @@ class ServicePageTemplateRegistry
             self::EU_FUNDS => 'EU fondovi',
             self::FAMILY_BUSINESS => 'Family Business',
         ];
+    }
+
+    /**
+     * @return array<int, string>
+     */
+    public static function primaryServiceTemplateKeys(): array
+    {
+        return [
+            self::AUDIT,
+            self::ACCOUNTING,
+            self::ADVISORY,
+        ];
+    }
+
+    /**
+     * @return array<string, int>
+     */
+    public static function adminDisplayOrder(): array
+    {
+        return [
+            self::SERVICES_INDEX => 0,
+            self::AUDIT => 10,
+            self::ACCOUNTING => 20,
+            self::ADVISORY => 30,
+            self::FAMILY_BUSINESS => 40,
+            self::FINANCE => 100,
+            self::TAX => 110,
+            self::EU_FUNDS => 120,
+        ];
+    }
+
+    /**
+     * @return array<int, string>
+     */
+    public static function adminNestedTemplateKeys(): array
+    {
+        $templateKeys = [];
+
+        $collect = function (array $pages) use (&$collect, &$templateKeys): void {
+            foreach ($pages as $page) {
+                if (isset($page['template_key'])) {
+                    $templateKeys[] = (string) $page['template_key'];
+                }
+
+                $collect((array) ($page['children'] ?? []));
+            }
+        };
+
+        foreach (self::adminPageTree() as $page) {
+            $collect((array) ($page['children'] ?? []));
+        }
+
+        return array_values(array_unique($templateKeys));
     }
 
     public static function label(string $templateKey): string
@@ -45,6 +101,7 @@ class ServicePageTemplateRegistry
     public static function defaultCode(string $templateKey): string
     {
         return match ($templateKey) {
+            self::SERVICES_INDEX => 'services',
             self::ADVISORY => 'advisory',
             self::FINANCE => 'finance',
             self::ACCOUNTING => 'racunovodstvo',
@@ -62,6 +119,7 @@ class ServicePageTemplateRegistry
     public static function defaultPagePayload(string $templateKey): array
     {
         return match ($templateKey) {
+            self::SERVICES_INDEX => [],
             self::ADVISORY => [
                 'blog_source' => [
                     'mode' => 'auto_category',
@@ -159,6 +217,9 @@ class ServicePageTemplateRegistry
     public static function defaultTranslationPayload(string $templateKey, ?string $locale = null): array
     {
         $defaults = match ($templateKey) {
+            self::SERVICES_INDEX => self::servicesIndexDefaultsForLocale(
+                $locale ?: (string) config('app.locale', 'en')
+            ),
             self::ADVISORY => AdvisoryServicePageDefaults::defaultsForLocale(
                 $locale ?: (string) config('app.locale', 'en')
             ),
@@ -380,6 +441,165 @@ class ServicePageTemplateRegistry
     }
 
     /**
+     * @return array<string, array<string, mixed>>
+     */
+    public static function adminPageTree(): array
+    {
+        return [
+            self::SERVICES_INDEX => [
+                'title' => 'Usluge',
+                'route' => 'services.index',
+                'admin_anchor' => '#services-index-editor',
+                'children' => [],
+            ],
+            self::AUDIT => [
+                'title' => 'Revizija',
+                'route' => 'audit.show',
+                'admin_anchor' => '#audit-overview-admin',
+                'children' => [],
+            ],
+            self::ACCOUNTING => [
+                'title' => 'Računovodstvo',
+                'route' => 'accounting.show',
+                'admin_anchor' => '#accounting-intro-admin',
+                'children' => [],
+            ],
+            self::ADVISORY => [
+                'title' => 'Savjetovanje',
+                'route' => 'advisory.show',
+                'admin_anchor' => '#advisory-overview-admin',
+                'children' => [
+                    [
+                        'title' => 'Financijsko savjetovanje',
+                        'route' => 'advisory.finance.show',
+                        'admin_anchor' => '#advisory-ma-admin',
+                        'content_key' => 'ma',
+                    ],
+                    [
+                        'title' => 'Pribavljanje financiranja',
+                        'route' => 'advisory.funding.show',
+                        'admin_anchor' => '#advisory-funding-admin',
+                        'content_key' => 'funding',
+                        'children' => [
+                            [
+                                'title' => 'EU fondovi',
+                                'route' => 'eu-funds.show',
+                                'template_key' => self::EU_FUNDS,
+                                'admin_anchor' => '#eu-funds-about',
+                            ],
+                            [
+                                'title' => 'Bankovni krediti',
+                                'route' => 'advisory.bank-loans.show',
+                                'admin_anchor' => '#advisory-bank-loans-admin',
+                                'content_key' => 'bank_loans',
+                            ],
+                            [
+                                'title' => 'Zakon o poticanju ulaganja',
+                                'route' => 'advisory.investment-incentives.show',
+                                'admin_anchor' => '#advisory-zopu-admin',
+                                'content_key' => 'zopu',
+                            ],
+                        ],
+                    ],
+                    [
+                        'title' => 'Prodaja i kupnja poduzeća (M&A)',
+                        'route' => 'advisory.ma.show',
+                        'admin_anchor' => '#advisory-ma-admin',
+                        'content_key' => 'ma',
+                    ],
+                    [
+                        'title' => 'Dubinska snimanja (Due Diligence)',
+                        'route' => 'advisory.due-diligence.show',
+                        'admin_anchor' => '#advisory-due-diligence-admin',
+                        'content_key' => 'due_diligence',
+                    ],
+                    [
+                        'title' => 'Procjena vrijednosti društva',
+                        'route' => 'advisory.valuations.show',
+                        'admin_anchor' => '#advisory-valuations-admin',
+                        'content_key' => 'valuations',
+                    ],
+                    [
+                        'title' => 'Porezno savjetovanje',
+                        'route' => 'advisory.tax.show',
+                        'admin_anchor' => '#advisory-tax-admin',
+                        'content_key' => 'tax',
+                    ],
+                ],
+            ],
+            self::FAMILY_BUSINESS => [
+                'title' => 'Obiteljski biznis',
+                'route' => 'family-business.show',
+                'admin_anchor' => '#family-business-audience-admin',
+                'children' => [],
+            ],
+            self::FINANCE => [
+                'title' => 'Financije',
+                'route' => 'finance.show',
+                'admin_anchor' => '#finance-services-intro',
+                'children' => [],
+            ],
+            self::TAX => [
+                'title' => 'Porezi',
+                'route' => 'tax.show',
+                'admin_anchor' => '#tax-overview-admin',
+                'children' => [],
+            ],
+        ];
+    }
+
+    /**
+     * @return array<int, array<string, mixed>>
+     */
+    public static function adminChildrenForTemplate(string $templateKey): array
+    {
+        return (array) data_get(self::adminPageTree(), $templateKey.'.children', []);
+    }
+
+    /**
+     * @return array<int, string>
+     */
+    public static function templateKeysMatchingAdminSearch(string $search): array
+    {
+        $needle = Str::of($search)->lower()->ascii()->squish()->value();
+
+        if ($needle === '') {
+            return [];
+        }
+
+        return collect(self::adminPageTree())
+            ->filter(function (array $page, string $templateKey) use ($needle): bool {
+                $haystacks = [
+                    $templateKey,
+                    (string) ($page['title'] ?? ''),
+                    (string) ($page['route'] ?? ''),
+                    (string) ($page['admin_anchor'] ?? ''),
+                ];
+
+                $collectChildHaystacks = function (array $children) use (&$collectChildHaystacks, &$haystacks): void {
+                    foreach ($children as $child) {
+                        $haystacks[] = (string) ($child['title'] ?? '');
+                        $haystacks[] = (string) ($child['route'] ?? '');
+                        $haystacks[] = (string) ($child['admin_anchor'] ?? '');
+                        $haystacks[] = (string) ($child['content_key'] ?? '');
+                        $haystacks[] = (string) ($child['template_key'] ?? '');
+
+                        $collectChildHaystacks((array) ($child['children'] ?? []));
+                    }
+                };
+
+                $collectChildHaystacks((array) ($page['children'] ?? []));
+
+                return collect($haystacks)
+                    ->map(fn (string $value): string => Str::of($value)->lower()->ascii()->squish()->value())
+                    ->contains(fn (string $value): bool => str_contains($value, $needle));
+            })
+            ->keys()
+            ->values()
+            ->all();
+    }
+
+    /**
      * @param  array<string, mixed>|null  $payload
      * @return array<string, mixed>
      */
@@ -398,6 +618,119 @@ class ServicePageTemplateRegistry
             self::defaultTranslationPayload($templateKey, $locale),
             is_array($payload) ? $payload : []
         );
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private static function servicesIndexDefaultsForLocale(string $locale): array
+    {
+        if (str_starts_with(strtolower($locale), 'hr')) {
+            return [
+                'showcase' => [
+                    'title_lead' => 'Naše usluge',
+                    'title_accent' => '',
+                    'intro' => 'Kroz integrirani pristup reviziji, računovodstvu i financijskom savjetovanju stvaramo dodatnu vrijednost pomažući klijentima da posluju sigurnije, transparentnije i učinkovitije.',
+                    'outro' => [
+                        'Kroz integrirani pristup reviziji, računovodstvu i financijskom savjetovanju stvaramo dodatnu vrijednost za klijente koji žele stabilan rast, jasnije odluke i pouzdanu podršku u ključnim poslovnim trenucima.',
+                        'Naša podrška omogućuje bolje upravljanje financijama, kvalitetnije strateško planiranje i sigurnije donošenje odluka.',
+                    ],
+                ],
+                'primary_pillars' => [
+                    [
+                        'key' => 'audit',
+                        'title' => 'Revizija',
+                        'subtitle' => 'sigurnost i povjerenje u brojke',
+                        'text' => 'Neovisna provjera financijskih izvještaja koja povećava povjerenje vlasnika, investitora i partnera.',
+                        'bullets' => [
+                            'Pomažemo vlasnicima, investitorima i upravi da imaju potpunu sigurnost u financijske izvještaje.',
+                            'Revizija smanjuje rizik pogrešnih odluka jer potvrđuje da su podaci točni, potpuni i u skladu s propisima.',
+                            'Kroz neovisnu provjeru dobivate jasnu sliku stvarnog financijskog stanja poduzeća, što jača povjerenje banaka, partnera i regulatora.',
+                        ],
+                        'url' => '/revizija',
+                        'action_label' => 'Detaljnije',
+                    ],
+                    [
+                        'key' => 'accounting',
+                        'title' => 'Računovodstvo',
+                        'subtitle' => 'kontrola i jasnoća poslovanja',
+                        'text' => 'Precizno vođenje knjiga i pravovremeno izvještavanje koje oslobađa menadžment za strateške odluke.',
+                        'bullets' => [
+                            'Omogućujemo da vaše poslovanje bude financijski uredno, pregledno i uvijek spremno za odluke.',
+                            'To znači da u svakom trenutku imate točne podatke o prihodima, troškovima i rezultatu, bez kašnjenja i nejasnoća.',
+                            'Umjesto da reagirate na probleme, možete upravljati poslovanjem na temelju pouzdanih informacija.',
+                        ],
+                        'url' => '/racunovodstvo',
+                        'action_label' => 'Detaljnije',
+                    ],
+                    [
+                        'key' => 'advisory',
+                        'title' => 'Savjetovanje',
+                        'subtitle' => 'rast, optimizacija i bolji financijski izbor',
+                        'text' => 'Financijsko i porezno savjetovanje te pribavljanje kapitala - sve na jednom mjestu.',
+                        'bullets' => [
+                            'Pomažemo društvima, investitorima i poduzetnicima u donošenju kvalitetnih odluka, upravljanju rizicima i stvaranju dugoročne vrijednosti.',
+                            'Pružamo podršku u procjenama vrijednosti, due diligence postupcima, M&A procesima i strukturiranju financiranja.',
+                            'EU fondovi, bankovni krediti i porezne olakšice povezani su u okviru pribavljanja financiranja.',
+                        ],
+                        'url' => '/savjetovanje',
+                        'action_label' => 'Detaljnije',
+                    ],
+                ],
+            ];
+        }
+
+        return [
+            'showcase' => [
+                'title_lead' => 'Our services',
+                'title_accent' => '',
+                'intro' => 'Through an integrated approach to audit, accounting, and financial advisory, we create value by helping clients operate with more confidence, transparency, and efficiency.',
+                'outro' => [
+                    'Our support helps companies manage finance more clearly, plan strategically, and make safer decisions in key business moments.',
+                ],
+            ],
+            'primary_pillars' => [
+                [
+                    'key' => 'audit',
+                    'title' => 'Audit',
+                    'subtitle' => 'assurance and confidence in the numbers',
+                    'text' => 'Independent review of financial statements that increases confidence for owners, investors, and partners.',
+                    'bullets' => [
+                        'We help owners, investors, and management gain confidence in financial statements.',
+                        'Audit reduces the risk of wrong decisions by confirming that data is accurate, complete, and compliant.',
+                        'Through independent review you gain a clear view of the company financial position, strengthening trust with banks, partners, and regulators.',
+                    ],
+                    'url' => '/revizija',
+                    'action_label' => 'Learn more',
+                ],
+                [
+                    'key' => 'accounting',
+                    'title' => 'Accounting',
+                    'subtitle' => 'control and clarity of operations',
+                    'text' => 'Precise bookkeeping and timely reporting that frees management for strategic decisions.',
+                    'bullets' => [
+                        'We help keep your business financially organized, transparent, and ready for decisions.',
+                        'That means accurate data on revenue, costs, and results at any moment, without delays or uncertainty.',
+                        'Instead of reacting to problems, you can manage the business based on reliable information.',
+                    ],
+                    'url' => '/racunovodstvo',
+                    'action_label' => 'Learn more',
+                ],
+                [
+                    'key' => 'advisory',
+                    'title' => 'Advisory',
+                    'subtitle' => 'growth, optimization and better financial choices',
+                    'text' => 'Financial and tax advisory plus capital raising - all in one place.',
+                    'bullets' => [
+                        'We help companies, investors, and entrepreneurs make better decisions, manage risk, and create long-term value.',
+                        'We support valuations, due diligence, M&A processes, and financing structuring.',
+                        'EU funds, bank loans, and tax incentives are connected within the capital raising framework.',
+                    ],
+                    'url' => '/savjetovanje',
+                    'action_label' => 'Learn more',
+                ],
+            ],
+        ];
     }
 
     /**

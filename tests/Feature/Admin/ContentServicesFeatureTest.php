@@ -33,6 +33,22 @@ class ContentServicesFeatureTest extends TestCase
         );
     }
 
+    public function test_default_services_index_page_is_seeded(): void
+    {
+        $page = ServicePage::query()
+            ->where('template_key', ServicePageTemplateRegistry::SERVICES_INDEX)
+            ->with('translations')
+            ->first();
+
+        $this->assertNotNull($page);
+        $this->assertSame('services', $page->code);
+        $this->assertTrue((bool) $page->is_active);
+        $this->assertSame(
+            'Usluge',
+            (string) $page->translations->firstWhere('locale', 'hr')?->title
+        );
+    }
+
     public function test_default_tax_service_page_is_seeded(): void
     {
         $page = ServicePage::query()
@@ -72,8 +88,28 @@ class ContentServicesFeatureTest extends TestCase
         $this->actingAs($user)
             ->get('/admin/content/services?locale=hr')
             ->assertOk()
+            ->assertSee('Usluge')
+            ->assertSee('Bankovni krediti')
+            ->assertSee('Zakon o poticanju ulaganja')
             ->assertSee('Obiteljski biznis')
             ->assertSee('Porezi');
+    }
+
+    public function test_admin_can_search_advisory_subpages_on_service_pages_screen(): void
+    {
+        $user = $this->makeAdminUser();
+
+        $this->actingAs($user)
+            ->get('/admin/content/services?locale=hr')
+            ->assertOk()
+            ->assertSee('Bankovni krediti');
+
+        Livewire::actingAs($user)
+            ->test(\App\Livewire\Admin\Content\Service\Manager::class)
+            ->set('locale', 'hr')
+            ->set('search', 'bankovni')
+            ->assertSee('Savjetovanje')
+            ->assertSee('Bankovni krediti');
     }
 
     public function test_admin_can_open_seeded_service_page_edit_screen(): void
@@ -195,6 +231,62 @@ class ContentServicesFeatureTest extends TestCase
         $this->assertSame('ALPHA CAPITALIS PLUS', $translation->payload['hero']['brand_title'] ?? null);
         $this->assertSame('Rezervirajte konzultacije', $translation->payload['capability_cta']['label'] ?? null);
         $this->assertSame('Preuzmite vodič', $translation->payload['brochure_label'] ?? null);
+    }
+
+    public function test_admin_can_update_services_index_content_used_on_front(): void
+    {
+        config()->set('app.locale', 'hr');
+        config()->set('app.fallback_locale', 'hr');
+
+        $user = $this->makeAdminUser();
+        $page = ServicePage::query()
+            ->where('template_key', ServicePageTemplateRegistry::SERVICES_INDEX)
+            ->firstOrFail();
+
+        Livewire::actingAs($user)
+            ->test(ServiceForm::class, ['servicePageId' => $page->id])
+            ->set('form.locale', 'hr')
+            ->set('form.translation_payload.showcase.title_lead', 'Sve usluge na jednom mjestu')
+            ->set('form.translation_payload.showcase.intro', 'Custom uvod za pregled usluga iz admina.')
+            ->set('form.translation_payload.primary_pillars.0.title', 'Revizija custom')
+            ->set('form.translation_payload.primary_pillars.0.text', 'Custom tekst kartice revizije.')
+            ->call('save')
+            ->assertRedirect(route('admin.content.services.index', ['locale' => 'hr']));
+
+        $this->get('/usluge')
+            ->assertOk()
+            ->assertSee('Sve usluge na jednom mjestu')
+            ->assertSee('Custom uvod za pregled usluga iz admina.')
+            ->assertSee('Revizija custom')
+            ->assertSee('Custom tekst kartice revizije.');
+    }
+
+    public function test_admin_can_update_advisory_subpage_content_used_on_front(): void
+    {
+        config()->set('app.locale', 'hr');
+        config()->set('app.fallback_locale', 'hr');
+
+        $user = $this->makeAdminUser();
+        $page = ServicePage::query()
+            ->where('template_key', ServicePageTemplateRegistry::ADVISORY)
+            ->firstOrFail();
+
+        Livewire::actingAs($user)
+            ->test(ServiceForm::class, ['servicePageId' => $page->id])
+            ->set('form.locale', 'hr')
+            ->set('form.translation_payload.bank_loans.overview_title', 'Custom bankovni krediti naslov')
+            ->set('form.translation_payload.bank_loans.services_body.0', 'Custom tekst usluge bankovnih kredita.')
+            ->set('form.translation_payload.bank_loans.help_items.0', 'custom analiza kreditne sposobnosti')
+            ->set('form.translation_payload.bank_loans.approach_body.0', 'Custom pristup bankovnim kreditima.')
+            ->call('save')
+            ->assertRedirect(route('admin.content.services.index', ['locale' => 'hr']));
+
+        $this->get('/savjetovanje/pribavljanje-financiranja/bankovni-krediti')
+            ->assertOk()
+            ->assertSee('Custom bankovni krediti naslov')
+            ->assertSee('Custom tekst usluge bankovnih kredita.')
+            ->assertSee('custom analiza kreditne sposobnosti')
+            ->assertSee('Custom pristup bankovnim kreditima.');
     }
 
     private function makeAdminUser(): User

@@ -95,7 +95,7 @@ class Form extends Component
 
     public array $form = [
         'code' => '',
-        'template_key' => ServicePageTemplateRegistry::FAMILY_BUSINESS,
+        'template_key' => ServicePageTemplateRegistry::SERVICES_INDEX,
         'is_active' => true,
         'published_at' => '',
         'sort_order' => 0,
@@ -666,6 +666,24 @@ class Form extends Component
      */
     private function defaultTranslationFields(string $templateKey, string $locale): array
     {
+        if ($templateKey === ServicePageTemplateRegistry::SERVICES_INDEX) {
+            if (str_starts_with(strtolower($locale), 'hr')) {
+                return [
+                    'title' => 'Usluge',
+                    'slug' => 'usluge',
+                    'meta_title' => 'Usluge',
+                    'meta_description' => 'Pregled usluga ALPHA CAPITALISA: revizija, racunovodstvo i poslovno savjetovanje.',
+                ];
+            }
+
+            return [
+                'title' => 'Services',
+                'slug' => 'services',
+                'meta_title' => 'Services',
+                'meta_description' => 'Overview of ALPHA CAPITALIS services: audit, accounting, and business advisory.',
+            ];
+        }
+
         if ($templateKey === ServicePageTemplateRegistry::AUDIT) {
             if (str_starts_with(strtolower($locale), 'hr')) {
                 return [
@@ -849,6 +867,15 @@ class Form extends Component
                 'title' => '',
                 'url' => '',
                 'label' => '',
+            ],
+            'service_card' => [
+                'title' => '',
+                'text' => '',
+                'url' => '',
+            ],
+            'title_text' => [
+                'title' => '',
+                'text' => '',
             ],
             default => '',
         };

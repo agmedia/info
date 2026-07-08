@@ -52,7 +52,7 @@ class ServiceCardService
     /**
      * @return array<int, array<string, mixed>>
      */
-    public function primaryPillars(string $locale, string $fallbackLocale): array
+    public function primaryPillars(string $locale, string $fallbackLocale, ?array $overrides = null): array
     {
         $cards = collect($this->cards($locale, $fallbackLocale))->keyBy('template_key');
         $card = static fn (string $templateKey): array => (array) ($cards->get($templateKey) ?? []);
@@ -62,7 +62,7 @@ class ServiceCardService
         $advisory = $card(ServicePageTemplateRegistry::ADVISORY);
         $familyBusiness = $card(ServicePageTemplateRegistry::FAMILY_BUSINESS);
 
-        return [
+        $defaults = [
             [
                 'key' => 'audit',
                 'title' => 'Revizija',
@@ -119,6 +119,61 @@ class ServiceCardService
                 ],
             ],
         ];
+
+        if (! is_array($overrides) || $overrides === []) {
+            return $defaults;
+        }
+
+        $defaultsByKey = collect($defaults)->keyBy('key');
+
+        return collect($overrides)
+            ->map(function ($override) use ($defaultsByKey): ?array {
+                if (! is_array($override)) {
+                    return null;
+                }
+
+                $key = trim((string) ($override['key'] ?? ''));
+                if ($key === '') {
+                    return null;
+                }
+
+                $default = (array) ($defaultsByKey->get($key) ?? ['key' => $key]);
+                $url = trim((string) ($override['url'] ?? ($default['url'] ?? '')));
+
+                $merged = array_merge($default, [
+                    'key' => $key,
+                    'title' => trim((string) ($override['title'] ?? ($default['title'] ?? ''))),
+                    'subtitle' => trim((string) ($override['subtitle'] ?? ($default['subtitle'] ?? ''))),
+                    'text' => trim((string) ($override['text'] ?? ($default['text'] ?? ''))),
+                    'url' => $this->normalizeCardUrl($url),
+                    'action_label' => trim((string) ($override['action_label'] ?? ($default['action_label'] ?? ''))),
+                    'bullets' => collect((array) ($override['bullets'] ?? ($default['bullets'] ?? [])))
+                        ->map(fn ($bullet): string => trim((string) $bullet))
+                        ->filter()
+                        ->values()
+                        ->all(),
+                ]);
+
+                if (trim((string) ($merged['image_url'] ?? '')) === '' && trim((string) ($default['image_url'] ?? '')) !== '') {
+                    $merged['image_url'] = $default['image_url'];
+                }
+
+                return $merged;
+            })
+            ->filter()
+            ->values()
+            ->all();
+    }
+
+    private function normalizeCardUrl(string $url): string
+    {
+        $url = trim($url);
+
+        if ($url === '' || str_starts_with($url, '#') || preg_match('/^[a-z][a-z0-9+.-]*:/i', $url) === 1) {
+            return $url;
+        }
+
+        return url($url);
     }
 
     /**
