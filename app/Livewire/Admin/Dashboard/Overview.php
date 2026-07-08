@@ -62,7 +62,7 @@ class Overview extends Component
 
         $trendRows = $this->buildTrendRows((int) min($days, 30));
         $trendLabels = $trendRows
-            ->map(fn (array $row): string => CarbonImmutable::parse((string) $row['date'])->format('M d'))
+            ->map(fn (array $row): string => CarbonImmutable::parse((string) $row['date'])->format('d.m.'))
             ->values()
             ->all();
         $trendUsers = $trendRows

@@ -61,7 +61,7 @@
         <div class="mt-4 space-y-2">
             @foreach ($trendRows as $row)
                 <div class="grid items-center gap-2 sm:gap-3" style="grid-template-columns: minmax(4.75rem, 6rem) minmax(0, 1fr) 2.5rem 2.5rem;">
-                    <span class="text-xs text-slate-600">{{ \Illuminate\Support\Carbon::parse($row['date'])->format('M d') }}</span>
+                    <span class="text-xs text-slate-600">{{ \Illuminate\Support\Carbon::parse($row['date'])->format('d.m.') }}</span>
                     <div class="h-2 rounded-full bg-slate-200">
                         <div class="h-2 rounded-full bg-cyan-600" style="width: {{ max(2, (int) $row['bar_width']) }}%;"></div>
                     </div>

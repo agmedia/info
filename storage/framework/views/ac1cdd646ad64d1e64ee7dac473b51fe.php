@@ -62,7 +62,7 @@
         <div class="mt-4 space-y-2">
             <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $trendRows; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $row): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                 <div class="grid items-center gap-2 sm:gap-3" style="grid-template-columns: minmax(4.75rem, 6rem) minmax(0, 1fr) 2.5rem 2.5rem;">
-                    <span class="text-xs text-slate-600"><?php echo e(\Illuminate\Support\Carbon::parse($row['date'])->format('M d')); ?></span>
+                    <span class="text-xs text-slate-600"><?php echo e(\Illuminate\Support\Carbon::parse($row['date'])->format('d.m.')); ?></span>
                     <div class="h-2 rounded-full bg-slate-200">
                         <div class="h-2 rounded-full bg-cyan-600" style="width: <?php echo e(max(2, (int) $row['bar_width'])); ?>%;"></div>
                     </div>
