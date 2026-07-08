@@ -35,7 +35,7 @@ unset($__defined_vars, $__key, $__value); ?>
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="csrf-token" content="<?php echo e(csrf_token()); ?>">
 
-        <title><?php echo e($title ? $title.' | '.config('app.name') : config('app.name')); ?></title>
+        <title><?php echo e($title ? $title.' | ALPHA ADMIN' : 'ALPHA ADMIN'); ?></title>
 
         <?php echo app('Illuminate\Foundation\Vite')(['resources/css/app.css', 'resources/js/app.js']); ?>
         <style>
@@ -384,10 +384,26 @@ unset($__defined_vars, $__key, $__value); ?>
                 height: 100dvh;
                 min-height: 100vh;
             }
+            .admin-sidebar {
+                transform: translateX(-100%);
+                transition: transform 180ms ease;
+            }
+            .admin-sidebar.is-open {
+                transform: translateX(0);
+            }
+            body.admin-nav-open {
+                overflow: hidden;
+            }
             @media (min-width: 768px) {
                 .admin-main {
                     margin-left: 18rem;
                     width: calc(100% - 18rem);
+                }
+                .admin-sidebar {
+                    transform: translateX(0);
+                }
+                body.admin-nav-open {
+                    overflow: auto;
                 }
             }
             .admin-toast-root {
@@ -1040,11 +1056,21 @@ unset($__defined_vars, $__key, $__value); ?>
     </head>
     <body class="min-h-screen bg-slate-100 text-slate-900 antialiased">
         <div class="min-h-screen">
-            <aside class="admin-sidebar admin-sidebar-rail fixed inset-y-0 left-0 z-30 hidden w-72 overflow-y-auto border-r border-slate-200 bg-white md:block">
-                <div class="flex h-16 items-center border-b border-slate-200 px-6">
+            <aside id="admin-sidebar" class="admin-sidebar admin-sidebar-rail fixed inset-y-0 left-0 z-50 w-72 overflow-y-auto border-r border-slate-200 bg-white md:z-30">
+                <div class="flex h-16 items-center justify-between gap-3 border-b border-slate-200 px-6">
                     <a href="<?php echo e(route('admin.dashboard')); ?>" class="text-lg font-semibold tracking-tight">
-                        <?php echo e(config('app.name')); ?> Admin
+                        ALPHA ADMIN
                     </a>
+                    <button
+                        type="button"
+                        id="admin-nav-close"
+                        class="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-slate-200 text-slate-700 hover:bg-slate-100 md:hidden"
+                        aria-label="<?php echo e(__('admin.layout.close_navigation')); ?>"
+                    >
+                        <svg class="h-4 w-4" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                            <path d="M5 5l10 10M15 5 5 15" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+                        </svg>
+                    </button>
                 </div>
 
                 <?php
@@ -1625,49 +1651,35 @@ unset($__defined_vars, $__key, $__value); ?>
                     <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                 </nav>
             </aside>
+            <button
+                type="button"
+                id="admin-sidebar-overlay"
+                class="fixed inset-0 z-40 hidden bg-slate-900/45 md:hidden"
+                aria-label="<?php echo e(__('admin.layout.close_navigation')); ?>"
+            ></button>
 
             <div class="admin-main flex min-w-0 flex-1 flex-col">
                 <header class="sticky top-0 z-10 flex h-16 items-center justify-between border-b border-slate-200 bg-white px-4 md:px-6">
-                    <div class="text-sm font-semibold text-slate-800 md:text-base">
-                        <?php echo e($title ?? __('admin.layout.admin')); ?>
+                    <div class="flex min-w-0 items-center gap-3">
+                        <button
+                            type="button"
+                            id="admin-nav-open"
+                            class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-slate-200 text-slate-700 hover:bg-slate-100 md:hidden"
+                            aria-label="<?php echo e(__('admin.layout.open_navigation')); ?>"
+                            aria-controls="admin-sidebar"
+                            aria-expanded="false"
+                        >
+                            <svg class="h-5 w-5" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                                <path d="M3.5 5.5h13M3.5 10h13M3.5 14.5h13" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+                            </svg>
+                        </button>
+                        <div class="min-w-0 truncate text-sm font-semibold text-slate-800 md:text-base">
+                            <?php echo e($title ?? __('admin.layout.admin')); ?>
 
+                        </div>
                     </div>
 
                     <div class="flex items-center gap-3">
-                        <?php
-                            $activeAdminLocale = strtolower((string) app()->getLocale());
-                            $adminLocaleOptions = array_values(array_unique(array_filter($adminLocaleOptions ?? [config('admin_ui.locale.default', 'hr'), 'en'])));
-                        ?>
-                        <div class="flex items-center rounded-lg border border-slate-200 bg-white p-0.5 text-xs font-semibold uppercase tracking-[0.1em] text-slate-600">
-                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $adminLocaleOptions; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $localeCode): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                                <a
-                                    href="<?php echo e(request()->fullUrlWithQuery(['admin_locale' => $localeCode])); ?>"
-                                    class="rounded-md px-2.5 py-1 <?php echo e($activeAdminLocale === $localeCode ? 'bg-slate-900 text-white' : 'hover:bg-slate-100'); ?>"
-                                >
-                                    <?php echo e($localeCode); ?>
-
-                                </a>
-                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
-                        </div>
-                        <button
-                            type="button"
-                            id="admin-ai-open"
-                            class="admin-ai-button"
-                            aria-label="<?php echo e(__('admin.layout.assistant.open_ai')); ?>"
-                            title="<?php echo e(__('admin.layout.assistant.open_ai')); ?>"
-                        >
-                            <span>AI</span>
-                        </button>
-                        <button
-                            type="button"
-                            id="admin-help-open"
-                            class="admin-help-button"
-                            aria-label="<?php echo e(__('admin.layout.assistant.open_help')); ?>"
-                            title="<?php echo e(__('admin.layout.assistant.help')); ?>"
-                        >
-                            ?
-                        </button>
-
                         <?php
                             $userInitial = \Illuminate\Support\Str::upper(\Illuminate\Support\Str::substr((string) auth()->user()->name, 0, 1));
                         ?>
@@ -1863,6 +1875,49 @@ unset($__defined_vars, $__key, $__value); ?>
         </div>
         <div id="admin-toast-root" class="admin-toast-root" aria-live="polite" aria-atomic="true"></div>
         <script>
+            (() => {
+                const sidebar = document.getElementById('admin-sidebar');
+                const overlay = document.getElementById('admin-sidebar-overlay');
+                const openButton = document.getElementById('admin-nav-open');
+                const closeButton = document.getElementById('admin-nav-close');
+
+                if (!sidebar || !overlay || !openButton || !closeButton || openButton.dataset.adminNavBound === '1') return;
+
+                openButton.dataset.adminNavBound = '1';
+                const desktopQuery = window.matchMedia('(min-width: 768px)');
+
+                const setOpen = (isOpen) => {
+                    sidebar.classList.toggle('is-open', isOpen);
+                    overlay.classList.toggle('hidden', !isOpen);
+                    document.body.classList.toggle('admin-nav-open', isOpen);
+                    openButton.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+                };
+
+                openButton.addEventListener('click', () => setOpen(true));
+                closeButton.addEventListener('click', () => setOpen(false));
+                overlay.addEventListener('click', () => setOpen(false));
+
+                sidebar.querySelectorAll('a').forEach((link) => {
+                    link.addEventListener('click', () => {
+                        if (!desktopQuery.matches) {
+                            setOpen(false);
+                        }
+                    });
+                });
+
+                window.addEventListener('keydown', (event) => {
+                    if (event.key === 'Escape') {
+                        setOpen(false);
+                    }
+                });
+
+                desktopQuery.addEventListener?.('change', (event) => {
+                    if (event.matches) {
+                        setOpen(false);
+                    }
+                });
+            })();
+
             (() => {
                 const root = document.getElementById('admin-toast-root');
                 if (!root) return;

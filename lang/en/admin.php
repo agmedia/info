@@ -20,7 +20,9 @@ return [
         'no_image' => 'No image',
     ],
     'layout' => [
-        'admin' => 'Admin',
+        'admin' => 'ALPHA ADMIN',
+        'open_navigation' => 'Open navigation',
+        'close_navigation' => 'Close navigation',
         'menu' => [
             'dashboard' => 'Dashboard',
             'catalog' => 'Catalog',

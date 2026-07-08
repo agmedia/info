@@ -19,7 +19,7 @@ class DashboardFeatureTest extends TestCase
         $this->actingAs($admin)
             ->get('/admin/dashboard')
             ->assertOk()
-            ->assertSee('Info Site Overview');
+            ->assertSee('Pregled info sitea');
     }
 
     public function test_dashboard_hides_loyalty_and_tracking_sections_when_disabled(): void

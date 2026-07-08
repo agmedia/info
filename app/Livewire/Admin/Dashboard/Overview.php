@@ -2,20 +2,13 @@
 
 namespace App\Livewire\Admin\Dashboard;
 
-use App\Models\Catalog\Category\Category;
 use App\Models\Content\Blog\BlogPost;
-use App\Models\Content\ContentBlock;
-use App\Models\Content\ContentBlockSlot;
 use App\Models\Content\Page\InfoPage;
 use App\Models\Content\Support\ContactMessage;
-use App\Models\Content\Support\Faq;
 use App\Models\User;
-use App\Models\User\UserTrackingEvent;
-use App\Services\Settings\SystemSettingsService;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Collection;
 use Livewire\Component;
-use Spatie\Activitylog\Models\Activity;
 
 class Overview extends Component
 {
@@ -30,12 +23,6 @@ class Overview extends Component
 
     public function render()
     {
-        $settings = app(SystemSettingsService::class);
-        $trackingEnabled = (bool) $settings->get(
-            'user_tracking_enabled',
-            (bool) config('user_features.flags.user_tracking_enabled', true)
-        );
-
         [$start, $end, $previousStart, $previousEnd, $days] = $this->resolveRangeWindow();
 
         $usersCurrentCount = User::query()->whereBetween('created_at', [$start, $end])->count();
@@ -72,26 +59,6 @@ class Overview extends Component
                 'delta' => $this->formatDelta($postsCurrentCount, $postsPreviousCount),
             ],
         ];
-
-        $recentAdminActivity = Activity::query()
-            ->with('causer:id,name,email')
-            ->latest('id')
-            ->limit(8)
-            ->get();
-
-        $recentContactMessages = ContactMessage::query()
-            ->latest('id')
-            ->limit(8)
-            ->get(['id', 'name', 'email', 'subject', 'created_at']);
-
-        $recentTrackingEvents = collect();
-        if ($trackingEnabled) {
-            $recentTrackingEvents = UserTrackingEvent::query()
-                ->with('user:id,name,email')
-                ->latest('occurred_at')
-                ->limit(8)
-                ->get(['id', 'user_id', 'event', 'url', 'occurred_at']);
-        }
 
         $trendRows = $this->buildTrendRows((int) min($days, 30));
         $trendLabels = $trendRows
@@ -150,68 +117,12 @@ class Overview extends Component
             ],
         ];
 
-        $contentSnapshot = [
-            [
-                'label' => __('Users'),
-                'value' => User::query()->count(),
-                'url' => route('admin.users'),
-            ],
-            [
-                'label' => __('Categories'),
-                'value' => Category::query()->count(),
-                'url' => route('admin.categories'),
-            ],
-            [
-                'label' => __('Pages'),
-                'value' => InfoPage::query()->count(),
-                'url' => route('admin.content.pages.index'),
-            ],
-            [
-                'label' => __('Blog Posts'),
-                'value' => BlogPost::query()->count(),
-                'url' => route('admin.content.blog.index'),
-            ],
-            [
-                'label' => __('FAQs'),
-                'value' => Faq::query()->count(),
-                'url' => route('admin.content.faqs.index'),
-            ],
-            [
-                'label' => __('Content Blocks'),
-                'value' => ContentBlock::query()->count(),
-                'url' => route('admin.content.blocks'),
-            ],
-            [
-                'label' => __('Slots'),
-                'value' => ContentBlockSlot::query()->count(),
-                'url' => route('admin.content.slots'),
-            ],
-            [
-                'label' => __('Contact Messages'),
-                'value' => ContactMessage::query()->count(),
-                'url' => null,
-            ],
-        ];
-
-        $featureFlags = [
-            __('User Tracking') => $trackingEnabled,
-            __('Mobile Front Variant') => (bool) config('catalog_features.flags.catalog_use_mobile_pwa', true),
-            __('Blog') => true,
-            __('Content Blocks') => true,
-        ];
-
         return view('livewire.admin.dashboard.overview', [
             'start' => $start,
             'end' => $end,
             'days' => $days,
             'kpis' => $kpis,
-            'recentAdminActivity' => $recentAdminActivity,
-            'recentContactMessages' => $recentContactMessages,
-            'recentTrackingEvents' => $recentTrackingEvents,
-            'trackingEnabled' => $trackingEnabled,
             'trendRows' => $trendRows,
-            'catalogSnapshot' => $contentSnapshot,
-            'featureFlags' => $featureFlags,
             'dashboardCharts' => $dashboardCharts,
         ]);
     }

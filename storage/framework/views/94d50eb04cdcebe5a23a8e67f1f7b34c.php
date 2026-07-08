@@ -336,7 +336,7 @@
     <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
     <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
-    <?php if (! $__env->hasRenderedOnce('bc60fe29-6d33-4ac7-a469-671600b6a35b')): $__env->markAsRenderedOnce('bc60fe29-6d33-4ac7-a469-671600b6a35b'); ?>
+    <?php if (! $__env->hasRenderedOnce('9abd3651-975d-4e73-9d49-a29cca6629d5')): $__env->markAsRenderedOnce('9abd3651-975d-4e73-9d49-a29cca6629d5'); ?>
         <script>
             (function () {
                 const syncTestimonialToggles = function () {

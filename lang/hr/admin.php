@@ -20,7 +20,9 @@ return [
         'no_image' => 'Bez slike',
     ],
     'layout' => [
-        'admin' => 'Admin',
+        'admin' => 'ALPHA ADMIN',
+        'open_navigation' => 'Otvori navigaciju',
+        'close_navigation' => 'Zatvori navigaciju',
         'menu' => [
             'dashboard' => 'Nadzorna ploča',
             'catalog' => 'Katalog',
