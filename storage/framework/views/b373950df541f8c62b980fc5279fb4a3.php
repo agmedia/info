@@ -144,7 +144,7 @@
             margin-bottom: 0;
             background: #f6f1e7;
             border-top-color: transparent;
-            border-bottom-color: rgba(15, 42, 67, 0.08);
+            border-bottom-color: rgba(120, 96, 58, 0.05);
         }
 
         .ac-references-title-band .ac-page-title-copy h1 {
@@ -164,7 +164,7 @@
 
         .ac-references-title-band .ac-page-title-breadcrumb::before,
         .ac-references-title-band .ac-page-title-breadcrumb::after {
-            background: rgba(120, 96, 58, 0.16);
+            background: rgba(120, 96, 58, 0.07);
         }
 
         .ac-references-section {

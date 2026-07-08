@@ -1106,7 +1106,7 @@
 
         .ac-finance-editorial-section + .ac-finance-editorial-section {
             padding-top: clamp(2.5rem, 3.4vw, 3.2rem);
-            border-top: 1px solid rgba(120, 96, 58, 0.14);
+            border-top: 1px solid rgba(120, 96, 58, 0.05);
         }
 
         .ac-finance-editorial-section:last-child {
@@ -1348,7 +1348,7 @@
         .ac-finance-phase-table thead th {
             padding: 1.15rem 1.15rem 0.85rem;
             background: transparent;
-            border-bottom: 1px solid rgba(171, 141, 82, 0.16);
+            border-bottom: 1px solid rgba(120, 96, 58, 0.06);
             border-right: 1px solid rgba(171, 141, 82, 0.12);
             font-size: 0.76rem;
             font-weight: 600;

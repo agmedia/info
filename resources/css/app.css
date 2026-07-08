@@ -4575,7 +4575,7 @@
         content: '';
         flex: 0 1 4rem;
         height: 1px;
-        background: rgba(15, 42, 67, 0.12);
+        background: rgba(15, 42, 67, 0.07);
     }
 
     .front-contact-breadcrumb .front-scroll-breadcrumb-track {
@@ -4690,7 +4690,7 @@
         display: grid;
         gap: 0.45rem;
         padding-bottom: 0.9rem;
-        border-bottom: 1px solid rgba(15, 42, 67, 0.08);
+        border-bottom: 1px solid rgba(15, 42, 67, 0.05);
     }
 
     .front-contact-office-top h3 {
@@ -4931,8 +4931,8 @@
     .ac-contact-page .ac-contact-title-band,
     .ac-lease-page .ac-lease-title-band {
         background: linear-gradient(180deg, #f6f1e7 0%, #f7f2e9 100%);
-        border-top-color: rgba(120, 96, 58, 0.12);
-        border-bottom-color: rgba(120, 96, 58, 0.14);
+        border-top-color: rgba(120, 96, 58, 0.05);
+        border-bottom-color: rgba(120, 96, 58, 0.05);
     }
 
     .ac-assessment-page .ac-page-title-breadcrumb::before,
@@ -4941,7 +4941,7 @@
     .ac-contact-page .ac-page-title-breadcrumb::after,
     .ac-lease-page .ac-page-title-breadcrumb::before,
     .ac-lease-page .ac-page-title-breadcrumb::after {
-        background: rgba(120, 96, 58, 0.16);
+        background: rgba(120, 96, 58, 0.07);
     }
 
     .ac-assessment-page .front-scroll-breadcrumb-link,
@@ -5071,11 +5071,11 @@
     .ac-contact-page .front-contact-office-top,
     .ac-contact-page .front-contact-office-meta,
     .ac-contact-page .front-contact-direct-list li {
-        border-top-color: rgba(120, 96, 58, 0.14);
+        border-top-color: rgba(120, 96, 58, 0.05);
     }
 
     .ac-contact-page .front-contact-office-top {
-        border-bottom-color: rgba(120, 96, 58, 0.14);
+        border-bottom-color: rgba(120, 96, 58, 0.05);
     }
 
     .ac-contact-page .front-contact-office-card::before {
@@ -5921,7 +5921,7 @@
     }
 
     .ac-lease-page .ac-lease-card-head {
-        border-bottom-color: rgba(120, 96, 58, 0.14);
+        border-bottom-color: rgba(120, 96, 58, 0.05);
         background: rgba(255, 255, 255, 0.58);
     }
 
@@ -5942,7 +5942,7 @@
     }
 
     .ac-lease-page .ac-lease-row {
-        border-bottom-color: rgba(120, 96, 58, 0.14);
+        border-bottom-color: rgba(120, 96, 58, 0.05);
     }
 
     .ac-lease-page .ac-lease-input,
@@ -6035,7 +6035,7 @@
     }
 
     .ac-lease-page .ac-lease-table tbody td {
-        border-top-color: rgba(120, 96, 58, 0.14);
+        border-top-color: rgba(120, 96, 58, 0.05);
         color: #403a34;
     }
 
@@ -7497,8 +7497,8 @@
     }
 
     .ac-inline-cta {
-        border-top: 1px solid rgba(171, 141, 82, 0.16);
-        border-bottom: 1px solid rgba(171, 141, 82, 0.16);
+        border-top: 1px solid rgba(120, 96, 58, 0.05);
+        border-bottom: 1px solid rgba(120, 96, 58, 0.05);
         padding: 1.85rem 0 1.55rem;
     }
 
@@ -7630,7 +7630,7 @@
     .ac-support-story-card-list {
         margin-top: 0.96rem;
         padding-top: 0.84rem;
-        border-top: 1px solid rgba(15, 42, 67, 0.08);
+        border-top: 1px solid rgba(120, 96, 58, 0.05);
     }
 
     .ac-support-story-card-list li {
@@ -7906,8 +7906,8 @@
 
     .ac-global-memberships {
         padding: clamp(1rem, 1.8vw, 1.35rem) 0 clamp(3rem, 4vw, 3.9rem);
-        border-top-color: rgba(15, 42, 67, 0.08);
-        border-bottom-color: rgba(15, 42, 67, 0.08);
+        border-top-color: rgba(15, 42, 67, 0.05);
+        border-bottom-color: rgba(15, 42, 67, 0.05);
         background: #edf2f6;
     }
 
@@ -8398,7 +8398,7 @@
     .ac-home-blog-card-meta {
         margin-top: auto;
         padding: 1rem 1.35rem 1.08rem;
-        border-top: 1px solid rgba(120, 96, 58, 0.14);
+        border-top: 1px solid rgba(120, 96, 58, 0.06);
         display: flex;
         align-items: center;
         justify-content: space-between;
@@ -8451,15 +8451,15 @@
     .ac-blog-page:not(.ac-blog-article-page) .ac-blog-title-band {
         margin-bottom: 0;
         background: linear-gradient(180deg, #f6f1e7 0%, #f7f2e9 100%);
-        border-top-color: rgba(120, 96, 58, 0.12);
-        border-bottom-color: rgba(120, 96, 58, 0.14);
+        border-top-color: rgba(120, 96, 58, 0.05);
+        border-bottom-color: rgba(120, 96, 58, 0.05);
     }
 
     .ac-blog-page.ac-blog-article-page .ac-page-title-breadcrumb::before,
     .ac-blog-page.ac-blog-article-page .ac-page-title-breadcrumb::after,
     .ac-blog-page:not(.ac-blog-article-page) .ac-page-title-breadcrumb::before,
     .ac-blog-page:not(.ac-blog-article-page) .ac-page-title-breadcrumb::after {
-        background: rgba(120, 96, 58, 0.16);
+        background: rgba(120, 96, 58, 0.07);
     }
 
     .ac-blog-page.ac-blog-article-page .front-scroll-breadcrumb-link,
@@ -8556,7 +8556,7 @@
             radial-gradient(38% 56% at 12% 84%, rgba(171, 141, 82, 0.08), transparent 68%),
             linear-gradient(120deg, #eef3f7 0%, #e7eef4 48%, #dde7f0 100%);
         border-top: 1px solid rgba(15, 42, 67, 0.06);
-        border-bottom: 1px solid rgba(15, 42, 67, 0.08);
+        border-bottom: 1px solid rgba(15, 42, 67, 0.05);
     }
 
     .ac-page-title-band > * {
@@ -8581,7 +8581,7 @@
         content: '';
         flex: 0 1 4rem;
         height: 1px;
-        background: rgba(15, 42, 67, 0.12);
+        background: rgba(15, 42, 67, 0.07);
     }
 
     .ac-page-title-breadcrumb .front-scroll-breadcrumb-track {
@@ -9698,8 +9698,8 @@
         background:
             linear-gradient(180deg, rgba(238, 245, 251, 0.96) 0%, rgba(231, 240, 248, 0.96) 100%),
             repeating-linear-gradient(90deg, rgba(15, 42, 67, 0.035) 0 1px, transparent 1px 104px);
-        border-top: 1px solid rgba(15, 42, 67, 0.08);
-        border-bottom: 1px solid rgba(15, 42, 67, 0.08);
+        border-top: 1px solid rgba(15, 42, 67, 0.05);
+        border-bottom: 1px solid rgba(15, 42, 67, 0.05);
     }
 
     .ac-family-section-head {
@@ -9862,8 +9862,8 @@
         background:
             linear-gradient(180deg, rgba(242, 245, 248, 0.96) 0%, rgba(237, 241, 245, 0.96) 100%),
             repeating-linear-gradient(90deg, rgba(15, 42, 67, 0.06) 0 1px, transparent 1px 92px);
-        border-top: 1px solid rgba(171, 141, 82, 0.18);
-        border-bottom: 1px solid rgba(171, 141, 82, 0.14);
+        border-top: 1px solid rgba(120, 96, 58, 0.05);
+        border-bottom: 1px solid rgba(120, 96, 58, 0.05);
     }
 
     .ac-family-faq-head {
@@ -9996,8 +9996,8 @@
         background:
             linear-gradient(180deg, rgba(250, 247, 241, 0.96) 0%, rgba(246, 242, 235, 0.96) 100%),
             repeating-linear-gradient(90deg, rgba(15, 42, 67, 0.05) 0 1px, transparent 1px 104px);
-        border-top: 1px solid rgba(171, 141, 82, 0.16);
-        border-bottom: 1px solid rgba(171, 141, 82, 0.14);
+        border-top: 1px solid rgba(120, 96, 58, 0.05);
+        border-bottom: 1px solid rgba(120, 96, 58, 0.05);
     }
 
     .ac-family-team-showcase-head {
@@ -10439,7 +10439,7 @@
     }
 
     .ac-audit-editorial-section + .ac-audit-editorial-section {
-        border-top: 1px solid rgba(120, 96, 58, 0.14);
+        border-top: 1px solid rgba(120, 96, 58, 0.05);
     }
 
     :is(.front-route-audit, .front-route-accounting, .front-route-advisory, .front-route-eu-funds) .ac-audit-editorial-wrap {
@@ -11375,7 +11375,7 @@
         grid-template-columns: repeat(2, minmax(0, 1fr));
         gap: 0;
         margin-top: 1rem;
-        border-top: 1px solid rgba(171, 141, 82, 0.2);
+        border-top: 1px solid rgba(120, 96, 58, 0.06);
     }
 
     .ac-advisory-approach-grid article {
@@ -11383,7 +11383,7 @@
         grid-template-columns: auto minmax(0, 1fr);
         gap: 0.8rem;
         padding: 1rem 0.8rem 1rem 0;
-        border-bottom: 1px solid rgba(171, 141, 82, 0.14);
+        border-bottom: 1px solid rgba(120, 96, 58, 0.05);
     }
 
     .ac-advisory-approach-grid h3 {
@@ -11425,7 +11425,7 @@
         display: block;
         width: 100%;
         height: 1px;
-        background: rgba(120, 96, 58, 0.16);
+        background: rgba(120, 96, 58, 0.06);
     }
 
     .ac-service-cta-container::before {
@@ -12273,7 +12273,7 @@
         content: '';
         flex: 0 1 4rem;
         height: 1px;
-        background: rgba(15, 42, 67, 0.12);
+        background: rgba(15, 42, 67, 0.07);
     }
 
     .ac-blog-article-breadcrumb .front-scroll-breadcrumb-track {
@@ -12471,7 +12471,7 @@
         margin-top: 0;
         padding: clamp(1.9rem, 3.6vw, 2.6rem) 0 calc(clamp(4.4rem, 8vw, 6rem) + 42px);
         background: linear-gradient(180deg, #f7f2e9 0%, #f6f1e7 100%);
-        border-top: 1px solid rgba(120, 96, 58, 0.14);
+        border-top: 1px solid rgba(120, 96, 58, 0.05);
         overflow: hidden;
     }
 
@@ -12534,7 +12534,7 @@
     .ac-blog-share {
         margin-top: 2.8rem;
         padding-top: 2rem;
-        border-top: 1px solid rgba(120, 96, 58, 0.14);
+        border-top: 1px solid rgba(120, 96, 58, 0.05);
     }
 
     .ac-blog-share-links {

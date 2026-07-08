@@ -360,7 +360,7 @@
         .ac-career-page {
             --ac-career-bg-warm: #f6f1e7;
             --ac-career-bg-light: #fbf6ed;
-            --ac-career-section-line: rgba(15, 42, 67, 0.08);
+            --ac-career-section-line: rgba(120, 96, 58, 0.05);
             --ac-career-section-title-size: 2.18rem;
             --ac-career-section-title-line-height: 1.14;
             --ac-career-card-title-size: 1.48rem;
@@ -398,7 +398,7 @@
             margin-bottom: 0;
             background: var(--ac-career-bg-warm);
             border-top-color: transparent;
-            border-bottom-color: rgba(15, 42, 67, 0.08);
+            border-bottom-color: rgba(120, 96, 58, 0.05);
         }
 
         .ac-career-title-band .ac-page-title-copy h1 {
@@ -417,7 +417,7 @@
 
         .ac-career-title-band .ac-page-title-breadcrumb::before,
         .ac-career-title-band .ac-page-title-breadcrumb::after {
-            background: rgba(120, 96, 58, 0.16);
+            background: rgba(120, 96, 58, 0.07);
         }
 
         .ac-career-page .front-action-cta {
@@ -766,7 +766,7 @@
         .ac-career-story-card h3 {
             margin: 0;
             padding-bottom: 0.95rem;
-            border-bottom: 1px solid rgba(15, 42, 67, 0.08);
+            border-bottom: 1px solid rgba(120, 96, 58, 0.06);
             color: #101820;
             font-family: 'Montserrat', sans-serif;
             font-size: var(--ac-career-card-title-size);
@@ -876,20 +876,20 @@
             min-height: 3.15rem;
             padding: 0.8rem 0 0.9rem;
             border: 0;
-            border-bottom: 1px solid rgba(15, 23, 42, 0.16);
+            border-bottom: 1px solid rgba(15, 23, 42, 0.1);
         }
 
         .ac-career-form-textarea {
             min-height: 3.2rem;
             padding: 0.85rem 0 0.9rem;
             border: 0;
-            border-bottom: 1px solid rgba(15, 23, 42, 0.16);
+            border-bottom: 1px solid rgba(15, 23, 42, 0.1);
             resize: vertical;
         }
 
         .ac-career-form-file-wrap {
             position: relative;
-            border-bottom: 1px solid rgba(15, 23, 42, 0.16);
+            border-bottom: 1px solid rgba(15, 23, 42, 0.1);
             transition: border-color 0.18s ease, background-color 0.18s ease;
         }
 
@@ -977,7 +977,7 @@
             display: grid;
             gap: 0.4rem;
             padding-top: 0.75rem;
-            border-top: 1px solid rgba(15, 23, 42, 0.08);
+            border-top: 1px solid rgba(120, 96, 58, 0.05);
         }
 
         .ac-career-form-consent {

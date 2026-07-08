@@ -187,7 +187,7 @@
             --ac-team-bg-light: #fbf6ed;
             --ac-team-blue: #10213a;
             --ac-team-gold: #7c653b;
-            --ac-team-line: rgba(15, 42, 67, 0.08);
+            --ac-team-line: rgba(120, 96, 58, 0.05);
             min-height: 100vh;
             background: var(--ac-team-bg-warm);
             color: #101820;
@@ -238,7 +238,7 @@
 
         .ac-team-title-band .ac-page-title-breadcrumb::before,
         .ac-team-title-band .ac-page-title-breadcrumb::after {
-            background: rgba(120, 96, 58, 0.16);
+            background: rgba(120, 96, 58, 0.07);
         }
 
         .ac-team-section {
@@ -357,7 +357,7 @@
         }
 
         .ac-team-member-media {
-            border-color: rgba(15, 42, 67, 0.08) !important;
+            border-color: rgba(120, 96, 58, 0.05) !important;
             border-radius: 8px;
             background: #fff !important;
         }

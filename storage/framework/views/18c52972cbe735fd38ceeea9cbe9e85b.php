@@ -406,7 +406,7 @@
             --ac-about-bg-warm: #f6f1e7;
             --ac-about-bg-light: #fbf6ed;
             --ac-about-bg-blue: #10213a;
-            --ac-about-section-line: rgba(15, 42, 67, 0.08);
+            --ac-about-section-line: rgba(120, 96, 58, 0.05);
             --ac-about-section-title-size: 2.18rem;
             --ac-about-section-title-line-height: 1.14;
             --ac-about-card-title-size: 1.48rem;
@@ -454,7 +454,7 @@
             margin-bottom: 0;
             background-color: var(--ac-about-bg-warm);
             border-top-color: transparent;
-            border-bottom-color: rgba(15, 42, 67, 0.08);
+            border-bottom-color: rgba(120, 96, 58, 0.05);
         }
 
         .ac-about-title-band .ac-page-title-copy h1 {
@@ -474,7 +474,7 @@
 
         .ac-about-title-band .ac-page-title-breadcrumb::before,
         .ac-about-title-band .ac-page-title-breadcrumb::after {
-            background: rgba(120, 96, 58, 0.16);
+            background: rgba(120, 96, 58, 0.07);
         }
 
         .ac-about-page .front-action-cta {
@@ -734,7 +734,7 @@
 
         .ac-about-value-card h3 {
             padding-bottom: 0.95rem;
-            border-bottom: 1px solid rgba(15, 42, 67, 0.08);
+            border-bottom: 1px solid rgba(120, 96, 58, 0.06);
         }
 
         .ac-about-value-card .ac-about-card-lead {

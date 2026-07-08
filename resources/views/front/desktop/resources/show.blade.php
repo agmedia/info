@@ -129,8 +129,8 @@
             margin-inline: calc(50% - 50vw);
             background:
                 linear-gradient(90deg, #f7f3ec 0%, #f7f3ec 50%, #f7fafc 50%, #f7fafc 100%);
-            border-top: 1px solid rgba(15, 23, 42, 0.08);
-            border-bottom: 1px solid rgba(15, 23, 42, 0.08);
+            border-top: 1px solid rgba(120, 96, 58, 0.05);
+            border-bottom: 1px solid rgba(120, 96, 58, 0.05);
             overflow: hidden;
         }
 
@@ -311,7 +311,7 @@
         .ac-resource-form-input {
             width: 100%;
             border: 0;
-            border-bottom: 1px solid rgba(15, 23, 42, 0.16);
+            border-bottom: 1px solid rgba(15, 23, 42, 0.1);
             background: transparent;
             min-height: 3.15rem;
             padding: 0.8rem 0 0.9rem;
@@ -358,7 +358,7 @@
             display: grid;
             gap: 0.4rem;
             padding-top: 0.75rem;
-            border-top: 1px solid rgba(15, 23, 42, 0.08);
+            border-top: 1px solid rgba(120, 96, 58, 0.05);
         }
 
         .ac-resource-form-consent-wrap.is-selected .ac-resource-form-consent {
