@@ -226,7 +226,7 @@
             place-items: center;
             min-height: 5.8rem;
             padding: 0.9rem;
-            border: 1px solid rgba(15, 42, 67, 0.08);
+            border: 1px solid rgba(120, 96, 58, 0.05);
             border-radius: 8px;
             background: #fff;
         }
