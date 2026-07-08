@@ -8,6 +8,7 @@
         <meta name="csrf-token" content="{{ csrf_token() }}">
 
         <title>{{ $title ? $title.' | ALPHA ADMIN' : 'ALPHA ADMIN' }}</title>
+        <link rel="icon" href="{{ asset('favicon.ico') }}" sizes="any">
 
         @vite(['resources/css/app.css', 'resources/js/app.js'])
         <style>
