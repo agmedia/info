@@ -2173,9 +2173,12 @@
             var(--about-radius-small);
     }
 
-    .front-desktop-shell .ac-about-value-grid,
-    .front-desktop-shell .ac-about-member-grid {
+    .front-desktop-shell .ac-about-value-grid {
         grid-template-columns: 1fr;
+    }
+
+    .front-desktop-shell .ac-about-member-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 
     .front-desktop-shell .ac-about-value-card,
@@ -2208,8 +2211,8 @@
     }
 
     .front-desktop-shell .ac-about-member-grid {
-        --ac-about-member-aspect: 1 / 1.18;
-        gap: 2.75rem;
+        --ac-about-member-aspect: 1 / 1.3;
+        gap: 0.75rem;
     }
 
     .front-desktop-shell .ac-about-member-cta-card {
@@ -2218,7 +2221,26 @@
 
     .front-desktop-shell .ac-about-member-cta-link {
         min-height: 100%;
-        padding: 1.5rem 1.6rem;
+        padding: 1rem;
+    }
+
+    .front-desktop-shell .ac-about-member-info {
+        padding: 2.25rem 0.7rem 0.68rem;
+    }
+
+    .front-desktop-shell .ac-about-member-card h3 {
+        font-size: clamp(0.7rem, 3vw, 0.82rem);
+        line-height: 1.13;
+    }
+
+    .front-desktop-shell .ac-about-member-card p {
+        margin-top: 0.3rem;
+        font-size: clamp(0.54rem, 2.25vw, 0.62rem);
+        line-height: 1.25;
+    }
+
+    .front-desktop-shell .ac-about-member-cta-button {
+        font-size: clamp(0.92rem, 4vw, 1.1rem);
     }
 
     .front-desktop-shell .ac-about-wide-cta {
@@ -2241,7 +2263,7 @@
 
 @media (max-width: 420px) {
     .front-desktop-shell .ac-about-stat-grid {
-        grid-template-columns: 1fr;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 
     .front-desktop-shell .ac-about-reference-grid {

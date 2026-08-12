@@ -383,6 +383,7 @@
                                             loading="lazy"
                                             decoding="async"
                                         >
+                                        <span class="image-reveal-curtain" aria-hidden="true"></span>
                                     @else
                                         <span>{{ $member['initials'] ?? 'AC' }}</span>
                                     @endif
@@ -571,7 +572,7 @@
                                     <img
                                         src="{{ $item['url'] }}"
                                         alt="{{ $item['alt'] }}"
-                                        loading="lazy"
+                                        loading="eager"
                                         decoding="async"
                                     >
                                     <span class="image-reveal-curtain" aria-hidden="true"></span>
@@ -597,5 +598,5 @@
 @endsection
 
 @push('styles')
-    <link rel="stylesheet" href="{{ asset('front-theme/styles/pages/about.css') }}">
+    <link rel="stylesheet" href="{{ asset('front-theme/styles/pages/about.css') }}?v={{ filemtime(public_path('front-theme/styles/pages/about.css')) }}">
 @endpush
