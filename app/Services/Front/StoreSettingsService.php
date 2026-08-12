@@ -10,8 +10,7 @@ class StoreSettingsService
 {
     public function __construct(
         private readonly SystemSettingsService $settings
-    ) {
-    }
+    ) {}
 
     /**
      * @return array<string, mixed>
@@ -65,6 +64,10 @@ class StoreSettingsService
                 '512_url' => $this->assetUrl((string) $this->settings->get('store_brand_favicon_512_path', '')),
             ],
             'social' => [
+                'x' => [
+                    'url' => trim((string) $this->settings->get('store_social_x_url', '')),
+                    'enabled' => (bool) $this->settings->get('store_footer_social_x_enabled', true),
+                ],
                 'facebook' => [
                     'url' => trim((string) $this->settings->get('store_social_facebook_url', '')),
                     'enabled' => (bool) $this->settings->get('store_footer_social_facebook_enabled', true),
@@ -72,6 +75,10 @@ class StoreSettingsService
                 'instagram' => [
                     'url' => trim((string) $this->settings->get('store_social_instagram_url', '')),
                     'enabled' => (bool) $this->settings->get('store_footer_social_instagram_enabled', true),
+                ],
+                'linkedin' => [
+                    'url' => trim((string) $this->settings->get('store_social_linkedin_url', '')),
+                    'enabled' => (bool) $this->settings->get('store_footer_social_linkedin_enabled', true),
                 ],
                 'tiktok' => [
                     'url' => trim((string) $this->settings->get('store_social_tiktok_url', '')),
@@ -395,7 +402,7 @@ class StoreSettingsService
     }
 
     /**
-     * @param array<int, int> $pageIds
+     * @param  array<int, int>  $pageIds
      * @return array<int, array{label:string,url:string,type:string}>
      */
     private function resolveFooterPageLinksMap(string $locale, string $fallbackLocale, array $pageIds): array
@@ -432,7 +439,7 @@ class StoreSettingsService
     }
 
     /**
-     * @param array<int, int> $pageIds
+     * @param  array<int, int>  $pageIds
      * @return array<int, array{label:string,url:string,type:string}>
      */
     private function resolveFooterPageLinks(string $locale, string $fallbackLocale, array $pageIds): array
@@ -450,7 +457,6 @@ class StoreSettingsService
     }
 
     /**
-     * @param mixed $value
      * @return array<int, int>
      */
     private function normalizeIdList(mixed $value): array

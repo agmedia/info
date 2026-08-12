@@ -181,7 +181,7 @@
         .ac-reference-empty h2 {
             margin: 0.7rem 0 0;
             color: #101820;
-            font-family: 'Montserrat', sans-serif;
+            font-family: "Instrument Sans Variable", Arial, sans-serif;
             font-size: clamp(1.9rem, 3vw, 2.5rem);
             font-weight: 700;
             line-height: 1.14;

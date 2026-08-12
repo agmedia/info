@@ -39,14 +39,80 @@
         str_starts_with(strtolower((string) $locale), 'hr') ? 'Kontaktirajte nas' : 'Contact us'
     );
 
-    $pageTitleBreadcrumbs = [
-        ['label' => __('ui.front.desktop.footer.home'), 'url' => route('home')],
-        ['label' => $translation?->title ?? $page->code, 'current' => true],
-    ];
-
     $pageTitle = trim((string) ($translation?->title ?? '')) ?: 'O nama';
     $heroTitle = trim((string) ($hero['title'] ?? '')) ?: $pageTitle;
     $heroLead = trim((string) ($hero['lead'] ?? ''));
+    $storyParagraphs = collect((array) ($story['paragraphs'] ?? []))
+        ->map(static fn ($paragraph): string => trim((string) $paragraph))
+        ->filter()
+        ->values();
+    $introStoryHtml = e((string) ($storyParagraphs->first() ?? ''));
+    $introStoryHtml = str_replace(
+        'ALPHA CAPITALIS',
+        '<a class="services-index-inline-link" href="'.e(route('contact.create')).'">ALPHA CAPITALIS</a>',
+        $introStoryHtml,
+    );
+    $headingWords = static fn (string $title): array => preg_split('/\s+/u', trim($title), -1, PREG_SPLIT_NO_EMPTY) ?: [];
+    $valuesLabel = str_starts_with(strtolower((string) $locale), 'hr')
+        ? 'Naše vrijednosti'
+        : 'Our values';
+    $valuesTitle = trim((string) ($values['title'] ?? '')) ?: 'Jednostavni principi koji vode svaki dan';
+    $valuesIntro = trim((string) ($values['intro'] ?? ''));
+    $valuesIntroLinkText = str_contains($valuesIntro, 'ALPHA CAPITALISU')
+        ? 'ALPHA CAPITALISU'
+        : 'ALPHA CAPITALIS';
+    $valuesIntroHtml = str_replace(
+        $valuesIntroLinkText,
+        '<a class="services-index-inline-link" href="'.e(route('contact.create')).'">'.e($valuesIntroLinkText).'</a>',
+        e($valuesIntro),
+    );
+    $whyLabel = trim((string) ($why['kicker'] ?? '')) ?: 'Zašto postojimo';
+    $whyTitle = trim((string) ($why['title'] ?? '')) ?: 'Podrška za sigurno, kvalitetno i održivo poslovanje';
+    $whyParagraphs = collect((array) ($why['paragraphs'] ?? []))
+        ->map(static fn ($paragraph): string => trim((string) $paragraph))
+        ->filter()
+        ->values();
+    $whyServiceTermLinks = [
+        'strateškog razvoja' => route('advisory.show'),
+        'računovodstva' => route('accounting.show'),
+        'EU fondova' => route('eu-funds.show'),
+        'financija' => route('advisory.finance.show'),
+        'revizije' => route('audit.show'),
+        'strategic development' => route('advisory.show'),
+        'accounting' => route('accounting.show'),
+        'EU funds' => route('eu-funds.show'),
+        'finance' => route('advisory.finance.show'),
+        'audit' => route('audit.show'),
+    ];
+    $linkWhyServiceTerms = static function (string $paragraph) use ($whyServiceTermLinks): string {
+        $replacements = [];
+
+        foreach ($whyServiceTermLinks as $term => $url) {
+            $replacements[e($term)] = '<a class="ac-about-dark-inline-link" href="'.e($url).'">'.e($term).'</a>';
+        }
+
+        return strtr(e($paragraph), $replacements);
+    };
+    $teamTitle = trim((string) ($team['title'] ?? '')) ?: 'Tim';
+    $teamLabel = str_starts_with(strtolower((string) $locale), 'hr') ? 'Naš tim' : 'Our team';
+    $teamStats = collect((array) ($team['stats'] ?? []))
+        ->map(static fn ($stat): array => is_array($stat) ? $stat : [])
+        ->filter(static fn (array $stat): bool => trim((string) ($stat['value'] ?? '')) !== '')
+        ->values();
+    $cultureTitle = trim((string) ($culture['title'] ?? '')) ?: 'Naša kultura';
+    $responsibilityTitle = trim((string) ($responsibility['title'] ?? ''));
+    $referencesTitle = trim((string) ($references['title'] ?? '')) ?: 'Reference';
+    $valueIconClasses = [
+        'fa-brain-circuit',
+        'fa-lightbulb-gear',
+        'fa-hands-holding-heart',
+    ];
+    $teamStatIconClasses = [
+        'fa-users-gear',
+        'fa-chess-king',
+        'fa-user-check',
+        'fa-location-dot',
+    ];
 @endphp
 
 @section('title', $pageTitle)
@@ -58,41 +124,29 @@
             <section class="ac-about-blocks ac-about-blocks--top">@include('components.content-placement', ['items' => $topBlocks])</section>
         @endif
 
-        <x-front.page-title-band
-            :breadcrumbs="$pageTitleBreadcrumbs"
-            section-class="ac-about-title-band"
-            breadcrumb-class="ac-about-title-breadcrumb"
-        >
-            <div class="ac-page-title-copy">
-                <h1>{{ $pageTitle }}</h1>
-                <p>{{ $heroTitle }}</p>
-            </div>
-        </x-front.page-title-band>
+        <section class="values-section services-index-intro ac-about-intro" aria-labelledby="ac-about-hero-title">
+            <div class="values-inner services-index-intro-layout ac-about-intro-layout">
+                <div class="values-intro">
+                    <h1 class="values-title services-index-intro-title ac-about-intro-title" id="ac-about-hero-title" data-words-slide-from-right aria-label="{{ $heroTitle }}">
+                        @foreach ($headingWords($heroTitle) as $word)
+                            <span class="values-word animation-index-{{ $loop->index }} {{ $loop->last ? 'is-accent' : '' }}" aria-hidden="true">{{ $word }}</span>
+                        @endforeach
+                    </h1>
+                </div>
 
-        <section class="ac-about-hero" aria-labelledby="ac-about-hero-title">
-            <div class="ac-about-container">
-                <div class="ac-about-hero-grid">
-                    <div class="ac-about-hero-copy">
-                        @if (trim((string) ($hero['eyebrow'] ?? '')) !== '')
-                            <p class="ac-about-kicker">{{ $hero['eyebrow'] }}</p>
-                        @endif
-
-                        <h2 id="ac-about-hero-title">{{ $heroTitle }}</h2>
-
-                        @if ($heroLead !== '')
-                            <p class="ac-about-lead">{{ $heroLead }}</p>
-                        @endif
-
-                        <div class="ac-about-copy-stack">
-                            @foreach ((array) ($story['paragraphs'] ?? []) as $paragraph)
-                                @continue(trim((string) $paragraph) === '')
-                                <p>{{ $paragraph }}</p>
-                            @endforeach
-                        </div>
+                @if ($storyParagraphs->isNotEmpty())
+                    <div class="values-copy services-index-intro-copy ac-about-intro-copy content-reveal" data-image-reveal>
+                        <p>{!! $introStoryHtml !!}</p>
                     </div>
+                @endif
+            </div>
+        </section>
 
+        <section class="ac-about-hero" aria-label="{{ $heroTitle }}">
+            <div class="ac-about-container">
+                <div class="ac-about-hero-grid content-reveal" data-image-reveal>
                     <div class="ac-about-hero-media">
-                        <figure class="ac-about-image {{ $aboutHeroPhoto['class'] }}">
+                        <figure class="ac-about-image image-reveal-media {{ $aboutHeroPhoto['class'] }}">
                             <img
                                 src="{{ $aboutHeroPhoto['src'] }}"
                                 alt="{{ $aboutHeroPhoto['alt'] }}"
@@ -102,6 +156,7 @@
                                 decoding="async"
                                 fetchpriority="high"
                             >
+                            <span class="image-reveal-curtain" aria-hidden="true"></span>
                         </figure>
 
                         <div class="ac-about-stat-card">
@@ -109,21 +164,45 @@
                             <span>{{ $heroStatLabel }}</span>
                         </div>
                     </div>
+
+                    <div class="ac-about-copy-stack ac-about-hero-story">
+                        @if ($heroLead !== '')
+                            <h2 class="ac-about-story-title" data-words-slide-from-right aria-label="{{ $heroLead }}">
+                                @foreach ($headingWords($heroLead) as $word)
+                                    <span class="service-title-word animation-index-{{ $loop->index }}" aria-hidden="true">{{ $word }}</span>
+                                @endforeach
+                            </h2>
+                        @endif
+
+                        @foreach ($storyParagraphs->skip(1) as $paragraph)
+                            @php
+                                $storyParagraphHtml = str_replace(
+                                    'ALPHA CAPITALIS',
+                                    '<a class="ac-about-dark-inline-link" href="'.e(route('contact.create')).'">ALPHA CAPITALIS</a>',
+                                    e($paragraph),
+                                );
+                            @endphp
+                            <p>{!! $storyParagraphHtml !!}</p>
+                        @endforeach
+                    </div>
                 </div>
             </div>
         </section>
 
         <section class="ac-about-values" aria-labelledby="ac-about-values-title">
             <div class="ac-about-container">
-                <div class="ac-about-section-head">
-                    @if (trim((string) ($values['kicker'] ?? '')) !== '')
-                        <p class="ac-about-kicker">{{ $values['kicker'] }}</p>
-                    @endif
+                <div class="ac-about-section-intro ac-about-values-intro content-reveal" data-image-reveal>
+                    <h2 class="values-title services-index-intro-title ac-about-section-intro-title ac-about-values-label" id="ac-about-values-title" data-words-slide-from-right aria-label="{{ $valuesLabel }}">
+                        @foreach ($headingWords($valuesLabel) as $word)
+                            <span class="values-word animation-index-{{ $loop->index }} {{ $loop->last ? 'is-accent' : '' }}" aria-hidden="true">{{ $word }}</span>
+                        @endforeach
+                    </h2>
 
-                    <h2 id="ac-about-values-title">{{ $values['title'] ?? 'Vrijednosti' }}</h2>
-
-                    @if (trim((string) ($values['intro'] ?? '')) !== '')
-                        <p>{{ $values['intro'] }}</p>
+                    @if ($valuesIntro !== '')
+                        <div class="values-copy services-index-intro-copy ac-about-section-intro-copy ac-about-values-copy">
+                            <h3 class="ac-about-copy-heading ac-about-values-copy-title">{{ $valuesTitle }}</h3>
+                            <p>{!! $valuesIntroHtml !!}</p>
+                        </div>
                     @endif
                 </div>
 
@@ -136,7 +215,10 @@
 
                         @continue($itemTitle === '')
 
-                        <article class="ac-about-value-card">
+                        <article class="ac-about-value-card content-reveal animation-index-{{ $loop->index }}" data-image-reveal>
+                            <span class="ac-about-value-icon" aria-hidden="true">
+                                <i class="fa-duotone fa-thin fa-fw {{ $valueIconClasses[$loop->index] ?? 'fa-circle-check' }}"></i>
+                            </span>
                             <h3>{{ $itemTitle }}</h3>
 
                             @if (trim((string) ($item['lead'] ?? '')) !== '')
@@ -157,73 +239,115 @@
 
         <section class="ac-about-why" aria-labelledby="ac-about-why-title">
             <div class="ac-about-container">
-                <div class="ac-about-split-grid">
-                    <div>
-                        @if (trim((string) ($why['kicker'] ?? '')) !== '')
-                            <p class="ac-about-kicker">{{ $why['kicker'] }}</p>
-                        @endif
-
-                        <h2 id="ac-about-why-title">{{ $why['title'] ?? 'Zašto postojimo' }}</h2>
-
-                        @if ($whyQuote !== '')
-                            <blockquote class="ac-about-pullquote">
-                                <p>{{ $whyQuote }}</p>
-                            </blockquote>
-                        @endif
-                    </div>
-
-                    <div class="ac-about-copy-stack ac-about-copy-stack--large">
-                        @foreach ((array) ($why['paragraphs'] ?? []) as $paragraph)
-                            @continue(trim((string) $paragraph) === '')
-                            <p>{{ $paragraph }}</p>
+                <div class="ac-about-section-intro ac-about-why-intro content-reveal" data-image-reveal>
+                    <h2 class="values-title services-index-intro-title ac-about-section-intro-title ac-about-why-title" id="ac-about-why-title" data-words-slide-from-right aria-label="{{ $whyLabel }}">
+                        @foreach ($headingWords($whyLabel) as $word)
+                            <span class="values-word animation-index-{{ $loop->index }} {{ $loop->last ? 'is-accent' : '' }}" aria-hidden="true">{{ $word }}</span>
                         @endforeach
-                    </div>
+                    </h2>
+
+                    @if ($whyTitle !== '' || $whyQuote !== '')
+                        <div class="values-copy services-index-intro-copy ac-about-section-intro-copy ac-about-why-copy">
+                            @if ($whyTitle !== '')
+                                <h3 class="ac-about-copy-heading ac-about-copy-heading--light">{{ $whyTitle }}</h3>
+                            @endif
+
+                            @if ($whyQuote !== '')
+                                <blockquote class="ac-about-why-quote">
+                                    <p>{{ $whyQuote }}</p>
+                                </blockquote>
+                            @endif
+                        </div>
+                    @endif
                 </div>
+
+                @if ($whyParagraphs->isNotEmpty())
+                    <div class="ac-about-why-body">
+                        <div class="ac-about-why-body-lead content-reveal animation-index-1" data-image-reveal>
+                            @foreach ($whyParagraphs->take(2) as $paragraph)
+                                <p>{!! $linkWhyServiceTerms($paragraph) !!}</p>
+                            @endforeach
+                        </div>
+
+                        <div class="ac-about-copy-stack ac-about-why-body-copy content-reveal animation-index-2" data-image-reveal>
+                            @foreach ($whyParagraphs->skip(2) as $paragraph)
+                                <p>{!! $linkWhyServiceTerms($paragraph) !!}</p>
+                            @endforeach
+                        </div>
+                    </div>
+                @endif
             </div>
         </section>
 
-        <section class="ac-about-team" aria-labelledby="ac-about-team-title">
-            <div class="ac-about-container">
-                <div class="ac-about-team-head">
-                    <div>
-                        @if (trim((string) ($team['kicker'] ?? '')) !== '')
-                            <p class="ac-about-kicker">{{ $team['kicker'] }}</p>
-                        @endif
+        <section class="ac-about-team" aria-labelledby="ac-about-team-intro-title">
+            <div class="ac-about-team-intro">
+                <div class="ac-about-container">
+                    <div class="ac-about-section-intro ac-about-team-intro-grid content-reveal" data-image-reveal>
+                        <h2 class="values-title services-index-intro-title ac-about-section-intro-title ac-about-team-label" id="ac-about-team-intro-title" data-words-slide-from-right aria-label="{{ $teamLabel }}">
+                            @foreach ($headingWords($teamLabel) as $word)
+                                <span class="values-word animation-index-{{ $loop->index }} {{ $loop->last ? 'is-accent' : '' }}" aria-hidden="true">{{ $word }}</span>
+                            @endforeach
+                        </h2>
 
-                        <h2 id="ac-about-team-title">{{ $team['title'] ?? 'Tim' }}</h2>
-                    </div>
+                        <div class="values-copy services-index-intro-copy ac-about-section-intro-copy ac-about-team-copy">
+                            @if (trim((string) ($team['intro'] ?? '')) !== '')
+                                <p class="ac-about-team-lead">{{ $team['intro'] }}</p>
+                            @endif
 
-                    <div class="ac-about-copy-stack">
-                        @if (trim((string) ($team['intro'] ?? '')) !== '')
-                            <p class="ac-about-team-intro">{{ $team['intro'] }}</p>
-                        @endif
-
-                        @if (trim((string) ($team['body'] ?? '')) !== '')
-                            <p>{{ $team['body'] }}</p>
-                        @endif
-                    </div>
-                </div>
-
-                <div class="ac-about-stat-grid">
-                    @foreach ((array) ($team['stats'] ?? []) as $stat)
-                        @php
-                            $stat = is_array($stat) ? $stat : [];
-                            $statValue = trim((string) ($stat['value'] ?? ''));
-                        @endphp
-
-                        @continue($statValue === '')
-
-                        <div class="ac-about-stat-item">
-                            <strong>{{ $statValue }}</strong>
-                            <span>{{ $stat['label'] ?? '' }}</span>
+                            @if (trim((string) ($team['body'] ?? '')) !== '')
+                                <p>{{ $team['body'] }}</p>
+                            @endif
                         </div>
-                    @endforeach
+                    </div>
                 </div>
+            </div>
 
-                @if ($aboutPreviewTeamMembers->isNotEmpty())
-                    <div class="ac-about-member-grid">
+            @if ($teamStats->isNotEmpty())
+                <div class="ac-about-team-stats" role="region" aria-label="{{ $teamLabel }}" data-locations-reveal>
+                    <div class="ac-about-team-stats-shell">
+                        <div class="locations-stats ac-about-stat-grid">
+                        @foreach ($teamStats as $stat)
+                            @php
+                                $statValue = trim((string) ($stat['value'] ?? ''));
+                                $statCountTo = preg_replace('/\D+/', '', $statValue) ?: '';
+                                $statSuffix = $statCountTo !== '' ? trim(str_replace($statCountTo, '', $statValue)) : '';
+                            @endphp
+
+                            <article class="location-stat ac-about-stat-item">
+                                <div class="location-stat-icon" aria-hidden="true">
+                                    <i class="fa-duotone fa-thin fa-fw {{ $teamStatIconClasses[$loop->index] ?? 'fa-circle-check' }}"></i>
+                                </div>
+                                <div>
+                                    <strong>
+                                        @if ($statCountTo !== '')
+                                            <span data-count-target="{{ $statCountTo }}">0</span><span class="location-stat-suffix">{{ $statSuffix }}</span>
+                                        @else
+                                            {{ $statValue }}
+                                        @endif
+                                    </strong>
+                                    <p>{{ $stat['label'] ?? '' }}</p>
+                                </div>
+                            </article>
+                        @endforeach
+                        </div>
+                    </div>
+                </div>
+            @endif
+
+            <div class="ac-about-team-members" role="region" aria-labelledby="ac-about-team-title">
+                <div class="ac-about-container">
+                    <header class="ac-about-team-members-head content-reveal" data-image-reveal>
+                        <h2 class="ac-about-story-title ac-about-team-members-title" id="ac-about-team-title" data-words-slide-from-right aria-label="{{ $teamTitle }}">
+                            @foreach ($headingWords($teamTitle) as $word)
+                                <span class="service-title-word animation-index-{{ $loop->index }} {{ $loop->remaining < 2 ? 'is-accent' : '' }}" aria-hidden="true">{{ $word }}</span>
+                            @endforeach
+                        </h2>
+                    </header>
+
+                    @if ($aboutPreviewTeamMembers->isNotEmpty())
+                        <div class="ac-about-member-grid">
                         @foreach ($aboutPreviewTeamMembers as $member)
-                            <article class="ac-about-member-card">
+                            <article class="ac-about-member-card content-reveal animation-index-{{ $loop->index }}" data-image-reveal>
                                 <div class="ac-about-member-photo">
                                     @if (($member['photo_url'] ?? '') !== '')
                                         <img
@@ -257,20 +381,25 @@
                                 </span>
                             </a>
                         </article>
-                    </div>
-                @endif
+                        </div>
+                    @endif
+                </div>
             </div>
         </section>
 
         <section class="ac-about-culture" aria-labelledby="ac-about-culture-title">
             <div class="ac-about-container">
-                <div class="ac-about-split-grid">
+                <div class="ac-about-split-grid content-reveal" data-image-reveal>
                     <div>
                         @if (trim((string) ($culture['kicker'] ?? '')) !== '')
                             <p class="ac-about-kicker">{{ $culture['kicker'] }}</p>
                         @endif
 
-                        <h2 id="ac-about-culture-title">{{ $culture['title'] ?? 'Naša kultura' }}</h2>
+                        <h2 class="values-title ac-about-heading" id="ac-about-culture-title" data-words-slide-from-right aria-label="{{ $cultureTitle }}">
+                            @foreach ($headingWords($cultureTitle) as $word)
+                                <span class="values-word animation-index-{{ $loop->index }} {{ $loop->last ? 'is-accent' : '' }}" aria-hidden="true">{{ $word }}</span>
+                            @endforeach
+                        </h2>
 
                         @if ($cultureQuote !== '')
                             <blockquote class="ac-about-pullquote">
@@ -291,13 +420,17 @@
 
         <section class="ac-about-responsibility" aria-labelledby="ac-about-responsibility-title">
             <div class="ac-about-container">
-                <div class="ac-about-responsibility-grid">
+                <div class="ac-about-responsibility-grid content-reveal" data-image-reveal>
                     <div>
                         @if (trim((string) ($responsibility['kicker'] ?? '')) !== '')
                             <p class="ac-about-kicker">{{ $responsibility['kicker'] }}</p>
                         @endif
 
-                        <h2 id="ac-about-responsibility-title">{{ $responsibility['title'] ?? '' }}</h2>
+                        <h2 class="values-title ac-about-heading" id="ac-about-responsibility-title" data-words-slide-from-right aria-label="{{ $responsibilityTitle }}">
+                            @foreach ($headingWords($responsibilityTitle) as $word)
+                                <span class="values-word animation-index-{{ $loop->index }} {{ $loop->last ? 'is-accent' : '' }}" aria-hidden="true">{{ $word }}</span>
+                            @endforeach
+                        </h2>
 
                         @if ($responsibilityQuote !== '')
                             <blockquote class="ac-about-pullquote">
@@ -338,13 +471,17 @@
 
         <section class="ac-about-references" aria-labelledby="ac-about-references-title">
             <div class="ac-about-container">
-                <div class="ac-about-reference-head">
+                <div class="ac-about-reference-head content-reveal" data-image-reveal>
                     <div>
                         @if (trim((string) ($references['kicker'] ?? '')) !== '')
                             <p class="ac-about-kicker">{{ $references['kicker'] }}</p>
                         @endif
 
-                        <h2 id="ac-about-references-title">{{ $references['title'] ?? 'Reference' }}</h2>
+                        <h2 class="values-title ac-about-heading" id="ac-about-references-title" data-words-slide-from-right aria-label="{{ $referencesTitle }}">
+                            @foreach ($headingWords($referencesTitle) as $word)
+                                <span class="values-word animation-index-{{ $loop->index }} {{ $loop->last ? 'is-accent' : '' }}" aria-hidden="true">{{ $word }}</span>
+                            @endforeach
+                        </h2>
                     </div>
 
                     <div class="ac-about-copy-stack">
@@ -358,7 +495,7 @@
                 @if ($aboutReferenceItems->isNotEmpty())
                     <div class="ac-about-reference-grid">
                         @foreach ($aboutReferenceItems as $item)
-                            <article class="ac-about-reference-card" aria-label="{{ $item['name'] }}">
+                            <article class="ac-about-reference-card content-reveal animation-index-{{ $loop->index }}" data-image-reveal aria-label="{{ $item['name'] }}">
                                 <img
                                     src="{{ $item['url'] }}"
                                     alt="{{ $item['alt'] }}"
@@ -389,812 +526,5 @@
 @endsection
 
 @push('styles')
-    <style>
-        .ac-about-page {
-            --ac-about-bg-warm: #f6f1e7;
-            --ac-about-bg-light: #fbf6ed;
-            --ac-about-bg-blue: #10213a;
-            --ac-about-section-line: rgba(120, 96, 58, 0.05);
-            --ac-about-section-title-size: 2.18rem;
-            --ac-about-section-title-line-height: 1.14;
-            --ac-about-card-title-size: 1.48rem;
-            --ac-about-card-title-line-height: 1.24;
-            --ac-about-lead-size: 1.08rem;
-            --ac-about-lead-line-height: 1.66;
-            min-height: 100vh;
-            background: var(--ac-about-bg-warm);
-            color: #101820;
-        }
-
-        .ac-about-page p {
-            margin: 0;
-        }
-
-        .ac-about-container,
-        .ac-about-blocks {
-            width: min(100% - 2rem, 1320px);
-            margin: 0 auto;
-        }
-
-        @media (min-width: 640px) {
-            .ac-about-container,
-            .ac-about-blocks {
-                width: min(100% - 3rem, 1272px);
-            }
-        }
-
-        @media (min-width: 1024px) {
-            .ac-about-container,
-            .ac-about-blocks {
-                width: min(100% - 4rem, 1256px);
-            }
-        }
-
-        .ac-about-blocks {
-            padding: 2.5rem 0 0;
-        }
-
-        .ac-about-blocks--bottom {
-            padding: 2.5rem 0 4rem;
-        }
-
-        .ac-about-title-band {
-            margin-bottom: 0;
-            background-color: var(--ac-about-bg-warm);
-            border-top-color: transparent;
-            border-bottom-color: rgba(120, 96, 58, 0.05);
-        }
-
-        .ac-about-title-band .ac-page-title-copy h1 {
-            color: #101820;
-            font-size: 2.65rem;
-            font-weight: 700;
-            line-height: 1.1;
-            letter-spacing: 0;
-        }
-
-        .ac-about-title-band .ac-page-title-copy > p,
-        .ac-about-title-band .front-scroll-breadcrumb-link,
-        .ac-about-title-band .front-scroll-breadcrumb-current,
-        .ac-about-title-band .front-scroll-breadcrumb-separator {
-            color: #4f4a43;
-        }
-
-        .ac-about-title-band .ac-page-title-breadcrumb::before,
-        .ac-about-title-band .ac-page-title-breadcrumb::after {
-            background: rgba(120, 96, 58, 0.07);
-        }
-
-        .ac-about-page .front-action-cta {
-            letter-spacing: 0;
-        }
-
-        .ac-about-hero,
-        .ac-about-values,
-        .ac-about-why,
-        .ac-about-team,
-        .ac-about-culture,
-        .ac-about-responsibility,
-        .ac-about-references {
-            position: relative;
-            overflow: hidden;
-            border-bottom: 1px solid var(--ac-about-section-line);
-        }
-
-        .ac-about-hero {
-            padding: clamp(3.8rem, 6.5vw, 7rem) 0 clamp(4.8rem, 8vw, 8rem);
-            background-color: var(--ac-about-bg-warm);
-        }
-
-        .ac-about-values,
-        .ac-about-team,
-        .ac-about-responsibility {
-            padding: clamp(3rem, 6vw, 5.8rem) 0 clamp(5.2rem, 8vw, 7.4rem);
-            background-color: var(--ac-about-bg-light);
-        }
-
-        .ac-about-why,
-        .ac-about-culture,
-        .ac-about-references {
-            padding: clamp(3rem, 6vw, 5.8rem) 0 clamp(5.2rem, 8vw, 7.4rem);
-            background-color: var(--ac-about-bg-warm);
-        }
-
-        .ac-about-hero-grid {
-            display: grid;
-            grid-template-columns: minmax(0, 0.83fr) minmax(34rem, 1fr);
-            gap: clamp(2rem, 5vw, 5rem);
-            align-items: center;
-        }
-
-        .ac-about-hero-copy {
-            max-width: 39rem;
-        }
-
-        .ac-about-kicker {
-            margin: 0;
-            color: #7c653b;
-            font-size: 0.76rem;
-            font-weight: 700;
-            letter-spacing: 0.18em;
-            text-transform: uppercase;
-        }
-
-        .ac-about-hero-copy h2,
-        .ac-about-section-head h2,
-        .ac-about-split-grid h2,
-        .ac-about-team-head h2,
-        .ac-about-responsibility-grid h2,
-        .ac-about-reference-head h2 {
-            margin: 0;
-            color: #101820;
-            font-family: 'Montserrat', sans-serif;
-            font-weight: 700;
-            letter-spacing: 0;
-            text-wrap: balance;
-        }
-
-        .ac-about-hero-copy h2,
-        .ac-about-section-head h2,
-        .ac-about-split-grid h2,
-        .ac-about-team-head h2,
-        .ac-about-responsibility-grid h2,
-        .ac-about-reference-head h2 {
-            margin-top: 0.75rem;
-            max-width: 18ch;
-            font-size: var(--ac-about-section-title-size);
-            line-height: var(--ac-about-section-title-line-height);
-        }
-
-        .ac-about-lead,
-        .ac-about-card-lead,
-        .ac-about-team-intro {
-            margin-top: clamp(1.1rem, 1.8vw, 1.5rem) !important;
-            color: #24211c;
-            font-size: var(--ac-about-lead-size);
-            font-weight: 700;
-            line-height: var(--ac-about-lead-line-height);
-        }
-
-        .ac-about-copy-stack {
-            display: grid;
-            gap: 0.85rem;
-            margin-top: 1rem;
-        }
-
-        .ac-about-copy-stack--large {
-            margin-top: 0;
-        }
-
-        .ac-about-copy-stack p,
-        .ac-about-section-head > p,
-        .ac-about-wide-cta p {
-            color: #403a34;
-            font-size: 1rem;
-            line-height: 1.76;
-            text-wrap: pretty;
-        }
-
-        .ac-about-pullquote {
-            position: relative;
-            width: 100%;
-            max-width: 29rem;
-            margin: clamp(1.5rem, 2.6vw, 2.15rem) 0 0;
-            padding: 0.2rem 2.7rem 0.25rem 3rem;
-            text-align: left;
-        }
-
-        .ac-about-pullquote::before,
-        .ac-about-pullquote::after {
-            position: absolute;
-            color: rgba(171, 141, 82, 0.42);
-            font-family: Georgia, serif;
-            font-size: 4.45rem;
-            font-weight: 400;
-            line-height: 1;
-            pointer-events: none;
-        }
-
-        .ac-about-pullquote::before {
-            content: '\201C';
-            top: -0.6rem;
-            left: 0;
-        }
-
-        .ac-about-pullquote::after {
-            content: '\201D';
-            right: 0;
-            bottom: -1.6rem;
-        }
-
-        .ac-about-pullquote p {
-            color: #24211c;
-            font-family: 'Montserrat', sans-serif;
-            font-size: 1.04rem;
-            font-weight: 500;
-            line-height: 1.76;
-            text-wrap: balance;
-        }
-
-        .ac-about-hero-media {
-            position: relative;
-            justify-self: end;
-            width: min(100%, 45rem);
-        }
-
-        .ac-about-image,
-        .ac-about-stat-card,
-        .ac-about-value-card,
-        .ac-about-stat-item,
-        .ac-about-member-card,
-        .ac-about-wide-cta,
-        .ac-about-reference-card {
-            border: 1px solid rgba(171, 141, 82, 0.12);
-            border-radius: 8px;
-            box-shadow: none;
-        }
-
-        .ac-about-image {
-            position: relative;
-            overflow: hidden;
-            background: #fff;
-            box-shadow: 0 22px 46px rgba(15, 42, 67, 0.12);
-        }
-
-        .ac-about-image img {
-            display: block;
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
-        .ac-about-image--hero {
-            width: 100%;
-            aspect-ratio: 1386 / 925;
-        }
-
-        .ac-about-stat-card {
-            position: absolute;
-            right: clamp(0.85rem, 2.2vw, 1.35rem);
-            bottom: clamp(-5.6rem, -6vw, -3.4rem);
-            z-index: 2;
-            display: grid;
-            align-content: center;
-            gap: 0.25rem;
-            width: min(16rem, calc(100% - 2rem));
-            padding: 1.1rem;
-            background: rgba(255, 255, 255, 0.94);
-            color: #101820;
-            box-shadow: 0 18px 38px rgba(15, 42, 67, 0.1);
-        }
-
-        .ac-about-stat-card strong {
-            color: #9a773d;
-            font-size: 3rem;
-            line-height: 0.95;
-        }
-
-        .ac-about-stat-card span {
-            color: #403a34;
-            font-size: 0.88rem;
-            line-height: 1.45;
-        }
-
-        .ac-about-section-head {
-            display: grid;
-            justify-items: center;
-            max-width: 66rem;
-            margin: 0 auto clamp(2rem, 4vw, 3rem);
-            text-align: center;
-        }
-
-        .ac-about-section-head > p {
-            max-width: 64rem;
-            margin-top: 1.35rem !important;
-        }
-
-        .ac-about-value-grid {
-            display: grid;
-            grid-template-columns: repeat(3, minmax(0, 1fr));
-            gap: 1rem;
-        }
-
-        .ac-about-value-card {
-            position: relative;
-            display: grid;
-            align-content: start;
-            min-height: 31rem;
-            overflow: hidden;
-            padding: clamp(1.35rem, 2.3vw, 1.9rem);
-            border-color: rgba(154, 119, 61, 0.18);
-            background: linear-gradient(180deg, rgba(255, 255, 255, 0.96) 0%, rgba(255, 255, 255, 0.84) 100%);
-            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.72);
-        }
-
-        .ac-about-value-card::before {
-            content: '';
-            position: absolute;
-            inset: 0 0 auto;
-            height: 4px;
-            background: #9a773d;
-            pointer-events: none;
-        }
-
-        .ac-about-value-card h3 {
-            padding-bottom: 0.95rem;
-            border-bottom: 1px solid rgba(120, 96, 58, 0.06);
-        }
-
-        .ac-about-value-card .ac-about-card-lead {
-            margin-top: 1rem !important;
-        }
-
-        .ac-about-value-card h3,
-        .ac-about-member-card h3 {
-            margin: 0;
-            color: #101820;
-            font-family: 'Montserrat', sans-serif;
-            font-size: var(--ac-about-card-title-size);
-            font-weight: 700;
-            line-height: var(--ac-about-card-title-line-height);
-            letter-spacing: 0;
-        }
-
-        .ac-about-split-grid,
-        .ac-about-team-head,
-        .ac-about-responsibility-grid,
-        .ac-about-reference-head {
-            display: grid;
-            grid-template-columns: minmax(0, 0.74fr) minmax(0, 1fr);
-            gap: clamp(1.6rem, 4vw, 4rem);
-            align-items: start;
-        }
-
-        .ac-about-stat-grid {
-            display: grid;
-            grid-template-columns: repeat(4, minmax(0, 1fr));
-            gap: 0.85rem;
-            margin-top: clamp(2rem, 4vw, 3rem);
-        }
-
-        .ac-about-stat-item {
-            display: grid;
-            gap: 0.4rem;
-            min-height: 8.5rem;
-            padding: 1.1rem;
-            background: rgba(255, 255, 255, 0.82);
-        }
-
-        .ac-about-stat-item strong {
-            color: #9a773d;
-            font-size: 2.45rem;
-            line-height: 0.95;
-        }
-
-        .ac-about-stat-item span {
-            color: #403a34;
-            font-size: 0.9rem;
-            font-weight: 700;
-            line-height: 1.45;
-        }
-
-        .ac-about-member-grid {
-            display: grid;
-            grid-template-columns: repeat(4, minmax(0, 1fr));
-            align-items: stretch;
-            gap: 0.85rem;
-            margin-top: 1rem;
-        }
-
-        .ac-about-member-card {
-            display: grid;
-            grid-template-rows: auto 1fr;
-            overflow: hidden;
-            background: #fff;
-        }
-
-        .ac-about-member-photo {
-            display: grid;
-            place-items: center;
-            aspect-ratio: 4 / 5.35;
-            overflow: hidden;
-            background: #fff;
-        }
-
-        .ac-about-member-photo img {
-            display: block;
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            object-position: center top;
-        }
-
-        .ac-about-member-photo span {
-            color: #fff;
-            font-size: 2.8rem;
-            font-weight: 700;
-            letter-spacing: 0.1em;
-        }
-
-        .ac-about-member-card > div:last-child {
-            display: grid;
-            align-content: start;
-            min-height: 5.8rem;
-            padding: 1rem 1rem 1.05rem;
-            border-top: 1px solid rgba(15, 42, 67, 0.06);
-        }
-
-        .ac-about-member-card h3 {
-            font-size: 1.02rem;
-            line-height: 1.18;
-        }
-
-        .ac-about-member-card p {
-            margin-top: 0.45rem;
-            color: #7c653b;
-            font-size: 0.76rem;
-            font-weight: 700;
-            letter-spacing: 0.08em;
-            line-height: 1.45;
-            text-transform: uppercase;
-        }
-
-        .ac-about-member-cta-card {
-            position: relative;
-            grid-template-rows: minmax(0, 1fr);
-            min-height: clamp(14rem, 32vw, 31.25rem);
-            border-color: rgba(154, 119, 61, 0.18);
-            background: #fff;
-        }
-
-        .ac-about-member-cta-link {
-            position: relative;
-            z-index: 1;
-            display: grid;
-            height: 100%;
-            min-height: 100%;
-            place-items: center;
-            padding: clamp(1.15rem, 2vw, 1.55rem);
-            color: #fff !important;
-            text-align: center;
-            text-decoration: none;
-        }
-
-        .ac-about-member-cta-button {
-            display: inline-flex;
-            min-height: 2.9rem;
-            max-width: 100%;
-            align-items: center;
-            justify-content: center;
-            gap: 0.48rem;
-            padding: 0.82rem 1.05rem;
-            border: 1px solid #8a6d3b;
-            border-radius: 8px;
-            background: #8a6d3b;
-            color: #fff;
-            font-family: 'Montserrat', sans-serif;
-            font-size: 0.76rem;
-            font-weight: 700;
-            letter-spacing: 0;
-            line-height: 1.2;
-            text-transform: uppercase;
-            box-shadow: 0 16px 28px -22px rgba(124, 101, 59, 0.9);
-            transition: transform 0.18s ease, background 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
-        }
-
-        .ac-about-member-cta-button svg {
-            flex: 0 0 auto;
-        }
-
-        .ac-about-member-cta-link:hover .ac-about-member-cta-button,
-        .ac-about-member-cta-link:focus-visible .ac-about-member-cta-button {
-            border-color: #755a2e;
-            background: #755a2e;
-            box-shadow: 0 18px 32px -22px rgba(124, 101, 59, 1);
-            transform: translateY(-1px);
-        }
-
-        .ac-about-section-actions {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 1rem;
-            align-items: center;
-            justify-content: center;
-            margin-top: clamp(1.5rem, 2.6vw, 2.15rem);
-        }
-
-        .ac-about-secondary-cta {
-            min-height: 2.9rem;
-            min-width: 11.6rem;
-            padding: 0.8rem 1.35rem;
-            background: #10213a;
-            color: #fff !important;
-            font-size: 0.82rem;
-        }
-
-        .ac-about-secondary-cta:hover {
-            background: #173b5d;
-            color: #fff !important;
-        }
-
-        .ac-about-wide-cta {
-            display: grid;
-            grid-template-columns: minmax(0, 1fr) auto;
-            align-items: center;
-            gap: 1.35rem;
-            margin-top: clamp(2rem, 4vw, 3rem);
-            padding: 1.45rem 1.55rem;
-            border-left: 4px solid rgba(183, 150, 82, 0.76);
-            background: rgba(255, 255, 255, 0.82);
-            color: #101820;
-            text-align: left;
-        }
-
-        .ac-about-wide-cta-copy {
-            display: grid;
-            gap: 0.55rem;
-            max-width: 48rem;
-        }
-
-        .ac-about-wide-cta h3 {
-            margin: 0;
-            color: #101820;
-            font-family: 'Montserrat', sans-serif;
-            font-size: 1.48rem;
-            font-weight: 700;
-            line-height: 1.24;
-            letter-spacing: 0;
-            text-wrap: balance;
-        }
-
-        .ac-about-wide-cta p {
-            font-size: 0.95rem;
-            font-weight: 500;
-            line-height: 1.66;
-        }
-
-        .front-desktop-shell .ac-about-wide-cta-link {
-            display: inline-flex;
-            min-height: 2.65rem;
-            align-items: center;
-            justify-content: center;
-            gap: 0.45rem;
-            margin-top: 0.1rem;
-            padding: 0 1.35rem;
-            border: 2px solid #123250;
-            border-radius: 8px;
-            background: linear-gradient(180deg, #204d76 0%, #123250 100%);
-            color: #ffffff;
-            font-family: 'Montserrat', sans-serif;
-            font-size: 0.75rem;
-            font-weight: 500;
-            letter-spacing: 0.08em;
-            line-height: 1;
-            text-decoration: none;
-            text-transform: uppercase;
-            box-shadow: 0 14px 24px -18px rgba(18, 50, 80, 0.85);
-            transition: border-color 0.18s ease, background 0.18s ease, box-shadow 0.18s ease, transform 0.18s ease;
-        }
-
-        .front-desktop-shell .ac-about-wide-cta-link:hover,
-        .front-desktop-shell .ac-about-wide-cta-link:focus-visible {
-            border-color: rgba(183, 150, 82, 0.9);
-            background: linear-gradient(180deg, #255783 0%, #153a5c 100%);
-            color: #ffffff;
-            box-shadow: 0 18px 30px -20px rgba(18, 50, 80, 0.95);
-            transform: translateY(-1px);
-        }
-
-        .ac-about-reference-grid {
-            display: grid;
-            grid-template-columns: repeat(5, minmax(0, 1fr));
-            gap: 1rem;
-            margin-top: clamp(2rem, 4vw, 3rem);
-        }
-
-        .ac-about-reference-card {
-            display: grid;
-            place-items: center;
-            min-height: 8.25rem;
-            padding: clamp(1.1rem, 1.8vw, 1.45rem);
-            background: rgba(255, 255, 255, 0.86);
-        }
-
-        .ac-about-reference-card img {
-            display: block;
-            max-width: 100%;
-            max-height: 4.95rem;
-            object-fit: contain;
-            opacity: 0.86;
-            filter: grayscale(1) contrast(1.08);
-        }
-
-        .front-desktop-shell:has(.ac-about-page) .front-footer {
-            --front-footer-bg: #071326;
-            background: #071326;
-        }
-
-        @media (max-width: 1120px) {
-            .ac-about-hero-grid,
-            .ac-about-split-grid,
-            .ac-about-team-head,
-            .ac-about-responsibility-grid,
-            .ac-about-reference-head {
-                grid-template-columns: minmax(0, 1fr);
-            }
-
-            .ac-about-hero-copy {
-                max-width: 52rem;
-            }
-
-            .ac-about-hero-media {
-                width: min(100%, 50rem);
-                margin: 0 auto;
-            }
-
-            .ac-about-pullquote {
-                max-width: 42rem;
-            }
-
-            .ac-about-wide-cta {
-                grid-template-columns: minmax(0, 1fr);
-                justify-items: start;
-            }
-
-            .ac-about-value-grid,
-            .ac-about-member-grid {
-                grid-template-columns: repeat(2, minmax(0, 1fr));
-            }
-
-            .ac-about-reference-grid {
-                grid-template-columns: repeat(4, minmax(0, 1fr));
-            }
-        }
-
-        @media (max-width: 820px) {
-            .ac-about-stat-grid,
-            .ac-about-reference-grid {
-                grid-template-columns: repeat(2, minmax(0, 1fr));
-            }
-        }
-
-        @media (max-width: 720px) {
-            .ac-about-page {
-                --ac-about-section-title-size: 1.88rem;
-                --ac-about-card-title-size: 1.32rem;
-                --ac-about-lead-size: 1rem;
-            }
-
-            .ac-about-container,
-            .ac-about-blocks {
-                width: min(100% - 1.35rem, 1320px);
-            }
-
-            .ac-about-title-band .ac-page-title-copy h1 {
-                font-size: 2.1rem;
-            }
-
-            .ac-about-hero {
-                padding-top: 2.4rem;
-            }
-
-            .ac-about-hero-media {
-                display: grid;
-                min-height: 0;
-            }
-
-            .ac-about-value-grid {
-                grid-template-columns: minmax(0, 1fr);
-            }
-
-            .ac-about-stat-grid,
-            .ac-about-member-grid {
-                grid-template-columns: repeat(2, minmax(0, 1fr));
-            }
-
-            .ac-about-stat-grid {
-                gap: 0.55rem;
-                margin-top: 1.35rem;
-            }
-
-            .ac-about-stat-item {
-                min-height: 6.15rem;
-                padding: 0.78rem;
-            }
-
-            .ac-about-stat-item strong {
-                font-size: 1.95rem;
-            }
-
-            .ac-about-stat-item span {
-                font-size: 0.76rem;
-                line-height: 1.32;
-            }
-
-            .ac-about-member-grid {
-                gap: 0.55rem;
-            }
-
-            .ac-about-member-photo {
-                aspect-ratio: 4 / 5.1;
-            }
-
-            .ac-about-member-card > div:last-child {
-                min-height: 4.9rem;
-                padding: 0.72rem;
-            }
-
-            .ac-about-member-card h3 {
-                font-size: 0.88rem;
-                line-height: 1.16;
-            }
-
-            .ac-about-member-card p {
-                margin-top: 0.34rem;
-                font-size: 0.64rem;
-                line-height: 1.35;
-            }
-
-            .ac-about-member-cta-card {
-                min-height: auto;
-            }
-
-            .ac-about-member-cta-button {
-                min-height: 2.5rem;
-                padding: 0.7rem 0.76rem;
-                font-size: 0.66rem;
-            }
-
-            .ac-about-value-card {
-                min-height: 0;
-            }
-
-            .ac-about-pullquote {
-                max-width: 100%;
-                padding: 0.05rem 2.15rem 0.2rem;
-            }
-
-            .ac-about-reference-card {
-                min-height: 7.4rem;
-            }
-
-            .ac-about-pullquote::before,
-            .ac-about-pullquote::after {
-                font-size: 3.35rem;
-            }
-
-            .ac-about-pullquote::before {
-                top: -0.35rem;
-            }
-
-            .ac-about-pullquote::after {
-                bottom: -1.15rem;
-            }
-
-            .ac-about-pullquote p {
-                font-size: 0.98rem;
-                line-height: 1.72;
-            }
-
-            .ac-about-wide-cta {
-                gap: 1rem;
-                padding: 1.15rem;
-            }
-
-            .ac-about-wide-cta h3 {
-                font-size: 1.18rem;
-            }
-
-            .front-desktop-shell .ac-about-wide-cta-link {
-                width: 100%;
-                min-height: 2.75rem;
-            }
-
-            .ac-about-section-actions {
-                align-items: center;
-                flex-direction: row;
-            }
-        }
-
-    </style>
+    <link rel="stylesheet" href="{{ asset('front-theme/styles/pages/about.css') }}">
 @endpush

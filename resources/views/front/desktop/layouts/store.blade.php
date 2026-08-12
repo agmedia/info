@@ -6,8 +6,6 @@
     @include('front.partials.seo-meta')
     @include('front.partials.schema-markup')
     @include('front.partials.analytics')
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" href="{{ asset('front-theme/styles/rising-sun-font.css') }}">
     @if (!empty($storeSettings['branding']['favicons']['ico_url'] ?? null))
         <link rel="icon" href="{{ $storeSettings['branding']['favicons']['ico_url'] }}" sizes="any">
@@ -65,6 +63,7 @@
         ]) }};
     </script>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+    <link rel="stylesheet" href="{{ asset('front-theme/styles/alpha-redesign.css') }}?v={{ filemtime(public_path('front-theme/styles/alpha-redesign.css')) }}">
     @stack('styles')
     <style>
         .front-desktop-shell {
@@ -501,6 +500,7 @@
         ];
     @endphp
 
+    @if (false)
     <div class="front-header-meta hidden lg:block">
         <div class="front-header-meta-inner flex w-full items-center justify-between gap-4 px-5 sm:px-8 xl:px-10">
             <div class="flex min-w-0 items-center gap-5">
@@ -736,15 +736,20 @@
                 @endforeach
             </div>
         </div>
-    </section>
+</section>
 @endif
 
-<main @if (request()->routeIs('home')) id="usluge" @endif class="front-content-shell @yield('main_class', 'mx-auto w-full max-w-7xl px-6 py-10')">
+    @endif
+    {{-- Shared Alpha redesign shell used by every public storefront route. --}}
+    @include('front.desktop.partials.alpha-global-header')
+
+<main class="front-content-shell @yield('main_class', 'mx-auto w-full max-w-7xl px-6 py-10')">
     <div class="front-fixed-watermark" aria-hidden="true"></div>
     @include('front.desktop.partials.flash')
     @yield('content')
 </main>
 
+@if (false)
 @unless (request()->routeIs('audit.show') || request()->routeIs('accounting.show'))
     <button type="button" class="front-footer-compass front-scroll-compass" data-scroll-top data-scroll-top-floating aria-label="Povratak na vrh">
         <img src="{{ asset('front-theme/images/icons/znak-zlatni.svg') }}" alt="" aria-hidden="true" class="front-footer-compass-mark">
@@ -939,6 +944,9 @@
         </div>
     </div>
 </footer>
+@endif
+
+@include('front.desktop.partials.alpha-global-footer')
 <script>
     (function () {
         var preloader = document.getElementById('front-initial-preloader');
@@ -1402,6 +1410,7 @@
     })();
 </script>
 @endif
+<script defer src="{{ asset('front-theme/scripts/alpha-redesign.js') }}?v={{ filemtime(public_path('front-theme/scripts/alpha-redesign.js')) }}"></script>
 @stack('scripts')
 </body>
 </html>

@@ -6,8 +6,6 @@
     <?php echo $__env->make('front.partials.seo-meta', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
     <?php echo $__env->make('front.partials.schema-markup', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
     <?php echo $__env->make('front.partials.analytics', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" href="<?php echo e(asset('front-theme/styles/rising-sun-font.css')); ?>">
     <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(!empty($storeSettings['branding']['favicons']['ico_url'] ?? null)): ?>
         <link rel="icon" href="<?php echo e($storeSettings['branding']['favicons']['ico_url']); ?>" sizes="any">
@@ -65,6 +63,7 @@
         ])); ?>;
     </script>
     <?php echo app('Illuminate\Foundation\Vite')(['resources/css/app.css', 'resources/js/app.js']); ?>
+    <link rel="stylesheet" href="<?php echo e(asset('front-theme/styles/alpha-redesign.css')); ?>?v=<?php echo e(filemtime(public_path('front-theme/styles/alpha-redesign.css'))); ?>">
     <?php echo $__env->yieldPushContent('styles'); ?>
     <style>
         .front-desktop-shell {
@@ -501,6 +500,7 @@
         ];
     ?>
 
+    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(false): ?>
     <div class="front-header-meta hidden lg:block">
         <div class="front-header-meta-inner flex w-full items-center justify-between gap-4 px-5 sm:px-8 xl:px-10">
             <div class="flex min-w-0 items-center gap-5">
@@ -740,15 +740,20 @@
                 <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
             </div>
         </div>
-    </section>
+</section>
 <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
-<main <?php if(request()->routeIs('home')): ?> id="usluge" <?php endif; ?> class="front-content-shell <?php echo $__env->yieldContent('main_class', 'mx-auto w-full max-w-7xl px-6 py-10'); ?>">
+    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+    
+    <?php echo $__env->make('front.desktop.partials.alpha-global-header', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
+
+<main class="front-content-shell <?php echo $__env->yieldContent('main_class', 'mx-auto w-full max-w-7xl px-6 py-10'); ?>">
     <div class="front-fixed-watermark" aria-hidden="true"></div>
     <?php echo $__env->make('front.desktop.partials.flash', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
     <?php echo $__env->yieldContent('content'); ?>
 </main>
 
+<?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(false): ?>
 <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if (! (request()->routeIs('audit.show') || request()->routeIs('accounting.show'))): ?>
     <button type="button" class="front-footer-compass front-scroll-compass" data-scroll-top data-scroll-top-floating aria-label="Povratak na vrh">
         <img src="<?php echo e(asset('front-theme/images/icons/znak-zlatni.svg')); ?>" alt="" aria-hidden="true" class="front-footer-compass-mark">
@@ -943,6 +948,9 @@
         </div>
     </div>
 </footer>
+<?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+
+<?php echo $__env->make('front.desktop.partials.alpha-global-footer', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
 <script>
     (function () {
         var preloader = document.getElementById('front-initial-preloader');
@@ -1406,6 +1414,7 @@
     })();
 </script>
 <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+<script defer src="<?php echo e(asset('front-theme/scripts/alpha-redesign.js')); ?>?v=<?php echo e(filemtime(public_path('front-theme/scripts/alpha-redesign.js'))); ?>"></script>
 <?php echo $__env->yieldPushContent('scripts'); ?>
 </body>
 </html>

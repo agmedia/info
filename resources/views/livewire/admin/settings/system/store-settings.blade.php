@@ -182,10 +182,26 @@
                     </div>
                     <div class="md:col-span-2 grid gap-3 md:grid-cols-2">
                         <div>
+                            <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('X URL') }}</label>
+                            <input type="url" wire:model="form.store_social_x_url" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+                            <label class="mt-2 inline-flex items-center gap-2 text-xs font-semibold text-slate-700">
+                                <input type="checkbox" wire:model="form.store_footer_social_x_enabled" class="rounded border-slate-300 text-cyan-700 focus:ring-cyan-500" />
+                                {{ __('Show in footer') }}
+                            </label>
+                        </div>
+                        <div>
                             <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Facebook URL') }}</label>
                             <input type="url" wire:model="form.store_social_facebook_url" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
                             <label class="mt-2 inline-flex items-center gap-2 text-xs font-semibold text-slate-700">
                                 <input type="checkbox" wire:model="form.store_footer_social_facebook_enabled" class="rounded border-slate-300 text-cyan-700 focus:ring-cyan-500" />
+                                {{ __('Show in footer') }}
+                            </label>
+                        </div>
+                        <div>
+                            <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('LinkedIn URL') }}</label>
+                            <input type="url" wire:model="form.store_social_linkedin_url" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+                            <label class="mt-2 inline-flex items-center gap-2 text-xs font-semibold text-slate-700">
+                                <input type="checkbox" wire:model="form.store_footer_social_linkedin_enabled" class="rounded border-slate-300 text-cyan-700 focus:ring-cyan-500" />
                                 {{ __('Show in footer') }}
                             </label>
                         </div>

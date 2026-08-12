@@ -11,15 +11,13 @@ use App\Models\Content\Page\InfoPage;
 use App\Models\Content\Page\InfoPageTranslation;
 use App\Models\Content\Resource\ResourceDocument;
 use App\Models\Content\Resource\ResourceDocumentTranslation;
-use App\Models\Content\Service\ServicePage;
 use App\Models\Content\Support\CareerApplication;
-use App\Models\Content\Support\ContactMessage;
 use App\Models\Content\Support\Comment;
+use App\Models\Content\Support\ContactMessage;
 use App\Models\Content\Team\TeamMember;
 use App\Models\Content\Team\TeamMemberTranslation;
 use App\Services\Front\NavigationMenuService;
 use App\Services\Settings\SystemSettingsService;
-use App\Support\Content\ServicePageTemplateRegistry;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Cache;
@@ -34,7 +32,7 @@ class StorefrontFrontFeatureTest extends TestCase
     {
         [$post, $postSlug] = $this->seedBlogPost();
         [$page, $pageSlug] = $this->seedInfoPage();
-        
+
         $this->get('/blog')->assertOk();
         $this->get('/blog/'.$postSlug)->assertOk();
         $this->get('/faq')->assertOk();
@@ -799,11 +797,13 @@ class StorefrontFrontFeatureTest extends TestCase
     {
         $this->get('/')
             ->assertOk()
+            ->assertSee('class="site-header"', false)
             ->assertDontSee('/leasing-kalkulator', false)
             ->assertDontSee('MSFI 16 Kalkulator');
 
         $this->get('/racunovodstvo')
             ->assertOk()
+            ->assertSee('class="site-header"', false)
             ->assertSee('/leasing-kalkulator', false)
             ->assertSee('MSFI 16 Kalkulator');
     }
@@ -813,13 +813,11 @@ class StorefrontFrontFeatureTest extends TestCase
         $response = $this->get('/');
 
         $response->assertOk()
-            ->assertSee('ALPHA CAPITALIS čini tim stručnjaka')
-            ->assertSee('Kroz zajedničko djelovanje pružamo cjelovita rješenja poduzećima, investitorima i poduzetnicima koji žele sigurno rasti.')
+            ->assertSee('Vi vodite poslovanje. Mi brinemo da brojke prate vaš rast.')
+            ->assertSee('class="services-grid services-grid--count-3"', false)
             ->assertSee('sigurnost i povjerenje u brojke')
             ->assertSee('kontrola i jasnoća poslovanja')
             ->assertSee('rast, optimizacija i bolji financijski izbor')
-            ->assertSee('Pomažemo vlasnicima, investitorima i upravi da imaju potpunu sigurnost u financijske izvještaje.')
-            ->assertSee('Umjesto da reagirate na probleme, možete upravljati poslovanjem na temelju pouzdanih informacija.')
             ->assertDontSee('Globalna partnerstva i stručna članstva')
             ->assertDontSee('Zadnje objave i novosti')
             ->assertDontSee('Iskustva naših klijenata');
@@ -835,7 +833,7 @@ class StorefrontFrontFeatureTest extends TestCase
 
         $positions = [];
         foreach ($serviceTitles as $title) {
-            $position = strpos($content, '<span class="ac-service-pillar-text-card-title">'.$title.'</span>');
+            $position = strpos($content, 'class="service-card-title" data-words-slide-from-right aria-label="'.$title.'"');
             $this->assertNotFalse($position, 'Missing services card: '.$title);
             $positions[] = $position;
         }
@@ -844,14 +842,13 @@ class StorefrontFrontFeatureTest extends TestCase
         sort($sortedPositions);
 
         $this->assertSame($sortedPositions, $positions);
-        $this->assertStringNotContainsString('id="poslovna-podrska"', $content);
-        $this->assertStringNotContainsString('ac-support-story--dark', $content);
+        $this->assertStringNotContainsString('ac-service-pillar-text-card-title', $content);
         $this->assertStringNotContainsString('Osiguravamo kapital za rast i razvoj poslovanja.', $content);
         $this->assertStringNotContainsString('Savjetovanje obiteljskih biznisa', $content);
-        $this->assertStringNotContainsString('<span class="ac-service-pillar-text-card-title">Financije</span>', $content);
-        $this->assertStringNotContainsString('<span class="ac-service-pillar-text-card-title">Porezi</span>', $content);
-        $this->assertStringNotContainsString('<span class="ac-service-pillar-text-card-title">EU fondovi</span>', $content);
-        $this->assertStringNotContainsString('<span class="ac-service-pillar-text-card-title">Obiteljski biznis</span>', $content);
+        $this->assertStringNotContainsString('aria-label="Financije"', $content);
+        $this->assertStringNotContainsString('aria-label="Porezi"', $content);
+        $this->assertStringNotContainsString('aria-label="EU fondovi"', $content);
+        $this->assertStringNotContainsString('aria-label="Obiteljski biznis"', $content);
     }
 
     public function test_header_renders_requested_flat_navigation_links(): void
@@ -866,20 +863,48 @@ class StorefrontFrontFeatureTest extends TestCase
             ->assertDontSee('front-nav-caret');
     }
 
+    public function test_redesigned_global_footer_renders_on_home_and_internal_pages(): void
+    {
+        app(SystemSettingsService::class)->putMany([
+            'store_social_x_url' => 'https://x.com/alpha-capitalis-test',
+            'store_social_linkedin_url' => 'https://www.linkedin.com/company/alpha-capitalis-test',
+        ]);
+
+        foreach (['/', '/usluge'] as $path) {
+            $this->get($path)
+                ->assertOk()
+                ->assertSee('class="site-footer"', false)
+                ->assertSee('Primajte važne novosti na')
+                ->assertSee('class="footer-socials"', false)
+                ->assertSee('fa-x-twitter', false)
+                ->assertSee('fa-facebook-f', false)
+                ->assertSee('fa-linkedin-in', false)
+                ->assertSee('fa-instagram', false)
+                ->assertSee('https://x.com/alpha-capitalis-test', false)
+                ->assertSee('https://www.linkedin.com/company/alpha-capitalis-test', false)
+                ->assertSee('Politika privatnosti')
+                ->assertSee('Uvjeti korištenja');
+        }
+    }
+
     public function test_services_index_renders_primary_pillars_from_brief(): void
     {
         $this->get('/usluge')
             ->assertOk()
             ->assertSee('Naše usluge')
-            ->assertSee('ac-service-pillar-image-card', false)
+            ->assertSee('values-section services-index-intro', false)
+            ->assertSee('services-index-inline-link', false)
+            ->assertSee('services-index-cards-shell', false)
+            ->assertSee('services-grid services-grid--count-3', false)
+            ->assertSee('class="service-card"', false)
             ->assertSee('Revizija')
             ->assertSee('Računovodstvo')
             ->assertSee('Savjetovanje')
             ->assertSee('Neovisna provjera financijskih izvještaja koja povećava povjerenje vlasnika, investitora i partnera.')
             ->assertSee('Precizno vođenje knjiga i pravovremeno izvještavanje koje oslobađa menadžment za strateške odluke.')
             ->assertSee('Financijsko i porezno savjetovanje te pribavljanje kapitala - sve na jednom mjestu.')
-            ->assertSee('Kroz integrirani pristup reviziji, računovodstvu i financijskom savjetovanju stvaramo dodatnu vrijednost')
-            ->assertSee('Naša podrška omogućuje bolje upravljanje financijama, kvalitetnije strateško planiranje')
+            ->assertSeeText('Kroz integrirani pristup reviziji, računovodstvu i financijskom savjetovanju stvaramo dodatnu vrijednost')
+            ->assertDontSee('Naša podrška omogućuje bolje upravljanje financijama, kvalitetnije strateško planiranje')
             ->assertDontSee('Tri područja poslovne podrške')
             ->assertDontSee('Saznaj više')
             ->assertDontSee('Obiteljski biznis')
@@ -1015,6 +1040,26 @@ class StorefrontFrontFeatureTest extends TestCase
         $this->get('/o-nama')
             ->assertOk()
             ->assertSee('O nama')
+            ->assertSee('class="values-title services-index-intro-title ac-about-intro-title"', false)
+            ->assertSee('class="ac-about-values"', false)
+            ->assertSee('class="ac-about-team"', false)
+            ->assertSee('class="ac-about-team-stats"', false)
+            ->assertSee('Naše vrijednosti')
+            ->assertSee('fa-duotone fa-thin fa-fw fa-brain-circuit', false)
+            ->assertSee('fa-duotone fa-thin fa-fw fa-lightbulb-gear', false)
+            ->assertSee('fa-duotone fa-thin fa-fw fa-hands-holding-heart', false)
+            ->assertSee('fa-duotone fa-thin fa-fw fa-users-gear', false)
+            ->assertSee('fa-duotone fa-thin fa-fw fa-chess-king', false)
+            ->assertSee('fa-duotone fa-thin fa-fw fa-user-check', false)
+            ->assertSee('fa-duotone fa-thin fa-fw fa-location-dot', false)
+            ->assertSee('<a class="services-index-inline-link" href="'.route('contact.create').'">ALPHA CAPITALIS</a>', false)
+            ->assertSee('<a class="services-index-inline-link" href="'.route('contact.create').'">ALPHA CAPITALISU</a>', false)
+            ->assertSee('<a class="ac-about-dark-inline-link" href="'.route('contact.create').'">ALPHA CAPITALIS</a>', false)
+            ->assertSee('<a class="ac-about-dark-inline-link" href="'.route('advisory.finance.show').'">financija</a>', false)
+            ->assertSee('<a class="ac-about-dark-inline-link" href="'.route('accounting.show').'">računovodstva</a>', false)
+            ->assertSee('<a class="ac-about-dark-inline-link" href="'.route('advisory.show').'">strateškog razvoja</a>', false)
+            ->assertSee('<a class="ac-about-dark-inline-link" href="'.route('audit.show').'">revizije</a>', false)
+            ->assertSee('<a class="ac-about-dark-inline-link" href="'.route('eu-funds.show').'">EU fondova</a>', false)
             ->assertDontSee('This page has no body content.');
     }
 
@@ -1292,8 +1337,7 @@ class StorefrontFrontFeatureTest extends TestCase
         ?string $slug = null,
         ?string $excerpt = null,
         $publishedAt = null
-    ): array
-    {
+    ): array {
         $post = BlogPost::query()->create([
             'code' => 'blog-'.strtolower((string) str()->random(6)),
             'is_active' => true,

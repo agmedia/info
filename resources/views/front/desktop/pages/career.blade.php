@@ -459,7 +459,7 @@
         .ac-career-openings-copy h2 {
             margin: 0;
             color: #101820;
-            font-family: 'Montserrat', sans-serif;
+            font-family: "Instrument Sans Variable", Arial, sans-serif;
             font-weight: 700;
             letter-spacing: 0;
             text-wrap: balance;
@@ -768,7 +768,7 @@
             padding-bottom: 0.95rem;
             border-bottom: 1px solid rgba(120, 96, 58, 0.06);
             color: #101820;
-            font-family: 'Montserrat', sans-serif;
+            font-family: "Instrument Sans Variable", Arial, sans-serif;
             font-size: var(--ac-career-card-title-size);
             font-weight: 700;
             line-height: var(--ac-career-card-title-line-height);
@@ -833,7 +833,7 @@
         .ac-career-form-head h3 {
             margin: 0;
             color: #101820;
-            font-family: 'Montserrat', sans-serif;
+            font-family: "Instrument Sans Variable", Arial, sans-serif;
             font-size: var(--ac-career-card-title-size);
             font-weight: 700;
             line-height: var(--ac-career-card-title-line-height);

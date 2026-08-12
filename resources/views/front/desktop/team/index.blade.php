@@ -250,7 +250,7 @@
         .ac-team-career-card h2,
         .ac-team-list-head h2 {
             color: #101820 !important;
-            font-family: 'Montserrat', sans-serif;
+            font-family: "Instrument Sans Variable", Arial, sans-serif;
             font-weight: 700 !important;
             letter-spacing: 0 !important;
         }
@@ -284,7 +284,7 @@
         }
 
         .ac-team-intro-lead {
-            font-family: 'Montserrat', sans-serif;
+            font-family: "Instrument Sans Variable", Arial, sans-serif;
             font-size: clamp(1.5rem, 2vw, 1.95rem);
             font-weight: 700;
             line-height: 1.2;
@@ -366,7 +366,7 @@
 
         .ac-team-member-name {
             color: #101820 !important;
-            font-family: 'Montserrat', sans-serif;
+            font-family: "Instrument Sans Variable", Arial, sans-serif;
             font-weight: 700 !important;
             letter-spacing: 0 !important;
         }

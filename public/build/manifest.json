@@ -31,8 +31,32 @@
       "resources/js/app.js"
     ]
   },
+  "public/alpha/fonts/files/bodoni-moda-latin-ext-wght-normal.woff2": {
+    "file": "assets/bodoni-moda-latin-ext-wght-normal-BlIE6rrN.woff2",
+    "src": "public/alpha/fonts/files/bodoni-moda-latin-ext-wght-normal.woff2"
+  },
+  "public/alpha/fonts/files/bodoni-moda-latin-wght-normal.woff2": {
+    "file": "assets/bodoni-moda-latin-wght-normal-BIFT5Qnz.woff2",
+    "src": "public/alpha/fonts/files/bodoni-moda-latin-wght-normal.woff2"
+  },
+  "public/alpha/fonts/files/bodoni-moda-math-wght-normal.woff2": {
+    "file": "assets/bodoni-moda-math-wght-normal-_TL2RCrf.woff2",
+    "src": "public/alpha/fonts/files/bodoni-moda-math-wght-normal.woff2"
+  },
+  "public/alpha/fonts/files/bodoni-moda-symbols-wght-normal.woff2": {
+    "file": "assets/bodoni-moda-symbols-wght-normal-DO7lZbk6.woff2",
+    "src": "public/alpha/fonts/files/bodoni-moda-symbols-wght-normal.woff2"
+  },
+  "public/alpha/fonts/files/instrument-sans-latin-ext-wght-normal.woff2": {
+    "file": "assets/instrument-sans-latin-ext-wght-normal-B5bTHO_g.woff2",
+    "src": "public/alpha/fonts/files/instrument-sans-latin-ext-wght-normal.woff2"
+  },
+  "public/alpha/fonts/files/instrument-sans-latin-wght-normal.woff2": {
+    "file": "assets/instrument-sans-latin-wght-normal-BbzFLZTg.woff2",
+    "src": "public/alpha/fonts/files/instrument-sans-latin-wght-normal.woff2"
+  },
   "resources/css/app.css": {
-    "file": "assets/app-BpxuJ94V.css",
+    "file": "assets/app-DBU6h6k-.css",
     "src": "resources/css/app.css",
     "isEntry": true,
     "name": "app",

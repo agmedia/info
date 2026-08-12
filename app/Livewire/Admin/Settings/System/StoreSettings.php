@@ -54,11 +54,15 @@ class StoreSettings extends Component
         'store_footer_col_3_custom_links' => '',
         'store_footer_bottom_link_page_ids' => [],
         'store_footer_bottom_copyright_text' => '',
+        'store_social_x_url' => '',
         'store_social_facebook_url' => '',
+        'store_social_linkedin_url' => '',
         'store_social_instagram_url' => '',
         'store_social_tiktok_url' => '',
         'store_social_youtube_url' => '',
+        'store_footer_social_x_enabled' => true,
         'store_footer_social_facebook_enabled' => true,
+        'store_footer_social_linkedin_enabled' => true,
         'store_footer_social_instagram_enabled' => true,
         'store_footer_social_tiktok_enabled' => true,
         'store_footer_social_youtube_enabled' => true,
@@ -128,11 +132,17 @@ class StoreSettings extends Component
     ];
 
     public ?TemporaryUploadedFile $logoUpload = null;
+
     public ?TemporaryUploadedFile $faviconUpload = null;
+
     public ?TemporaryUploadedFile $ogDefaultImageUpload = null;
+
     public ?TemporaryUploadedFile $ogHomeImageUpload = null;
+
     public ?TemporaryUploadedFile $ogCategoryImageUpload = null;
+
     public ?TemporaryUploadedFile $ogPageImageUpload = null;
+
     public ?TemporaryUploadedFile $ogBlogImageUpload = null;
 
     public function mount(): void
@@ -266,11 +276,15 @@ class StoreSettings extends Component
             'form.store_footer_bottom_link_page_ids' => ['nullable', 'array'],
             'form.store_footer_bottom_link_page_ids.*' => ['integer', 'exists:content_info_pages,id'],
             'form.store_footer_bottom_copyright_text' => ['nullable', 'string', 'max:255'],
+            'form.store_social_x_url' => ['nullable', 'url', 'max:2048'],
             'form.store_social_facebook_url' => ['nullable', 'url', 'max:2048'],
+            'form.store_social_linkedin_url' => ['nullable', 'url', 'max:2048'],
             'form.store_social_instagram_url' => ['nullable', 'url', 'max:2048'],
             'form.store_social_tiktok_url' => ['nullable', 'url', 'max:2048'],
             'form.store_social_youtube_url' => ['nullable', 'url', 'max:2048'],
+            'form.store_footer_social_x_enabled' => ['required', 'boolean'],
             'form.store_footer_social_facebook_enabled' => ['required', 'boolean'],
+            'form.store_footer_social_linkedin_enabled' => ['required', 'boolean'],
             'form.store_footer_social_instagram_enabled' => ['required', 'boolean'],
             'form.store_footer_social_tiktok_enabled' => ['required', 'boolean'],
             'form.store_footer_social_youtube_enabled' => ['required', 'boolean'],
@@ -461,7 +475,6 @@ class StoreSettings extends Component
     }
 
     /**
-     * @param mixed $value
      * @return array<int, int>
      */
     private function normalizeIdList(mixed $value): array

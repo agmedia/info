@@ -1,503 +1,408 @@
 @extends('front.desktop.layouts.store')
 
-@section('title', config('app.name', 'AG Shop').' Store')
-@section('main_class', 'w-full pt-0 pb-0')
+@section('title', 'Alpha Capitalis | Jedna adresa za sve brojke')
+@section('main_class', 'hero-page')
 
 @section('content')
+    {{-- CMS content is projected into the redesigned homepage components below using the shared Alpha typography. --}}
     @php
-        $homeServicesShowcaseCards = array_values($primaryServicePillars ?? []);
-        $homeServicesShowcaseText = 'ALPHA CAPITALIS čini tim stručnjaka iz područja revizije, računovodstva i financijskog savjetovanja. Kroz zajedničko djelovanje pružamo cjelovita rješenja poduzećima, investitorima i poduzetnicima koji žele sigurno rasti.';
-
-        $globalMemberships = [
-            [
-                'name' => 'TAG Alliances',
-                'logo_mark' => 'TAG',
-                'logo_sub' => 'Alliances',
-                'logo_tag' => 'Member',
-                'logo_url' => asset('front-theme/images/logos/tag-alliances-logo.png'),
-                'logo_theme' => 'light',
-                'description' => 'Globalna mreža neovisnih računovodstvenih i savjetodavnih kuća za međunarodnu suradnju i razmjenu stručnog znanja.',
-                'url' => 'https://www.tagalliances.com/',
-                'accent' => 'blue',
-            ],
-            [
-                'name' => 'Family Firm Institute',
-                'logo_mark' => 'FFI',
-                'logo_sub' => 'GEN',
-                'logo_tag' => 'Family Business',
-                'logo_url' => 'https://www.ffi.org/wp-content/uploads/2018/08/ffi-foot-logo.png',
-                'logo_theme' => 'light',
-                'description' => 'Najutjecajnija globalna mreža lidera i edukatora u području obiteljskog biznisa i savjetovanja za vlasničke tranzicije.',
-                'url' => 'https://www.ffi.org/',
-                'accent' => 'amber',
-            ],
-            [
-                'name' => 'Pandea Global M&A',
-                'logo_mark' => 'Pandea',
-                'logo_sub' => 'Global M&A',
-                'logo_tag' => 'Cross-border',
-                'logo_url' => asset('front-theme/images/logos/pandea-logo-small.png'),
-                'logo_image_class' => 'is-compact',
-                'logo_theme' => 'light',
-                'description' => 'Međunarodna M&A mreža koja povezuje investitore, kupce i prodavatelje kroz strukturirane cross-border transakcije.',
-                'url' => 'https://pandeaglobal.com/',
-                'accent' => 'navy',
-            ],
-            [
-                'name' => 'Transeo International',
-                'logo_mark' => 'Transeo',
-                'logo_sub' => 'International',
-                'logo_tag' => 'Transfer',
-                'logo_url' => asset('front-theme/images/logos/transeo.svg'),
-                'logo_theme' => 'light',
-                'description' => 'Europska zajednica stručnjaka za prijenos vlasništva, SME transakcije i razvoj business transfer ekosustava.',
-                'url' => 'https://www.transeo-association.eu/',
-                'accent' => 'teal',
-            ],
-            [
-                'name' => 'International Fiscal Association',
-                'logo_mark' => 'IFA',
-                'logo_sub' => 'Fiscal Association',
-                'logo_tag' => 'Tax',
-                'logo_url' => asset('front-theme/images/logos/ifa-logo-white.svg'),
-                'logo_theme' => 'light',
-                'description' => 'Vodeća međunarodna neovisna organizacija posvećena međunarodnom poreznom pravu i usporednim fiskalnim pitanjima.',
-                'url' => 'https://www.ifa.nl/',
-                'accent' => 'violet',
-            ],
+        $valueItems = [
+            ['icon' => 'fa-badge-check', 'title' => 'Stručnost i iskustvo', 'text' => 'Višegodišnje iskustvo u širokom spektru industrija i najviši standardi profesionalne izvrsnosti.'],
+            ['icon' => 'fa-scale-balanced', 'title' => 'Neovisnost i povjerenje', 'text' => 'Neovisni smo, objektivni i posvećeni najvišim profesionalnim i etičkim načelima.'],
+            ['icon' => 'fa-chart-line', 'title' => 'Partner u rastu', 'text' => 'Ulažemo u vaše ciljeve i pružamo konkretne smjernice koje donose mjerljive rezultate.'],
         ];
 
-        $clientExperienceSection = [
-            'eyebrow' => $locale === 'hr' ? 'Preporuke klijenata' : 'Client testimonials',
-            'title' => $locale === 'hr' ? 'Iskustva naših klijenata' : 'What Our Clients Say',
-            'intro' => $locale === 'hr'
-                ? 'Odabrana iskustva tvrtki i timova koji s nama grade stabilnije i jasnije poslovne odluke.'
-                : 'Selected testimonials from companies and teams that rely on us for clearer and more stable business decisions.',
+        $homeHeroItem = collect($homeHeroBlocks ?? [])->first(fn ($item) => (string) (($item['block'] ?? null)?->type ?? '') === 'home_hero')
+            ?? collect($homeHeroBlocks ?? [])->first();
+        $homeHeroTranslation = $homeHeroItem['translation'] ?? null;
+        $homeHeroPayload = array_merge(
+            is_array(($homeHeroItem['block'] ?? null)?->payload ?? null) ? $homeHeroItem['block']->payload : [],
+            is_array($homeHeroTranslation?->payload ?? null) ? $homeHeroTranslation->payload : [],
+        );
+        $cmsHeroTitle = trim((string) ($homeHeroTranslation?->title ?? ''));
+        $cmsHeroSubtitle = trim((string) ($homeHeroTranslation?->subtitle ?? ''));
+        $heroTitle = $cmsHeroTitle !== '' && mb_strtoupper($cmsHeroTitle) !== 'ALPHA CAPITALIS'
+            ? $cmsHeroTitle
+            : 'Jedna adresa za sve brojke';
+        $heroSubtitle = $cmsHeroSubtitle !== '' && mb_strtoupper($cmsHeroSubtitle) !== 'VAŠ KOMPAS KROZ SVIJET FINANCIJA'
+            ? $cmsHeroSubtitle
+            : 'Računovodstvo, revizija i savjetovanje — sve na jednom mjestu.';
+        $cmsHeroPrimaryLabel = trim((string) ($homeHeroTranslation?->cta_label ?? ''));
+        $heroPrimaryLabel = $cmsHeroPrimaryLabel !== '' && mb_strtoupper($cmsHeroPrimaryLabel) !== 'NAŠE USLUGE'
+            ? $cmsHeroPrimaryLabel
+            : 'Dogovorite sastanak';
+        $heroPrimaryUrl = $heroPrimaryLabel === 'Dogovorite sastanak'
+            ? route('contact.create')
+            : (trim((string) ($homeHeroTranslation?->cta_url ?? '')) ?: route('contact.create'));
+        $cmsHeroSecondaryLabel = trim((string) ($homeHeroPayload['secondary_cta_label'] ?? ''));
+        $heroSecondaryLabel = $cmsHeroSecondaryLabel !== '' && mb_strtoupper($cmsHeroSecondaryLabel) !== 'UGOVORI SASTANAK'
+            ? $cmsHeroSecondaryLabel
+            : 'Naše usluge';
+        $heroSecondaryUrl = $heroSecondaryLabel === 'Naše usluge'
+            ? route('services.index')
+            : (trim((string) ($homeHeroPayload['secondary_cta_url'] ?? '')) ?: route('services.index'));
+        $heroTitleWords = preg_split('/\s+/u', $heroTitle, -1, PREG_SPLIT_NO_EMPTY) ?: ['Jedna', 'adresa', 'za', 'sve', 'brojke'];
+        $heroTitleLines = $heroTitle === 'Jedna adresa za sve brojke'
+            ? [['Jedna', 'adresa'], ['za', 'sve', 'brojke']]
+            : collect($heroTitleWords)->chunk(max(1, (int) ceil(count($heroTitleWords) / 2)))->map(fn ($line) => $line->values()->all())->values()->all();
+
+        $homeServicesItem = collect($homeServicesBlocks ?? [])->first(fn ($item) => (string) (($item['block'] ?? null)?->type ?? '') === 'home_services')
+            ?? collect($homeServicesBlocks ?? [])->first();
+        $homeServicesTranslation = $homeServicesItem['translation'] ?? null;
+        $homeServicesPayload = array_merge(
+            is_array(($homeServicesItem['block'] ?? null)?->payload ?? null) ? $homeServicesItem['block']->payload : [],
+            is_array($homeServicesTranslation?->payload ?? null) ? $homeServicesTranslation->payload : [],
+        );
+        $cmsServicesTitle = trim((string) ($homeServicesTranslation?->title ?? ''));
+        $useCmsServicesHeading = $cmsServicesTitle !== '' && !str_starts_with($cmsServicesTitle, 'Stvaramo vrijednost za naše klijente');
+        $servicesHeading = $useCmsServicesHeading ? $cmsServicesTitle : 'Vi vodite poslovanje. Mi brinemo da brojke prate vaš rast.';
+        $servicesIntro = $useCmsServicesHeading ? trim((string) ($homeServicesTranslation?->subtitle ?? '')) : '';
+        $servicesHeadingWords = preg_split('/\s+/u', $servicesHeading, -1, PREG_SPLIT_NO_EMPTY) ?: [];
+        $servicesHeadingLines = $servicesHeading === 'Vi vodite poslovanje. Mi brinemo da brojke prate vaš rast.'
+            ? [['Vi', 'vodite', 'poslovanje.'], ['Mi', 'brinemo', 'da', 'brojke', 'prate', 'vaš', 'rast.']]
+            : collect($servicesHeadingWords)->chunk(max(1, (int) ceil(count($servicesHeadingWords) / 2)))->map(fn ($line) => $line->values()->all())->values()->all();
+
+        $serviceDesign = collect([
+            'audit' => [
+                'title' => 'Revizija',
+                'statement' => 'Sigurnost i povjerenje u svakoj odluci.',
+                'text' => 'Pouzdani financijski izvještaji jačaju povjerenje vlasnika, banaka, investitora i partnera te smanjuju rizik u važnim poslovnim odlukama.',
+                'image' => asset('alpha/service-revizija.jpg'),
+                'image_alt' => 'Potpisivanje poslovnog dokumenta za stolom',
+                'url' => route('audit.show'),
+            ],
+            'accounting' => [
+                'title' => 'Računovodstvo',
+                'statement' => 'Red u brojkama, mir u poslovanju.',
+                'text' => 'Ažurni podaci, uredna administracija i kontrola nad financijama oslobađaju vam vrijeme za ono što je najvažnije — razvoj poslovanja.',
+                'image' => asset('alpha/service-racunovodstvo.jpg'),
+                'image_alt' => 'Rad na financijskim podacima na prijenosnom računalu',
+                'url' => route('accounting.show'),
+            ],
+            'advisory' => [
+                'title' => 'Savjetovanje',
+                'statement' => 'Prave odluke stvaraju najveću vrijednost.',
+                'text' => 'Stručna podrška pomaže prepoznati prilike, smanjiti rizike i donijeti sigurnije odluke za rast, financiranje i budućnost poslovanja.',
+                'image' => asset('alpha/service-savjetovanje.jpg'),
+                'image_alt' => 'Poslovni razgovor tijekom savjetovanja',
+                'url' => route('advisory.show'),
+            ],
+        ]);
+
+        $cmsServiceItems = collect($homeServicesPayload['services'] ?? [])->filter(fn ($service) => is_array($service))->values();
+        $serviceSource = $cmsServiceItems->isNotEmpty() ? $cmsServiceItems : collect($primaryServicePillars ?? []);
+        $serviceItems = $serviceSource->map(function (array $service, int $index) use ($serviceDesign): array {
+            $key = (string) ($service['key'] ?? '');
+            if ($key === '') {
+                $key = ['audit', 'accounting', 'advisory'][$index] ?? '';
+            }
+            $fallback = (array) $serviceDesign->get($key, []);
+            if ($fallback === []) {
+                return [];
+            }
+
+            $dynamicImage = trim((string) ($service['image_url'] ?? ''));
+            $useDynamicImage = $dynamicImage !== '' && !str_contains($dynamicImage, '/front-theme/images/services/');
+
+            return array_merge($fallback, [
+                'title' => trim((string) ($service['title'] ?? '')) ?: $fallback['title'],
+                'statement' => trim((string) ($service['subtitle'] ?? '')) ?: $fallback['statement'],
+                'text' => trim((string) ($service['text'] ?? '')) ?: $fallback['text'],
+                'image' => $useDynamicImage ? $dynamicImage : $fallback['image'],
+                'url' => trim((string) ($service['url'] ?? '')) ?: $fallback['url'],
+            ]);
+        })->filter()->values();
+
+        if ($serviceItems->isEmpty()) {
+            $serviceItems = $serviceDesign->values();
+        }
+
+        $processItems = [
+            ['icon' => 'fa-magnifying-glass-chart', 'title' => 'Upoznajemo vaš posao', 'text' => 'Razumijemo vaše ciljeve, izazove i okruženje kako bismo identificirali ključne prilike.'],
+            ['icon' => 'fa-chart-line', 'title' => 'Analiziramo i planiramo', 'text' => 'Analiziramo podatke i procese te kreiramo strategiju i konkretne korake prema ciljevima.'],
+            ['icon' => 'fa-clipboard-check', 'title' => 'Provodimo i pratimo', 'text' => 'Provodimo dogovorene aktivnosti uz kontinuirano praćenje i pravovremene prilagodbe.'],
+            ['icon' => 'fa-bullseye', 'title' => 'Donosimo vrijednost', 'text' => 'Ostvarujemo mjerljive rezultate koji jačaju vašu poziciju i donose dugoročnu vrijednost.'],
         ];
+
+        $entities = collect($storeSettings['official_entities'] ?? [])->keyBy('key');
+        $locationDefinitions = [
+            ['key' => 'alpha-capitalis', 'city' => 'Zagreb – HQ ured', 'short_city' => 'Zagreb', 'css' => 'is-zagreb', 'number' => '01 · HQ'],
+            ['key' => 'alpha-capitalis-timia', 'city' => 'Rijeka', 'short_city' => 'Rijeka', 'css' => 'is-rijeka', 'number' => '02'],
+            ['key' => 'alpha-capitalis-east', 'city' => 'Vinkovci', 'short_city' => 'Vinkovci', 'css' => 'is-vinkovci', 'number' => '03'],
+        ];
+        $locationItems = collect($locationDefinitions)->map(function (array $definition) use ($entities): array {
+            $entity = (array) $entities->get($definition['key'], []);
+            $addressParts = collect($entity['contact_address'] ?? $entity['address'] ?? [])->map(fn ($part) => trim((string) $part))->filter();
+            $address = $addressParts->implode(', ');
+            $mapQuery = trim((string) ($entity['map_query'] ?? '')) ?: $address;
+
+            return array_merge($definition, [
+                'office_label' => trim((string) ($entity['office_label'] ?? '')) ?: 'Ured '.$definition['short_city'],
+                'company' => trim((string) ($entity['company'] ?? $entity['name'] ?? '')) ?: 'ALPHA CAPITALIS d.o.o.',
+                'address' => $address ?: $definition['short_city'],
+                'email' => trim((string) ($entity['email'] ?? '')) ?: 'info@alphacapitalis.com',
+                'phone' => trim((string) ($entity['phone'] ?? '')) ?: '+385 (1) 580 6656',
+                'map_url' => 'https://www.google.com/maps/search/?api=1&query='.rawurlencode($mapQuery),
+            ]);
+        })->values();
+
+        $homeStatsItem = collect($homeStatsBlocks ?? [])->first(fn ($item) => (string) (($item['block'] ?? null)?->type ?? '') === 'home_stats')
+            ?? collect($homeStatsBlocks ?? [])->first();
+        $homeStatsPayload = array_merge(
+            is_array(($homeStatsItem['block'] ?? null)?->payload ?? null) ? $homeStatsItem['block']->payload : [],
+            is_array(($homeStatsItem['translation'] ?? null)?->payload ?? null) ? $homeStatsItem['translation']->payload : [],
+        );
+        $dynamicStats = collect($homeStatsPayload['stats'] ?? [])->map(function ($stat): array {
+            $stat = is_array($stat) ? $stat : [];
+            $rawValue = trim((string) ($stat['value'] ?? '0'));
+            return [
+                'value' => (int) (preg_replace('/\D+/', '', $rawValue) ?: 0),
+                'suffix' => trim((string) ($stat['suffix'] ?? '')) ?: '+',
+                'label' => trim((string) ($stat['label'] ?? '')),
+            ];
+        })->filter(fn (array $stat) => $stat['value'] > 0 && $stat['label'] !== '')->values();
+        $statFallbacks = collect([
+            ['value' => 300, 'suffix' => '+', 'label' => 'Zadovoljnih klijenata'],
+            ['value' => 600, 'suffix' => '+', 'label' => 'Poslovnih klijenata'],
+            ['value' => 60, 'suffix' => '+', 'label' => 'Kvalificiranih stručnjaka'],
+            ['value' => 20, 'suffix' => '+', 'label' => 'Godina iskustva'],
+        ]);
+        $locationStats = $statFallbacks->map(fn (array $fallback, int $index) => array_merge($fallback, (array) $dynamicStats->get($index, [])));
+        $statIcons = ['fa-chart-column', 'fa-users', 'fa-user-tie', 'fa-shield-heart'];
+
+        $newsItems = collect($latestBlogPosts ?? [])->take(3)->map(function ($post) use ($locale, $fallbackLocale): array {
+            $translation = $post->translations->firstWhere('locale', $locale)
+                ?? $post->translations->firstWhere('locale', $fallbackLocale)
+                ?? $post->translations->first();
+            $category = $post->categories->sortByDesc(fn ($item) => (int) ($item->pivot->is_primary ?? false))->first();
+            $categoryTranslation = $category?->translations->firstWhere('locale', $locale)
+                ?? $category?->translations->firstWhere('locale', $fallbackLocale)
+                ?? $category?->translations->first();
+            $slug = trim((string) ($translation?->slug ?? ''));
+            $excerpt = trim(strip_tags((string) ($translation?->excerpt ?? '')));
+
+            return [
+                'category' => trim((string) ($categoryTranslation?->name ?? '')) ?: 'Novosti',
+                'title' => trim((string) ($translation?->title ?? $post->code)) ?: 'Alpha Capitalis',
+                'text' => Illuminate\Support\Str::limit($excerpt ?: 'Saznajte aktualne informacije, rokove i stručne savjete za sigurnije poslovne odluke.', 210),
+                'url' => $slug !== '' ? route('blog.show', ['slug' => $slug]) : route('blog.index'),
+            ];
+        })->values();
+
+        if ($newsItems->isEmpty()) {
+            $newsItems = collect([
+                ['category' => 'Financije', 'title' => 'Dubinsko snimanje – zašto je ključno?', 'text' => 'Točna i vjerodostojna financijska izvješća temelj su sigurnijih transakcija i kvalitetnijih poslovnih odluka.', 'url' => route('blog.index')],
+                ['category' => 'EU fondovi', 'title' => 'Jesu li inovacije nužne za EU financiranje?', 'text' => 'Europska unija sve više ulaže u projekte koji donose dodanu vrijednost, održivost i mjerljiv razvoj.', 'url' => route('blog.index')],
+                ['category' => 'EU fondovi', 'title' => 'EU fondovi za male i srednje poduzetnike', 'text' => 'Pregled mogućnosti financijske podrške za razvoj, ulaganja i digitalizaciju malih i srednjih poduzeća.', 'url' => route('blog.index')],
+            ]);
+        }
     @endphp
 
-    @if (collect($homeServicesBlocks ?? [])->isNotEmpty())
-        @include('components.content-placement', ['items' => $homeServicesBlocks])
-    @else
-        @include('front.desktop.partials.service-pillars-showcase', [
-            'sectionId' => 'ac-home-services-showcase',
-            'headingLevel' => 2,
-            'titleLead' => 'Stvaramo vrijednost za naše klijente u',
-            'titleAccent' => 'svim fazama razvoja poslovanja',
-            'intro' => $homeServicesShowcaseText,
-            'cards' => $homeServicesShowcaseCards,
-        ])
-    @endif
+    <section class="hero" id="vrh" aria-labelledby="hero-title">
+        <video class="hero-video" autoplay muted loop playsinline preload="metadata" poster="{{ asset('alpha/alpha-zagreb-poster.jpg') }}" aria-hidden="true" data-alpha-hero-video>
+            <source src="{{ asset('alpha/alpha-zagreb-loop-hq.mp4') }}" type="video/mp4">
+        </video>
+        <div class="hero-overlay" aria-hidden="true"></div>
 
-    {{-- Disabled on index for now; flip to true if the client wants memberships back. --}}
-    @if (false)
-    <section id="clanstva" class="ac-global-memberships" aria-labelledby="ac-global-memberships-title">
-        <div class="ac-global-memberships-shell mx-auto w-full max-w-[1240px] px-6 lg:px-10">
-            <div class="ac-services-head ac-support-story-head ac-global-memberships-head">
-                <div class="ac-services-eyebrow">
-                    <span class="ac-services-eyebrow-line" aria-hidden="true"></span>
-                    <p class="ac-services-kicker">Mreže i članstva</p>
-                    <span class="ac-services-eyebrow-line" aria-hidden="true"></span>
-                </div>
-                <h2 id="ac-global-memberships-title">
-                    <span>Globalna partnerstva i stručna članstva</span>
+        <div class="hero-content">
+            <h1 id="hero-title" aria-label="{{ $heroTitle }}">
+                @php $heroCharacterIndex = 0; @endphp
+                @foreach ($heroTitleLines as $line)<span class="hero-line">@foreach ($line as $word)@php $upperWord = Illuminate\Support\Str::upper($word); @endphp<span class="hero-word {{ $loop->parent->last && $loop->last ? 'is-accent' : '' }}" aria-hidden="true">@foreach (mb_str_split($upperWord) as $character)<span class="hero-char" style="--char-index: {{ $heroCharacterIndex++ }}">{{ $character }}</span>@endforeach</span>@endforeach</span>@endforeach
+            </h1>
+            <p>@if ($heroSubtitle === 'Računovodstvo, revizija i savjetovanje — sve na jednom mjestu.')Računovodstvo, revizija i savjetovanje —<br> sve na jednom mjestu.@else{{ $heroSubtitle }}@endif</p>
+            <div class="hero-actions">
+                <a class="button button-gold" href="{{ $heroPrimaryUrl }}"><span>{{ $heroPrimaryLabel }}</span></a>
+                <a class="button button-outline" href="{{ $heroSecondaryUrl }}"><span>{{ $heroSecondaryLabel }}</span></a>
+            </div>
+            <div class="scroll-cue" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span></div>
+        </div>
+
+        <aside class="hero-locations" aria-label="Naše lokacije">
+            <span class="location-number" aria-hidden="true"><i class="fa-duotone fa-thin fa-bullseye-pointer"></i></span>
+            <div>@foreach ($locationItems as $location)<p>{{ Illuminate\Support\Str::upper($location['short_city']) }}</p>@endforeach</div>
+        </aside>
+    </section>
+
+    <section class="values-section" id="vrijednosti" aria-labelledby="values-title">
+        <div class="values-inner">
+            <div class="values-intro">
+                @php $valuesWords = explode(' ', 'Stvaramo vrijednost za naše klijente u svim fazama razvoja poslovanja.'); @endphp
+                <h2 class="values-title" id="values-title" data-words-slide-from-right aria-label="Stvaramo vrijednost za naše klijente u svim fazama razvoja poslovanja.">
+                    @foreach ($valuesWords as $word)<span class="values-word {{ $word === 'vrijednost' ? 'is-accent' : '' }}" style="--value-word-index: {{ $loop->index }}" aria-hidden="true">{{ $word }}</span>@endforeach
                 </h2>
-                <p class="ac-services-intro">ALPHA CAPITALIS surađuje s relevantnim međunarodnim mrežama koje šire pristup znanju, investitorima i specijaliziranim ekspertima.</p>
-                <div class="ac-services-divider" aria-hidden="true">
-                    <span class="ac-services-divider-line"></span>
-                    <span class="ac-services-divider-glyph"></span>
-                    <span class="ac-services-divider-line"></span>
-                </div>
+                <p class="values-copy content-reveal" data-image-reveal><strong>ALPHA CAPITALIS</strong> pruža vam sigurnost u poslovanju, jasnoću u financijama i partnera koji vam pomaže donositi bolje odluke, smanjiti rizike i ostvariti održiv rast.</p>
             </div>
 
-            <div class="ac-global-memberships-carousel">
-                <div id="ac-global-memberships-splide" class="splide ac-global-memberships-splide" data-global-memberships-splide>
-                    <div class="splide__track">
-                        <ul class="splide__list ac-global-memberships-list">
-                            @foreach ($globalMemberships as $membership)
-                                <li class="splide__slide ac-global-memberships-slide">
-                                    <article class="ac-membership-card ac-membership-card--{{ $membership['accent'] }}">
-                                        <h3 class="sr-only">{{ $membership['name'] }}</h3>
-                                        <div class="ac-membership-logo {{ !empty($membership['logo_url']) ? 'has-image' : '' }} {{ ($membership['logo_theme'] ?? '') === 'light' ? 'is-light' : '' }}" aria-hidden="true">
-                                            @if (!empty($membership['logo_url']))
-                                                <img
-                                                    src="{{ $membership['logo_url'] }}"
-                                                    alt=""
-                                                    class="ac-membership-logo-image {{ $membership['logo_image_class'] ?? '' }}"
-                                                    loading="lazy"
-                                                    decoding="async"
-                                                >
-                                            @else
-                                                <span class="ac-membership-logo-tag">{{ $membership['logo_tag'] }}</span>
-                                                <span class="ac-membership-logo-mark">{{ $membership['logo_mark'] }}</span>
-                                                <span class="ac-membership-logo-sub">{{ $membership['logo_sub'] }}</span>
-                                            @endif
-                                        </div>
-
-                                        <p class="ac-membership-copy">{{ $membership['description'] }}</p>
-
-                                        <a href="{{ $membership['url'] }}" class="ac-membership-link" target="_blank" rel="noopener noreferrer">
-                                            <span>Opširnije</span>
-                                            <span class="ac-membership-link-arrow" aria-hidden="true">
-                                                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
-                                                    <path d="M4 12L12 4"></path>
-                                                    <path d="M6 4h6v6"></path>
-                                                </svg>
-                                            </span>
-                                        </a>
-                                    </article>
-                                </li>
-                            @endforeach
-                        </ul>
-                    </div>
-                </div>
+            <div class="values-list">
+                @foreach ($valueItems as $item)
+                    <article class="value-item content-reveal" data-image-reveal style="--reveal-index: {{ $loop->index }}">
+                        <div class="value-icon" aria-hidden="true"><i class="fa-duotone fa-thin fa-fw {{ $item['icon'] }}"></i></div>
+                        <div class="value-content">
+                            <h3 data-words-slide-from-right aria-label="{{ $item['title'] }}">
+                                @foreach (explode(' ', $item['title']) as $word)<span class="value-title-word" style="--services-word-index: {{ $loop->index }}" aria-hidden="true">{{ $word }}</span>@endforeach
+                            </h3>
+                            <p>{{ $item['text'] }}</p>
+                        </div>
+                    </article>
+                @endforeach
             </div>
         </div>
     </section>
-    @endif
 
-    {{-- Disabled on index for now; flip to true if the client wants latest posts back. --}}
-    @if (false)
-    @if (($latestBlogPosts ?? collect())->isNotEmpty())
-        <div class="mx-auto w-full max-w-[1240px] px-5 lg:px-8">
-            <section id="novosti" class="ac-support-story ac-home-blog" aria-labelledby="ac-home-blog-title">
-                <div class="ac-support-story-hero">
-                    <div class="ac-support-story-shell">
-                        <div class="ac-services-head ac-support-story-head">
-                            <div class="ac-services-eyebrow">
-                                <span class="ac-services-eyebrow-line" aria-hidden="true"></span>
-                                <p class="ac-services-kicker">ALPHA CAPITALIS</p>
-                                <span class="ac-services-eyebrow-line" aria-hidden="true"></span>
-                            </div>
-                            <h2 id="ac-home-blog-title">
-                                <span>Zadnje objave i novosti</span>
+    <section class="services-section" id="usluge" aria-labelledby="services-title">
+        <div class="services-shell">
+            <header class="services-header">
+                <h2 class="services-title" id="services-title" data-words-slide-from-right aria-label="{{ $servicesHeading }}">
+                    @php $servicesWordIndex = 0; @endphp
+                    @foreach ($servicesHeadingLines as $line)<span class="services-title-line" aria-hidden="true">@foreach ($line as $word)<span class="services-word {{ mb_strtolower(trim($word, '.,!?')) === 'brojke' || ($useCmsServicesHeading && $loop->parent->last && $loop->last) ? 'is-accent' : '' }}" style="--services-word-index: {{ $servicesWordIndex++ }}">{{ $word }}</span>@endforeach</span>@endforeach
+                </h2>
+                @if ($servicesIntro !== '')
+                    <p class="services-intro content-reveal" data-image-reveal>{{ $servicesIntro }}</p>
+                @endif
+            </header>
 
-                            </h2>
-                            <p class="ac-services-intro">
-                                Zadnjih pet blog objava iz područja financija, poreza, transakcija i poslovnog savjetovanja.
-                            </p>
-                            <div class="ac-services-divider" aria-hidden="true">
-                                <span class="ac-services-divider-line"></span>
-                                <span class="ac-services-divider-glyph"></span>
-                                <span class="ac-services-divider-line"></span>
-                            </div>
+            <div class="services-grid services-grid--count-{{ min(3, $serviceItems->count()) }}">
+                @foreach ($serviceItems as $service)
+                    <a class="service-card" href="{{ $service['url'] }}" data-image-reveal style="--service-index: {{ $loop->index }}">
+                        <div class="service-card-media">
+                            <img src="{{ $service['image'] }}" alt="{{ $service['image_alt'] }}" width="1080" height="1350" loading="lazy" decoding="async">
                         </div>
-                    </div>
-                </div>
-
-                <div class="ac-home-blog-carousel">
-                    <div id="ac-home-blog-splide" class="splide ac-home-blog-splide" data-home-blog-splide>
-                        <div class="splide__track">
-                            <ul class="splide__list">
-                                @foreach ($latestBlogPosts as $post)
-                                    @php
-                                        $translation = $post->translations->firstWhere('locale', $locale)
-                                            ?? $post->translations->firstWhere('locale', $fallbackLocale);
-                                        $postSlug = trim((string) ($translation?->slug ?? ''));
-                                        $postUrl = $postSlug !== '' ? route('blog.show', ['slug' => $postSlug]) : route('blog.index');
-                                        $postTitle = trim((string) ($translation?->title ?? $post->code));
-                                        $postExcerpt = trim((string) ($translation?->excerpt ?? '')) ?: __('ui.blog.excerpt_fallback');
-                                        $postExcerpt = \Illuminate\Support\Str::limit($postExcerpt, 180, '...', true);
-                                        $postImage = $post->getFirstMedia('blog_cover');
-                                        $postImageUrl = $postImage?->getUrl();
-                                        $primaryCategory = $post->categories
-                                            ->sortByDesc(fn ($category) => (int) ($category->pivot->is_primary ?? false))
-                                            ->first();
-                                        $categoryTranslation = $primaryCategory?->translations->firstWhere('locale', $locale)
-                                            ?? $primaryCategory?->translations->firstWhere('locale', $fallbackLocale);
-                                        $categoryLabel = trim((string) ($categoryTranslation?->name ?? 'Novosti'));
-                                        $publishedLabel = ($post->published_at ?? $post->created_at)?->translatedFormat('j. F Y.');
-                                    @endphp
-
-                                    <li class="splide__slide ac-home-blog-slide">
-                                        <article class="ac-home-blog-card">
-                                            <a href="{{ $postUrl }}" class="ac-home-blog-card-link" aria-label="Otvori blog post: {{ $postTitle }}">
-                                                <div class="ac-home-blog-card-media">
-                                                    @if ($postImageUrl)
-                                                        <img
-                                                            src="{{ $postImageUrl }}"
-                                                            alt="{{ $postTitle }}"
-                                                            class="ac-home-blog-card-image"
-                                                            loading="lazy"
-                                                            decoding="async"
-                                                        >
-                                                    @else
-                                                        <div class="ac-home-blog-card-placeholder">
-                                                            <span>{{ __('ui.blog.title') }}</span>
-                                                        </div>
-                                                    @endif
-
-                                                    <div class="ac-home-blog-card-overlay">
-                                                        <span class="ac-home-blog-card-overlay-kicker">
-                                                            {{ \Illuminate\Support\Str::upper(\Illuminate\Support\Str::limit($categoryLabel, 22, '')) }}
-                                                        </span>
-                                                        <span class="ac-home-blog-card-overlay-line" aria-hidden="true"></span>
-                                                    </div>
-                                                </div>
-
-                                                <div class="ac-home-blog-card-body">
-                                                    <h3 class="ac-home-blog-card-title">{{ $postTitle }}</h3>
-                                                    <p class="ac-home-blog-card-excerpt">{{ $postExcerpt }}</p>
-                                                </div>
-
-                                                <div class="ac-home-blog-card-meta">
-                                                    <span class="ac-home-blog-card-meta-link">
-                                                        <span>Opširnije</span>
-                                                        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                                                            <path d="M4 12L12 4"></path>
-                                                            <path d="M6 4h6v6"></path>
-                                                        </svg>
-                                                    </span>
-                                                    @if ($publishedLabel)
-                                                        <span class="ac-home-blog-card-meta-date">{{ $publishedLabel }}</span>
-                                                    @endif
-                                                </div>
-                                            </a>
-                                        </article>
-                                    </li>
-                                @endforeach
-                            </ul>
+                        <div class="service-card-copy">
+                            <h3 class="service-card-title" data-words-slide-from-right aria-label="{{ $service['title'] }}">
+                                <span class="service-title-word" style="--services-word-index: 0" aria-hidden="true">{{ $service['title'] }}</span>
+                            </h3>
+                            <p class="service-statement">{{ $service['statement'] }}</p>
+                            <p class="service-description">{{ $service['text'] }}</p>
+                            <span class="service-link" aria-hidden="true">SAZNAJTE VIŠE <i class="fa-duotone fa-thin fa-arrow-right fa-fw"></i></span>
                         </div>
-                    </div>
-                </div>
-            </section>
+                    </a>
+                @endforeach
+            </div>
         </div>
-    @endif
-    @endif
+    </section>
 
-    {{-- Disabled on index for now; flip to true if the client wants testimonials back. --}}
-    @if (false)
-    @if (($clientTestimonials ?? collect())->isNotEmpty())
-        <section id="iskustva-klijenata" class="ac-global-memberships ac-client-experiences" aria-labelledby="ac-client-experiences-title">
-            <div class="ac-global-memberships-shell mx-auto w-full max-w-[1240px] px-6 lg:px-10">
-                <div class="ac-services-head ac-support-story-head ac-global-memberships-head ac-client-experiences-head">
-                    <div class="ac-services-eyebrow">
-                        <span class="ac-services-eyebrow-line" aria-hidden="true"></span>
-                        <p class="ac-services-kicker">{{ $clientExperienceSection['eyebrow'] }}</p>
-                        <span class="ac-services-eyebrow-line" aria-hidden="true"></span>
-                    </div>
-                    <h2 id="ac-client-experiences-title">
-                        <span>{{ $clientExperienceSection['title'] }}</span>
+    <section class="process-section" id="proces" aria-labelledby="process-title" data-process-reveal>
+        <div class="process-shell">
+            <header class="process-header">
+                @php $processTitle = ['Jednostavan', 'proces.', 'Jasni', 'koraci.']; @endphp
+                <h2 class="process-title" id="process-title" data-words-slide-from-right aria-label="Jednostavan proces. Jasni koraci.">
+                    @foreach ($processTitle as $word)<span class="process-title-word {{ $word === 'koraci.' ? 'is-accent' : '' }}" style="--services-word-index: {{ $loop->index }}" aria-hidden="true">{{ $word }}</span>@endforeach
+                </h2>
+            </header>
+            <div class="process-track">
+                @foreach ($processItems as $item)
+                    <article class="process-item" style="--process-index: {{ $loop->index }}">
+                        <div class="process-marker" aria-hidden="true"><span>{{ str_pad((string) $loop->iteration, 2, '0', STR_PAD_LEFT) }}</span></div>
+                        <i class="process-icon fa-duotone fa-thin fa-fw {{ $item['icon'] }}" aria-hidden="true"></i>
+                        <div class="process-copy"><h3>{{ $item['title'] }}</h3><p>{{ $item['text'] }}</p></div>
+                    </article>
+                @endforeach
+            </div>
+        </div>
+    </section>
+
+    <section class="locations-section" id="lokacije" aria-labelledby="locations-title" data-locations-reveal>
+        <div class="locations-shell">
+            <div class="locations-layout">
+                <div class="locations-copy">
+                    <h2 class="locations-title" id="locations-title" data-words-slide-from-right aria-label="Prisutni na 3 lokacije">
+                        @foreach (['Prisutni', 'na', '3', 'lokacije'] as $word)<span class="locations-title-word {{ $word === 'lokacije' ? 'is-accent' : '' }}" style="--services-word-index: {{ $loop->index }}" aria-hidden="true">{{ $word }}</span>@endforeach
                     </h2>
-                    <p class="ac-services-intro">{{ $clientExperienceSection['intro'] }}</p>
-                    <div class="ac-services-divider" aria-hidden="true">
-                        <span class="ac-services-divider-line"></span>
-                        <span class="ac-services-divider-glyph"></span>
-                        <span class="ac-services-divider-line"></span>
+                    <p class="locations-intro"><strong>Zagreb, Rijeka i Vinkovci</strong> — podrška klijentima diljem Hrvatske.</p>
+
+                    <div class="locations-addresses">
+                        @foreach ($locationItems as $location)
+                            <article class="location-address" style="--location-index: {{ $loop->index }}">
+                                <button class="location-address-trigger" type="button" aria-expanded="false" aria-controls="location-details-{{ $loop->index }}" data-location-index="{{ $loop->index }}">
+                                    <span class="location-address-marker" aria-hidden="true">{{ str_pad((string) $loop->iteration, 2, '0', STR_PAD_LEFT) }}</span>
+                                    <span class="location-address-summary"><span class="location-address-title">{{ $location['city'] }}</span><span class="location-address-short">{{ $location['address'] }}</span></span>
+                                    <span class="location-address-toggle" aria-hidden="true"><span></span><span></span></span>
+                                </button>
+                                <div class="location-details" id="location-details-{{ $loop->index }}" aria-hidden="true" inert>
+                                    <div class="location-details-inner">
+                                        <div class="location-details-card">
+                                            <span class="location-office-label">{{ $location['office_label'] }}</span>
+                                            <h3>{{ $location['company'] }}</h3>
+                                            <a class="location-map-link" href="{{ $location['map_url'] }}" target="_blank" rel="noopener noreferrer" tabindex="-1"><i class="fa-light fa-location-dot" aria-hidden="true"></i><span>Pogledaj na karti</span><i class="fa-light fa-arrow-up-right" aria-hidden="true"></i></a>
+                                            <div class="location-contacts">
+                                                <a href="mailto:{{ $location['email'] }}" tabindex="-1"><i class="fa-light fa-envelope" aria-hidden="true"></i><span><small>Email</small><strong>{{ $location['email'] }}</strong></span></a>
+                                                <a href="tel:{{ preg_replace('/[^+0-9]/', '', $location['phone']) }}" tabindex="-1"><i class="fa-light fa-phone" aria-hidden="true"></i><span><small>Telefon</small><strong>{{ $location['phone'] }}</strong></span></a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </article>
+                        @endforeach
                     </div>
                 </div>
 
-                @php
-                    $testimonialReadMoreLabel = $locale === 'hr' ? 'Pročitaj više' : 'Read more';
-                    $testimonialShowLessLabel = $locale === 'hr' ? 'Prikaži manje' : 'Show less';
-                @endphp
-
-                <div class="ac-client-experiences-carousel">
-                    <div id="ac-client-experiences-splide" class="splide ac-client-experiences-splide" data-client-experiences-splide>
-                        <div class="splide__track">
-                            <ul class="splide__list ac-client-experiences-list">
-                                @foreach ($clientTestimonials as $testimonial)
-                                    @php
-                                        $company = trim((string) ($testimonial->payload['company'] ?? ''));
-                                        $rating = max(1, min(5, (int) ($testimonial->rating ?? 5)));
-                                    @endphp
-                                    <li class="splide__slide ac-client-experiences-slide">
-                                        <article class="ac-client-experience-card" data-testimonial-card>
-                                            <div class="ac-client-experience-card-inner">
-                                                <div class="ac-client-experience-quote-mark" aria-hidden="true">“</div>
-                                                <div class="ac-client-experience-content">
-                                                    <div class="ac-client-experience-rating" aria-label="{{ $rating }} / 5">
-                                                        @for ($i = 1; $i <= 5; $i++)
-                                                            <span class="{{ $i <= $rating ? 'is-active' : '' }}">★</span>
-                                                        @endfor
-                                                    </div>
-                                                    <p class="ac-client-experience-body" data-testimonial-body>{{ $testimonial->body }}</p>
-                                                    <button
-                                                        type="button"
-                                                        class="ac-client-experience-toggle"
-                                                        data-testimonial-toggle
-                                                        data-more-label="{{ $testimonialReadMoreLabel }}"
-                                                        data-less-label="{{ $testimonialShowLessLabel }}"
-                                                        aria-expanded="false"
-                                                        hidden
-                                                    >{{ $testimonialReadMoreLabel }}</button>
-                                                </div>
-                                                <div class="ac-client-experience-meta">
-                                                    <h3>{{ $testimonial->author_name ?: __('Anonymous') }}</h3>
-                                                    @if ($company !== '')
-                                                        <p>{{ $company }}</p>
-                                                    @endif
-                                                </div>
-                                            </div>
-                                        </article>
-                                    </li>
-                                @endforeach
-                            </ul>
-                        </div>
+                <div class="locations-map" aria-label="Karta lokacija u Hrvatskoj">
+                    <div class="locations-map-corners" aria-hidden="true">
+                        <span class="locations-map-corner is-top-left">RIJEKA · 45.33° N · 14.44° E</span>
+                        <span class="locations-map-corner is-top-right">ZAGREB · 45.80° N · 15.91° E</span>
+                        <span class="locations-map-corner is-bottom-right">VINKOVCI · 45.29° N · 18.80° E</span>
+                        <span class="locations-map-corner is-bottom-left">HR / 3 UREDA</span>
+                    </div>
+                    <div class="locations-map-stage">
+                        <div class="locations-map-glow" aria-hidden="true"></div>
+                        <img class="croatia-map" src="{{ asset('alpha/croatia-map.svg') }}" alt="Karta Hrvatske s uredima u Zagrebu, Rijeci i Vinkovcima" width="800" height="800" loading="lazy" decoding="async">
+                        <svg class="map-routes" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><path class="map-route" d="M 15.8 28.7 C 24 20, 33 18, 42.5 18.8"></path><path class="map-route" d="M 42.5 18.8 C 57 15, 71 18, 86.7 23.8"></path></svg>
+                        @foreach ([1, 0, 2] as $locationIndex)
+                            @php $location = $locationItems[$locationIndex]; @endphp
+                            <button class="map-location {{ $location['css'] }}" type="button" aria-label="Prikaži kontaktne podatke za ured {{ $location['short_city'] }}" aria-expanded="false" aria-controls="location-details-{{ $locationIndex }}" style="--map-index: {{ $loop->index }}" data-location-index="{{ $locationIndex }}">
+                                <span class="map-beacon" aria-hidden="true"><i class="fa-duotone fa-thin fa-bullseye-pointer"></i></span>
+                                <span class="map-location-label"><small>{{ $location['number'] }}</small><strong>{{ $location['short_city'] }}</strong></span>
+                            </button>
+                        @endforeach
                     </div>
                 </div>
             </div>
-        </section>
-    @endif
-    @endif
 
-    @once
-        <script>
-            (function () {
-                const syncTestimonialToggles = function () {
-                    document.querySelectorAll('[data-testimonial-card]').forEach(function (card) {
-                        const body = card.querySelector('[data-testimonial-body]');
-                        const toggle = card.querySelector('[data-testimonial-toggle]');
+            <div class="locations-stats" aria-label="Alpha Capitalis u brojkama">
+                @foreach ($locationStats as $stat)
+                    <article class="location-stat" style="--stat-index: {{ $loop->index }}">
+                        <div class="location-stat-icon" aria-hidden="true"><i class="fa-duotone fa-thin fa-fw {{ $statIcons[$loop->index] }}"></i></div>
+                        <div><strong><span data-count-target="{{ $stat['value'] }}">0</span><span class="location-stat-suffix">{{ $stat['suffix'] }}</span></strong><p>{{ $stat['label'] }}</p></div>
+                    </article>
+                @endforeach
+            </div>
+        </div>
+    </section>
 
-                        if (!body || !toggle) {
-                            return;
-                        }
+    <section class="news-section" id="novosti" aria-labelledby="news-title">
+        <div class="news-shell">
+            <header class="news-header">
+                @php $newsHeading = explode(' ', 'Rokovi, novosti i savjeti za sigurnije poslovanje.'); @endphp
+                <h2 class="news-title" id="news-title" data-words-slide-from-right aria-label="Rokovi, novosti i savjeti za sigurnije poslovanje.">
+                    @foreach ($newsHeading as $word)<span class="news-title-word {{ $word === 'poslovanje.' ? 'is-accent' : '' }}" style="--services-word-index: {{ $loop->index }}" aria-hidden="true">{{ $word }}</span>@endforeach
+                </h2>
+                <a class="news-all-link content-reveal" data-image-reveal href="{{ route('blog.index') }}"><span>Pogledaj sve objave</span><i class="fa-duotone fa-thin fa-arrow-right fa-fw" aria-hidden="true"></i></a>
+            </header>
+            <div class="news-grid">
+                @foreach ($newsItems as $item)
+                    <a class="news-card" data-image-reveal href="{{ $item['url'] }}" style="--news-index: {{ $loop->index }}">
+                        <span class="news-card-category">{{ $item['category'] }}</span><h3>{{ $item['title'] }}</h3><p>{{ $item['text'] }}</p>
+                        <span class="news-card-link" aria-hidden="true">Pročitaj više <i class="fa-duotone fa-thin fa-arrow-right fa-fw"></i></span>
+                    </a>
+                @endforeach
+            </div>
+        </div>
+    </section>
 
-                        if (card.classList.contains('is-expanded')) {
-                            toggle.hidden = false;
-                            toggle.textContent = toggle.dataset.lessLabel || 'Show less';
-                            toggle.setAttribute('aria-expanded', 'true');
-                            return;
-                        }
-
-                        const hasOverflow = body.scrollHeight > body.clientHeight + 1;
-                        toggle.hidden = !hasOverflow;
-                        toggle.textContent = toggle.dataset.moreLabel || 'Read more';
-                        toggle.setAttribute('aria-expanded', 'false');
-                    });
-                };
-
-                document.addEventListener('click', function (event) {
-                    const toggle = event.target.closest('[data-testimonial-toggle]');
-
-                    if (!toggle) {
-                        return;
-                    }
-
-                    const card = toggle.closest('[data-testimonial-card]');
-
-                    if (!card) {
-                        return;
-                    }
-
-                    const isExpanded = card.classList.toggle('is-expanded');
-                    toggle.textContent = isExpanded
-                        ? (toggle.dataset.lessLabel || 'Show less')
-                        : (toggle.dataset.moreLabel || 'Read more');
-                    toggle.setAttribute('aria-expanded', isExpanded ? 'true' : 'false');
-
-                    window.requestAnimationFrame(syncTestimonialToggles);
-                });
-
-                let testimonialResizeFrame = null;
-                window.addEventListener('resize', function () {
-                    if (testimonialResizeFrame !== null) {
-                        window.cancelAnimationFrame(testimonialResizeFrame);
-                    }
-
-                    testimonialResizeFrame = window.requestAnimationFrame(function () {
-                        testimonialResizeFrame = null;
-                        syncTestimonialToggles();
-                    });
-                });
-
-                const init = function () {
-                    if (typeof window.Splide !== 'function') {
-                        return false;
-                    }
-
-                    const mountSlider = function (selector, optionsFactory) {
-                        const sliders = document.querySelectorAll(selector);
-                        sliders.forEach(function (el) {
-                            if (el.dataset.splideReady === '1') {
-                                return;
-                            }
-                            el.dataset.splideReady = '1';
-
-                            const count = el.querySelectorAll('.splide__slide').length;
-                            const slider = new window.Splide(el, optionsFactory(count));
-                            slider.mount();
-
-                            if (selector === '[data-client-experiences-splide]') {
-                                window.requestAnimationFrame(syncTestimonialToggles);
-                            }
-                        });
-                    };
-
-                    mountSlider('[data-home-blog-splide]', function (count) {
-                        return {
-                            type: count > 1 ? 'loop' : 'slide',
-                            perPage: Math.min(3, Math.max(1, count)),
-                            perMove: 1,
-                            gap: '1.25rem',
-                            drag: count > 1,
-                            snap: true,
-                            pagination: count > 1,
-                            arrows: count > 1,
-                            updateOnMove: true,
-                            speed: 520,
-                            breakpoints: {
-                                1180: { perPage: Math.min(2, Math.max(1, count)) },
-                                760: { perPage: 1, gap: '1rem' },
-                            },
-                        };
-                    });
-
-                    mountSlider('[data-global-memberships-splide]', function (count) {
-                        return {
-                            type: count > 4 ? 'loop' : 'slide',
-                            perPage: Math.min(4, Math.max(1, count)),
-                            perMove: 1,
-                            gap: '1.1rem',
-                            drag: count > 1,
-                            snap: true,
-                            pagination: count > 1,
-                            arrows: count > 1,
-                            updateOnMove: true,
-                            speed: 520,
-                            breakpoints: {
-                                1280: { perPage: Math.min(3, Math.max(1, count)) },
-                                960: { perPage: Math.min(2, Math.max(1, count)), gap: '1rem' },
-                                760: { perPage: 1, gap: '0.92rem' },
-                            },
-                        };
-                    });
-
-                    mountSlider('[data-client-experiences-splide]', function (count) {
-                        return {
-                            type: count > 2 ? 'loop' : 'slide',
-                            rewind: count <= 2,
-                            perPage: Math.min(2, Math.max(1, count)),
-                            perMove: 1,
-                            gap: '1.15rem',
-                            drag: count > 1,
-                            snap: true,
-                            pagination: count > 1,
-                            arrows: count > 1,
-                            updateOnMove: true,
-                            speed: 540,
-                            breakpoints: {
-                                1080: { perPage: 1, gap: '1rem' },
-                                760: { gap: '0.92rem' },
-                            },
-                        };
-                    });
-
-                    return true;
-                };
-
-                if (init()) {
-                    return;
-                }
-
-                let attempts = 0;
-                const timer = window.setInterval(function () {
-                    attempts += 1;
-                    if (init() || attempts > 40) {
-                        window.clearInterval(timer);
-                    }
-                }, 120);
-            })();
-        </script>
-    @endonce
+    <section class="contact-cta" id="kontakt-cta" aria-labelledby="contact-cta-title">
+        <div class="contact-cta-shell">
+            <div class="contact-cta-copy">
+                @php $contactHeading = explode(' ', 'Razgovarajmo o sljedećoj fazi vašeg poslovanja.'); @endphp
+                <h2 class="contact-cta-title" id="contact-cta-title" data-words-slide-from-right aria-label="Razgovarajmo o sljedećoj fazi vašeg poslovanja.">
+                    @foreach ($contactHeading as $word)<span class="contact-cta-title-word {{ in_array($word, ['sljedećoj', 'fazi'], true) ? 'is-accent' : '' }}" style="--services-word-index: {{ $loop->index }}" aria-hidden="true">{{ $word }}</span>@endforeach
+                </h2>
+            </div>
+            <div class="contact-cta-card" data-image-reveal>
+                <div class="contact-cta-card-heading"><span>Vrijeme je za pravi korak.</span></div>
+                <p>Dogovorite uvodni sastanak s našim stručnjacima i pretvorite izazove u jasne, izvedive korake.</p>
+                <a class="contact-cta-button" href="{{ route('contact.create') }}"><span>Dogovorite sastanak</span><i class="fa-duotone fa-thin fa-arrow-right" aria-hidden="true"></i></a>
+                <small><span class="contact-cta-status-dot" aria-hidden="true"></span>Termin razgovora prilagođavamo vama.</small>
+            </div>
+        </div>
+    </section>
 @endsection

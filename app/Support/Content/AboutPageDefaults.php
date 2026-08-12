@@ -36,7 +36,7 @@ class AboutPageDefaults
                 ],
             ],
             'values' => [
-                'kicker' => 'Vrijednosti',
+                'kicker' => 'Naše vrijednosti',
                 'title' => 'Jednostavni principi koji vode svaki dan',
                 'intro' => 'U ALPHA CAPITALISU vrijednosti nisu samo riječi - one određuju kako razmišljamo, kako radimo i kako gradimo odnose. One su prisutne u svakodnevnim odlukama, u načinu na koji surađujemo unutar tima i u odnosu koji gradimo s klijentima.',
                 'items' => [
@@ -150,7 +150,7 @@ class AboutPageDefaults
                 ],
             ],
             'values' => [
-                'kicker' => 'Values',
+                'kicker' => 'Our values',
                 'title' => 'Simple principles that guide our work',
                 'intro' => 'At ALPHA CAPITALIS, values are not only words. They define how we think, work and build relationships with each other and with our clients.',
                 'items' => [
