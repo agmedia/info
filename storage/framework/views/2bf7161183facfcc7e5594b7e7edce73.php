@@ -413,68 +413,6 @@
         ]);
     }
 
-    if (empty($mainNavigation)) {
-        $homeUrl = route('home');
-        $mainNavigation = [
-            [
-                'label' => __('ui.front.desktop.nav.about'),
-                'url' => $homeUrl.'#o-nama',
-                'children' => [
-                    ['label' => 'ALPHA CAPITALIS Tim', 'url' => route('team.index')],
-                    ['label' => 'Edukacija', 'url' => $homeUrl.'#edukacija', 'children' => [
-                        ['label' => 'Akademija', 'url' => route('pages.show', ['slug' => 'akademija'])],
-                        ['label' => 'Svijet financija', 'url' => route('glossary.index')],
-                        ['label' => __('resources.page_title'), 'url' => route('resources.index')],
-                    ]],
-                    ['label' => 'EU projekti', 'url' => route('pages.show', ['slug' => 'eu-projekti'])],
-                    ['label' => 'Karijera', 'url' => route('pages.show', ['slug' => 'karijera'])],
-                    ['label' => 'Reference', 'url' => route('pages.show', ['slug' => 'reference'])],
-                ],
-                'open_in_new_tab' => false,
-            ],
-            [
-                'label' => __('ui.front.desktop.nav.departments'),
-                'url' => $homeUrl.'#odjeli',
-                'children' => [
-                    ['label' => __('ui.front.desktop.nav.audit'), 'url' => route('audit.show')],
-                    ['label' => __('ui.front.desktop.nav.accounting'), 'url' => route('accounting.show')],
-                    ['label' => 'Savjetovanje', 'url' => route('advisory.show'), 'children' => [
-                        ['label' => 'Financijsko savjetovanje', 'url' => route('advisory.finance.show')],
-                        ['label' => 'Porezno savjetovanje', 'url' => route('advisory.tax.show')],
-                        ['label' => 'Pribavljanje financiranja', 'url' => route('advisory.funding.show')],
-                    ]],
-                    ['label' => 'Obiteljski biznis', 'url' => route('family-business.show')],
-                ],
-                'open_in_new_tab' => false,
-            ],
-            [
-                'label' => __('ui.front.desktop.nav.tools'),
-                'url' => $homeUrl.'#alati',
-                'children' => [
-                    ['label' => __('ui.front.desktop.nav.ifrs16_calculator'), 'url' => route('lease-calculator.show')],
-                    ['label' => __('ui.front.desktop.nav.valuation_assessment'), 'url' => $homeUrl.'#procjena-vrijednosti'],
-                    ['label' => __('ui.front.desktop.nav.chatbot'), 'url' => $homeUrl.'#chatbot'],
-                ],
-                'open_in_new_tab' => false,
-            ],
-            [
-                'label' => __('ui.front.desktop.nav.insights'),
-                'url' => route('blog.index'),
-                'children' => [
-                    ['label' => __('ui.front.desktop.nav.blog'), 'url' => route('blog.index')],
-                    ['label' => __('ui.front.desktop.nav.case_studies'), 'url' => $homeUrl.'#studije-slucaja'],
-                    ['label' => __('ui.front.desktop.nav.video'), 'url' => $homeUrl.'#video-sadrzaj'],
-                ],
-                'open_in_new_tab' => false,
-            ],
-            [
-                'label' => __('ui.front.desktop.nav.contact'),
-                'url' => route('contact.create'),
-                'children' => [],
-                'open_in_new_tab' => false,
-            ],
-        ];
-    }
 ?>
 <body class="front-desktop-shell <?php echo e(request()->routeIs('home') ? 'front-route-home' : ''); ?> <?php echo e(request()->routeIs('audit.show') ? 'front-route-audit' : ''); ?> <?php echo e(request()->routeIs('accounting.show') ? 'front-route-accounting' : ''); ?> <?php echo e(request()->routeIs('advisory.*') ? 'front-route-advisory' : ''); ?> <?php echo e(request()->routeIs('eu-funds.show') ? 'front-route-eu-funds' : ''); ?> front-preload-pending min-h-screen overflow-x-hidden antialiased" style="--front-header-hero-backdrop: url('<?php echo e($headerHeroBackdropUrl); ?>');">
     <div id="front-initial-preloader" aria-hidden="true"></div>
@@ -489,15 +427,6 @@
         $headerPhone = $headerPhoneRaw !== '' ? $headerPhoneRaw : '+385 (1) 580 6656';
         $headerEmail = $headerEmailRaw !== '' ? $headerEmailRaw : 'info@alphacapitalis.com';
 
-        $homeUrl = route('home');
-        $mainNavigation = [
-            ['label' => 'Početna', 'url' => $homeUrl, 'children' => []],
-            ['label' => 'Usluge', 'url' => route('services.index'), 'children' => []],
-            ['label' => 'O nama', 'url' => route('pages.show', ['slug' => 'o-nama']), 'children' => []],
-            ['label' => 'Karijera', 'url' => route('pages.show', ['slug' => 'karijera']), 'children' => []],
-            ['label' => 'Objave', 'url' => route('blog.index'), 'children' => []],
-            ['label' => 'Kontakt', 'url' => route('contact.create'), 'children' => []],
-        ];
     ?>
 
     <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(false): ?>

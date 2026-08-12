@@ -39,6 +39,7 @@
 
 <footer class="site-footer" data-image-reveal>
     <div class="footer-shell">
+        @unless ($__env->hasSection('hide_footer_newsletter'))
         <section class="footer-newsletter" id="newsletter" aria-labelledby="footer-newsletter-title" data-image-reveal>
             <div class="footer-newsletter-copy">
                 <span class="footer-label">Newsletter</span>
@@ -57,6 +58,7 @@
                 </div>
             </form>
         </section>
+        @endunless
 
         <div class="footer-main" data-image-reveal>
             <div class="footer-brand-block content-reveal" data-image-reveal style="--reveal-index: 0">

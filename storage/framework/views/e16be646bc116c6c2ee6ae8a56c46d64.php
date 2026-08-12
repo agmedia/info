@@ -1,12 +1,19 @@
 <?php
-    $alphaNavigation = [
-        ['label' => 'Početna', 'url' => route('home'), 'active' => request()->routeIs('home')],
-        ['label' => 'Usluge', 'url' => route('services.index'), 'active' => request()->routeIs('services.*', 'audit.*', 'accounting.*', 'advisory.*', 'finance.*', 'tax.*', 'eu-funds.*', 'family-business.*')],
-        ['label' => 'O nama', 'url' => route('pages.show', ['slug' => 'o-nama']), 'active' => request()->is('o-nama', 'alpha-capitalis-tim')],
-        ['label' => 'Karijera', 'url' => route('pages.show', ['slug' => 'karijera']), 'active' => request()->is('karijera')],
-        ['label' => 'Objave', 'url' => route('blog.index'), 'active' => request()->routeIs('blog.*')],
-        ['label' => 'Kontakt', 'url' => route('contact.create'), 'active' => request()->routeIs('contact.*')],
-    ];
+    $alphaCurrentUrl = rtrim(url()->current(), '/');
+    $alphaNavigation = collect($mainNavigation ?? [])
+        ->filter(static fn ($item): bool => is_array($item)
+            && trim((string) ($item['label'] ?? '')) !== ''
+            && trim((string) ($item['url'] ?? '')) !== '')
+        ->map(static function (array $item) use ($alphaCurrentUrl): array {
+            $href = trim((string) $item['url']);
+            $normalizedHref = rtrim(url($href), '/');
+
+            return array_merge($item, [
+                'url' => $href,
+                'active' => $normalizedHref !== '' && $normalizedHref === $alphaCurrentUrl,
+            ]);
+        })
+        ->values();
     $alphaOfferUrl = route('assessment.create');
     $alphaShowLeaseCalculator = request()->routeIs('accounting.show');
     $alphaPrimaryCtaUrl = $alphaShowLeaseCalculator ? route('lease-calculator.show') : $alphaOfferUrl;
@@ -21,7 +28,11 @@
 
         <nav class="desktop-nav" aria-label="Glavna navigacija">
             <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $alphaNavigation; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $item): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                <a href="<?php echo e($item['url']); ?>" class="<?php echo \Illuminate\Support\Arr::toCssClasses(['is-active' => $item['active']]); ?>">
+                <a
+                    href="<?php echo e($item['url']); ?>"
+                    class="<?php echo \Illuminate\Support\Arr::toCssClasses(['is-active' => $item['active']]); ?>"
+                    <?php if(! empty($item['open_in_new_tab'])): ?> target="_blank" rel="noopener noreferrer" <?php endif; ?>
+                >
                     <span class="nav-label" data-label="<?php echo e($item['label']); ?>"><?php echo e($item['label']); ?></span>
                 </a>
             <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
@@ -51,7 +62,11 @@
     <div class="mobile-menu" aria-hidden="true" data-alpha-mobile-menu>
         <nav aria-label="Mobilna navigacija">
             <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $alphaNavigation; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $item): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                <a href="<?php echo e($item['url']); ?>" class="<?php echo \Illuminate\Support\Arr::toCssClasses(['is-active' => $item['active']]); ?>">
+                <a
+                    href="<?php echo e($item['url']); ?>"
+                    class="<?php echo \Illuminate\Support\Arr::toCssClasses(['is-active' => $item['active']]); ?>"
+                    <?php if(! empty($item['open_in_new_tab'])): ?> target="_blank" rel="noopener noreferrer" <?php endif; ?>
+                >
                     <span><?php echo e($item['label']); ?></span>
                     <i class="fa-light fa-arrow-right-long" aria-hidden="true"></i>
                 </a>

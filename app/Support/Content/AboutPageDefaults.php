@@ -97,7 +97,8 @@ class AboutPageDefaults
                 'title' => 'Kvalitetno poslovanje počinje kvalitetnim odnosima',
                 'quote' => 'U ALPHA CAPITALISU vjerujemo da kvalitetno poslovanje počinje kvalitetnim odnosima.',
                 'paragraphs' => [
-                    'Gradimo kulturu koja potiče suradnju, profesionalni razvoj, otvorenu komunikaciju i međusobno poštovanje. Naš tim čine ljudi različitih iskustava i stručnosti koje povezuje zajednički cilj - pružiti klijentima najbolju moguću podršku.',
+                    'Gradimo kulturu koja potiče suradnju, profesionalni razvoj, otvorenu komunikaciju i međusobno poštovanje.',
+                    'Naš tim čine ljudi različitih iskustava i stručnosti koje povezuje zajednički cilj - pružiti klijentima najbolju moguću podršku.',
                     'Potičemo kontinuirano učenje, razmjenu znanja i razvoj novih ideja jer vjerujemo da upravo ljudi čine najveću razliku.',
                     'Uz profesionalnost, jednako nam je važna pozitivna radna atmosfera, osjećaj pripadnosti i zajednički rast.',
                 ],
@@ -108,7 +109,8 @@ class AboutPageDefaults
                 'quote' => 'Vjerujemo da uspjeh ima najveću vrijednost kada stvara prilike za druge.',
                 'paragraphs' => [
                     'Zato smo pokrenuli AUXILIUM CAPITALIS - inicijativu usmjerenu na stipendiranje učenika i pružanje podrške mladima kroz obrazovanje, razvoj i financijsku pismenost.',
-                    'Naš cilj je pomoći talentiranim i perspektivnim mladim ljudima da lakše ostvare svoj potencijal, bez obzira na okolnosti iz kojih dolaze. Vjerujemo da ulaganje u znanje, prilike i mlade generacije dugoročno mijenja zajednicu na bolje.',
+                    'Naš cilj je pomoći talentiranim i perspektivnim mladim ljudima da lakše ostvare svoj potencijal, bez obzira na okolnosti iz kojih dolaze.',
+                    'Vjerujemo da ulaganje u znanje, prilike i mlade generacije dugoročno mijenja zajednicu na bolje.',
                     'AUXILIUM CAPITALIS nije samo projekt - to je način na koji želimo vraćati zajednici i stvarati konkretan, dugoročan utjecaj.',
                 ],
                 'cta_intro' => 'Želite biti dio ove priče?',

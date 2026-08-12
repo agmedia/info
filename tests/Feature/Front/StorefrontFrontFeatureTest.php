@@ -851,16 +851,43 @@ class StorefrontFrontFeatureTest extends TestCase
         $this->assertStringNotContainsString('aria-label="Obiteljski biznis"', $content);
     }
 
-    public function test_header_renders_requested_flat_navigation_links(): void
+    public function test_header_renders_only_navigation_links_configured_in_cms(): void
+    {
+        app(SystemSettingsService::class)->put(NavigationMenuService::SETTINGS_KEY, [
+            [
+                'type' => 'custom',
+                'label' => 'CMS Usluge',
+                'url' => '/usluge',
+                'open_in_new_tab' => false,
+                'is_active' => true,
+                'sort_order' => 0,
+            ],
+            [
+                'type' => 'blog',
+                'label' => 'CMS Objave',
+                'url' => '',
+                'open_in_new_tab' => false,
+                'is_active' => true,
+                'sort_order' => 1,
+            ],
+        ]);
+
+        $this->get('/')
+            ->assertOk()
+            ->assertSee('data-label="CMS Usluge"', false)
+            ->assertSee('data-label="CMS Objave"', false)
+            ->assertDontSee('data-label="Početna"', false)
+            ->assertDontSee('data-label="O nama"', false)
+            ->assertDontSee('front-nav-caret');
+    }
+
+    public function test_header_does_not_fall_back_to_hardcoded_navigation(): void
     {
         $this->get('/')
             ->assertOk()
-            ->assertSee('Početna')
-            ->assertSee('/usluge', false)
-            ->assertSee('/o-nama', false)
-            ->assertSee('/karijera', false)
-            ->assertSee('Objave')
-            ->assertDontSee('front-nav-caret');
+            ->assertDontSee('data-label="Početna"', false)
+            ->assertDontSee('data-label="Usluge"', false)
+            ->assertDontSee('data-label="Objave"', false);
     }
 
     public function test_redesigned_global_footer_renders_on_home_and_internal_pages(): void
@@ -1044,14 +1071,15 @@ class StorefrontFrontFeatureTest extends TestCase
             ->assertSee('class="ac-about-values"', false)
             ->assertSee('class="ac-about-team"', false)
             ->assertSee('class="ac-about-team-stats"', false)
+            ->assertSee('Naše reference')
             ->assertSee('Naše vrijednosti')
             ->assertSee('fa-duotone fa-thin fa-fw fa-brain-circuit', false)
             ->assertSee('fa-duotone fa-thin fa-fw fa-lightbulb-gear', false)
             ->assertSee('fa-duotone fa-thin fa-fw fa-hands-holding-heart', false)
-            ->assertSee('fa-duotone fa-thin fa-fw fa-users-gear', false)
-            ->assertSee('fa-duotone fa-thin fa-fw fa-chess-king', false)
-            ->assertSee('fa-duotone fa-thin fa-fw fa-user-check', false)
-            ->assertSee('fa-duotone fa-thin fa-fw fa-location-dot', false)
+            ->assertSee('fa-duotone fa-thin fa-fw fa-people-group', false)
+            ->assertSee('fa-duotone fa-thin fa-fw fa-users-crown', false)
+            ->assertSee('fa-duotone fa-thin fa-fw fa-handshake', false)
+            ->assertSee('fa-duotone fa-thin fa-fw fa-buildings', false)
             ->assertSee('<a class="services-index-inline-link" href="'.route('contact.create').'">ALPHA CAPITALIS</a>', false)
             ->assertSee('<a class="services-index-inline-link" href="'.route('contact.create').'">ALPHA CAPITALISU</a>', false)
             ->assertSee('<a class="ac-about-dark-inline-link" href="'.route('contact.create').'">ALPHA CAPITALIS</a>', false)
@@ -1060,6 +1088,7 @@ class StorefrontFrontFeatureTest extends TestCase
             ->assertSee('<a class="ac-about-dark-inline-link" href="'.route('advisory.show').'">strateškog razvoja</a>', false)
             ->assertSee('<a class="ac-about-dark-inline-link" href="'.route('audit.show').'">revizije</a>', false)
             ->assertSee('<a class="ac-about-dark-inline-link" href="'.route('eu-funds.show').'">EU fondova</a>', false)
+            ->assertDontSee('class="footer-newsletter"', false)
             ->assertDontSee('This page has no body content.');
     }
 

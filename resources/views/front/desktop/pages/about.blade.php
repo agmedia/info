@@ -38,6 +38,12 @@
     $responsibilityCtaLabel = trim((string) ($responsibility['cta_button_label'] ?? '')) ?: (
         str_starts_with(strtolower((string) $locale), 'hr') ? 'Kontaktirajte nas' : 'Contact us'
     );
+    $responsibilityCtaCardTitle = str_starts_with(strtolower((string) $locale), 'hr')
+        ? 'Zajedno možemo više.'
+        : 'Together, we can do more.';
+    $responsibilityCtaStatus = str_starts_with(strtolower((string) $locale), 'hr')
+        ? 'Otvoreni smo za razgovor i nova partnerstva.'
+        : 'We are open to conversations and new partnerships.';
 
     $pageTitle = trim((string) ($translation?->title ?? '')) ?: 'O nama';
     $heroTitle = trim((string) ($hero['title'] ?? '')) ?: $pageTitle;
@@ -99,24 +105,47 @@
         ->map(static fn ($stat): array => is_array($stat) ? $stat : [])
         ->filter(static fn (array $stat): bool => trim((string) ($stat['value'] ?? '')) !== '')
         ->values();
-    $cultureTitle = trim((string) ($culture['title'] ?? '')) ?: 'Naša kultura';
+    $cultureLabel = trim((string) ($culture['kicker'] ?? '')) ?: (
+        str_starts_with(strtolower((string) $locale), 'hr') ? 'Naša kultura' : 'Our culture'
+    );
+    $cultureTitle = trim((string) ($culture['title'] ?? '')) ?: 'Kvalitetno poslovanje počinje kvalitetnim odnosima';
+    $cultureParagraphs = collect((array) ($culture['paragraphs'] ?? []))
+        ->map(static fn ($paragraph): string => trim((string) $paragraph))
+        ->filter()
+        ->values();
+    $cultureColumnSplit = $cultureParagraphs->count() >= 4 ? 2 : 1;
+    $responsibilityLabel = trim((string) ($responsibility['kicker'] ?? '')) ?: (
+        str_starts_with(strtolower((string) $locale), 'hr') ? 'Društveno odgovorno poslovanje' : 'Social responsibility'
+    );
     $responsibilityTitle = trim((string) ($responsibility['title'] ?? ''));
+    $responsibilityParagraphs = collect((array) ($responsibility['paragraphs'] ?? []))
+        ->map(static fn ($paragraph): string => trim((string) $paragraph))
+        ->filter()
+        ->values();
+    $referencesLabel = str_starts_with(strtolower((string) $locale), 'hr')
+        ? 'Naše reference'
+        : 'Our references';
     $referencesTitle = trim((string) ($references['title'] ?? '')) ?: 'Reference';
+    $referenceParagraphs = collect((array) ($references['paragraphs'] ?? []))
+        ->map(static fn ($paragraph): string => trim((string) $paragraph))
+        ->filter()
+        ->values();
     $valueIconClasses = [
         'fa-brain-circuit',
         'fa-lightbulb-gear',
         'fa-hands-holding-heart',
     ];
     $teamStatIconClasses = [
-        'fa-users-gear',
-        'fa-chess-king',
-        'fa-user-check',
-        'fa-location-dot',
+        'fa-people-group',
+        'fa-users-crown',
+        'fa-handshake',
+        'fa-buildings',
     ];
 @endphp
 
 @section('title', $pageTitle)
 @section('main_class', 'w-full px-0 py-0')
+@section('hide_footer_newsletter', '1')
 
 @section('content')
     <div class="ac-about-page">
@@ -290,6 +319,12 @@
                         </h2>
 
                         <div class="values-copy services-index-intro-copy ac-about-section-intro-copy ac-about-team-copy">
+                            <h2 class="ac-about-story-title ac-about-copy-heading ac-about-team-members-title" id="ac-about-team-title" data-words-slide-from-right aria-label="{{ $teamTitle }}">
+                                @foreach ($headingWords($teamTitle) as $word)
+                                    <span class="service-title-word animation-index-{{ $loop->index }} {{ $loop->remaining < 2 ? 'is-accent' : '' }}" aria-hidden="true">{{ $word }}</span>
+                                @endforeach
+                            </h2>
+
                             @if (trim((string) ($team['intro'] ?? '')) !== '')
                                 <p class="ac-about-team-lead">{{ $team['intro'] }}</p>
                             @endif
@@ -336,19 +371,11 @@
 
             <div class="ac-about-team-members" role="region" aria-labelledby="ac-about-team-title">
                 <div class="ac-about-container">
-                    <header class="ac-about-team-members-head content-reveal" data-image-reveal>
-                        <h2 class="ac-about-story-title ac-about-team-members-title" id="ac-about-team-title" data-words-slide-from-right aria-label="{{ $teamTitle }}">
-                            @foreach ($headingWords($teamTitle) as $word)
-                                <span class="service-title-word animation-index-{{ $loop->index }} {{ $loop->remaining < 2 ? 'is-accent' : '' }}" aria-hidden="true">{{ $word }}</span>
-                            @endforeach
-                        </h2>
-                    </header>
-
                     @if ($aboutPreviewTeamMembers->isNotEmpty())
                         <div class="ac-about-member-grid">
                         @foreach ($aboutPreviewTeamMembers as $member)
-                            <article class="ac-about-member-card content-reveal animation-index-{{ $loop->index }}" data-image-reveal>
-                                <div class="ac-about-member-photo">
+                            <article class="ac-about-member-card content-reveal animation-index-{{ $loop->index }}" data-image-reveal style="--reveal-index: {{ $loop->index }}">
+                                <div class="ac-about-member-photo {{ ($member['photo_url'] ?? '') !== '' ? 'image-reveal-media' : '' }}">
                                     @if (($member['photo_url'] ?? '') !== '')
                                         <img
                                             src="{{ $member['photo_url'] }}"
@@ -359,25 +386,25 @@
                                     @else
                                         <span>{{ $member['initials'] ?? 'AC' }}</span>
                                     @endif
-                                </div>
 
-                                <div>
-                                    <h3>{{ $member['name'] }}</h3>
-                                    @if (trim((string) ($member['position'] ?? '')) !== '')
-                                        <p>{{ $member['position'] }}</p>
-                                    @endif
+                                    <div class="ac-about-member-info">
+                                        <h3>{{ $member['name'] }}</h3>
+                                        @if (trim((string) ($member['position'] ?? '')) !== '')
+                                            <p>{{ $member['position'] }}</p>
+                                        @endif
+                                    </div>
                                 </div>
                             </article>
                         @endforeach
 
-                        <article class="ac-about-member-card ac-about-member-cta-card">
+                        <article
+                            class="ac-about-member-card ac-about-member-cta-card content-reveal animation-index-{{ $aboutPreviewTeamMembers->count() }}"
+                            data-image-reveal
+                            style="--reveal-index: {{ $aboutPreviewTeamMembers->count() }}"
+                        >
                             <a href="{{ route('team.index') }}" class="ac-about-member-cta-link">
                                 <span class="ac-about-member-cta-button">
                                     <span>{{ $teamButtonLabel }}</span>
-                                    <svg class="h-3.5 w-3.5" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                                        <path d="M4 12L12 4"></path>
-                                        <path d="M6 4h6v6"></path>
-                                    </svg>
                                 </span>
                             </a>
                         </article>
@@ -389,131 +416,175 @@
 
         <section class="ac-about-culture" aria-labelledby="ac-about-culture-title">
             <div class="ac-about-container">
-                <div class="ac-about-split-grid content-reveal" data-image-reveal>
-                    <div>
-                        @if (trim((string) ($culture['kicker'] ?? '')) !== '')
-                            <p class="ac-about-kicker">{{ $culture['kicker'] }}</p>
-                        @endif
-
-                        <h2 class="values-title ac-about-heading" id="ac-about-culture-title" data-words-slide-from-right aria-label="{{ $cultureTitle }}">
-                            @foreach ($headingWords($cultureTitle) as $word)
-                                <span class="values-word animation-index-{{ $loop->index }} {{ $loop->last ? 'is-accent' : '' }}" aria-hidden="true">{{ $word }}</span>
-                            @endforeach
-                        </h2>
-
-                        @if ($cultureQuote !== '')
-                            <blockquote class="ac-about-pullquote">
-                                <p>{{ $cultureQuote }}</p>
-                            </blockquote>
-                        @endif
-                    </div>
-
-                    <div class="ac-about-copy-stack ac-about-copy-stack--large">
-                        @foreach ((array) ($culture['paragraphs'] ?? []) as $paragraph)
-                            @continue(trim((string) $paragraph) === '')
-                            <p>{{ $paragraph }}</p>
+                <div class="ac-about-section-intro ac-about-culture-intro content-reveal" data-image-reveal>
+                    <h2 class="values-title services-index-intro-title ac-about-section-intro-title ac-about-culture-label" id="ac-about-culture-title" data-words-slide-from-right aria-label="{{ $cultureLabel }}">
+                        @foreach ($headingWords($cultureLabel) as $word)
+                            <span class="values-word animation-index-{{ $loop->index }} {{ $loop->last ? 'is-accent' : '' }}" aria-hidden="true">{{ $word }}</span>
                         @endforeach
-                    </div>
+                    </h2>
+
+                    @if ($cultureTitle !== '' || $cultureQuote !== '')
+                        <div class="values-copy services-index-intro-copy ac-about-section-intro-copy ac-about-culture-copy">
+                            @if ($cultureTitle !== '')
+                                <h3 class="ac-about-copy-heading ac-about-culture-copy-title">{{ $cultureTitle }}</h3>
+                            @endif
+
+                            @if ($cultureQuote !== '')
+                                <blockquote class="ac-about-culture-quote">
+                                    <p>{{ $cultureQuote }}</p>
+                                </blockquote>
+                            @endif
+                        </div>
+                    @endif
                 </div>
+
+                @if ($cultureParagraphs->isNotEmpty())
+                    <div class="ac-about-culture-body">
+                        <div class="ac-about-culture-body-lead content-reveal animation-index-1" data-image-reveal>
+                            @foreach ($cultureParagraphs->take($cultureColumnSplit) as $paragraph)
+                                <p>{{ $paragraph }}</p>
+                            @endforeach
+                        </div>
+
+                        <div class="ac-about-copy-stack ac-about-culture-body-copy content-reveal animation-index-2" data-image-reveal>
+                            @foreach ($cultureParagraphs->skip($cultureColumnSplit) as $paragraph)
+                                <p>{{ $paragraph }}</p>
+                            @endforeach
+                        </div>
+                    </div>
+                @endif
             </div>
         </section>
 
         <section class="ac-about-responsibility" aria-labelledby="ac-about-responsibility-title">
             <div class="ac-about-container">
-                <div class="ac-about-responsibility-grid content-reveal" data-image-reveal>
-                    <div>
-                        @if (trim((string) ($responsibility['kicker'] ?? '')) !== '')
-                            <p class="ac-about-kicker">{{ $responsibility['kicker'] }}</p>
-                        @endif
+                <div class="ac-about-section-intro ac-about-responsibility-intro content-reveal" data-image-reveal>
+                    <h2 class="values-title services-index-intro-title ac-about-section-intro-title ac-about-responsibility-label" id="ac-about-responsibility-title" data-words-slide-from-right aria-label="{{ $responsibilityLabel }}">
+                        @foreach ($headingWords($responsibilityLabel) as $word)
+                            <span class="values-word animation-index-{{ $loop->index }} {{ $loop->last ? 'is-accent' : '' }}" aria-hidden="true">{{ $word }}</span>
+                        @endforeach
+                    </h2>
 
-                        <h2 class="values-title ac-about-heading" id="ac-about-responsibility-title" data-words-slide-from-right aria-label="{{ $responsibilityTitle }}">
-                            @foreach ($headingWords($responsibilityTitle) as $word)
-                                <span class="values-word animation-index-{{ $loop->index }} {{ $loop->last ? 'is-accent' : '' }}" aria-hidden="true">{{ $word }}</span>
+                    @if ($responsibilityTitle !== '' || $responsibilityQuote !== '')
+                        <div class="values-copy services-index-intro-copy ac-about-section-intro-copy ac-about-responsibility-copy">
+                            @if ($responsibilityTitle !== '')
+                                <h3 class="ac-about-copy-heading ac-about-responsibility-copy-title">{{ $responsibilityTitle }}</h3>
+                            @endif
+
+                            @if ($responsibilityQuote !== '')
+                                <blockquote class="ac-about-responsibility-quote">
+                                    <p>{{ $responsibilityQuote }}</p>
+                                </blockquote>
+                            @endif
+                        </div>
+                    @endif
+                </div>
+
+                @if ($responsibilityParagraphs->isNotEmpty())
+                    <div class="ac-about-responsibility-body">
+                        <div class="ac-about-responsibility-body-lead content-reveal animation-index-1" data-image-reveal>
+                            @foreach ($responsibilityParagraphs->take(2) as $paragraph)
+                                <p>{{ $paragraph }}</p>
                             @endforeach
-                        </h2>
+                        </div>
 
-                        @if ($responsibilityQuote !== '')
-                            <blockquote class="ac-about-pullquote">
-                                <p>{{ $responsibilityQuote }}</p>
-                            </blockquote>
-                        @endif
-                    </div>
-
-                    <div>
-                        <div class="ac-about-copy-stack">
-                            @foreach ((array) ($responsibility['paragraphs'] ?? []) as $paragraph)
-                                @continue(trim((string) $paragraph) === '')
+                        <div class="ac-about-copy-stack ac-about-responsibility-body-copy content-reveal animation-index-2" data-image-reveal>
+                            @foreach ($responsibilityParagraphs->skip(2) as $paragraph)
                                 <p>{{ $paragraph }}</p>
                             @endforeach
                         </div>
                     </div>
-                </div>
-
-                @if ($responsibilityCtaIntro !== '' || $responsibilityCtaText !== '')
-                    <div class="ac-about-wide-cta">
-                        <div class="ac-about-wide-cta-copy">
-                            @if ($responsibilityCtaIntro !== '')
-                                <h3>{{ $responsibilityCtaIntro }}</h3>
-                            @endif
-
-                            @if ($responsibilityCtaText !== '')
-                                <p>{{ $responsibilityCtaText }}</p>
-                            @endif
-                        </div>
-
-                        <a href="{{ route('contact.create') }}" class="ac-about-wide-cta-link">
-                            <span>{{ $responsibilityCtaLabel }}</span>
-                        </a>
-                    </div>
                 @endif
+
             </div>
         </section>
 
-        <section class="ac-about-references" aria-labelledby="ac-about-references-title">
-            <div class="ac-about-container">
-                <div class="ac-about-reference-head content-reveal" data-image-reveal>
-                    <div>
-                        @if (trim((string) ($references['kicker'] ?? '')) !== '')
-                            <p class="ac-about-kicker">{{ $references['kicker'] }}</p>
-                        @endif
-
-                        <h2 class="values-title ac-about-heading" id="ac-about-references-title" data-words-slide-from-right aria-label="{{ $referencesTitle }}">
-                            @foreach ($headingWords($referencesTitle) as $word)
-                                <span class="values-word animation-index-{{ $loop->index }} {{ $loop->last ? 'is-accent' : '' }}" aria-hidden="true">{{ $word }}</span>
+        @if ($responsibilityCtaIntro !== '' || $responsibilityCtaText !== '')
+            <section class="contact-cta ac-about-contact-cta" aria-labelledby="ac-about-contact-cta-title">
+                <div class="contact-cta-shell">
+                    <div class="contact-cta-copy">
+                        <h2 class="contact-cta-title" id="ac-about-contact-cta-title" data-words-slide-from-right aria-label="{{ $responsibilityCtaIntro }}">
+                            @foreach ($headingWords($responsibilityCtaIntro) as $word)
+                                <span class="contact-cta-title-word {{ $loop->remaining < 2 ? 'is-accent' : '' }}" style="--services-word-index: {{ $loop->index }}" aria-hidden="true">{{ $word }}</span>
                             @endforeach
                         </h2>
                     </div>
 
-                    <div class="ac-about-copy-stack">
-                        @foreach ((array) ($references['paragraphs'] ?? []) as $paragraph)
-                            @continue(trim((string) $paragraph) === '')
-                            <p>{{ $paragraph }}</p>
-                        @endforeach
+                    <div class="contact-cta-card" data-image-reveal>
+                        <div class="contact-cta-card-heading"><span>{{ $responsibilityCtaCardTitle }}</span></div>
+
+                        @if ($responsibilityCtaText !== '')
+                            <p>{{ $responsibilityCtaText }}</p>
+                        @endif
+
+                        <a class="contact-cta-button" href="{{ route('contact.create') }}">
+                            <span>{{ $responsibilityCtaLabel }}</span>
+                            <i class="fa-duotone fa-thin fa-arrow-right" aria-hidden="true"></i>
+                        </a>
+
+                        <small><span class="contact-cta-status-dot" aria-hidden="true"></span>{{ $responsibilityCtaStatus }}</small>
                     </div>
                 </div>
+            </section>
+        @endif
+
+        <section class="ac-about-references" aria-labelledby="ac-about-references-title">
+            <div class="ac-about-container">
+                <div class="ac-about-section-intro ac-about-reference-head">
+                    <h2 class="values-title services-index-intro-title ac-about-section-intro-title ac-about-reference-label" id="ac-about-references-title" data-words-slide-from-right aria-label="{{ $referencesLabel }}">
+                        @foreach ($headingWords($referencesLabel) as $word)
+                            <span class="values-word animation-index-{{ $loop->index }} {{ $loop->last ? 'is-accent' : '' }}" aria-hidden="true">{{ $word }}</span>
+                        @endforeach
+                    </h2>
+
+                    <div class="values-copy services-index-intro-copy ac-about-section-intro-copy ac-about-reference-copy content-reveal" data-image-reveal style="--reveal-index: 1">
+                        <h3 class="ac-about-copy-heading ac-about-reference-copy-title">{{ $referencesTitle }}</h3>
+                    </div>
+                </div>
+
+                @if ($referenceParagraphs->isNotEmpty())
+                    <div class="ac-about-reference-body">
+                        <div class="ac-about-reference-body-lead content-reveal animation-index-1" data-image-reveal>
+                            @foreach ($referenceParagraphs->take(2) as $paragraph)
+                                <p>{{ $paragraph }}</p>
+                            @endforeach
+                        </div>
+
+                        <div class="ac-about-copy-stack ac-about-reference-body-copy content-reveal animation-index-2" data-image-reveal>
+                            @foreach ($referenceParagraphs->skip(2) as $paragraph)
+                                <p>{{ $paragraph }}</p>
+                            @endforeach
+                        </div>
+                    </div>
+                @endif
 
                 @if ($aboutReferenceItems->isNotEmpty())
                     <div class="ac-about-reference-grid">
                         @foreach ($aboutReferenceItems as $item)
-                            <article class="ac-about-reference-card content-reveal animation-index-{{ $loop->index }}" data-image-reveal aria-label="{{ $item['name'] }}">
-                                <img
-                                    src="{{ $item['url'] }}"
-                                    alt="{{ $item['alt'] }}"
-                                    loading="lazy"
-                                    decoding="async"
-                                >
+                            <article
+                                class="ac-about-reference-card"
+                                data-image-reveal
+                                style="--reveal-index: {{ $loop->index % 5 }}"
+                                aria-label="{{ $item['name'] }}"
+                            >
+                                <div class="ac-about-reference-logo image-reveal-media">
+                                    <img
+                                        src="{{ $item['url'] }}"
+                                        alt="{{ $item['alt'] }}"
+                                        loading="lazy"
+                                        decoding="async"
+                                    >
+                                    <span class="image-reveal-curtain" aria-hidden="true"></span>
+                                </div>
                             </article>
                         @endforeach
                     </div>
                 @endif
 
-                <div class="ac-about-section-actions">
+                <div class="ac-about-section-actions content-reveal" data-image-reveal style="--reveal-index: 1">
                     <a href="{{ $referencePageUrl }}" class="front-action-cta ac-about-secondary-cta">
                         <span>{{ $referencesButtonLabel }}</span>
-                        <svg class="h-3.5 w-3.5" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                            <path d="M4 12L12 4"></path>
-                            <path d="M6 4h6v6"></path>
-                        </svg>
+                        <i class="fa-duotone fa-thin fa-arrow-right" aria-hidden="true"></i>
                     </a>
                 </div>
             </div>
