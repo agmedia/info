@@ -16,10 +16,13 @@
     $categoryTranslation = $primaryCategory?->translations->firstWhere('locale', $locale)
         ?? $primaryCategory?->translations->firstWhere('locale', $fallbackLocale);
     $categoryLabel = trim((string) ($categoryTranslation?->name ?? __('ui.blog.default_category')));
-    $publishedLabel = ($post->published_at ?? $post->created_at)?->translatedFormat('j. F Y.');
+    $publishedAt = $post->published_at ?? $post->created_at;
+    $publishedLabel = $publishedAt?->translatedFormat('j. F Y.');
+    $animationIndex = max(0, min(3, (int) ($revealIndex ?? 0)));
+    $cardHeadingLevel = (int) ($headingLevel ?? 2);
 @endphp
 
-<article class="ac-home-blog-card ac-blog-card">
+<article class="ac-home-blog-card ac-blog-card content-reveal animation-index-{{ $animationIndex }}" data-image-reveal>
     <a href="{{ $postUrl }}" class="ac-home-blog-card-link" aria-label="{{ __('ui.blog.open_post', ['title' => $postTitle]) }}">
         <div class="ac-home-blog-card-media">
             @if ($postImageUrl)
@@ -35,31 +38,27 @@
                     <span>{{ __('ui.blog.title') }}</span>
                 </div>
             @endif
-
-            <div class="ac-home-blog-card-overlay">
-                <span class="ac-home-blog-card-overlay-kicker">
-                    {{ Str::upper(Str::limit($categoryLabel, 24, '')) }}
-                </span>
-                <span class="ac-home-blog-card-overlay-line" aria-hidden="true"></span>
-            </div>
         </div>
 
         <div class="ac-home-blog-card-body">
-            <h2 class="ac-home-blog-card-title">{{ $postTitle }}</h2>
-            <p class="ac-home-blog-card-excerpt">{{ $postExcerpt }}</p>
-        </div>
+            <div class="ac-blog-card-eyebrow">
+                <span>{{ Str::upper(Str::limit($categoryLabel, 30, '')) }}</span>
+                @if ($publishedLabel)
+                    <time datetime="{{ $publishedAt?->toDateString() }}">{{ $publishedLabel }}</time>
+                @endif
+            </div>
 
-        <div class="ac-home-blog-card-meta">
+            @if ($cardHeadingLevel === 3)
+                <h3 class="ac-home-blog-card-title">{{ $postTitle }}</h3>
+            @else
+                <h2 class="ac-home-blog-card-title">{{ $postTitle }}</h2>
+            @endif
+
+            <p class="ac-home-blog-card-excerpt">{{ $postExcerpt }}</p>
             <span class="ac-home-blog-card-meta-link">
                 <span>{{ __('ui.blog.read_more') }}</span>
-                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                    <path d="M4 12L12 4"></path>
-                    <path d="M6 4h6v6"></path>
-                </svg>
+                <i class="fa-duotone fa-thin fa-arrow-right" aria-hidden="true"></i>
             </span>
-            @if ($publishedLabel)
-                <span class="ac-home-blog-card-meta-date">{{ $publishedLabel }}</span>
-            @endif
         </div>
     </a>
 </article>

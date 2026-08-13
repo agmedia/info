@@ -1171,7 +1171,7 @@ class StorefrontFrontFeatureTest extends TestCase
             ->assertSee('Alpha Review')
             ->assertDontSee('Beta Taxes')
             ->assertSee(__('ui.blog.filters.show_more'))
-            ->assertSee('<span class="front-scroll-breadcrumb-current">Finance</span>', false)
+            ->assertDontSee('aria-label="Breadcrumb"', false)
             ->assertSee('/blog/finance', false)
             ->assertSee('page=2', false)
             ->assertSee('q=Alpha', false);
@@ -1236,7 +1236,7 @@ class StorefrontFrontFeatureTest extends TestCase
             ->assertSee('https://linkedin.com/company/alpha-team', false);
     }
 
-    public function test_blog_article_breadcrumb_includes_primary_category_archive(): void
+    public function test_blog_article_breadcrumb_links_primary_category_without_current_article(): void
     {
         $news = $this->seedBlogCategory('News', 'news');
         [, $postSlug] = $this->seedBlogPost([$news->id], 'Growth Update', 'growth-update');
@@ -1244,8 +1244,9 @@ class StorefrontFrontFeatureTest extends TestCase
         $this->get('/blog/'.$postSlug)
             ->assertOk()
             ->assertSee('/blog/news', false)
+            ->assertSee('aria-label="Breadcrumb"', false)
             ->assertSee('class="front-scroll-breadcrumb-link">News</a>', false)
-            ->assertSee('class="front-scroll-breadcrumb-current ac-blog-breadcrumb-current"', false);
+            ->assertDontSee('class="front-scroll-breadcrumb-current ac-blog-breadcrumb-current"', false);
     }
 
     public function test_blog_article_related_posts_fallback_to_similar_titles_when_same_category_posts_are_not_similar(): void

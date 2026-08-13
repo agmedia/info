@@ -632,7 +632,7 @@ return [
     'blog' => [
         'page_title' => 'Novosti i objave',
         'title' => 'Novosti i objave',
-        'subtitle' => 'Izdvojene priče, trendovi i stručni uvidi iz financija, poreza i poslovnog savjetovanja.',
+        'subtitle' => 'Rokovi, novosti i savjeti za sigurnije poslovanje.',
         'eyebrow' => 'ALPHA CAPITALIS',
         'cta_default' => 'Kontaktirajte nas',
         'empty' => 'Trenutno nema objavljenih blog članaka.',

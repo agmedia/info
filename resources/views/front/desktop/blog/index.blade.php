@@ -20,16 +20,7 @@
     $hasSelectedHiddenCategory = $categories
         ->slice($categoryPreviewLimit)
         ->contains(fn (array $category): bool => in_array((int) $category['id'], $activeCategoryIds, true));
-    $pageTitleBreadcrumbs = [
-        ['label' => __('ui.front.desktop.footer.home'), 'url' => route('home')],
-    ];
-
-    if ($isCategoryArchive) {
-        $pageTitleBreadcrumbs[] = ['label' => __('ui.blog.title'), 'url' => route('blog.index')];
-        $pageTitleBreadcrumbs[] = ['label' => $currentCategoryName, 'current' => true];
-    } else {
-        $pageTitleBreadcrumbs[] = ['label' => __('ui.blog.title'), 'current' => true];
-    }
+    $headingWords = static fn (string $title): array => preg_split('/\s+/u', trim($title), -1, PREG_SPLIT_NO_EMPTY) ?: [];
 @endphp
 
 @section('title', $heroTitle !== '' ? $heroTitle : __('ui.blog.page_title'))
@@ -37,36 +28,37 @@
 
 @section('content')
     <div class="ac-blog-page">
-        <x-front.page-title-band
-            :breadcrumbs="$pageTitleBreadcrumbs"
-            section-class="ac-blog-title-band"
-            breadcrumb-class="ac-blog-hero-breadcrumb"
-        >
-            <div class="ac-page-title-copy">
-                <h1 id="ac-blog-title">{{ $heroTitle }}</h1>
+        <section class="values-section services-index-intro ac-blog-intro" aria-labelledby="ac-blog-title">
+            <div class="values-inner services-index-intro-layout ac-blog-intro-layout">
+                <div class="values-intro">
+                    <h1 class="values-title services-index-intro-title ac-blog-intro-title" id="ac-blog-title" data-words-slide-from-right aria-label="{{ $heroTitle }}">
+                        @foreach ($headingWords($heroTitle) as $word)
+                            <span class="values-word animation-index-{{ $loop->index }} {{ $loop->last ? 'is-accent' : '' }}" aria-hidden="true">{{ $word }}</span>
+                        @endforeach
+                    </h1>
+                </div>
 
-                @if ($heroIntro !== '')
-                    <p>{{ $heroIntro }}</p>
-                @endif
+                <div class="values-copy services-index-intro-copy ac-blog-intro-copy content-reveal" data-image-reveal>
+                    @if ($heroIntro !== '')
+                        <p>{{ $heroIntro }}</p>
+                    @endif
 
-                @if ($heroCtaLabel !== '' && $heroCtaUrl !== '')
-                    <div class="ac-page-title-actions ac-blog-hero-action">
-                        <a href="{{ $heroCtaUrl }}" class="front-action-cta">
+                    @if ($heroCtaLabel !== '' && $heroCtaUrl !== '')
+                        <a href="{{ $heroCtaUrl }}" class="services-index-inline-link ac-blog-intro-link">
                             <span>{{ $heroCtaLabel }}</span>
-                            <svg class="h-3.5 w-3.5" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                                <path d="M4 12L12 4"></path>
-                                <path d="M6 4h6v6"></path>
-                            </svg>
+                            <i class="fa-duotone fa-thin fa-arrow-right" aria-hidden="true"></i>
                         </a>
-                    </div>
-                @endif
+                    @endif
+                </div>
             </div>
-        </x-front.page-title-band>
+        </section>
 
-        <div class="ac-blog-list-shell mx-auto w-full max-w-[1320px] px-4 sm:px-6 lg:px-8">
+        <section class="ac-blog-list-section" aria-label="{{ __('ui.blog.title') }}">
+            <div class="ac-blog-container ac-blog-list-shell">
             @if ($categories->isNotEmpty())
                 <section class="ac-blog-category-nav" aria-labelledby="ac-blog-category-nav-title">
-                    <h2 id="ac-blog-category-nav-title" class="sr-only">{{ __('ui.blog.browse_categories') }}</h2>
+                    <h2 class="visually-hidden" id="ac-blog-category-nav-title">{{ __('ui.blog.browse_categories') }}</h2>
+
                     <div class="front-scroll-rail ac-blog-category-rail {{ $hasMoreCategories ? 'has-more-items' : '' }}">
                         <div class="front-scroll-rail-track">
                             <a
@@ -135,12 +127,13 @@
                         <p>{{ __('ui.blog.empty') }}</p>
                     </div>
                 @else
-                    <div class="ac-blog-grid">
+                    <div class="ac-blog-grid ac-blog-grid--index">
                         @foreach ($posts as $post)
                             @include('front.desktop.blog.partials.card', [
                                 'post' => $post,
                                 'locale' => $locale,
                                 'fallbackLocale' => $fallbackLocale,
+                                'revealIndex' => $loop->index % 3,
                             ])
                         @endforeach
                     </div>
@@ -156,6 +149,11 @@
                     @include('components.content-placement', ['items' => $bottomBlocks])
                 </section>
             @endif
-        </div>
+            </div>
+        </section>
     </div>
 @endsection
+
+@push('styles')
+    <link rel="stylesheet" href="{{ asset('front-theme/styles/pages/blog.css') }}?v={{ filemtime(public_path('front-theme/styles/pages/blog.css')) }}">
+@endpush

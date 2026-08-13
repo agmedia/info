@@ -382,7 +382,7 @@
                 @foreach ($newsItems as $item)
                     <a class="news-card" data-image-reveal href="{{ $item['url'] }}" style="--news-index: {{ $loop->index }}">
                         <span class="news-card-category">{{ $item['category'] }}</span><h3>{{ $item['title'] }}</h3><p>{{ $item['text'] }}</p>
-                        <span class="news-card-link" aria-hidden="true">Pročitaj više <i class="fa-duotone fa-thin fa-arrow-right fa-fw"></i></span>
+                        <span class="news-card-link" aria-hidden="true">{{ __('ui.blog.read_more') }} <i class="fa-duotone fa-thin fa-arrow-right fa-fw"></i></span>
                     </a>
                 @endforeach
             </div>
