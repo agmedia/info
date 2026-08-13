@@ -51,6 +51,7 @@ class EuFundsController extends Controller
             ?? $euFundsCategory?->translations->first();
         $defaultCategoryName = str_starts_with(strtolower($locale), 'hr') ? 'EU fondovi' : 'EU Funds';
         $categoryName = trim((string) ($categoryTranslation?->name ?? '')) ?: $defaultCategoryName;
+        $categorySlug = trim((string) ($categoryTranslation?->slug ?? ''));
         $euFundsPosts = $this->resolveEuFundsPosts(
             (array) ($pagePayload['blog_source'] ?? []),
             $euFundsCategory,
@@ -82,6 +83,9 @@ class EuFundsController extends Controller
             'blogSection' => $blogSection,
             'euFundsTestimonials' => $this->resolveClientTestimonials($locale, $fallbackLocale),
             'euFundsPosts' => $euFundsPosts,
+            'euFundsArchiveUrl' => $categorySlug !== ''
+                ? url('/blog/'.$categorySlug)
+                : route('blog.index'),
             'heroBackgroundUrl' => $this->resolveServiceHeroBackgroundUrl($servicePage),
             'servicePageTitle' => trim((string) ($servicePageTranslation?->title ?? '')) ?: 'EU fondovi',
             'servicePageMetaTitle' => trim((string) ($servicePageTranslation?->meta_title ?? '')),

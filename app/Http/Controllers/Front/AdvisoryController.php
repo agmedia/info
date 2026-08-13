@@ -113,7 +113,23 @@ class AdvisoryController extends Controller
         $locale = app()->getLocale();
         $fallbackLocale = (string) config('app.fallback_locale', config('app.locale', 'en'));
         [$servicePage, $servicePageTranslation, $pagePayload, $translationPayload] = $this->resolveAdvisoryPayload($locale, $fallbackLocale);
-        $serviceVideoPayload = $this->resolveServiceVideoPayload($pagePayload, $translationPayload);
+
+        $advisoryCategory = $this->resolveConfiguredBlogCategory(
+            (array) ($pagePayload['blog_source'] ?? []),
+            $locale,
+            $fallbackLocale
+        );
+        $categoryTranslation = $advisoryCategory?->translations->firstWhere('locale', $locale)
+            ?? $advisoryCategory?->translations->firstWhere('locale', $fallbackLocale)
+            ?? $advisoryCategory?->translations->first();
+        $categorySlug = trim((string) ($categoryTranslation?->slug ?? ''));
+        $categoryName = trim((string) ($categoryTranslation?->name ?? '')) ?: 'Savjetovanje';
+        $advisoryPosts = $this->resolveAdvisoryPosts(
+            (array) ($pagePayload['blog_source'] ?? []),
+            $advisoryCategory,
+            $locale,
+            $fallbackLocale
+        );
 
         $detailPages = [
             'ma' => [
@@ -176,17 +192,20 @@ class AdvisoryController extends Controller
             ],
         };
 
+        $subpage['hook'] = $this->resolveSubpageHook($translationPayload, $type, $subpage);
+
         return view($this->frontendView($request, 'pages.advisory-subpage'), [
+            'advisoryPosts' => $advisoryPosts,
+            'advisoryCategoryName' => $categoryName,
+            'advisoryArchiveUrl' => $categorySlug !== ''
+                ? url('/blog/'.$categorySlug)
+                : route('blog.index'),
             'advisoryContent' => $translationPayload,
             'subpage' => $subpage,
             'heroSection' => [
-                'brand_title' => data_get($translationPayload, 'hero.brand_title', 'ALPHA CAPITALIS'),
                 'subtitle_lead' => $subpage['title'],
-                'subtitle_accent' => '',
-                'intro' => $subpage['intro'],
+                'intro' => $subpage['hook'],
             ],
-            'serviceVideoSection' => $serviceVideoPayload['section'],
-            'serviceVideos' => $serviceVideoPayload['items'],
             'heroBackgroundUrl' => $this->resolveServiceHeroBackgroundUrl($servicePage),
             'servicePageTitle' => $subpage['title'],
             'servicePageMetaTitle' => $subpage['meta_title'],
@@ -196,6 +215,43 @@ class AdvisoryController extends Controller
             'locale' => $locale,
             'fallbackLocale' => $fallbackLocale,
         ]);
+    }
+
+    /**
+     * @param array<string, mixed> $translationPayload
+     * @param array<string, mixed> $subpage
+     */
+    private function resolveSubpageHook(array $translationPayload, string $type, array $subpage): string
+    {
+        $routeFragments = [
+            'funding' => '/savjetovanje/pribavljanje-financiranja',
+            'ma' => '/savjetovanje/prodaja-i-kupnja-poduzeca',
+            'due_diligence' => '/savjetovanje/dubinska-snimanja',
+            'valuations' => '/savjetovanje/procjena-vrijednosti-drustva',
+            'tax' => '/savjetovanje/porezno-savjetovanje',
+            'bank_loans' => '/savjetovanje/pribavljanje-financiranja/bankovni-krediti',
+            'zopu' => '/savjetovanje/pribavljanje-financiranja/zakon-o-poticanju-ulaganja',
+        ];
+
+        $cards = in_array($type, ['bank_loans', 'zopu'], true)
+            ? (array) data_get($translationPayload, 'funding.cards', [])
+            : (array) ($translationPayload['service_cards'] ?? []);
+        $routeFragment = $routeFragments[$type] ?? '';
+
+        foreach ($cards as $card) {
+            if (! is_array($card)) {
+                continue;
+            }
+
+            $url = trim((string) ($card['url'] ?? ''));
+            $text = trim((string) ($card['text'] ?? ''));
+
+            if ($routeFragment !== '' && $text !== '' && str_ends_with($url, $routeFragment)) {
+                return $text;
+            }
+        }
+
+        return trim((string) ($subpage['intro'] ?? ''));
     }
 
     /**

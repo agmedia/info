@@ -1,18 +1,46 @@
 @extends('front.desktop.layouts.store')
 
 @php
-    $overviewBody = array_values((array) ($overviewSection['body'] ?? []));
-    $serviceItems = array_values((array) ($processSection['items'] ?? []));
-    $approachBody = array_values((array) ($approachSection['body'] ?? []));
-    $sourceCards = array_values((array) ($sourceModulesSection['items'] ?? []));
+    $overviewBody = array_values(array_filter(
+        (array) ($overviewSection['body'] ?? []),
+        static fn ($paragraph): bool => trim((string) $paragraph) !== '',
+    ));
+    $serviceItems = array_values(array_filter(
+        (array) ($processSection['items'] ?? []),
+        static fn ($item): bool => is_array($item) && trim((string) ($item['title'] ?? '')) !== '',
+    ));
+    $approachBody = array_values(array_filter(
+        (array) ($approachSection['body'] ?? []),
+        static fn ($paragraph): bool => trim((string) $paragraph) !== '',
+    ));
+    $sourceCards = array_values(array_filter(
+        (array) ($sourceModulesSection['items'] ?? []),
+        static fn ($item): bool => is_array($item) && trim((string) ($item['title'] ?? '')) !== '',
+    ));
     $callGroups = array_values((array) ($callsSection['groups'] ?? []));
     $resourceCards = array_values((array) ($resourcesSection['cards'] ?? []));
     $lawCards = array_values((array) ($lawsSection['cards'] ?? []));
-    $meetingTitle = trim((string) ($meetingSection['title'] ?? '')) ?: 'Razgovarajmo o vašem projektu';
-    $meetingIntro = trim((string) ($meetingSection['intro'] ?? '')) ?: 'Javite nam se i zajedno ćemo procijeniti koji su izvori financiranja dostupni za vaš projekt.';
-    $meetingLinkLabel = trim((string) ($meetingSection['contact_title'] ?? '')) ?: 'Kontaktirajte nas';
-    $isCroatianLocale = str_starts_with(strtolower((string) ($locale ?? app()->getLocale())), 'hr');
-    $readMoreLabel = $isCroatianLocale ? 'Opširnije' : 'Read more';
+    $isCroatian = str_starts_with(strtolower((string) ($locale ?? app()->getLocale())), 'hr');
+    $readMoreLabel = $isCroatian ? 'Opširnije' : 'Read more';
+    $allPostsLabel = $isCroatian ? 'Pogledaj sve objave' : 'View all posts';
+    $meetingTitle = trim((string) ($meetingSection['title'] ?? ''))
+        ?: ($isCroatian ? 'Razgovarajmo o vašem projektu' : 'Let’s discuss your project');
+    $meetingIntro = trim((string) ($meetingSection['intro'] ?? ''))
+        ?: ($isCroatian
+            ? 'Javite nam se i zajedno ćemo procijeniti koji su izvori financiranja dostupni za vaš projekt.'
+            : 'Contact us and we will assess which funding sources are available for your project.');
+    $meetingCardTitle = trim((string) ($meetingSection['contact_title'] ?? ''))
+        ?: ($isCroatian ? 'Kontaktirajte nas' : 'Contact us');
+    $meetingButtonLabel = $isCroatian ? 'Dogovorite sastanak' : 'Schedule a meeting';
+    $meetingStatus = $isCroatian ? 'Termin razgovora prilagođavamo vama.' : 'We arrange the meeting around your schedule.';
+    $heroLabel = trim((string) ($heroSection['subtitle_lead'] ?? '')) ?: 'EU fondovi';
+    $heroAccent = trim((string) ($heroSection['subtitle_accent'] ?? ''));
+    $heroLabel = trim($heroLabel.' '.$heroAccent);
+    $heroHook = trim((string) ($heroSection['intro'] ?? ''));
+    $heroImageAlt = $isCroatian ? 'Savjetovanje i podrška za EU fondove' : 'EU funds advisory and support';
+    $serviceIcons = ['fa-magnifying-glass-chart', 'fa-file-certificate', 'fa-diagram-project', 'fa-wallet', 'fa-badge-percent', 'fa-bullseye-pointer'];
+    $sourceIcons = ['fa-folder-open', 'fa-lightbulb-on', 'fa-file-check', 'fa-coins', 'fa-badge-percent', 'fa-landmark-dome'];
+    $headingWords = static fn (string $heading): array => preg_split('/\s+/u', trim($heading)) ?: [];
     $currentHost = request()->getHost();
     $sameOriginAssetUrl = static function (?string $url) use ($currentHost): string {
         $assetUrl = trim((string) $url);
@@ -25,11 +53,9 @@
         $assetPath = parse_url($assetUrl, PHP_URL_PATH);
         $assetQuery = parse_url($assetUrl, PHP_URL_QUERY);
 
-        if (is_string($assetPath) && $assetPath !== '') {
-            return $assetPath.($assetQuery ? '?'.$assetQuery : '');
-        }
-
-        return $assetUrl;
+        return is_string($assetPath) && $assetPath !== ''
+            ? $assetPath.($assetQuery ? '?'.$assetQuery : '')
+            : $assetUrl;
     };
     $resolveContentUrl = static function (?string $url): string {
         $target = trim((string) $url);
@@ -42,485 +68,391 @@
     };
     $heroImageUrl = $sameOriginAssetUrl((string) $heroBackgroundUrl);
     $hasEuFundsPosts = ($euFundsPosts ?? collect())->isNotEmpty();
-    $hasServiceVideos = collect($serviceVideos ?? [])->isNotEmpty();
+    $blogHeadingTitle = trim((string) ($blogSection['title'] ?? ''))
+        ?: ($isCroatian ? 'Stručni uvidi u EU fondove i financiranje' : 'Expert insights into EU funds and financing');
 @endphp
 
-@section('title', $servicePageMetaTitle !== '' ? $servicePageMetaTitle : ($servicePageTitle ?? 'EU fondovi'))
+@section('title', $servicePageMetaTitle !== '' ? $servicePageMetaTitle : ($servicePageTitle ?? $heroLabel))
 @section('main_class', 'w-full px-0 py-0')
 
+@push('styles')
+    <link rel="stylesheet" href="{{ asset('front-theme/styles/pages/advisory.css') }}?v={{ filemtime(public_path('front-theme/styles/pages/advisory.css')) }}">
+    <link rel="stylesheet" href="{{ asset('front-theme/styles/pages/eu-funds.css') }}?v={{ filemtime(public_path('front-theme/styles/pages/eu-funds.css')) }}">
+@endpush
+
 @section('content')
-    <div class="ac-family-business-page ac-audit-page ac-eu-service-page {{ $lawCards !== [] ? 'ac-service-band-even' : '' }}">
-        <section class="ac-family-hero ac-service-hero ac-service-hero--eu-funds">
-            <div class="ac-family-hero-media" aria-hidden="true" style="--audit-hero-image: url('{{ $heroImageUrl }}'); background-image: url('{{ $heroImageUrl }}');">
-                <img src="{{ $heroImageUrl }}" alt="" class="ac-family-hero-media-image" loading="eager" decoding="async">
+    <div class="ac-advisory-page ac-advisory-subpage ac-eu-service-page">
+        <section class="ac-advisory-hero" id="vrh" aria-labelledby="ac-eu-funds-hero-title">
+            <div class="ac-advisory-hero-media">
+                <img
+                    src="{{ $heroImageUrl }}"
+                    alt="{{ $heroImageAlt }}"
+                    class="ac-advisory-hero-image"
+                    width="1366"
+                    height="768"
+                    loading="eager"
+                    decoding="async"
+                    fetchpriority="high"
+                >
             </div>
-            <div class="ac-family-hero-overlay"></div>
+            <div class="ac-advisory-hero-overlay" aria-hidden="true"></div>
 
-            <div class="mx-auto w-full max-w-[1240px] px-5 lg:px-8">
-                <div class="ac-family-hero-content">
-                    <div class="ac-family-hero-shell">
-                        <div class="ac-family-hero-copy ac-service-hero-card">
-                            <h1 class="ac-family-hero-title">
-                                <span class="is-brand">{{ $heroSection['brand_title'] ?? 'ALPHA CAPITALIS' }}</span>
-                                <span class="is-subtitle">
-                                    <span class="is-subtitle-lead">{{ $heroSection['subtitle_lead'] ?? 'EU fondovi' }}</span>
-                                    @if (trim((string) ($heroSection['subtitle_accent'] ?? '')) !== '')
-                                        <span class="is-subtitle-accent">{{ $heroSection['subtitle_accent'] }}</span>
-                                    @endif
-                                </span>
-                            </h1>
-
-                            <p class="ac-family-hero-intro">{{ $heroSection['intro'] ?? '' }}</p>
-                        </div>
-                    </div>
+            <div class="ac-advisory-hero-shell">
+                <div class="ac-advisory-hero-copy">
+                    <h1 id="ac-eu-funds-hero-title" aria-label="{{ $heroLabel }}. {{ $heroHook }}">
+                        <span class="ac-advisory-hero-label">{{ $heroLabel }}</span>
+                        @if ($heroHook !== '')
+                            <span class="ac-advisory-hero-hook">{{ $heroHook }}</span>
+                        @endif
+                    </h1>
                 </div>
             </div>
         </section>
 
-        <section id="eu-funds-overview" class="ac-audit-editorial-wrap" aria-labelledby="ac-eu-overview-title">
-            <div class="mx-auto w-full max-w-[1120px] px-5 lg:px-8">
-                <div class="ac-audit-editorial-shell">
-                    <article class="ac-audit-editorial-section ac-audit-editorial-section--overview">
-                        <div class="ac-audit-section-head ac-audit-section-head--center">
-                            <p class="ac-family-section-kicker">{{ $overviewSection['kicker'] ?? 'EU FONDOVI' }}</p>
-                            <h2 id="ac-eu-overview-title">{{ $overviewSection['title'] ?? 'Što su EU fondovi?' }}</h2>
-                        </div>
+        <section class="ac-advisory-intro" id="eu-funds-overview" aria-labelledby="ac-eu-funds-overview-title">
+            <div class="ac-advisory-wide-shell ac-advisory-intro-grid">
+                <div class="ac-advisory-intro-heading">
+                    <h2 id="ac-eu-funds-overview-title" data-words-slide-from-right aria-label="{{ $overviewSection['title'] ?? '' }}">
+                        @foreach ($headingWords((string) ($overviewSection['title'] ?? '')) as $word)
+                            <span class="service-title-word animation-index-{{ $loop->index }} {{ $loop->last ? 'is-accent' : '' }}" aria-hidden="true">{{ $word }}</span>
+                        @endforeach
+                    </h2>
+                </div>
 
-                        <div class="ac-audit-copy ac-audit-copy--full">
-                            @foreach ($overviewBody as $paragraph)
-                                @if (trim((string) $paragraph) !== '')
-                                    <p>{{ $paragraph }}</p>
-                                @endif
+                <div class="ac-advisory-intro-copy content-reveal animation-index-1" data-image-reveal>
+                    @foreach ($overviewBody as $paragraph)
+                        <p class="{{ count($overviewBody) > 1 && $loop->last ? 'is-emphasis' : '' }}">{{ $paragraph }}</p>
+                    @endforeach
+                </div>
+            </div>
+        </section>
+
+        <section class="ac-advisory-services ac-eu-funds-services" id="eu-funds-services" aria-labelledby="ac-eu-funds-services-title">
+            <div class="ac-advisory-wide-shell">
+                <header class="ac-advisory-section-heading">
+                    <h2 id="ac-eu-funds-services-title" data-words-slide-from-right aria-label="{{ $processSection['title'] ?? '' }}">
+                        @foreach ($headingWords((string) ($processSection['title'] ?? '')) as $word)
+                            <span class="service-title-word animation-index-{{ $loop->index }} {{ $loop->last ? 'is-accent' : '' }}" aria-hidden="true">{{ $word }}</span>
+                        @endforeach
+                    </h2>
+                    @if (trim((string) ($processSection['intro'] ?? '')) !== '')
+                        <p>{{ $processSection['intro'] }}</p>
+                    @endif
+                </header>
+
+                <div class="ac-advisory-services-grid ac-advisory-services-grid--subpage">
+                    @foreach ($serviceItems as $item)
+                        <article class="ac-advisory-service-card ac-eu-funds-service-card content-reveal animation-index-{{ $loop->index }}" data-image-reveal>
+                            <span class="ac-advisory-service-icon" aria-hidden="true">
+                                <i class="fa-duotone fa-thin fa-fw {{ $serviceIcons[$loop->index] ?? 'fa-chart-network' }}"></i>
+                            </span>
+                            <h3>{{ $item['title'] ?? '' }}</h3>
+                            <p>{{ $item['text'] ?? '' }}</p>
+                        </article>
+                    @endforeach
+                </div>
+            </div>
+        </section>
+
+        @if ($approachBody !== [])
+            <section class="ac-advisory-approach" id="eu-funds-approach" aria-labelledby="ac-eu-funds-approach-title">
+                <div class="ac-advisory-wide-shell ac-advisory-approach-grid">
+                    <div class="ac-advisory-approach-heading">
+                        <h2 id="ac-eu-funds-approach-title" data-words-slide-from-right aria-label="{{ $approachSection['title'] ?? '' }}">
+                            @foreach ($headingWords((string) ($approachSection['title'] ?? '')) as $word)
+                                <span class="service-title-word animation-index-{{ $loop->index }} {{ $loop->last ? 'is-accent' : '' }}" aria-hidden="true">{{ $word }}</span>
                             @endforeach
-                        </div>
-                    </article>
+                        </h2>
+                    </div>
 
-                    <article id="eu-funds-services" class="ac-audit-editorial-section">
-                        <div class="ac-audit-section-head ac-audit-section-head--center">
-                            <p class="ac-family-section-kicker">{{ $processSection['kicker'] ?? 'USLUGE' }}</p>
-                            <h2>{{ $processSection['title'] ?? 'Naše usluge' }}</h2>
-                            @if (trim((string) ($processSection['intro'] ?? '')) !== '')
-                                <p>{{ $processSection['intro'] }}</p>
+                    <blockquote class="ac-advisory-approach-quote content-reveal animation-index-1" data-image-reveal>
+                        <i class="fa-duotone fa-thin fa-quote-left" aria-hidden="true"></i>
+                        @foreach ($approachBody as $paragraph)
+                            <p>{{ $paragraph }}</p>
+                        @endforeach
+                    </blockquote>
+                </div>
+            </section>
+        @endif
+
+        <section class="ac-eu-funds-module-section" id="eu-funds-sources" aria-labelledby="ac-eu-funds-sources-title">
+            <div class="ac-advisory-wide-shell">
+                <header class="ac-advisory-section-heading">
+                    <h2 id="ac-eu-funds-sources-title" data-words-slide-from-right aria-label="{{ $sourceModulesSection['title'] ?? '' }}">
+                        @foreach ($headingWords((string) ($sourceModulesSection['title'] ?? '')) as $word)
+                            <span class="service-title-word animation-index-{{ $loop->index }} {{ $loop->last ? 'is-accent' : '' }}" aria-hidden="true">{{ $word }}</span>
+                        @endforeach
+                    </h2>
+                    @if (trim((string) ($sourceModulesSection['intro'] ?? '')) !== '')
+                        <p>{{ $sourceModulesSection['intro'] }}</p>
+                    @endif
+                </header>
+
+                <div class="ac-advisory-services-grid ac-advisory-services-grid--subpage ac-eu-funds-source-grid">
+                    @foreach ($sourceCards as $module)
+                        @php $moduleUrl = $resolveContentUrl($module['url'] ?? ''); @endphp
+                        <a class="ac-advisory-service-card ac-advisory-subpage-service-card animation-index-{{ $loop->index }}" data-image-reveal href="{{ $moduleUrl !== '' ? $moduleUrl : '#eu-funds-sources' }}">
+                            <span class="ac-advisory-service-icon" aria-hidden="true">
+                                <i class="fa-duotone fa-thin fa-fw {{ $sourceIcons[$loop->index] ?? 'fa-coins' }}"></i>
+                            </span>
+                            <h3>{{ $module['title'] ?? '' }}</h3>
+                            <p>{{ $module['text'] ?? '' }}</p>
+                            <span class="ac-advisory-service-link" aria-hidden="true">
+                                {{ $readMoreLabel }}
+                                <i class="fa-duotone fa-thin fa-arrow-right fa-fw"></i>
+                            </span>
+                        </a>
+                    @endforeach
+                </div>
+
+                @if ($callGroups !== [])
+                    <div id="eu-funds-calls" class="ac-eu-call-module" aria-labelledby="ac-eu-funds-calls-title">
+                        <header class="ac-eu-module-heading">
+                            <p class="ac-eu-module-kicker">{{ $callsSection['kicker'] ?? 'NATJEČAJI' }}</p>
+                            <h3 id="ac-eu-funds-calls-title">{{ $callsSection['title'] ?? 'Natječaji prema statusu' }}</h3>
+                            @if (trim((string) ($callsSection['intro'] ?? '')) !== '')
+                                <p>{{ $callsSection['intro'] }}</p>
                             @endif
-                        </div>
+                        </header>
 
-                        <div class="ac-audit-card-grid">
-                            @foreach ($serviceItems as $item)
-                                <article class="ac-audit-service-card">
-                                    <h3>{{ $item['title'] ?? '' }}</h3>
-                                    <p>{{ $item['text'] ?? '' }}</p>
-                                </article>
-                            @endforeach
-                        </div>
-                    </article>
+                        <div class="ac-eu-call-group-grid">
+                            @foreach ($callGroups as $group)
+                                @php
+                                    $tone = trim((string) ($group['tone'] ?? 'pending')) ?: 'pending';
+                                    $items = array_values((array) ($group['items'] ?? []));
+                                    $visibleItems = array_slice($items, 0, 5);
+                                    $hiddenItems = array_slice($items, 5);
+                                    $statusLabel = trim((string) ($group['status_label'] ?? '')) ?: match ($tone) {
+                                        'open' => 'Otvoreno',
+                                        'closed' => 'Zatvoreno',
+                                        default => 'U najavi',
+                                    };
+                                @endphp
+                                <article id="eu-funds-calls-{{ $tone }}" class="ac-eu-call-group-card content-reveal animation-index-{{ $loop->index }}" data-image-reveal>
+                                    <div class="ac-eu-call-group-head">
+                                        <h3>{{ $group['title'] ?? $statusLabel }}</h3>
+                                        <span class="ac-eu-status-badge is-{{ $tone }}">{{ $statusLabel }}</span>
+                                    </div>
 
-                    <article id="eu-funds-approach" class="ac-audit-editorial-section">
-                        <div class="ac-audit-section-head ac-audit-section-head--center">
-                            <p class="ac-family-section-kicker">{{ $approachSection['kicker'] ?? 'PRISTUP' }}</p>
-                            <h2>{{ $approachSection['title'] ?? 'Naš pristup' }}</h2>
-                        </div>
+                                    <ul class="ac-eu-call-list">
+                                        @foreach ($visibleItems as $item)
+                                            @include('front.desktop.pages.partials.eu-funds-call-item', ['item' => $item])
+                                        @endforeach
+                                    </ul>
 
-                        <blockquote class="ac-audit-copy ac-audit-copy--full ac-audit-approach-copy">
-                            @foreach ($approachBody as $paragraph)
-                                @if (trim((string) $paragraph) !== '')
-                                    <p>{{ $paragraph }}</p>
-                                @endif
-                            @endforeach
-                        </blockquote>
-                    </article>
-
-                    <article id="eu-funds-sources" class="ac-audit-editorial-section">
-                        <div class="ac-audit-section-head ac-audit-section-head--center">
-                            <p class="ac-family-section-kicker">{{ $sourceModulesSection['kicker'] ?? 'IZVORI FINANCIRANJA' }}</p>
-                            <h2>{{ $sourceModulesSection['title'] ?? 'Dostupni izvori financiranja' }}</h2>
-                            @if (trim((string) ($sourceModulesSection['intro'] ?? '')) !== '')
-                                <p>{{ $sourceModulesSection['intro'] }}</p>
-                            @endif
-                        </div>
-
-                        <div class="ac-advisory-module-grid">
-                            @foreach ($sourceCards as $module)
-                                @php $moduleUrl = $resolveContentUrl($module['url'] ?? ''); @endphp
-                                <article class="ac-advisory-source-card ac-eu-source-card">
-                                    <h3>{{ $module['title'] ?? '' }}</h3>
-                                    <p>{{ $module['text'] ?? '' }}</p>
-                                    @if ($moduleUrl !== '')
-                                        <a href="{{ $moduleUrl }}" class="ac-advisory-card-link">{{ $readMoreLabel }}</a>
-                                    @endif
-                                </article>
-                            @endforeach
-                        </div>
-
-                        @if ($callGroups !== [])
-                            <div id="eu-funds-calls" class="ac-eu-call-module" aria-labelledby="ac-eu-calls-title">
-                                <div class="ac-audit-section-head ac-audit-section-head--center ac-advisory-subhead">
-                                    <p class="ac-family-section-kicker">{{ $callsSection['kicker'] ?? 'NATJEČAJI' }}</p>
-                                    <h3 id="ac-eu-calls-title">{{ $callsSection['title'] ?? 'Natječaji prema statusu' }}</h3>
-                                    @if (trim((string) ($callsSection['intro'] ?? '')) !== '')
-                                        <p>{{ $callsSection['intro'] }}</p>
-                                    @endif
-                                </div>
-
-                                <div class="ac-eu-call-group-grid">
-                                    @foreach ($callGroups as $group)
-                                        @php
-                                            $tone = trim((string) ($group['tone'] ?? 'pending')) ?: 'pending';
-                                            $items = array_values((array) ($group['items'] ?? []));
-                                            $visibleItems = array_slice($items, 0, 5);
-                                            $hiddenItems = array_slice($items, 5);
-                                            $statusLabel = trim((string) ($group['status_label'] ?? '')) ?: match ($tone) {
-                                                'open' => 'Otvoreno',
-                                                'closed' => 'Zatvoreno',
-                                                default => 'U najavi',
-                                            };
-                                        @endphp
-                                        <article id="eu-funds-calls-{{ $tone }}" class="ac-eu-call-group-card is-{{ $tone }}">
-                                            <div class="ac-eu-call-group-head">
-                                                <h3>{{ $group['title'] ?? $statusLabel }}</h3>
-                                                <span class="ac-eu-status-badge is-{{ $tone }}">{{ $statusLabel }}</span>
-                                            </div>
-
-                                            <ul class="ac-eu-call-list">
-                                                @foreach ($visibleItems as $item)
+                                    @if ($hiddenItems !== [])
+                                        <details class="ac-eu-call-details">
+                                            <summary>{{ $isCroatian ? 'Pogledaj sve natječaje' : 'View all calls' }}</summary>
+                                            <ul class="ac-eu-call-list ac-eu-call-list--details">
+                                                @foreach ($hiddenItems as $item)
                                                     @include('front.desktop.pages.partials.eu-funds-call-item', ['item' => $item])
                                                 @endforeach
                                             </ul>
-
-                                            @if ($hiddenItems !== [])
-                                                <details class="ac-eu-call-details">
-                                                    <summary>{{ $isCroatianLocale ? 'Pogledaj sve natječaje' : 'View all calls' }}</summary>
-                                                    <ul class="ac-eu-call-list ac-eu-call-list--details">
-                                                        @foreach ($hiddenItems as $item)
-                                                            @include('front.desktop.pages.partials.eu-funds-call-item', ['item' => $item])
-                                                        @endforeach
-                                                    </ul>
-                                                </details>
-                                            @endif
-                                        </article>
-                                    @endforeach
-                                </div>
-                            </div>
-                        @endif
-                    </article>
-
-                    <article id="eu-funds-programs" class="ac-audit-editorial-section">
-                        <div class="ac-audit-section-head ac-audit-section-head--center">
-                            <p class="ac-family-section-kicker">{{ $resourcesSection['kicker'] ?? 'PROGRAMI I INSTRUMENTI' }}</p>
-                            <h2>{{ $resourcesSection['title'] ?? 'HBOR, HAMAG i ostali izvori potpore' }}</h2>
-                            @if (trim((string) ($resourcesSection['intro'] ?? '')) !== '')
-                                <p>{{ $resourcesSection['intro'] }}</p>
-                            @endif
-                        </div>
-
-                        <div class="ac-eu-program-grid">
-                            @foreach ($resourceCards as $card)
-                                <article class="ac-advisory-text-panel ac-eu-program-card">
-                                    @if (trim((string) ($card['eyebrow'] ?? '')) !== '')
-                                        <p class="ac-family-section-kicker">{{ $card['eyebrow'] }}</p>
-                                    @endif
-                                    <h2>{{ $card['title'] ?? '' }}</h2>
-
-                                    @foreach ((array) ($card['body'] ?? []) as $paragraph)
-                                        @if (trim((string) $paragraph) !== '')
-                                            <p>{{ $paragraph }}</p>
-                                        @endif
-                                    @endforeach
-
-                                    @foreach ((array) ($card['groups'] ?? []) as $group)
-                                        <div class="ac-eu-program-list-block">
-                                            <h3>{{ $group['label'] ?? '' }}</h3>
-                                            <ul class="ac-advisory-list">
-                                                @foreach ((array) ($group['items'] ?? []) as $item)
-                                                    @php
-                                                        $resolvedLink = $item['resolved_link'] ?? ['url' => ''];
-                                                        $itemUrl = trim((string) ($resolvedLink['url'] ?? ''));
-                                                    @endphp
-                                                    <li>
-                                                        @if ($itemUrl !== '')
-                                                            <a href="{{ $itemUrl }}" @if($resolvedLink['open_in_new_tab'] ?? false) target="_blank" rel="{{ $resolvedLink['rel'] ?? 'noopener noreferrer' }}" @endif>{{ $item['title'] ?? '' }}</a>
-                                                        @else
-                                                            {{ $item['title'] ?? '' }}
-                                                        @endif
-                                                    </li>
-                                                @endforeach
-                                            </ul>
-                                        </div>
-                                    @endforeach
-
-                                    @if (!empty($card['primary_link']['url'] ?? '') || !empty($card['secondary_link']['url'] ?? ''))
-                                        <div class="ac-eu-program-actions">
-                                            @if (!empty($card['primary_link']['url'] ?? ''))
-                                                <a
-                                                    href="{{ $card['primary_link']['url'] }}"
-                                                    class="ac-advisory-card-link"
-                                                    @if($card['primary_link']['open_in_new_tab'] ?? false) target="_blank" rel="{{ $card['primary_link']['rel'] ?? 'noopener noreferrer' }}" @endif
-                                                >{{ $card['primary_link']['label'] ?: $readMoreLabel }}</a>
-                                            @endif
-
-                                            @if (!empty($card['secondary_link']['url'] ?? ''))
-                                                <a
-                                                    href="{{ $card['secondary_link']['url'] }}"
-                                                    class="ac-advisory-card-link"
-                                                    @if($card['secondary_link']['open_in_new_tab'] ?? false) target="_blank" rel="{{ $card['secondary_link']['rel'] ?? 'noopener noreferrer' }}" @endif
-                                                >{{ $card['secondary_link']['label'] ?: $readMoreLabel }}</a>
-                                            @endif
-                                        </div>
+                                        </details>
                                     @endif
                                 </article>
                             @endforeach
                         </div>
-                    </article>
+                    </div>
+                @endif
+            </div>
+        </section>
 
-                    @if ($lawCards !== [])
-                        <article id="eu-funds-laws" class="ac-audit-editorial-section">
-                            <div class="ac-audit-section-head ac-audit-section-head--center">
-                                <p class="ac-family-section-kicker">{{ $lawsSection['kicker'] ?? 'ZAKONI I UREDBE' }}</p>
-                                <h2>{{ $lawsSection['title'] ?? 'Porezne olakšice, zakoni i uredbe' }}</h2>
-                                @if (trim((string) ($lawsSection['intro'] ?? '')) !== '')
-                                    <p>{{ $lawsSection['intro'] }}</p>
+        @if ($resourceCards !== [])
+            <section class="ac-eu-funds-module-section ac-eu-funds-module-section--soft" id="eu-funds-programs" aria-labelledby="ac-eu-funds-programs-title">
+                <div class="ac-advisory-wide-shell">
+                    <header class="ac-advisory-section-heading">
+                        <h2 id="ac-eu-funds-programs-title" data-words-slide-from-right aria-label="{{ $resourcesSection['title'] ?? '' }}">
+                            @foreach ($headingWords((string) ($resourcesSection['title'] ?? '')) as $word)
+                                <span class="service-title-word animation-index-{{ $loop->index }} {{ $loop->last ? 'is-accent' : '' }}" aria-hidden="true">{{ $word }}</span>
+                            @endforeach
+                        </h2>
+                        @if (trim((string) ($resourcesSection['intro'] ?? '')) !== '')
+                            <p>{{ $resourcesSection['intro'] }}</p>
+                        @endif
+                    </header>
+
+                    <div class="ac-eu-program-grid">
+                        @foreach ($resourceCards as $card)
+                            <article class="ac-advisory-text-panel ac-eu-program-card content-reveal animation-index-{{ $loop->index }}" data-image-reveal>
+                                @if (trim((string) ($card['eyebrow'] ?? '')) !== '')
+                                    <p class="ac-eu-program-eyebrow">{{ $card['eyebrow'] }}</p>
                                 @endif
-                            </div>
+                                <h3>{{ $card['title'] ?? '' }}</h3>
 
-                            <div class="ac-eu-program-grid">
-                                @foreach ($lawCards as $card)
-                                    <article class="ac-advisory-text-panel ac-eu-program-card">
-                                        <h2>{{ $card['title'] ?? '' }}</h2>
-                                        @if (trim((string) ($card['summary'] ?? '')) !== '')
-                                            <p>{{ $card['summary'] }}</p>
-                                        @endif
-
-                                        @foreach ((array) ($card['lists'] ?? []) as $list)
-                                            <div class="ac-eu-program-list-block">
-                                                <h3>{{ $list['label'] ?? '' }}</h3>
-                                                <ul class="ac-advisory-list">
-                                                    @foreach ((array) ($list['items'] ?? []) as $item)
-                                                        <li>{{ $item }}</li>
-                                                    @endforeach
-                                                </ul>
-                                            </div>
-                                        @endforeach
-
-                                        @if (trim((string) ($card['note'] ?? '')) !== '')
-                                            <p class="ac-eu-program-note">{{ $card['note'] }}</p>
-                                        @endif
-
-                                        @if (!empty($card['primary_link']['url'] ?? '') || !empty($card['secondary_link']['url'] ?? ''))
-                                            <div class="ac-eu-program-actions">
-                                                @if (!empty($card['primary_link']['url'] ?? ''))
-                                                    <a
-                                                        href="{{ $card['primary_link']['url'] }}"
-                                                        class="ac-advisory-card-link"
-                                                        @if($card['primary_link']['open_in_new_tab'] ?? false) target="_blank" rel="{{ $card['primary_link']['rel'] ?? 'noopener noreferrer' }}" @endif
-                                                    >{{ $card['primary_link']['label'] ?: $readMoreLabel }}</a>
-                                                @endif
-
-                                                @if (!empty($card['secondary_link']['url'] ?? ''))
-                                                    <a
-                                                        href="{{ $card['secondary_link']['url'] }}"
-                                                        class="ac-advisory-card-link"
-                                                        @if($card['secondary_link']['open_in_new_tab'] ?? false) target="_blank" rel="{{ $card['secondary_link']['rel'] ?? 'noopener noreferrer' }}" @endif
-                                                    >{{ $card['secondary_link']['label'] ?: $readMoreLabel }}</a>
-                                                @endif
-                                            </div>
-                                        @endif
-                                    </article>
+                                @foreach ((array) ($card['body'] ?? []) as $paragraph)
+                                    @if (trim((string) $paragraph) !== '')
+                                        <p>{{ $paragraph }}</p>
+                                    @endif
                                 @endforeach
-                            </div>
-                        </article>
-                    @endif
-                </div>
-            </div>
-        </section>
 
-        @include('front.desktop.partials.service-videos', [
-            'serviceVideoSection' => $serviceVideoSection ?? [],
-            'serviceVideos' => $serviceVideos ?? [],
-            'locale' => $locale ?? app()->getLocale(),
-        ])
+                                @foreach ((array) ($card['groups'] ?? []) as $group)
+                                    <div class="ac-eu-program-list-block">
+                                        <h4>{{ $group['label'] ?? '' }}</h4>
+                                        <ul class="ac-advisory-list">
+                                            @foreach ((array) ($group['items'] ?? []) as $item)
+                                                @php
+                                                    $resolvedLink = $item['resolved_link'] ?? ['url' => ''];
+                                                    $itemUrl = trim((string) ($resolvedLink['url'] ?? ''));
+                                                @endphp
+                                                <li>
+                                                    @if ($itemUrl !== '')
+                                                        <a href="{{ $itemUrl }}" @if($resolvedLink['open_in_new_tab'] ?? false) target="_blank" rel="{{ $resolvedLink['rel'] ?? 'noopener noreferrer' }}" @endif>{{ $item['title'] ?? '' }}</a>
+                                                    @else
+                                                        {{ $item['title'] ?? '' }}
+                                                    @endif
+                                                </li>
+                                            @endforeach
+                                        </ul>
+                                    </div>
+                                @endforeach
 
-        <section id="eu-funds-cta" class="ac-service-cta-section" aria-labelledby="ac-eu-meeting-title">
-            <div class="ac-service-cta-container">
-                <div class="ac-service-cta-card">
-                    <div class="ac-service-cta-copy">
-                        <h2 id="ac-eu-meeting-title">{{ $meetingTitle }}</h2>
-                        <p>{{ $meetingIntro }}</p>
-                    </div>
-
-                    <a href="{{ route('contact.create') }}" class="ac-service-cta-link">
-                        <span>{{ $meetingLinkLabel }}</span>
-                    </a>
-                </div>
-            </div>
-        </section>
-
-        @if ($hasEuFundsPosts)
-            <section class="ac-support-story ac-home-blog ac-blog-related-section ac-family-blog-section ac-audit-blog-section ac-eu-blog-section" aria-labelledby="ac-eu-blog-title">
-                <div class="mx-auto w-full max-w-[1240px] px-6 lg:px-10">
-                    <div class="ac-support-story-hero">
-                        <div class="ac-support-story-shell">
-                            <div class="ac-services-head ac-support-story-head">
-                                <p class="ac-family-section-kicker">{{ $isCroatianLocale ? 'NAJNOVIJE OBJAVE' : 'LATEST POSTS' }}</p>
-                                <h2 id="ac-eu-blog-title">
-                                    <span>{{ $blogSection['title'] ?? '' }}</span>
-                                </h2>
-                                <p class="ac-services-intro">{{ $blogSection['intro'] ?? '' }}</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="ac-home-blog-carousel">
-                        <div id="ac-eu-blog-splide" class="splide ac-home-blog-splide" data-eu-funds-blog-splide>
-                            <div class="splide__track">
-                                <ul class="splide__list">
-                                    @foreach ($euFundsPosts as $post)
-                                        @php
-                                            $translation = $post->translations->firstWhere('locale', $locale)
-                                                ?? $post->translations->firstWhere('locale', $fallbackLocale);
-                                            $postSlug = trim((string) ($translation?->slug ?? ''));
-                                            $postUrl = $postSlug !== '' ? route('blog.show', ['slug' => $postSlug]) : route('blog.index');
-                                            $postTitle = trim((string) ($translation?->title ?? $post->code));
-                                            $postExcerpt = trim((string) ($translation?->excerpt ?? '')) ?: __('ui.blog.excerpt_fallback');
-                                            $postExcerpt = \Illuminate\Support\Str::limit($postExcerpt, 180, '...', true);
-                                            $postImage = $post->getFirstMedia('blog_cover');
-                                            $postImageSource = $postImage
-                                                ? ($postImage->hasGeneratedConversion('card_360x240') ? $postImage->getUrl('card_360x240') : $postImage->getUrl())
-                                                : '';
-                                            $postImageUrl = $sameOriginAssetUrl($postImageSource);
-                                            $primaryCategory = $post->categories
-                                                ->sortByDesc(fn ($category) => (int) ($category->pivot->is_primary ?? false))
-                                                ->first();
-                                            $categoryTranslation = $primaryCategory?->translations->firstWhere('locale', $locale)
-                                                ?? $primaryCategory?->translations->firstWhere('locale', $fallbackLocale);
-                                            $categoryLabel = trim((string) ($categoryTranslation?->name ?? 'Novosti'));
-                                            $publishedLabel = ($post->published_at ?? $post->created_at)?->translatedFormat($isCroatianLocale ? 'j. F Y.' : 'F j, Y');
-                                        @endphp
-                                        <li class="splide__slide ac-home-blog-slide">
-                                            <article class="ac-home-blog-card">
-                                                <a href="{{ $postUrl }}" class="ac-home-blog-card-link" aria-label="{{ $readMoreLabel }}: {{ $postTitle }}">
-                                                    <div class="ac-home-blog-card-media">
-                                                        @if ($postImageUrl)
-                                                            <img
-                                                                src="{{ $postImageUrl }}"
-                                                                alt="{{ $postTitle }}"
-                                                                class="ac-home-blog-card-image"
-                                                                width="360"
-                                                                height="240"
-                                                                sizes="(min-width: 1180px) 384px, (min-width: 760px) 50vw, 100vw"
-                                                                loading="eager"
-                                                                decoding="async"
-                                                            >
-                                                        @else
-                                                            <div class="ac-home-blog-card-placeholder">
-                                                                <span>{{ __('ui.blog.title') }}</span>
-                                                            </div>
-                                                        @endif
-
-                                                        <div class="ac-home-blog-card-overlay">
-                                                            <span class="ac-home-blog-card-overlay-kicker">
-                                                                {{ \Illuminate\Support\Str::upper(\Illuminate\Support\Str::limit($categoryLabel, 22, '')) }}
-                                                            </span>
-                                                            <span class="ac-home-blog-card-overlay-line" aria-hidden="true"></span>
-                                                        </div>
-                                                    </div>
-
-                                                    <div class="ac-home-blog-card-body">
-                                                        <h3 class="ac-home-blog-card-title">{{ $postTitle }}</h3>
-                                                        <p class="ac-home-blog-card-excerpt">{{ $postExcerpt }}</p>
-                                                    </div>
-
-                                                    <div class="ac-home-blog-card-meta">
-                                                        <span class="ac-home-blog-card-meta-link">
-                                                            <span>{{ $readMoreLabel }}</span>
-                                                            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                                                                <path d="M4 12L12 4"></path>
-                                                                <path d="M6 4h6v6"></path>
-                                                            </svg>
-                                                        </span>
-                                                        @if ($publishedLabel)
-                                                            <span class="ac-home-blog-card-meta-date">{{ $publishedLabel }}</span>
-                                                        @endif
-                                                    </div>
+                                @if (!empty($card['primary_link']['url'] ?? '') || !empty($card['secondary_link']['url'] ?? ''))
+                                    <div class="ac-eu-program-actions">
+                                        @foreach (['primary_link', 'secondary_link'] as $linkKey)
+                                            @if (!empty($card[$linkKey]['url'] ?? ''))
+                                                <a href="{{ $card[$linkKey]['url'] }}" class="ac-eu-editorial-link" @if($card[$linkKey]['open_in_new_tab'] ?? false) target="_blank" rel="{{ $card[$linkKey]['rel'] ?? 'noopener noreferrer' }}" @endif>
+                                                    <span>{{ $card[$linkKey]['label'] ?: $readMoreLabel }}</span>
+                                                    <i class="fa-duotone fa-thin fa-arrow-right fa-fw" aria-hidden="true"></i>
                                                 </a>
-                                            </article>
-                                        </li>
-                                    @endforeach
-                                </ul>
-                            </div>
-                        </div>
+                                            @endif
+                                        @endforeach
+                                    </div>
+                                @endif
+                            </article>
+                        @endforeach
                     </div>
                 </div>
             </section>
         @endif
+
+        @if ($lawCards !== [])
+            <section class="ac-eu-funds-module-section" id="eu-funds-laws" aria-labelledby="ac-eu-funds-laws-title">
+                <div class="ac-advisory-wide-shell">
+                    <header class="ac-advisory-section-heading">
+                        <h2 id="ac-eu-funds-laws-title" data-words-slide-from-right aria-label="{{ $lawsSection['title'] ?? '' }}">
+                            @foreach ($headingWords((string) ($lawsSection['title'] ?? '')) as $word)
+                                <span class="service-title-word animation-index-{{ $loop->index }} {{ $loop->last ? 'is-accent' : '' }}" aria-hidden="true">{{ $word }}</span>
+                            @endforeach
+                        </h2>
+                        @if (trim((string) ($lawsSection['intro'] ?? '')) !== '')
+                            <p>{{ $lawsSection['intro'] }}</p>
+                        @endif
+                    </header>
+
+                    <div class="ac-eu-program-grid">
+                        @foreach ($lawCards as $card)
+                            <article class="ac-advisory-text-panel ac-eu-program-card content-reveal animation-index-{{ $loop->index }}" data-image-reveal>
+                                <h3>{{ $card['title'] ?? '' }}</h3>
+                                @if (trim((string) ($card['summary'] ?? '')) !== '')
+                                    <p>{{ $card['summary'] }}</p>
+                                @endif
+
+                                @foreach ((array) ($card['lists'] ?? []) as $list)
+                                    <div class="ac-eu-program-list-block">
+                                        <h4>{{ $list['label'] ?? '' }}</h4>
+                                        <ul class="ac-advisory-list">
+                                            @foreach ((array) ($list['items'] ?? []) as $item)
+                                                <li>{{ $item }}</li>
+                                            @endforeach
+                                        </ul>
+                                    </div>
+                                @endforeach
+
+                                @if (trim((string) ($card['note'] ?? '')) !== '')
+                                    <p class="ac-eu-program-note">{{ $card['note'] }}</p>
+                                @endif
+
+                                @if (!empty($card['primary_link']['url'] ?? '') || !empty($card['secondary_link']['url'] ?? ''))
+                                    <div class="ac-eu-program-actions">
+                                        @foreach (['primary_link', 'secondary_link'] as $linkKey)
+                                            @if (!empty($card[$linkKey]['url'] ?? ''))
+                                                <a href="{{ $card[$linkKey]['url'] }}" class="ac-eu-editorial-link" @if($card[$linkKey]['open_in_new_tab'] ?? false) target="_blank" rel="{{ $card[$linkKey]['rel'] ?? 'noopener noreferrer' }}" @endif>
+                                                    <span>{{ $card[$linkKey]['label'] ?: $readMoreLabel }}</span>
+                                                    <i class="fa-duotone fa-thin fa-arrow-right fa-fw" aria-hidden="true"></i>
+                                                </a>
+                                            @endif
+                                        @endforeach
+                                    </div>
+                                @endif
+                            </article>
+                        @endforeach
+                    </div>
+                </div>
+            </section>
+        @endif
+
+        @if ($hasEuFundsPosts)
+            <section class="news-section ac-advisory-news" aria-labelledby="ac-eu-funds-news-title">
+                <div class="news-shell">
+                    <header class="news-header">
+                        <div class="ac-eu-funds-news-heading-copy">
+                            <h2 class="news-title" id="ac-eu-funds-news-title" data-words-slide-from-right aria-label="{{ $blogHeadingTitle }}">
+                                @foreach ($headingWords($blogHeadingTitle) as $word)
+                                    <span class="news-title-word animation-index-{{ $loop->index }} {{ $loop->last ? 'is-accent' : '' }}" aria-hidden="true">{{ $word }}</span>
+                                @endforeach
+                            </h2>
+                        </div>
+
+                        <a class="news-all-link content-reveal" data-image-reveal href="{{ $euFundsArchiveUrl }}">
+                            <span>{{ $allPostsLabel }}</span>
+                            <i class="fa-duotone fa-thin fa-arrow-right fa-fw" aria-hidden="true"></i>
+                        </a>
+                    </header>
+
+                    <div class="news-grid">
+                        @foreach ($euFundsPosts->take(3) as $post)
+                            @php
+                                $translation = $post->translations->firstWhere('locale', $locale)
+                                    ?? $post->translations->firstWhere('locale', $fallbackLocale);
+                                $postSlug = trim((string) ($translation?->slug ?? ''));
+                                $postUrl = $postSlug !== '' ? route('blog.show', ['slug' => $postSlug]) : route('blog.index');
+                                $postTitle = trim((string) ($translation?->title ?? $post->code));
+                                $postExcerpt = trim((string) ($translation?->excerpt ?? '')) ?: __('ui.blog.excerpt_fallback');
+                                $postExcerpt = \Illuminate\Support\Str::limit($postExcerpt, 190, '...', true);
+                                $primaryCategory = $post->categories
+                                    ->sortByDesc(fn ($category) => (int) ($category->pivot->is_primary ?? false))
+                                    ->first();
+                                $categoryTranslation = $primaryCategory?->translations->firstWhere('locale', $locale)
+                                    ?? $primaryCategory?->translations->firstWhere('locale', $fallbackLocale);
+                                $categoryLabel = trim((string) ($categoryTranslation?->name ?? ($isCroatian ? 'Novosti' : 'News')));
+                            @endphp
+
+                            <a class="news-card animation-index-{{ $loop->index }}" data-image-reveal href="{{ $postUrl }}" aria-label="{{ $isCroatian ? 'Otvori blog post' : 'Open blog post' }}: {{ $postTitle }}">
+                                <span class="news-card-category">{{ $categoryLabel }}</span>
+                                <h3>{{ $postTitle }}</h3>
+                                <p>{{ $postExcerpt }}</p>
+                                <span class="news-card-link" aria-hidden="true">
+                                    {{ $readMoreLabel }}
+                                    <i class="fa-duotone fa-thin fa-arrow-right fa-fw"></i>
+                                </span>
+                            </a>
+                        @endforeach
+                    </div>
+                </div>
+            </section>
+        @endif
+
+        <section class="contact-cta ac-advisory-contact-cta" id="eu-funds-cta" aria-labelledby="ac-eu-funds-contact-title">
+            <div class="contact-cta-shell">
+                <div class="contact-cta-copy">
+                    <h2 class="contact-cta-title" id="ac-eu-funds-contact-title" data-words-slide-from-right aria-label="{{ $meetingTitle }}">
+                        @foreach ($headingWords($meetingTitle) as $word)
+                            <span class="contact-cta-title-word animation-index-{{ $loop->index }} {{ $loop->remaining < 2 ? 'is-accent' : '' }}" aria-hidden="true">{{ $word }}</span>
+                        @endforeach
+                    </h2>
+                </div>
+
+                <div class="contact-cta-card" data-image-reveal>
+                    <h3 class="contact-cta-card-heading">{{ $meetingCardTitle }}</h3>
+                    <p>{{ $meetingIntro }}</p>
+                    <a class="contact-cta-button" href="{{ route('contact.create') }}">
+                        <span>{{ $meetingButtonLabel }}</span>
+                        <i class="fa-duotone fa-thin fa-arrow-right" aria-hidden="true"></i>
+                    </a>
+                    <small><span class="contact-cta-status-dot" aria-hidden="true"></span>{{ $meetingStatus }}</small>
+                </div>
+            </div>
+        </section>
     </div>
 @endsection
-
-@if ($hasEuFundsPosts || $hasServiceVideos)
-    @once
-        @push('styles')
-            <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@splidejs/splide@4.1.4/dist/css/splide.min.css">
-        @endpush
-    @endonce
-
-    @once
-        @push('scripts')
-            <script defer src="https://cdn.jsdelivr.net/npm/@splidejs/splide@4.1.4/dist/js/splide.min.js"></script>
-        @endpush
-    @endonce
-@endif
-
-@if ($hasEuFundsPosts)
-    @push('scripts')
-        <script>
-            (function () {
-                const initEuFundsBlogSlider = function () {
-                    if (typeof window.Splide !== 'function') {
-                        return false;
-                    }
-
-                    document.querySelectorAll('[data-eu-funds-blog-splide]').forEach(function (el) {
-                        if (el.dataset.splideReady === '1') {
-                            return;
-                        }
-
-                        el.dataset.splideReady = '1';
-
-                        const count = el.querySelectorAll('.splide__slide').length;
-                        const slider = new window.Splide(el, {
-                            type: 'slide',
-                            perPage: Math.min(3, Math.max(1, count)),
-                            perMove: 1,
-                            gap: '1.25rem',
-                            drag: count > 1,
-                            snap: true,
-                            rewind: count > 1,
-                            pagination: count > 1,
-                            arrows: count > 1,
-                            updateOnMove: true,
-                            speed: 520,
-                            breakpoints: {
-                                1180: { perPage: Math.min(2, Math.max(1, count)) },
-                                760: { perPage: 1, gap: '1rem' },
-                            },
-                        });
-
-                        slider.mount();
-                    });
-
-                    return true;
-                };
-
-                if (initEuFundsBlogSlider()) {
-                    return;
-                }
-
-                let attempts = 0;
-                const timer = window.setInterval(function () {
-                    attempts += 1;
-                    if (initEuFundsBlogSlider() || attempts > 40) {
-                        window.clearInterval(timer);
-                    }
-                }, 120);
-            }());
-        </script>
-    @endpush
-@endif

@@ -1,0 +1,264 @@
+.front-route-eu-funds .ac-eu-service-page {
+    --eu-funds-cream-soft: #eae5da;
+}
+
+.front-route-eu-funds .ac-eu-funds-service-card {
+    min-height: 27rem;
+}
+
+.front-route-eu-funds .ac-eu-funds-module-section {
+    position: relative;
+    padding: clamp(5.5rem, 7vw, 8.2rem) 0;
+    background: var(--advisory-cream);
+}
+
+.front-route-eu-funds .ac-eu-funds-module-section--soft {
+    background:
+        radial-gradient(circle at 88% 12%, rgba(216, 185, 111, 0.12), transparent 30%),
+        var(--eu-funds-cream-soft);
+}
+
+.front-route-eu-funds .ac-eu-funds-module-section .ac-advisory-section-heading > p,
+.front-route-eu-funds .ac-eu-funds-services .ac-advisory-section-heading > p {
+    max-width: 52rem;
+}
+
+.front-route-eu-funds .ac-eu-funds-source-grid {
+    margin-bottom: clamp(4rem, 6vw, 6rem);
+}
+
+.front-route-eu-funds .ac-eu-module-heading {
+    max-width: 56rem;
+    margin: 0 auto clamp(2.5rem, 4vw, 4rem);
+    text-align: center;
+}
+
+.front-route-eu-funds .ac-eu-module-kicker,
+.front-route-eu-funds .ac-eu-program-eyebrow {
+    margin: 0 0 0.8rem;
+    color: #8b6b37;
+    font-size: 0.74rem;
+    font-weight: 780;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+}
+
+.front-desktop-shell.front-route-eu-funds .front-content-shell .ac-eu-module-heading h3 {
+    margin: 0;
+    color: #101820;
+    font-family: "Instrument Sans Variable", Arial, sans-serif !important;
+    font-size: clamp(2.2rem, 3vw, 3.6rem);
+    font-weight: 420;
+    letter-spacing: -0.04em;
+    line-height: 1.08;
+    text-wrap: balance;
+}
+
+.front-route-eu-funds .ac-eu-module-heading > p:last-child {
+    max-width: 48rem;
+    margin: 1.25rem auto 0;
+    color: #5a5650;
+    font-size: 1rem;
+    line-height: 1.72;
+}
+
+.front-route-eu-funds .ac-eu-call-group-grid,
+.front-route-eu-funds .ac-eu-program-grid {
+    gap: clamp(1.25rem, 2vw, 2rem);
+    margin-top: 0;
+}
+
+.front-route-eu-funds .ac-eu-call-group-card,
+.front-route-eu-funds .ac-eu-program-card {
+    border: 1px solid rgba(173, 132, 55, 0.22);
+    border-radius: 44px 5px 44px 5px;
+    background: rgba(251, 249, 245, 0.94);
+    box-shadow: none;
+}
+
+.front-route-eu-funds .ac-eu-call-group-card:nth-child(3n + 2),
+.front-route-eu-funds .ac-eu-program-card:nth-child(3n + 2) {
+    border-radius: 5px 44px 5px 44px;
+}
+
+.front-route-eu-funds .ac-eu-call-group-card {
+    padding: clamp(1.5rem, 2.2vw, 2.1rem);
+}
+
+.front-route-eu-funds .ac-eu-call-group-head {
+    margin-bottom: 1rem;
+}
+
+.front-desktop-shell.front-route-eu-funds .front-content-shell .ac-eu-call-group-head h3,
+.front-desktop-shell.front-route-eu-funds .front-content-shell .ac-eu-program-card > h3 {
+    margin: 0;
+    color: #101820;
+    font-family: "Bodoni Moda Variable", "Times New Roman", serif !important;
+    font-weight: 600;
+    letter-spacing: -0.024em;
+    line-height: 1.2;
+    text-wrap: balance;
+}
+
+.front-desktop-shell.front-route-eu-funds .front-content-shell .ac-eu-call-group-head h3 {
+    font-size: clamp(1.45rem, 1.8vw, 2rem);
+}
+
+.front-desktop-shell.front-route-eu-funds .front-content-shell .ac-eu-program-card > h3 {
+    font-size: clamp(1.7rem, 2vw, 2.35rem);
+}
+
+.front-route-eu-funds .ac-eu-program-card {
+    display: flex;
+    min-height: 100%;
+    padding: clamp(2rem, 2.7vw, 2.8rem);
+    flex-direction: column;
+}
+
+.front-route-eu-funds .ac-eu-program-card > p:not(.ac-eu-program-eyebrow) {
+    margin: 1rem 0 0;
+    color: #5a5650;
+    font-size: 1rem;
+    line-height: 1.72;
+}
+
+.front-route-eu-funds .ac-eu-program-list-block {
+    margin-top: 1.4rem;
+}
+
+.front-desktop-shell.front-route-eu-funds .front-content-shell .ac-eu-program-list-block h4 {
+    margin: 0 0 0.8rem;
+    color: #6d5633;
+    font-family: "Instrument Sans Variable", Arial, sans-serif !important;
+    font-size: 0.76rem;
+    font-weight: 780;
+    letter-spacing: 0.12em;
+    line-height: 1.4;
+    text-transform: uppercase;
+}
+
+.front-route-eu-funds .ac-eu-program-card .ac-advisory-list {
+    margin: 0;
+    padding-left: 1.15rem;
+    color: #4d4a44;
+}
+
+.front-route-eu-funds .ac-eu-program-card .ac-advisory-list li {
+    padding: 0.25rem 0 0.25rem 0.65rem;
+    font-size: 0.96rem;
+    line-height: 1.62;
+}
+
+.front-route-eu-funds .ac-eu-program-card .ac-advisory-list li::marker {
+    color: var(--advisory-gold-deep);
+}
+
+.front-route-eu-funds .ac-eu-program-actions {
+    margin-top: auto;
+    padding-top: 1.75rem;
+}
+
+.front-route-eu-funds .ac-eu-editorial-link {
+    position: relative;
+    display: inline-flex;
+    width: fit-content;
+    padding: 0 0 0.28rem;
+    color: var(--advisory-navy);
+    font-size: 0.76rem;
+    font-weight: 700;
+    letter-spacing: 0.11em;
+    text-decoration: none;
+    text-transform: uppercase;
+    align-items: center;
+    gap: 0.65rem;
+}
+
+.front-route-eu-funds .ac-eu-editorial-link::after {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    height: 1px;
+    background: currentColor;
+    content: "";
+    transform: scaleX(0);
+    transform-origin: left center;
+    transition: transform 240ms ease;
+}
+
+.front-route-eu-funds .ac-eu-editorial-link i {
+    transition: transform 220ms ease;
+}
+
+.front-route-eu-funds .ac-eu-editorial-link:hover::after,
+.front-route-eu-funds .ac-eu-editorial-link:focus-visible::after {
+    transform: scaleX(1);
+}
+
+.front-route-eu-funds .ac-eu-editorial-link:hover i,
+.front-route-eu-funds .ac-eu-editorial-link:focus-visible i {
+    transform: translateX(0.3rem);
+}
+
+.front-route-eu-funds .ac-eu-editorial-link:focus-visible,
+.front-route-eu-funds .ac-eu-call-list a:focus-visible,
+.front-route-eu-funds .ac-eu-call-details summary:focus-visible {
+    outline: 2px solid var(--advisory-gold-deep);
+    outline-offset: 4px;
+}
+
+.front-route-eu-funds .ac-eu-funds-news-heading-copy > p {
+    max-width: 50rem;
+    margin: 1.25rem 0 0;
+    color: rgba(3, 18, 31, 0.72);
+    font-size: 1rem;
+    line-height: 1.72;
+}
+
+@media (max-width: 1024px) {
+    .front-route-eu-funds .ac-eu-call-group-grid,
+    .front-route-eu-funds .ac-eu-program-grid {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}
+
+@media (max-width: 760px) {
+    .front-route-eu-funds .ac-eu-funds-service-card {
+        min-height: 0;
+    }
+
+    .front-route-eu-funds .ac-eu-funds-module-section {
+        padding-top: 5.25rem;
+        padding-bottom: 5.5rem;
+    }
+
+    .front-route-eu-funds .ac-eu-module-heading {
+        margin-inline: 0;
+        text-align: left;
+    }
+
+    .front-route-eu-funds .ac-eu-module-heading > p:last-child {
+        margin-inline: 0;
+    }
+
+    .front-route-eu-funds .ac-eu-call-group-card,
+    .front-route-eu-funds .ac-eu-program-card {
+        border-radius: 36px 4px 36px 4px;
+    }
+
+    .front-route-eu-funds .ac-eu-call-group-card:nth-child(3n + 2),
+    .front-route-eu-funds .ac-eu-program-card:nth-child(3n + 2) {
+        border-radius: 4px 36px 4px 36px;
+    }
+
+    .front-route-eu-funds .ac-eu-status-badge {
+        font-size: 0.66rem;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .front-route-eu-funds .ac-eu-editorial-link::after,
+    .front-route-eu-funds .ac-eu-editorial-link i {
+        transition: none;
+    }
+}

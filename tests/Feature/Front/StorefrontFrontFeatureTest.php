@@ -1072,7 +1072,7 @@ class StorefrontFrontFeatureTest extends TestCase
     public function test_advisory_subpages_share_revizija_style_without_decorative_numbers(): void
     {
         foreach ([
-            '/savjetovanje/pribavljanje-financiranja' => 'Pribavljanje financiranja obuhvaća podršku društvima',
+            '/savjetovanje/pribavljanje-financiranja' => 'Pribavljanje financiranja',
             '/savjetovanje/pribavljanje-financiranja/bankovni-krediti' => 'Što su bankovni krediti?',
             '/savjetovanje/pribavljanje-financiranja/zakon-o-poticanju-ulaganja' => 'Što je Zakon o poticanju ulaganja?',
             '/savjetovanje/prodaja-i-kupnja-poduzeca' => 'Što je prodaja i kupnja poduzeća?',
@@ -1084,15 +1084,27 @@ class StorefrontFrontFeatureTest extends TestCase
 
             $response
                 ->assertOk()
-                ->assertSee($expectedText, false)
-                ->assertSee('ac-audit-editorial-section', false)
+                ->assertSee('aria-label="'.$expectedText.'"', false)
+                ->assertSee('ac-advisory-hero', false)
+                ->assertSee('ac-advisory-intro', false)
+                ->assertSee('ac-advisory-services ac-advisory-subpage-services', false)
+                ->assertSee('ac-advisory-approach', false)
+                ->assertSee('contact-cta ac-advisory-contact-cta', false)
+                ->assertSee('front-theme/styles/pages/advisory.css', false)
                 ->assertDontSee('>01<', false)
-                ->assertDontSee('ac-advisory-detail-card', false);
+                ->assertDontSee('ac-advisory-detail-card', false)
+                ->assertDontSee('--audit-hero-image', false);
 
             if ($uri !== '/savjetovanje/pribavljanje-financiranja') {
                 $response
-                    ->assertSee('ac-advisory-check-grid', false)
-                    ->assertSee('ac-advisory-check-pill', false);
+                    ->assertSee('ac-advisory-subpage-service-card--capability', false)
+                    ->assertDontSee('ac-advisory-check-grid', false)
+                    ->assertDontSee('ac-advisory-check-pill', false);
+            } else {
+                $response
+                    ->assertSee(route('eu-funds.show'), false)
+                    ->assertSee(route('advisory.bank-loans.show'), false)
+                    ->assertSee(route('advisory.investment-incentives.show'), false);
             }
         }
     }

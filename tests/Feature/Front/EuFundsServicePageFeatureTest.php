@@ -15,7 +15,7 @@ class EuFundsServicePageFeatureTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_eu_funds_service_page_renders_five_latest_posts_below_service_cta(): void
+    public function test_eu_funds_service_page_renders_three_latest_posts_above_standard_service_cta(): void
     {
         config()->set('app.locale', 'hr');
         config()->set('app.fallback_locale', 'hr');
@@ -73,16 +73,19 @@ class EuFundsServicePageFeatureTest extends TestCase
         $response = $this->get('/eu-fondovi');
 
         $response->assertOk()
-            ->assertSeeText('Objave iz kategorije EU fondovi')
+            ->assertSee('aria-label="Objave iz kategorije EU fondovi"', false)
             ->assertSeeText('EU fondovi objava 01')
             ->assertSeeText('EU fondovi objava 02')
             ->assertSeeText('EU fondovi objava 03')
-            ->assertSeeText('EU fondovi objava 04')
-            ->assertSeeText('EU fondovi objava 05')
+            ->assertDontSeeText('EU fondovi objava 04')
+            ->assertDontSeeText('EU fondovi objava 05')
             ->assertDontSeeText('EU fondovi objava 06')
-            ->assertSee('data-eu-funds-blog-splide', false)
-            ->assertSee('https://cdn.jsdelivr.net/npm/@splidejs/splide@4.1.4/dist/js/splide.min.js', false)
+            ->assertSee('news-section ac-advisory-news', false)
+            ->assertSee('contact-cta ac-advisory-contact-cta', false)
             ->assertSee('id="eu-funds-cta"', false)
+            ->assertSee('front-theme/styles/pages/eu-funds.css', false)
+            ->assertDontSee('data-eu-funds-blog-splide', false)
+            ->assertDontSee('https://cdn.jsdelivr.net/npm/@splidejs/splide@4.1.4/dist/js/splide.min.js', false)
             ->assertDontSee('id="eu-funds-contact"', false)
             ->assertDontSee('front-contact-form', false);
 
@@ -90,11 +93,11 @@ class EuFundsServicePageFeatureTest extends TestCase
         $this->assertIsString($content);
 
         $ctaPosition = strpos($content, 'id="eu-funds-cta"');
-        $blogPosition = strpos($content, 'id="ac-eu-blog-title"');
+        $blogPosition = strpos($content, 'id="ac-eu-funds-news-title"');
 
         $this->assertNotFalse($ctaPosition);
         $this->assertNotFalse($blogPosition);
-        $this->assertLessThan($blogPosition, $ctaPosition);
+        $this->assertLessThan($ctaPosition, $blogPosition);
     }
 
     public function test_eu_funds_service_page_prefers_call_posts_from_content_module(): void
@@ -174,20 +177,20 @@ class EuFundsServicePageFeatureTest extends TestCase
 
         $response->assertOk()
             ->assertSeeText('EU fondovi')
-            ->assertSeeText('Što su EU fondovi?')
-            ->assertSeeText('Naše usluge')
+            ->assertSee('aria-label="Što su EU fondovi?"', false)
+            ->assertSee('aria-label="Naše usluge"', false)
             ->assertSeeText('Analiza i odabir natječaja')
             ->assertSeeText('Izrada projektne prijave')
             ->assertSeeText('Provedba i koordinacija projekta')
-            ->assertSeeText('Naš pristup')
-            ->assertSeeText('Dostupni izvori financiranja')
+            ->assertSee('aria-label="Naš pristup"', false)
+            ->assertSee('aria-label="Dostupni izvori financiranja"', false)
             ->assertSeeText('Otvoreni natječaji')
             ->assertSeeText('Natječaji u najavi')
             ->assertSeeText('Financijski instrumenti')
             ->assertSeeText('HBOR krediti')
             ->assertSeeText('HAMAG zajmovi')
-            ->assertSeeText('Porezne olakšice, zakoni i uredbe')
-            ->assertSeeText('Razgovarajmo o vašem projektu')
+            ->assertSee('aria-label="Porezne olakšice, zakoni i uredbe"', false)
+            ->assertSee('aria-label="Razgovarajmo o vašem projektu"', false)
             ->assertSee(route('eu-funds.questionnaire.create'), false)
             ->assertDontSeeText('Pregledajte natječaje')
             ->assertDontSeeText('VFO, Mehanizam oporavka')
