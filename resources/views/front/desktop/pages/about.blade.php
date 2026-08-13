@@ -564,18 +564,15 @@
                         @foreach ($aboutReferenceItems as $item)
                             <article
                                 class="ac-about-reference-card"
-                                data-image-reveal
-                                style="--reveal-index: {{ $loop->index % 5 }}"
                                 aria-label="{{ $item['name'] }}"
                             >
-                                <div class="ac-about-reference-logo image-reveal-media">
+                                <div class="ac-about-reference-logo">
                                     <img
                                         src="{{ $item['url'] }}"
                                         alt="{{ $item['alt'] }}"
                                         loading="eager"
                                         decoding="async"
                                     >
-                                    <span class="image-reveal-curtain" aria-hidden="true"></span>
                                 </div>
                             </article>
                         @endforeach
