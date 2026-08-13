@@ -1953,7 +1953,7 @@
     min-height: 3.6rem;
     padding: 0 2rem;
     border-width: 2px;
-    border-radius: 22px 3px 22px 3px;
+    border-radius: 22px 0;
     box-shadow: none;
     gap: 12px;
     font-family: "Instrument Sans Variable", Arial, sans-serif;
