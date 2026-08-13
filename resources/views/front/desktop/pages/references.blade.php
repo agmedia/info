@@ -122,7 +122,7 @@
         }
 
         .ac-references-section {
-            padding: clamp(3.5rem, 5vw, 5rem) 0 clamp(5rem, 7vw, 7rem);
+            padding: clamp(2rem, 2.5vw, 2.75rem) 0;
             background: #f4f1ea;
         }
 
