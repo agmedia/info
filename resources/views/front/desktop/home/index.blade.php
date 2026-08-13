@@ -369,7 +369,7 @@
         </div>
     </section>
 
-    <section class="news-section" id="novosti" aria-labelledby="news-title">
+    <section class="news-section ac-home-news" id="novosti" aria-labelledby="news-title">
         <div class="news-shell">
             <header class="news-header">
                 @php $newsHeading = explode(' ', 'Rokovi, novosti i savjeti za sigurnije poslovanje.'); @endphp

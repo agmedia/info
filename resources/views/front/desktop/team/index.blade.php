@@ -12,6 +12,11 @@
     $careerTitleWords = collect(preg_split('/\s+/u', trim((string) __('ui.team.career_title'))) ?: [])
         ->filter()
         ->values();
+    $photoMembers = $members->filter(static fn (array $member): bool => trim((string) ($member['photo_url'] ?? '')) !== '')->values();
+    $photoOpenLabel = $isCroatian ? 'Otvori fotografiju' : 'Open photo';
+    $lightboxCloseLabel = $isCroatian ? 'Zatvori galeriju' : 'Close gallery';
+    $lightboxPreviousLabel = $isCroatian ? 'Prethodna fotografija' : 'Previous photo';
+    $lightboxNextLabel = $isCroatian ? 'Sljedeća fotografija' : 'Next photo';
 @endphp
 
 @section('title', __('ui.team.page_title'))
@@ -46,22 +51,34 @@
                             <article class="ac-team-member-card content-reveal animation-index-{{ $loop->index % 2 }}" data-image-reveal>
                                 <div class="ac-team-member-layout grid gap-4 lg:grid-cols-[220px_minmax(0,1fr)] lg:items-start lg:gap-5">
                                     <div class="ac-team-member-media self-start overflow-hidden border border-slate-200 bg-white">
-                                        <div class="relative overflow-hidden {{ $member['photo_url'] !== '' ? 'image-reveal-media' : '' }}">
-                                            @if ($member['photo_url'] !== '')
+                                        @if ($member['photo_url'] !== '')
+                                            <button
+                                                type="button"
+                                                class="ac-team-member-photo-trigger relative overflow-hidden image-reveal-media"
+                                                data-team-lightbox-trigger
+                                                data-team-lightbox-src="{{ $member['photo_url'] }}"
+                                                data-team-lightbox-alt="{{ $member['name'] }}"
+                                                aria-label="{{ $photoOpenLabel }}: {{ $member['name'] }}"
+                                            >
                                                 <img
                                                     src="{{ $member['photo_url'] }}"
                                                     alt="{{ $member['name'] }}"
                                                     class="ac-team-member-photo block h-auto w-full bg-white"
                                                     loading="lazy"
                                                     decoding="async"
-                                            >
+                                                >
                                                 <span class="image-reveal-curtain" aria-hidden="true"></span>
-                                            @else
+                                                <span class="ac-team-member-photo-zoom" aria-hidden="true">
+                                                    <i class="fa-duotone fa-thin fa-expand"></i>
+                                                </span>
+                                            </button>
+                                        @else
+                                            <div class="relative overflow-hidden">
                                                 <div class="ac-team-member-photo flex h-full items-center justify-center">
                                                     <span class="text-6xl font-black tracking-[0.18em] text-white/92">{{ $member['initials'] }}</span>
                                                 </div>
-                                            @endif
-                                        </div>
+                                            </div>
+                                        @endif
                                     </div>
 
                                     <div class="ac-team-member-head pb-3.5">
@@ -142,6 +159,48 @@
             </div>
         </section>
 
+        @if ($photoMembers->isNotEmpty())
+            <div
+                class="ac-team-lightbox"
+                data-team-lightbox
+                role="dialog"
+                aria-modal="true"
+                aria-hidden="true"
+                aria-labelledby="ac-team-lightbox-caption"
+                hidden
+            >
+                <div class="ac-team-lightbox-backdrop" data-team-lightbox-close aria-hidden="true"></div>
+
+                <div class="ac-team-lightbox-dialog">
+                    <button type="button" class="ac-team-lightbox-close" data-team-lightbox-close aria-label="{{ $lightboxCloseLabel }}">
+                        <i class="fa-light fa-xmark" aria-hidden="true"></i>
+                    </button>
+
+                    @if ($photoMembers->count() > 1)
+                        <button type="button" class="ac-team-lightbox-nav is-previous" data-team-lightbox-previous aria-label="{{ $lightboxPreviousLabel }}">
+                            <i class="fa-duotone fa-thin fa-arrow-left" aria-hidden="true"></i>
+                        </button>
+                    @endif
+
+                    <figure class="ac-team-lightbox-figure">
+                        <div class="ac-team-lightbox-media">
+                            <img src="" alt="" data-team-lightbox-image>
+                        </div>
+                        <figcaption class="ac-team-lightbox-meta">
+                            <span id="ac-team-lightbox-caption" data-team-lightbox-caption></span>
+                            <span class="ac-team-lightbox-position" data-team-lightbox-position aria-live="polite"></span>
+                        </figcaption>
+                    </figure>
+
+                    @if ($photoMembers->count() > 1)
+                        <button type="button" class="ac-team-lightbox-nav is-next" data-team-lightbox-next aria-label="{{ $lightboxNextLabel }}">
+                            <i class="fa-duotone fa-thin fa-arrow-right" aria-hidden="true"></i>
+                        </button>
+                    @endif
+                </div>
+            </div>
+        @endif
+
         @if ($members->isNotEmpty())
             <section class="contact-cta ac-team-contact-cta" aria-labelledby="ac-team-career-title">
                 <div class="contact-cta-shell">
@@ -184,4 +243,8 @@
 
 @push('styles')
     <link rel="stylesheet" href="{{ asset('front-theme/styles/pages/team.css') }}?v={{ filemtime(public_path('front-theme/styles/pages/team.css')) }}">
+@endpush
+
+@push('scripts')
+    <script defer src="{{ asset('front-theme/scripts/team.js') }}?v={{ filemtime(public_path('front-theme/scripts/team.js')) }}"></script>
 @endpush

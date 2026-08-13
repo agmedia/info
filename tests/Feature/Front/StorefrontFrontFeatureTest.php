@@ -174,7 +174,9 @@ class StorefrontFrontFeatureTest extends TestCase
             ->assertSee('Razvoj koji nije samo fraza')
             ->assertSee('Ljudi zbog kojih ostaješ')
             ->assertSee('Otvorene pozicije')
-            ->assertSee('Pošalji nam svoj životopis');
+            ->assertSee('Pošalji nam svoj životopis')
+            ->assertSee('fa-light fa-check', false)
+            ->assertDontSee('ac-career-card-number', false);
     }
 
     public function test_career_page_renders_custom_copy_from_translation_payload(): void
@@ -232,7 +234,7 @@ class StorefrontFrontFeatureTest extends TestCase
             ->assertSee('Custom uvodni odlomak za karijera stranicu.')
             ->assertSee('Kako izgleda prijava')
             ->assertSee('Proces zapošljavanja u')
-            ->assertSee('Faza 01')
+            ->assertDontSee('Faza 01')
             ->assertSee('Prvi kontakt')
             ->assertSee('Custom opis prvog koraka.')
             ->assertSee('Pridruzi nam se danas')
@@ -816,6 +818,7 @@ class StorefrontFrontFeatureTest extends TestCase
         $response->assertOk()
             ->assertSee('Vi vodite poslovanje. Mi brinemo da brojke prate vaš rast.')
             ->assertSee('class="services-grid services-grid--count-3"', false)
+            ->assertSee('class="news-section ac-home-news"', false)
             ->assertSee('sigurnost i povjerenje u brojke')
             ->assertSee('kontrola i jasnoća poslovanja')
             ->assertSee('rast, optimizacija i bolji financijski izbor')
@@ -1253,6 +1256,10 @@ class StorefrontFrontFeatureTest extends TestCase
 
     public function test_team_page_renders_active_members_with_public_links(): void
     {
+        Storage::fake('public');
+        config()->set('media-library.disk_name', 'public');
+        config()->set('media-library.queue_conversions_by_default', false);
+
         $member = TeamMember::query()->create([
             'code' => 'team-'.strtolower((string) str()->random(6)),
             'is_active' => true,
@@ -1281,6 +1288,9 @@ class StorefrontFrontFeatureTest extends TestCase
             'description_html' => '<p>Vodi strateške projekte za vlasnike i menadžerske timove.</p>',
         ]);
 
+        $member->addMedia(UploadedFile::fake()->image('ivana-horvat.jpg', 960, 1200))
+            ->toMediaCollection('team_photo');
+
         $this->get('/alpha-capitalis-tim')
             ->assertOk()
             ->assertSee('Ivana Horvat')
@@ -1288,7 +1298,10 @@ class StorefrontFrontFeatureTest extends TestCase
             ->assertDontSee('Finance')
             ->assertDontSee('Tax')
             ->assertSee('team@example.test')
-            ->assertSee('https://linkedin.com/company/alpha-team', false);
+            ->assertSee('https://linkedin.com/company/alpha-team', false)
+            ->assertSee('data-team-lightbox-trigger', false)
+            ->assertSee('data-team-lightbox', false)
+            ->assertSee('front-theme/scripts/team.js', false);
     }
 
     public function test_blog_article_breadcrumb_links_primary_category_without_current_article(): void

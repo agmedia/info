@@ -1881,25 +1881,25 @@ button {
 }
 
 @media (max-width: 1100px) {
-  .front-desktop-shell :is(.ac-audit-news, .ac-advisory-news) .news-shell {
+  .front-desktop-shell :is(.ac-audit-news, .ac-advisory-news, .ac-home-news) .news-shell {
     display: flex;
     flex-direction: column;
   }
 
-  .front-desktop-shell :is(.ac-audit-news, .ac-advisory-news) .news-header {
+  .front-desktop-shell :is(.ac-audit-news, .ac-advisory-news, .ac-home-news) .news-header {
     display: contents;
   }
 
-  .front-desktop-shell :is(.ac-audit-news, .ac-advisory-news) .news-header > :not(.news-all-link) {
+  .front-desktop-shell :is(.ac-audit-news, .ac-advisory-news, .ac-home-news) .news-header > :not(.news-all-link) {
     order: 1;
   }
 
-  .front-desktop-shell :is(.ac-audit-news, .ac-advisory-news) .news-grid {
+  .front-desktop-shell :is(.ac-audit-news, .ac-advisory-news, .ac-home-news) .news-grid {
     width: 100%;
     order: 2;
   }
 
-  .front-desktop-shell :is(.ac-audit-news, .ac-advisory-news) .news-all-link {
+  .front-desktop-shell :is(.ac-audit-news, .ac-advisory-news, .ac-home-news) .news-all-link {
     position: relative;
     isolation: isolate;
     overflow: hidden;
@@ -1916,7 +1916,7 @@ button {
     order: 3;
   }
 
-  .front-desktop-shell :is(.ac-audit-news, .ac-advisory-news) .news-all-link::after {
+  .front-desktop-shell :is(.ac-audit-news, .ac-advisory-news, .ac-home-news) .news-all-link::after {
     z-index: 0;
     inset: 0;
     height: auto;
@@ -1925,18 +1925,18 @@ button {
     transform-origin: right center;
   }
 
-  .front-desktop-shell :is(.ac-audit-news, .ac-advisory-news) .news-all-link > * {
+  .front-desktop-shell :is(.ac-audit-news, .ac-advisory-news, .ac-home-news) .news-all-link > * {
     position: relative;
     z-index: 1;
   }
 
-  .front-desktop-shell :is(.ac-audit-news, .ac-advisory-news) .news-all-link:hover,
-  .front-desktop-shell :is(.ac-audit-news, .ac-advisory-news) .news-all-link:focus-visible {
+  .front-desktop-shell :is(.ac-audit-news, .ac-advisory-news, .ac-home-news) .news-all-link:hover,
+  .front-desktop-shell :is(.ac-audit-news, .ac-advisory-news, .ac-home-news) .news-all-link:focus-visible {
     color: var(--audit-navy, var(--advisory-navy, var(--navy-deep))) !important;
   }
 
-  .front-desktop-shell :is(.ac-audit-news, .ac-advisory-news) .news-all-link:hover::after,
-  .front-desktop-shell :is(.ac-audit-news, .ac-advisory-news) .news-all-link:focus-visible::after {
+  .front-desktop-shell :is(.ac-audit-news, .ac-advisory-news, .ac-home-news) .news-all-link:hover::after,
+  .front-desktop-shell :is(.ac-audit-news, .ac-advisory-news, .ac-home-news) .news-all-link:focus-visible::after {
     transform: scaleX(1);
     transform-origin: left center;
   }

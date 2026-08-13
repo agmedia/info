@@ -127,7 +127,7 @@
                         <ul class="ac-career-value-list content-reveal animation-index-2" data-image-reveal aria-label="{{ $isCroatian ? 'Što nudimo' : 'What we offer' }}">
                             @foreach ($careerValues as $value)
                                 <li>
-                                    <i class="fa-duotone fa-thin fa-circle-check" aria-hidden="true"></i>
+                                    <i class="fa-light fa-check" aria-hidden="true"></i>
                                     <span>{{ $value }}</span>
                                 </li>
                             @endforeach
@@ -190,9 +190,6 @@
                                     <span class="ac-career-card-icon" aria-hidden="true">
                                         <i class="fa-duotone fa-thin fa-fw {{ $processIconClasses[$loop->index] ?? 'fa-circle-check' }}"></i>
                                     </span>
-                                    @if (trim((string) ($step['step'] ?? '')) !== '')
-                                        <span class="ac-career-card-number">{{ $step['step'] }}</span>
-                                    @endif
                                 </div>
                                 <h3>{{ $step['title'] }}</h3>
                                 @if (trim((string) ($step['description'] ?? '')) !== '')
@@ -239,7 +236,7 @@
                                     <ul class="ac-career-story-list">
                                         @foreach ($story['list'] as $item)
                                             <li>
-                                                <i class="fa-duotone fa-thin fa-circle-check" aria-hidden="true"></i>
+                                                <i class="fa-light fa-check" aria-hidden="true"></i>
                                                 <span>{{ $item }}</span>
                                             </li>
                                         @endforeach

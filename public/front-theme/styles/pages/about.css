@@ -624,7 +624,7 @@
     max-height: 4.95rem;
     object-fit: contain;
     opacity: 0.86;
-    filter: grayscale(1) contrast(1.08);
+    filter: none;
 }
 
 .front-desktop-shell:has(.ac-about-page) .front-footer {

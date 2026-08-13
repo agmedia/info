@@ -250,12 +250,17 @@ body:has(.ac-career-page) {
 
 .front-desktop-shell .ac-career-value-list i,
 .front-desktop-shell .ac-career-story-list i {
-    --fa-primary-color: var(--career-gold-soft);
-    --fa-primary-opacity: 1;
-    --fa-secondary-color: #fff;
-    --fa-secondary-opacity: 0.45;
-    color: var(--career-gold-soft);
-    font-size: 1.05rem;
+    display: inline-grid;
+    width: 1.65rem;
+    height: 1.65rem;
+    flex: 0 0 1.65rem;
+    place-items: center;
+    border: 1px solid rgba(216, 185, 111, 0.68);
+    border-radius: 50%;
+    background: rgba(216, 185, 111, 0.12);
+    color: #f6dc9a;
+    font-size: 0.82rem;
+    line-height: 1;
 }
 
 .front-desktop-shell .ac-career-hero-actions {
@@ -404,7 +409,7 @@ body:has(.ac-career-page) {
 .front-desktop-shell .ac-career-card-head {
     display: flex;
     align-items: flex-start;
-    justify-content: space-between;
+    justify-content: flex-start;
     gap: 1rem;
     margin-bottom: clamp(3.5rem, 5vw, 5.5rem);
 }
@@ -417,14 +422,6 @@ body:has(.ac-career-page) {
     --fa-secondary-opacity: 0.72;
     color: var(--career-navy);
     font-size: 3.5rem;
-    line-height: 1;
-}
-
-.front-desktop-shell .ac-career-card-number {
-    color: var(--career-gold);
-    font-family: "Bodoni Moda Variable", "Times New Roman", serif;
-    font-size: 1.05rem;
-    font-weight: 600;
     line-height: 1;
 }
 
@@ -628,59 +625,81 @@ body:has(.ac-career-page) {
 
 .front-desktop-shell .ac-career-form-label {
     display: block;
-    margin-bottom: 0.4rem;
-    color: #6a7c92;
-    font-size: 0.68rem;
-    font-weight: 700;
-    letter-spacing: 0.08em;
+    margin-bottom: 0.55rem;
+    color: #6f6255;
+    font-size: 0.69rem;
+    font-weight: 750;
+    letter-spacing: 0.11em;
+    line-height: 1.45;
     text-transform: uppercase;
 }
 
 .front-desktop-shell .ac-career-form-input,
 .front-desktop-shell .ac-career-form-textarea {
+    display: block;
     width: 100%;
-    border: 0;
-    border-bottom: 1px solid rgba(15, 23, 42, 0.16);
-    border-radius: 0;
+    min-width: 0;
+    border: 1px solid var(--career-light-border);
+    border-radius: 20px 3px 20px 3px;
     outline: 0;
-    background: transparent;
+    background: rgba(255, 255, 255, 0.64);
     color: var(--career-navy);
-    transition: border-color 180ms ease, background-color 180ms ease;
+    font-family: "Instrument Sans Variable", Arial, sans-serif;
+    font-size: 1rem;
+    line-height: 1.45;
+    transition: border-color 220ms ease, background-color 220ms ease, box-shadow 220ms ease;
 }
 
 .front-desktop-shell .ac-career-form-input {
-    min-height: 3.2rem;
-    padding: 0.8rem 0 0.9rem;
+    min-height: 3.5rem;
+    padding: 0 1.05rem;
 }
 
 .front-desktop-shell .ac-career-form-textarea {
-    min-height: 6.25rem;
-    padding: 0.85rem 0 0.9rem;
+    min-height: 12.5rem;
+    padding: 1rem 1.05rem;
     resize: vertical;
+}
+
+.front-desktop-shell .ac-career-form-input:hover,
+.front-desktop-shell .ac-career-form-textarea:hover {
+    border-color: rgba(173, 132, 55, 0.4);
+    background: rgba(255, 255, 255, 0.82);
 }
 
 .front-desktop-shell .ac-career-form-input:focus,
 .front-desktop-shell .ac-career-form-textarea:focus {
-    border-color: var(--career-gold);
-    box-shadow: none;
+    border-color: rgba(173, 132, 55, 0.72);
+    background: #fff;
+    box-shadow: 0 0 0 3px rgba(173, 132, 55, 0.12);
 }
 
 .front-desktop-shell .ac-career-form-file-wrap {
     position: relative;
-    border-bottom: 1px solid rgba(15, 23, 42, 0.16);
-    transition: border-color 180ms ease;
+    overflow: hidden;
+    border: 1px solid var(--career-light-border);
+    border-radius: 20px 3px 20px 3px;
+    background: rgba(255, 255, 255, 0.64);
+    transition: border-color 220ms ease, background-color 220ms ease, box-shadow 220ms ease;
+}
+
+.front-desktop-shell .ac-career-form-file-wrap:hover {
+    border-color: rgba(173, 132, 55, 0.4);
+    background: rgba(255, 255, 255, 0.82);
 }
 
 .front-desktop-shell .ac-career-form-file-wrap:focus-within {
-    border-color: var(--career-gold);
+    border-color: rgba(173, 132, 55, 0.72);
+    background: #fff;
+    box-shadow: 0 0 0 3px rgba(173, 132, 55, 0.12);
 }
 
 .front-desktop-shell .ac-career-form-file-ui {
     display: flex;
-    min-height: 3.2rem;
+    min-height: 3.5rem;
     align-items: center;
     gap: 0.9rem;
-    padding: 0.72rem 0;
+    padding: 0.55rem 0.65rem;
     overflow: hidden;
 }
 
@@ -693,8 +712,8 @@ body:has(.ac-career-page) {
     gap: 0.5rem;
     padding: 0.55rem 0.9rem;
     border: 1px solid var(--career-light-border);
-    border-radius: 8px;
-    background: rgba(255, 255, 255, 0.55);
+    border-radius: 15px 3px 15px 3px;
+    background: #fff;
     color: var(--career-navy);
     font-size: 0.84rem;
     font-weight: 700;
