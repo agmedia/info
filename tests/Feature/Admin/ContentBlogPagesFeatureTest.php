@@ -81,6 +81,32 @@ class ContentBlogPagesFeatureTest extends TestCase
         $this->assertSame('Shipping Info', (string) $page->translation('en')->first()?->title);
     }
 
+    public function test_about_info_page_exposes_its_hero_image_in_media_tab(): void
+    {
+        $user = $this->makeAdminUser();
+        $page = InfoPage::query()->where('code', 'about-us')->firstOrFail();
+
+        Livewire::actingAs($user)
+            ->test(PageForm::class, ['pageId' => $page->id])
+            ->call('setTab', 'media')
+            ->assertSet('activeTab', 'media')
+            ->assertSee('About Hero Image')
+            ->assertSee('about_hero_image');
+    }
+
+    public function test_career_info_page_exposes_its_hero_image_in_media_tab(): void
+    {
+        $user = $this->makeAdminUser();
+        $page = InfoPage::query()->where('code', 'career')->firstOrFail();
+
+        Livewire::actingAs($user)
+            ->test(PageForm::class, ['pageId' => $page->id])
+            ->call('setTab', 'media')
+            ->assertSet('activeTab', 'media')
+            ->assertSee('Career Hero Image')
+            ->assertSee('career_hero_image');
+    }
+
     public function test_admin_can_save_academy_blog_source_settings_on_info_page(): void
     {
         $user = $this->makeAdminUser();

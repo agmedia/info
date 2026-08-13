@@ -24,7 +24,7 @@
                         {{ __('Sources') }}
                     </button>
                 @endif
-                @if (in_array(($form['layout'] ?? ''), ['academy', 'references'], true))
+                @if (in_array(($form['layout'] ?? ''), ['about', 'academy', 'career', 'references'], true))
                     <button type="button" wire:click="setTab('media')" class="rounded-lg border px-3 py-2 text-xs font-semibold uppercase tracking-[0.12em] {{ $activeTab === 'media' ? 'border-slate-900 bg-slate-900 text-white' : 'border-slate-300 bg-white text-slate-700 hover:bg-slate-100' }}">
                         {{ __('Media') }}
                     </button>
@@ -519,12 +519,21 @@
             </div>
         @endif
 
-        @if ($activeTab === 'media' && in_array(($form['layout'] ?? ''), ['academy', 'references'], true))
+        @if ($activeTab === 'media' && in_array(($form['layout'] ?? ''), ['about', 'academy', 'career', 'references'], true))
+            @php
+                $pageMediaCollections = match ($form['layout'] ?? '') {
+                    'about' => ['about_hero_image'],
+                    'academy' => ['academy_gallery'],
+                    'career' => ['career_hero_image'],
+                    'references' => ['reference_logos'],
+                    default => [],
+                };
+            @endphp
             <livewire:admin.media.manager
                 :model-class="\App\Models\Content\Page\InfoPage::class"
                 :model-id="$pageId"
                 :locale="$form['locale']"
-                :only-collections="($form['layout'] ?? '') === 'academy' ? ['academy_gallery'] : ['reference_logos']"
+                :only-collections="$pageMediaCollections"
                 :wire:key="'info-page-media-manager-'.($pageId ?? 'new').'-'.$form['locale']"
             />
         @endif

@@ -175,7 +175,7 @@ class StorefrontFrontFeatureTest extends TestCase
             ->assertSee('Ljudi zbog kojih ostaješ')
             ->assertSee('Otvorene pozicije')
             ->assertSee('Pošalji nam svoj životopis')
-            ->assertSee('fa-light fa-check', false)
+            ->assertSee('fa-solid fa-check', false)
             ->assertDontSee('ac-career-card-number', false);
     }
 
@@ -243,6 +243,32 @@ class StorefrontFrontFeatureTest extends TestCase
             ->assertSee('Posalji otvorenu prijavu')
             ->assertDontSee('Postani dio tima')
             ->assertDontSee('Pošaljite nam svoj CV');
+    }
+
+    public function test_career_page_uses_uploaded_hero_image(): void
+    {
+        Storage::fake('public');
+        config()->set('media-library.disk_name', 'public');
+        config()->set('media-library.queue_conversions_by_default', false);
+
+        $careerPage = InfoPage::query()->where('code', 'career')->firstOrFail();
+        $careerPage->clearMediaCollection('career_hero_image');
+        $media = $careerPage
+            ->addMedia(UploadedFile::fake()->image('custom-career-hero.png', 1440, 1059))
+            ->withCustomProperties([
+                'alt' => ['hr' => 'Novi portret ALPHA CAPITALIS tima u parku'],
+            ])
+            ->toMediaCollection('career_hero_image');
+        $media = $media->fresh();
+        $expectedHeroUrl = $media->hasGeneratedConversion('career_hero_1440x1059')
+            ? $media->getUrl('career_hero_1440x1059')
+            : $media->getUrl();
+
+        $this->get('/karijera')
+            ->assertOk()
+            ->assertSee($expectedHeroUrl, false)
+            ->assertSee('alt="Novi portret ALPHA CAPITALIS tima u parku"', false)
+            ->assertDontSee('front-theme/images/career/karijera.png', false);
     }
 
     public function test_academy_page_renders_custom_cms_layout(): void
@@ -1148,6 +1174,32 @@ class StorefrontFrontFeatureTest extends TestCase
             ->assertSee('<a class="ac-about-dark-inline-link" href="'.route('eu-funds.show').'">EU fondova</a>', false)
             ->assertDontSee('class="footer-newsletter"', false)
             ->assertDontSee('This page has no body content.');
+    }
+
+    public function test_about_page_uses_uploaded_hero_image(): void
+    {
+        Storage::fake('public');
+        config()->set('media-library.disk_name', 'public');
+        config()->set('media-library.queue_conversions_by_default', false);
+
+        $aboutPage = InfoPage::query()->where('code', 'about-us')->firstOrFail();
+        $aboutPage->clearMediaCollection('about_hero_image');
+        $media = $aboutPage
+            ->addMedia(UploadedFile::fake()->image('custom-about-hero.jpg', 1440, 1059))
+            ->withCustomProperties([
+                'alt' => ['hr' => 'Novi portret ALPHA CAPITALIS tima'],
+            ])
+            ->toMediaCollection('about_hero_image');
+        $media = $media->fresh();
+        $expectedHeroUrl = $media->hasGeneratedConversion('about_hero_1440x1059')
+            ? $media->getUrl('about_hero_1440x1059')
+            : $media->getUrl();
+
+        $this->get('/o-nama')
+            ->assertOk()
+            ->assertSee($expectedHeroUrl, false)
+            ->assertSee('alt="Novi portret ALPHA CAPITALIS tima"', false)
+            ->assertDontSee('front-theme/images/about/o-nama.jpg', false);
     }
 
     public function test_navigation_menu_service_resolves_page_and_custom_links(): void

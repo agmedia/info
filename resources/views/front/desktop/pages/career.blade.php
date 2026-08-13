@@ -74,9 +74,19 @@
     $headingWords = static fn (string $title): array => preg_split('/\s+/u', trim($title), -1, PREG_SPLIT_NO_EMPTY) ?: [];
     $processIconClasses = ['fa-handshake', 'fa-hands-holding-heart', 'fa-chart-line-up', 'fa-lightbulb-on'];
     $storyIconClasses = ['fa-people-group', 'fa-compass', 'fa-seedling'];
+    $careerHeroMedia = $page->getFirstMedia('career_hero_image');
+    $careerHeroMediaAlt = trim((string) (
+        data_get($careerHeroMedia?->custom_properties, 'alt.'.$locale)
+        ?: data_get($careerHeroMedia?->custom_properties, 'alt.'.$fallbackLocale)
+        ?: $careerHeroMedia?->name
+    ));
     $careerHeroPhoto = [
-        'src' => asset('front-theme/images/about/o-nama-alpha-capitalis.jpg'),
-        'alt' => $isCroatian ? 'ALPHA CAPITALIS tim' : 'ALPHA CAPITALIS team',
+        'src' => $careerHeroMedia?->hasGeneratedConversion('career_hero_1440x1059')
+            ? $careerHeroMedia->getUrl('career_hero_1440x1059')
+            : ($careerHeroMedia?->getUrl() ?: asset('front-theme/images/career/karijera.png')),
+        'alt' => $careerHeroMediaAlt !== ''
+            ? $careerHeroMediaAlt
+            : ($isCroatian ? 'ALPHA CAPITALIS tim' : 'ALPHA CAPITALIS team'),
     ];
 @endphp
 
@@ -127,7 +137,7 @@
                         <ul class="ac-career-value-list content-reveal animation-index-2" data-image-reveal aria-label="{{ $isCroatian ? 'Što nudimo' : 'What we offer' }}">
                             @foreach ($careerValues as $value)
                                 <li>
-                                    <i class="fa-light fa-check" aria-hidden="true"></i>
+                                    <i class="fa-solid fa-check" aria-hidden="true"></i>
                                     <span>{{ $value }}</span>
                                 </li>
                             @endforeach
@@ -146,8 +156,8 @@
                         <img
                             src="{{ $careerHeroPhoto['src'] }}"
                             alt="{{ $careerHeroPhoto['alt'] }}"
-                            width="1386"
-                            height="925"
+                            width="1448"
+                            height="1086"
                             loading="eager"
                             decoding="async"
                             fetchpriority="high"
@@ -236,7 +246,7 @@
                                     <ul class="ac-career-story-list">
                                         @foreach ($story['list'] as $item)
                                             <li>
-                                                <i class="fa-light fa-check" aria-hidden="true"></i>
+                                                <i class="fa-solid fa-check" aria-hidden="true"></i>
                                                 <span>{{ $item }}</span>
                                             </li>
                                         @endforeach

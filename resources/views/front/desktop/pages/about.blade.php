@@ -17,12 +17,22 @@
     $aboutTeamMembers = collect($aboutTeamMembers ?? [])->values();
     $aboutPreviewTeamMembers = $aboutTeamMembers->take(3)->values();
     $aboutReferenceItems = collect($aboutReferenceItems ?? [])->values();
+    $aboutHeroMedia = $page->getFirstMedia('about_hero_image');
+    $aboutHeroMediaAlt = trim((string) (
+        data_get($aboutHeroMedia?->custom_properties, 'alt.'.$locale)
+        ?: data_get($aboutHeroMedia?->custom_properties, 'alt.'.$fallbackLocale)
+        ?: $aboutHeroMedia?->name
+    ));
     $aboutHeroPhoto = [
         'class' => 'ac-about-image--hero',
-        'src' => asset('front-theme/images/about/o-nama-alpha-capitalis.jpg'),
-        'alt' => str_starts_with(strtolower((string) $locale), 'hr')
-            ? 'ALPHA CAPITALIS tim'
-            : 'ALPHA CAPITALIS team',
+        'src' => $aboutHeroMedia?->hasGeneratedConversion('about_hero_1440x1059')
+            ? $aboutHeroMedia->getUrl('about_hero_1440x1059')
+            : ($aboutHeroMedia?->getUrl() ?: asset('front-theme/images/about/o-nama.jpg')),
+        'alt' => $aboutHeroMediaAlt !== ''
+            ? $aboutHeroMediaAlt
+            : (str_starts_with(strtolower((string) $locale), 'hr')
+                ? 'ALPHA CAPITALIS tim'
+                : 'ALPHA CAPITALIS team'),
     ];
     $referencePageUrl = route('pages.show', ['slug' => 'reference']);
     $teamButtonLabel = str_starts_with(strtolower((string) $locale), 'hr') ? 'Upoznaj cijeli tim' : 'Meet the full team';
@@ -179,8 +189,8 @@
                             <img
                                 src="{{ $aboutHeroPhoto['src'] }}"
                                 alt="{{ $aboutHeroPhoto['alt'] }}"
-                                width="1386"
-                                height="925"
+                                width="1448"
+                                height="1086"
                                 loading="eager"
                                 decoding="async"
                                 fetchpriority="high"

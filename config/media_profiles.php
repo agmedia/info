@@ -45,6 +45,20 @@ return [
             'quality' => 86,
             'format' => null,
         ],
+        'about_hero_1440x1059' => [
+            'fit' => 'crop',
+            'width' => 1440,
+            'height' => 1059,
+            'quality' => 86,
+            'format' => null,
+        ],
+        'career_hero_1440x1059' => [
+            'fit' => 'crop',
+            'width' => 1440,
+            'height' => 1059,
+            'quality' => 86,
+            'format' => 'webp',
+        ],
     ],
 
     'models' => [
@@ -95,6 +109,22 @@ return [
         InfoPage::class => [
             'label' => 'Info Page',
             'collections' => [
+                'about_hero_image' => [
+                    'label' => 'About Hero Image',
+                    'single_file' => true,
+                    'max_upload_kb' => 8192,
+                    'accept_mime_types' => ['image/jpeg', 'image/png', 'image/webp', 'image/avif'],
+                    'conversions' => ['card_360x240', 'about_hero_1440x1059'],
+                    'preview_conversion' => 'card_360x240',
+                ],
+                'career_hero_image' => [
+                    'label' => 'Career Hero Image',
+                    'single_file' => true,
+                    'max_upload_kb' => 8192,
+                    'accept_mime_types' => ['image/jpeg', 'image/png', 'image/webp', 'image/avif'],
+                    'conversions' => ['card_360x240', 'career_hero_1440x1059'],
+                    'preview_conversion' => 'card_360x240',
+                ],
                 'academy_gallery' => [
                     'label' => 'Academy Media Gallery',
                     'single_file' => false,
