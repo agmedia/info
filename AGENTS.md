@@ -34,6 +34,7 @@
 - Reuse the standard dark `contact-cta` design for CTA sections. Do not create a page-specific CTA appearance when the standard component fits.
 - Do not restyle the global newsletter, header, or footer from a page stylesheet unless the task explicitly requests a global change.
 - Use Font Awesome Pro classes for interface and social icons. Match the icon family and weight used by the reference component; do not insert one-off inline SVG icons.
+- Font Awesome Pro is the required default for all new project icons. Do not substitute Unicode symbols, emoji, improvised CSS shapes, or one-off SVG markup when a matching Font Awesome Pro icon exists.
 - Use the shared hover-line treatment for editorial text links such as `Opširnije`.
 - Keep arrow direction and hover behavior consistent with the same link or button elsewhere on the site. Expansion state alone must not rotate an arrow unless that is already the project-wide pattern.
 - Long copy may use an `Opširnije` / `Prikaži manje` disclosure, but the initially visible text must end at a complete sentence when requested by the design.

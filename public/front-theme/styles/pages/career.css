@@ -1,0 +1,1057 @@
+/* Career page
+ * Uses the same editorial system as the About page: centered 50/50 intros,
+ * cream paper surfaces, navy feature sections and asymmetric corners.
+ */
+
+.front-desktop-shell .ac-career-page {
+    --career-navy: #041525;
+    --career-navy-soft: #0a1d30;
+    --career-cream: #f4f1ea;
+    --career-paper: #fbf9f5;
+    --career-gold: #ad8437;
+    --career-gold-soft: #d8b96f;
+    --career-copy: #4d5963;
+    --career-light-border: rgba(173, 132, 55, 0.22);
+    --career-dark-border: rgba(216, 185, 111, 0.24);
+    --career-radius-large: clamp(96px, 9vw, 172px);
+    --career-radius-medium: clamp(52px, 5vw, 94px);
+    --career-radius-small: 14px;
+    min-height: 100vh;
+    overflow: hidden;
+    background: var(--career-cream);
+    color: var(--career-navy);
+}
+
+body:has(.ac-career-page) {
+    overflow-x: clip;
+}
+
+.front-desktop-shell .ac-career-page p {
+    margin: 0;
+}
+
+.front-desktop-shell .ac-career-container {
+    width: min(1600px, calc(100% - 136px));
+    margin: 0 auto;
+}
+
+.front-desktop-shell .ac-career-intro,
+.front-desktop-shell .ac-career-development,
+.front-desktop-shell .ac-career-openings {
+    position: relative;
+    background: var(--career-cream);
+    color: var(--career-navy);
+}
+
+.front-desktop-shell .ac-career-intro-layout {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0;
+    align-items: center;
+    padding-block: calc(clamp(76px, 6vw, 112px) - clamp(13.75px, 0.8vw, 16px));
+}
+
+.front-desktop-shell .ac-career-intro-heading {
+    padding-right: 0;
+}
+
+.front-desktop-shell .ac-career-intro-copy {
+    display: grid;
+    gap: 1.25rem;
+    padding-block: clamp(0.5rem, 1vw, 1rem);
+    padding-left: clamp(2.5rem, 5vw, 6rem);
+    border-left: 1px solid rgba(173, 132, 55, 0.52);
+}
+
+.front-desktop-shell:not(.front-route-home) .front-content-shell .ac-career-display-title,
+.front-desktop-shell:not(.front-route-home) .front-content-shell .ac-career-section-title {
+    max-width: 760px;
+    margin: 0;
+    color: var(--career-navy);
+    font-family: "Instrument Sans Variable", Arial, sans-serif !important;
+    font-size: clamp(3rem, 3.75vw, 4.75rem);
+    font-style: normal !important;
+    font-weight: 400 !important;
+    letter-spacing: -0.018em !important;
+    line-height: 1.04;
+    text-wrap: balance;
+}
+
+.front-desktop-shell:not(.front-route-home) .front-content-shell :is(.ac-career-display-title, .ac-career-section-title) .values-word:not(.is-accent) {
+    font-family: "Instrument Sans Variable", Arial, sans-serif !important;
+    font-style: normal !important;
+    font-weight: 400 !important;
+    letter-spacing: -0.018em !important;
+}
+
+.front-desktop-shell:not(.front-route-home) .front-content-shell .ac-career-display-title .values-word.is-accent,
+.front-desktop-shell:not(.front-route-home) .front-content-shell .ac-career-section-title .values-word.is-accent {
+    color: var(--career-gold) !important;
+    font-family: "Bodoni Moda Variable", "Times New Roman", serif !important;
+    font-style: italic !important;
+    font-weight: 400 !important;
+    letter-spacing: -0.04em !important;
+}
+
+.front-desktop-shell:not(.front-route-home) .front-content-shell .ac-career-intro-copy h2 {
+    max-width: 21ch;
+    margin: 0;
+    color: var(--career-navy);
+    font-family: "Bodoni Moda Variable", "Times New Roman", serif !important;
+    font-size: clamp(1.55rem, 1.75vw, 2.1rem);
+    font-weight: 600;
+    letter-spacing: -0.024em !important;
+    line-height: 1.28;
+    text-wrap: balance;
+}
+
+.front-desktop-shell .ac-career-intro-copy p,
+.front-desktop-shell .ac-career-section-copy > p:not(.ac-career-kicker),
+.front-desktop-shell .ac-career-copy-stack p,
+.front-desktop-shell .ac-career-development-card > p,
+.front-desktop-shell .ac-career-form-head > p:last-child {
+    color: var(--career-copy);
+    font-size: clamp(1rem, 1vw, 1.12rem);
+    line-height: 1.75;
+    text-wrap: pretty;
+}
+
+.front-desktop-shell .ac-career-intro-copy p {
+    max-width: 43rem;
+}
+
+.front-desktop-shell .ac-career-hero,
+.front-desktop-shell .ac-career-stories {
+    position: relative;
+    overflow: hidden;
+    background: var(--career-navy);
+    color: #fff;
+}
+
+.front-desktop-shell :is(.ac-career-hero, .ac-career-stories)::before {
+    position: absolute;
+    z-index: 0;
+    top: 44%;
+    left: 50%;
+    width: 72%;
+    height: 52%;
+    border-radius: 50%;
+    background: rgba(55, 117, 158, 0.14);
+    content: '';
+    filter: blur(clamp(72px, 8vw, 150px));
+    pointer-events: none;
+    transform: translate(-50%, -50%);
+}
+
+.front-desktop-shell .ac-career-hero {
+    padding: clamp(5.5rem, 8vw, 9rem) 0 clamp(6rem, 9vw, 10rem);
+}
+
+.front-desktop-shell .ac-career-hero-grid {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    grid-template-columns: minmax(0, 0.84fr) minmax(32rem, 1.16fr);
+    grid-template-areas: "copy media";
+    gap: clamp(3rem, 6vw, 7.5rem);
+    align-items: center;
+}
+
+.front-desktop-shell .ac-career-hero-copy {
+    grid-area: copy;
+    max-width: 43rem;
+}
+
+.front-desktop-shell .ac-career-kicker,
+.front-desktop-shell .ac-career-form-kicker,
+.front-desktop-shell .ac-career-story-kicker {
+    color: var(--career-gold);
+    font-size: 0.76rem;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    line-height: 1.45;
+    text-transform: uppercase;
+}
+
+.front-desktop-shell .ac-career-hero .ac-career-kicker,
+.front-desktop-shell .ac-career-stories .ac-career-kicker,
+.front-desktop-shell .ac-career-story-kicker {
+    color: var(--career-gold-soft);
+}
+
+.front-desktop-shell:not(.front-route-home) .front-content-shell .ac-career-dark-title {
+    max-width: 24ch;
+    margin: 0.85rem 0 0;
+    color: #fff;
+    font-family: "Bodoni Moda Variable", "Times New Roman", serif !important;
+    font-size: clamp(1.75rem, 2vw, 2.45rem);
+    font-weight: 600;
+    letter-spacing: -0.025em !important;
+    line-height: 1.28;
+    text-wrap: balance;
+}
+
+.front-desktop-shell:not(.front-route-home) .front-content-shell .ac-career-dark-title .service-title-word {
+    font-family: inherit !important;
+    font-style: normal;
+    font-weight: inherit;
+    letter-spacing: inherit;
+}
+
+.front-desktop-shell:not(.front-route-home) .front-content-shell .ac-career-dark-title .service-title-word.is-accent {
+    color: var(--career-gold-soft);
+    font-family: "Bodoni Moda Variable", "Times New Roman", serif !important;
+    font-style: italic;
+    font-weight: inherit;
+    letter-spacing: inherit;
+}
+
+.front-desktop-shell .ac-career-copy-stack {
+    display: grid;
+    gap: 1rem;
+    margin-top: 1.35rem;
+}
+
+.front-desktop-shell .ac-career-copy-stack--light p {
+    color: rgba(247, 247, 245, 0.74);
+}
+
+.front-desktop-shell .ac-career-value-list {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0;
+    margin: clamp(1.8rem, 3vw, 2.8rem) 0 0;
+    padding: 0;
+    border-top: 1px solid var(--career-dark-border);
+    list-style: none;
+}
+
+.front-desktop-shell .ac-career-value-list li {
+    display: flex;
+    min-height: 3.5rem;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.9rem 0.85rem 0.9rem 0;
+    border-bottom: 1px solid var(--career-dark-border);
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 0.94rem;
+    font-weight: 600;
+    line-height: 1.35;
+}
+
+.front-desktop-shell .ac-career-value-list li:nth-child(even) {
+    padding-right: 0;
+    padding-left: 1rem;
+    border-left: 1px solid var(--career-dark-border);
+}
+
+.front-desktop-shell .ac-career-value-list i,
+.front-desktop-shell .ac-career-story-list i {
+    --fa-primary-color: var(--career-gold-soft);
+    --fa-primary-opacity: 1;
+    --fa-secondary-color: #fff;
+    --fa-secondary-opacity: 0.45;
+    color: var(--career-gold-soft);
+    font-size: 1.05rem;
+}
+
+.front-desktop-shell .ac-career-hero-actions {
+    display: flex;
+    margin-top: clamp(2rem, 3.5vw, 3.25rem);
+}
+
+.front-desktop-shell .ac-career-primary-cta {
+    position: relative;
+    min-height: 3.15rem;
+    min-width: 13rem;
+    overflow: hidden;
+    gap: 0.65rem;
+    padding: 0.9rem 1.45rem;
+    border: 1px solid var(--career-gold-soft);
+    background: transparent;
+    color: #fff !important;
+    font-size: 0.8rem;
+    letter-spacing: 0;
+}
+
+.front-desktop-shell .ac-career-primary-cta::before {
+    position: absolute;
+    z-index: 0;
+    inset: 0;
+    background: var(--career-gold-soft);
+    content: '';
+    transform: scaleX(0);
+    transform-origin: right center;
+    transition: transform 440ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.front-desktop-shell .ac-career-primary-cta > * {
+    position: relative;
+    z-index: 1;
+}
+
+.front-desktop-shell .ac-career-primary-cta:hover,
+.front-desktop-shell .ac-career-primary-cta:focus-visible {
+    color: var(--career-navy) !important;
+}
+
+.front-desktop-shell .ac-career-primary-cta:hover::before,
+.front-desktop-shell .ac-career-primary-cta:focus-visible::before {
+    transform: scaleX(1);
+    transform-origin: left center;
+}
+
+.front-desktop-shell .ac-career-hero-media {
+    position: relative;
+    grid-area: media;
+    justify-self: end;
+    width: min(100%, 52rem);
+    padding-bottom: 1.5rem;
+}
+
+.front-desktop-shell .ac-career-hero-image {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 1.36 / 1;
+    margin: 0;
+    overflow: hidden;
+    border-radius:
+        var(--career-radius-large)
+        var(--career-radius-small)
+        var(--career-radius-medium)
+        var(--career-radius-small);
+    background: var(--career-navy-soft);
+}
+
+.front-desktop-shell .ac-career-hero-image::before {
+    position: absolute;
+    z-index: 2;
+    inset: 0;
+    border: 1px solid #373c37;
+    border-radius: inherit;
+    content: '';
+    pointer-events: none;
+}
+
+.front-desktop-shell .ac-career-hero-image::after {
+    position: absolute;
+    z-index: 1;
+    inset: 0;
+    background: linear-gradient(180deg, transparent 54%, rgba(4, 21, 37, 0.38));
+    content: '';
+    pointer-events: none;
+}
+
+.front-desktop-shell .ac-career-hero-image img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center 42%;
+}
+
+.front-desktop-shell .ac-career-hero-image .image-reveal-curtain {
+    --image-reveal-curtain-color: var(--career-navy);
+}
+
+.front-desktop-shell .ac-career-stat-card {
+    position: absolute;
+    z-index: 4;
+    right: clamp(-1.5rem, -1.2vw, -0.35rem);
+    bottom: clamp(-2rem, -1vw, -0.75rem);
+    display: grid;
+    width: min(19rem, calc(100% - 2rem));
+    min-height: 10rem;
+    align-content: center;
+    gap: 0.35rem;
+    padding: 1.5rem 1.75rem;
+    border: 1px solid #373c37;
+    border-radius:
+        var(--career-radius-small)
+        var(--career-radius-small)
+        var(--career-radius-medium)
+        var(--career-radius-small);
+    background: rgba(4, 21, 37, 0.96);
+    box-shadow: 0 1.5rem 3rem rgba(4, 21, 37, 0.2);
+    color: #fff;
+    backdrop-filter: blur(10px);
+}
+
+.front-desktop-shell .ac-career-stat-card strong {
+    color: var(--career-gold-soft);
+    font-family: "Bodoni Moda Variable", "Times New Roman", serif;
+    font-size: clamp(3.5rem, 4vw, 5rem);
+    font-weight: 400;
+    line-height: 0.95;
+}
+
+.front-desktop-shell .ac-career-stat-card span {
+    color: rgba(255, 255, 255, 0.78);
+    font-size: 0.88rem;
+    line-height: 1.5;
+}
+
+.front-desktop-shell .ac-career-development {
+    padding: clamp(5.5rem, 8vw, 9rem) 0;
+    background:
+        radial-gradient(circle at 89% 12%, rgba(173, 132, 55, 0.08), transparent 28%),
+        var(--career-paper);
+}
+
+.front-desktop-shell .ac-career-section-intro {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0;
+    align-items: center;
+}
+
+.front-desktop-shell:not(.front-route-home) .front-content-shell .ac-career-development .ac-career-section-title {
+    max-width: 760px;
+}
+
+.front-desktop-shell .ac-career-section-copy {
+    display: grid;
+    gap: 1.2rem;
+    padding-block: 0.5rem;
+    padding-left: clamp(2.5rem, 5vw, 6rem);
+    border-left: 1px solid rgba(173, 132, 55, 0.52);
+}
+
+.front-desktop-shell .ac-career-development-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: clamp(1rem, 1.5vw, 1.5rem);
+    margin-top: clamp(4rem, 6vw, 6.5rem);
+}
+
+.front-desktop-shell .ac-career-development-card {
+    display: grid;
+    min-height: 28rem;
+    align-content: start;
+    padding: clamp(1.75rem, 2.4vw, 2.65rem);
+    border: 1px solid var(--career-light-border);
+    border-radius: 54px 6px 54px 6px;
+    background: rgba(251, 249, 245, 0.94);
+    color: var(--career-navy);
+}
+
+.front-desktop-shell .ac-career-development-card:nth-child(even) {
+    border-radius: 6px 54px 6px 54px;
+}
+
+.front-desktop-shell .ac-career-card-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: clamp(3.5rem, 5vw, 5.5rem);
+}
+
+.front-desktop-shell .ac-career-card-icon,
+.front-desktop-shell .ac-career-story-icon {
+    --fa-primary-color: var(--career-navy);
+    --fa-primary-opacity: 1;
+    --fa-secondary-color: var(--career-gold);
+    --fa-secondary-opacity: 0.72;
+    color: var(--career-navy);
+    font-size: 3.5rem;
+    line-height: 1;
+}
+
+.front-desktop-shell .ac-career-card-number {
+    color: var(--career-gold);
+    font-family: "Bodoni Moda Variable", "Times New Roman", serif;
+    font-size: 1.05rem;
+    font-weight: 600;
+    line-height: 1;
+}
+
+.front-desktop-shell .ac-career-development-card h3 {
+    margin: 0;
+    color: var(--career-navy);
+    font-family: "Bodoni Moda Variable", "Times New Roman", serif;
+    font-size: clamp(1.45rem, 1.55vw, 1.9rem);
+    font-weight: 600;
+    letter-spacing: -0.025em;
+    line-height: 1.25;
+    text-wrap: balance;
+}
+
+.front-desktop-shell .ac-career-development-card > p {
+    margin-top: 1.15rem;
+}
+
+.front-desktop-shell .ac-career-stories {
+    padding: clamp(5.5rem, 8vw, 9rem) 0 clamp(6rem, 9vw, 10rem);
+}
+
+.front-desktop-shell .ac-career-stories > .ac-career-container {
+    position: relative;
+    z-index: 1;
+}
+
+.front-desktop-shell .ac-career-stories-head {
+    align-items: center;
+}
+
+.front-desktop-shell:not(.front-route-home) .front-content-shell .ac-career-stories-title {
+    color: #fff;
+}
+
+.front-desktop-shell:not(.front-route-home) .front-content-shell .ac-career-stories-title .values-word:not(.is-accent) {
+    color: #fff !important;
+}
+
+.front-desktop-shell:not(.front-route-home) .front-content-shell .ac-career-stories-title .values-word.is-accent {
+    color: var(--career-gold-soft) !important;
+}
+
+.front-desktop-shell .ac-career-stories-intro {
+    display: grid;
+    min-height: 100%;
+    align-items: center;
+    padding-block: 0.5rem;
+    padding-left: clamp(2.5rem, 5vw, 6rem);
+    border-left: 1px solid rgba(216, 185, 111, 0.62);
+}
+
+.front-desktop-shell:not(.front-route-home) .front-content-shell .ac-career-stories-intro h3 {
+    max-width: none;
+    margin: 0;
+    color: #fff;
+    font-family: "Bodoni Moda Variable", "Times New Roman", serif !important;
+    font-size: clamp(1.55rem, 1.75vw, 2.1rem);
+    font-weight: 600;
+    letter-spacing: -0.024em !important;
+    line-height: 1.28;
+    text-wrap: balance;
+}
+
+.front-desktop-shell .ac-career-story-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    align-items: stretch;
+    gap: clamp(1rem, 1.5vw, 1.5rem);
+    margin-top: clamp(4rem, 6vw, 6.5rem);
+}
+
+.front-desktop-shell .ac-career-story {
+    display: flex;
+    min-width: 0;
+    flex-direction: column;
+    padding: clamp(2rem, 3vw, 3.5rem);
+    overflow: hidden;
+    border: 1px solid var(--career-dark-border);
+    border-radius: 54px 6px 54px 6px;
+    background: var(--career-navy-soft);
+}
+
+.front-desktop-shell .ac-career-story:nth-child(even) {
+    border-radius: 6px 54px 6px 54px;
+}
+
+.front-desktop-shell .ac-career-story-icon {
+    --fa-primary-color: #fff;
+    --fa-secondary-color: var(--career-gold-soft);
+    margin-bottom: clamp(2.5rem, 4vw, 4rem);
+    color: #fff;
+}
+
+.front-desktop-shell .ac-career-story h3 {
+    max-width: 19ch;
+    margin: 0.7rem 0 0;
+    color: #fff;
+    font-family: "Bodoni Moda Variable", "Times New Roman", serif;
+    font-size: clamp(1.45rem, 1.75vw, 2.1rem);
+    font-weight: 600;
+    letter-spacing: -0.025em;
+    line-height: 1.28;
+    text-wrap: balance;
+}
+
+.front-desktop-shell .ac-career-story .ac-career-copy-stack {
+    flex: 1;
+}
+
+.front-desktop-shell .ac-career-story-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.55rem 1rem;
+    margin: 1.6rem 0 0;
+    padding: 1.35rem 0 0;
+    border-top: 1px solid var(--career-dark-border);
+    list-style: none;
+}
+
+.front-desktop-shell .ac-career-story-list li {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    color: rgba(255, 255, 255, 0.82);
+    font-size: 0.86rem;
+    font-weight: 600;
+}
+
+.front-desktop-shell .ac-career-openings {
+    padding: clamp(5.5rem, 8vw, 9rem) 0;
+}
+
+.front-desktop-shell .ac-career-openings-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0;
+    align-items: start;
+}
+
+.front-desktop-shell .ac-career-openings-copy {
+    position: sticky;
+    top: 8rem;
+    padding-right: clamp(2.5rem, 5vw, 6rem);
+}
+
+.front-desktop-shell:not(.front-route-home) .front-content-shell .ac-career-openings .ac-career-section-title {
+    max-width: 760px;
+    margin-top: 0.9rem;
+}
+
+.front-desktop-shell .ac-career-openings-lead {
+    max-width: 28ch;
+    margin-top: 1.7rem !important;
+    color: var(--career-navy);
+    font-family: "Bodoni Moda Variable", "Times New Roman", serif;
+    font-size: clamp(1.35rem, 1.65vw, 1.95rem);
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    line-height: 1.4;
+    text-wrap: balance;
+}
+
+.front-desktop-shell .ac-career-openings-copy .ac-career-copy-stack {
+    max-width: 38rem;
+    margin-top: 1.5rem;
+}
+
+.front-desktop-shell .ac-career-form-wrap {
+    padding-left: clamp(2.5rem, 5vw, 6rem);
+    border-left: 1px solid rgba(173, 132, 55, 0.52);
+}
+
+.front-desktop-shell .ac-career-form-wrap::before {
+    display: block;
+    width: 4.2rem;
+    height: 1px;
+    margin-bottom: 2rem;
+    background: var(--career-gold);
+    content: '';
+}
+
+.front-desktop-shell .ac-career-form-head {
+    display: grid;
+    gap: 0.8rem;
+    margin-bottom: clamp(2.25rem, 3vw, 3rem);
+}
+
+.front-desktop-shell:not(.front-route-home) .front-content-shell .ac-career-form-head h3 {
+    max-width: 20ch;
+    margin: 0;
+    color: var(--career-navy);
+    font-family: "Bodoni Moda Variable", "Times New Roman", serif !important;
+    font-size: clamp(1.55rem, 1.75vw, 2.1rem);
+    font-weight: 600;
+    letter-spacing: -0.024em !important;
+    line-height: 1.28;
+    text-wrap: balance;
+}
+
+.front-desktop-shell .ac-career-form {
+    display: grid;
+    gap: 1.45rem;
+}
+
+.front-desktop-shell .ac-career-form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1.25rem;
+}
+
+.front-desktop-shell .ac-career-form-label {
+    display: block;
+    margin-bottom: 0.4rem;
+    color: #6a7c92;
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.front-desktop-shell .ac-career-form-input,
+.front-desktop-shell .ac-career-form-textarea {
+    width: 100%;
+    border: 0;
+    border-bottom: 1px solid rgba(15, 23, 42, 0.16);
+    border-radius: 0;
+    outline: 0;
+    background: transparent;
+    color: var(--career-navy);
+    transition: border-color 180ms ease, background-color 180ms ease;
+}
+
+.front-desktop-shell .ac-career-form-input {
+    min-height: 3.2rem;
+    padding: 0.8rem 0 0.9rem;
+}
+
+.front-desktop-shell .ac-career-form-textarea {
+    min-height: 6.25rem;
+    padding: 0.85rem 0 0.9rem;
+    resize: vertical;
+}
+
+.front-desktop-shell .ac-career-form-input:focus,
+.front-desktop-shell .ac-career-form-textarea:focus {
+    border-color: var(--career-gold);
+    box-shadow: none;
+}
+
+.front-desktop-shell .ac-career-form-file-wrap {
+    position: relative;
+    border-bottom: 1px solid rgba(15, 23, 42, 0.16);
+    transition: border-color 180ms ease;
+}
+
+.front-desktop-shell .ac-career-form-file-wrap:focus-within {
+    border-color: var(--career-gold);
+}
+
+.front-desktop-shell .ac-career-form-file-ui {
+    display: flex;
+    min-height: 3.2rem;
+    align-items: center;
+    gap: 0.9rem;
+    padding: 0.72rem 0;
+    overflow: hidden;
+}
+
+.front-desktop-shell .ac-career-form-file-button {
+    display: inline-flex;
+    min-height: 2.35rem;
+    flex: 0 0 auto;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.55rem 0.9rem;
+    border: 1px solid var(--career-light-border);
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.55);
+    color: var(--career-navy);
+    font-size: 0.84rem;
+    font-weight: 700;
+}
+
+.front-desktop-shell .ac-career-form-file-button i {
+    --fa-primary-color: var(--career-navy);
+    --fa-secondary-color: var(--career-gold);
+    --fa-secondary-opacity: 0.75;
+}
+
+.front-desktop-shell .ac-career-form-file-name {
+    min-width: 0;
+    overflow: hidden;
+    color: var(--career-copy);
+    font-size: 0.9rem;
+    line-height: 1.5;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.front-desktop-shell .ac-career-form-file {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    border: 0;
+    opacity: 0;
+    cursor: pointer;
+}
+
+.front-desktop-shell .ac-career-form-help {
+    margin-top: 0.55rem !important;
+    color: #64748b;
+    font-size: 0.78rem;
+    line-height: 1.5;
+}
+
+.front-desktop-shell .ac-career-form-error {
+    margin-top: 0.45rem !important;
+    color: #a7392e;
+    font-size: 0.78rem;
+    font-weight: 700;
+    line-height: 1.45;
+}
+
+.front-desktop-shell .ac-career-form-consent-wrap {
+    display: grid;
+    gap: 0.4rem;
+    padding-top: 0.9rem;
+    border-top: 1px solid rgba(173, 132, 55, 0.14);
+}
+
+.front-desktop-shell .ac-career-form-consent {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    color: var(--career-copy);
+    font-size: 0.88rem;
+    line-height: 1.6;
+}
+
+.front-desktop-shell .ac-career-form-checkbox {
+    width: 1rem;
+    height: 1rem;
+    flex: 0 0 auto;
+    margin-top: 0.2rem;
+    accent-color: var(--career-navy);
+}
+
+.front-desktop-shell .ac-career-form-actions {
+    display: grid;
+    gap: 0.55rem;
+    padding-top: 0.4rem;
+}
+
+.front-desktop-shell .ac-career-submit-button {
+    display: inline-flex;
+    width: 100%;
+    min-height: 3.25rem;
+    align-items: center;
+    justify-content: center;
+    gap: 0.65rem;
+    padding: 0.95rem 1.35rem;
+    border: 1px solid var(--career-navy);
+    border-radius: 8px;
+    background: var(--career-navy);
+    color: #fff;
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    transition: background-color 180ms ease, border-color 180ms ease, color 180ms ease, transform 180ms ease;
+}
+
+.front-desktop-shell .ac-career-submit-button:hover,
+.front-desktop-shell .ac-career-submit-button:focus-visible {
+    border-color: var(--career-gold);
+    background: var(--career-gold);
+    color: var(--career-navy);
+    transform: translateY(-1px);
+}
+
+.front-desktop-shell .ac-career-submit-button:focus-visible,
+.front-desktop-shell .ac-career-form-file:focus-visible + .ac-career-form-file-ui {
+    outline: 2px solid var(--career-gold);
+    outline-offset: 3px;
+}
+
+.front-desktop-shell:has(.ac-career-page) .front-footer {
+    --front-footer-bg: #071326;
+    background: #071326;
+}
+
+#career-open-positions {
+    scroll-margin-top: 6.5rem;
+}
+
+@media (max-width: 1180px) {
+    .front-desktop-shell .ac-career-container {
+        width: min(100% - 80px, 960px);
+    }
+
+    .front-desktop-shell .ac-career-hero-grid {
+        grid-template-columns: 1fr;
+        grid-template-areas:
+            "media"
+            "copy";
+        gap: 4rem;
+    }
+
+    .front-desktop-shell .ac-career-hero-copy,
+    .front-desktop-shell .ac-career-hero-media {
+        max-width: 50rem;
+        justify-self: stretch;
+    }
+
+    .front-desktop-shell .ac-career-development-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .front-desktop-shell .ac-career-development-card {
+        min-height: 24rem;
+    }
+
+    .front-desktop-shell .ac-career-story-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .front-desktop-shell .ac-career-story {
+        min-height: 0;
+    }
+
+}
+
+@media (max-width: 900px) {
+    .front-desktop-shell .ac-career-intro-layout,
+    .front-desktop-shell .ac-career-section-intro,
+    .front-desktop-shell .ac-career-openings-grid,
+    .front-desktop-shell .ac-career-stories-head {
+        grid-template-columns: 1fr;
+        gap: 2.75rem;
+    }
+
+    .front-desktop-shell .ac-career-intro-heading,
+    .front-desktop-shell .ac-career-openings-copy {
+        padding-right: 0;
+    }
+
+    .front-desktop-shell .ac-career-intro-copy,
+    .front-desktop-shell .ac-career-section-copy,
+    .front-desktop-shell .ac-career-stories-intro,
+    .front-desktop-shell .ac-career-form-wrap {
+        padding-top: 0;
+        padding-left: 0;
+        border-left: 0;
+    }
+
+    .front-desktop-shell .ac-career-intro-copy,
+    .front-desktop-shell .ac-career-section-copy,
+    .front-desktop-shell .ac-career-stories-intro {
+        padding-top: 2.25rem;
+        border-top: 1px solid rgba(173, 132, 55, 0.52);
+    }
+
+    .front-desktop-shell .ac-career-openings-copy {
+        position: static;
+    }
+
+    .front-desktop-shell .ac-career-form-wrap {
+        padding-top: 2.75rem;
+        border-top: 1px solid rgba(173, 132, 55, 0.52);
+    }
+}
+
+@media (max-width: 720px) {
+    .front-desktop-shell .ac-career-page {
+        --career-radius-large: 86px;
+        --career-radius-medium: 48px;
+        --career-radius-small: 10px;
+    }
+
+    .front-desktop-shell .ac-career-container {
+        width: calc(100% - 40px);
+    }
+
+    .front-desktop-shell .ac-career-intro-layout {
+        padding-block: 4.25rem;
+    }
+
+    .front-desktop-shell:not(.front-route-home) .front-content-shell .ac-career-display-title,
+    .front-desktop-shell:not(.front-route-home) .front-content-shell .ac-career-section-title,
+    .front-desktop-shell:not(.front-route-home) .front-content-shell .ac-career-stories-title {
+        max-width: 11ch;
+        font-size: clamp(2.65rem, 12vw, 3.75rem);
+        line-height: 1.02;
+    }
+
+    .front-desktop-shell:not(.front-route-home) .front-content-shell .ac-career-dark-title {
+        max-width: 22ch;
+        font-size: clamp(1.75rem, 8vw, 2.2rem);
+        line-height: 1.25;
+    }
+
+    .front-desktop-shell .ac-career-hero,
+    .front-desktop-shell .ac-career-development,
+    .front-desktop-shell .ac-career-stories,
+    .front-desktop-shell .ac-career-openings {
+        padding: 4.5rem 0;
+    }
+
+    .front-desktop-shell .ac-career-hero-grid {
+        gap: 3.5rem;
+    }
+
+    .front-desktop-shell .ac-career-hero-media {
+        display: grid;
+        min-height: 0;
+        padding-bottom: 0;
+    }
+
+    .front-desktop-shell .ac-career-stat-card {
+        position: relative;
+        right: auto;
+        bottom: auto;
+        width: calc(100% - 1.5rem);
+        min-height: 8.6rem;
+        margin: -1.5rem 0 0 auto;
+    }
+
+    .front-desktop-shell .ac-career-value-list,
+    .front-desktop-shell .ac-career-development-grid,
+    .front-desktop-shell .ac-career-form-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .front-desktop-shell .ac-career-value-list li:nth-child(even) {
+        padding-left: 0;
+        border-left: 0;
+    }
+
+    .front-desktop-shell .ac-career-development-grid,
+    .front-desktop-shell .ac-career-story-grid {
+        margin-top: 3.5rem;
+    }
+
+    .front-desktop-shell .ac-career-development-card {
+        min-height: 0;
+        padding: 2rem;
+        border-radius: 44px 5px 44px 5px;
+    }
+
+    .front-desktop-shell .ac-career-development-card:nth-child(even) {
+        border-radius: 5px 44px 5px 44px;
+    }
+
+    .front-desktop-shell .ac-career-card-head {
+        margin-bottom: 3.25rem;
+    }
+
+    .front-desktop-shell .ac-career-story {
+        padding: 2rem;
+        border-radius: 44px 5px 44px 5px;
+    }
+
+    .front-desktop-shell .ac-career-story:nth-child(even) {
+        border-radius: 5px 44px 5px 44px;
+    }
+
+    .front-desktop-shell .ac-career-story-icon {
+        margin-bottom: 2.5rem;
+    }
+
+    .front-desktop-shell .ac-career-form-file-ui {
+        flex-wrap: wrap;
+        align-items: flex-start;
+        gap: 0.65rem;
+    }
+
+    .front-desktop-shell .ac-career-form-file-name {
+        width: 100%;
+        white-space: normal;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .front-desktop-shell .ac-career-primary-cta::before,
+    .front-desktop-shell .ac-career-submit-button {
+        transition: none;
+    }
+}
