@@ -24,6 +24,7 @@
 - Use `Instrument Sans Variable` for established sans-serif roles and `Bodoni Moda Variable` only for the existing editorial/accent roles.
 - Use project color variables and existing navy, cream, and gold values. Do not introduce near-duplicate colors.
 - Follow the established content width and centered container system. On desktop, split intro sections 50/50 when they use the central divider pattern, with the divider positioned at the true viewport center.
+- For every two-column intro with a central vertical divider, use two equal columns with no grid gap so the divider lands exactly at `50vw`. Create horizontal breathing room with padding inside the right column, never by shifting the column boundary or adding a grid gap.
 - Maintain a deliberate vertical rhythm. Spacing above and below comparable content should be visually balanced; avoid a small top gap paired with a large bottom gap.
 - Reuse the established asymmetric corner treatment where rounded corners are appropriate. Do not add rounded ends or card containers to elements that are flat in the reference design.
 - Keep imagery consistent with the reference page: matching aspect ratio, crop, `object-position`, border treatment, and responsive behavior.
