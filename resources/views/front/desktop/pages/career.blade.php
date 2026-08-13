@@ -97,7 +97,7 @@
                 </div>
 
                 <div class="ac-career-intro-copy content-reveal animation-index-1" data-image-reveal>
-                    <h2>{{ $careerHeroHighlight }}</h2>
+                    <h2 class="ac-career-copy-heading">{{ $careerHeroHighlight }}</h2>
                     @if ($careerIntroLead !== '')
                         <p>{{ $careerIntroLead }}</p>
                     @endif
@@ -135,9 +135,8 @@
                     @endif
 
                     <div class="ac-career-hero-actions content-reveal animation-index-3" data-image-reveal>
-                        <a href="#career-open-positions" class="front-action-cta ac-career-primary-cta">
-                            <span>{{ $isCroatian ? 'Otvorene pozicije' : 'Open positions' }}</span>
-                            <i class="fa-duotone fa-thin fa-arrow-down" aria-hidden="true"></i>
+                        <a href="#career-open-positions" class="button button-gold">
+                            <span>{{ $isCroatian ? 'OTVORENE POZICIJE' : 'OPEN POSITIONS' }}</span>
                         </a>
                     </div>
                 </div>
@@ -175,7 +174,7 @@
 
                     <div class="ac-career-section-copy content-reveal animation-index-1" data-image-reveal>
                         @if (trim((string) ($careerProcess['kicker'] ?? '')) !== '')
-                            <p class="ac-family-section-kicker ac-career-kicker">{{ $careerProcess['kicker'] }}</p>
+                            <h3 class="ac-career-copy-heading">{{ $careerProcess['kicker'] }}</h3>
                         @endif
                         @if (trim((string) ($careerProcess['intro'] ?? '')) !== '')
                             <p>{{ $careerProcess['intro'] }}</p>

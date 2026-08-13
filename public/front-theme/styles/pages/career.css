@@ -93,7 +93,7 @@ body:has(.ac-career-page) {
     letter-spacing: -0.04em !important;
 }
 
-.front-desktop-shell:not(.front-route-home) .front-content-shell .ac-career-intro-copy h2 {
+.front-desktop-shell:not(.front-route-home) .front-content-shell .ac-career-copy-heading {
     max-width: 21ch;
     margin: 0;
     color: var(--career-navy);
@@ -261,47 +261,6 @@ body:has(.ac-career-page) {
 .front-desktop-shell .ac-career-hero-actions {
     display: flex;
     margin-top: clamp(2rem, 3.5vw, 3.25rem);
-}
-
-.front-desktop-shell .ac-career-primary-cta {
-    position: relative;
-    min-height: 3.15rem;
-    min-width: 13rem;
-    overflow: hidden;
-    gap: 0.65rem;
-    padding: 0.9rem 1.45rem;
-    border: 1px solid var(--career-gold-soft);
-    background: transparent;
-    color: #fff !important;
-    font-size: 0.8rem;
-    letter-spacing: 0;
-}
-
-.front-desktop-shell .ac-career-primary-cta::before {
-    position: absolute;
-    z-index: 0;
-    inset: 0;
-    background: var(--career-gold-soft);
-    content: '';
-    transform: scaleX(0);
-    transform-origin: right center;
-    transition: transform 440ms cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.front-desktop-shell .ac-career-primary-cta > * {
-    position: relative;
-    z-index: 1;
-}
-
-.front-desktop-shell .ac-career-primary-cta:hover,
-.front-desktop-shell .ac-career-primary-cta:focus-visible {
-    color: var(--career-navy) !important;
-}
-
-.front-desktop-shell .ac-career-primary-cta:hover::before,
-.front-desktop-shell .ac-career-primary-cta:focus-visible::before {
-    transform: scaleX(1);
-    transform-origin: left center;
 }
 
 .front-desktop-shell .ac-career-hero-media {
@@ -1022,7 +981,6 @@ body:has(.ac-career-page) {
 }
 
 @media (prefers-reduced-motion: reduce) {
-    .front-desktop-shell .ac-career-primary-cta::before,
     .front-desktop-shell .ac-career-submit-button {
         transition: none;
     }
