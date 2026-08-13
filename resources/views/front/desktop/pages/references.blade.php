@@ -5,14 +5,16 @@
         ?? $page->translations->firstWhere('locale', $locale)
         ?? $page->translations->firstWhere('locale', $fallbackLocale);
 
-    $pageTitleBreadcrumbs = [
-        ['label' => __('ui.front.desktop.footer.home'), 'url' => route('home')],
-        ['label' => $translation?->title ?? $page->code, 'current' => true],
-    ];
-
     $referenceItems = collect($referenceItems ?? [])->values();
     $pageBodyHtml = (string) ($translation?->body_html ?? '');
     $hasBodyCopy = trim(strip_tags($pageBodyHtml)) !== '';
+    $isCroatian = str_starts_with(strtolower((string) $locale), 'hr');
+    $referencesTitleLead = $isCroatian ? 'Naše' : 'Our';
+    $referencesTitleAccent = $isCroatian ? 'reference' : 'references';
+    $referencesIntro = trim((string) ($translation?->excerpt ?? ''))
+        ?: ($isCroatian
+            ? 'Odabrani klijenti i partneri koji su nam ukazali povjerenje.'
+            : 'Selected clients and partners who have placed their trust in us.');
     $emptyStateTitle = $locale === 'hr'
         ? 'Reference se ažuriraju'
         : 'References are being updated';
@@ -30,14 +32,18 @@
             <section class="ac-references-blocks ac-references-blocks--top">@include('components.content-placement', ['items' => $topBlocks])</section>
         @endif
 
-        <x-front.page-title-band :breadcrumbs="$pageTitleBreadcrumbs" section-class="ac-references-title-band">
-            <div class="ac-page-title-copy">
-                <h1>{{ $translation?->title ?? $page->code }}</h1>
-                @if (!empty($translation?->excerpt))
-                    <p>{{ $translation->excerpt }}</p>
-                @endif
+        <section class="values-section services-index-intro ac-references-intro" aria-labelledby="ac-references-title">
+            <div class="values-inner services-index-intro-layout">
+                <div class="values-intro">
+                    <h1 class="values-title services-index-intro-title" id="ac-references-title" data-words-slide-from-right aria-label="{{ $referencesTitleLead }} {{ $referencesTitleAccent }}">
+                        <span class="values-word" style="--value-word-index: 0" aria-hidden="true">{{ $referencesTitleLead }}</span>
+                        <span class="values-word is-accent" style="--value-word-index: 1" aria-hidden="true">{{ $referencesTitleAccent }}</span>
+                    </h1>
+                </div>
+
+                <p class="values-copy services-index-intro-copy content-reveal" data-image-reveal>{{ $referencesIntro }}</p>
             </div>
-        </x-front.page-title-band>
+        </section>
 
         <section class="ac-references-section">
             <div class="ac-references-container">
@@ -52,22 +58,18 @@
                 @if ($referenceItems->isNotEmpty())
                     <div class="ac-reference-grid">
                         @foreach ($referenceItems as $item)
-                            <article class="ac-reference-card">
-                                <div class="ac-reference-logo-shell">
+                            <article class="ac-reference-card" aria-label="{{ $item['name'] }}">
+                                <div
+                                    class="ac-reference-logo"
+                                    style="background-image: url('{{ $item['url'] }}')"
+                                >
                                     <img
                                         src="{{ $item['url'] }}"
                                         alt="{{ $item['alt'] }}"
                                         loading="lazy"
                                         decoding="async"
-                                        class="ac-reference-logo-image"
                                     >
                                 </div>
-
-                                <h3>{{ $item['name'] }}</h3>
-
-                                @if (($item['caption'] ?? '') !== '' && ($item['caption'] ?? '') !== ($item['name'] ?? ''))
-                                    <p>{{ $item['caption'] }}</p>
-                                @endif
                             </article>
                         @endforeach
                     </div>
@@ -91,28 +93,14 @@
     <style>
         .ac-references-page {
             min-height: 100vh;
-            background: #f6f1e7;
+            background: #f4f1ea;
             color: #101820;
         }
 
         .ac-references-container,
         .ac-references-blocks {
-            width: min(100% - 2rem, 1320px);
+            width: min(1600px, calc(100% - 136px));
             margin: 0 auto;
-        }
-
-        @media (min-width: 640px) {
-            .ac-references-container,
-            .ac-references-blocks {
-                width: min(100% - 3rem, 1272px);
-            }
-        }
-
-        @media (min-width: 1024px) {
-            .ac-references-container,
-            .ac-references-blocks {
-                width: min(100% - 4rem, 1256px);
-            }
         }
 
         .ac-references-blocks--top {
@@ -123,40 +111,22 @@
             padding: 2.5rem 0 4rem;
         }
 
-        .ac-references-title-band {
-            margin-bottom: 0;
-            background: #f6f1e7;
-            border-top-color: transparent;
-            border-bottom-color: rgba(120, 96, 58, 0.05);
+        .ac-references-intro {
+            border-top: 1px solid rgba(120, 96, 58, 0.05);
         }
 
-        .ac-references-title-band .ac-page-title-copy h1 {
-            color: #101820;
-            font-size: 2.65rem;
-            font-weight: 700;
-            line-height: 1.1;
-            letter-spacing: 0;
-        }
-
-        .ac-references-title-band .ac-page-title-copy > p,
-        .ac-references-title-band .front-scroll-breadcrumb-link,
-        .ac-references-title-band .front-scroll-breadcrumb-current,
-        .ac-references-title-band .front-scroll-breadcrumb-separator {
-            color: #4f4a43;
-        }
-
-        .ac-references-title-band .ac-page-title-breadcrumb::before,
-        .ac-references-title-band .ac-page-title-breadcrumb::after {
-            background: rgba(120, 96, 58, 0.07);
+        .ac-references-intro .services-index-intro-copy {
+            display: flex;
+            min-height: clamp(4.5rem, 7vw, 6rem);
+            align-items: center;
         }
 
         .ac-references-section {
-            padding: clamp(3rem, 5vw, 4.8rem) 0 clamp(5rem, 7vw, 7rem);
-            background: #f6f1e7;
+            padding: clamp(3.5rem, 5vw, 5rem) 0 clamp(5rem, 7vw, 7rem);
+            background: #f4f1ea;
         }
 
         .ac-references-body,
-        .ac-reference-card,
         .ac-reference-empty {
             border: 1px solid rgba(171, 141, 82, 0.12);
             border-radius: 8px;
@@ -191,54 +161,56 @@
 
         .ac-reference-grid {
             display: grid;
-            grid-template-columns: repeat(4, minmax(0, 1fr));
-            gap: 1rem;
+            grid-template-columns: repeat(5, minmax(0, 1fr));
+            gap: 0;
+            border-top: 1px solid rgba(3, 18, 31, 0.14);
+            border-left: 1px solid rgba(3, 18, 31, 0.14);
+            background: transparent;
         }
 
         .ac-reference-card {
             display: grid;
-            align-content: start;
-            gap: 0.9rem;
-            min-height: 11.7rem;
-            overflow: hidden;
-            padding: 1rem;
+            min-height: clamp(9.5rem, 11vw, 11.5rem);
+            place-items: center;
+            padding: clamp(1.5rem, 2.3vw, 2.4rem);
+            border: 0;
+            border-right: 1px solid rgba(3, 18, 31, 0.14);
+            border-bottom: 1px solid rgba(3, 18, 31, 0.14);
+            border-radius: 0;
+            background: #fbf9f5;
+            box-shadow: none;
+            transition: background-color 220ms ease;
         }
 
-        .ac-reference-logo-shell {
-            display: grid;
-            place-items: center;
-            min-height: 5.8rem;
-            padding: 0.9rem;
-            border: 1px solid rgba(120, 96, 58, 0.05);
-            border-radius: 8px;
+        .ac-reference-card:hover {
             background: #fff;
         }
 
-        .ac-reference-logo-image {
+        .ac-reference-logo {
+            display: grid;
+            width: min(70%, 13rem);
+            height: 4.2rem;
+            place-items: center;
+            background-color: #fbf9f5;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-size: contain;
+            background-blend-mode: darken;
+            opacity: 0.82;
+            transition: background-color 220ms ease, opacity 220ms ease;
+        }
+
+        .ac-reference-logo img {
             display: block;
-            width: auto;
             max-width: 100%;
-            max-height: 4.2rem;
-            object-fit: contain;
-            opacity: 0.86;
-            filter: grayscale(1) contrast(1.08);
+            max-height: 100%;
+            border-radius: 0;
+            opacity: 0;
         }
 
-        .ac-reference-card h3 {
-            margin: 0;
-            color: #101820;
-            font-size: 0.98rem;
-            font-weight: 700;
-            line-height: 1.45;
-            letter-spacing: 0;
-        }
-
-        .ac-reference-card p,
-        .ac-reference-empty > p:last-child {
-            margin: 0;
-            color: #403a34;
-            font-size: 0.92rem;
-            line-height: 1.6;
+        .ac-reference-card:hover .ac-reference-logo {
+            background-color: #fff;
+            opacity: 1;
         }
 
         .ac-reference-empty {
@@ -258,9 +230,13 @@
             background: #071326;
         }
 
+        .front-desktop-shell:has(.ac-references-page) .footer-newsletter::before {
+            background: #f4f1ea;
+        }
+
         @media (max-width: 1120px) {
             .ac-reference-grid {
-                grid-template-columns: repeat(3, minmax(0, 1fr));
+                grid-template-columns: repeat(4, minmax(0, 1fr));
             }
         }
 
@@ -273,11 +249,18 @@
         @media (max-width: 640px) {
             .ac-references-container,
             .ac-references-blocks {
-                width: min(100% - 1.35rem, 1320px);
+                width: calc(100% - 40px);
             }
 
-            .ac-reference-grid {
-                grid-template-columns: minmax(0, 1fr);
+            .ac-reference-card {
+                min-height: 8.5rem;
+                padding: 1rem;
+            }
+        }
+
+        @media (max-width: 420px) {
+            .ac-reference-card {
+                min-height: 7.5rem;
             }
         }
     </style>
