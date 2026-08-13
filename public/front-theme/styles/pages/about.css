@@ -1937,9 +1937,9 @@
     opacity: 1;
 }
 
-@media (hover: none), (pointer: coarse), (max-width: 767px) {
+@media (hover: none), (pointer: coarse), (max-width: 1024px), (max-device-width: 1024px) {
     .front-desktop-shell .ac-about-reference-card {
-        background: #fff;
+        background: #fff !important;
     }
 
     .front-desktop-shell .ac-about-reference-logo {
