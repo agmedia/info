@@ -6,6 +6,61 @@ document.addEventListener('DOMContentLoaded', function () {
     const searchToggle = document.querySelector('[data-header-search-toggle]');
     const searchPanel = document.querySelector('[data-header-search-panel]');
 
+    document.querySelectorAll('[data-newsletter-form]').forEach(function (form) {
+        if (!(form instanceof HTMLFormElement)) {
+            return;
+        }
+
+        const email = form.querySelector('input[type="email"]');
+        const error = form.querySelector('[data-newsletter-error]');
+
+        if (!(email instanceof HTMLInputElement) || !(error instanceof HTMLElement)) {
+            return;
+        }
+
+        const clearError = function () {
+            email.setAttribute('aria-invalid', 'false');
+            error.textContent = '';
+            error.hidden = true;
+        };
+
+        const validateEmail = function () {
+            const value = email.value.trim();
+            let message = '';
+
+            if (value === '') {
+                message = form.dataset.msgEmailRequired || '';
+            } else if (!email.validity.valid) {
+                message = form.dataset.msgEmailInvalid || '';
+            }
+
+            if (message === '') {
+                clearError();
+                return true;
+            }
+
+            email.setAttribute('aria-invalid', 'true');
+            error.textContent = message;
+            error.hidden = false;
+            return false;
+        };
+
+        form.addEventListener('submit', function (event) {
+            if (!validateEmail()) {
+                event.preventDefault();
+                email.focus();
+            }
+        });
+
+        email.addEventListener('input', function () {
+            if (email.getAttribute('aria-invalid') === 'true') {
+                validateEmail();
+            }
+        });
+
+        clearError();
+    });
+
     const setMenuOpen = function (open) {
         if (!(menuToggle instanceof HTMLElement) || !(mobileMenu instanceof HTMLElement)) {
             return;

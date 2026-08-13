@@ -380,7 +380,7 @@
                 <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $newsItems; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $item): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                     <a class="news-card" data-image-reveal href="<?php echo e($item['url']); ?>" style="--news-index: <?php echo e($loop->index); ?>">
                         <span class="news-card-category"><?php echo e($item['category']); ?></span><h3><?php echo e($item['title']); ?></h3><p><?php echo e($item['text']); ?></p>
-                        <span class="news-card-link" aria-hidden="true">Pročitaj više <i class="fa-duotone fa-thin fa-arrow-right fa-fw"></i></span>
+                        <span class="news-card-link" aria-hidden="true"><?php echo e(__('ui.blog.read_more')); ?> <i class="fa-duotone fa-thin fa-arrow-right fa-fw"></i></span>
                     </a>
                 <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
             </div>

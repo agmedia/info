@@ -10,6 +10,12 @@
     $postExcerpt = Str::limit($postExcerpt, 180, '...', true);
     $postImage = $post->getFirstMedia('blog_cover');
     $postImageUrl = $postImage?->getUrl();
+    if ($postImageUrl) {
+        $postImagePath = parse_url($postImageUrl, PHP_URL_PATH);
+        if (is_string($postImagePath) && str_starts_with($postImagePath, '/storage/')) {
+            $postImageUrl = $postImagePath;
+        }
+    }
     $primaryCategory = $post->categories
         ->sortByDesc(fn ($category) => (int) ($category->pivot->is_primary ?? false))
         ->first();

@@ -9,7 +9,25 @@
             ->values()
         : collect();
     $coverImage = $mediaItems->firstWhere('collection_name', 'blog_cover') ?? $post->getFirstMedia('blog_cover');
-    $coverImageUrl = $coverImage ? $coverImage->getUrl() : null;
+    $sameOriginStorageUrl = static function (?string $url): string {
+        $value = trim((string) $url);
+        if ($value === '') {
+            return '';
+        }
+
+        $path = parse_url(html_entity_decode($value, ENT_QUOTES | ENT_HTML5, 'UTF-8'), PHP_URL_PATH);
+        if (! is_string($path) || ! str_starts_with($path, '/storage/')) {
+            return $value;
+        }
+
+        $query = parse_url($value, PHP_URL_QUERY);
+        $fragment = parse_url($value, PHP_URL_FRAGMENT);
+
+        return $path
+            .(is_string($query) && $query !== '' ? '?'.$query : '')
+            .(is_string($fragment) && $fragment !== '' ? '#'.$fragment : '');
+    };
+    $coverImageUrl = $coverImage ? $sameOriginStorageUrl($coverImage->getUrl()) : null;
     $galleryItems = $mediaItems->where('collection_name', 'blog_gallery')->values();
     if ($galleryItems->isEmpty()) {
         $galleryItems = $post->getMedia('blog_gallery')
@@ -17,6 +35,17 @@
             ->values();
     }
     $bodyHtml = (string) ($translation?->body_html ?? '');
+    if ($bodyHtml !== '') {
+        $bodyHtml = preg_replace_callback(
+            '/\b(src|href)=(["\'])(.*?)\2/i',
+            static function (array $matches) use ($sameOriginStorageUrl): string {
+                $normalizedUrl = $sameOriginStorageUrl((string) ($matches[3] ?? ''));
+
+                return (string) $matches[1].'='.(string) $matches[2].$normalizedUrl.(string) $matches[2];
+            },
+            $bodyHtml
+        ) ?? $bodyHtml;
+    }
     $normalizeAssetUrl = static function (?string $url): string {
         $value = trim((string) $url);
         if ($value === '') {
@@ -174,7 +203,7 @@
                         <div class="ac-blog-gallery-grid {{ $galleryColumnsClass }}" data-blog-gallery>
                             @foreach ($galleryItems as $mediaItem)
                                 @php
-                                    $galleryImageUrl = $mediaItem->getUrl();
+                                    $galleryImageUrl = $sameOriginStorageUrl($mediaItem->getUrl());
                                 @endphp
                                 <a
                                     href="{{ $galleryImageUrl }}"

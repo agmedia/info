@@ -54,8 +54,9 @@
             aria-expanded="false"
             data-alpha-menu-toggle
         >
-            <span></span>
-            <span></span>
+            <span aria-hidden="true"></span>
+            <span aria-hidden="true"></span>
+            <span aria-hidden="true"></span>
         </button>
     </div>
 

@@ -47,21 +47,29 @@
                     Primajte važne novosti na <span class="footer-newsletter-accent">vrijeme.</span>
                 </h2>
             </div>
-            <form action="{{ route('contact.create') }}" method="get">
+            <form
+                action="{{ route('contact.create') }}"
+                method="get"
+                novalidate
+                data-newsletter-form
+                data-msg-email-required="{{ __('contact.validation.inline.email_required') }}"
+                data-msg-email-invalid="{{ __('contact.validation.inline.email_invalid') }}"
+            >
                 <label class="visually-hidden" for="newsletter-email">Vaša email adresa</label>
                 <div class="footer-newsletter-field">
                     <i class="fa-light fa-envelope" aria-hidden="true"></i>
-                    <input id="newsletter-email" name="newsletter_email" type="email" autocomplete="email" placeholder="Vaša email adresa" required>
+                    <input id="newsletter-email" name="newsletter_email" type="email" autocomplete="email" placeholder="Vaša email adresa" required aria-describedby="newsletter-email-error" aria-invalid="false">
                     <button type="submit" aria-label="Nastavite na prijavu za newsletter">
                         <i class="fa-duotone fa-thin fa-arrow-right" aria-hidden="true"></i>
                     </button>
                 </div>
+                <p id="newsletter-email-error" class="footer-newsletter-error" data-newsletter-error role="alert" aria-live="polite" hidden></p>
             </form>
         </section>
         @endunless
 
         <div class="footer-main" data-image-reveal>
-            <div class="footer-brand-block content-reveal" data-image-reveal style="--reveal-index: 0">
+            <div class="footer-brand-block content-reveal animation-index-0" data-image-reveal>
                 <a class="footer-brand" href="{{ $alphaFooterHome }}" aria-label="Alpha Capitalis — početna">
                     <img src="{{ asset('alpha/logo.svg') }}" alt="Alpha Capitalis" width="300" height="80">
                 </a>
@@ -77,7 +85,7 @@
                 @endif
             </div>
 
-            <div class="footer-desktop-only footer-nav-block content-reveal" data-image-reveal style="--reveal-index: 1">
+            <div class="footer-desktop-only footer-nav-block content-reveal animation-index-1" data-image-reveal>
                 <span class="footer-label">Alpha Capitalis</span>
                 <nav aria-label="Alpha Capitalis poveznice u podnožju">
                     @foreach ($alphaFooterNavigation as $item)
@@ -86,7 +94,7 @@
                 </nav>
             </div>
 
-            <div class="footer-desktop-only footer-services-block content-reveal" data-image-reveal style="--reveal-index: 2">
+            <div class="footer-desktop-only footer-services-block content-reveal animation-index-2" data-image-reveal>
                 <span class="footer-label">Usluge</span>
                 <nav aria-label="Usluge u podnožju">
                     @foreach ($alphaFooterServices as $item)
@@ -95,7 +103,7 @@
                 </nav>
             </div>
 
-            <div class="footer-desktop-only footer-contact-block content-reveal" data-image-reveal style="--reveal-index: 3">
+            <div class="footer-desktop-only footer-contact-block content-reveal animation-index-3" data-image-reveal>
                 <span class="footer-label">Kontakt</span>
                 <address class="footer-contact">
                     <a href="{{ $alphaFooterMap }}" target="_blank" rel="noopener noreferrer">{{ $alphaFooterAddress }}</a>
@@ -104,7 +112,7 @@
                 </address>
             </div>
 
-            <details class="footer-mobile-only footer-accordion footer-nav-block content-reveal" data-image-reveal style="--reveal-index: 1">
+            <details class="footer-mobile-only footer-accordion footer-nav-block content-reveal animation-index-1" data-image-reveal>
                 <summary class="footer-label"><span>Alpha Capitalis</span><i class="fa-light fa-plus" aria-hidden="true"></i></summary>
                 <nav class="footer-accordion-content" aria-label="Alpha Capitalis poveznice u podnožju">
                     @foreach ($alphaFooterNavigation as $item)
@@ -113,7 +121,7 @@
                 </nav>
             </details>
 
-            <details class="footer-mobile-only footer-accordion footer-services-block content-reveal" data-image-reveal style="--reveal-index: 2">
+            <details class="footer-mobile-only footer-accordion footer-services-block content-reveal animation-index-2" data-image-reveal>
                 <summary class="footer-label"><span>Usluge</span><i class="fa-light fa-plus" aria-hidden="true"></i></summary>
                 <nav class="footer-accordion-content" aria-label="Usluge u podnožju">
                     @foreach ($alphaFooterServices as $item)
@@ -122,7 +130,7 @@
                 </nav>
             </details>
 
-            <details class="footer-mobile-only footer-accordion footer-contact-block content-reveal" data-image-reveal style="--reveal-index: 3">
+            <details class="footer-mobile-only footer-accordion footer-contact-block content-reveal animation-index-3" data-image-reveal>
                 <summary class="footer-label"><span>Kontakt</span><i class="fa-light fa-plus" aria-hidden="true"></i></summary>
                 <address class="footer-contact footer-accordion-content">
                     <a href="{{ $alphaFooterMap }}" target="_blank" rel="noopener noreferrer"><span>{{ $alphaFooterAddress }}</span></a>

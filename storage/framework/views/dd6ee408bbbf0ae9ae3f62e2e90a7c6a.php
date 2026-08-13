@@ -90,10 +90,10 @@
             <div class="values-intro">
                 <h1 class="values-title services-index-intro-title" id="ac-services-index-title" data-words-slide-from-right aria-label="<?php echo e(trim($titleLead.' '.$titleAccent)); ?>">
                     <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $introTitleWords; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $word): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                        <span class="values-word <?php echo e(mb_strtolower(trim($word, '.,!?')) === 'usluge' || ($introTitleAccentWords === [] && $loop->last) ? 'is-accent' : ''); ?>" style="--value-word-index: <?php echo e($loop->index); ?>" aria-hidden="true"><?php echo e($word); ?></span>
+                        <span class="values-word animation-index-<?php echo e($loop->index); ?> <?php echo e(mb_strtolower(trim($word, '.,!?')) === 'usluge' || ($introTitleAccentWords === [] && $loop->last) ? 'is-accent' : ''); ?>" aria-hidden="true"><?php echo e($word); ?></span>
                     <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                     <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $introTitleAccentWords; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $word): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                        <span class="values-word is-accent" style="--value-word-index: <?php echo e(count($introTitleWords) + $loop->index); ?>" aria-hidden="true"><?php echo e($word); ?></span>
+                        <span class="values-word animation-index-<?php echo e(count($introTitleWords) + $loop->index); ?> is-accent" aria-hidden="true"><?php echo e($word); ?></span>
                     <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                 </h1>
 
@@ -110,13 +110,13 @@
 
             <div class="services-grid services-grid--count-<?php echo e(min(3, $serviceItems->count())); ?>">
                 <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $serviceItems; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $service): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                    <a class="service-card" href="<?php echo e($service['url']); ?>" data-image-reveal style="--service-index: <?php echo e($loop->index); ?>">
+                    <a class="service-card" href="<?php echo e($service['url']); ?>" data-image-reveal>
                         <div class="service-card-media">
                             <img src="<?php echo e($service['image']); ?>" alt="<?php echo e($service['image_alt']); ?>" width="1080" height="1350" loading="<?php echo e($loop->index < 3 ? 'eager' : 'lazy'); ?>" decoding="async">
                         </div>
                         <div class="service-card-copy">
                             <h2 class="service-card-title" data-words-slide-from-right aria-label="<?php echo e($service['title']); ?>">
-                                <span class="service-title-word" style="--services-word-index: 0" aria-hidden="true"><?php echo e($service['title']); ?></span>
+                                <span class="service-title-word animation-index-0" aria-hidden="true"><?php echo e($service['title']); ?></span>
                             </h2>
                             <p class="service-statement"><?php echo e($service['statement']); ?></p>
                             <p class="service-description"><?php echo e($service['text']); ?></p>

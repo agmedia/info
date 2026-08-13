@@ -171,8 +171,8 @@
 
         <section class="ac-about-hero" aria-label="<?php echo e($heroTitle); ?>">
             <div class="ac-about-container">
-                <div class="ac-about-hero-grid content-reveal" data-image-reveal>
-                    <div class="ac-about-hero-media">
+                <div class="ac-about-hero-grid">
+                    <div class="ac-about-hero-media content-reveal animation-index-0" data-image-reveal>
                         <figure class="ac-about-image image-reveal-media <?php echo e($aboutHeroPhoto['class']); ?>">
                             <img
                                 src="<?php echo e($aboutHeroPhoto['src']); ?>"
@@ -201,16 +201,20 @@
                             </h2>
                         <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
-                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $storyParagraphs->skip(1); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $paragraph): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                            <?php
-                                $storyParagraphHtml = str_replace(
-                                    'ALPHA CAPITALIS',
-                                    '<a class="ac-about-dark-inline-link" href="'.e(route('contact.create')).'">ALPHA CAPITALIS</a>',
-                                    e($paragraph),
-                                );
-                            ?>
-                            <p><?php echo $storyParagraphHtml; ?></p>
-                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($storyParagraphs->count() > 1): ?>
+                            <div class="ac-about-hero-paragraphs content-reveal animation-index-1" data-image-reveal>
+                                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $storyParagraphs->skip(1); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $paragraph): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                    <?php
+                                        $storyParagraphHtml = str_replace(
+                                            'ALPHA CAPITALIS',
+                                            '<a class="ac-about-dark-inline-link" href="'.e(route('contact.create')).'">ALPHA CAPITALIS</a>',
+                                            e($paragraph),
+                                        );
+                                    ?>
+                                    <p><?php echo $storyParagraphHtml; ?></p>
+                                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                            </div>
+                        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                     </div>
                 </div>
             </div>
@@ -218,7 +222,7 @@
 
         <section class="ac-about-values" aria-labelledby="ac-about-values-title">
             <div class="ac-about-container">
-                <div class="ac-about-section-intro ac-about-values-intro content-reveal" data-image-reveal>
+                <div class="ac-about-section-intro ac-about-values-intro">
                     <h2 class="values-title services-index-intro-title ac-about-section-intro-title ac-about-values-label" id="ac-about-values-title" data-words-slide-from-right aria-label="<?php echo e($valuesLabel); ?>">
                         <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $headingWords($valuesLabel); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $word): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                             <span class="values-word animation-index-<?php echo e($loop->index); ?> <?php echo e($loop->last ? 'is-accent' : ''); ?>" aria-hidden="true"><?php echo e($word); ?></span>
@@ -226,7 +230,7 @@
                     </h2>
 
                     <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($valuesIntro !== ''): ?>
-                        <div class="values-copy services-index-intro-copy ac-about-section-intro-copy ac-about-values-copy">
+                        <div class="values-copy services-index-intro-copy ac-about-section-intro-copy ac-about-values-copy content-reveal animation-index-1" data-image-reveal>
                             <h3 class="ac-about-copy-heading ac-about-values-copy-title"><?php echo e($valuesTitle); ?></h3>
                             <p><?php echo $valuesIntroHtml; ?></p>
                         </div>
@@ -266,7 +270,7 @@
 
         <section class="ac-about-why" aria-labelledby="ac-about-why-title">
             <div class="ac-about-container">
-                <div class="ac-about-section-intro ac-about-why-intro content-reveal" data-image-reveal>
+                <div class="ac-about-section-intro ac-about-why-intro">
                     <h2 class="values-title services-index-intro-title ac-about-section-intro-title ac-about-why-title" id="ac-about-why-title" data-words-slide-from-right aria-label="<?php echo e($whyLabel); ?>">
                         <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $headingWords($whyLabel); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $word): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                             <span class="values-word animation-index-<?php echo e($loop->index); ?> <?php echo e($loop->last ? 'is-accent' : ''); ?>" aria-hidden="true"><?php echo e($word); ?></span>
@@ -274,7 +278,7 @@
                     </h2>
 
                     <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($whyTitle !== '' || $whyQuote !== ''): ?>
-                        <div class="values-copy services-index-intro-copy ac-about-section-intro-copy ac-about-why-copy">
+                        <div class="values-copy services-index-intro-copy ac-about-section-intro-copy ac-about-why-copy content-reveal animation-index-1" data-image-reveal>
                             <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($whyTitle !== ''): ?>
                                 <h3 class="ac-about-copy-heading ac-about-copy-heading--light"><?php echo e($whyTitle); ?></h3>
                             <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
@@ -309,7 +313,7 @@
         <section class="ac-about-team" aria-labelledby="ac-about-team-intro-title">
             <div class="ac-about-team-intro">
                 <div class="ac-about-container">
-                    <div class="ac-about-section-intro ac-about-team-intro-grid content-reveal" data-image-reveal>
+                    <div class="ac-about-section-intro ac-about-team-intro-grid">
                         <h2 class="values-title services-index-intro-title ac-about-section-intro-title ac-about-team-label" id="ac-about-team-intro-title" data-words-slide-from-right aria-label="<?php echo e($teamLabel); ?>">
                             <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $headingWords($teamLabel); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $word): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                                 <span class="values-word animation-index-<?php echo e($loop->index); ?> <?php echo e($loop->last ? 'is-accent' : ''); ?>" aria-hidden="true"><?php echo e($word); ?></span>
@@ -323,12 +327,16 @@
                                 <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                             </h2>
 
-                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(trim((string) ($team['intro'] ?? '')) !== ''): ?>
-                                <p class="ac-about-team-lead"><?php echo e($team['intro']); ?></p>
-                            <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(trim((string) ($team['intro'] ?? '')) !== '' || trim((string) ($team['body'] ?? '')) !== ''): ?>
+                                <div class="ac-about-team-text content-reveal animation-index-1" data-image-reveal>
+                                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(trim((string) ($team['intro'] ?? '')) !== ''): ?>
+                                        <p class="ac-about-team-lead"><?php echo e($team['intro']); ?></p>
+                                    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
-                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(trim((string) ($team['body'] ?? '')) !== ''): ?>
-                                <p><?php echo e($team['body']); ?></p>
+                                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(trim((string) ($team['body'] ?? '')) !== ''): ?>
+                                        <p><?php echo e($team['body']); ?></p>
+                                    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                                </div>
                             <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                         </div>
                     </div>
@@ -373,7 +381,7 @@
                     <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($aboutPreviewTeamMembers->isNotEmpty()): ?>
                         <div class="ac-about-member-grid">
                         <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $aboutPreviewTeamMembers; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $member): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                            <article class="ac-about-member-card content-reveal animation-index-<?php echo e($loop->index); ?>" data-image-reveal style="--reveal-index: <?php echo e($loop->index); ?>">
+                            <article class="ac-about-member-card content-reveal animation-index-<?php echo e($loop->index); ?>" data-image-reveal>
                                 <div class="ac-about-member-photo <?php echo e(($member['photo_url'] ?? '') !== '' ? 'image-reveal-media' : ''); ?>">
                                     <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(($member['photo_url'] ?? '') !== ''): ?>
                                         <img
@@ -382,6 +390,7 @@
                                             loading="lazy"
                                             decoding="async"
                                         >
+                                        <span class="image-reveal-curtain" aria-hidden="true"></span>
                                     <?php else: ?>
                                         <span><?php echo e($member['initials'] ?? 'AC'); ?></span>
                                     <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
@@ -399,7 +408,6 @@
                         <article
                             class="ac-about-member-card ac-about-member-cta-card content-reveal animation-index-<?php echo e($aboutPreviewTeamMembers->count()); ?>"
                             data-image-reveal
-                            style="--reveal-index: <?php echo e($aboutPreviewTeamMembers->count()); ?>"
                         >
                             <a href="<?php echo e(route('team.index')); ?>" class="ac-about-member-cta-link">
                                 <span class="ac-about-member-cta-button">
@@ -415,7 +423,7 @@
 
         <section class="ac-about-culture" aria-labelledby="ac-about-culture-title">
             <div class="ac-about-container">
-                <div class="ac-about-section-intro ac-about-culture-intro content-reveal" data-image-reveal>
+                <div class="ac-about-section-intro ac-about-culture-intro">
                     <h2 class="values-title services-index-intro-title ac-about-section-intro-title ac-about-culture-label" id="ac-about-culture-title" data-words-slide-from-right aria-label="<?php echo e($cultureLabel); ?>">
                         <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $headingWords($cultureLabel); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $word): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                             <span class="values-word animation-index-<?php echo e($loop->index); ?> <?php echo e($loop->last ? 'is-accent' : ''); ?>" aria-hidden="true"><?php echo e($word); ?></span>
@@ -423,7 +431,7 @@
                     </h2>
 
                     <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($cultureTitle !== '' || $cultureQuote !== ''): ?>
-                        <div class="values-copy services-index-intro-copy ac-about-section-intro-copy ac-about-culture-copy">
+                        <div class="values-copy services-index-intro-copy ac-about-section-intro-copy ac-about-culture-copy content-reveal animation-index-1" data-image-reveal>
                             <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($cultureTitle !== ''): ?>
                                 <h3 class="ac-about-copy-heading ac-about-culture-copy-title"><?php echo e($cultureTitle); ?></h3>
                             <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
@@ -457,7 +465,7 @@
 
         <section class="ac-about-responsibility" aria-labelledby="ac-about-responsibility-title">
             <div class="ac-about-container">
-                <div class="ac-about-section-intro ac-about-responsibility-intro content-reveal" data-image-reveal>
+                <div class="ac-about-section-intro ac-about-responsibility-intro">
                     <h2 class="values-title services-index-intro-title ac-about-section-intro-title ac-about-responsibility-label" id="ac-about-responsibility-title" data-words-slide-from-right aria-label="<?php echo e($responsibilityLabel); ?>">
                         <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $headingWords($responsibilityLabel); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $word): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                             <span class="values-word animation-index-<?php echo e($loop->index); ?> <?php echo e($loop->last ? 'is-accent' : ''); ?>" aria-hidden="true"><?php echo e($word); ?></span>
@@ -465,7 +473,7 @@
                     </h2>
 
                     <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($responsibilityTitle !== '' || $responsibilityQuote !== ''): ?>
-                        <div class="values-copy services-index-intro-copy ac-about-section-intro-copy ac-about-responsibility-copy">
+                        <div class="values-copy services-index-intro-copy ac-about-section-intro-copy ac-about-responsibility-copy content-reveal animation-index-1" data-image-reveal>
                             <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($responsibilityTitle !== ''): ?>
                                 <h3 class="ac-about-copy-heading ac-about-responsibility-copy-title"><?php echo e($responsibilityTitle); ?></h3>
                             <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
@@ -504,7 +512,7 @@
                     <div class="contact-cta-copy">
                         <h2 class="contact-cta-title" id="ac-about-contact-cta-title" data-words-slide-from-right aria-label="<?php echo e($responsibilityCtaIntro); ?>">
                             <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $headingWords($responsibilityCtaIntro); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $word): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                                <span class="contact-cta-title-word <?php echo e($loop->remaining < 2 ? 'is-accent' : ''); ?>" style="--services-word-index: <?php echo e($loop->index); ?>" aria-hidden="true"><?php echo e($word); ?></span>
+                                <span class="contact-cta-title-word animation-index-<?php echo e($loop->index); ?> <?php echo e($loop->remaining < 2 ? 'is-accent' : ''); ?>" aria-hidden="true"><?php echo e($word); ?></span>
                             <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                         </h2>
                     </div>
@@ -536,7 +544,7 @@
                         <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                     </h2>
 
-                    <div class="values-copy services-index-intro-copy ac-about-section-intro-copy ac-about-reference-copy content-reveal" data-image-reveal style="--reveal-index: 1">
+                    <div class="values-copy services-index-intro-copy ac-about-section-intro-copy ac-about-reference-copy content-reveal animation-index-1" data-image-reveal>
                         <h3 class="ac-about-copy-heading ac-about-reference-copy-title"><?php echo e($referencesTitle); ?></h3>
                     </div>
                 </div>
@@ -560,27 +568,21 @@
                 <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($aboutReferenceItems->isNotEmpty()): ?>
                     <div class="ac-about-reference-grid">
                         <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $aboutReferenceItems; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $item): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                            <article
-                                class="ac-about-reference-card"
-                                data-image-reveal
-                                style="--reveal-index: <?php echo e($loop->index % 5); ?>"
-                                aria-label="<?php echo e($item['name']); ?>"
-                            >
-                                <div class="ac-about-reference-logo image-reveal-media">
+                            <article class="ac-about-reference-card" aria-label="<?php echo e($item['name']); ?>">
+                                <div class="ac-about-reference-logo content-reveal animation-index-<?php echo e($loop->index % 2); ?>" data-image-reveal>
                                     <img
                                         src="<?php echo e($item['url']); ?>"
                                         alt="<?php echo e($item['alt']); ?>"
-                                        loading="lazy"
+                                        loading="eager"
                                         decoding="async"
                                     >
-                                    <span class="image-reveal-curtain" aria-hidden="true"></span>
                                 </div>
                             </article>
                         <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                     </div>
                 <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
-                <div class="ac-about-section-actions content-reveal" data-image-reveal style="--reveal-index: 1">
+                <div class="ac-about-section-actions content-reveal animation-index-1" data-image-reveal>
                     <a href="<?php echo e($referencePageUrl); ?>" class="front-action-cta ac-about-secondary-cta">
                         <span><?php echo e($referencesButtonLabel); ?></span>
                         <i class="fa-duotone fa-thin fa-arrow-right" aria-hidden="true"></i>
@@ -596,7 +598,7 @@
 <?php $__env->stopSection(); ?>
 
 <?php $__env->startPush('styles'); ?>
-    <link rel="stylesheet" href="<?php echo e(asset('front-theme/styles/pages/about.css')); ?>">
+    <link rel="stylesheet" href="<?php echo e(asset('front-theme/styles/pages/about.css')); ?>?v=<?php echo e(filemtime(public_path('front-theme/styles/pages/about.css'))); ?>">
 <?php $__env->stopPush(); ?>
 
 <?php echo $__env->make('front.desktop.layouts.store', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH /Users/tomek/Herd/info/resources/views/front/desktop/pages/about.blade.php ENDPATH**/ ?>

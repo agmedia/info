@@ -63,10 +63,11 @@
 
 .front-route-advisory .ac-advisory-hero-shell {
     display: flex;
+    box-sizing: border-box;
     width: min(1320px, calc(100% - 136px));
     min-height: inherit;
     margin-inline: auto;
-    padding-block: clamp(5rem, 9vw, 8rem);
+    padding: var(--header-height) 0 0;
     align-items: center;
     justify-content: center;
 }
@@ -571,6 +572,7 @@
     .front-route-advisory .ac-advisory-approach-grid {
         gap: 4rem;
     }
+
 }
 
 @media (max-width: 760px) {
@@ -596,7 +598,7 @@
     }
 
     .front-route-advisory .ac-advisory-hero-shell {
-        padding: 5.75rem 0 3.5rem;
+        padding: var(--header-height) 0 0;
     }
 
     .front-route-advisory .ac-advisory-hero-label {
@@ -687,7 +689,7 @@
     }
 
     .front-route-advisory .ac-advisory-service-card {
-        min-height: 25rem;
+        min-height: 0;
         padding: 2rem;
         border-radius: 44px 5px 44px 5px;
         grid-column: auto;

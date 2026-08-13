@@ -433,9 +433,12 @@ class ContentBlogPagesFeatureTest extends TestCase
         $response->assertOk();
 
         $content = $response->getContent();
+        $inlineGalleryPath = (string) parse_url($inlineGalleryMedia->getUrl(), PHP_URL_PATH);
+        $extraGalleryPath = (string) parse_url($extraGalleryMedia->getUrl(), PHP_URL_PATH);
 
-        $this->assertSame(1, substr_count($content, $inlineGalleryMedia->getUrl()));
-        $this->assertSame(2, substr_count($content, $extraGalleryMedia->getUrl()));
+        $this->assertSame(1, substr_count($content, $inlineGalleryPath));
+        $this->assertSame(2, substr_count($content, $extraGalleryPath));
+        $this->assertStringNotContainsString('http://localhost/storage/', $content);
     }
 
     public function test_wordpress_blog_import_command_imports_limited_posts_into_single_category(): void
@@ -495,6 +498,8 @@ class ContentBlogPagesFeatureTest extends TestCase
         $this->assertNotNull($formattedTranslation);
         $this->assertStringContainsString('<p><strong>Naziv projekta:</strong>', (string) $formattedTranslation->body_html);
         $this->assertStringContainsString('<figure>', (string) $formattedTranslation->body_html);
+        $this->assertStringContainsString('src="/storage/', (string) $formattedTranslation->body_html);
+        $this->assertStringNotContainsString('http://localhost/storage/', (string) $formattedTranslation->body_html);
         $this->assertCount(3, $formattedPost->getMedia('blog_gallery'));
     }
 

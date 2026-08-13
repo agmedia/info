@@ -411,6 +411,10 @@
     .ac-team-member-layout {
         grid-template-columns: 240px minmax(0, 1fr) !important;
     }
+
+    .ac-team-contact-cta .contact-cta-shell {
+        grid-template-columns: minmax(0, 1fr);
+    }
 }
 
 @media (max-width: 720px) {

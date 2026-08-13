@@ -473,7 +473,7 @@ class WordPressBlogImportService
                 );
 
                 if ($cover instanceof Media) {
-                    $map[$featuredImageUrl] = $cover->getUrl();
+                    $map[$featuredImageUrl] = $this->sameOriginStorageUrl($cover->getUrl());
                 }
             } else {
                 $this->clearImportedMediaCollection($post, 'blog_cover');
@@ -493,7 +493,7 @@ class WordPressBlogImportService
                 );
 
                 if ($galleryMedia instanceof Media) {
-                    $map[$imageUrl] = $galleryMedia->getUrl();
+                    $map[$imageUrl] = $this->sameOriginStorageUrl($galleryMedia->getUrl());
                 }
             }
 
@@ -630,6 +630,26 @@ class WordPressBlogImportService
             },
             $html
         ) ?? $html;
+    }
+
+    private function sameOriginStorageUrl(string $url): string
+    {
+        $value = trim($url);
+        if ($value === '') {
+            return '';
+        }
+
+        $path = parse_url($value, PHP_URL_PATH);
+        if (! is_string($path) || ! str_starts_with($path, '/storage/')) {
+            return $value;
+        }
+
+        $query = parse_url($value, PHP_URL_QUERY);
+        $fragment = parse_url($value, PHP_URL_FRAGMENT);
+
+        return $path
+            .(is_string($query) && $query !== '' ? '?'.$query : '')
+            .(is_string($fragment) && $fragment !== '' ? '#'.$fragment : '');
     }
 
     private function finalizeBodyHtml(string $html, ?string $featuredImageUrl, ?string $featuredLocalUrl): string
