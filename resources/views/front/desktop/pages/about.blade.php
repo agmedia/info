@@ -566,7 +566,10 @@
                                 class="ac-about-reference-card"
                                 aria-label="{{ $item['name'] }}"
                             >
-                                <div class="ac-about-reference-logo">
+                                <div
+                                    class="ac-about-reference-logo"
+                                    style="background-image: url('{{ $item['url'] }}')"
+                                >
                                     <img
                                         src="{{ $item['url'] }}"
                                         alt="{{ $item['alt'] }}"

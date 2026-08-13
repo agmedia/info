@@ -1918,38 +1918,25 @@
     width: min(70%, 13rem);
     height: 4.2rem;
     place-items: center;
-    background: transparent;
-    mix-blend-mode: multiply;
+    background-color: var(--about-paper);
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: contain;
+    background-blend-mode: darken;
+    opacity: 0.82;
+    transition: background-color 220ms ease, opacity 220ms ease;
 }
 
 .front-desktop-shell .ac-about-reference-logo img {
     max-width: 100%;
     max-height: 100%;
     border-radius: 0;
-    filter: grayscale(1) contrast(1.28) brightness(1.04);
-    mix-blend-mode: normal;
-    opacity: 0.82;
-    transition: filter 220ms ease, opacity 220ms ease;
+    opacity: 0;
 }
 
-.front-desktop-shell .ac-about-reference-card:hover .ac-about-reference-logo img {
-    filter: grayscale(1) contrast(1.38) brightness(1.02);
+.front-desktop-shell .ac-about-reference-card:hover .ac-about-reference-logo {
+    background-color: #fff;
     opacity: 1;
-}
-
-@media (hover: none), (pointer: coarse), (max-width: 1024px), (max-device-width: 1024px) {
-    .front-desktop-shell .ac-about-reference-card {
-        background: #fff !important;
-    }
-
-    .front-desktop-shell .ac-about-reference-logo {
-        mix-blend-mode: normal;
-    }
-
-    .front-desktop-shell .ac-about-reference-logo img {
-        filter: grayscale(1) contrast(1.38) brightness(1.02);
-        opacity: 1;
-    }
 }
 
 .front-desktop-shell .ac-about-section-actions {
