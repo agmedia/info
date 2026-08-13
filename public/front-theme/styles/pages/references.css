@@ -84,7 +84,7 @@
     border-right: 1px solid rgba(3, 18, 31, 0.21);
     border-bottom: 1px solid rgba(3, 18, 31, 0.21);
     border-radius: 0;
-    background: #fbf9f5;
+    background: #fff;
     box-shadow: none;
 }
 
@@ -100,7 +100,7 @@
     max-width: 100%;
     max-height: 100%;
     border-radius: 0;
-    mix-blend-mode: multiply;
+    mix-blend-mode: normal;
     opacity: 0.82;
 }
 
