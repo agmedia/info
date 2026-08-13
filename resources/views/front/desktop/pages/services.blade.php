@@ -92,10 +92,10 @@
             <div class="values-intro">
                 <h1 class="values-title services-index-intro-title" id="ac-services-index-title" data-words-slide-from-right aria-label="{{ trim($titleLead.' '.$titleAccent) }}">
                     @foreach ($introTitleWords as $word)
-                        <span class="values-word {{ mb_strtolower(trim($word, '.,!?')) === 'usluge' || ($introTitleAccentWords === [] && $loop->last) ? 'is-accent' : '' }}" style="--value-word-index: {{ $loop->index }}" aria-hidden="true">{{ $word }}</span>
+                        <span class="values-word animation-index-{{ $loop->index }} {{ mb_strtolower(trim($word, '.,!?')) === 'usluge' || ($introTitleAccentWords === [] && $loop->last) ? 'is-accent' : '' }}" aria-hidden="true">{{ $word }}</span>
                     @endforeach
                     @foreach ($introTitleAccentWords as $word)
-                        <span class="values-word is-accent" style="--value-word-index: {{ count($introTitleWords) + $loop->index }}" aria-hidden="true">{{ $word }}</span>
+                        <span class="values-word animation-index-{{ count($introTitleWords) + $loop->index }} is-accent" aria-hidden="true">{{ $word }}</span>
                     @endforeach
                 </h1>
 
@@ -112,13 +112,13 @@
 
             <div class="services-grid services-grid--count-{{ min(3, $serviceItems->count()) }}">
                 @foreach ($serviceItems as $service)
-                    <a class="service-card" href="{{ $service['url'] }}" data-image-reveal style="--service-index: {{ $loop->index }}">
+                    <a class="service-card" href="{{ $service['url'] }}" data-image-reveal>
                         <div class="service-card-media">
                             <img src="{{ $service['image'] }}" alt="{{ $service['image_alt'] }}" width="1080" height="1350" loading="{{ $loop->index < 3 ? 'eager' : 'lazy' }}" decoding="async">
                         </div>
                         <div class="service-card-copy">
                             <h2 class="service-card-title" data-words-slide-from-right aria-label="{{ $service['title'] }}">
-                                <span class="service-title-word" style="--services-word-index: 0" aria-hidden="true">{{ $service['title'] }}</span>
+                                <span class="service-title-word animation-index-0" aria-hidden="true">{{ $service['title'] }}</span>
                             </h2>
                             <p class="service-statement">{{ $service['statement'] }}</p>
                             <p class="service-description">{{ $service['text'] }}</p>

@@ -382,6 +382,10 @@ button {
     linear-gradient(145deg, #081d30, #031321);
 }
 
+.services-grid > .service-card:nth-child(1) { --service-index: 0; }
+.services-grid > .service-card:nth-child(2) { --service-index: 1; }
+.services-grid > .service-card:nth-child(3) { --service-index: 2; }
+
 .service-card:nth-child(2) {
   margin-top: clamp(30px, 4.2vw, 74px);
   border-radius:

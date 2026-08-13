@@ -173,8 +173,8 @@
 
         <section class="ac-about-hero" aria-label="{{ $heroTitle }}">
             <div class="ac-about-container">
-                <div class="ac-about-hero-grid content-reveal" data-image-reveal>
-                    <div class="ac-about-hero-media">
+                <div class="ac-about-hero-grid">
+                    <div class="ac-about-hero-media content-reveal animation-index-0" data-image-reveal>
                         <figure class="ac-about-image image-reveal-media {{ $aboutHeroPhoto['class'] }}">
                             <img
                                 src="{{ $aboutHeroPhoto['src'] }}"
@@ -203,16 +203,20 @@
                             </h2>
                         @endif
 
-                        @foreach ($storyParagraphs->skip(1) as $paragraph)
-                            @php
-                                $storyParagraphHtml = str_replace(
-                                    'ALPHA CAPITALIS',
-                                    '<a class="ac-about-dark-inline-link" href="'.e(route('contact.create')).'">ALPHA CAPITALIS</a>',
-                                    e($paragraph),
-                                );
-                            @endphp
-                            <p>{!! $storyParagraphHtml !!}</p>
-                        @endforeach
+                        @if ($storyParagraphs->count() > 1)
+                            <div class="ac-about-hero-paragraphs content-reveal animation-index-1" data-image-reveal>
+                                @foreach ($storyParagraphs->skip(1) as $paragraph)
+                                    @php
+                                        $storyParagraphHtml = str_replace(
+                                            'ALPHA CAPITALIS',
+                                            '<a class="ac-about-dark-inline-link" href="'.e(route('contact.create')).'">ALPHA CAPITALIS</a>',
+                                            e($paragraph),
+                                        );
+                                    @endphp
+                                    <p>{!! $storyParagraphHtml !!}</p>
+                                @endforeach
+                            </div>
+                        @endif
                     </div>
                 </div>
             </div>
@@ -220,7 +224,7 @@
 
         <section class="ac-about-values" aria-labelledby="ac-about-values-title">
             <div class="ac-about-container">
-                <div class="ac-about-section-intro ac-about-values-intro content-reveal" data-image-reveal>
+                <div class="ac-about-section-intro ac-about-values-intro">
                     <h2 class="values-title services-index-intro-title ac-about-section-intro-title ac-about-values-label" id="ac-about-values-title" data-words-slide-from-right aria-label="{{ $valuesLabel }}">
                         @foreach ($headingWords($valuesLabel) as $word)
                             <span class="values-word animation-index-{{ $loop->index }} {{ $loop->last ? 'is-accent' : '' }}" aria-hidden="true">{{ $word }}</span>
@@ -228,7 +232,7 @@
                     </h2>
 
                     @if ($valuesIntro !== '')
-                        <div class="values-copy services-index-intro-copy ac-about-section-intro-copy ac-about-values-copy">
+                        <div class="values-copy services-index-intro-copy ac-about-section-intro-copy ac-about-values-copy content-reveal animation-index-1" data-image-reveal>
                             <h3 class="ac-about-copy-heading ac-about-values-copy-title">{{ $valuesTitle }}</h3>
                             <p>{!! $valuesIntroHtml !!}</p>
                         </div>
@@ -268,7 +272,7 @@
 
         <section class="ac-about-why" aria-labelledby="ac-about-why-title">
             <div class="ac-about-container">
-                <div class="ac-about-section-intro ac-about-why-intro content-reveal" data-image-reveal>
+                <div class="ac-about-section-intro ac-about-why-intro">
                     <h2 class="values-title services-index-intro-title ac-about-section-intro-title ac-about-why-title" id="ac-about-why-title" data-words-slide-from-right aria-label="{{ $whyLabel }}">
                         @foreach ($headingWords($whyLabel) as $word)
                             <span class="values-word animation-index-{{ $loop->index }} {{ $loop->last ? 'is-accent' : '' }}" aria-hidden="true">{{ $word }}</span>
@@ -276,7 +280,7 @@
                     </h2>
 
                     @if ($whyTitle !== '' || $whyQuote !== '')
-                        <div class="values-copy services-index-intro-copy ac-about-section-intro-copy ac-about-why-copy">
+                        <div class="values-copy services-index-intro-copy ac-about-section-intro-copy ac-about-why-copy content-reveal animation-index-1" data-image-reveal>
                             @if ($whyTitle !== '')
                                 <h3 class="ac-about-copy-heading ac-about-copy-heading--light">{{ $whyTitle }}</h3>
                             @endif
@@ -311,7 +315,7 @@
         <section class="ac-about-team" aria-labelledby="ac-about-team-intro-title">
             <div class="ac-about-team-intro">
                 <div class="ac-about-container">
-                    <div class="ac-about-section-intro ac-about-team-intro-grid content-reveal" data-image-reveal>
+                    <div class="ac-about-section-intro ac-about-team-intro-grid">
                         <h2 class="values-title services-index-intro-title ac-about-section-intro-title ac-about-team-label" id="ac-about-team-intro-title" data-words-slide-from-right aria-label="{{ $teamLabel }}">
                             @foreach ($headingWords($teamLabel) as $word)
                                 <span class="values-word animation-index-{{ $loop->index }} {{ $loop->last ? 'is-accent' : '' }}" aria-hidden="true">{{ $word }}</span>
@@ -325,12 +329,16 @@
                                 @endforeach
                             </h2>
 
-                            @if (trim((string) ($team['intro'] ?? '')) !== '')
-                                <p class="ac-about-team-lead">{{ $team['intro'] }}</p>
-                            @endif
+                            @if (trim((string) ($team['intro'] ?? '')) !== '' || trim((string) ($team['body'] ?? '')) !== '')
+                                <div class="ac-about-team-text content-reveal animation-index-1" data-image-reveal>
+                                    @if (trim((string) ($team['intro'] ?? '')) !== '')
+                                        <p class="ac-about-team-lead">{{ $team['intro'] }}</p>
+                                    @endif
 
-                            @if (trim((string) ($team['body'] ?? '')) !== '')
-                                <p>{{ $team['body'] }}</p>
+                                    @if (trim((string) ($team['body'] ?? '')) !== '')
+                                        <p>{{ $team['body'] }}</p>
+                                    @endif
+                                </div>
                             @endif
                         </div>
                     </div>
@@ -374,7 +382,7 @@
                     @if ($aboutPreviewTeamMembers->isNotEmpty())
                         <div class="ac-about-member-grid">
                         @foreach ($aboutPreviewTeamMembers as $member)
-                            <article class="ac-about-member-card content-reveal animation-index-{{ $loop->index }}" data-image-reveal style="--reveal-index: {{ $loop->index }}">
+                            <article class="ac-about-member-card content-reveal animation-index-{{ $loop->index }}" data-image-reveal>
                                 <div class="ac-about-member-photo {{ ($member['photo_url'] ?? '') !== '' ? 'image-reveal-media' : '' }}">
                                     @if (($member['photo_url'] ?? '') !== '')
                                         <img
@@ -401,7 +409,6 @@
                         <article
                             class="ac-about-member-card ac-about-member-cta-card content-reveal animation-index-{{ $aboutPreviewTeamMembers->count() }}"
                             data-image-reveal
-                            style="--reveal-index: {{ $aboutPreviewTeamMembers->count() }}"
                         >
                             <a href="{{ route('team.index') }}" class="ac-about-member-cta-link">
                                 <span class="ac-about-member-cta-button">
@@ -417,7 +424,7 @@
 
         <section class="ac-about-culture" aria-labelledby="ac-about-culture-title">
             <div class="ac-about-container">
-                <div class="ac-about-section-intro ac-about-culture-intro content-reveal" data-image-reveal>
+                <div class="ac-about-section-intro ac-about-culture-intro">
                     <h2 class="values-title services-index-intro-title ac-about-section-intro-title ac-about-culture-label" id="ac-about-culture-title" data-words-slide-from-right aria-label="{{ $cultureLabel }}">
                         @foreach ($headingWords($cultureLabel) as $word)
                             <span class="values-word animation-index-{{ $loop->index }} {{ $loop->last ? 'is-accent' : '' }}" aria-hidden="true">{{ $word }}</span>
@@ -425,7 +432,7 @@
                     </h2>
 
                     @if ($cultureTitle !== '' || $cultureQuote !== '')
-                        <div class="values-copy services-index-intro-copy ac-about-section-intro-copy ac-about-culture-copy">
+                        <div class="values-copy services-index-intro-copy ac-about-section-intro-copy ac-about-culture-copy content-reveal animation-index-1" data-image-reveal>
                             @if ($cultureTitle !== '')
                                 <h3 class="ac-about-copy-heading ac-about-culture-copy-title">{{ $cultureTitle }}</h3>
                             @endif
@@ -459,7 +466,7 @@
 
         <section class="ac-about-responsibility" aria-labelledby="ac-about-responsibility-title">
             <div class="ac-about-container">
-                <div class="ac-about-section-intro ac-about-responsibility-intro content-reveal" data-image-reveal>
+                <div class="ac-about-section-intro ac-about-responsibility-intro">
                     <h2 class="values-title services-index-intro-title ac-about-section-intro-title ac-about-responsibility-label" id="ac-about-responsibility-title" data-words-slide-from-right aria-label="{{ $responsibilityLabel }}">
                         @foreach ($headingWords($responsibilityLabel) as $word)
                             <span class="values-word animation-index-{{ $loop->index }} {{ $loop->last ? 'is-accent' : '' }}" aria-hidden="true">{{ $word }}</span>
@@ -467,7 +474,7 @@
                     </h2>
 
                     @if ($responsibilityTitle !== '' || $responsibilityQuote !== '')
-                        <div class="values-copy services-index-intro-copy ac-about-section-intro-copy ac-about-responsibility-copy">
+                        <div class="values-copy services-index-intro-copy ac-about-section-intro-copy ac-about-responsibility-copy content-reveal animation-index-1" data-image-reveal>
                             @if ($responsibilityTitle !== '')
                                 <h3 class="ac-about-copy-heading ac-about-responsibility-copy-title">{{ $responsibilityTitle }}</h3>
                             @endif
@@ -506,7 +513,7 @@
                     <div class="contact-cta-copy">
                         <h2 class="contact-cta-title" id="ac-about-contact-cta-title" data-words-slide-from-right aria-label="{{ $responsibilityCtaIntro }}">
                             @foreach ($headingWords($responsibilityCtaIntro) as $word)
-                                <span class="contact-cta-title-word {{ $loop->remaining < 2 ? 'is-accent' : '' }}" style="--services-word-index: {{ $loop->index }}" aria-hidden="true">{{ $word }}</span>
+                                <span class="contact-cta-title-word animation-index-{{ $loop->index }} {{ $loop->remaining < 2 ? 'is-accent' : '' }}" aria-hidden="true">{{ $word }}</span>
                             @endforeach
                         </h2>
                     </div>
@@ -538,7 +545,7 @@
                         @endforeach
                     </h2>
 
-                    <div class="values-copy services-index-intro-copy ac-about-section-intro-copy ac-about-reference-copy content-reveal" data-image-reveal style="--reveal-index: 1">
+                    <div class="values-copy services-index-intro-copy ac-about-section-intro-copy ac-about-reference-copy content-reveal animation-index-1" data-image-reveal>
                         <h3 class="ac-about-copy-heading ac-about-reference-copy-title">{{ $referencesTitle }}</h3>
                     </div>
                 </div>
@@ -562,14 +569,8 @@
                 @if ($aboutReferenceItems->isNotEmpty())
                     <div class="ac-about-reference-grid">
                         @foreach ($aboutReferenceItems as $item)
-                            <article
-                                class="ac-about-reference-card"
-                                aria-label="{{ $item['name'] }}"
-                            >
-                                <div
-                                    class="ac-about-reference-logo"
-                                    style="background-image: url('{{ $item['url'] }}')"
-                                >
+                            <article class="ac-about-reference-card content-reveal animation-index-{{ $loop->index % 2 }}" data-image-reveal aria-label="{{ $item['name'] }}">
+                                <div class="ac-about-reference-logo">
                                     <img
                                         src="{{ $item['url'] }}"
                                         alt="{{ $item['alt'] }}"
@@ -582,7 +583,7 @@
                     </div>
                 @endif
 
-                <div class="ac-about-section-actions content-reveal" data-image-reveal style="--reveal-index: 1">
+                <div class="ac-about-section-actions content-reveal animation-index-1" data-image-reveal>
                     <a href="{{ $referencePageUrl }}" class="front-action-cta ac-about-secondary-cta">
                         <span>{{ $referencesButtonLabel }}</span>
                         <i class="fa-duotone fa-thin fa-arrow-right" aria-hidden="true"></i>

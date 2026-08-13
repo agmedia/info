@@ -78,6 +78,8 @@ document.addEventListener('DOMContentLoaded', function () {
     const imageReveals = Array.from(document.querySelectorAll('[data-image-reveal]'));
     const processReveals = Array.from(document.querySelectorAll('[data-process-reveal]'));
     const locationsReveals = Array.from(document.querySelectorAll('[data-locations-reveal]'));
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const supportsRevealObserver = 'IntersectionObserver' in window;
     const countFrames = new Set();
     let frame = 0;
 
@@ -131,19 +133,52 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     };
 
+    const revealOnEntry = function (elements, className, bottomOffset) {
+        if (reduceMotion || !supportsRevealObserver) {
+            elements.forEach(function (element) {
+                element.classList.add(className);
+            });
+            return;
+        }
+
+        const observer = new IntersectionObserver(function (entries) {
+            entries.forEach(function (entry) {
+                if (!entry.isIntersecting) {
+                    return;
+                }
+
+                entry.target.classList.add(className);
+                observer.unobserve(entry.target);
+            });
+        }, {
+            root: null,
+            rootMargin: `0px 0px -${bottomOffset}% 0px`,
+            threshold: 0.01,
+        });
+
+        elements.forEach(function (element) {
+            observer.observe(element);
+        });
+    };
+
+    revealOnEntry(headings, 'is-revealed', 20);
+    revealOnEntry(imageReveals, 'is-image-revealed', 18);
+
     const updateReveal = function () {
         frame = 0;
         const viewportHeight = window.innerHeight;
 
-        headings.forEach(function (heading) {
-            const top = heading.getBoundingClientRect().top;
-            heading.classList.toggle('is-revealed', top <= viewportHeight * 0.8 || top < 0);
-        });
+        if (!supportsRevealObserver) {
+            headings.forEach(function (heading) {
+                const top = heading.getBoundingClientRect().top;
+                heading.classList.toggle('is-revealed', top <= viewportHeight * 0.8 || top < 0);
+            });
 
-        imageReveals.forEach(function (element) {
-            const top = element.getBoundingClientRect().top;
-            element.classList.toggle('is-image-revealed', top <= viewportHeight * 0.82 || top < 0);
-        });
+            imageReveals.forEach(function (element) {
+                const top = element.getBoundingClientRect().top;
+                element.classList.toggle('is-image-revealed', top <= viewportHeight * 0.82 || top < 0);
+            });
+        }
 
         processReveals.forEach(function (element) {
             const target = element.querySelector('.process-track') || element;
@@ -170,6 +205,8 @@ document.addEventListener('DOMContentLoaded', function () {
     updateReveal();
     window.addEventListener('scroll', scheduleReveal, { passive: true });
     window.addEventListener('resize', scheduleReveal);
+    window.addEventListener('load', scheduleReveal, { once: true });
+    fontReady.then(scheduleReveal, scheduleReveal);
 
     if (video instanceof HTMLVideoElement && 'IntersectionObserver' in window) {
         const observer = new IntersectionObserver(function (entries) {
