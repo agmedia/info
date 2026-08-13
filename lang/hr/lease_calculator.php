@@ -19,6 +19,7 @@ return [
         'select_year' => 'Odaberi godinu',
         'calculate' => 'Izračunaj raspored',
         'reset' => 'Poništi',
+        'date_placeholder' => 'dd.mm.gggg',
         'monthly_payment_placeholder' => 'npr. 1250,00',
         'interest_rate_placeholder' => 'npr. 5,50',
         'validation_required' => 'Unesite datum početka i završetka najma, mjesečnu ratu i kamatnu stopu.',
@@ -31,6 +32,13 @@ return [
         'initial_liability' => 'Početna obveza po najmu',
         'monthly_depreciation' => 'Mjesečna amortizacija',
         'interest_total' => 'Ukupni troškovi kamata',
+    ],
+    'output_placeholders' => [
+        'months' => 'npr. 36',
+        'total_lease' => 'npr. 45.000,00',
+        'initial_liability' => 'npr. 41.250,00',
+        'monthly_depreciation' => 'npr. 1.145,83',
+        'interest_total' => 'npr. 3.750,00',
     ],
     'results' => [
         'kicker' => 'Raspored obračuna',

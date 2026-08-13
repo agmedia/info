@@ -2,6 +2,7 @@
 
 @section('title', __('assessment.page_title'))
 @section('main_class', 'w-full px-0 py-0')
+@section('hide_footer_newsletter', '1')
 
 @section('content')
     @php
@@ -10,28 +11,36 @@
         $contactEmail = trim((string) ($storeSettings['footer']['email_support'] ?? '')) ?: 'info@alphacapitalis.com';
         $contactPhone = trim((string) ($storeSettings['footer']['phone'] ?? '')) ?: '+385 (1) 580 6656';
         $contactPhoneHref = preg_replace('/\s+/', '', $contactPhone);
-        $pageTitleBreadcrumbs = [
-            ['label' => __('ui.front.desktop.footer.home'), 'url' => route('home')],
-            ['label' => __('assessment.page_title'), 'current' => true],
-        ];
+        $headingWords = static fn (string $title): array => preg_split('/\s+/u', trim($title), -1, PREG_SPLIT_NO_EMPTY) ?: [];
     @endphp
 
     <div class="front-contact-page ac-assessment-page" data-assessment-form-root data-locale="{{ app()->getLocale() }}">
-        <x-front.page-title-band :breadcrumbs="$pageTitleBreadcrumbs" section-class="ac-assessment-title-band">
-            <div class="ac-page-title-copy">
-                <h1>{{ __('assessment.heading') }}</h1>
-                <p>{{ __('assessment.subheading') }}</p>
-            </div>
-        </x-front.page-title-band>
+        <section class="ac-tool-intro" aria-labelledby="ac-assessment-title">
+            <div class="ac-tool-container ac-tool-intro-layout">
+                <div class="ac-tool-intro-heading">
+                    @php($assessmentHeadingWords = $headingWords(__('assessment.heading')))
+                    <h1 class="values-title services-index-intro-title ac-tool-display-title" id="ac-assessment-title" data-words-slide-from-right aria-label="{{ __('assessment.heading') }}">
+                        @foreach ($assessmentHeadingWords as $word)
+                            <span class="values-word animation-index-{{ $loop->index }} {{ $loop->last && count($assessmentHeadingWords) > 1 ? 'is-accent' : '' }}" aria-hidden="true">{{ $word }}</span>
+                        @endforeach
+                    </h1>
+                </div>
 
-        <section class="front-contact-content-shell">
-            <div class="mx-auto w-full max-w-[1320px] px-4 sm:px-6 lg:px-8">
+                <div class="ac-tool-intro-copy content-reveal animation-index-1" data-image-reveal>
+                    <p>{{ __('assessment.subheading') }}</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="front-contact-content-shell ac-tool-content-section" aria-labelledby="ac-assessment-form-title">
+            <div class="ac-tool-container">
                 <div class="front-contact-layout ac-assessment-layout">
                     <form
                         method="POST"
                         action="{{ route('assessment.store') }}"
-                        class="front-contact-form ac-assessment-form"
+                        class="front-contact-form ac-assessment-form content-reveal animation-index-0"
                         novalidate
+                        data-image-reveal
                         @if($captchaEnabled) data-recaptcha-form data-recaptcha-site-key="{{ $captchaSiteKey }}" data-recaptcha-action="collaboration_assessment_form" @endif
                     >
                         @csrf
@@ -39,13 +48,14 @@
 
                         <div class="front-contact-form-head">
                             <p class="front-contact-section-kicker">{{ __('assessment.form.kicker') }}</p>
-                            <h2>{{ __('assessment.form.title') }}</h2>
+                            <h2 id="ac-assessment-form-title">{{ __('assessment.form.title') }}</h2>
                             <p>{{ __('assessment.form.intro') }}</p>
                         </div>
 
                         @if (session('status'))
                             <div class="front-contact-status" role="status">
-                                {{ session('status') }}
+                                <i class="fa-light fa-circle-check" aria-hidden="true"></i>
+                                <span>{{ session('status') }}</span>
                             </div>
                         @endif
 
@@ -289,40 +299,58 @@
                         </div>
 
                         <div class="front-contact-form-actions">
-                            <button type="submit" class="front-contact-submit inline-flex h-11 items-center justify-center px-6 text-sm font-semibold text-white transition">
-                                {{ __('assessment.form.submit') }}
+                            <button type="submit" class="editorial-dark-button ac-tool-submit">
+                                <span>{{ __('assessment.form.submit') }}</span>
+                                <i class="fa-light fa-arrow-up-right" aria-hidden="true"></i>
                             </button>
                         </div>
                     </form>
 
-                    <aside class="front-contact-sidebar">
+                    <aside class="front-contact-sidebar content-reveal animation-index-1" data-image-reveal aria-label="{{ __('assessment.sidebar.title') }}">
                         <div class="front-contact-panel front-contact-panel--direct">
                             <h2>{{ __('assessment.sidebar.title') }}</h2>
                             <p class="front-contact-panel-intro">{{ __('assessment.sidebar.body') }}</p>
 
                             <ul class="front-contact-direct-list">
                                 <li>
-                                    <span>{{ __('assessment.sidebar.point_1_label') }}</span>
-                                    <strong>{{ __('assessment.sidebar.point_1') }}</strong>
+                                    <i class="fa-light fa-chart-mixed" aria-hidden="true"></i>
+                                    <span>
+                                        <small>{{ __('assessment.sidebar.point_1_label') }}</small>
+                                        <strong>{{ __('assessment.sidebar.point_1') }}</strong>
+                                    </span>
                                 </li>
                                 <li>
-                                    <span>{{ __('assessment.sidebar.point_2_label') }}</span>
-                                    <strong>{{ __('assessment.sidebar.point_2') }}</strong>
+                                    <i class="fa-light fa-file-lines" aria-hidden="true"></i>
+                                    <span>
+                                        <small>{{ __('assessment.sidebar.point_2_label') }}</small>
+                                        <strong>{{ __('assessment.sidebar.point_2') }}</strong>
+                                    </span>
                                 </li>
                                 <li>
-                                    <span>{{ __('contact.direct.email') }}</span>
-                                    <a href="mailto:{{ $contactEmail }}">{{ $contactEmail }}</a>
+                                    <i class="fa-light fa-envelope" aria-hidden="true"></i>
+                                    <span>
+                                        <small>{{ __('contact.direct.email') }}</small>
+                                        <a href="mailto:{{ $contactEmail }}">{{ $contactEmail }}</a>
+                                    </span>
                                 </li>
                                 <li>
-                                    <span>{{ __('contact.direct.phone') }}</span>
-                                    <a href="tel:{{ $contactPhoneHref }}">{{ $contactPhone }}</a>
+                                    <i class="fa-light fa-phone" aria-hidden="true"></i>
+                                    <span>
+                                        <small>{{ __('contact.direct.phone') }}</small>
+                                        <a href="tel:{{ $contactPhoneHref }}">{{ $contactPhone }}</a>
+                                    </span>
                                 </li>
                             </ul>
                         </div>
 
                         <div class="front-contact-help">
-                            <h3>{{ __('assessment.help.title') }}</h3>
-                            <p>{{ __('assessment.help.body') }}</p>
+                            <span class="front-contact-help-icon" aria-hidden="true">
+                                <i class="fa-light fa-circle-info"></i>
+                            </span>
+                            <div>
+                                <h3>{{ __('assessment.help.title') }}</h3>
+                                <p>{{ __('assessment.help.body') }}</p>
+                            </div>
                         </div>
                     </aside>
                 </div>
@@ -665,3 +693,7 @@
         </script>
     @endpush
 @endsection
+
+@push('styles')
+    <link rel="stylesheet" href="{{ asset('front-theme/styles/pages/tool-pages.css') }}?v={{ filemtime(public_path('front-theme/styles/pages/tool-pages.css')) }}">
+@endpush

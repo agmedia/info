@@ -2,35 +2,43 @@
 
 @section('title', __('lease_calculator.page_title'))
 @section('main_class', 'w-full px-0 py-0')
+@section('hide_footer_newsletter', '1')
 
 @section('content')
     @php
         $contactEmail = trim((string) ($storeSettings['footer']['email_support'] ?? '')) ?: 'info@alphacapitalis.com';
-        $pageTitleBreadcrumbs = [
-            ['label' => __('ui.front.desktop.footer.home'), 'url' => route('home')],
-            ['label' => __('lease_calculator.page_title'), 'current' => true],
-        ];
+        $headingWords = static fn (string $title): array => preg_split('/\s+/u', trim($title), -1, PREG_SPLIT_NO_EMPTY) ?: [];
     @endphp
 
     <div class="ac-lease-page" data-lease-calculator-root>
-        <x-front.page-title-band :breadcrumbs="$pageTitleBreadcrumbs" section-class="ac-lease-title-band">
-            <div class="ac-page-title-copy">
-                <h1>{{ __('lease_calculator.heading') }}</h1>
-                <p>{{ __('lease_calculator.subheading') }}</p>
-            </div>
-        </x-front.page-title-band>
-
-        <section class="ac-lease-shell">
-            <div class="mx-auto w-full max-w-[1320px] px-4 sm:px-6 lg:px-8">
-                <div class="ac-lease-intro">
-                    <p>{{ __('lease_calculator.intro') }}</p>
+        <section class="ac-tool-intro" aria-labelledby="ac-lease-title">
+            <div class="ac-tool-container ac-tool-intro-layout">
+                <div class="ac-tool-intro-heading">
+                    @php($leaseHeadingWords = $headingWords(__('lease_calculator.heading')))
+                    <h1 class="values-title services-index-intro-title ac-tool-display-title" id="ac-lease-title" data-words-slide-from-right aria-label="{{ __('lease_calculator.heading') }}">
+                        @foreach ($leaseHeadingWords as $word)
+                            <span class="values-word animation-index-{{ $loop->index }} {{ $loop->last && count($leaseHeadingWords) > 1 ? 'is-accent' : '' }}" aria-hidden="true">{{ $word }}</span>
+                        @endforeach
+                    </h1>
                 </div>
 
-                <section class="ac-lease-card">
+                <div class="ac-tool-intro-copy content-reveal animation-index-1" data-image-reveal>
+                    <p>{{ __('lease_calculator.subheading') }}</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="ac-lease-shell ac-tool-content-section" aria-labelledby="ac-lease-form-title">
+            <div class="ac-tool-container">
+                <section class="ac-lease-card content-reveal animation-index-0" data-image-reveal>
                     <div class="ac-lease-card-head">
-                        <p class="ac-lease-kicker">{{ __('lease_calculator.form.kicker') }}</p>
-                        <h2>{{ __('lease_calculator.form.title') }}</h2>
-                        <p>{{ __('lease_calculator.form.intro') }}</p>
+                        <div class="ac-lease-card-head-copy">
+                            <p class="ac-lease-kicker">{{ __('lease_calculator.form.kicker') }}</p>
+                            <h2 id="ac-lease-form-title">{{ __('lease_calculator.form.title') }}</h2>
+                            <p>{{ __('lease_calculator.form.intro') }}</p>
+                        </div>
+
+                        <p class="ac-lease-card-description">{{ __('lease_calculator.intro') }}</p>
                     </div>
 
                     <form
@@ -49,7 +57,7 @@
                                 </div>
                                 <div class="ac-lease-row-control">
                                     <div class="ac-lease-date-field" data-lease-date-field="lease-start-date">
-                                        <span class="ac-lease-date-display is-placeholder" data-lease-date-display="lease-start-date">dd.mm.gggg</span>
+                                        <span class="ac-lease-date-display is-placeholder" data-lease-date-display="lease-start-date">{{ __('lease_calculator.form.date_placeholder') }}</span>
                                         <input id="lease-start-date" type="date" name="start_date" class="ac-lease-input ac-lease-date-input">
                                         <button
                                             type="button"
@@ -58,25 +66,18 @@
                                             aria-expanded="false"
                                             aria-label="{{ __('lease_calculator.form.open_calendar') }}: {{ __('lease_calculator.form.start_date') }}"
                                         >
-                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" aria-hidden="true">
-                                                <rect x="3" y="5" width="18" height="16" rx="2"></rect>
-                                                <path d="M16 3v4M8 3v4M3 10h18"></path>
-                                            </svg>
+                                            <i class="fa-light fa-calendar-days" aria-hidden="true"></i>
                                         </button>
                                         <div class="ac-lease-calendar" data-lease-calendar-panel hidden>
                                             <div class="ac-lease-calendar-head">
                                                 <button type="button" class="ac-lease-calendar-nav" data-lease-calendar-prev aria-label="{{ __('lease_calculator.form.previous_month') }}">
-                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.9" aria-hidden="true">
-                                                        <path d="M15 18l-6-6 6-6"></path>
-                                                    </svg>
+                                                    <i class="fa-light fa-chevron-left" aria-hidden="true"></i>
                                                 </button>
                                                 <div class="ac-lease-calendar-title" data-lease-calendar-title></div>
                                                 <label class="sr-only" for="lease-start-year">{{ __('lease_calculator.form.select_year') }}</label>
                                                 <select id="lease-start-year" class="ac-lease-calendar-year" data-lease-calendar-year></select>
                                                 <button type="button" class="ac-lease-calendar-nav" data-lease-calendar-next aria-label="{{ __('lease_calculator.form.next_month') }}">
-                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.9" aria-hidden="true">
-                                                        <path d="M9 18l6-6-6-6"></path>
-                                                    </svg>
+                                                    <i class="fa-light fa-chevron-right" aria-hidden="true"></i>
                                                 </button>
                                             </div>
                                             <div class="ac-lease-calendar-weekdays" data-lease-calendar-weekdays></div>
@@ -124,7 +125,7 @@
                                 </div>
                                 <div class="ac-lease-row-control">
                                     <div class="ac-lease-date-field" data-lease-date-field="lease-end-date">
-                                        <span class="ac-lease-date-display is-placeholder" data-lease-date-display="lease-end-date">dd.mm.gggg</span>
+                                        <span class="ac-lease-date-display is-placeholder" data-lease-date-display="lease-end-date">{{ __('lease_calculator.form.date_placeholder') }}</span>
                                         <input id="lease-end-date" type="date" name="end_date" class="ac-lease-input ac-lease-date-input">
                                         <button
                                             type="button"
@@ -133,25 +134,18 @@
                                             aria-expanded="false"
                                             aria-label="{{ __('lease_calculator.form.open_calendar') }}: {{ __('lease_calculator.form.end_date') }}"
                                         >
-                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" aria-hidden="true">
-                                                <rect x="3" y="5" width="18" height="16" rx="2"></rect>
-                                                <path d="M16 3v4M8 3v4M3 10h18"></path>
-                                            </svg>
+                                            <i class="fa-light fa-calendar-days" aria-hidden="true"></i>
                                         </button>
                                         <div class="ac-lease-calendar" data-lease-calendar-panel hidden>
                                             <div class="ac-lease-calendar-head">
                                                 <button type="button" class="ac-lease-calendar-nav" data-lease-calendar-prev aria-label="{{ __('lease_calculator.form.previous_month') }}">
-                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.9" aria-hidden="true">
-                                                        <path d="M15 18l-6-6 6-6"></path>
-                                                    </svg>
+                                                    <i class="fa-light fa-chevron-left" aria-hidden="true"></i>
                                                 </button>
                                                 <div class="ac-lease-calendar-title" data-lease-calendar-title></div>
                                                 <label class="sr-only" for="lease-end-year">{{ __('lease_calculator.form.select_year') }}</label>
                                                 <select id="lease-end-year" class="ac-lease-calendar-year" data-lease-calendar-year></select>
                                                 <button type="button" class="ac-lease-calendar-nav" data-lease-calendar-next aria-label="{{ __('lease_calculator.form.next_month') }}">
-                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.9" aria-hidden="true">
-                                                        <path d="M9 18l6-6-6-6"></path>
-                                                    </svg>
+                                                    <i class="fa-light fa-chevron-right" aria-hidden="true"></i>
                                                 </button>
                                             </div>
                                             <div class="ac-lease-calendar-weekdays" data-lease-calendar-weekdays></div>
@@ -166,7 +160,7 @@
                                     <span>{{ __('lease_calculator.outputs.months') }}</span>
                                 </div>
                                 <div class="ac-lease-row-control">
-                                    <output class="ac-lease-output" data-lease-output="months">—</output>
+                                    <output class="ac-lease-output is-placeholder" data-lease-output="months" data-placeholder="{{ __('lease_calculator.output_placeholders.months') }}">{{ __('lease_calculator.output_placeholders.months') }}</output>
                                 </div>
                             </div>
 
@@ -175,7 +169,7 @@
                                     <span>{{ __('lease_calculator.outputs.total_lease') }}</span>
                                 </div>
                                 <div class="ac-lease-row-control">
-                                    <output class="ac-lease-output" data-lease-output="total_lease">—</output>
+                                    <output class="ac-lease-output is-placeholder" data-lease-output="total_lease" data-placeholder="{{ __('lease_calculator.output_placeholders.total_lease') }}">{{ __('lease_calculator.output_placeholders.total_lease') }}</output>
                                 </div>
                             </div>
 
@@ -184,7 +178,7 @@
                                     <span>{{ __('lease_calculator.outputs.initial_liability') }}</span>
                                 </div>
                                 <div class="ac-lease-row-control">
-                                    <output class="ac-lease-output" data-lease-output="initial_liability">—</output>
+                                    <output class="ac-lease-output is-placeholder" data-lease-output="initial_liability" data-placeholder="{{ __('lease_calculator.output_placeholders.initial_liability') }}">{{ __('lease_calculator.output_placeholders.initial_liability') }}</output>
                                 </div>
                             </div>
 
@@ -193,7 +187,7 @@
                                     <span>{{ __('lease_calculator.outputs.monthly_depreciation') }}</span>
                                 </div>
                                 <div class="ac-lease-row-control">
-                                    <output class="ac-lease-output" data-lease-output="monthly_depreciation">—</output>
+                                    <output class="ac-lease-output is-placeholder" data-lease-output="monthly_depreciation" data-placeholder="{{ __('lease_calculator.output_placeholders.monthly_depreciation') }}">{{ __('lease_calculator.output_placeholders.monthly_depreciation') }}</output>
                                 </div>
                             </div>
 
@@ -202,7 +196,7 @@
                                     <span>{{ __('lease_calculator.outputs.interest_total') }}</span>
                                 </div>
                                 <div class="ac-lease-row-control">
-                                    <output class="ac-lease-output" data-lease-output="interest_total">—</output>
+                                    <output class="ac-lease-output is-placeholder" data-lease-output="interest_total" data-placeholder="{{ __('lease_calculator.output_placeholders.interest_total') }}">{{ __('lease_calculator.output_placeholders.interest_total') }}</output>
                                 </div>
                             </div>
                         </div>
@@ -210,8 +204,12 @@
                         <p class="ac-lease-form-error" data-lease-error hidden></p>
 
                         <div class="ac-lease-form-actions">
-                            <button type="submit" class="ac-lease-submit">{{ __('lease_calculator.form.calculate') }}</button>
-                            <button type="reset" class="ac-lease-reset">{{ __('lease_calculator.form.reset') }}</button>
+                            <button type="submit" class="editorial-dark-button">
+                                <span>{{ __('lease_calculator.form.calculate') }}</span>
+                            </button>
+                            <button type="reset" class="button button-outline ac-lease-reset">
+                                <span>{{ __('lease_calculator.form.reset') }}</span>
+                            </button>
                         </div>
                     </form>
                 </section>
@@ -296,7 +294,6 @@
                     month: '2-digit',
                     year: 'numeric',
                 });
-                const placeholder = '—';
                 const datePlaceholder = locale === 'hr-HR' ? 'dd.mm.gggg' : 'mm/dd/yyyy';
                 const calendarWeekdays = locale === 'hr-HR'
                     ? ['Pon', 'Uto', 'Sri', 'Čet', 'Pet', 'Sub', 'Ned']
@@ -390,12 +387,13 @@
                     return payment * (1 - Math.pow(1 + monthlyRate, -periods)) / monthlyRate;
                 };
 
-                const setOutput = function (node, value) {
+                const setOutput = function (node, value, isPlaceholder) {
                     if (!node) {
                         return;
                     }
 
                     node.textContent = value;
+                    node.classList.toggle('is-placeholder', Boolean(isPlaceholder));
                 };
 
                 const hideError = function () {
@@ -417,11 +415,13 @@
                 };
 
                 const resetOutputs = function () {
-                    setOutput(outputNodes.months, placeholder);
-                    setOutput(outputNodes.totalLease, placeholder);
-                    setOutput(outputNodes.initialLiability, placeholder);
-                    setOutput(outputNodes.monthlyDepreciation, placeholder);
-                    setOutput(outputNodes.interestTotal, placeholder);
+                    Object.values(outputNodes).forEach(function (node) {
+                        if (!node) {
+                            return;
+                        }
+
+                        setOutput(node, node.dataset.placeholder || '—', true);
+                    });
                 };
 
                 const setCalendarMonth = function (field, monthDate) {
@@ -832,3 +832,7 @@
         </script>
     @endpush
 @endsection
+
+@push('styles')
+    <link rel="stylesheet" href="{{ asset('front-theme/styles/pages/tool-pages.css') }}?v={{ filemtime(public_path('front-theme/styles/pages/tool-pages.css')) }}">
+@endpush

@@ -19,6 +19,7 @@ return [
         'select_year' => 'Select year',
         'calculate' => 'Calculate schedule',
         'reset' => 'Reset',
+        'date_placeholder' => 'mm/dd/yyyy',
         'monthly_payment_placeholder' => 'e.g. 1250.00',
         'interest_rate_placeholder' => 'e.g. 5.50',
         'validation_required' => 'Enter the lease start and end date, monthly payment and interest rate.',
@@ -31,6 +32,13 @@ return [
         'initial_liability' => 'Initial lease liability',
         'monthly_depreciation' => 'Monthly depreciation',
         'interest_total' => 'Total interest costs',
+    ],
+    'output_placeholders' => [
+        'months' => 'e.g. 36',
+        'total_lease' => 'e.g. 45,000.00',
+        'initial_liability' => 'e.g. 41,250.00',
+        'monthly_depreciation' => 'e.g. 1,145.83',
+        'interest_total' => 'e.g. 3,750.00',
     ],
     'results' => [
         'kicker' => 'Calculation schedule',
