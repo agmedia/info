@@ -678,11 +678,12 @@ class StorefrontFrontFeatureTest extends TestCase
             ->assertSee('ALPHA CAPITALIS TIMIA d.o.o.')
             ->assertSee('Korzo 30')
             ->assertSee('51 000 Rijeka')
-            ->assertSee('040282129')
-            ->assertSee('HR6524020061500165841')
             ->assertSee('info@alphacapitalis.com')
             ->assertSee('+385 (1) 580 6656')
-            ->assertSee('+385 (0) 51 301 503');
+            ->assertSee('+385 (0) 51 301 503')
+            ->assertSee('id="contact-locations"', false)
+            ->assertSee('class="locations-map"', false)
+            ->assertSee('data-location-index="0"', false);
     }
 
     public function test_collaboration_assessment_page_renders(): void

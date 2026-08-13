@@ -162,8 +162,11 @@ body:has(.ac-career-page) {
     max-width: 43rem;
 }
 
-.front-desktop-shell .ac-career-kicker,
-.front-desktop-shell .ac-career-form-kicker,
+.front-desktop-shell .ac-career-kicker {
+    color: var(--career-gold);
+    line-height: 1.45;
+}
+
 .front-desktop-shell .ac-career-story-kicker {
     color: var(--career-gold);
     font-size: 0.76rem;
@@ -633,16 +636,6 @@ body:has(.ac-career-page) {
 
 .front-desktop-shell .ac-career-form-wrap {
     padding-left: clamp(2.5rem, 5vw, 6rem);
-    border-left: 1px solid rgba(173, 132, 55, 0.52);
-}
-
-.front-desktop-shell .ac-career-form-wrap::before {
-    display: block;
-    width: 4.2rem;
-    height: 1px;
-    margin-bottom: 2rem;
-    background: var(--career-gold);
-    content: '';
 }
 
 .front-desktop-shell .ac-career-form-head {
@@ -821,30 +814,9 @@ body:has(.ac-career-page) {
 }
 
 .front-desktop-shell .ac-career-submit-button {
-    display: inline-flex;
+    --editorial-button-ink: var(--career-navy);
+    --editorial-button-surface: var(--career-cream);
     width: 100%;
-    min-height: 3.25rem;
-    align-items: center;
-    justify-content: center;
-    gap: 0.65rem;
-    padding: 0.95rem 1.35rem;
-    border: 1px solid var(--career-navy);
-    border-radius: 8px;
-    background: var(--career-navy);
-    color: #fff;
-    font-size: 0.8rem;
-    font-weight: 700;
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
-    transition: background-color 180ms ease, border-color 180ms ease, color 180ms ease, transform 180ms ease;
-}
-
-.front-desktop-shell .ac-career-submit-button:hover,
-.front-desktop-shell .ac-career-submit-button:focus-visible {
-    border-color: var(--career-gold);
-    background: var(--career-gold);
-    color: var(--career-navy);
-    transform: translateY(-1px);
 }
 
 .front-desktop-shell .ac-career-submit-button:focus-visible,

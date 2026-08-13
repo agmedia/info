@@ -3,7 +3,7 @@
 return [
     'page_title' => 'Kontakt',
     'eyebrow' => 'ALPHA CAPITALIS',
-    'heading' => 'Kontakt',
+    'heading' => 'Kontaktirajte nas',
     'subheading' => 'Stojimo vam na raspolaganju za financije, računovodstvo, reviziju, poreze i poslovno savjetovanje. Javite nam se putem obrasca ili direktno uredima u Zagrebu, Vinkovcima i Rijeci.',
     'sent_status' => 'Hvala. Vaša poruka je uspješno poslana.',
     'captcha_failed' => 'Potvrda sigurnosti nije uspjela. Pokušajte ponovno.',

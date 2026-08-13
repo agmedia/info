@@ -1,0 +1,567 @@
+/* Contact page
+ * Uses the same editorial system as the About and Career pages: centered 50/50
+ * intros, cream paper surfaces, navy feature sections and asymmetric corners.
+ */
+
+.front-desktop-shell .ac-contact-page {
+    --contact-navy: #041525;
+    --contact-cream: var(--surface-cream, #f2efe7);
+    --contact-gold: #ad8437;
+    --contact-gold-soft: #d8b96f;
+    --contact-copy: #4d5963;
+    --contact-light-border: rgba(173, 132, 55, 0.22);
+    --contact-dark-border: rgba(216, 185, 111, 0.24);
+    --contact-radius-medium: clamp(42px, 4.2vw, 76px);
+    --contact-radius-small: 6px;
+    min-height: 100vh;
+    overflow: hidden;
+    background: var(--contact-cream);
+    color: var(--contact-navy);
+}
+
+body:has(.ac-contact-page) {
+    overflow-x: clip;
+}
+
+.front-desktop-shell .ac-contact-page .locations-section .animation-index-0 {
+    --location-index: 0;
+    --map-index: 0;
+    --stat-index: 0;
+}
+
+.front-desktop-shell .ac-contact-page .locations-section .animation-index-1 {
+    --location-index: 1;
+    --map-index: 1;
+    --stat-index: 1;
+}
+
+.front-desktop-shell .ac-contact-page .locations-section .animation-index-2 {
+    --location-index: 2;
+    --map-index: 2;
+    --stat-index: 2;
+}
+
+.front-desktop-shell .ac-contact-page .locations-section .animation-index-3 {
+    --location-index: 3;
+    --map-index: 3;
+    --stat-index: 3;
+}
+
+.front-desktop-shell .ac-contact-page .contact-map-routes {
+    opacity: 0;
+    transition: opacity 1200ms 680ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.front-desktop-shell .ac-contact-page .locations-section.is-locations-revealed .contact-map-routes {
+    opacity: 1;
+}
+
+.front-desktop-shell .ac-contact-page :is(.ac-contact-intro, .ac-contact-form-section) p,
+.front-desktop-shell .ac-contact-page :is(.ac-contact-intro, .ac-contact-form-section) dl,
+.front-desktop-shell .ac-contact-page :is(.ac-contact-intro, .ac-contact-form-section) dd {
+    margin: 0;
+}
+
+.front-desktop-shell .ac-contact-container {
+    width: min(1600px, calc(100% - 136px));
+    margin-inline: auto;
+}
+
+.front-desktop-shell .ac-contact-intro,
+.front-desktop-shell .ac-contact-form-section {
+    position: relative;
+    background: var(--contact-cream);
+    color: var(--contact-navy);
+}
+
+.front-desktop-shell .ac-contact-intro-layout {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0;
+    align-items: center;
+    padding-block: calc(clamp(76px, 6vw, 112px) - clamp(13.75px, 0.8vw, 16px));
+}
+
+.front-desktop-shell .ac-contact-intro-heading {
+    min-width: 0;
+    padding-right: clamp(2rem, 4vw, 5rem);
+}
+
+.front-desktop-shell .ac-contact-intro-copy {
+    display: flex;
+    min-height: clamp(5rem, 7vw, 7rem);
+    align-items: center;
+    padding-block: clamp(0.5rem, 1vw, 1rem);
+    padding-left: clamp(2.5rem, 5vw, 6rem);
+    border-left: 1px solid rgba(173, 132, 55, 0.52);
+}
+
+.front-desktop-shell:not(.front-route-home) .front-content-shell .ac-contact-display-title {
+    max-width: 760px;
+    margin: 0;
+    color: var(--contact-navy);
+    font-family: "Instrument Sans Variable", Arial, sans-serif !important;
+    font-size: clamp(3rem, 3.75vw, 4.75rem);
+    font-style: normal !important;
+    font-weight: 400 !important;
+    letter-spacing: -0.018em !important;
+    line-height: 1.04;
+    text-wrap: balance;
+}
+
+.front-desktop-shell:not(.front-route-home) .front-content-shell .ac-contact-display-title .values-word:not(.is-accent) {
+    font-family: "Instrument Sans Variable", Arial, sans-serif !important;
+    font-style: normal !important;
+    font-weight: 400 !important;
+    letter-spacing: -0.018em !important;
+}
+
+.front-desktop-shell:not(.front-route-home) .front-content-shell .ac-contact-display-title .values-word.is-accent {
+    color: var(--contact-gold) !important;
+    font-family: "Bodoni Moda Variable", "Times New Roman", serif !important;
+    font-style: italic !important;
+    font-weight: 400 !important;
+    letter-spacing: -0.04em !important;
+}
+
+.front-desktop-shell .ac-contact-intro-copy p,
+.front-desktop-shell .front-contact-form-head > p:last-child,
+.front-desktop-shell .front-contact-panel-intro,
+.front-desktop-shell .front-contact-help p {
+    color: var(--contact-copy);
+    font-size: clamp(1rem, 1vw, 1.12rem);
+    line-height: 1.75;
+    text-wrap: pretty;
+}
+
+.front-desktop-shell .ac-contact-intro-copy p {
+    max-width: 43rem;
+}
+
+.front-desktop-shell .front-contact-direct-list small {
+    color: rgba(247, 247, 245, 0.48);
+    font-size: 0.64rem;
+    font-weight: 750;
+    letter-spacing: 0.12em;
+    line-height: 1.45;
+    text-transform: uppercase;
+}
+
+/* Form */
+
+.front-desktop-shell .ac-contact-form-section {
+    padding: clamp(5.5rem, 8vw, 9rem) 0 clamp(6rem, 9vw, 10rem);
+}
+
+.front-desktop-shell .front-contact-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1.35fr) minmax(20rem, 0.65fr);
+    gap: clamp(4rem, 7vw, 8.5rem);
+    align-items: start;
+}
+
+.front-desktop-shell .ac-contact-page .front-contact-form {
+    min-width: 0;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+}
+
+.front-desktop-shell .front-contact-form-head {
+    display: grid;
+    gap: 0.75rem;
+    max-width: 48rem;
+    margin: 0 0 clamp(2.3rem, 4vw, 3.8rem);
+}
+
+.front-desktop-shell .front-contact-form-head h2,
+.front-desktop-shell .front-contact-panel h2 {
+    margin: 0;
+    color: var(--contact-navy);
+    font-family: "Bodoni Moda Variable", "Times New Roman", serif;
+    font-size: clamp(2rem, 2.5vw, 3rem);
+    font-weight: 600;
+    letter-spacing: -0.025em;
+    line-height: 1.18;
+    text-wrap: balance;
+}
+
+.front-desktop-shell .ac-contact-field-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1.45rem 1.2rem;
+}
+
+.front-desktop-shell .ac-contact-field {
+    display: grid;
+    min-width: 0;
+    align-content: start;
+}
+
+.front-desktop-shell .ac-contact-field--full {
+    grid-column: 1 / -1;
+}
+
+.front-desktop-shell .ac-contact-field label {
+    margin-bottom: 0.55rem;
+    color: #6f6255;
+    font-size: 0.69rem;
+    font-weight: 750;
+    letter-spacing: 0.11em;
+    line-height: 1.45;
+    text-transform: uppercase;
+}
+
+.front-desktop-shell .ac-contact-page .front-contact-input,
+.front-desktop-shell .ac-contact-page .front-contact-textarea {
+    display: block;
+    width: 100%;
+    min-width: 0;
+    border: 1px solid var(--contact-light-border);
+    border-radius: 20px 3px 20px 3px;
+    background: rgba(255, 255, 255, 0.64);
+    color: var(--contact-navy);
+    font-family: "Instrument Sans Variable", Arial, sans-serif;
+    font-size: 1rem;
+    line-height: 1.45;
+    outline: 0;
+    transition: border-color 220ms ease, background-color 220ms ease, box-shadow 220ms ease;
+}
+
+.front-desktop-shell .ac-contact-page .front-contact-input {
+    min-height: 3.5rem;
+    padding: 0 1.05rem;
+}
+
+.front-desktop-shell .ac-contact-page .front-contact-textarea {
+    min-height: 12.5rem;
+    padding: 1rem 1.05rem;
+    resize: vertical;
+}
+
+.front-desktop-shell .ac-contact-page .front-contact-input:hover,
+.front-desktop-shell .ac-contact-page .front-contact-textarea:hover {
+    border-color: rgba(173, 132, 55, 0.4);
+    background: rgba(255, 255, 255, 0.82);
+}
+
+.front-desktop-shell .ac-contact-page .front-contact-input:focus,
+.front-desktop-shell .ac-contact-page .front-contact-textarea:focus {
+    border-color: rgba(173, 132, 55, 0.72);
+    background: #fff;
+    box-shadow: 0 0 0 3px rgba(173, 132, 55, 0.12);
+}
+
+.front-desktop-shell .front-contact-field-error {
+    margin-top: 0.45rem !important;
+    color: #a63a3a;
+    font-size: 0.76rem;
+    font-weight: 650;
+    line-height: 1.45;
+}
+
+.front-desktop-shell .front-contact-field-error[hidden] {
+    display: none;
+}
+
+.front-desktop-shell .front-contact-consent-wrap {
+    margin-top: 1.45rem;
+}
+
+.front-desktop-shell .front-contact-consent {
+    display: inline-flex;
+    align-items: flex-start;
+    gap: 0.8rem;
+    color: var(--contact-copy);
+    font-size: 0.92rem;
+    line-height: 1.65;
+}
+
+.front-desktop-shell .ac-contact-page .front-contact-checkbox {
+    width: 1.1rem;
+    height: 1.1rem;
+    flex: 0 0 1.1rem;
+    margin-top: 0.18rem;
+    accent-color: var(--contact-navy);
+}
+
+.front-desktop-shell .front-contact-form-actions {
+    display: grid;
+    justify-items: start;
+    gap: 0.7rem;
+    margin-top: 1.75rem;
+}
+
+.front-desktop-shell .ac-contact-submit {
+    --editorial-button-ink: var(--contact-navy);
+    --editorial-button-surface: var(--contact-cream);
+}
+
+.front-desktop-shell .front-contact-status {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+    padding: 1rem 1.1rem;
+    border: 1px solid rgba(35, 116, 81, 0.24);
+    border-radius: 18px 3px 18px 3px;
+    background: rgba(35, 116, 81, 0.08);
+    color: #235f48;
+    font-size: 0.92rem;
+    font-weight: 600;
+    line-height: 1.5;
+}
+
+.front-desktop-shell .front-contact-status i {
+    color: #2f765a;
+}
+
+.front-desktop-shell .front-contact-sidebar {
+    display: grid;
+    gap: clamp(2rem, 3vw, 3.25rem);
+    align-content: start;
+}
+
+.front-desktop-shell .ac-contact-page .front-contact-panel {
+    padding: clamp(2rem, 3.4vw, 3.5rem);
+    border: 1px solid var(--contact-dark-border);
+    border-radius: var(--contact-radius-medium) var(--contact-radius-small) var(--contact-radius-medium) var(--contact-radius-small);
+    background:
+        radial-gradient(circle at 88% 8%, rgba(41, 83, 116, 0.3), transparent 40%),
+        linear-gradient(145deg, rgba(10, 34, 55, 0.98), rgba(4, 20, 34, 0.98));
+    box-shadow: none;
+}
+
+.front-desktop-shell .front-contact-panel h2 {
+    color: #fff;
+    font-size: clamp(1.75rem, 2vw, 2.35rem);
+}
+
+.front-desktop-shell .front-contact-panel-intro {
+    margin-top: 1rem !important;
+    color: rgba(247, 247, 245, 0.67);
+    font-size: 0.94rem;
+}
+
+.front-desktop-shell .front-contact-direct-list {
+    display: grid;
+    gap: 0;
+    margin: clamp(1.75rem, 3vw, 2.75rem) 0 0;
+    padding: 0;
+    list-style: none;
+}
+
+.front-desktop-shell .ac-contact-page .front-contact-direct-list li {
+    display: grid;
+    grid-template-columns: 1.25rem minmax(0, 1fr);
+    gap: 0.85rem;
+    align-items: start;
+    padding: 1.2rem 0;
+    border-top: 1px solid rgba(216, 185, 111, 0.16);
+}
+
+.front-desktop-shell .ac-contact-page .front-contact-direct-list li:first-child {
+    padding-top: 0;
+    border-top: 0;
+}
+
+.front-desktop-shell .ac-contact-page .front-contact-direct-list li:last-child {
+    padding-bottom: 0;
+}
+
+.front-desktop-shell .front-contact-direct-list li > i {
+    margin-top: 0.3rem;
+    color: var(--contact-gold-soft);
+}
+
+.front-desktop-shell .front-contact-direct-list li > span {
+    display: grid;
+    gap: 0.22rem;
+    min-width: 0;
+    color: inherit;
+    font-size: inherit;
+    letter-spacing: 0;
+    text-transform: none;
+}
+
+.front-desktop-shell:not(.front-route-home) .front-content-shell .ac-contact-page .front-contact-direct-list a,
+.front-desktop-shell .front-contact-direct-list strong {
+    position: relative;
+    width: fit-content;
+    max-width: 100%;
+    padding-bottom: 0.12rem;
+    color: rgba(247, 247, 245, 0.92);
+    font-size: 0.92rem;
+    font-weight: 600;
+    line-height: 1.5;
+    overflow-wrap: anywhere;
+    text-decoration: none;
+}
+
+.front-desktop-shell .front-contact-direct-list a::after {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    height: 1px;
+    background: currentColor;
+    content: '';
+    transform: scaleX(0);
+    transform-origin: right center;
+    transition: transform 440ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.front-desktop-shell:not(.front-route-home) .front-content-shell .ac-contact-page .front-contact-direct-list a:hover,
+.front-desktop-shell:not(.front-route-home) .front-content-shell .ac-contact-page .front-contact-direct-list a:focus-visible {
+    color: #fff;
+}
+
+.front-desktop-shell .front-contact-direct-list a:hover::after,
+.front-desktop-shell .front-contact-direct-list a:focus-visible::after {
+    transform: scaleX(1);
+    transform-origin: left center;
+}
+
+.front-desktop-shell .ac-contact-page .front-contact-help {
+    display: grid;
+    grid-template-columns: 2.6rem minmax(0, 1fr);
+    gap: 1.1rem;
+    padding: 1.6rem 0 0;
+    border: 0;
+    border-top: 1px solid var(--contact-light-border);
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+}
+
+.front-desktop-shell .front-contact-help-icon {
+    display: inline-flex;
+    width: 2.6rem;
+    height: 2.6rem;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--contact-light-border);
+    border-radius: 15px 3px 15px 3px;
+    color: var(--contact-gold);
+}
+
+.front-desktop-shell .front-contact-help h3 {
+    margin: 0 0 0.45rem;
+    color: var(--contact-navy);
+    font-family: "Bodoni Moda Variable", "Times New Roman", serif;
+    font-size: 1.35rem;
+    font-weight: 600;
+    line-height: 1.25;
+}
+
+.front-desktop-shell .front-contact-help p {
+    font-size: 0.9rem;
+}
+
+.front-desktop-shell .ac-contact-page :is(a, button, input, textarea):focus-visible {
+    outline: 2px solid rgba(173, 132, 55, 0.82);
+    outline-offset: 4px;
+}
+
+@media (max-width: 1280px) {
+    .front-desktop-shell .ac-contact-container {
+        width: min(100% - 64px, 1216px);
+    }
+
+    .front-desktop-shell .front-contact-layout {
+        gap: clamp(3rem, 5vw, 5rem);
+    }
+}
+
+@media (max-width: 1050px) {
+    .front-desktop-shell .front-contact-layout {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .front-desktop-shell .front-contact-sidebar {
+        grid-template-columns: minmax(0, 1.2fr) minmax(0, 0.8fr);
+        align-items: start;
+    }
+
+    .front-desktop-shell .ac-contact-page .front-contact-help {
+        margin-top: 1.5rem;
+    }
+}
+
+@media (max-width: 920px) {
+    .front-desktop-shell .ac-contact-intro-layout {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 2rem;
+    }
+
+    .front-desktop-shell .ac-contact-intro-heading {
+        padding-right: 0;
+    }
+
+    .front-desktop-shell .ac-contact-intro-copy {
+        min-height: 0;
+        padding: 0 0 0 1.5rem;
+    }
+}
+
+@media (max-width: 700px) {
+    .front-desktop-shell .ac-contact-container {
+        width: calc(100% - 32px);
+    }
+
+    .front-desktop-shell .ac-contact-intro-layout {
+        gap: 1.6rem;
+        padding-block: 3.5rem;
+    }
+
+    .front-desktop-shell:not(.front-route-home) .front-content-shell .ac-contact-display-title {
+        font-size: clamp(2.65rem, 14vw, 3.6rem);
+    }
+
+    .front-desktop-shell .ac-contact-form-section {
+        padding-block: 4.5rem;
+    }
+
+    .front-desktop-shell .front-contact-sidebar,
+    .front-desktop-shell .ac-contact-field-grid {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .front-desktop-shell .ac-contact-field--full {
+        grid-column: auto;
+    }
+
+    .front-desktop-shell .front-contact-form-head {
+        margin-bottom: 2rem;
+    }
+
+    .front-desktop-shell .ac-contact-page .front-contact-panel {
+        padding: 2rem 1.55rem;
+        border-radius: 42px 4px 42px 4px;
+    }
+
+    .front-desktop-shell .ac-contact-page .front-contact-help {
+        margin-top: 0;
+    }
+
+}
+
+@media (max-width: 420px) {
+    .front-desktop-shell .ac-contact-submit {
+        width: 100%;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .front-desktop-shell .ac-contact-page .contact-map-routes,
+    .front-desktop-shell .ac-contact-page .locations-section.is-locations-revealed .contact-map-routes {
+        opacity: 1;
+        transition: none;
+    }
+
+    .front-desktop-shell .front-contact-direct-list a::after {
+        transition: none;
+    }
+}

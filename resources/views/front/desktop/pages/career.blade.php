@@ -108,7 +108,7 @@
         <section class="ac-career-hero" aria-labelledby="ac-career-hero-title">
             <div class="ac-career-container ac-career-hero-grid">
                 <div class="ac-career-hero-copy">
-                    <p class="ac-career-kicker">{{ $isCroatian ? 'Rastemo zajedno' : 'Growing together' }}</p>
+                    <p class="ac-family-section-kicker ac-career-kicker">{{ $isCroatian ? 'Rastemo zajedno' : 'Growing together' }}</p>
                     <h2 class="ac-career-dark-title" id="ac-career-hero-title" data-words-slide-from-right aria-label="{{ $careerHeroTitle }}">
                         @foreach ($headingWords($careerHeroTitle) as $word)
                             <span class="service-title-word animation-index-{{ $loop->index }} {{ $loop->last ? 'is-accent' : '' }}" aria-hidden="true">{{ $word }}</span>
@@ -175,7 +175,7 @@
 
                     <div class="ac-career-section-copy content-reveal animation-index-1" data-image-reveal>
                         @if (trim((string) ($careerProcess['kicker'] ?? '')) !== '')
-                            <p class="ac-career-kicker">{{ $careerProcess['kicker'] }}</p>
+                            <p class="ac-family-section-kicker ac-career-kicker">{{ $careerProcess['kicker'] }}</p>
                         @endif
                         @if (trim((string) ($careerProcess['intro'] ?? '')) !== '')
                             <p>{{ $careerProcess['intro'] }}</p>
@@ -256,7 +256,7 @@
         <section id="career-open-positions" class="ac-career-openings" aria-labelledby="ac-career-openings-title">
             <div class="ac-career-container ac-career-openings-grid">
                 <div class="ac-career-openings-copy">
-                    <p class="ac-career-kicker">{{ $isCroatian ? 'Prijave' : 'Applications' }}</p>
+                    <p class="ac-family-section-kicker ac-career-kicker">{{ $isCroatian ? 'Prijave' : 'Applications' }}</p>
                     <h2 class="values-title services-index-intro-title ac-career-section-title" id="ac-career-openings-title" data-words-slide-from-right aria-label="{{ $careerApplicationTitle }}">
                         @foreach ($headingWords($careerApplicationTitle) as $word)
                             <span class="values-word animation-index-{{ $loop->index }} {{ $loop->last ? 'is-accent' : '' }}" aria-hidden="true">{{ $word }}</span>
@@ -276,7 +276,6 @@
 
                 <div id="career-cta" class="ac-career-form-wrap content-reveal animation-index-1" data-image-reveal>
                     <div class="ac-career-form-head">
-                        <p class="ac-career-form-kicker">{{ __('career.form.eyebrow') }}</p>
                         <h3 id="ac-career-form-title">{{ trim((string) ($careerFormContent['title'] ?? '')) ?: __('career.form.title') }}</h3>
                         <p>{{ __('career.form.intro') }}</p>
                     </div>
@@ -351,7 +350,7 @@
                         </div>
 
                         <div class="ac-career-form-actions">
-                            <button type="submit" class="ac-career-submit-button">
+                            <button type="submit" class="editorial-dark-button ac-career-submit-button">
                                 <span>{{ __('career.form.submit') }}</span>
                                 <i class="fa-duotone fa-thin fa-arrow-right" aria-hidden="true"></i>
                             </button>

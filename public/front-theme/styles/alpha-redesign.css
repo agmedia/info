@@ -3050,7 +3050,7 @@ button {
 .button-gold {
   border-color: var(--gold-light);
   border-radius: 28px 4px 28px 4px;
-  background: linear-gradient(100deg, #d9b568, #c49c4d);
+  background: var(--gold-light);
   color: var(--navy-deep);
 }
 
@@ -3078,6 +3078,72 @@ button {
 
 .button-outline::before {
   background: var(--gold-light);
+}
+
+.editorial-dark-button {
+  --editorial-button-ink: var(--navy-deep);
+  --editorial-button-surface: var(--surface-cream);
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  display: inline-flex;
+  min-height: 3.6rem;
+  padding: 0 2rem;
+  border: 2px solid var(--editorial-button-ink);
+  border-radius: 22px 0;
+  background: var(--editorial-button-ink);
+  color: var(--white) !important;
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  box-shadow: none;
+  font-family: "Instrument Sans Variable", Arial, sans-serif;
+  font-size: 0.69rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  line-height: 1;
+  text-transform: uppercase;
+  transition: border-color 260ms ease, color 260ms ease, background-color 260ms ease;
+}
+
+.editorial-dark-button::before {
+  position: absolute;
+  z-index: 0;
+  inset: 0;
+  background: var(--editorial-button-surface);
+  content: "";
+  transform: scaleX(0);
+  transform-origin: right center;
+  transition: transform 480ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.editorial-dark-button > span,
+.editorial-dark-button > i {
+  position: relative;
+  z-index: 1;
+}
+
+.editorial-dark-button > i {
+  --fa-primary-color: currentColor;
+  --fa-primary-opacity: 1;
+  --fa-secondary-color: currentColor;
+  --fa-secondary-opacity: 0.58;
+}
+
+.editorial-dark-button:hover,
+.editorial-dark-button:focus-visible {
+  border-color: var(--editorial-button-ink);
+  background: var(--editorial-button-ink);
+  color: var(--editorial-button-ink) !important;
+  box-shadow: none;
+  transform: none;
+}
+
+.editorial-dark-button:hover::before,
+.editorial-dark-button:focus-visible::before {
+  transform: scaleX(1);
+  transform-origin: left center;
 }
 
 .hero-locations {
