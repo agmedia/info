@@ -565,7 +565,7 @@
                             <article
                                 class="ac-about-reference-card"
                                 data-image-reveal
-                                style="--reveal-index: {{ $loop->index % 5 }}; --ac-about-reference-logo-image: url('{{ $item['url'] }}')"
+                                style="--reveal-index: {{ $loop->index % 5 }}"
                                 aria-label="{{ $item['name'] }}"
                             >
                                 <div class="ac-about-reference-logo image-reveal-media">
