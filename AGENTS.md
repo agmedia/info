@@ -18,6 +18,12 @@
 - Load page CSS and JavaScript with `asset(...)` and `filemtime(...)` versioning.
 - Prefer a small page-specific override over duplicating a complete shared component.
 
+## Main service pages
+
+- For the main Audit, Accounting, and Advisory service pages, `/revizija` is the canonical visual and interaction reference.
+- Before changing one of those pages, read `docs/service-pages-standard.md`. It records the approved shared page sequence, responsive behavior, content rules, and the Croatian copy approved for Accounting and Advisory.
+- Preserve service-specific modules, but fit them into the shared hero, 50/50 intro, services, approach, related posts, and standard `contact-cta` system defined there.
+
 ## Visual system
 
 - Use the existing typography roles instead of inventing sizes per page. Equivalent page titles, section titles, card titles, body copy, labels, links, and buttons must share the same font family, size range, weight, line-height, and letter spacing.

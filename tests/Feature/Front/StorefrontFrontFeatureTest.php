@@ -978,9 +978,10 @@ class StorefrontFrontFeatureTest extends TestCase
         $response = $this->get('/racunovodstvo');
 
         $response->assertOk()
-            ->assertSee('Precizno, pravovremeno i transparentno - preuzimamo vođenje vaših poslovnih knjiga')
-            ->assertSee('Što je računovodstvo?')
-            ->assertSee('Računovodstvo je sustavan zapis poslovnih transakcija')
+            ->assertSee('Vi vodite poslovanje. Mi brinemo da Vaše brojke budu točne, pravovremene i spremne za svaku odluku.')
+            ->assertSee('Zašto Vam je računovodstvo bitno?')
+            ->assertSee('Mirnije poslovanje počinje jasnim i pouzdanim brojkama.')
+            ->assertSee('Uz ALPHA CAPITALIS ne dobivate samo računovodstvenu uslugu')
             ->assertSee('Naše računovodstvene usluge')
             ->assertSee('Financijsko računovodstvo')
             ->assertSee('Obračun plaća')
@@ -991,13 +992,31 @@ class StorefrontFrontFeatureTest extends TestCase
             ->assertSee('Naš pristup')
             ->assertSee('Nismo samo servis za vođenje knjiga')
             ->assertSee('Razgovarajmo o vašem računovodstvu')
+            ->assertSee('front-theme/styles/pages/audit.css', false)
+            ->assertSee('front-theme/styles/pages/accounting.css', false)
+            ->assertSee('ac-audit-hero-image', false)
+            ->assertSee('ac-accounting-partner-note', false)
+            ->assertSee('ac-accounting-partner-note-quote', false)
+            ->assertSee('ac-accounting-partner-note-text', false)
+            ->assertSee('fa-duotone fa-thin fa-fw fa-book-copy', false)
+            ->assertSee('fa-duotone fa-thin fa-fw fa-user-tie-hair', false)
+            ->assertSee('fa-duotone fa-thin fa-fw fa-file-certificate', false)
+            ->assertSee('fa-duotone fa-thin fa-fw fa-chart-waterfall', false)
+            ->assertSee('fa-duotone fa-thin fa-fw fa-building-shield', false)
+            ->assertSee('fa-duotone fa-thin fa-fw fa-diagram-project', false)
+            ->assertSee('contact-cta ac-audit-contact-cta', false)
             ->assertDontSee('Pogledajte usluge')
             ->assertDontSee('Rent-a-računovođa')
             ->assertDontSee('Analiza financijskih izvještaja')
             ->assertDontSee('Manipulacija financijskim izvještajima')
             ->assertDontSee('Zašto ne raditi u obiteljskom biznisu?')
             ->assertDontSee('ac-accounting-detail-section', false)
-            ->assertDontSee('ac-accounting-video-card', false);
+            ->assertDontSee('ac-accounting-video-card', false)
+            ->assertDontSee('data-accounting-blog-splide', false)
+            ->assertDontSee('splide.min', false)
+            ->assertDontSee('--audit-hero-image', false)
+            ->assertDontSee('Što je računovodstvo?')
+            ->assertDontSee('Računovodstvo je sustavan zapis poslovnih transakcija');
     }
 
     public function test_advisory_service_page_renders_structured_hub_flow(): void

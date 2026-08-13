@@ -38,6 +38,7 @@ class AccountingController extends Controller
             $servicePageTranslation?->payload,
             (string) ($servicePageTranslation?->locale ?: $locale)
         );
+        $translationPayload = $this->applyLatestAccountingBriefCopy($translationPayload, $locale);
         $serviceVideoPayload = $this->resolveServiceVideoPayload($pagePayload, $translationPayload);
 
         $accountingCategory = $this->resolveConfiguredBlogCategory(
@@ -361,5 +362,67 @@ class AccountingController extends Controller
         return is_file($absolutePath)
             ? asset($relativePath).'?v='.filemtime($absolutePath)
             : asset($relativePath);
+    }
+
+    /**
+     * Keep the approved accounting copy visible before the matching CMS migration
+     * is applied, while preserving content an editor has already customized.
+     *
+     * @param  array<string, mixed>  $payload
+     * @return array<string, mixed>
+     */
+    private function applyLatestAccountingBriefCopy(array $payload, string $locale): array
+    {
+        $isCroatian = str_starts_with(strtolower($locale), 'hr');
+        $legacyHeroIntro = $isCroatian
+            ? 'Precizno, pravovremeno i transparentno - preuzimamo vođenje vaših poslovnih knjiga kako biste se fokusirali na ono što zaista donosi rast.'
+            : 'Precise, timely, and transparent accounting - we take over your books so you can stay focused on what truly drives growth.';
+        $legacyOverviewTitle = $isCroatian ? 'Što je računovodstvo?' : 'What is accounting?';
+        $legacyOverviewBody = $isCroatian
+            ? [
+                'Računovodstvo je sustavan zapis poslovnih transakcija koji osigurava točan prikaz financijskog stanja društva. Dobro računovodstvo nije samo zakonska obveza - to je temelj za donošenje kvalitetnih poslovnih odluka.',
+            ]
+            : [
+                'Accounting is the systematic recording of business transactions that provides an accurate view of a company’s financial position. Good accounting is not only a legal obligation - it is the foundation for sound business decisions.',
+            ];
+        $hero = (array) ($payload['hero'] ?? []);
+        $overview = (array) ($payload['overview'] ?? []);
+
+        if (trim((string) ($hero['intro'] ?? '')) === $legacyHeroIntro) {
+            $hero['intro'] = $isCroatian
+                ? 'Vi vodite poslovanje. Mi brinemo da Vaše brojke budu točne, pravovremene i spremne za svaku odluku.'
+                : 'You run the business. We make sure your numbers are accurate, timely, and ready for every decision.';
+            $payload['hero'] = $hero;
+        }
+
+        $currentOverviewBody = array_values(array_map(
+            static fn ($paragraph): string => trim((string) $paragraph),
+            (array) ($overview['body'] ?? [])
+        ));
+
+        if (
+            trim((string) ($overview['title'] ?? '')) !== $legacyOverviewTitle
+            || $currentOverviewBody !== $legacyOverviewBody
+        ) {
+            return $payload;
+        }
+
+        $overview['title'] = $isCroatian
+            ? 'Zašto Vam je računovodstvo bitno?'
+            : 'Why does accounting matter to you?';
+        $overview['highlight_title'] = $overview['title'];
+        $overview['intro'] = '';
+        $overview['body'] = $isCroatian
+            ? [
+                'Mirnije poslovanje počinje jasnim i pouzdanim brojkama. Ažurne financijske informacije daju Vam kontrolu nad poslovanjem, pomažu prepoznati prilike i rizike te donijeti sigurnije odluke.',
+                'Uz ALPHA CAPITALIS ne dobivate samo računovodstvenu uslugu, već pouzdanog partnera koji razumije Vaše poslovanje i prati Vas kroz svakodnevne izazove i planove rasta.',
+            ]
+            : [
+                'Calmer business operations begin with clear and reliable numbers. Up-to-date financial information gives you control over your business, helps you identify opportunities and risks, and supports more confident decisions.',
+                'With ALPHA CAPITALIS, you get more than an accounting service - you get a reliable partner who understands your business and supports you through everyday challenges and growth plans.',
+            ];
+        $payload['overview'] = $overview;
+
+        return $payload;
     }
 }

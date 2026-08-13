@@ -24,16 +24,17 @@ class AccountingServicePageDefaults
                 'brand_title' => 'ALPHA CAPITALIS',
                 'subtitle_lead' => 'Računovodstvo',
                 'subtitle_accent' => '',
-                'intro' => 'Precizno, pravovremeno i transparentno - preuzimamo vođenje vaših poslovnih knjiga kako biste se fokusirali na ono što zaista donosi rast.',
+                'intro' => 'Vi vodite poslovanje. Mi brinemo da Vaše brojke budu točne, pravovremene i spremne za svaku odluku.',
                 'cta_label' => '',
                 'cta_url' => '',
             ],
             'overview' => [
                 'kicker' => 'RAČUNOVODSTVO',
-                'title' => 'Što je računovodstvo?',
+                'title' => 'Zašto Vam je računovodstvo bitno?',
                 'intro' => '',
                 'body' => [
-                    'Računovodstvo je sustavan zapis poslovnih transakcija koji osigurava točan prikaz financijskog stanja društva. Dobro računovodstvo nije samo zakonska obveza - to je temelj za donošenje kvalitetnih poslovnih odluka.',
+                    'Mirnije poslovanje počinje jasnim i pouzdanim brojkama. Ažurne financijske informacije daju Vam kontrolu nad poslovanjem, pomažu prepoznati prilike i rizike te donijeti sigurnije odluke.',
+                    'Uz ALPHA CAPITALIS ne dobivate samo računovodstvenu uslugu, već pouzdanog partnera koji razumije Vaše poslovanje i prati Vas kroz svakodnevne izazove i planove rasta.',
                 ],
             ],
             'services' => [
@@ -320,16 +321,17 @@ class AccountingServicePageDefaults
                 'brand_title' => 'ALPHA CAPITALIS',
                 'subtitle_lead' => 'Accounting',
                 'subtitle_accent' => '',
-                'intro' => 'Precise, timely, and transparent accounting - we take over your books so you can stay focused on what truly drives growth.',
+                'intro' => 'You run the business. We make sure your numbers are accurate, timely, and ready for every decision.',
                 'cta_label' => '',
                 'cta_url' => '',
             ],
             'overview' => [
                 'kicker' => 'ACCOUNTING',
-                'title' => 'What is accounting?',
+                'title' => 'Why does accounting matter to you?',
                 'intro' => '',
                 'body' => [
-                    'Accounting is the systematic recording of business transactions that provides an accurate view of a company’s financial position. Good accounting is not only a legal obligation - it is the foundation for sound business decisions.',
+                    'Calmer business operations begin with clear and reliable numbers. Up-to-date financial information gives you control over your business, helps you identify opportunities and risks, and supports more confident decisions.',
+                    'With ALPHA CAPITALIS, you get more than an accounting service - you get a reliable partner who understands your business and supports you through everyday challenges and growth plans.',
                 ],
             ],
             'services' => [
