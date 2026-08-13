@@ -1,0 +1,728 @@
+.front-route-advisory .ac-advisory-page {
+    --advisory-cream: var(--surface-cream, #f2efe7);
+    --advisory-navy: var(--navy-deep, #03121f);
+    --advisory-navy-soft: var(--navy, #061a2b);
+    --advisory-gold: var(--gold-light, #d8b96f);
+    --advisory-gold-deep: var(--gold, #c6a35a);
+    background: var(--advisory-cream);
+    color: #101820;
+    overflow: hidden;
+}
+
+.front-route-advisory .ac-advisory-wide-shell {
+    width: min(1600px, calc(100% - 136px));
+    margin-inline: auto;
+}
+
+.front-desktop-shell.front-route-advisory .site-header {
+    position: absolute;
+    inset: 0 0 auto;
+    background: rgba(3, 18, 31, 0.35);
+    box-shadow: none;
+}
+
+.front-route-advisory .ac-advisory-hero {
+    position: relative;
+    min-height: clamp(28rem, 65vh, 48rem);
+    min-height: clamp(28rem, 65svh, 48rem);
+    min-height: clamp(28rem, 65dvh, 48rem);
+    overflow: hidden;
+    isolation: isolate;
+    background: var(--advisory-navy);
+}
+
+.front-route-advisory .ac-advisory-hero-media,
+.front-route-advisory .ac-advisory-hero-overlay {
+    position: absolute;
+    inset: 0;
+}
+
+.front-route-advisory .ac-advisory-hero-media {
+    z-index: -2;
+}
+
+.front-route-advisory .ac-advisory-hero-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+    transform: scale(1.035);
+    transition: transform 1800ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.front-route-advisory.intro-ready .ac-advisory-hero-image {
+    transform: scale(1);
+}
+
+.front-route-advisory .ac-advisory-hero-overlay {
+    z-index: -1;
+    background:
+        linear-gradient(180deg, rgba(3, 18, 31, 0.64) 0%, rgba(3, 18, 31, 0.43) 40%, rgba(3, 18, 31, 0.74) 100%),
+        linear-gradient(90deg, rgba(3, 18, 31, 0.52) 0%, rgba(3, 18, 31, 0.15) 52%, rgba(3, 18, 31, 0.44) 100%);
+}
+
+.front-route-advisory .ac-advisory-hero-shell {
+    display: flex;
+    width: min(1320px, calc(100% - 136px));
+    min-height: inherit;
+    margin-inline: auto;
+    padding-block: clamp(5rem, 9vw, 8rem);
+    align-items: center;
+    justify-content: center;
+}
+
+.front-route-advisory .ac-advisory-hero-copy {
+    width: min(100%, 1180px);
+    text-align: center;
+}
+
+.front-route-advisory .ac-advisory-hero-copy h1 {
+    display: grid;
+    gap: clamp(1rem, 1.5vw, 1.35rem);
+    margin: 0;
+    color: var(--white, #f7f7f5);
+}
+
+.front-route-advisory .ac-advisory-hero-label {
+    opacity: 0;
+    font-family: "Bodoni Moda Variable", "Times New Roman", serif;
+    font-size: clamp(4.7rem, 7vw, 8.5rem);
+    font-weight: 450;
+    letter-spacing: 0.015em;
+    line-height: 0.95;
+    transform: translate3d(0, 26px, 0);
+    transition: opacity 820ms ease 120ms, transform 920ms cubic-bezier(0.16, 1, 0.3, 1) 120ms;
+}
+
+.front-route-advisory .ac-advisory-hero-hook {
+    max-width: 68ch;
+    margin-inline: auto;
+    opacity: 0;
+    color: rgba(255, 255, 255, 0.88);
+    font-family: "Instrument Sans Variable", Arial, sans-serif;
+    font-size: clamp(1.08rem, 1.25vw, 1.38rem);
+    font-weight: 500;
+    letter-spacing: -0.012em;
+    line-height: 1.52;
+    text-wrap: balance;
+    transform: translate3d(0, 18px, 0);
+    transition: opacity 820ms ease 260ms, transform 920ms cubic-bezier(0.16, 1, 0.3, 1) 260ms;
+}
+
+.front-desktop-shell.front-route-advisory .front-content-shell .ac-advisory-hero-hook {
+    font-family: "Instrument Sans Variable", Arial, sans-serif !important;
+}
+
+.front-route-advisory.intro-ready .ac-advisory-hero-label,
+.front-route-advisory.intro-ready .ac-advisory-hero-hook {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+}
+
+.front-route-advisory .ac-advisory-intro {
+    position: relative;
+    padding: clamp(3.5rem, 5vw, 5.5rem) 0;
+    background: var(--advisory-cream);
+}
+
+.front-route-advisory .ac-advisory-intro-grid,
+.front-route-advisory .ac-advisory-network-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0;
+    align-items: center;
+}
+
+.front-route-advisory .ac-advisory-intro-heading {
+    padding-right: clamp(3rem, 5vw, 6rem);
+}
+
+.front-route-advisory .ac-advisory-intro-heading h2,
+.front-route-advisory .ac-advisory-network-heading h2,
+.front-route-advisory .ac-advisory-section-heading h2,
+.front-route-advisory .ac-advisory-approach-heading h2 {
+    margin: 0;
+    font-family: "Instrument Sans Variable", Arial, sans-serif;
+    font-weight: 420;
+    letter-spacing: -0.045em;
+    line-height: 1.03;
+    text-wrap: balance;
+}
+
+.front-route-advisory .ac-advisory-intro-heading h2 {
+    max-width: 18ch;
+    color: #101820;
+    font-size: clamp(3rem, 3.5vw, 4.4rem);
+}
+
+.front-route-advisory :is(
+    .ac-advisory-intro-heading,
+    .ac-advisory-network-heading,
+    .ac-advisory-section-heading,
+    .ac-advisory-approach-heading
+) .service-title-word.is-accent {
+    color: #a48143;
+    font-family: "Bodoni Moda Variable", "Times New Roman", serif;
+    font-style: italic;
+    font-weight: 500;
+}
+
+.front-route-advisory .ac-advisory-intro-copy {
+    display: grid;
+    min-height: 12rem;
+    padding-left: clamp(3.5rem, 7vw, 8rem);
+    border-left: 1px solid rgba(157, 122, 61, 0.3);
+    align-content: center;
+    gap: 1.45rem;
+}
+
+.front-route-advisory .ac-advisory-intro-copy p {
+    max-width: 46rem;
+    margin: 0;
+    color: #4d4a44;
+    font-size: clamp(1rem, 1vw, 1.12rem);
+    line-height: 1.75;
+    text-wrap: pretty;
+}
+
+.front-route-advisory .ac-advisory-intro-copy p.is-emphasis {
+    color: #18202a;
+    font-weight: 600;
+}
+
+.front-route-advisory .ac-advisory-network {
+    position: relative;
+    padding: clamp(4rem, 5vw, 5.5rem) 0;
+    overflow: hidden;
+    background:
+        radial-gradient(circle at 88% 14%, rgba(40, 76, 105, 0.38), transparent 34%),
+        linear-gradient(145deg, #061b2d, #03121f 70%);
+    color: var(--white, #f7f7f5);
+}
+
+.front-route-advisory .ac-advisory-network-heading {
+    padding-right: clamp(3.5rem, 7vw, 8rem);
+}
+
+.front-route-advisory .ac-advisory-network-logo-card {
+    display: flex;
+    width: min(100%, 15.5rem);
+    min-height: 5rem;
+    margin-top: clamp(1.75rem, 2.5vw, 2.6rem);
+    padding: 1rem 1.35rem;
+    border: 1px solid rgba(216, 185, 111, 0.2);
+    border-radius: 42px 4px 42px 4px;
+    background: rgba(247, 247, 245, 0.96);
+    align-items: center;
+}
+
+.front-route-advisory .ac-advisory-page .ac-advisory-network-logo {
+    width: min(100%, 12.5rem);
+    max-width: none;
+    height: auto;
+}
+
+.front-route-advisory .ac-advisory-network-heading h2 {
+    max-width: none;
+    color: rgba(247, 247, 245, 0.98);
+    font-size: clamp(2.4rem, 2.75vw, 3.5rem);
+    line-height: 1.06;
+}
+
+.front-route-advisory .ac-advisory-network-title-line {
+    display: block;
+    white-space: nowrap;
+}
+
+.front-route-advisory .ac-advisory-network-heading .service-title-word.is-accent {
+    color: var(--advisory-gold);
+}
+
+.front-route-advisory .ac-advisory-network-copy {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    columns: auto;
+    column-count: 1;
+    padding-left: clamp(3rem, 5vw, 6rem);
+    border-left: 1px solid rgba(216, 185, 111, 0.27);
+    gap: 0.85rem;
+}
+
+.front-route-advisory .ac-advisory-network-copy p {
+    max-width: 47rem;
+    margin: 0;
+    color: rgba(247, 247, 245, 0.8);
+    font-size: clamp(0.94rem, 0.95vw, 1.05rem);
+    line-height: 1.62;
+    text-wrap: pretty;
+}
+
+.front-route-advisory .ac-advisory-network-copy p:last-child {
+    color: rgba(247, 247, 245, 0.94);
+    font-weight: 600;
+}
+
+.front-route-advisory .ac-advisory-services {
+    position: relative;
+    padding: clamp(5.5rem, 7vw, 8.2rem) 0;
+    background: var(--advisory-cream);
+}
+
+.front-route-advisory .ac-advisory-section-heading {
+    max-width: 64rem;
+    margin: 0 auto clamp(3.5rem, 5vw, 5.5rem);
+    text-align: center;
+}
+
+.front-route-advisory .ac-advisory-section-heading h2 {
+    color: #101820;
+    font-size: clamp(3rem, 3.75vw, 4.75rem);
+}
+
+.front-route-advisory .ac-advisory-section-heading > p:last-child {
+    max-width: 47rem;
+    margin: 1.5rem auto 0;
+    color: #5a5650;
+    font-size: 1rem;
+    line-height: 1.72;
+}
+
+.front-route-advisory .ac-advisory-services-grid {
+    display: grid;
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    gap: clamp(1.25rem, 2vw, 2rem);
+}
+
+.front-route-advisory .ac-advisory-service-card {
+    position: relative;
+    display: flex;
+    min-height: 25rem;
+    padding: clamp(2rem, 2.7vw, 3rem);
+    overflow: hidden;
+    border: 1px solid rgba(173, 132, 55, 0.22);
+    border-radius: clamp(44px, 3.5vw, 64px) 6px clamp(44px, 3.5vw, 64px) 6px;
+    background: rgba(251, 249, 245, 0.94);
+    color: inherit;
+    flex-direction: column;
+    text-decoration: none;
+    grid-column: span 2;
+    transition: border-color 280ms ease, background-color 280ms ease, transform 280ms ease;
+}
+
+.front-route-advisory .ac-advisory-service-card:nth-last-child(-n + 2) {
+    grid-column: span 3;
+}
+
+.front-route-advisory .ac-advisory-service-card:nth-child(3n + 2) {
+    border-radius: 6px clamp(44px, 3.5vw, 64px) 6px clamp(44px, 3.5vw, 64px);
+}
+
+.front-route-advisory .ac-advisory-service-card:hover {
+    border-color: rgba(157, 122, 61, 0.42);
+    background: rgba(255, 253, 249, 0.98);
+    transform: translateY(-4px);
+}
+
+.front-route-advisory .ac-advisory-service-card:focus-visible {
+    outline: 2px solid var(--advisory-gold-deep);
+    outline-offset: 4px;
+}
+
+.front-route-advisory .ac-advisory-service-icon,
+.front-route-advisory .ac-advisory-service-icon i,
+.front-route-advisory .ac-advisory-approach-quote > i {
+    --fa-primary-color: var(--advisory-navy);
+    --fa-primary-opacity: 1;
+    --fa-secondary-color: var(--advisory-gold-deep);
+    --fa-secondary-opacity: 1;
+}
+
+.front-route-advisory .ac-advisory-service-icon {
+    display: block;
+    width: 3.625rem;
+    height: 3.625rem;
+    margin-bottom: clamp(2.25rem, 3vw, 3.5rem);
+    color: var(--advisory-navy);
+    font-size: 3.625rem;
+    line-height: 1;
+}
+
+.front-route-advisory .ac-advisory-service-icon i {
+    display: block;
+    width: 100%;
+    height: 100%;
+    font-size: inherit;
+    line-height: 1;
+}
+
+.front-desktop-shell.front-route-advisory .front-content-shell .ac-advisory-service-card h3 {
+    margin: 0;
+    color: #101820;
+    font-family: "Bodoni Moda Variable", "Times New Roman", serif !important;
+    font-size: clamp(1.7rem, 1.9vw, 2.35rem);
+    font-weight: 600;
+    letter-spacing: -0.024em;
+    line-height: 1.18;
+    text-wrap: balance;
+}
+
+.front-route-advisory .ac-advisory-service-card p {
+    margin: 1rem 0 0;
+    color: #5a5650;
+    font-size: 1rem;
+    line-height: 1.72;
+    text-wrap: pretty;
+}
+
+.front-route-advisory .ac-advisory-service-link {
+    position: relative;
+    display: inline-flex;
+    width: fit-content;
+    margin-top: auto;
+    padding: 2rem 0 0.28rem;
+    color: var(--advisory-navy);
+    font-size: 0.76rem;
+    font-weight: 700;
+    letter-spacing: 0.11em;
+    text-transform: uppercase;
+    align-items: center;
+    gap: 0.65rem;
+}
+
+.front-route-advisory .ac-advisory-service-link::after {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    height: 1px;
+    background: currentColor;
+    content: "";
+    transform: scaleX(0);
+    transform-origin: left center;
+    transition: transform 240ms ease;
+}
+
+.front-route-advisory .ac-advisory-service-link i {
+    --fa-primary-color: var(--advisory-navy);
+    --fa-secondary-color: var(--advisory-navy);
+    --fa-primary-opacity: 1;
+    --fa-secondary-opacity: 0.82;
+    color: var(--advisory-navy);
+    transition: transform 220ms ease;
+}
+
+.front-route-advisory .ac-advisory-service-card:hover .ac-advisory-service-link::after,
+.front-route-advisory .ac-advisory-service-card:focus-visible .ac-advisory-service-link::after {
+    transform: scaleX(1);
+}
+
+.front-route-advisory .ac-advisory-service-card:hover .ac-advisory-service-link i,
+.front-route-advisory .ac-advisory-service-card:focus-visible .ac-advisory-service-link i {
+    transform: translateX(0.3rem);
+}
+
+.front-route-advisory .ac-advisory-approach {
+    position: relative;
+    padding: clamp(5.5rem, 7vw, 8.2rem) 0;
+    background:
+        radial-gradient(circle at 12% 85%, rgba(40, 76, 105, 0.3), transparent 34%),
+        linear-gradient(145deg, #061b2d, #03121f 70%);
+    color: var(--white, #f7f7f5);
+}
+
+.front-route-advisory .ac-advisory-approach-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 0.72fr) minmax(0, 1.28fr);
+    gap: clamp(4rem, 8vw, 9rem);
+    align-items: center;
+}
+
+.front-route-advisory .ac-advisory-approach-heading h2 {
+    max-width: 8ch;
+    color: var(--white, #f7f7f5);
+    font-size: clamp(3rem, 3.75vw, 4.75rem);
+}
+
+.front-route-advisory .ac-advisory-approach-heading .service-title-word.is-accent {
+    color: var(--advisory-gold);
+}
+
+.front-route-advisory .ac-advisory-approach-quote {
+    position: relative;
+    margin: 0;
+    padding: clamp(2.2rem, 3.5vw, 3.6rem);
+    border: 1px solid rgba(216, 185, 111, 0.24);
+    border-radius: 56px 5px 56px 5px;
+    background: rgba(10, 34, 55, 0.68);
+}
+
+.front-route-advisory .ac-advisory-approach-quote > i {
+    --fa-primary-color: var(--advisory-gold);
+    --fa-primary-opacity: 1;
+    --fa-secondary-color: rgba(247, 247, 245, 0.92);
+    --fa-secondary-opacity: 0.82;
+    display: block;
+    margin-bottom: 1.5rem;
+    color: var(--advisory-gold);
+    font-size: clamp(2.2rem, 3vw, 3.5rem);
+}
+
+.front-route-advisory .ac-advisory-approach-quote p {
+    margin: 0;
+    color: rgba(247, 247, 245, 0.9);
+    font-family: "Bodoni Moda Variable", "Times New Roman", serif;
+    font-size: clamp(1.25rem, 1.55vw, 1.75rem);
+    font-weight: 500;
+    letter-spacing: -0.025em;
+    line-height: 1.48;
+    text-wrap: balance;
+}
+
+.front-route-advisory .ac-advisory-approach-quote p + p {
+    margin-top: 1.25rem;
+}
+
+.front-route-advisory .ac-advisory-news {
+    background:
+        radial-gradient(circle at 18% 6%, rgba(216, 185, 111, 0.12), transparent 30%),
+        var(--advisory-cream);
+}
+
+.front-desktop-shell.front-route-advisory .front-content-shell .ac-advisory-news .news-title {
+    max-width: 62rem;
+    font-size: clamp(2.6rem, 3vw, 3.75rem);
+    letter-spacing: -0.018em;
+    line-height: 1.04;
+}
+
+.front-route-advisory .ac-advisory-news .news-card.animation-index-0 {
+    --news-index: 0;
+}
+
+.front-route-advisory .ac-advisory-news .news-card.animation-index-1 {
+    --news-index: 1;
+}
+
+.front-route-advisory .ac-advisory-news .news-card.animation-index-2 {
+    --news-index: 2;
+}
+
+.front-route-advisory .ac-advisory-news :is(.news-all-link, .news-card):focus-visible {
+    outline: 2px solid var(--advisory-gold);
+    outline-offset: 4px;
+}
+
+.front-route-advisory .ac-advisory-contact-cta {
+    content-visibility: visible;
+    contain-intrinsic-size: none;
+}
+
+.front-desktop-shell.front-route-advisory .front-content-shell .ac-advisory-contact-cta .contact-cta-title {
+    max-width: 760px;
+    font-size: clamp(3rem, 3.75vw, 4.75rem);
+    letter-spacing: -0.018em;
+    line-height: 1.04;
+}
+
+.front-desktop-shell.front-route-advisory .front-content-shell .ac-advisory-contact-cta .contact-cta-button {
+    color: var(--advisory-navy);
+}
+
+.front-desktop-shell.front-route-advisory .front-content-shell .ac-advisory-contact-cta .contact-cta-button:hover,
+.front-desktop-shell.front-route-advisory .front-content-shell .ac-advisory-contact-cta .contact-cta-button:focus-visible {
+    color: var(--white, #f7f7f5);
+}
+
+@media (max-width: 1280px) {
+    .front-route-advisory .ac-advisory-wide-shell,
+    .front-route-advisory .ac-advisory-hero-shell {
+        width: min(1180px, calc(100% - 80px));
+    }
+}
+
+@media (max-width: 1024px) {
+    .front-route-advisory .ac-advisory-intro-heading,
+    .front-route-advisory .ac-advisory-network-heading {
+        padding-right: 3rem;
+    }
+
+    .front-route-advisory .ac-advisory-intro-copy,
+    .front-route-advisory .ac-advisory-network-copy {
+        padding-left: 3rem;
+    }
+
+    .front-route-advisory .ac-advisory-services-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .front-route-advisory .ac-advisory-service-card {
+        min-height: 24rem;
+        grid-column: auto;
+    }
+
+    .front-route-advisory .ac-advisory-service-card:nth-last-child(-n + 2) {
+        grid-column: auto;
+    }
+
+    .front-route-advisory .ac-advisory-service-card:last-child:nth-child(odd) {
+        grid-column: 1 / -1;
+    }
+
+    .front-route-advisory .ac-advisory-approach-grid {
+        gap: 4rem;
+    }
+}
+
+@media (max-width: 760px) {
+    .front-route-advisory .ac-advisory-wide-shell,
+    .front-route-advisory .ac-advisory-hero-shell {
+        width: calc(100% - 40px);
+    }
+
+    .front-route-advisory .ac-advisory-hero {
+        min-height: clamp(30rem, 70vh, 38rem);
+        min-height: clamp(30rem, 70svh, 38rem);
+        min-height: clamp(30rem, 70dvh, 38rem);
+    }
+
+    .front-route-advisory .ac-advisory-hero-image {
+        object-position: 58% center;
+    }
+
+    .front-route-advisory .ac-advisory-hero-overlay {
+        background:
+            linear-gradient(180deg, rgba(3, 18, 31, 0.72) 0%, rgba(3, 18, 31, 0.54) 38%, rgba(3, 18, 31, 0.8) 100%),
+            linear-gradient(90deg, rgba(3, 18, 31, 0.34), rgba(3, 18, 31, 0.2));
+    }
+
+    .front-route-advisory .ac-advisory-hero-shell {
+        padding: 5.75rem 0 3.5rem;
+    }
+
+    .front-route-advisory .ac-advisory-hero-label {
+        font-size: clamp(3rem, 14vw, 4.2rem);
+    }
+
+    .front-route-advisory .ac-advisory-hero-hook {
+        max-width: 31ch;
+        font-size: clamp(0.98rem, 4.4vw, 1.12rem);
+        line-height: 1.52;
+    }
+
+    .front-route-advisory .ac-advisory-intro,
+    .front-route-advisory .ac-advisory-network,
+    .front-route-advisory .ac-advisory-services,
+    .front-route-advisory .ac-advisory-approach {
+        padding-top: 5.25rem;
+        padding-bottom: 5.5rem;
+    }
+
+    .front-route-advisory .ac-advisory-intro {
+        padding-top: 4rem;
+        padding-bottom: 4rem;
+    }
+
+    .front-route-advisory .ac-advisory-news .news-shell {
+        padding-top: 4.5rem;
+        padding-bottom: 4.5rem;
+    }
+
+    .front-route-advisory .ac-advisory-intro-grid,
+    .front-route-advisory .ac-advisory-network-grid,
+    .front-route-advisory .ac-advisory-approach-grid {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .front-route-advisory .ac-advisory-intro-heading,
+    .front-route-advisory .ac-advisory-network-heading,
+    .front-route-advisory .ac-advisory-intro-copy,
+    .front-route-advisory .ac-advisory-network-copy {
+        padding-right: 0;
+        padding-left: 0;
+    }
+
+    .front-route-advisory .ac-advisory-intro-heading h2,
+    .front-route-advisory .ac-advisory-network-heading h2,
+    .front-route-advisory .ac-advisory-section-heading h2,
+    .front-route-advisory .ac-advisory-approach-heading h2 {
+        max-width: 12ch;
+        font-size: clamp(3rem, 12vw, 3.75rem);
+    }
+
+    .front-route-advisory .ac-advisory-intro-copy,
+    .front-route-advisory .ac-advisory-network-copy {
+        min-height: 0;
+        margin-top: 2.5rem;
+        padding-top: 2.5rem;
+        border-top: 1px solid rgba(157, 122, 61, 0.3);
+        border-left: 0;
+    }
+
+    .front-route-advisory .ac-advisory-network-copy {
+        border-top-color: rgba(216, 185, 111, 0.27);
+    }
+
+    .front-route-advisory .ac-advisory-network-logo-card {
+        width: min(100%, 14rem);
+        min-height: 4.75rem;
+        padding: 0.9rem 1.2rem;
+    }
+
+    .front-route-advisory .ac-advisory-network-title-line {
+        white-space: normal;
+    }
+
+    .front-route-advisory .ac-advisory-section-heading {
+        margin-inline: 0;
+        margin-bottom: 2.8rem;
+        text-align: left;
+    }
+
+    .front-route-advisory .ac-advisory-section-heading > p:last-child {
+        margin-inline: 0;
+    }
+
+    .front-route-advisory .ac-advisory-services-grid {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .front-route-advisory .ac-advisory-service-card {
+        min-height: 25rem;
+        padding: 2rem;
+        border-radius: 44px 5px 44px 5px;
+        grid-column: auto;
+    }
+
+    .front-route-advisory .ac-advisory-service-card:last-child:nth-child(odd) {
+        grid-column: auto;
+    }
+
+    .front-route-advisory .ac-advisory-service-card:nth-child(3n + 2) {
+        border-radius: 5px 44px 5px 44px;
+    }
+
+    .front-route-advisory .ac-advisory-approach-grid {
+        gap: 2.8rem;
+    }
+
+    .front-route-advisory .ac-advisory-approach-quote {
+        padding: 1.65rem;
+        border-radius: 42px 4px 42px 4px;
+    }
+
+    .front-route-advisory .ac-advisory-approach-quote p {
+        font-size: 1.3rem;
+        line-height: 1.5;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .front-route-advisory .ac-advisory-hero-image,
+    .front-route-advisory .ac-advisory-hero-label,
+    .front-route-advisory .ac-advisory-hero-hook,
+    .front-route-advisory .ac-advisory-service-card {
+        opacity: 1;
+        transform: none;
+        transition: none;
+    }
+}

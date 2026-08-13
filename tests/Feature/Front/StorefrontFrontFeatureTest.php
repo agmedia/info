@@ -1025,9 +1025,10 @@ class StorefrontFrontFeatureTest extends TestCase
 
         $response->assertOk()
             ->assertSee('Savjetovanje')
-            ->assertSee('Savjetovanje (Advisory) pruža stručnu podršku društvima, investitorima i poduzetnicima u donošenju financijskih i strateških odluka te stvaranju dugoročne vrijednosti.')
-            ->assertSee('Što je savjetovanje?')
-            ->assertSee('Savjetovanje (Advisory) pruža stručnu podršku društvima, investitorima i poduzetnicima u donošenju strateških financijskih odluka kroz usluge spajanja i preuzimanja')
+            ->assertSee('Budućnost poslovanja oblikuju odluke koje donosite danas.')
+            ->assertSee('Zašto Vam je savjetovanje bitno?')
+            ->assertSee('Važne poslovne odluke rijetko imaju jednostavne odgovore.')
+            ->assertSee('Naše savjetovanje povezuje stručnost iz različitih područja')
             ->assertSee('Usluge savjetovanja')
             ->assertSee('Pribavljanje financiranja')
             ->assertSee('M&amp;A savjetovanje', false)
@@ -1041,9 +1042,16 @@ class StorefrontFrontFeatureTest extends TestCase
             ->assertSee('/savjetovanje/dubinska-snimanja', false)
             ->assertSee('/savjetovanje/procjena-vrijednosti-drustva', false)
             ->assertSee('/savjetovanje/porezno-savjetovanje', false)
-            ->assertSee('ac-advisory-services-section', false)
-            ->assertSee('ac-advisory-service-card-grid', false)
-            ->assertSee('ac-audit-approach-copy', false)
+            ->assertSee('front-theme/styles/pages/advisory.css', false)
+            ->assertSee('ac-advisory-hero-image', false)
+            ->assertSee('ac-advisory-network-grid', false)
+            ->assertSee('ac-advisory-services-grid', false)
+            ->assertSee('fa-duotone fa-thin fa-fw fa-hand-holding-circle-dollar', false)
+            ->assertSee('fa-duotone fa-thin fa-fw fa-people-arrows-left-right', false)
+            ->assertSee('fa-duotone fa-thin fa-fw fa-magnifying-glass-dollar', false)
+            ->assertSee('fa-duotone fa-thin fa-fw fa-chart-user', false)
+            ->assertSee('fa-duotone fa-thin fa-fw fa-badge-percent', false)
+            ->assertSee('contact-cta ac-advisory-contact-cta', false)
             ->assertDontSee('EU fondovi i poticaji')
             ->assertDontSee('Dostupni izvori financiranja')
             ->assertDontSee('Otvoreni natječaji')
@@ -1053,7 +1061,12 @@ class StorefrontFrontFeatureTest extends TestCase
             ->assertDontSee('Poslovno savjetovanje')
             ->assertDontSee('poveznice su postavljene samo tamo gdje već postoji lokalni blog zapis ili lokalni dokument')
             ->assertDontSee('>01<', false)
-            ->assertDontSee('ac-advisory-detail-card', false);
+            ->assertDontSee('ac-advisory-detail-card', false)
+            ->assertDontSee('ac-service-videos-section', false)
+            ->assertDontSee('data-advisory-blog-splide', false)
+            ->assertDontSee('splide.min', false)
+            ->assertDontSee('--audit-hero-image', false)
+            ->assertDontSee('Što je savjetovanje?');
     }
 
     public function test_advisory_subpages_share_revizija_style_without_decorative_numbers(): void

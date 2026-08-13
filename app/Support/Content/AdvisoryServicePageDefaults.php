@@ -24,15 +24,16 @@ class AdvisoryServicePageDefaults
                 'brand_title' => 'ALPHA CAPITALIS',
                 'subtitle_lead' => 'Savjetovanje',
                 'subtitle_accent' => '',
-                'intro' => 'Savjetovanje (Advisory) pruža stručnu podršku društvima, investitorima i poduzetnicima u donošenju financijskih i strateških odluka te stvaranju dugoročne vrijednosti.',
+                'intro' => 'Budućnost poslovanja oblikuju odluke koje donosite danas. Zato Vam pružamo stručnu financijsku i stratešku perspektivu koja pomaže prepoznati prilike, upravljati rizicima i stvarati dugoročnu vrijednost.',
                 'cta_label' => '',
                 'cta_url' => '',
             ],
             'overview' => [
-                'kicker' => 'ŠTO JE SAVJETOVANJE?',
-                'title' => 'Što je savjetovanje?',
+                'kicker' => 'SAVJETOVANJE',
+                'title' => 'Zašto Vam je savjetovanje bitno?',
                 'body' => [
-                    'Savjetovanje (Advisory) pruža stručnu podršku društvima, investitorima i poduzetnicima u donošenju strateških financijskih odluka kroz usluge spajanja i preuzimanja, procjene vrijednosti, dubinska snimanja, pribavljanje kapitala i financijsko restrukturiranje, s ciljem upravljanja rizicima i stvaranja dugoročne vrijednosti.',
+                    'Važne poslovne odluke rijetko imaju jednostavne odgovore. Financijske, porezne i strateške odluke mogu imati dugoročan utjecaj na poslovanje, zbog čega je važno imati stručnu perspektivu na koju se možete osloniti.',
+                    'Naše savjetovanje povezuje stručnost iz različitih područja kako bismo Vam pomogli sagledati širu sliku, prepoznati prilike, upravljati rizicima i donositi odluke s većom sigurnošću.',
                 ],
             ],
             'services_intro' => [

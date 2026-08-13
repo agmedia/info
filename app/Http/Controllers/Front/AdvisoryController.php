@@ -419,7 +419,7 @@ class AdvisoryController extends Controller
     private function resolveServiceHeroBackgroundUrl(?ServicePage $servicePage): string
     {
         $mediaUrl = $servicePage
-            ? (string) ($servicePage->getFirstMediaUrl('service_hero_image', 'hero_1440x480') ?: $servicePage->getFirstMediaUrl('service_hero_image'))
+            ? (string) ($servicePage->getFirstMediaUrl('service_hero_image') ?: $servicePage->getFirstMediaUrl('service_hero_image', 'hero_1440x480'))
             : '';
 
         if ($mediaUrl !== '') {
