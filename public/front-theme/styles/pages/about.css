@@ -1898,7 +1898,7 @@
 .front-desktop-shell .ac-about-reference-grid {
     gap: 1px;
     padding: 1px;
-    background: rgba(3, 18, 31, 0.14);
+    background: rgba(3, 18, 31, 0.21);
 }
 
 .front-desktop-shell .ac-about-reference-card {
@@ -1908,9 +1908,6 @@
     border-radius: 0;
     background: var(--about-paper);
     box-shadow: none;
-    transition:
-        opacity 760ms cubic-bezier(0.16, 1, 0.3, 1) calc(var(--reveal-index, 0) * 90ms),
-        transform 760ms cubic-bezier(0.16, 1, 0.3, 1) calc(var(--reveal-index, 0) * 90ms);
 }
 
 .front-desktop-shell .ac-about-reference-logo {

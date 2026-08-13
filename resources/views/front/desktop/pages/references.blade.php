@@ -58,8 +58,8 @@
                 @if ($referenceItems->isNotEmpty())
                     <div class="ac-reference-grid">
                         @foreach ($referenceItems as $item)
-                            <article class="ac-reference-card content-reveal animation-index-{{ $loop->index % 2 }}" data-image-reveal aria-label="{{ $item['name'] }}">
-                                <div class="ac-reference-logo">
+                            <article class="ac-reference-card" aria-label="{{ $item['name'] }}">
+                                <div class="ac-reference-logo content-reveal animation-index-{{ $loop->index % 2 }}" data-image-reveal>
                                     <img
                                         src="{{ $item['url'] }}"
                                         alt="{{ $item['alt'] }}"
