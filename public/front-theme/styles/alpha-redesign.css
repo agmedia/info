@@ -556,6 +556,13 @@ button {
   align-items: center;
 }
 
+@media (min-width: 1101px) {
+  .values-inner.services-index-intro-layout {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0;
+  }
+}
+
 .front-desktop-shell:not(.front-route-home) .front-content-shell .services-index-intro-title {
   font-family: "Instrument Sans Variable", Arial, sans-serif !important;
   letter-spacing: -0.018em !important;

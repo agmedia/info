@@ -28,13 +28,6 @@
     align-items: center;
 }
 
-@media (min-width: 1101px) {
-    .ac-references-intro .services-index-intro-layout {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 0;
-    }
-}
-
 .ac-references-section {
     padding: 0 0 clamp(2rem, 2.5vw, 2.75rem);
     background: #f4f1ea;
