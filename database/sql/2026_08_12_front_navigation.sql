@@ -1,4 +1,4 @@
--- Glavna frontend navigacija iz CMS postavke, bez stavke "Početna".
+-- Glavna frontend navigacija iz CMS postavke, sa stavkom "Početna".
 -- Sigurno za ponovno pokretanje; zamjenjuje trenutnu glavnu navigaciju ovim redoslijedom.
 SET NAMES utf8mb4;
 
@@ -10,6 +10,18 @@ VALUES (
     JSON_ARRAY(
         JSON_OBJECT(
             'type', 'custom',
+            'label', 'Početna',
+            'label_translations', JSON_OBJECT('hr', 'Početna', 'en', 'Home'),
+            'page_id', 0,
+            'url', '/',
+            'url_translations', JSON_OBJECT('hr', '/', 'en', '/'),
+            'open_in_new_tab', FALSE,
+            'show_dropdown', FALSE,
+            'is_active', TRUE,
+            'sort_order', 0
+        ),
+        JSON_OBJECT(
+            'type', 'custom',
             'label', 'Usluge',
             'label_translations', JSON_OBJECT('hr', 'Usluge', 'en', 'Services'),
             'page_id', 0,
@@ -18,7 +30,7 @@ VALUES (
             'open_in_new_tab', FALSE,
             'show_dropdown', FALSE,
             'is_active', TRUE,
-            'sort_order', 0
+            'sort_order', 1
         ),
         JSON_OBJECT(
             'type', 'custom',
@@ -30,7 +42,7 @@ VALUES (
             'open_in_new_tab', FALSE,
             'show_dropdown', FALSE,
             'is_active', TRUE,
-            'sort_order', 1
+            'sort_order', 2
         ),
         JSON_OBJECT(
             'type', 'custom',
@@ -42,7 +54,7 @@ VALUES (
             'open_in_new_tab', FALSE,
             'show_dropdown', FALSE,
             'is_active', TRUE,
-            'sort_order', 2
+            'sort_order', 3
         ),
         JSON_OBJECT(
             'type', 'blog',
@@ -54,7 +66,7 @@ VALUES (
             'open_in_new_tab', FALSE,
             'show_dropdown', FALSE,
             'is_active', TRUE,
-            'sort_order', 3
+            'sort_order', 4
         ),
         JSON_OBJECT(
             'type', 'contact',
@@ -66,7 +78,7 @@ VALUES (
             'open_in_new_tab', FALSE,
             'show_dropdown', FALSE,
             'is_active', TRUE,
-            'sort_order', 4
+            'sort_order', 5
         )
     ),
     NOW(),
