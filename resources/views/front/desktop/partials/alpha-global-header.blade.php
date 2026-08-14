@@ -86,7 +86,15 @@
         </button>
     </div>
 
-    <div class="mobile-menu" role="dialog" aria-modal="true" aria-label="{{ $alphaIsCroatian ? 'Mobilni izbornik' : 'Mobile menu' }}" aria-hidden="true" data-alpha-mobile-menu>
+    <div
+        class="mobile-menu"
+        role="dialog"
+        aria-modal="true"
+        aria-label="{{ $alphaIsCroatian ? 'Mobilni izbornik' : 'Mobile menu' }}"
+        aria-hidden="true"
+        data-alpha-mobile-menu
+        data-alpha-initial-panel="{{ $alphaServiceNavigation->contains('active', true) ? 'services' : 'root' }}"
+    >
         <div class="mobile-menu-inner">
             <div class="mobile-menu-topbar">
                 <a class="mobile-menu-brand" href="{{ route('home') }}" aria-label="Alpha Capitalis — početna">

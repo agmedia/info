@@ -3685,7 +3685,7 @@ button {
   }
 
   .mobile-menu-link--offer {
-    color: var(--gold-light);
+    color: rgba(255, 255, 255, 0.88);
   }
 
   .mobile-menu-parent-row {
@@ -3828,6 +3828,22 @@ button {
   .mobile-menu :is(a, button):focus-visible {
     outline: 1px solid var(--gold-light);
     outline-offset: 4px;
+  }
+
+  .mobile-menu :is(.mobile-menu-next, .mobile-menu-back):focus-visible {
+    outline: 0;
+  }
+
+  .mobile-menu-next:active,
+  .mobile-menu-next:focus-visible {
+    border-left-color: rgba(224, 184, 100, 0.62);
+    background: rgba(224, 184, 100, 0.1);
+  }
+
+  .mobile-menu-back:active,
+  .mobile-menu-back:focus-visible {
+    background: rgba(224, 184, 100, 0.08);
+    box-shadow: inset 2px 0 0 var(--gold-light);
   }
 
   .hero {

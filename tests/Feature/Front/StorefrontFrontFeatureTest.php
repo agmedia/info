@@ -936,6 +936,7 @@ class StorefrontFrontFeatureTest extends TestCase
 
         $response->assertOk()
             ->assertSee('class="mobile-menu-brand"', false)
+            ->assertSee('data-alpha-initial-panel="root"', false)
             ->assertSee('href="/usluge"', false)
             ->assertSee('data-alpha-submenu-open', false)
             ->assertSee('id="alpha-mobile-services-panel"', false)
@@ -949,6 +950,15 @@ class StorefrontFrontFeatureTest extends TestCase
             ->assertDontSee('class="mobile-cta', false);
 
         $this->assertSame(3, substr_count((string) $response->getContent(), 'class="mobile-menu-subnav-link"'));
+    }
+
+    public function test_mobile_header_reopens_the_services_panel_on_service_pages(): void
+    {
+        $this->get('/revizija')
+            ->assertOk()
+            ->assertSee('data-alpha-initial-panel="services"', false)
+            ->assertSee('class="mobile-menu-subnav-link is-active"', false)
+            ->assertSee('href="'.route('audit.show').'"', false);
     }
 
     public function test_header_does_not_fall_back_to_hardcoded_navigation(): void

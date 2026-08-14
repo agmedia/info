@@ -119,9 +119,7 @@ document.addEventListener('DOMContentLoaded', function () {
             return;
         }
 
-        if (!open) {
-            setSubmenuOpen(false, false);
-        }
+        setSubmenuOpen(open && mobileMenu.dataset.alphaInitialPanel === 'services', false);
 
         body.classList.toggle('menu-is-open', open);
         body.classList.toggle('mobile-menu-open', open);
@@ -137,12 +135,24 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-    submenuOpen?.addEventListener('click', function () {
-        setSubmenuOpen(true, true);
+    submenuOpen?.addEventListener('click', function (event) {
+        const isKeyboardActivation = event.detail === 0;
+
+        setSubmenuOpen(true, isKeyboardActivation);
+
+        if (!isKeyboardActivation && event.currentTarget instanceof HTMLElement) {
+            event.currentTarget.blur();
+        }
     });
 
-    submenuClose?.addEventListener('click', function () {
-        setSubmenuOpen(false, true);
+    submenuClose?.addEventListener('click', function (event) {
+        const isKeyboardActivation = event.detail === 0;
+
+        setSubmenuOpen(false, isKeyboardActivation);
+
+        if (!isKeyboardActivation && event.currentTarget instanceof HTMLElement) {
+            event.currentTarget.blur();
+        }
     });
 
     mobileMenu?.querySelectorAll('a').forEach(function (link) {
