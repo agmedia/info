@@ -126,24 +126,31 @@
     right: 0.8rem;
     bottom: 0.8rem;
     display: grid;
-    width: 2.4rem;
-    height: 2.4rem;
+    width: 1.75rem;
+    height: 1.75rem;
     place-items: center;
-    border: 1px solid rgba(247, 247, 245, 0.36);
-    border-radius: 14px 3px 14px 3px;
-    background: rgba(4, 21, 37, 0.78);
+    border-radius: 50%;
+    background: rgba(4, 21, 37, 0.72);
     color: #fff;
-    font-size: 0.9rem;
-    opacity: 0;
-    transform: translateY(0.5rem);
+    font-size: 0.82rem;
+    line-height: 1;
+    opacity: 0.92;
+    box-shadow: 0 2px 8px rgba(4, 21, 37, 0.24);
     transition: opacity 240ms ease, transform 240ms ease, background-color 240ms ease;
-    backdrop-filter: blur(8px);
+    backdrop-filter: blur(4px);
+    pointer-events: none;
+}
+
+.ac-team-member-card:nth-child(4n + 1) .ac-team-member-photo-zoom,
+.ac-team-member-card:nth-child(4n + 3) .ac-team-member-photo-zoom {
+    right: auto;
+    left: 0.8rem;
 }
 
 .ac-team-member-photo-trigger:hover .ac-team-member-photo-zoom,
 .ac-team-member-photo-trigger:focus-visible .ac-team-member-photo-zoom {
     opacity: 1;
-    transform: translateY(0);
+    transform: scale(1.08);
 }
 
 .ac-team-member-photo {
@@ -191,7 +198,7 @@
     inset: 0;
     background: rgba(1, 8, 15, 0.94);
     opacity: 0;
-    transition: opacity 260ms ease;
+    transition: opacity 320ms ease;
     backdrop-filter: blur(12px);
 }
 
@@ -205,8 +212,9 @@
     align-items: center;
     gap: clamp(0.75rem, 2vw, 1.5rem);
     opacity: 0;
-    transform: translateY(1rem) scale(0.985);
-    transition: opacity 260ms ease, transform 320ms cubic-bezier(0.16, 1, 0.3, 1);
+    transform: translateY(1.25rem) scale(0.97);
+    transition: opacity 280ms ease, transform 420ms cubic-bezier(0.16, 1, 0.3, 1);
+    will-change: opacity, transform;
 }
 
 .ac-team-lightbox.is-open .ac-team-lightbox-backdrop,
@@ -241,14 +249,23 @@
     border-radius: 52px 5px 52px 5px;
     object-fit: contain;
     box-shadow: 0 2rem 5rem rgba(0, 0, 0, 0.36);
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    transition: opacity 180ms ease, transform 240ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.ac-team-lightbox-figure.is-changing .ac-team-lightbox-media img {
+    opacity: 0;
+    transform: translateY(0.3rem) scale(0.985);
 }
 
 .ac-team-lightbox-meta {
+    position: relative;
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    justify-content: center;
     gap: 1.5rem;
-    padding-top: 1rem;
+    padding: 1rem 5rem 0;
     color: rgba(247, 247, 245, 0.9);
     font-family: "Instrument Sans Variable", Arial, sans-serif;
     font-size: 0.82rem;
@@ -258,7 +275,23 @@
     text-transform: uppercase;
 }
 
+.ac-team-lightbox-person {
+    display: grid;
+    justify-items: center;
+    gap: 0.35rem;
+    text-align: center;
+}
+
+.ac-team-lightbox-role {
+    color: rgba(216, 185, 111, 0.82);
+    font-size: 0.72rem;
+    letter-spacing: 0.11em;
+}
+
 .ac-team-lightbox-position {
+    position: absolute;
+    right: 0;
+    bottom: 0;
     color: rgba(216, 185, 111, 0.78);
     white-space: nowrap;
 }
@@ -669,12 +702,15 @@
     .ac-team-member-photo-zoom {
         right: 0.55rem;
         bottom: 0.55rem;
-        width: 2rem;
-        height: 2rem;
-        border-radius: 11px 3px 11px 3px;
-        font-size: 0.76rem;
-        opacity: 1;
-        transform: none;
+        width: 1.5rem;
+        height: 1.5rem;
+        font-size: 0.72rem;
+    }
+
+    .ac-team-member-card:nth-child(4n + 1) .ac-team-member-photo-zoom,
+    .ac-team-member-card:nth-child(4n + 3) .ac-team-member-photo-zoom {
+        right: auto;
+        left: 0.55rem;
     }
 
     .ac-team-lightbox {
@@ -706,9 +742,19 @@
     }
 
     .ac-team-lightbox-meta {
+        flex-direction: column;
         gap: 0.75rem;
+        padding: 0.85rem 0 0;
         font-size: 0.68rem;
         letter-spacing: 0.06em;
+    }
+
+    .ac-team-lightbox-role {
+        font-size: 0.62rem;
+    }
+
+    .ac-team-lightbox-position {
+        position: static;
     }
 }
 
@@ -716,7 +762,8 @@
     .ac-team-member-photo,
     .ac-team-member-photo-zoom,
     .ac-team-lightbox-backdrop,
-    .ac-team-lightbox-dialog {
+    .ac-team-lightbox-dialog,
+    .ac-team-lightbox-media img {
         transition: none;
     }
 }

@@ -10,20 +10,26 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const image = lightbox.querySelector('[data-team-lightbox-image]');
     const caption = lightbox.querySelector('[data-team-lightbox-caption]');
+    const role = lightbox.querySelector('[data-team-lightbox-role]');
     const position = lightbox.querySelector('[data-team-lightbox-position]');
     const closeButtons = lightbox.querySelectorAll('[data-team-lightbox-close]');
     const previousButton = lightbox.querySelector('[data-team-lightbox-previous]');
     const nextButton = lightbox.querySelector('[data-team-lightbox-next]');
+    const figure = lightbox.querySelector('.ac-team-lightbox-figure');
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
     const focusableSelector = 'button:not([disabled]), [href], input:not([disabled]), [tabindex]:not([tabindex="-1"])';
     let activeIndex = 0;
     let lastFocusedElement = null;
     let closeTimer = null;
+    let slideTimer = null;
+    let slideTransitionId = 0;
 
     const setActiveItem = function (index) {
         activeIndex = (index + triggers.length) % triggers.length;
         const trigger = triggers[activeIndex];
         const source = trigger.dataset.teamLightboxSrc || '';
         const alternativeText = trigger.dataset.teamLightboxAlt || '';
+        const professionalRole = trigger.dataset.teamLightboxRole || '';
 
         if (image instanceof HTMLImageElement) {
             image.src = source;
@@ -34,9 +40,42 @@ document.addEventListener('DOMContentLoaded', function () {
             caption.textContent = alternativeText;
         }
 
+        if (role instanceof HTMLElement) {
+            role.textContent = professionalRole;
+            role.hidden = professionalRole === '';
+        }
+
         if (position instanceof HTMLElement) {
             position.textContent = String(activeIndex + 1).padStart(2, '0') + ' / ' + String(triggers.length).padStart(2, '0');
         }
+    };
+
+    const transitionToItem = function (index) {
+        if (!(figure instanceof HTMLElement) || prefersReducedMotion.matches) {
+            setActiveItem(index);
+            return;
+        }
+
+        if (slideTimer !== null) {
+            window.clearTimeout(slideTimer);
+        }
+
+        const transitionId = ++slideTransitionId;
+        figure.classList.add('is-changing');
+
+        slideTimer = window.setTimeout(function () {
+            setActiveItem(index);
+
+            window.requestAnimationFrame(function () {
+                window.requestAnimationFrame(function () {
+                    if (transitionId === slideTransitionId) {
+                        figure.classList.remove('is-changing');
+                    }
+                });
+            });
+
+            slideTimer = null;
+        }, 140);
     };
 
     const openLightbox = function (index, trigger) {
@@ -52,18 +91,31 @@ document.addEventListener('DOMContentLoaded', function () {
         document.body.classList.add('ac-team-lightbox-open');
 
         window.requestAnimationFrame(function () {
-            lightbox.classList.add('is-open');
+            window.requestAnimationFrame(function () {
+                lightbox.classList.add('is-open');
 
-            const closeButton = lightbox.querySelector('.ac-team-lightbox-close');
-            if (closeButton instanceof HTMLButtonElement) {
-                closeButton.focus();
-            }
+                const closeButton = lightbox.querySelector('.ac-team-lightbox-close');
+                if (closeButton instanceof HTMLButtonElement) {
+                    closeButton.focus();
+                }
+            });
         });
     };
 
     const closeLightbox = function () {
         if (lightbox.hidden) {
             return;
+        }
+
+        if (slideTimer !== null) {
+            window.clearTimeout(slideTimer);
+            slideTimer = null;
+        }
+
+        slideTransitionId += 1;
+
+        if (figure instanceof HTMLElement) {
+            figure.classList.remove('is-changing');
         }
 
         lightbox.classList.remove('is-open');
@@ -83,15 +135,15 @@ document.addEventListener('DOMContentLoaded', function () {
             }
 
             closeTimer = null;
-        }, 320);
+        }, 420);
     };
 
     const showPrevious = function () {
-        setActiveItem(activeIndex - 1);
+        transitionToItem(activeIndex - 1);
     };
 
     const showNext = function () {
-        setActiveItem(activeIndex + 1);
+        transitionToItem(activeIndex + 1);
     };
 
     triggers.forEach(function (trigger, index) {

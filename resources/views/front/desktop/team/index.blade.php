@@ -58,6 +58,7 @@
                                                 data-team-lightbox-trigger
                                                 data-team-lightbox-src="{{ $member['photo_url'] }}"
                                                 data-team-lightbox-alt="{{ $member['name'] }}"
+                                                data-team-lightbox-role="{{ $member['position'] }}"
                                                 aria-label="{{ $photoOpenLabel }}: {{ $member['name'] }}"
                                             >
                                                 <img
@@ -69,7 +70,7 @@
                                                 >
                                                 <span class="image-reveal-curtain" aria-hidden="true"></span>
                                                 <span class="ac-team-member-photo-zoom" aria-hidden="true">
-                                                    <i class="fa-duotone fa-thin fa-expand"></i>
+                                                    <i class="fa-light fa-magnifying-glass-plus"></i>
                                                 </span>
                                             </button>
                                         @else
@@ -187,7 +188,10 @@
                             <img src="" alt="" data-team-lightbox-image>
                         </div>
                         <figcaption class="ac-team-lightbox-meta">
-                            <span id="ac-team-lightbox-caption" data-team-lightbox-caption></span>
+                            <span class="ac-team-lightbox-person">
+                                <span id="ac-team-lightbox-caption" data-team-lightbox-caption></span>
+                                <span class="ac-team-lightbox-role" data-team-lightbox-role></span>
+                            </span>
                             <span class="ac-team-lightbox-position" data-team-lightbox-position aria-live="polite"></span>
                         </figcaption>
                     </figure>

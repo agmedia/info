@@ -1,10 +1,40 @@
 document.addEventListener('DOMContentLoaded', function () {
     const body = document.body;
+    const stickyHeader = document.querySelector('[data-front-sticky-header]');
+    const homeHero = body.classList.contains('front-route-home')
+        ? document.querySelector('.hero')
+        : null;
     const video = document.querySelector('[data-alpha-hero-video]');
     const menuToggle = document.querySelector('[data-alpha-menu-toggle]');
     const mobileMenu = document.querySelector('[data-alpha-mobile-menu]');
+    const submenuOpen = mobileMenu?.querySelector('[data-alpha-submenu-open]');
+    const submenuClose = mobileMenu?.querySelector('[data-alpha-submenu-close]');
+    const rootMenuPanel = mobileMenu?.querySelector('[data-alpha-menu-panel="root"]');
+    const servicesMenuPanel = mobileMenu?.querySelector('[data-alpha-menu-panel="services"]');
     const searchToggle = document.querySelector('[data-header-search-toggle]');
     const searchPanel = document.querySelector('[data-header-search-panel]');
+
+    const syncStickyHeaderState = function () {
+        if (!(stickyHeader instanceof HTMLElement)) {
+            return;
+        }
+
+        const configuredHeaderHeight = Number.parseFloat(
+            window.getComputedStyle(document.documentElement).getPropertyValue('--header-height')
+        );
+        const headerHeight = Number.isFinite(configuredHeaderHeight)
+            ? configuredHeaderHeight
+            : stickyHeader.offsetHeight;
+        const shouldUseStickyBar = homeHero instanceof HTMLElement
+            ? homeHero.getBoundingClientRect().bottom <= headerHeight
+            : window.scrollY > 8;
+
+        stickyHeader.classList.toggle('is-scrolled', shouldUseStickyBar);
+    };
+
+    syncStickyHeaderState();
+    window.addEventListener('scroll', syncStickyHeaderState, { passive: true });
+    window.addEventListener('resize', syncStickyHeaderState);
 
     document.querySelectorAll('[data-newsletter-form]').forEach(function (form) {
         if (!(form instanceof HTMLFormElement)) {
@@ -61,9 +91,36 @@ document.addEventListener('DOMContentLoaded', function () {
         clearError();
     });
 
+    const setSubmenuOpen = function (open, moveFocus) {
+        if (!(mobileMenu instanceof HTMLElement)) {
+            return;
+        }
+
+        mobileMenu.classList.toggle('submenu-is-open', open);
+        submenuOpen?.setAttribute('aria-expanded', open ? 'true' : 'false');
+        rootMenuPanel?.setAttribute('aria-hidden', open ? 'true' : 'false');
+        servicesMenuPanel?.setAttribute('aria-hidden', open ? 'false' : 'true');
+
+        if (!moveFocus) {
+            return;
+        }
+
+        window.setTimeout(function () {
+            const focusTarget = open ? submenuClose : submenuOpen;
+
+            if (focusTarget instanceof HTMLElement) {
+                focusTarget.focus();
+            }
+        }, 360);
+    };
+
     const setMenuOpen = function (open) {
         if (!(menuToggle instanceof HTMLElement) || !(mobileMenu instanceof HTMLElement)) {
             return;
+        }
+
+        if (!open) {
+            setSubmenuOpen(false, false);
         }
 
         body.classList.toggle('menu-is-open', open);
@@ -80,6 +137,14 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
+    submenuOpen?.addEventListener('click', function () {
+        setSubmenuOpen(true, true);
+    });
+
+    submenuClose?.addEventListener('click', function () {
+        setSubmenuOpen(false, true);
+    });
+
     mobileMenu?.querySelectorAll('a').forEach(function (link) {
         link.addEventListener('click', function () {
             setMenuOpen(false);
@@ -88,7 +153,16 @@ document.addEventListener('DOMContentLoaded', function () {
 
     document.addEventListener('keydown', function (event) {
         if (event.key === 'Escape') {
+            if (mobileMenu?.classList.contains('submenu-is-open')) {
+                setSubmenuOpen(false, true);
+                return;
+            }
+
             setMenuOpen(false);
+
+            if (menuToggle instanceof HTMLElement) {
+                menuToggle.focus();
+            }
         }
     });
 

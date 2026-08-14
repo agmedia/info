@@ -911,6 +911,46 @@ class StorefrontFrontFeatureTest extends TestCase
             ->assertDontSee('front-nav-caret');
     }
 
+    public function test_mobile_header_keeps_services_clickable_and_exposes_service_submenu(): void
+    {
+        app(SystemSettingsService::class)->put(NavigationMenuService::SETTINGS_KEY, [
+            [
+                'type' => 'custom',
+                'label' => 'Usluge',
+                'url' => '/usluge',
+                'open_in_new_tab' => false,
+                'is_active' => true,
+                'sort_order' => 0,
+            ],
+            [
+                'type' => 'contact',
+                'label' => 'Kontakt',
+                'url' => '',
+                'open_in_new_tab' => false,
+                'is_active' => true,
+                'sort_order' => 1,
+            ],
+        ]);
+
+        $response = $this->get('/');
+
+        $response->assertOk()
+            ->assertSee('class="mobile-menu-brand"', false)
+            ->assertSee('href="/usluge"', false)
+            ->assertSee('data-alpha-submenu-open', false)
+            ->assertSee('id="alpha-mobile-services-panel"', false)
+            ->assertSee('href="'.route('audit.show').'"', false)
+            ->assertSee('href="'.route('accounting.show').'"', false)
+            ->assertSee('href="'.route('advisory.show').'"', false)
+            ->assertSee('class="mobile-menu-subnav-link"', false)
+            ->assertDontSee('mobile-menu-subnav-heading', false)
+            ->assertDontSee('Sve usluge')
+            ->assertSee('class="mobile-menu-item mobile-menu-link mobile-menu-link--offer"', false)
+            ->assertDontSee('class="mobile-cta', false);
+
+        $this->assertSame(3, substr_count((string) $response->getContent(), 'class="mobile-menu-subnav-link"'));
+    }
+
     public function test_header_does_not_fall_back_to_hardcoded_navigation(): void
     {
         $this->get('/')
