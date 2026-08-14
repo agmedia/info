@@ -249,7 +249,7 @@
 }
 
 .ac-blog-page .ac-blog-card .ac-home-blog-card-media {
-    aspect-ratio: 16 / 10;
+    aspect-ratio: 16 / 9;
     border-radius: 0;
     background: var(--ac-blog-navy);
 }
