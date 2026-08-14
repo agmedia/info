@@ -159,11 +159,11 @@ class FinanceGlossaryPageFeatureTest extends TestCase
         $content = $response->getContent();
 
         $this->assertMatchesRegularExpression(
-            '/<div class="ac-page-title-copy">.*?<p>Prva rečenica\.<\/p>.*?<\/div>/s',
+            '/<div class="ac-page-title-copy">\s*<p class="ac-glossary-detail-category">Svijet financija<\/p>\s*<\/div>/s',
             $content
         );
         $this->assertMatchesRegularExpression(
-            '/<div class="content-richtext pt-6">\s*<p>Druga rečenica\.<\/p>\s*<p><strong>Treći odlomak\.<\/strong><\/p>\s*<\/div>/s',
+            '/<div class="content-richtext pt-6">\s*<p>Prva rečenica\.<\/p>\s*<p>Druga rečenica\.<\/p>\s*<p><strong>Treći odlomak\.<\/strong><\/p>\s*<\/div>/s',
             $content
         );
     }
