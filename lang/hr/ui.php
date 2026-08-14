@@ -54,7 +54,7 @@ return [
     'faq' => [
         'page_title' => 'Česta pitanja',
         'title' => 'Česta pitanja',
-        'subtitle' => 'Odgovori na najčešća pitanja kupaca.',
+        'subtitle' => 'Jasni odgovori na najčešća pitanja o poslovanju, financijama i razvoju.',
         'empty' => 'Trenutno nema dostupnih FAQ stavki.',
     ],
     'front' => [

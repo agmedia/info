@@ -54,7 +54,7 @@ return [
     'faq' => [
         'page_title' => 'FAQ',
         'title' => 'Frequently asked questions',
-        'subtitle' => 'Answers to the most common customer questions.',
+        'subtitle' => 'Clear answers to common questions about business, finance and growth.',
         'empty' => 'No FAQ entries available right now.',
     ],
     'front' => [
