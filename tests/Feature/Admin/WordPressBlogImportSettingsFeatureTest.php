@@ -5,8 +5,8 @@ namespace Tests\Feature\Admin;
 use App\Livewire\Admin\Settings\System\WordPressBlogImport;
 use App\Models\Catalog\Category\Category;
 use App\Models\Content\Blog\BlogPost;
-use App\Services\Content\WordPressBlogImportService;
 use App\Models\User;
+use App\Services\Content\WordPressBlogImportService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Http;
@@ -26,7 +26,7 @@ class WordPressBlogImportSettingsFeatureTest extends TestCase
         $this->actingAs($admin)
             ->get('/admin/settings/system/imports')
             ->assertOk()
-            ->assertSee('WordPress Blog Import');
+            ->assertSee(__('WordPress Blog Import'));
     }
 
     public function test_admin_can_import_wordpress_xml_from_settings_page(): void
@@ -60,7 +60,9 @@ class WordPressBlogImportSettingsFeatureTest extends TestCase
             ->set('offset', '0')
             ->call('import')
             ->assertHasNoErrors()
-            ->assertSee('Imported posts')
+            ->assertSet('errorMessage', null)
+            ->assertSet('result.imported.0.code', 'wordpress-post-18769')
+            ->assertSee(__('Imported posts'))
             ->assertSee('Društvo ALPHA CAPITALIS uvršteno na popis savjetnika kod EBRD-a')
             ->assertSet('storedXmlName', 'wordpress-export.xml');
 

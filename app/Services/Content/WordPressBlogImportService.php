@@ -44,6 +44,128 @@ class WordPressBlogImportService
     }
 
     /**
+     * @param  array{limit?:int,locale?:string|null,slugs?:array<int,string>}  $options
+     * @return array{
+     *     inspected_posts:int,
+     *     inspected_media:int,
+     *     missing_media:int,
+     *     repaired_media:int,
+     *     failed_media:int,
+     *     repaired:array<int,array{post_code:string,post_slug:string,media_id:int,collection:string,file_name:string,source_url:string}>,
+     *     failed:array<int,array{post_code:string,post_slug:string,media_id:int,collection:string,file_name:string,source_url:string}>
+     * }
+     */
+    public function repairMissingMedia(array $options = []): array
+    {
+        $this->extendExecutionTime();
+
+        $locale = $this->resolveLocale($options['locale'] ?? null);
+        $limit = max(0, (int) ($options['limit'] ?? 0));
+        $slugs = collect($options['slugs'] ?? [])
+            ->map(fn (mixed $slug): string => $this->normalizeSlug((string) $slug))
+            ->filter()
+            ->values()
+            ->all();
+
+        $query = BlogPost::query()
+            ->where('code', 'like', 'wordpress-post-%')
+            ->with(['media', 'translations' => fn ($query) => $query->where('locale', $locale)]);
+
+        if ($slugs !== []) {
+            $query->whereHas('translations', function ($query) use ($locale, $slugs): void {
+                $query->where('locale', $locale)->whereIn('slug', $slugs);
+            });
+        }
+
+        if ($limit > 0) {
+            $query->limit($limit);
+        }
+
+        $posts = $query->get();
+        $inspectedMedia = 0;
+        $missingMedia = 0;
+        $repaired = [];
+        $failed = [];
+
+        foreach ($posts as $post) {
+            $postSlug = (string) ($post->translations->first()?->slug ?? $post->code);
+
+            foreach ($post->media as $media) {
+                if (! in_array($media->collection_name, ['blog_cover', 'blog_gallery'], true)
+                    || (string) data_get($media->custom_properties, 'import_source') !== 'wordpress') {
+                    continue;
+                }
+
+                $inspectedMedia++;
+
+                if ($this->mediaFileExists($media)) {
+                    continue;
+                }
+
+                $missingMedia++;
+                $sourceUrl = $this->normalizeRemoteUrl((string) data_get($media->custom_properties, 'source_url'));
+                $row = [
+                    'post_code' => (string) $post->code,
+                    'post_slug' => $postSlug,
+                    'media_id' => (int) $media->id,
+                    'collection' => (string) $media->collection_name,
+                    'file_name' => (string) $media->file_name,
+                    'source_url' => $sourceUrl,
+                ];
+
+                if ($media->collection_name === 'blog_cover') {
+                    $legacyCoverUrl = $this->resolveLegacyPostCoverUrl($post);
+                    $payloadCoverUrl = $this->normalizeRemoteUrl((string) data_get($post->payload, 'featured_image_url'));
+                    $coverCandidates = array_values(array_unique(array_filter([
+                        $legacyCoverUrl,
+                        $payloadCoverUrl,
+                        $sourceUrl,
+                    ])));
+                    $coverName = trim((string) ($post->translations->first()?->title ?? $postSlug));
+
+                    foreach ($coverCandidates as $coverCandidate) {
+                        $replacement = $this->withoutBlogMediaConversions(
+                            fn (): ?Media => $this->attachRemoteImage(
+                                $post,
+                                $coverCandidate,
+                                'blog_cover',
+                                $coverName
+                            )
+                        );
+
+                        if (! $replacement instanceof Media) {
+                            continue;
+                        }
+
+                        $row['media_id'] = (int) $replacement->id;
+                        $row['file_name'] = (string) $replacement->file_name;
+                        $row['source_url'] = $coverCandidate;
+                        $repaired[] = $row;
+
+                        continue 2;
+                    }
+                }
+
+                if ($sourceUrl !== '' && $this->downloadRemoteImageToPath($sourceUrl, $media->getPath())) {
+                    $repaired[] = $row;
+                } else {
+                    $failed[] = $row;
+                }
+            }
+        }
+
+        return [
+            'inspected_posts' => $posts->count(),
+            'inspected_media' => $inspectedMedia,
+            'missing_media' => $missingMedia,
+            'repaired_media' => count($repaired),
+            'failed_media' => count($failed),
+            'repaired' => $repaired,
+            'failed' => $failed,
+        ];
+    }
+
+    /**
      * @param  array{
      *     limit?:int,
      *     offset?:int,
@@ -51,12 +173,15 @@ class WordPressBlogImportService
      *     category_mode?:string|null,
      *     category_name?:string|null,
      *     category_slug?:string|null,
+     *     only_missing?:bool,
      *     slugs?:array<int, string>,
      *     user_id?:int|null
      * }  $options
      * @return array{
      *     locale:string,
      *     category_mode:string,
+     *     skipped_existing_count:int,
+     *     skipped_uncategorized_count:int,
      *     categories:array<int,array{id:int,code:string,name:string,slug:string}>,
      *     imported:array<int,array{
      *         id:int,
@@ -77,6 +202,7 @@ class WordPressBlogImportService
         $resolvedPath = $this->resolveFilePath($filePath);
         $locale = $this->resolveLocale($options['locale'] ?? null);
         $categoryMode = ($options['category_mode'] ?? 'single') === 'source' ? 'source' : 'single';
+        $onlyMissing = (bool) ($options['only_missing'] ?? false);
         $limit = max(0, (int) ($options['limit'] ?? 0));
         $offset = max(0, (int) ($options['offset'] ?? 0));
         $slugs = collect($options['slugs'] ?? [])
@@ -102,6 +228,29 @@ class WordPressBlogImportService
             ));
         }
 
+        if ($posts === []) {
+            throw new RuntimeException('No published WordPress posts matched the requested filters.');
+        }
+
+        $skippedUncategorizedCount = 0;
+        [$posts, $skippedUncategorizedCount] = $this->filterPublicBlogPosts($posts);
+
+        if ($posts === []) {
+            return [
+                'locale' => $locale,
+                'category_mode' => $categoryMode,
+                'skipped_existing_count' => 0,
+                'skipped_uncategorized_count' => $skippedUncategorizedCount,
+                'categories' => [],
+                'imported' => [],
+            ];
+        }
+
+        $skippedExistingCount = 0;
+        if ($onlyMissing) {
+            [$posts, $skippedExistingCount] = $this->filterMissingPosts($posts, $locale);
+        }
+
         if ($offset > 0) {
             $posts = array_slice($posts, $offset);
         }
@@ -111,7 +260,18 @@ class WordPressBlogImportService
         }
 
         if ($posts === []) {
-            throw new RuntimeException('No published WordPress posts matched the requested filters.');
+            if (! $onlyMissing) {
+                throw new RuntimeException('No published WordPress posts matched the requested filters.');
+            }
+
+            return [
+                'locale' => $locale,
+                'category_mode' => $categoryMode,
+                'skipped_existing_count' => $skippedExistingCount,
+                'skipped_uncategorized_count' => $skippedUncategorizedCount,
+                'categories' => [],
+                'imported' => [],
+            ];
         }
 
         $defaultCategory = null;
@@ -153,9 +313,83 @@ class WordPressBlogImportService
         return [
             'locale' => $locale,
             'category_mode' => $categoryMode,
+            'skipped_existing_count' => $skippedExistingCount,
+            'skipped_uncategorized_count' => $skippedUncategorizedCount,
             'categories' => array_values($categories),
             'imported' => $imported,
         ];
+    }
+
+    /**
+     * @param  array<int, array{wp_post_id:int|null,source_slug:string}>  $posts
+     * @return array{0:array<int,array<string,mixed>>,1:int}
+     */
+    private function filterMissingPosts(array $posts, string $locale): array
+    {
+        $codes = collect($posts)
+            ->map(fn (array $post): string => $this->resolveCode($post['wp_post_id'], $post['source_slug']))
+            ->unique()
+            ->values();
+        $slugs = collect($posts)
+            ->pluck('source_slug')
+            ->filter()
+            ->unique()
+            ->values();
+
+        $existingCodes = BlogPost::query()
+            ->whereIn('code', $codes)
+            ->pluck('code')
+            ->flip();
+        $existingSlugs = BlogPostTranslation::query()
+            ->where('locale', $locale)
+            ->whereIn('slug', $slugs)
+            ->pluck('slug')
+            ->flip();
+
+        $missing = [];
+        $skipped = 0;
+
+        foreach ($posts as $post) {
+            $code = $this->resolveCode($post['wp_post_id'], $post['source_slug']);
+
+            if ($existingCodes->has($code) || $existingSlugs->has($post['source_slug'])) {
+                $skipped++;
+
+                continue;
+            }
+
+            $missing[] = $post;
+        }
+
+        return [$missing, $skipped];
+    }
+
+    /**
+     * @param  array<int, array{source_categories:array<int,array{slug:string,name:string}>}>  $posts
+     * @return array{0:array<int,array<string,mixed>>,1:int}
+     */
+    private function filterPublicBlogPosts(array $posts): array
+    {
+        $publicPosts = [];
+        $skipped = 0;
+
+        foreach ($posts as $post) {
+            $sourceCategories = $post['source_categories'];
+            $hasOnlyDefaultCategories = $sourceCategories !== []
+                && collect($sourceCategories)->every(
+                    fn (array $category): bool => $this->isWordPressDefaultCategory($category)
+                );
+
+            if ($hasOnlyDefaultCategories) {
+                $skipped++;
+
+                continue;
+            }
+
+            $publicPosts[] = $post;
+        }
+
+        return [$publicPosts, $skipped];
     }
 
     /**
@@ -203,7 +437,6 @@ class WordPressBlogImportService
     }
 
     /**
-     * @param  SimpleXMLElement  $items
      * @return array<int, array{id:int,parent_id:int|null,url:string,title:string}>
      */
     private function buildAttachmentIndex(SimpleXMLElement $items): array
@@ -605,6 +838,230 @@ class WordPressBlogImportService
         }
     }
 
+    private function mediaFileExists(Media $media): bool
+    {
+        $path = $media->getPath();
+
+        return is_file($path) && (int) @filesize($path) > 0;
+    }
+
+    private function resolveLegacyPostCoverUrl(BlogPost $post): string
+    {
+        $legacyUrl = $this->normalizeRemoteUrl((string) data_get($post->payload, 'legacy_url'));
+        if ($legacyUrl === '' || ! in_array(parse_url($legacyUrl, PHP_URL_SCHEME), ['http', 'https'], true)) {
+            return '';
+        }
+
+        try {
+            $response = Http::timeout(30)
+                ->retry(2, 250)
+                ->withHeaders([
+                    'User-Agent' => 'AGINFO WordPress Media Repair',
+                    'Accept' => 'text/html,application/xhtml+xml;q=0.9,*/*;q=0.8',
+                ])
+                ->get($legacyUrl);
+        } catch (\Throwable) {
+            return '';
+        }
+
+        if (! $response->successful() || trim($response->body()) === '') {
+            return '';
+        }
+
+        $dom = new DOMDocument('1.0', 'UTF-8');
+        $previousLibxmlState = libxml_use_internal_errors(true);
+
+        try {
+            $loaded = $dom->loadHTML(
+                '<?xml encoding="UTF-8">'.$response->body(),
+                LIBXML_NONET | LIBXML_NOERROR | LIBXML_NOWARNING
+            );
+        } finally {
+            libxml_clear_errors();
+            libxml_use_internal_errors($previousLibxmlState);
+        }
+
+        if (! $loaded) {
+            return '';
+        }
+
+        $xpath = new DOMXPath($dom);
+        $postContentContainers = $xpath->query('//*[@data-elementor-type="wp-post"]');
+
+        if ($postContentContainers !== false && $postContentContainers->length > 0) {
+            $postContentImages = $xpath->query('//*[@data-elementor-type="wp-post"]//img');
+
+            if ($postContentImages !== false) {
+                foreach ($postContentImages as $node) {
+                    if (! $node instanceof DOMElement) {
+                        continue;
+                    }
+
+                    $candidate = $this->resolveLegacyImageElementUrl($node);
+                    if ($this->isLikelyLegacyPostCoverUrl($candidate)) {
+                        return $candidate;
+                    }
+                }
+            }
+
+            return '';
+        }
+
+        $firstHeading = $xpath->query('(//h1)[1]')?->item(0);
+
+        if ($firstHeading instanceof DOMElement) {
+            $followingImagesAndHeadings = $xpath->query('(//h1)[1]/following::*[self::h1 or self::h2 or self::img]');
+
+            if ($followingImagesAndHeadings !== false) {
+                foreach ($followingImagesAndHeadings as $node) {
+                    if (! $node instanceof DOMElement) {
+                        continue;
+                    }
+
+                    $tagName = Str::lower($node->tagName);
+                    $headingText = Str::lower($this->cleanText($node->textContent));
+                    if ($tagName === 'h1'
+                        || ($tagName === 'h2' && Str::contains($headingText, ['povezane objave', 'related posts']))) {
+                        break;
+                    }
+
+                    if ($tagName !== 'img') {
+                        continue;
+                    }
+
+                    $candidate = $this->resolveLegacyImageElementUrl($node);
+                    if ($this->isLikelyLegacyPostCoverUrl($candidate)) {
+                        return $candidate;
+                    }
+                }
+            }
+
+            return '';
+        }
+
+        $fallbackImages = $xpath->query('//*[contains(concat(" ", normalize-space(@class), " "), " elementor-widget-image ")]//img');
+        if ($fallbackImages === false) {
+            return '';
+        }
+
+        foreach ($fallbackImages as $node) {
+            if (! $node instanceof DOMElement) {
+                continue;
+            }
+
+            $candidate = $this->resolveLegacyImageElementUrl($node);
+            if ($this->isLikelyLegacyPostCoverUrl($candidate)) {
+                return $candidate;
+            }
+        }
+
+        return '';
+    }
+
+    private function resolveLegacyImageElementUrl(DOMElement $image): string
+    {
+        $srcset = trim($image->getAttribute('srcset'));
+        $largestSrcsetUrl = '';
+        $largestWidth = 0;
+
+        foreach (explode(',', $srcset) as $candidate) {
+            if (preg_match('/^\s*(\S+)\s+(\d+)w\s*$/', $candidate, $matches) !== 1) {
+                continue;
+            }
+
+            $width = (int) $matches[2];
+            if ($width <= $largestWidth) {
+                continue;
+            }
+
+            $largestWidth = $width;
+            $largestSrcsetUrl = $matches[1];
+        }
+
+        foreach ([$largestSrcsetUrl, $image->getAttribute('data-lazy-src'), $image->getAttribute('data-src'), $image->getAttribute('src')] as $candidate) {
+            $normalized = $this->normalizeRemoteUrl((string) $candidate);
+            if ($normalized !== '') {
+                return $normalized;
+            }
+        }
+
+        return '';
+    }
+
+    private function isLikelyLegacyPostCoverUrl(string $url): bool
+    {
+        $scheme = Str::lower((string) parse_url($url, PHP_URL_SCHEME));
+        $path = Str::lower((string) parse_url($url, PHP_URL_PATH));
+
+        if (! in_array($scheme, ['http', 'https'], true) || ! str_contains($path, '/wp-content/uploads/')) {
+            return false;
+        }
+
+        return ! Str::contains($path, ['logo', 'favicon', 'avatar', '/emoji/', 'newsletter']);
+    }
+
+    private function downloadRemoteImageToPath(string $remoteUrl, string $destinationPath): bool
+    {
+        try {
+            $response = Http::timeout(30)
+                ->retry(2, 250)
+                ->withHeaders([
+                    'User-Agent' => 'AGINFO WordPress Media Repair',
+                    'Accept' => 'image/*,*/*;q=0.8',
+                ])
+                ->get($remoteUrl);
+        } catch (\Throwable) {
+            return false;
+        }
+
+        if (! $response->successful()) {
+            return false;
+        }
+
+        $contentType = Str::lower(trim((string) $response->header('Content-Type', '')));
+        if ($contentType !== '' && ! str_starts_with($contentType, 'image/')) {
+            return false;
+        }
+
+        $body = $response->body();
+        if ($body === '') {
+            return false;
+        }
+
+        $directory = dirname($destinationPath);
+        if (! is_dir($directory) && ! @mkdir($directory, 0755, true) && ! is_dir($directory)) {
+            return false;
+        }
+
+        $tempPath = tempnam($directory, 'wp-repair-');
+        if ($tempPath === false) {
+            return false;
+        }
+
+        try {
+            if (file_put_contents($tempPath, $body, LOCK_EX) === false) {
+                return false;
+            }
+
+            if (! @rename($tempPath, $destinationPath)) {
+                return false;
+            }
+
+            @chmod($destinationPath, 0644);
+
+            return $this->mediaPathExists($destinationPath);
+        } finally {
+            if (is_file($tempPath)) {
+                @unlink($tempPath);
+            }
+        }
+    }
+
+    private function mediaPathExists(string $path): bool
+    {
+        return is_file($path) && (int) @filesize($path) > 0;
+    }
+
     private function rewriteBodyAssetUrls(string $html, array $assetUrlMap): string
     {
         if ($html === '' || $assetUrlMap === []) {
@@ -673,6 +1130,7 @@ class WordPressBlogImportService
         $this->normalizeTables($dom, $xpath, $root);
         $this->removeRedundantBreaks($dom, $xpath, $root);
         $this->normalizeEmbeddedVideos($dom, $xpath, $root);
+        $this->normalizeRootInlineContent($dom, $root);
         $this->sanitizeImportedAttributes($xpath, $root);
         $this->removeEmptyParagraphs($xpath, $root);
 
@@ -1132,6 +1590,88 @@ class WordPressBlogImportService
                 $childNode
             );
         }
+    }
+
+    private function normalizeRootInlineContent(DOMDocument $dom, DOMElement $root): void
+    {
+        $pendingNodes = [];
+
+        foreach ($this->nodeListToArray($root->childNodes) as $childNode) {
+            if ($this->isBlockLikeNode($childNode)) {
+                $this->wrapRootInlineNodesInParagraph($dom, $root, $pendingNodes);
+                $pendingNodes = [];
+
+                continue;
+            }
+
+            $pendingNodes[] = $childNode;
+        }
+
+        $this->wrapRootInlineNodesInParagraph($dom, $root, $pendingNodes);
+    }
+
+    /**
+     * @param  array<int, DOMNode>  $nodes
+     */
+    private function wrapRootInlineNodesInParagraph(DOMDocument $dom, DOMElement $root, array $nodes): void
+    {
+        if ($nodes === []) {
+            return;
+        }
+
+        while ($nodes !== [] && $this->isWhitespaceTextNode($nodes[0])) {
+            $node = array_shift($nodes);
+            $node?->parentNode?->removeChild($node);
+        }
+
+        while ($nodes !== [] && $this->isWhitespaceTextNode($nodes[array_key_last($nodes)])) {
+            $node = array_pop($nodes);
+            $node?->parentNode?->removeChild($node);
+        }
+
+        if ($nodes === []) {
+            return;
+        }
+
+        $hasMeaningfulContent = collect($nodes)->contains(function (DOMNode $node): bool {
+            if ($node->nodeType === XML_TEXT_NODE) {
+                return trim(str_replace("\u{00A0}", ' ', (string) $node->textContent)) !== '';
+            }
+
+            return $node instanceof DOMElement
+                && ($this->nodeHasMeaningfulText($node)
+                    || $this->nodeContainsMedia($node)
+                    || $this->nodeContainsEmbeddableMedia($node));
+        });
+
+        if (! $hasMeaningfulContent) {
+            foreach ($nodes as $node) {
+                $node->parentNode?->removeChild($node);
+            }
+
+            return;
+        }
+
+        $paragraph = $dom->createElement('p');
+        $root->insertBefore($paragraph, $nodes[0]);
+
+        foreach ($nodes as $node) {
+            $paragraph->appendChild($node);
+        }
+
+        if ($paragraph->firstChild?->nodeType === XML_TEXT_NODE) {
+            $paragraph->firstChild->nodeValue = preg_replace('/^\s+/u', '', (string) $paragraph->firstChild->nodeValue);
+        }
+
+        if ($paragraph->lastChild?->nodeType === XML_TEXT_NODE) {
+            $paragraph->lastChild->nodeValue = preg_replace('/\s+$/u', '', (string) $paragraph->lastChild->nodeValue);
+        }
+    }
+
+    private function isWhitespaceTextNode(DOMNode $node): bool
+    {
+        return $node->nodeType === XML_TEXT_NODE
+            && trim(str_replace("\u{00A0}", ' ', (string) $node->textContent)) === '';
     }
 
     private function sanitizeImportedAttributes(DOMXPath $xpath, DOMElement $root): void
@@ -1617,7 +2157,10 @@ class WordPressBlogImportService
     private function resolveCategoriesForPost(array $postData, string $locale, string $fallbackName, string $fallbackSlug, ?int $userId): array
     {
         $resolved = [];
-        $sourceCategories = $postData['source_categories'];
+        $sourceCategories = array_values(array_filter(
+            $postData['source_categories'],
+            fn (array $category): bool => ! $this->isWordPressDefaultCategory($category)
+        ));
 
         if ($sourceCategories === []) {
             return [$this->ensureBlogCategory($fallbackName, $fallbackSlug, $locale, $userId)];
@@ -1642,6 +2185,18 @@ class WordPressBlogImportService
         return $resolved !== []
             ? $resolved
             : [$this->ensureBlogCategory($fallbackName, $fallbackSlug, $locale, $userId)];
+    }
+
+    /**
+     * @param  array{slug?:string,name?:string}  $category
+     */
+    private function isWordPressDefaultCategory(array $category): bool
+    {
+        $slug = $this->normalizeSlug((string) ($category['slug'] ?? ''));
+        $name = Str::lower(trim((string) ($category['name'] ?? '')));
+
+        return $slug === 'uncategorized'
+            || in_array($name, ['uncategorized', 'nekategorizirano'], true);
     }
 
     private function ensureBlogCategory(string $name, string $slug, string $locale, ?int $userId): Category
@@ -2023,6 +2578,7 @@ class WordPressBlogImportService
 
             if ($this->isProtectedBlockChunk($chunk)) {
                 $wrapped[] = $chunk;
+
                 continue;
             }
 

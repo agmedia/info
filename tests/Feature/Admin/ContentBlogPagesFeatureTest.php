@@ -2,9 +2,9 @@
 
 namespace Tests\Feature\Admin;
 
-use App\Models\Catalog\Category\Category;
 use App\Livewire\Admin\Content\Blog\Form as BlogForm;
 use App\Livewire\Admin\Content\Page\Form as PageForm;
+use App\Models\Catalog\Category\Category;
 use App\Models\Content\Blog\BlogPost;
 use App\Models\Content\Blog\BlogPostTranslation;
 use App\Models\Content\Page\InfoPage;
@@ -12,10 +12,10 @@ use App\Models\Content\Resource\ResourceDocument;
 use App\Models\Content\Resource\ResourceDocumentTranslation;
 use App\Models\User;
 use App\Services\Settings\SystemSettingsService;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Http\UploadedFile;
 use DOMDocument;
 use DOMXPath;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
 use Livewire\Livewire;
@@ -527,6 +527,163 @@ class ContentBlogPagesFeatureTest extends TestCase
         $this->assertStringContainsString('src="/storage/', (string) $formattedTranslation->body_html);
         $this->assertStringNotContainsString('http://localhost/storage/', (string) $formattedTranslation->body_html);
         $this->assertCount(3, $formattedPost->getMedia('blog_gallery'));
+    }
+
+    public function test_wordpress_blog_import_only_missing_preserves_existing_posts_before_applying_limit(): void
+    {
+        config()->set('app.locale', 'hr');
+        config()->set('app.fallback_locale', 'hr');
+        Storage::fake('public');
+        config()->set('media-library.disk_name', 'public');
+        config()->set('media-library.queue_conversions_by_default', false);
+
+        $cover = UploadedFile::fake()->image('wordpress-cover.jpg', 1200, 800);
+        $coverBytes = file_get_contents($cover->getPathname());
+        Http::fake([
+            'https://alphacapitalis.com/wp-content/uploads/*' => Http::response($coverBytes, 200, ['Content-Type' => 'image/jpeg']),
+        ]);
+
+        $arguments = [
+            'file' => base_path('public/assets/xml-import/alphacapitalis.WordPress.2026-03-20.xml'),
+            '--locale' => 'hr',
+            '--category-mode' => 'source',
+        ];
+
+        $this->artisan('content:import-wordpress-blog', $arguments + ['--limit' => 1])
+            ->assertExitCode(0);
+
+        $existing = BlogPost::query()->where('code', 'wordpress-post-18769')->firstOrFail();
+        $existing->translations()->where('locale', 'hr')->update(['title' => 'Ručno uređeni naslov']);
+
+        $this->artisan('content:import-wordpress-blog', $arguments + [
+            '--limit' => 2,
+            '--only-missing' => true,
+        ])
+            ->expectsOutputToContain('Imported 2 WordPress post(s)')
+            ->assertExitCode(0);
+
+        $this->assertSame(3, BlogPost::query()->count());
+        $this->assertSame('Ručno uređeni naslov', $existing->translation('hr')->value('title'));
+        $this->assertNotNull(BlogPost::query()->where('code', 'wordpress-post-18771')->first());
+        $this->assertNotNull(BlogPost::query()->where('code', 'wordpress-post-18773')->first());
+    }
+
+    public function test_wordpress_import_wraps_root_inline_content_in_paragraphs(): void
+    {
+        config()->set('app.locale', 'hr');
+        config()->set('app.fallback_locale', 'hr');
+        Storage::fake('public');
+        config()->set('media-library.disk_name', 'public');
+        config()->set('media-library.queue_conversions_by_default', false);
+
+        Http::fake([
+            'https://alphacapitalis.com/wp-content/uploads/*' => Http::response('', 404),
+        ]);
+
+        $this->artisan('content:import-wordpress-blog', [
+            'file' => base_path('public/assets/xml-import/alphacapitalis.WordPress.2026-08-14.xml'),
+            '--locale' => 'hr',
+            '--category-mode' => 'source',
+            '--slugs' => [
+                'inovacije-procesa-u-s3-podrucjima-prilika-za-transformaciju-poslovanja',
+            ],
+        ])->assertExitCode(0);
+
+        $post = BlogPost::query()->where('code', 'wordpress-post-38535')->firstOrFail();
+        $bodyHtml = (string) $post->translation('hr')->value('body_html');
+
+        $dom = new DOMDocument('1.0', 'UTF-8');
+        @$dom->loadHTML(
+            '<?xml encoding="utf-8" ?><div id="root">'.$bodyHtml.'</div>',
+            LIBXML_HTML_NODEFDTD | LIBXML_NONET
+        );
+        $xpath = new DOMXPath($dom);
+
+        $this->assertSame(0, $xpath->query('//*[@id="root"]/text()[normalize-space()]')->length);
+
+        $targetText = $xpath->query('//*[@id="root"]//text()[contains(., "Takve promjene često")]')->item(0);
+        $this->assertNotNull($targetText);
+        $this->assertSame('p', $targetText?->parentNode?->nodeName);
+    }
+
+    public function test_wordpress_import_skips_posts_assigned_only_to_uncategorized(): void
+    {
+        config()->set('app.locale', 'hr');
+        config()->set('app.fallback_locale', 'hr');
+        Storage::fake('public');
+
+        $this->artisan('content:import-wordpress-blog', [
+            'file' => base_path('public/assets/xml-import/alphacapitalis.WordPress.2026-08-14.xml'),
+            '--locale' => 'hr',
+            '--category-mode' => 'single',
+            '--slugs' => ['investicijski-zajam-iz-npoo'],
+        ])
+            ->expectsOutputToContain('Imported 0 WordPress post(s)')
+            ->assertExitCode(0);
+
+        $this->assertDatabaseMissing('content_blog_posts', [
+            'code' => 'wordpress-post-38494',
+        ]);
+        $this->assertDatabaseMissing('categories', [
+            'scope' => Category::SCOPE_BLOG,
+            'code' => 'uncategorized',
+        ]);
+    }
+
+    public function test_wordpress_media_repair_restores_missing_file_without_updating_post_content(): void
+    {
+        config()->set('app.locale', 'hr');
+        config()->set('app.fallback_locale', 'hr');
+        Storage::fake('public');
+        config()->set('media-library.disk_name', 'public');
+        config()->set('media-library.queue_conversions_by_default', false);
+
+        $cover = UploadedFile::fake()->image('wordpress-cover.jpg', 1200, 800);
+        $coverBytes = file_get_contents($cover->getPathname());
+        $legacyUrl = 'https://alphacapitalis.com/2019/05/01/drustvo-alpha-capitalis-uvrsteno-na-popis-savjetnika-kod-ebrd-a/';
+        $currentCoverUrl = 'https://alphacapitalis.com/wp-content/uploads/2019/05/current-cover.jpg';
+        Http::fake([
+            $legacyUrl => Http::response(
+                '<html><body><h1>Objava</h1><img src="'.$currentCoverUrl.'" alt=""></body></html>',
+                200,
+                ['Content-Type' => 'text/html']
+            ),
+            $currentCoverUrl => Http::response($coverBytes, 200, ['Content-Type' => 'image/jpeg']),
+            'https://alphacapitalis.com/wp-content/uploads/*' => Http::response($coverBytes, 200, ['Content-Type' => 'image/jpeg']),
+        ]);
+
+        $this->artisan('content:import-wordpress-blog', [
+            'file' => base_path('public/assets/xml-import/alphacapitalis.WordPress.2026-03-20.xml'),
+            '--locale' => 'hr',
+            '--category-mode' => 'source',
+            '--limit' => 1,
+        ])->assertExitCode(0);
+
+        $post = BlogPost::query()->where('code', 'wordpress-post-18769')->firstOrFail();
+        $post->translations()->where('locale', 'hr')->update(['title' => 'Ručno uređeni naslov']);
+        $media = $post->getFirstMedia('blog_cover');
+
+        $this->assertNotNull($media);
+        $this->assertFileExists($media->getPath());
+        $missingMediaId = $media->id;
+        unlink($media->getPath());
+        $this->assertFileDoesNotExist($media->getPath());
+
+        $this->artisan('content:repair-wordpress-blog-media', [
+            '--locale' => 'hr',
+            '--slugs' => ['drustvo-alpha-capitalis-uvrsteno-na-popis-savjetnika-kod-ebrd-a'],
+        ])
+            ->expectsOutputToContain('Missing: 1, repaired: 1, failed: 0')
+            ->assertExitCode(0);
+
+        $replacement = $post->refresh()->getFirstMedia('blog_cover');
+
+        $this->assertNotNull($replacement);
+        $this->assertNotSame($missingMediaId, $replacement->id);
+        $this->assertFileExists($replacement->getPath());
+        $this->assertGreaterThan(0, filesize($replacement->getPath()));
+        $this->assertSame($currentCoverUrl, data_get($replacement->custom_properties, 'source_url'));
+        $this->assertSame('Ručno uređeni naslov', $post->translation('hr')->value('title'));
     }
 
     public function test_legacy_wordpress_blog_url_redirects_to_canonical_blog_url(): void

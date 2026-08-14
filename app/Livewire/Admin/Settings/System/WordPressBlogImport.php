@@ -19,6 +19,7 @@ class WordPressBlogImport extends Component
     use WithFileUploads;
 
     private const SETTING_LAST_XML_PATH = 'content_blog_import_last_xml_path';
+
     private const SETTING_LAST_XML_NAME = 'content_blog_import_last_xml_name';
 
     public ?TemporaryUploadedFile $xmlUpload = null;
@@ -109,7 +110,7 @@ class WordPressBlogImport extends Component
 
         try {
             $filePath = $this->persistUploadedXml();
-            $this->executeImport($importer, $filePath);
+            $this->executeImport($importer, $filePath, true);
         } catch (\Throwable $exception) {
             $this->errorMessage = $exception->getMessage();
             $this->dispatch('notify', type: 'danger', message: $this->errorMessage);
@@ -134,7 +135,7 @@ class WordPressBlogImport extends Component
         }
 
         try {
-            $this->executeImport($importer, Storage::disk('local')->path($this->storedXmlPath));
+            $this->executeImport($importer, Storage::disk('local')->path($this->storedXmlPath), false);
         } catch (\Throwable $exception) {
             $this->errorMessage = $exception->getMessage();
             $this->dispatch('notify', type: 'danger', message: $this->errorMessage);
@@ -175,11 +176,12 @@ class WordPressBlogImport extends Component
      *     category_mode:string,
      *     category_name:string,
      *     category_slug:string,
+     *     only_missing:bool,
      *     slugs:array<int,string>,
      *     user_id:int|null
      * }
      */
-    private function buildImportOptions(): array
+    private function buildImportOptions(bool $onlyMissing): array
     {
         $selectedCategory = $this->findCategoryOption($this->selectedCategoryId);
         $categoryName = trim((string) ($selectedCategory['name'] ?? $this->categoryName));
@@ -206,14 +208,15 @@ class WordPressBlogImport extends Component
             'category_mode' => $this->categoryMode,
             'category_name' => $categoryName,
             'category_slug' => $categorySlug !== '' ? $categorySlug : 'novosti',
+            'only_missing' => $onlyMissing,
             'slugs' => $slugs,
             'user_id' => auth()->id(),
         ];
     }
 
-    private function executeImport(WordPressBlogImportService $importer, string $filePath): void
+    private function executeImport(WordPressBlogImportService $importer, string $filePath, bool $onlyMissing): void
     {
-        $this->result = $importer->import($filePath, $this->buildImportOptions());
+        $this->result = $importer->import($filePath, $this->buildImportOptions($onlyMissing));
         $this->loadCategoryOptions();
 
         if (($this->result['categories'][0]['id'] ?? null) !== null && $this->categoryMode === 'single') {
@@ -223,7 +226,11 @@ class WordPressBlogImport extends Component
         $this->dispatch(
             'notify',
             type: 'success',
-            message: __('Imported :count WordPress post(s).', ['count' => count((array) ($this->result['imported'] ?? []))])
+            message: __('Imported :count WordPress post(s); skipped :existing existing and :uncategorized Uncategorized-only.', [
+                'count' => count((array) ($this->result['imported'] ?? [])),
+                'existing' => (int) ($this->result['skipped_existing_count'] ?? 0),
+                'uncategorized' => (int) ($this->result['skipped_uncategorized_count'] ?? 0),
+            ])
         );
     }
 

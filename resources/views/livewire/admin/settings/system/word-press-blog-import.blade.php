@@ -5,7 +5,7 @@
             {{ __('Upload a WordPress XML export, test with a small limit first, and keep old WordPress article URLs working through the existing 301 redirect.') }}
         </p>
         <p class="mt-2 text-xs text-slate-500">
-            {{ __('Tip: keep limit at 3 for the first run, then set 0 to import the whole XML after you verify content and images.') }}
+            {{ __('Run Import adds only missing posts and excludes items assigned only to WordPress Uncategorized. Keep limit at 3 for the first run, then set 0 after you verify content and images.') }}
         </p>
     </div>
 
@@ -146,7 +146,7 @@
                     <li>{{ __('The public storage symlink (`php artisan storage:link`) must exist so imported images are visible on the site.') }}</li>
                     <li>{{ __('If you prefer terminal usage, the Artisan command remains available for batch imports.') }}</li>
                 </ul>
-                <pre class="mt-4 overflow-x-auto rounded-xl bg-slate-950 px-4 py-3 text-xs text-slate-100"><code>php artisan content:import-wordpress-blog /path/to/export.xml --locale=hr --category-mode=single --category-name="Novosti" --category-slug=novosti --limit=3</code></pre>
+                <pre class="mt-4 overflow-x-auto rounded-xl bg-slate-950 px-4 py-3 text-xs text-slate-100"><code>php artisan content:import-wordpress-blog /path/to/export.xml --locale=hr --category-mode=source --only-missing --limit=3</code></pre>
             </div>
 
             @if ($errorMessage)
@@ -161,7 +161,12 @@
                         <div>
                             <p class="admin-section-title">{{ __('Last import result') }}</p>
                             <p class="mt-1 text-sm text-slate-600">
-                                {{ __('Imported :count post(s) in locale :locale.', ['count' => count((array) ($result['imported'] ?? [])), 'locale' => $result['locale'] ?? $locale]) }}
+                                {{ __('Imported :count post(s), skipped :existing existing and :uncategorized Uncategorized-only, in locale :locale.', [
+                                    'count' => count((array) ($result['imported'] ?? [])),
+                                    'existing' => (int) ($result['skipped_existing_count'] ?? 0),
+                                    'uncategorized' => (int) ($result['skipped_uncategorized_count'] ?? 0),
+                                    'locale' => $result['locale'] ?? $locale,
+                                ]) }}
                             </p>
                             @if ($storedXmlName)
                                 <p class="mt-1 text-xs text-slate-500">{{ __('Source XML: :name', ['name' => $storedXmlName]) }}</p>

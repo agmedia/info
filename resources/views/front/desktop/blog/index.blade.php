@@ -33,7 +33,7 @@
                 <div class="values-intro">
                     <h1 class="values-title services-index-intro-title ac-blog-intro-title" id="ac-blog-title" data-words-slide-from-right aria-label="{{ $heroTitle }}">
                         @foreach ($headingWords($heroTitle) as $word)
-                            <span class="values-word animation-index-{{ $loop->index }} {{ $loop->last ? 'is-accent' : '' }}" aria-hidden="true">{{ $word }}</span>
+                            <span class="values-word animation-index-{{ $loop->index }} {{ $loop->count > 1 && $loop->last ? 'is-accent' : '' }}" aria-hidden="true">{{ $word }}</span>
                         @endforeach
                     </h1>
                 </div>

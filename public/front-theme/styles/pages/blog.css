@@ -259,6 +259,7 @@
 }
 
 .ac-blog-page .ac-blog-card .ac-home-blog-card-image {
+    object-fit: contain;
     transition: transform 700ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 
@@ -935,7 +936,6 @@
 }
 
 @media (hover: hover) and (pointer: fine) {
-    .ac-blog-page .ac-blog-card .ac-home-blog-card-link:hover .ac-home-blog-card-image,
     .ac-blog-gallery-item:hover img {
         transform: scale(1.045);
     }

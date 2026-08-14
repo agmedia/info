@@ -27,6 +27,7 @@ Artisan::command('content:import-wordpress-blog
     {--category-mode=single : "single" to import into one category, "source" to use categories from XML}
     {--category-name=Novosti : Destination category name when category-mode=single}
     {--category-slug=novosti : Destination category slug when category-mode=single}
+    {--only-missing : Skip posts that already exist by WordPress ID or locale slug}
     {--slugs=* : Import only selected WordPress slugs}',
     function (WordPressBlogImportService $importer): int {
         try {
@@ -37,6 +38,7 @@ Artisan::command('content:import-wordpress-blog
                 'category_mode' => (string) $this->option('category-mode'),
                 'category_name' => (string) $this->option('category-name'),
                 'category_slug' => (string) $this->option('category-slug'),
+                'only_missing' => (bool) $this->option('only-missing'),
                 'slugs' => array_values(array_filter((array) $this->option('slugs'))),
                 'user_id' => auth()->id(),
             ]);
@@ -47,10 +49,12 @@ Artisan::command('content:import-wordpress-blog
         }
 
         $this->info(sprintf(
-            'Imported %d WordPress post(s) in locale "%s" using category mode "%s".',
+            'Imported %d WordPress post(s) in locale "%s" using category mode "%s". Skipped %d existing and %d Uncategorized-only post(s).',
             count($result['imported']),
             $result['locale'],
-            $result['category_mode']
+            $result['category_mode'],
+            (int) ($result['skipped_existing_count'] ?? 0),
+            (int) ($result['skipped_uncategorized_count'] ?? 0)
         ));
 
         if ($result['categories'] !== []) {
@@ -78,6 +82,57 @@ Artisan::command('content:import-wordpress-blog
         return self::SUCCESS;
     })
     ->purpose('Import published WordPress blog posts from a WXR XML export');
+
+Artisan::command('content:repair-wordpress-blog-media
+    {--locale=hr : Locale used to resolve optional post slugs}
+    {--limit=0 : Number of WordPress posts to inspect (0 = all)}
+    {--slugs=* : Repair only selected blog slugs}',
+    function (WordPressBlogImportService $importer): int {
+        try {
+            $result = $importer->repairMissingMedia([
+                'locale' => (string) $this->option('locale'),
+                'limit' => (int) $this->option('limit'),
+                'slugs' => array_values(array_filter((array) $this->option('slugs'))),
+            ]);
+        } catch (\Throwable $exception) {
+            $this->error($exception->getMessage());
+
+            return self::FAILURE;
+        }
+
+        $this->info(sprintf(
+            'Inspected %d WordPress post(s) and %d imported media file(s). Missing: %d, repaired: %d, failed: %d.',
+            (int) $result['inspected_posts'],
+            (int) $result['inspected_media'],
+            (int) $result['missing_media'],
+            (int) $result['repaired_media'],
+            (int) $result['failed_media']
+        ));
+
+        foreach ($result['repaired'] as $row) {
+            $this->line(sprintf(
+                '- [REPAIRED] %s | %s | %s',
+                (string) $row['post_slug'],
+                (string) $row['collection'],
+                (string) $row['file_name']
+            ));
+        }
+
+        foreach ($result['failed'] as $row) {
+            $this->warn(sprintf(
+                '- [FAILED] %s | %s | %s | %s',
+                (string) $row['post_slug'],
+                (string) $row['collection'],
+                (string) $row['file_name'],
+                (string) $row['source_url']
+            ));
+        }
+
+        return (int) $result['failed_media'] > 0
+            ? self::FAILURE
+            : self::SUCCESS;
+    })
+    ->purpose('Restore missing WordPress blog media files without changing post content');
 
 Artisan::command('content:import-wordpress-calls
     {file : Path to the WordPress XML export}
