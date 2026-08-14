@@ -15,10 +15,14 @@
 }
 
 .front-desktop-shell.front-route-advisory .site-header {
-    position: absolute;
+    position: sticky;
     inset: 0 0 auto;
     background: rgba(3, 18, 31, 0.35);
     box-shadow: none;
+}
+
+.front-desktop-shell.front-route-advisory .front-content-shell {
+    margin-top: calc(var(--header-height) * -1);
 }
 
 .front-route-advisory .ac-advisory-hero {

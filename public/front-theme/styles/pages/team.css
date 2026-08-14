@@ -431,7 +431,6 @@
 .ac-team-bio-trigger {
     display: inline-flex;
     align-items: center;
-    gap: 0.6rem;
     margin-top: 0.9rem;
     padding-bottom: 0.3rem;
     color: #6f4d12;
@@ -440,17 +439,6 @@
     font-weight: 750;
     letter-spacing: 0.11em;
     text-transform: uppercase;
-}
-
-.ac-team-bio-trigger i {
-    font-size: 0.95rem;
-    font-weight: 400;
-    line-height: 1;
-    transition: transform 220ms ease;
-}
-
-.ac-team-bio-trigger:hover i {
-    transform: translate(2px, -2px);
 }
 
 .ac-team-bio-toggle:checked ~ .ac-team-bio-excerpt {
@@ -481,6 +469,7 @@
     flex-wrap: wrap;
     gap: 0.55rem !important;
     margin-top: 0 !important;
+    padding-top: 0.45rem;
     align-self: end;
 }
 
@@ -565,7 +554,6 @@
 .ac-team-cta-trigger {
     display: inline-flex;
     align-items: center;
-    gap: 0.65rem;
     margin-top: 1rem;
     padding-bottom: 0.3rem;
     color: var(--gold-light);
@@ -580,12 +568,6 @@
 .front-desktop-shell:not(.front-route-home) .front-content-shell .ac-team-contact-cta .ac-team-cta-trigger:hover,
 .front-desktop-shell:not(.front-route-home) .front-content-shell .ac-team-contact-cta .ac-team-cta-trigger:focus-visible {
     color: var(--gold-light) !important;
-}
-
-.ac-team-cta-trigger i {
-    font-size: 0.92rem;
-    transform: none !important;
-    transition: none;
 }
 
 .ac-team-cta-toggle:checked ~ .ac-team-cta-panel {

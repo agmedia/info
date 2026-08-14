@@ -109,7 +109,6 @@
                                                     <label for="team-bio-{{ $member['id'] }}" class="ac-team-bio-trigger services-index-inline-link">
                                                         <span class="ac-team-bio-more">{{ __('ui.team.read_more') }}</span>
                                                         <span class="ac-team-bio-less">{{ __('ui.team.read_less') }}</span>
-                                                        <i class="fa-duotone fa-thin fa-arrow-right" aria-hidden="true"></i>
                                                     </label>
                                                 </div>
                                             @else
@@ -230,7 +229,6 @@
                                 <label for="ac-team-career-copy" class="ac-team-cta-trigger services-index-inline-link">
                                     <span class="ac-team-cta-more">{{ __('ui.team.read_more') }}</span>
                                     <span class="ac-team-cta-less">{{ __('ui.team.read_less') }}</span>
-                                    <i class="fa-duotone fa-thin fa-arrow-right" aria-hidden="true"></i>
                                 </label>
                             @endif
                         </div>
