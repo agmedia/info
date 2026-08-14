@@ -881,6 +881,20 @@ class StorefrontFrontFeatureTest extends TestCase
         $this->assertStringNotContainsString('aria-label="Obiteljski biznis"', $content);
     }
 
+    public function test_home_page_uses_optimized_media_without_loading_unused_slider_assets(): void
+    {
+        $this->get('/')
+            ->assertOk()
+            ->assertSee('alpha-zagreb-poster-640.webp', false)
+            ->assertSee('fetchpriority="high"', false)
+            ->assertSee('data-alpha-hero-video-mobile-src=', false)
+            ->assertSee('alpha-zagreb-loop-mobile.mp4', false)
+            ->assertSee('service-revizija-480.webp', false)
+            ->assertSee('data-deferred-stylesheet', false)
+            ->assertDontSee('splide.min.css', false)
+            ->assertDontSee('splide.min.js', false);
+    }
+
     public function test_header_renders_only_navigation_links_configured_in_cms(): void
     {
         app(SystemSettingsService::class)->put(NavigationMenuService::SETTINGS_KEY, [

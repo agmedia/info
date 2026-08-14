@@ -13,6 +13,24 @@ document.addEventListener('DOMContentLoaded', function () {
     const servicesMenuPanel = mobileMenu?.querySelector('[data-alpha-menu-panel="services"]');
     const searchToggle = document.querySelector('[data-header-search-toggle]');
     const searchPanel = document.querySelector('[data-header-search-panel]');
+    const searchForm = searchPanel?.querySelector('[data-header-search-form]');
+    const searchInput = searchPanel?.querySelector('[data-header-search-input]');
+    const searchSuggestions = searchPanel?.querySelector('[data-header-search-suggestions]');
+    let searchDebounceTimer = 0;
+    let searchRequestId = 0;
+    let searchAbortController = null;
+
+    const activateDeferredStylesheets = function () {
+        document.querySelectorAll('link[data-deferred-stylesheet]').forEach(function (stylesheet) {
+            stylesheet.media = 'all';
+        });
+    };
+
+    if (document.readyState === 'complete') {
+        activateDeferredStylesheets();
+    } else {
+        window.addEventListener('load', activateDeferredStylesheets, { once: true });
+    }
 
     const syncStickyHeaderState = function () {
         if (!(stickyHeader instanceof HTMLElement)) {
@@ -161,8 +179,220 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 
+    const hideSearchSuggestions = function () {
+        if (!(searchSuggestions instanceof HTMLElement)) {
+            return;
+        }
+
+        searchSuggestions.classList.add('hidden');
+        searchSuggestions.replaceChildren();
+    };
+
+    const createSearchSuggestion = function (item) {
+        const link = document.createElement('a');
+        const body = document.createElement('span');
+        const title = document.createElement('strong');
+
+        link.className = 'front-search-suggestion-link';
+        link.href = item.url || '#';
+        body.className = 'front-search-suggestion-body';
+        title.className = 'front-search-suggestion-title';
+        title.textContent = item.title || '';
+
+        if (item.image_url) {
+            const media = document.createElement('span');
+            const image = document.createElement('img');
+            media.className = 'front-search-suggestion-media';
+            image.src = item.image_url;
+            image.alt = item.title || '';
+            image.loading = 'lazy';
+            image.decoding = 'async';
+            media.append(image);
+            link.append(media);
+        }
+
+        if (item.eyebrow || item.meta) {
+            const meta = document.createElement('span');
+            meta.className = 'front-search-suggestion-meta';
+
+            [item.eyebrow, item.meta].filter(Boolean).forEach(function (value) {
+                const label = document.createElement('span');
+                label.textContent = value;
+                meta.append(label);
+            });
+
+            body.append(meta);
+        }
+
+        body.append(title);
+
+        if (item.excerpt) {
+            const excerpt = document.createElement('span');
+            excerpt.className = 'front-search-suggestion-excerpt';
+            excerpt.textContent = item.excerpt;
+            body.append(excerpt);
+        }
+
+        link.append(body);
+        return link;
+    };
+
+    const renderSearchSuggestions = function (payload) {
+        if (!(searchSuggestions instanceof HTMLElement)) {
+            return;
+        }
+
+        searchSuggestions.replaceChildren();
+        const sections = Array.isArray(payload?.sections) ? payload.sections : [];
+
+        if (sections.length === 0) {
+            const empty = document.createElement('div');
+            empty.className = 'front-search-suggestion-empty';
+            empty.textContent = window.CodexSearchLabels?.autosuggestEmpty || 'Nema rezultata.';
+            searchSuggestions.append(empty);
+            searchSuggestions.classList.remove('hidden');
+            return;
+        }
+
+        sections.forEach(function (section) {
+            const sectionElement = document.createElement('section');
+            const heading = document.createElement('div');
+            const headingTitle = document.createElement('h3');
+            const list = document.createElement('div');
+
+            sectionElement.className = 'front-search-suggestion-section';
+            heading.className = 'front-search-suggestion-section-head';
+            headingTitle.textContent = section.label || '';
+            list.className = 'front-search-suggestion-list';
+            heading.append(headingTitle);
+
+            if (typeof section.total_count === 'number') {
+                const count = document.createElement('span');
+                count.textContent = String(section.total_count);
+                heading.append(count);
+            }
+
+            (Array.isArray(section.items) ? section.items : []).forEach(function (item) {
+                list.append(createSearchSuggestion(item));
+            });
+
+            sectionElement.append(heading, list);
+            searchSuggestions.append(sectionElement);
+        });
+
+        if (payload?.results_url) {
+            const footer = document.createElement('div');
+            const viewAll = document.createElement('a');
+            footer.className = 'front-search-suggestion-footer';
+            viewAll.className = 'front-search-suggestion-all';
+            viewAll.href = payload.results_url;
+            viewAll.textContent = window.CodexSearchLabels?.showMore || 'Prikaži više';
+            footer.append(viewAll);
+            searchSuggestions.append(footer);
+        }
+
+        searchSuggestions.classList.remove('hidden');
+    };
+
+    const fetchSearchSuggestions = function (rawQuery) {
+        const query = typeof rawQuery === 'string' ? rawQuery.trim() : '';
+        const endpoint = searchForm instanceof HTMLFormElement ? searchForm.dataset.searchSuggestEndpoint || '' : '';
+
+        window.clearTimeout(searchDebounceTimer);
+
+        if (!(searchInput instanceof HTMLInputElement) || query.length < 2 || endpoint === '') {
+            searchAbortController?.abort();
+            searchAbortController = null;
+            hideSearchSuggestions();
+            return;
+        }
+
+        searchDebounceTimer = window.setTimeout(async function () {
+            searchAbortController?.abort();
+            searchAbortController = new AbortController();
+            const currentRequestId = ++searchRequestId;
+
+            try {
+                const url = new URL(endpoint, window.location.origin);
+                url.searchParams.set('q', query);
+                const response = await window.fetch(url.toString(), {
+                    headers: { Accept: 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+                    signal: searchAbortController.signal,
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Search suggest failed with status ${response.status}`);
+                }
+
+                const payload = await response.json();
+                if (currentRequestId === searchRequestId && searchInput.value.trim() === query) {
+                    renderSearchSuggestions(payload);
+                }
+            } catch (error) {
+                if (error?.name !== 'AbortError') {
+                    hideSearchSuggestions();
+                }
+            }
+        }, 180);
+    };
+
+    const setSearchOpen = function (open) {
+        if (!(searchPanel instanceof HTMLElement)) {
+            return;
+        }
+
+        searchPanel.classList.toggle('is-open', open);
+        stickyHeader?.classList.toggle('is-search-open', open);
+        searchToggle?.setAttribute('aria-expanded', open ? 'true' : 'false');
+
+        if (!open) {
+            hideSearchSuggestions();
+            return;
+        }
+
+        setMenuOpen(false);
+        window.requestAnimationFrame(function () {
+            searchInput?.focus();
+        });
+    };
+
+    searchToggle?.addEventListener('click', function () {
+        setSearchOpen(!searchPanel?.classList.contains('is-open'));
+    });
+
+    searchInput?.addEventListener('input', function (event) {
+        fetchSearchSuggestions(event.currentTarget?.value || '');
+    });
+
+    searchInput?.addEventListener('focus', function () {
+        fetchSearchSuggestions(searchInput.value);
+    });
+
+    searchForm?.addEventListener('submit', function (event) {
+        if (searchInput instanceof HTMLInputElement && searchInput.value.trim() === '') {
+            event.preventDefault();
+            searchInput.focus();
+        }
+    });
+
+    document.addEventListener('click', function (event) {
+        if (!(event.target instanceof Node) || !(searchPanel instanceof HTMLElement)) {
+            return;
+        }
+
+        if (!searchPanel.contains(event.target) && !searchToggle?.contains(event.target)) {
+            hideSearchSuggestions();
+        }
+    });
+
     document.addEventListener('keydown', function (event) {
         if (event.key === 'Escape') {
+            if (searchPanel?.classList.contains('is-open')) {
+                setSearchOpen(false);
+                searchToggle?.focus();
+                return;
+            }
+
             if (mobileMenu?.classList.contains('submenu-is-open')) {
                 setSubmenuOpen(false, true);
                 return;
@@ -176,15 +406,6 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     });
 
-    if (searchToggle instanceof HTMLElement && searchPanel instanceof HTMLElement) {
-        const syncSearchExpanded = function () {
-            searchToggle.setAttribute('aria-expanded', searchPanel.classList.contains('is-open') ? 'true' : 'false');
-        };
-        searchToggle.addEventListener('click', function () {
-            window.setTimeout(syncSearchExpanded, 0);
-        });
-    }
-
     const revealIntro = function () {
         window.requestAnimationFrame(function () {
             window.requestAnimationFrame(function () {
@@ -194,24 +415,42 @@ document.addEventListener('DOMContentLoaded', function () {
     };
 
     const fontReady = document.fonts?.load('450 96px "Bodoni Moda Variable"').catch(function () { return []; }) ?? Promise.resolve();
-    const videoReady = new Promise(function (resolve) {
-        if (!(video instanceof HTMLVideoElement) || video.readyState >= HTMLMediaElement.HAVE_FUTURE_DATA) {
-            resolve();
+    const shouldLoadHeroVideo = video instanceof HTMLVideoElement
+        && !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    const loadHeroVideo = function () {
+        if (!shouldLoadHeroVideo || video.querySelector('source')) {
             return;
         }
 
-        let timeout = window.setTimeout(resolve, 1600);
-        const finish = function () {
-            window.clearTimeout(timeout);
-            video.removeEventListener('canplay', finish);
-            video.removeEventListener('error', finish);
-            resolve();
-        };
-        video.addEventListener('canplay', finish, { once: true });
-        video.addEventListener('error', finish, { once: true });
-    });
+        const videoSourceUrl = window.matchMedia('(max-width: 767px)').matches
+            ? video.dataset.alphaHeroVideoMobileSrc || ''
+            : video.dataset.alphaHeroVideoDesktopSrc || '';
 
-    Promise.all([fontReady, videoReady]).then(revealIntro, revealIntro);
+        if (videoSourceUrl === '') {
+            return;
+        }
+
+        const source = document.createElement('source');
+        const markVideoReady = function () {
+            video.classList.add('is-ready');
+            video.play().catch(function () {});
+        };
+
+        source.src = videoSourceUrl;
+        source.type = 'video/mp4';
+        video.append(source);
+        video.addEventListener('loadeddata', markVideoReady, { once: true });
+        video.load();
+    };
+
+    if (document.readyState === 'complete') {
+        loadHeroVideo();
+    } else {
+        window.addEventListener('load', loadHeroVideo, { once: true });
+    }
+
+    revealIntro();
 
     const headings = Array.from(document.querySelectorAll('[data-words-slide-from-right]'));
     const imageReveals = Array.from(document.querySelectorAll('[data-image-reveal]'));
@@ -347,7 +586,7 @@ document.addEventListener('DOMContentLoaded', function () {
     window.addEventListener('load', scheduleReveal, { once: true });
     fontReady.then(scheduleReveal, scheduleReveal);
 
-    if (video instanceof HTMLVideoElement && 'IntersectionObserver' in window) {
+    if (shouldLoadHeroVideo && video instanceof HTMLVideoElement && 'IntersectionObserver' in window) {
         const observer = new IntersectionObserver(function (entries) {
             if (entries[0]?.isIntersecting) {
                 video.play().catch(function () {});

@@ -6,7 +6,6 @@
     @include('front.partials.seo-meta')
     @include('front.partials.schema-markup')
     @include('front.partials.analytics')
-    <link rel="stylesheet" href="{{ asset('front-theme/styles/rising-sun-font.css') }}">
     @if (!empty($storeSettings['branding']['favicons']['ico_url'] ?? null))
         <link rel="icon" href="{{ $storeSettings['branding']['favicons']['ico_url'] }}" sizes="any">
     @endif
@@ -52,8 +51,15 @@
         }
     </style>
     @if (request()->routeIs('home'))
-        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@splidejs/splide@4.1.4/dist/css/splide.min.css">
-        <script defer src="https://cdn.jsdelivr.net/npm/@splidejs/splide@4.1.4/dist/js/splide.min.js"></script>
+        <link
+            rel="preload"
+            as="image"
+            href="{{ asset('alpha/alpha-zagreb-poster-640.webp') }}"
+            imagesrcset="{{ asset('alpha/alpha-zagreb-poster-640.webp') }} 640w, {{ asset('alpha/alpha-zagreb-poster-1280.webp') }} 1280w"
+            imagesizes="100vw"
+            type="image/webp"
+            fetchpriority="high"
+        >
     @endif
     <script>
         window.CodexSearchLabels = {{ \Illuminate\Support\Js::from([
@@ -62,8 +68,16 @@
             'showMore' => __('ui.search.show_more'),
         ]) }};
     </script>
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
+    @vite(['resources/css/app.css'])
     <link rel="stylesheet" href="{{ asset('front-theme/styles/alpha-redesign.css') }}?v={{ filemtime(public_path('front-theme/styles/alpha-redesign.css')) }}">
+    @foreach (['fontawesome.min.css', 'duotone-thin.min.css', 'light.min.css', 'brands.min.css'] as $fontAwesomeStylesheet)
+        <link rel="stylesheet" href="{{ asset('fontawesome-pro-7.3.1-web/css/'.$fontAwesomeStylesheet) }}" media="print" data-deferred-stylesheet>
+    @endforeach
+    <noscript>
+        @foreach (['fontawesome.min.css', 'duotone-thin.min.css', 'light.min.css', 'brands.min.css'] as $fontAwesomeStylesheet)
+            <link rel="stylesheet" href="{{ asset('fontawesome-pro-7.3.1-web/css/'.$fontAwesomeStylesheet) }}">
+        @endforeach
+    </noscript>
     @stack('styles')
     <style>
         .front-desktop-shell {
@@ -414,8 +428,10 @@
     }
 
 @endphp
-<body class="front-desktop-shell {{ request()->routeIs('home') ? 'front-route-home' : '' }} {{ request()->routeIs('audit.show') ? 'front-route-audit' : '' }} {{ request()->routeIs('accounting.show') ? 'front-route-accounting' : '' }} {{ request()->routeIs('advisory.*', 'eu-funds.show') ? 'front-route-advisory' : '' }} {{ request()->routeIs('eu-funds.show') ? 'front-route-eu-funds' : '' }} front-preload-pending min-h-screen overflow-x-hidden antialiased" style="--front-header-hero-backdrop: url('{{ $headerHeroBackdropUrl }}');">
-    <div id="front-initial-preloader" aria-hidden="true"></div>
+<body class="front-desktop-shell {{ request()->routeIs('home') ? 'front-route-home' : 'front-preload-pending' }} {{ request()->routeIs('audit.show') ? 'front-route-audit' : '' }} {{ request()->routeIs('accounting.show') ? 'front-route-accounting' : '' }} {{ request()->routeIs('advisory.*', 'eu-funds.show') ? 'front-route-advisory' : '' }} {{ request()->routeIs('eu-funds.show') ? 'front-route-eu-funds' : '' }} min-h-screen overflow-x-hidden antialiased" style="--front-header-hero-backdrop: url('{{ $headerHeroBackdropUrl }}');">
+    @unless (request()->routeIs('home'))
+        <div id="front-initial-preloader" aria-hidden="true"></div>
+    @endunless
     @php
         $activeLocale = (string) ($frontLocale ?? app()->getLocale());
         $availableLanguages = collect($frontLanguages ?? [])->filter(

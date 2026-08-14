@@ -68,6 +68,7 @@
                 'statement' => 'Sigurnost i povjerenje u svakoj odluci.',
                 'text' => 'Pouzdani financijski izvještaji jačaju povjerenje vlasnika, banaka, investitora i partnera te smanjuju rizik u važnim poslovnim odlukama.',
                 'image' => asset('alpha/service-revizija.jpg'),
+                'image_srcset' => asset('alpha/service-revizija-480.webp').' 480w, '.asset('alpha/service-revizija-768.webp').' 768w, '.asset('alpha/service-revizija-1080.webp').' 1080w',
                 'image_alt' => 'Potpisivanje poslovnog dokumenta za stolom',
                 'url' => route('audit.show'),
             ],
@@ -76,6 +77,7 @@
                 'statement' => 'Red u brojkama, mir u poslovanju.',
                 'text' => 'Ažurni podaci, uredna administracija i kontrola nad financijama oslobađaju vam vrijeme za ono što je najvažnije — razvoj poslovanja.',
                 'image' => asset('alpha/service-racunovodstvo.jpg'),
+                'image_srcset' => asset('alpha/service-racunovodstvo-480.webp').' 480w, '.asset('alpha/service-racunovodstvo-768.webp').' 768w, '.asset('alpha/service-racunovodstvo-1080.webp').' 1080w',
                 'image_alt' => 'Rad na financijskim podacima na prijenosnom računalu',
                 'url' => route('accounting.show'),
             ],
@@ -84,6 +86,7 @@
                 'statement' => 'Prave odluke stvaraju najveću vrijednost.',
                 'text' => 'Stručna podrška pomaže prepoznati prilike, smanjiti rizike i donijeti sigurnije odluke za rast, financiranje i budućnost poslovanja.',
                 'image' => asset('alpha/service-savjetovanje.jpg'),
+                'image_srcset' => asset('alpha/service-savjetovanje-480.webp').' 480w, '.asset('alpha/service-savjetovanje-768.webp').' 768w, '.asset('alpha/service-savjetovanje-1080.webp').' 1080w',
                 'image_alt' => 'Poslovni razgovor tijekom savjetovanja',
                 'url' => route('advisory.show'),
             ],
@@ -109,6 +112,7 @@
                 'statement' => trim((string) ($service['subtitle'] ?? '')) ?: $fallback['statement'],
                 'text' => trim((string) ($service['text'] ?? '')) ?: $fallback['text'],
                 'image' => $useDynamicImage ? $dynamicImage : $fallback['image'],
+                'image_srcset' => $useDynamicImage ? '' : $fallback['image_srcset'],
                 'url' => trim((string) ($service['url'] ?? '')) ?: $fallback['url'],
             ]);
         })->filter()->values();
@@ -199,9 +203,25 @@
     @endphp
 
     <section class="hero" id="vrh" aria-labelledby="hero-title">
-        <video class="hero-video" autoplay muted loop playsinline preload="metadata" poster="{{ asset('alpha/alpha-zagreb-poster.jpg') }}" aria-hidden="true" data-alpha-hero-video>
-            <source src="{{ asset('alpha/alpha-zagreb-loop-hq.mp4') }}" type="video/mp4">
-        </video>
+        <picture class="hero-poster" aria-hidden="true">
+            <source
+                type="image/webp"
+                srcset="{{ asset('alpha/alpha-zagreb-poster-640.webp') }} 640w, {{ asset('alpha/alpha-zagreb-poster-1280.webp') }} 1280w"
+                sizes="100vw"
+            >
+            <img src="{{ asset('alpha/alpha-zagreb-poster.jpg') }}" alt="" width="1280" height="720" fetchpriority="high" decoding="async">
+        </picture>
+        <video
+            class="hero-video"
+            muted
+            loop
+            playsinline
+            preload="none"
+            aria-hidden="true"
+            data-alpha-hero-video
+            data-alpha-hero-video-mobile-src="{{ asset('alpha/alpha-zagreb-loop-mobile.mp4') }}"
+            data-alpha-hero-video-desktop-src="{{ asset('alpha/alpha-zagreb-loop-hq.mp4') }}"
+        ></video>
         <div class="hero-overlay" aria-hidden="true"></div>
 
         <div class="hero-content">
@@ -265,7 +285,14 @@
                 @foreach ($serviceItems as $service)
                     <a class="service-card" href="{{ $service['url'] }}" data-image-reveal style="--service-index: {{ $loop->index }}">
                         <div class="service-card-media">
-                            <img src="{{ $service['image'] }}" alt="{{ $service['image_alt'] }}" width="1080" height="1350" loading="lazy" decoding="async">
+                            @if ($service['image_srcset'] !== '')
+                                <picture>
+                                    <source type="image/webp" srcset="{{ $service['image_srcset'] }}" sizes="(max-width: 700px) calc(100vw - 48px), (max-width: 1100px) calc(50vw - 48px), 470px">
+                                    <img src="{{ $service['image'] }}" alt="{{ $service['image_alt'] }}" width="1080" height="1350" loading="lazy" decoding="async">
+                                </picture>
+                            @else
+                                <img src="{{ $service['image'] }}" alt="{{ $service['image_alt'] }}" width="1080" height="1350" loading="lazy" decoding="async">
+                            @endif
                         </div>
                         <div class="service-card-copy">
                             <h3 class="service-card-title" data-words-slide-from-right aria-label="{{ $service['title'] }}">
