@@ -75,9 +75,30 @@ class InfoPageSeeder extends Seeder
                         'excerpt' => 'How personal data is collected and processed.',
                     ],
                     'hr' => [
-                        'title' => 'Pravila privatnosti',
-                        'slug' => 'pravila-privatnosti',
-                        'excerpt' => 'Kako prikupljamo i obrađujemo osobne podatke.',
+                        'title' => 'Politika privatnosti',
+                        'slug' => 'politika-privatnosti',
+                        'excerpt' => 'Kako Alpha Capitalis prikuplja, koristi, čuva i štiti osobne podatke.',
+                        'body_html' => $this->legalPageHtml('politika-privatnosti.html'),
+                        'meta_title' => 'Politika privatnosti | Alpha Capitalis',
+                        'meta_description' => 'Saznajte koje osobne podatke Alpha Capitalis obrađuje, u koje svrhe, na kojim pravnim osnovama i koja prava imate.',
+                    ],
+                ],
+            ],
+            [
+                'code' => 'terms-of-use',
+                'layout' => 'legal',
+                'show_in_footer' => true,
+                'published_at' => now()->subDays(25),
+                'sort_order' => 31,
+                'category_codes' => [],
+                'translations' => [
+                    'hr' => [
+                        'title' => 'Uvjeti korištenja',
+                        'slug' => 'uvjeti-koristenja',
+                        'excerpt' => 'Pravila pristupa i korištenja internetske stranice Alpha Capitalis.',
+                        'body_html' => $this->legalPageHtml('uvjeti-koristenja.html'),
+                        'meta_title' => 'Uvjeti korištenja | Alpha Capitalis',
+                        'meta_description' => 'Uvjeti pristupa i korištenja sadržaja, obrazaca i drugih funkcionalnosti internetske stranice Alpha Capitalis.',
                     ],
                 ],
             ],
@@ -135,5 +156,16 @@ class InfoPageSeeder extends Seeder
 
             $page->categories()->sync($syncPayload);
         }
+    }
+
+    private function legalPageHtml(string $filename): string
+    {
+        $contents = file_get_contents(resource_path('content/legal/'.$filename));
+
+        if ($contents === false) {
+            throw new \RuntimeException('Legal page content could not be read: '.$filename);
+        }
+
+        return trim($contents);
     }
 }
