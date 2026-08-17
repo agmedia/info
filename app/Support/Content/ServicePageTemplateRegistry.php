@@ -643,6 +643,18 @@ class ServicePageTemplateRegistry
             }
         }
 
+        if ($templateKey === self::ACCOUNTING) {
+            $effectiveLocale = (string) ($locale ?: config('app.locale', 'en'));
+            $isCroatian = str_starts_with(strtolower($effectiveLocale), 'hr');
+            $legacyBlogTitle = $isCroatian
+                ? 'Najnovije objave iz kategorije :category'
+                : 'Latest posts from :category';
+
+            if (trim((string) data_get($merged, 'blog_section.title')) === $legacyBlogTitle) {
+                data_set($merged, 'blog_section.title', (string) data_get($defaults, 'blog_section.title', ''));
+            }
+        }
+
         return $merged;
     }
 

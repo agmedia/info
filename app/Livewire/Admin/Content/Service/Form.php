@@ -80,6 +80,8 @@ class Form extends Component
 
     public ?TemporaryUploadedFile $auditHeroImageUpload = null;
 
+    public ?TemporaryUploadedFile $accountingHeroImageUpload = null;
+
     /**
      * @var array<string, string>
      */
@@ -134,6 +136,7 @@ class Form extends Component
         $this->assetUploads = [];
         $this->landingImageUploads = [];
         $this->auditHeroImageUpload = null;
+        $this->accountingHeroImageUpload = null;
     }
 
     public function updatedFormTemplateKey(string $templateKey): void
@@ -341,6 +344,7 @@ class Form extends Component
         if ($savedServicePage instanceof ServicePage) {
             $this->storeServicesIndexCardImages($savedServicePage);
             $this->storeAuditHeroImage($savedServicePage);
+            $this->storeAccountingHeroImage($savedServicePage);
         }
 
         $message = $wasEditing ? __('Service page updated.') : __('Service page created.');
@@ -393,6 +397,23 @@ class Form extends Component
         $this->dispatch('notify', type: 'success', message: __('Default audit hero image restored.'));
     }
 
+    public function removeAccountingHeroImage(): void
+    {
+        if (! $this->servicePageId) {
+            return;
+        }
+
+        $servicePage = ServicePage::query()->find($this->servicePageId);
+        if (! $servicePage || $servicePage->template_key !== ServicePageTemplateRegistry::ACCOUNTING) {
+            return;
+        }
+
+        $servicePage->clearMediaCollection('service_hero_image');
+        $this->accountingHeroImageUpload = null;
+
+        $this->dispatch('notify', type: 'success', message: 'Vraćena je zadana hero slika za Računovodstvo.');
+    }
+
     public function render()
     {
         return view('livewire.admin.content.service.form', [
@@ -405,6 +426,7 @@ class Form extends Component
             'templateSupportsBrochure' => $this->templateSupportsBrochure(),
             'servicesIndexCardImages' => $this->servicesIndexCardImages(),
             'auditHeroImage' => $this->auditHeroImage(),
+            'accountingHeroImage' => $this->accountingHeroImage(),
         ]);
     }
 
@@ -647,6 +669,34 @@ class Form extends Component
             $rules['auditHeroImageUpload'] = ['nullable', 'file', 'mimes:jpg,jpeg,png,webp,avif,svg', 'max:8192'];
         }
 
+        if ((string) ($this->form['template_key'] ?? '') === ServicePageTemplateRegistry::ACCOUNTING) {
+            $rules['form.translation_payload.hero.subtitle_lead'] = ['required', 'string', 'max:255'];
+            $rules['form.translation_payload.hero.intro'] = ['required', 'string'];
+            $rules['form.translation_payload.hero.image_alt'] = ['required', 'string', 'max:255'];
+            $rules['form.translation_payload.overview.title'] = ['required', 'string', 'max:255'];
+            $rules['form.translation_payload.overview.intro'] = ['nullable', 'string'];
+            $rules['form.translation_payload.overview.body'] = ['required', 'array', 'min:1'];
+            $rules['form.translation_payload.overview.body.0'] = ['required', 'string'];
+            $rules['form.translation_payload.overview.body.*'] = ['required', 'string'];
+            $rules['form.translation_payload.services.title'] = ['required', 'string', 'max:255'];
+            $rules['form.translation_payload.services.intro'] = ['nullable', 'string'];
+            $rules['form.translation_payload.services.items'] = ['required', 'array', 'min:1'];
+            $rules['form.translation_payload.services.items.*.title'] = ['required', 'string', 'max:255'];
+            $rules['form.translation_payload.services.items.*.text'] = ['required', 'string'];
+            $rules['form.translation_payload.approach.title'] = ['required', 'string', 'max:255'];
+            $rules['form.translation_payload.approach.body'] = ['required', 'array', 'min:1'];
+            $rules['form.translation_payload.approach.body.*'] = ['required', 'string'];
+            $rules['form.translation_payload.blog_section.title'] = ['required', 'string', 'max:255'];
+            $rules['form.translation_payload.blog_section.all_posts_label'] = ['required', 'string', 'max:80'];
+            $rules['form.translation_payload.blog_section.post_action_label'] = ['required', 'string', 'max:80'];
+            $rules['form.translation_payload.meeting.title'] = ['required', 'string', 'max:255'];
+            $rules['form.translation_payload.meeting.contact_title'] = ['required', 'string', 'max:255'];
+            $rules['form.translation_payload.meeting.intro'] = ['required', 'string'];
+            $rules['form.translation_payload.meeting.button_label'] = ['required', 'string', 'max:80'];
+            $rules['form.translation_payload.meeting.status'] = ['required', 'string', 'max:255'];
+            $rules['accountingHeroImageUpload'] = ['nullable', 'file', 'mimes:jpg,jpeg,png,webp,avif,svg', 'max:8192'];
+        }
+
         return $rules;
     }
 
@@ -678,6 +728,7 @@ class Form extends Component
         $this->assetUploads = [];
         $this->landingImageUploads = [];
         $this->auditHeroImageUpload = null;
+        $this->accountingHeroImageUpload = null;
 
         if ($translation) {
             $this->form['locale'] = $translation->locale;
@@ -728,6 +779,7 @@ class Form extends Component
         $this->assetUploads = [];
         $this->landingImageUploads = [];
         $this->auditHeroImageUpload = null;
+        $this->accountingHeroImageUpload = null;
     }
 
     private function clearTranslationFields(string $templateKey): void
@@ -746,6 +798,7 @@ class Form extends Component
         $this->assetUploads = [];
         $this->landingImageUploads = [];
         $this->auditHeroImageUpload = null;
+        $this->accountingHeroImageUpload = null;
     }
 
     private function initializeTemplateDefaults(string $templateKey): void
@@ -1116,6 +1169,26 @@ class Form extends Component
         ];
     }
 
+    /**
+     * @return array{url: string, is_custom: bool}
+     */
+    private function accountingHeroImage(): array
+    {
+        $servicePage = $this->servicePageId
+            ? ServicePage::query()->find($this->servicePageId)
+            : null;
+        $media = $servicePage?->template_key === ServicePageTemplateRegistry::ACCOUNTING
+            ? $servicePage->getFirstMedia('service_hero_image')
+            : null;
+
+        return [
+            'url' => $media
+                ? $media->getUrl()
+                : asset('front-theme/images/services/accounting-editorial-3d.svg'),
+            'is_custom' => (bool) $media,
+        ];
+    }
+
     private function storeServicesIndexCardImages(ServicePage $servicePage): void
     {
         if ($servicePage->template_key !== ServicePageTemplateRegistry::SERVICES_INDEX) {
@@ -1160,6 +1233,27 @@ class Form extends Component
             ->toMediaCollection('service_hero_image');
 
         $this->auditHeroImageUpload = null;
+    }
+
+    private function storeAccountingHeroImage(ServicePage $servicePage): void
+    {
+        if (
+            $servicePage->template_key !== ServicePageTemplateRegistry::ACCOUNTING
+            || ! $this->accountingHeroImageUpload instanceof TemporaryUploadedFile
+        ) {
+            return;
+        }
+
+        $originalName = (string) pathinfo($this->accountingHeroImageUpload->getClientOriginalName(), PATHINFO_FILENAME);
+        $safeBaseName = Str::slug($originalName) ?: 'racunovodstvo-hero';
+        $extension = strtolower($this->accountingHeroImageUpload->getClientOriginalExtension() ?: 'jpg');
+
+        $servicePage->addMedia($this->accountingHeroImageUpload->getRealPath())
+            ->usingName($originalName !== '' ? $originalName : $safeBaseName)
+            ->usingFileName($safeBaseName.'-'.Str::lower(Str::random(6)).'.'.$extension)
+            ->toMediaCollection('service_hero_image');
+
+        $this->accountingHeroImageUpload = null;
     }
 
     /**

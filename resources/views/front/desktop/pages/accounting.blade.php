@@ -31,18 +31,25 @@
             : 'Contact us and we will assess your needs and propose a suitable accounting support model.');
     $meetingCardTitle = trim((string) ($meetingSection['contact_title'] ?? ''))
         ?: ($isCroatian ? 'Kontaktirajte nas' : 'Contact us');
-    $meetingButtonLabel = $isCroatian ? 'Dogovorite sastanak' : 'Schedule a meeting';
-    $meetingStatus = $isCroatian ? 'Termin razgovora prilagođavamo vama.' : 'We arrange the meeting around your schedule.';
+    $meetingButtonLabel = trim((string) ($meetingSection['button_label'] ?? ''))
+        ?: ($isCroatian ? 'Dogovorite sastanak' : 'Schedule a meeting');
+    $meetingStatus = trim((string) ($meetingSection['status'] ?? ''))
+        ?: ($isCroatian ? 'Termin razgovora prilagođavamo vama.' : 'We arrange the meeting around your schedule.');
     $heroLabel = trim((string) ($heroSection['subtitle_lead'] ?? '')) ?: ($isCroatian ? 'Računovodstvo' : 'Accounting');
     $heroHook = trim((string) ($heroSection['intro'] ?? ''))
         ?: ($isCroatian
             ? 'Vi vodite poslovanje. Mi brinemo da Vaše brojke budu točne, pravovremene i spremne za svaku odluku.'
             : 'You run the business. We make sure your numbers are accurate, timely, and ready for every decision.');
-    $heroImageAlt = $isCroatian ? 'Računovodstvene i financijske usluge' : 'Accounting and financial services';
-    $blogHeadingTitle = $isCroatian
-        ? 'Stručni uvidi u računovodstvo, izvještavanje i poslovne brojke'
-        : 'Expert insights into accounting, reporting and business figures';
-    $allPostsLabel = $isCroatian ? 'Pogledaj sve objave' : 'View all posts';
+    $heroImageAlt = trim((string) ($heroSection['image_alt'] ?? ''))
+        ?: ($isCroatian ? 'Računovodstvene i financijske usluge' : 'Accounting and financial services');
+    $blogHeadingTitle = trim((string) ($blogSection['title'] ?? ''))
+        ?: ($isCroatian
+            ? 'Stručni uvidi u računovodstvo, izvještavanje i poslovne brojke'
+            : 'Expert insights into accounting, reporting and business figures');
+    $allPostsLabel = trim((string) ($blogSection['all_posts_label'] ?? ''))
+        ?: ($isCroatian ? 'Pogledaj sve objave' : 'View all posts');
+    $postActionLabel = trim((string) ($blogSection['post_action_label'] ?? ''))
+        ?: ($isCroatian ? 'Opširnije' : 'Read more');
     $currentHost = request()->getHost();
     $sameOriginAssetUrl = static function (?string $url) use ($currentHost): string {
         $assetUrl = trim((string) $url);
@@ -258,7 +265,7 @@
                                 <h3>{{ $postTitle }}</h3>
                                 <p>{{ $postExcerpt }}</p>
                                 <span class="news-card-link" aria-hidden="true">
-                                    {{ $isCroatian ? 'Opširnije' : 'Read more' }}
+                                    {{ $postActionLabel }}
                                     <i class="fa-duotone fa-thin fa-arrow-right fa-fw"></i>
                                 </span>
                             </a>

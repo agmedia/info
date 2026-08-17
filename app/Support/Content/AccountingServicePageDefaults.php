@@ -25,6 +25,7 @@ class AccountingServicePageDefaults
                 'subtitle_lead' => 'Računovodstvo',
                 'subtitle_accent' => '',
                 'intro' => 'Vi vodite poslovanje. Mi brinemo da Vaše brojke budu točne, pravovremene i spremne za svaku odluku.',
+                'image_alt' => 'Računovodstvene i financijske usluge',
                 'cta_label' => '',
                 'cta_url' => '',
             ],
@@ -301,12 +302,16 @@ class AccountingServicePageDefaults
                     'message' => 'Poruka',
                 ],
                 'submit' => 'Pošalji',
+                'button_label' => 'Dogovorite sastanak',
+                'status' => 'Termin razgovora prilagođavamo vama.',
             ],
             'blog_section' => [
                 'kicker' => 'NOVOSTI',
-                'title' => 'Najnovije objave iz kategorije :category',
+                'title' => 'Stručni uvidi u računovodstvo, izvještavanje i poslovne brojke',
                 'intro' => 'Pratite novosti, stručne članke i praktične uvide vezane uz računovodstvo, izvještavanje i svakodnevno financijsko upravljanje.',
                 'empty' => 'Novosti iz ove kategorije uskoro će biti dostupne.',
+                'all_posts_label' => 'Pogledaj sve objave',
+                'post_action_label' => 'Opširnije',
             ],
         ];
     }
@@ -322,6 +327,7 @@ class AccountingServicePageDefaults
                 'subtitle_lead' => 'Accounting',
                 'subtitle_accent' => '',
                 'intro' => 'You run the business. We make sure your numbers are accurate, timely, and ready for every decision.',
+                'image_alt' => 'Accounting and financial services',
                 'cta_label' => '',
                 'cta_url' => '',
             ],
@@ -598,12 +604,16 @@ class AccountingServicePageDefaults
                     'message' => 'Message',
                 ],
                 'submit' => 'Send',
+                'button_label' => 'Schedule a meeting',
+                'status' => 'We arrange the meeting around your schedule.',
             ],
             'blog_section' => [
                 'kicker' => 'INSIGHTS',
-                'title' => 'Latest posts from :category',
+                'title' => 'Expert insights into accounting, reporting and business figures',
                 'intro' => 'Explore updates, articles, and practical insights related to accounting, reporting, and day-to-day financial operations.',
                 'empty' => 'Posts from this category will be available soon.',
+                'all_posts_label' => 'View all posts',
+                'post_action_label' => 'Read more',
             ],
         ];
     }

@@ -274,6 +274,161 @@ class ContentServicesFeatureTest extends TestCase
         $this->assertNull($page->refresh()->getFirstMedia('service_hero_image'));
     }
 
+    public function test_accounting_editor_follows_frontend_order_and_only_shows_visible_page_content(): void
+    {
+        $user = $this->makeAdminUser();
+        $page = ServicePage::query()
+            ->where('template_key', ServicePageTemplateRegistry::ACCOUNTING)
+            ->firstOrFail();
+
+        $component = Livewire::actingAs($user)
+            ->test(ServiceForm::class, ['servicePageId' => $page->id])
+            ->assertSet('form.template_key', ServicePageTemplateRegistry::ACCOUNTING)
+            ->assertSee('Sadržaj s fronta')
+            ->assertSee('Stranica Računovodstvo')
+            ->assertSee('1. Hero i slika')
+            ->assertSee('2. Zašto je računovodstvo bitno')
+            ->assertSee('3. Partnerska poruka')
+            ->assertSee('4. Računovodstvene usluge')
+            ->assertSee('5. Naš pristup')
+            ->assertSee('6. Stručne objave')
+            ->assertSee('7. Kontaktni poziv')
+            ->assertSeeHtml('wire:model="accountingHeroImageUpload"')
+            ->assertSeeHtml('wire:model="form.translation_payload.hero.image_alt"')
+            ->assertSeeHtml('wire:model="form.translation_payload.overview.body.0"')
+            ->assertSeeHtml('wire:model="form.translation_payload.overview.body.1"')
+            ->assertSeeHtml('wire:model="form.translation_payload.blog_section.all_posts_label"')
+            ->assertSeeHtml('wire:model="form.translation_payload.meeting.status"')
+            ->assertDontSeeHtml('wire:model="form.translation_payload.hero.brand_title"')
+            ->assertDontSeeHtml('wire:model="form.translation_payload.hero.subtitle_accent"')
+            ->assertDontSeeHtml('wire:model="form.translation_payload.hero.cta_label"')
+            ->assertDontSeeHtml('wire:model="form.translation_payload.intro_section.title"')
+            ->assertDontSeeHtml('wire:model="form.translation_payload.editorial_section.title"')
+            ->assertDontSeeHtml('wire:model="form.translation_payload.detail_sections.0.title"')
+            ->assertDontSeeHtml('wire:model="form.translation_payload.meeting.visit_title"')
+            ->assertDontSeeHtml('wire:model="form.translation_payload.blog_section.intro"');
+
+        $component
+            ->call('setTab', 'sources')
+            ->assertSeeHtml('wire:model.live="form.page_payload.blog_source.mode"')
+            ->assertDontSeeHtml('wire:click="addVideoSource"')
+            ->assertDontSee('Copy Sekcije Videa');
+    }
+
+    public function test_admin_can_update_accounting_content_used_on_front(): void
+    {
+        config()->set('app.locale', 'hr');
+        config()->set('app.fallback_locale', 'hr');
+
+        $user = $this->makeAdminUser();
+        $page = ServicePage::query()
+            ->where('template_key', ServicePageTemplateRegistry::ACCOUNTING)
+            ->firstOrFail();
+        $post = BlogPost::query()->create([
+            'code' => 'accounting-admin-content-test',
+            'is_active' => true,
+            'published_at' => now()->subDay(),
+        ]);
+        BlogPostTranslation::query()->create([
+            'post_id' => $post->id,
+            'locale' => 'hr',
+            'title' => 'Custom testna objava Računovodstva',
+            'slug' => 'custom-testna-objava-racunovodstva',
+            'excerpt' => 'Sažetak testne objave Računovodstva.',
+            'body_html' => '<p>Testna objava.</p>',
+        ]);
+
+        Livewire::actingAs($user)
+            ->test(ServiceForm::class, ['servicePageId' => $page->id])
+            ->set('form.locale', 'hr')
+            ->set('form.page_payload.blog_source.mode', 'manual')
+            ->set('form.page_payload.blog_source.post_ids', [$post->id])
+            ->set('form.meta_title', 'Računovodstvo custom meta naslov')
+            ->set('form.meta_description', 'Custom meta opis Računovodstva.')
+            ->set('form.translation_payload.hero.subtitle_lead', 'Računovodstvo custom')
+            ->set('form.translation_payload.hero.intro', 'Custom hero poruka Računovodstva.')
+            ->set('form.translation_payload.hero.image_alt', 'Custom opis hero slike Računovodstva')
+            ->set('form.translation_payload.overview.title', 'Custom važnost računovodstva')
+            ->set('form.translation_payload.overview.body.0', 'Custom glavni odlomak Računovodstva.')
+            ->set('form.translation_payload.overview.body.1', 'Custom partnerska poruka Računovodstva.')
+            ->set('form.translation_payload.services.title', 'Custom računovodstvene usluge')
+            ->set('form.translation_payload.services.items.0.title', 'Custom računovodstvena usluga')
+            ->set('form.translation_payload.services.items.0.text', 'Custom opis računovodstvene usluge.')
+            ->set('form.translation_payload.approach.title', 'Custom računovodstveni pristup')
+            ->set('form.translation_payload.approach.body.0', 'Custom tekst pristupa Računovodstvu.')
+            ->set('form.translation_payload.blog_section.title', 'Custom stručne objave Računovodstva')
+            ->set('form.translation_payload.blog_section.all_posts_label', 'SVE CUSTOM OBJAVE')
+            ->set('form.translation_payload.blog_section.post_action_label', 'CUSTOM OPŠIRNIJE')
+            ->set('form.translation_payload.meeting.title', 'Custom razgovor o računovodstvu')
+            ->set('form.translation_payload.meeting.contact_title', 'Custom kontakt naslov')
+            ->set('form.translation_payload.meeting.intro', 'Custom kontaktni tekst Računovodstva.')
+            ->set('form.translation_payload.meeting.button_label', 'CUSTOM DOGOVOR')
+            ->set('form.translation_payload.meeting.status', 'Custom status termina.')
+            ->call('save')
+            ->assertHasNoErrors()
+            ->assertRedirect(route('admin.content.services.index', ['locale' => 'hr']));
+
+        $this->get('/racunovodstvo')
+            ->assertOk()
+            ->assertSee('<title>Računovodstvo custom meta naslov</title>', false)
+            ->assertSee('<meta name="description" content="Custom meta opis Računovodstva.">', false)
+            ->assertSee('Računovodstvo custom')
+            ->assertSee('Custom hero poruka Računovodstva.')
+            ->assertSee('alt="Custom opis hero slike Računovodstva"', false)
+            ->assertSee('Custom važnost računovodstva')
+            ->assertSee('Custom glavni odlomak Računovodstva.')
+            ->assertSee('Custom partnerska poruka Računovodstva.')
+            ->assertSee('Custom računovodstvene usluge')
+            ->assertSee('Custom računovodstvena usluga')
+            ->assertSee('Custom opis računovodstvene usluge.')
+            ->assertSee('Custom računovodstveni pristup')
+            ->assertSee('Custom tekst pristupa Računovodstvu.')
+            ->assertSee('Custom stručne objave Računovodstva')
+            ->assertSee('SVE CUSTOM OBJAVE')
+            ->assertSee('CUSTOM OPŠIRNIJE')
+            ->assertSee('Custom razgovor o računovodstvu')
+            ->assertSee('Custom kontakt naslov')
+            ->assertSee('Custom kontaktni tekst Računovodstva.')
+            ->assertSee('CUSTOM DOGOVOR')
+            ->assertSee('Custom status termina.');
+    }
+
+    public function test_admin_can_replace_and_restore_the_accounting_hero_image(): void
+    {
+        Storage::fake('public');
+
+        $user = $this->makeAdminUser();
+        $page = ServicePage::query()
+            ->where('template_key', ServicePageTemplateRegistry::ACCOUNTING)
+            ->firstOrFail();
+
+        Livewire::actingAs($user)
+            ->test(ServiceForm::class, ['servicePageId' => $page->id])
+            ->set('accountingHeroImageUpload', UploadedFile::fake()->image('racunovodstvo-hero.jpg', 1920, 1080))
+            ->call('save')
+            ->assertHasNoErrors()
+            ->assertRedirect(route('admin.content.services.index', ['locale' => 'hr']));
+
+        $media = $page->refresh()->getFirstMedia('service_hero_image');
+
+        $this->assertNotNull($media);
+        $this->assertFileExists($media->getPath());
+
+        $heroUrl = $media->hasGeneratedConversion('hero_1440x480')
+            ? $media->getUrl('hero_1440x480')
+            : $media->getUrl();
+
+        $this->get('/racunovodstvo')
+            ->assertOk()
+            ->assertSee($heroUrl, false);
+
+        Livewire::actingAs($user)
+            ->test(ServiceForm::class, ['servicePageId' => $page->id])
+            ->call('removeAccountingHeroImage');
+
+        $this->assertNull($page->refresh()->getFirstMedia('service_hero_image'));
+    }
+
     public function test_tax_service_page_edit_screen_shows_locked_tax_template_and_editor(): void
     {
         $user = $this->makeAdminUser();

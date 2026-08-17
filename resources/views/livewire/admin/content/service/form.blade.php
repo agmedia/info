@@ -11,18 +11,10 @@
     $isTaxTemplate = $currentTemplateKey === \App\Support\Content\ServicePageTemplateRegistry::TAX;
     $isEuFundsTemplate = $currentTemplateKey === \App\Support\Content\ServicePageTemplateRegistry::EU_FUNDS;
     $isFamilyBusinessTemplate = $currentTemplateKey === \App\Support\Content\ServicePageTemplateRegistry::FAMILY_BUSINESS;
-    $usesStandardHero = ! $isServicesIndexTemplate && ! $isAuditTemplate;
+    $usesStandardHero = ! $isServicesIndexTemplate && ! $isAuditTemplate && ! $isAccountingTemplate;
     $serviceMediaCollections = $isServicesIndexTemplate
         ? array_values(\App\Support\Content\ServicePageTemplateRegistry::SERVICES_INDEX_CARD_MEDIA_COLLECTIONS)
-        : ($isAuditTemplate ? ['service_hero_image'] : ['service_hero_image', 'service_logo']);
-    $accountingEditorSections = [
-        'accounting-intro-admin' => __('Overview'),
-        'accounting-editorial-admin' => __('Editorial'),
-        'accounting-details-admin' => __('Sections 1-7'),
-        'accounting-meeting-admin' => __('Meeting'),
-        'accounting-videos-admin' => __('Videos'),
-        'accounting-blog-admin' => __('Blog'),
-    ];
+        : (($isAuditTemplate || $isAccountingTemplate) ? ['service_hero_image'] : ['service_hero_image', 'service_logo']);
     $financeEditorSections = [
         'finance-pandea' => __('Pandea'),
         'finance-services-intro' => __('Services Intro'),
@@ -118,20 +110,25 @@
                 @include('livewire.admin.content.service.partials.services-index-editor')
             @elseif ($isAuditTemplate)
                 @include('livewire.admin.content.service.partials.audit-editor')
+            @elseif ($isAccountingTemplate)
+                @include('livewire.admin.content.service.partials.accounting-editor')
             @endif
 
             <div
                 @if ($isServicesIndexTemplate) id="services-index-settings"
                 @elseif ($isAuditTemplate) id="audit-settings-admin"
+                @elseif ($isAccountingTemplate) id="accounting-settings-admin"
                 @endif
                 class="admin-panel admin-form-panel scroll-mt-24 p-6"
             >
-                <p class="admin-section-title">{{ ($isServicesIndexTemplate || $isAuditTemplate) ? __('Page Settings') : __('Core Data') }}</p>
+                <p class="admin-section-title">{{ ($isServicesIndexTemplate || $isAuditTemplate || $isAccountingTemplate) ? __('Page Settings') : __('Core Data') }}</p>
 
                 @if ($isServicesIndexTemplate)
                     <p class="mt-2 text-sm text-slate-600">{{ __('Technical settings for the Usluge landing page. The visible page copy is grouped above in frontend order.') }}</p>
                 @elseif ($isAuditTemplate)
                     <p class="mt-2 text-sm text-slate-600">{{ __('Technical settings for the Audit page. All visible frontend content is grouped above in page order.') }}</p>
+                @elseif ($isAccountingTemplate)
+                    <p class="mt-2 text-sm text-slate-600">{{ __('Tehničke postavke stranice Računovodstvo. Sav vidljivi sadržaj s fronta grupiran je iznad redom kojim se prikazuje.') }}</p>
                 @endif
 
                 <div class="mt-4 grid gap-3" style="grid-template-columns: repeat(12, minmax(0, 1fr));">
@@ -1241,278 +1238,6 @@
                         </div>
                     </div>
                 </div>
-            @elseif ($isAccountingTemplate)
-                <div class="admin-panel admin-form-panel p-6">
-                    <p class="admin-section-title">{{ __('Accounting Navigator') }}</p>
-                    <div class="mt-4 flex flex-wrap gap-2">
-                        @foreach ($accountingEditorSections as $sectionId => $sectionLabel)
-                            <a href="#{{ $sectionId }}" class="admin-chip">{{ $sectionLabel }}</a>
-                        @endforeach
-                    </div>
-                    <p class="mt-4 text-sm text-slate-600">
-                        {{ __('Računovodstvo sada koristi puni landing template s overview blokom, editorial sekcijom, 7 detaljnih service sekcija, video blokom, kontaktom i blogom. Ovdje uređujete sav tekstualni sadržaj tih blokova.') }}
-                    </p>
-                </div>
-
-                <div class="grid gap-6 xl:grid-cols-2">
-                    <div id="accounting-intro-admin" class="admin-panel admin-form-panel p-6 scroll-mt-24">
-                        <p class="admin-section-title">{{ __('Overview Block') }}</p>
-
-                        <div class="mt-4">
-                            <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Kicker') }}</label>
-                            <input type="text" wire:model="form.translation_payload.intro_section.kicker" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
-                        </div>
-
-                        <div class="mt-3">
-                            <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Title') }}</label>
-                            <input type="text" wire:model="form.translation_payload.intro_section.title" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
-                        </div>
-
-                        @foreach (($translationPayload['intro_section']['body'] ?? []) as $index => $paragraph)
-                            <div class="mt-3">
-                                <div class="mb-1 flex items-center justify-between gap-3">
-                                    <label class="block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Paragraph') }} #{{ $index + 1 }}</label>
-                                    <button type="button" wire:click="removeTranslationListItem('intro_section.body', {{ $index }})" class="text-xs font-semibold text-rose-600 hover:text-rose-700">{{ __('Remove') }}</button>
-                                </div>
-                                <textarea rows="4" wire:model="form.translation_payload.intro_section.body.{{ $index }}" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm"></textarea>
-                            </div>
-                        @endforeach
-
-                        <div class="mt-3">
-                            <button type="button" wire:click="addTranslationListItem('intro_section.body')" class="rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-100">
-                                {{ __('Add Paragraph') }}
-                            </button>
-                        </div>
-
-                        <div class="mt-4 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-600">
-                            {{ __('Popis usluga u overview bloku automatski povlači naslove iz sekcija 1-7 niže u editoru.') }}
-                        </div>
-
-                        <div class="mt-4">
-                            <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Video Title') }}</label>
-                            <input type="text" wire:model="form.translation_payload.intro_section.video_title" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
-                        </div>
-
-                        <div class="mt-3">
-                            <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('YouTube URL') }}</label>
-                            <input type="text" wire:model="form.translation_payload.intro_section.video_url" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
-                        </div>
-                    </div>
-
-                    <div id="accounting-editorial-admin" class="admin-panel admin-form-panel p-6 scroll-mt-24 xl:col-span-2">
-                        <p class="admin-section-title">{{ __('Editorial Block') }}</p>
-
-                        <div class="mt-4 grid gap-3 md:grid-cols-2">
-                            <div>
-                                <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Eyebrow') }}</label>
-                                <input type="text" wire:model="form.translation_payload.editorial_section.eyebrow" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
-                            </div>
-                            <div>
-                                <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Title') }}</label>
-                                <input type="text" wire:model="form.translation_payload.editorial_section.title" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
-                            </div>
-                        </div>
-
-                        <div class="mt-3">
-                            <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Subtitle') }}</label>
-                            <textarea rows="3" wire:model="form.translation_payload.editorial_section.subtitle" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm"></textarea>
-                        </div>
-
-                        <div class="mt-6 grid gap-4 xl:grid-cols-2">
-                            @foreach (($translationPayload['editorial_section']['cards'] ?? []) as $cardIndex => $card)
-                                <div class="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-                                    <p class="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Card') }} #{{ $cardIndex + 1 }}</p>
-
-                                    <div class="mt-3">
-                                        <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Title') }}</label>
-                                        <input type="text" wire:model="form.translation_payload.editorial_section.cards.{{ $cardIndex }}.title" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
-                                    </div>
-
-                                    <div class="mt-3">
-                                        <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Body') }}</label>
-                                        <textarea rows="6" wire:model="form.translation_payload.editorial_section.cards.{{ $cardIndex }}.body" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm"></textarea>
-                                    </div>
-                                </div>
-                            @endforeach
-                        </div>
-                    </div>
-
-                    <div id="accounting-details-admin" class="admin-panel admin-form-panel p-6 scroll-mt-24 xl:col-span-2">
-                        <p class="admin-section-title">{{ __('Service Sections 1-7') }}</p>
-                        <p class="mt-2 text-sm text-slate-500">{{ __('Naslovi ovih sekcija automatski pune gornji popis Usluge računovodstva na stranici.') }}</p>
-
-                        <div class="mt-6 space-y-5">
-                            @foreach (($translationPayload['detail_sections'] ?? []) as $sectionIndex => $section)
-                                <div class="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-                                    <div class="flex flex-wrap items-center justify-between gap-3">
-                                        <p class="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Section') }} #{{ $sectionIndex + 1 }}</p>
-                                        <span class="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-500">{{ $section['slug'] ?? ('section-'.$sectionIndex) }}</span>
-                                    </div>
-
-                                    <div class="mt-4 grid gap-3 md:grid-cols-2">
-                                        <div>
-                                            <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Title') }}</label>
-                                            <input type="text" wire:model="form.translation_payload.detail_sections.{{ $sectionIndex }}.title" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
-                                        </div>
-                                        <div>
-                                            <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('List Title') }}</label>
-                                            <input type="text" wire:model="form.translation_payload.detail_sections.{{ $sectionIndex }}.list_title" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
-                                        </div>
-                                    </div>
-
-                                    <div class="mt-3">
-                                        <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Intro') }}</label>
-                                        <textarea rows="4" wire:model="form.translation_payload.detail_sections.{{ $sectionIndex }}.intro" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm"></textarea>
-                                    </div>
-
-                                    <div class="mt-5">
-                                        <p class="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('List Items') }}</p>
-                                        <div class="mt-3 space-y-3">
-                                            @foreach (($section['items'] ?? []) as $itemIndex => $item)
-                                                <div>
-                                                    <div class="mb-1 flex items-center justify-between gap-3">
-                                                        <label class="block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Item') }} #{{ $itemIndex + 1 }}</label>
-                                                        <button type="button" wire:click="removeTranslationListItem('detail_sections.{{ $sectionIndex }}.items', {{ $itemIndex }})" class="text-xs font-semibold text-rose-600 hover:text-rose-700">{{ __('Remove') }}</button>
-                                                    </div>
-                                                    <textarea rows="3" wire:model="form.translation_payload.detail_sections.{{ $sectionIndex }}.items.{{ $itemIndex }}" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm"></textarea>
-                                                </div>
-                                            @endforeach
-                                        </div>
-
-                                        <div class="mt-3">
-                                            <button type="button" wire:click="addTranslationListItem('detail_sections.{{ $sectionIndex }}.items')" class="rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-100">
-                                                {{ __('Add Item') }}
-                                            </button>
-                                        </div>
-                                    </div>
-
-                                    <div class="mt-5">
-                                        <p class="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('After List Paragraphs') }}</p>
-                                        <div class="mt-3 space-y-3">
-                                            @foreach (($section['after_list'] ?? []) as $paragraphIndex => $paragraph)
-                                                <div>
-                                                    <div class="mb-1 flex items-center justify-between gap-3">
-                                                        <label class="block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Paragraph') }} #{{ $paragraphIndex + 1 }}</label>
-                                                        <button type="button" wire:click="removeTranslationListItem('detail_sections.{{ $sectionIndex }}.after_list', {{ $paragraphIndex }})" class="text-xs font-semibold text-rose-600 hover:text-rose-700">{{ __('Remove') }}</button>
-                                                    </div>
-                                                    <textarea rows="4" wire:model="form.translation_payload.detail_sections.{{ $sectionIndex }}.after_list.{{ $paragraphIndex }}" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm"></textarea>
-                                                </div>
-                                            @endforeach
-                                        </div>
-
-                                        <div class="mt-3">
-                                            <button type="button" wire:click="addTranslationListItem('detail_sections.{{ $sectionIndex }}.after_list')" class="rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-100">
-                                                {{ __('Add Paragraph') }}
-                                            </button>
-                                        </div>
-                                    </div>
-
-                                    <div class="mt-5">
-                                        <p class="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Downloads') }}</p>
-                                        <div class="mt-3 space-y-3">
-                                            @foreach (($section['downloads'] ?? []) as $downloadIndex => $download)
-                                                <div class="rounded-xl border border-slate-200 bg-white p-3">
-                                                    <div class="grid gap-3 lg:grid-cols-[1fr_1.2fr_180px_auto] lg:items-end">
-                                                        <div>
-                                                            <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Title') }}</label>
-                                                            <input type="text" wire:model="form.translation_payload.detail_sections.{{ $sectionIndex }}.downloads.{{ $downloadIndex }}.title" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
-                                                        </div>
-                                                        <div>
-                                                            <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('URL') }}</label>
-                                                            <input type="text" wire:model="form.translation_payload.detail_sections.{{ $sectionIndex }}.downloads.{{ $downloadIndex }}.url" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
-                                                        </div>
-                                                        <div>
-                                                            <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Button Label') }}</label>
-                                                            <input type="text" wire:model="form.translation_payload.detail_sections.{{ $sectionIndex }}.downloads.{{ $downloadIndex }}.label" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
-                                                        </div>
-                                                        <div class="flex justify-end">
-                                                            <button type="button" wire:click="removeTranslationListItem('detail_sections.{{ $sectionIndex }}.downloads', {{ $downloadIndex }})" class="rounded-lg border border-rose-200 px-3 py-2 text-xs font-semibold text-rose-700 hover:bg-rose-50">{{ __('Remove') }}</button>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            @endforeach
-                                        </div>
-
-                                        <div class="mt-3">
-                                            <button type="button" wire:click="addTranslationListItem('detail_sections.{{ $sectionIndex }}.downloads', 'download_item')" class="rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-100">
-                                                {{ __('Add Download') }}
-                                            </button>
-                                        </div>
-                                    </div>
-
-                                    <div class="mt-5">
-                                        <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Quote') }}</label>
-                                        <textarea rows="3" wire:model="form.translation_payload.detail_sections.{{ $sectionIndex }}.quote" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm"></textarea>
-                                    </div>
-
-                                    <div class="mt-4">
-                                        <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('CTA Text') }}</label>
-                                        <textarea rows="2" wire:model="form.translation_payload.detail_sections.{{ $sectionIndex }}.cta_text" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm"></textarea>
-                                    </div>
-
-                                    <div class="mt-3 grid gap-3 md:grid-cols-2">
-                                        <div>
-                                            <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('CTA Label') }}</label>
-                                            <input type="text" wire:model="form.translation_payload.detail_sections.{{ $sectionIndex }}.cta_label" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
-                                        </div>
-                                        <div>
-                                            <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('CTA URL') }}</label>
-                                            <input type="text" wire:model="form.translation_payload.detail_sections.{{ $sectionIndex }}.cta_url" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
-                                        </div>
-                                    </div>
-                                </div>
-                            @endforeach
-                        </div>
-                    </div>
-
-                    @include('livewire.admin.content.service.partials.meeting-cta-editor', [
-                        'sectionId' => 'accounting-meeting-admin',
-                    ])
-
-                    <div id="accounting-videos-admin" class="admin-panel admin-form-panel p-6 scroll-mt-24">
-                        <p class="admin-section-title">{{ __('Video Block') }}</p>
-
-                        <div class="mt-4">
-                            <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Title') }}</label>
-                            <input type="text" wire:model="form.translation_payload.video_section.title" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
-                            @error('form.translation_payload.video_section.title') <p class="mt-1 text-xs text-rose-600">{{ $message }}</p> @enderror
-                        </div>
-
-                        <div class="mt-3">
-                            <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Intro') }}</label>
-                            <textarea rows="4" wire:model="form.translation_payload.video_section.intro" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm"></textarea>
-                            @error('form.translation_payload.video_section.intro') <p class="mt-1 text-xs text-rose-600">{{ $message }}</p> @enderror
-                        </div>
-
-                        <div class="mt-4 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-600">
-                            {{ __('Same video list and YouTube source links are managed under the Sources tab.') }}
-                        </div>
-                    </div>
-
-                    <div id="accounting-blog-admin" class="admin-panel admin-form-panel p-6 scroll-mt-24">
-                        <p class="admin-section-title">{{ __('Blog Block') }}</p>
-
-                        <div class="mt-4">
-                            <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Kicker') }}</label>
-                            <input type="text" wire:model="form.translation_payload.blog_section.kicker" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
-                        </div>
-
-                        <div class="mt-3">
-                            <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Title') }}</label>
-                            <input type="text" wire:model="form.translation_payload.blog_section.title" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
-                        </div>
-
-                        <div class="mt-3">
-                            <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Intro') }}</label>
-                            <textarea rows="4" wire:model="form.translation_payload.blog_section.intro" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm"></textarea>
-                        </div>
-
-                        <div class="mt-3">
-                            <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Empty State') }}</label>
-                            <textarea rows="3" wire:model="form.translation_payload.blog_section.empty" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm"></textarea>
-                        </div>
-                    </div>
-                </div>
             @elseif ($isAdvisoryTemplate)
                 @include('livewire.admin.content.service.partials.advisory-editor')
             @elseif ($isEuFundsTemplate)
@@ -1957,6 +1682,7 @@
                 @endif
             </div>
 
+            @unless ($isAccountingTemplate)
             <div class="grid gap-6 xl:grid-cols-2">
                 <div class="admin-panel admin-form-panel p-6">
                     <div class="flex flex-wrap items-center justify-between gap-3">
@@ -2014,6 +1740,7 @@
                     </div>
                 </div>
             </div>
+            @endunless
 
             @if ($templateSupportsTeamSource || $templateSupportsBrochure)
                 <div class="grid gap-6 xl:grid-cols-2">
