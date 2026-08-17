@@ -146,6 +146,9 @@
                 @foreach ($alphaFooterLegalLinks as $link)
                     <a href="{{ $link['url'] }}">{{ $link['label'] }}</a>
                 @endforeach
+                <button type="button" class="footer-cookie-consent-link" data-cookie-consent-trigger>
+                    {{ str_starts_with(strtolower((string) app()->getLocale()), 'en') ? 'Cookie settings' : 'Postavke kolačića' }}
+                </button>
             </div>
             <a class="footer-back-to-top" href="{{ request()->routeIs('home') ? '#vrh' : $alphaFooterHome.'#vrh' }}">
                 <span>Na vrh</span>

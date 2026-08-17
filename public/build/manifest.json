@@ -86,5 +86,14 @@
     "css": [
       "assets/app-8Ofu9GWj.css"
     ]
+  },
+  "resources/js/cookie-consent.js": {
+    "file": "assets/cookie-consent-BWeVZFqU.js",
+    "name": "cookie-consent",
+    "src": "resources/js/cookie-consent.js",
+    "isEntry": true,
+    "css": [
+      "assets/cookie-consent-DuJ5CnlB.css"
+    ]
   }
 }

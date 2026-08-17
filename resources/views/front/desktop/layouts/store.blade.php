@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     @include('front.partials.seo-meta')
     @include('front.partials.schema-markup')
+    <script src="{{ asset('front-theme/scripts/cookie-consent-mode.js') }}?v={{ filemtime(public_path('front-theme/scripts/cookie-consent-mode.js')) }}"></script>
     @include('front.partials.analytics')
     @if (!empty($storeSettings['branding']['favicons']['ico_url'] ?? null))
         <link rel="icon" href="{{ $storeSettings['branding']['favicons']['ico_url'] }}" sizes="any">
@@ -68,8 +69,9 @@
             'showMore' => __('ui.search.show_more'),
         ]) }};
     </script>
-    @vite(['resources/css/app.css'])
+    @vite(['resources/css/app.css', 'resources/js/cookie-consent.js'])
     <link rel="stylesheet" href="{{ asset('front-theme/styles/alpha-redesign.css') }}?v={{ filemtime(public_path('front-theme/styles/alpha-redesign.css')) }}">
+    <link rel="stylesheet" href="{{ asset('front-theme/styles/cookie-consent.css') }}?v={{ filemtime(public_path('front-theme/styles/cookie-consent.css')) }}">
     @foreach (['fontawesome.min.css', 'duotone-thin.min.css', 'light.min.css', 'brands.min.css'] as $fontAwesomeStylesheet)
         <link rel="stylesheet" href="{{ asset('fontawesome-pro-7.3.1-web/css/'.$fontAwesomeStylesheet) }}" media="print" data-deferred-stylesheet>
     @endforeach
@@ -892,6 +894,7 @@
 @endif
 
 @include('front.desktop.partials.alpha-global-footer')
+@include('front.desktop.partials.cookie-consent')
 <script>
     (function () {
         var preloader = document.getElementById('front-initial-preloader');
