@@ -158,7 +158,11 @@ class StorefrontFrontFeatureTest extends TestCase
     {
         [, $pageSlug] = $this->seedInfoPage();
 
-        $this->get('/'.$pageSlug)->assertOk();
+        $this->get('/'.$pageSlug)
+            ->assertOk()
+            ->assertSee('ac-default-page', false)
+            ->assertSee('front-theme/styles/pages/default.css', false)
+            ->assertSee('data-image-reveal', false);
         $this->get('/page/'.$pageSlug)
             ->assertStatus(301)
             ->assertRedirect(route('pages.show', ['slug' => $pageSlug]));
@@ -279,6 +283,46 @@ class StorefrontFrontFeatureTest extends TestCase
             ->assertSee('Prijavi se sada')
             ->assertDontSee('Postani dio tima')
             ->assertDontSee('Pošaljite nam svoj CV');
+    }
+
+    public function test_career_page_renders_consolidated_editor_content(): void
+    {
+        $careerPage = InfoPage::query()->where('code', 'career')->firstOrFail();
+
+        $careerPage->translations()->where('locale', 'hr')->update([
+            'payload' => [
+                'career_page' => [
+                    'intro' => [
+                        'body' => ['Uvodni tekst na svijetloj podlozi.'],
+                        'hero_body_html' => '<p>Jedan editor za hero sadržaj.</p><p><strong>Formatirani hero tekst.</strong></p>',
+                    ],
+                    'values_text' => "prva uređena pogodnost\ndruga uređena pogodnost",
+                    'process' => [
+                        'title' => 'Jedinstveni naslov sekcije razvoja',
+                    ],
+                    'stories' => [
+                        [
+                            'body_html' => '<p>Jedan editor za priču.</p>',
+                            'list_text' => "prva uređena stavka\ndruga uređena stavka",
+                        ],
+                    ],
+                    'application' => [
+                        'body_html' => '<p>Jedan editor za otvorene pozicije.</p><p><em>Formatirani poziv na prijavu.</em></p>',
+                    ],
+                ],
+            ],
+        ]);
+
+        $this->get('/karijera')
+            ->assertOk()
+            ->assertSee('<p>Jedan editor za hero sadržaj.</p><p><strong>Formatirani hero tekst.</strong></p>', false)
+            ->assertSee('prva uređena pogodnost')
+            ->assertSee('druga uređena pogodnost')
+            ->assertSee('Jedinstveni naslov sekcije razvoja')
+            ->assertSee('Jedan editor za priču.')
+            ->assertSee('prva uređena stavka')
+            ->assertSee('druga uređena stavka')
+            ->assertSee('<p>Jedan editor za otvorene pozicije.</p><p><em>Formatirani poziv na prijavu.</em></p>', false);
     }
 
     public function test_career_page_uses_uploaded_hero_image(): void
@@ -1320,6 +1364,40 @@ class StorefrontFrontFeatureTest extends TestCase
             ->assertSee('Zajedno stvaramo prilike.')
             ->assertSee('Javite nam se za suradnju.')
             ->assertSee('Istraži reference');
+    }
+
+    public function test_about_page_renders_consolidated_editor_content(): void
+    {
+        $page = InfoPage::query()->where('code', 'about-us')->firstOrFail();
+        $translation = $page->translation('hr')->firstOrFail();
+        $translation->update([
+            'payload' => [
+                'about_page' => [
+                    'story' => [
+                        'body_html' => '<p>Prvi blok jedinstvenog editora priče.</p><p><strong>Drugi formatirani blok priče.</strong></p>',
+                    ],
+                    'values' => [
+                        'items' => [
+                            [
+                                'body_html' => '<p>Jedinstveni editor prve kartice vrijednosti.</p><p><em>Formatirani tekst kartice.</em></p>',
+                            ],
+                        ],
+                    ],
+                    'team' => [
+                        'body_html' => '<p>Istaknuti blok teksta o timu.</p><p>Drugi blok teksta o timu.</p>',
+                    ],
+                ],
+            ],
+        ]);
+
+        $this->get('/o-nama')
+            ->assertOk()
+            ->assertSee('Prvi blok jedinstvenog editora priče.')
+            ->assertSee('<p><strong>Drugi formatirani blok priče.</strong></p>', false)
+            ->assertSee('<p class="ac-about-card-lead">Jedinstveni editor prve kartice vrijednosti.</p>', false)
+            ->assertSee('<p><em>Formatirani tekst kartice.</em></p>', false)
+            ->assertSee('Istaknuti blok teksta o timu.')
+            ->assertSee('Drugi blok teksta o timu.');
     }
 
     public function test_about_page_uses_uploaded_hero_image(): void

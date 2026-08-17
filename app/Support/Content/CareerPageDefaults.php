@@ -17,18 +17,50 @@ class CareerPageDefaults
         }
 
         $merged = self::mergeValues($defaults, $source);
+        $sourceIntro = is_array($source['intro'] ?? null) ? $source['intro'] : [];
+        $sourceProcess = is_array($source['process'] ?? null) ? $source['process'] : [];
+        $sourceApplication = is_array($source['application'] ?? null) ? $source['application'] : [];
+
+        $merged['intro']['hero_body_html'] = array_key_exists('hero_body_html', $sourceIntro)
+            ? trim((string) $sourceIntro['hero_body_html'])
+            : StructuredRichText::fromParagraphs(array_slice((array) data_get($merged, 'intro.body', []), 1));
+
+        $merged['process']['title'] = array_key_exists('title', $sourceProcess)
+            ? trim((string) $sourceProcess['title'])
+            : trim(implode(' ', array_filter([
+                data_get($merged, 'process.title_line_one'),
+                data_get($merged, 'process.title_line_two'),
+            ])));
+
+        $merged['application']['body_html'] = array_key_exists('body_html', $sourceApplication)
+            ? trim((string) $sourceApplication['body_html'])
+            : StructuredRichText::fromParagraphs((array) data_get($merged, 'application.paragraphs', []));
+
+        if (array_key_exists('values_text', $source)) {
+            $merged['values'] = StructuredRichText::itemsFromLines($source['values_text']);
+        }
+        $merged['values_text'] = StructuredRichText::lines((array) ($merged['values'] ?? []));
 
         foreach ((array) ($merged['stories'] ?? []) as $storyIndex => $story) {
             if (! is_array($story)) {
                 continue;
             }
 
-            $bodyHtml = trim((string) ($story['body_html'] ?? ''));
-            if ($bodyHtml === '') {
-                $bodyHtml = self::paragraphsToHtml((array) ($story['paragraphs'] ?? []));
+            $sourceStory = is_array(data_get($source, 'stories.'.$storyIndex))
+                ? data_get($source, 'stories.'.$storyIndex)
+                : [];
+
+            $merged['stories'][$storyIndex]['body_html'] = array_key_exists('body_html', $sourceStory)
+                ? trim((string) $sourceStory['body_html'])
+                : StructuredRichText::fromParagraphs((array) ($story['paragraphs'] ?? []));
+
+            if (array_key_exists('list_text', $sourceStory)) {
+                $merged['stories'][$storyIndex]['list'] = StructuredRichText::itemsFromLines($sourceStory['list_text']);
             }
 
-            $merged['stories'][$storyIndex]['body_html'] = $bodyHtml;
+            $merged['stories'][$storyIndex]['list_text'] = StructuredRichText::lines(
+                (array) data_get($merged, 'stories.'.$storyIndex.'.list', []),
+            );
         }
 
         return $merged;
@@ -328,18 +360,6 @@ class CareerPageDefaults
         }
 
         return $merged;
-    }
-
-    /**
-     * @param  array<int|string, mixed>  $paragraphs
-     */
-    private static function paragraphsToHtml(array $paragraphs): string
-    {
-        return collect($paragraphs)
-            ->map(static fn ($paragraph): string => trim((string) $paragraph))
-            ->filter()
-            ->map(static fn (string $paragraph): string => '<p>'.nl2br(htmlspecialchars($paragraph, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8')).'</p>')
-            ->implode('');
     }
 
     private static function looksLikeLegacyDefaultPayload(array $source): bool

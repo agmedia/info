@@ -91,8 +91,11 @@ class ContentBlogPagesFeatureTest extends TestCase
             ->assertSet('activeTab', 'content')
             ->assertSee('Stranica O nama')
             ->assertSee('1. Uvod i naša priča')
+            ->assertSee('Tekst naše priče')
             ->assertSee('Hero fotografija')
             ->assertSee('9. Postavke stranice')
+            ->assertSeeHtml('data-quill-editor')
+            ->assertDontSee('Odlomak 1')
             ->assertDontSee('Page Categories');
     }
 
@@ -108,8 +111,12 @@ class ContentBlogPagesFeatureTest extends TestCase
             ->assertSee('1. Uvod i hero')
             ->assertSee('Hero fotografija')
             ->assertSee('5. Prijavna forma')
+            ->assertSee('Tekst tamne hero sekcije')
+            ->assertSee('Tekst poziva na prijavu')
             ->assertSee('Tekst kartice')
             ->assertSeeHtml('data-quill-editor')
+            ->assertDontSee('Hero odlomak')
+            ->assertDontSee('Odlomak 1')
             ->assertDontSee('Page Categories');
     }
 
@@ -318,22 +325,19 @@ class ContentBlogPagesFeatureTest extends TestCase
             ->set('form.career_content.intro.title', 'Grow with our team')
             ->set('form.career_content.intro.highlight', 'Custom intro highlight for the career page.')
             ->set('form.career_content.intro.body.0', 'Custom intro body copy for the career page.')
-            ->set('form.career_content.intro.body.2', 'Custom third hero paragraph.')
-            ->set('form.career_content.values.4', 'a team that grows together')
+            ->set('form.career_content.intro.hero_body_html', '<p>Custom hero editor paragraph.</p><p><strong>Formatted hero copy.</strong></p>')
+            ->set('form.career_content.values_text', "trust from day one\na team that grows together")
             ->set('form.career_content.process.kicker', 'Application flow')
-            ->set('form.career_content.process.title_line_one', 'Hiring journey at')
-            ->set('form.career_content.process.title_line_two', 'ALPHA CAPITALIS')
+            ->set('form.career_content.process.title', 'Hiring journey at ALPHA CAPITALIS')
             ->set('form.career_content.process.intro', 'A clear overview of the hiring process.')
             ->set('form.career_content.process.steps.0.title', 'Initial review')
             ->set('form.career_content.process.steps.0.description', 'We review each application carefully.')
             ->set('form.career_content.stories.1.title', 'Work that keeps changing')
             ->set('form.career_content.stories.1.body_html', '<p>One editor for the full story.</p><p><strong>Formatted story copy.</strong></p>')
-            ->set('form.career_content.stories.2.list.4', 'a career with impact')
+            ->set('form.career_content.stories.2.list_text', "responsibility from day one\na career with impact")
             ->set('form.career_content.application.title', 'Join us today')
             ->set('form.career_content.application.highlight', 'Custom application highlight copy.')
-            ->set('form.career_content.application.paragraphs.0', 'Custom application paragraph one.')
-            ->set('form.career_content.application.paragraphs.1', 'Custom application paragraph two.')
-            ->set('form.career_content.application.paragraphs.2', 'Custom application paragraph three.')
+            ->set('form.career_content.application.body_html', '<p>Custom application editor copy.</p><p><em>One field for the complete text.</em></p>')
             ->set('form.career_content.form.title', 'Send an open application')
             ->set('form.career_content.form.submit', 'Apply now')
             ->call('save')
@@ -345,14 +349,17 @@ class ContentBlogPagesFeatureTest extends TestCase
         $this->assertSame('career', $page->layout);
         $this->assertSame('Grow with our team', (string) data_get($page->translation('en')->first()?->payload, 'career_page.intro.title'));
         $this->assertSame('Custom intro highlight for the career page.', (string) data_get($page->translation('en')->first()?->payload, 'career_page.intro.highlight'));
-        $this->assertSame('Custom third hero paragraph.', (string) data_get($page->translation('en')->first()?->payload, 'career_page.intro.body.2'));
-        $this->assertSame('a team that grows together', (string) data_get($page->translation('en')->first()?->payload, 'career_page.values.4'));
-        $this->assertSame('Hiring journey at', (string) data_get($page->translation('en')->first()?->payload, 'career_page.process.title_line_one'));
+        $this->assertSame('<p>Custom hero editor paragraph.</p><p><strong>Formatted hero copy.</strong></p>', (string) data_get($page->translation('en')->first()?->payload, 'career_page.intro.hero_body_html'));
+        $this->assertSame("trust from day one\na team that grows together", (string) data_get($page->translation('en')->first()?->payload, 'career_page.values_text'));
+        $this->assertSame('a team that grows together', (string) data_get($page->translation('en')->first()?->payload, 'career_page.values.1'));
+        $this->assertSame('Hiring journey at ALPHA CAPITALIS', (string) data_get($page->translation('en')->first()?->payload, 'career_page.process.title'));
         $this->assertSame('Initial review', (string) data_get($page->translation('en')->first()?->payload, 'career_page.process.steps.0.title'));
         $this->assertSame('Work that keeps changing', (string) data_get($page->translation('en')->first()?->payload, 'career_page.stories.1.title'));
         $this->assertSame('<p>One editor for the full story.</p><p><strong>Formatted story copy.</strong></p>', (string) data_get($page->translation('en')->first()?->payload, 'career_page.stories.1.body_html'));
-        $this->assertSame('a career with impact', (string) data_get($page->translation('en')->first()?->payload, 'career_page.stories.2.list.4'));
+        $this->assertSame("responsibility from day one\na career with impact", (string) data_get($page->translation('en')->first()?->payload, 'career_page.stories.2.list_text'));
+        $this->assertSame('a career with impact', (string) data_get($page->translation('en')->first()?->payload, 'career_page.stories.2.list.1'));
         $this->assertSame('Join us today', (string) data_get($page->translation('en')->first()?->payload, 'career_page.application.title'));
+        $this->assertSame('<p>Custom application editor copy.</p><p><em>One field for the complete text.</em></p>', (string) data_get($page->translation('en')->first()?->payload, 'career_page.application.body_html'));
         $this->assertSame('Send an open application', (string) data_get($page->translation('en')->first()?->payload, 'career_page.form.title'));
         $this->assertSame('Apply now', (string) data_get($page->translation('en')->first()?->payload, 'career_page.form.submit'));
     }
@@ -365,8 +372,10 @@ class ContentBlogPagesFeatureTest extends TestCase
         Livewire::actingAs($user)
             ->test(PageForm::class, ['pageId' => $page->id])
             ->set('form.about_content.hero.title', 'Priča koju gradimo zajedno')
-            ->set('form.about_content.story.paragraphs.2', 'Prilagođeni treći odlomak naše priče.')
+            ->set('form.about_content.story.body_html', '<p>Prilagođeni uvod naše priče.</p><p><strong>Sve u jednom editoru.</strong></p>')
             ->set('form.about_content.values.items.1.title', 'Radimo promišljeno')
+            ->set('form.about_content.values.items.1.body_html', '<p>Prilagođeni tekst kartice vrijednosti.</p>')
+            ->set('form.about_content.team.body_html', '<p>Istaknuti tekst o timu.</p><p>Ostatak teksta o timu.</p>')
             ->set('form.about_content.team.stats.0.value', '75+')
             ->set('form.about_content.responsibility.cta_card_title', 'Stvorimo prilike zajedno.')
             ->set('form.about_content.references.button_label', 'Pogledaj sve reference')
@@ -376,8 +385,10 @@ class ContentBlogPagesFeatureTest extends TestCase
         $payload = $page->fresh()->translation('hr')->first()?->payload;
 
         $this->assertSame('Priča koju gradimo zajedno', (string) data_get($payload, 'about_page.hero.title'));
-        $this->assertSame('Prilagođeni treći odlomak naše priče.', (string) data_get($payload, 'about_page.story.paragraphs.2'));
+        $this->assertSame('<p>Prilagođeni uvod naše priče.</p><p><strong>Sve u jednom editoru.</strong></p>', (string) data_get($payload, 'about_page.story.body_html'));
         $this->assertSame('Radimo promišljeno', (string) data_get($payload, 'about_page.values.items.1.title'));
+        $this->assertSame('<p>Prilagođeni tekst kartice vrijednosti.</p>', (string) data_get($payload, 'about_page.values.items.1.body_html'));
+        $this->assertSame('<p>Istaknuti tekst o timu.</p><p>Ostatak teksta o timu.</p>', (string) data_get($payload, 'about_page.team.body_html'));
         $this->assertSame('75+', (string) data_get($payload, 'about_page.team.stats.0.value'));
         $this->assertSame('Stvorimo prilike zajedno.', (string) data_get($payload, 'about_page.responsibility.cta_card_title'));
         $this->assertSame('Pogledaj sve reference', (string) data_get($payload, 'about_page.references.button_label'));

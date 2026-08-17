@@ -72,24 +72,22 @@
                 </div>
             </div>
 
-            @foreach (array_slice((array) ($careerIntro['body'] ?? []), 1, null, true) as $paragraphIndex => $paragraph)
-                <div class="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-                    <label class="block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Hero odlomak {{ $paragraphIndex }}</label>
-                    <textarea rows="5" wire:model="form.career_content.intro.body.{{ $paragraphIndex }}" class="mt-2 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm leading-6"></textarea>
-                </div>
-            @endforeach
+            <div>
+                <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Tekst tamne hero sekcije</label>
+                <textarea
+                    id="career-hero-body"
+                    rows="10"
+                    wire:model.live.debounce.300ms="form.career_content.intro.hero_body_html"
+                    data-quill-editor
+                    class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm leading-6"
+                ></textarea>
+            </div>
 
             <div class="rounded-2xl border border-slate-200 bg-slate-50 p-4">
                 <label class="block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Naziv popisa pogodnosti</label>
                 <input type="text" wire:model="form.career_content.intro.values_label" class="mt-2 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm" />
-                <div class="mt-4 grid gap-3 md:grid-cols-2">
-                    @foreach ((array) ($careerContent['values'] ?? []) as $valueIndex => $value)
-                        <div>
-                            <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Pogodnost {{ $valueIndex + 1 }}</label>
-                            <input type="text" wire:model="form.career_content.values.{{ $valueIndex }}" class="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm" />
-                        </div>
-                    @endforeach
-                </div>
+                <textarea rows="6" wire:model="form.career_content.values_text" class="mt-3 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm leading-6"></textarea>
+                <p class="mt-1 text-xs text-slate-500">Svaku pogodnost upišite u novi red.</p>
             </div>
 
             <div>
@@ -143,14 +141,10 @@
         <p class="text-xs font-semibold uppercase tracking-[0.16em] text-cyan-700">2. Razvoj i pogodnosti</p>
         <h2 class="mt-1 text-lg font-semibold text-slate-900">Razvoj koji nije samo fraza</h2>
     </div>
-    <div class="mt-5 grid gap-4 lg:grid-cols-3">
+    <div class="mt-5 grid gap-4 lg:grid-cols-2">
         <div>
-            <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Naslov, prvi red</label>
-            <input type="text" wire:model="form.career_content.process.title_line_one" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
-        </div>
-        <div>
-            <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Naslov, drugi red</label>
-            <input type="text" wire:model="form.career_content.process.title_line_two" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+            <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Naslov sekcije</label>
+            <input type="text" wire:model="form.career_content.process.title" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
         </div>
         <div>
             <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Istaknuti naslov</label>
@@ -215,12 +209,11 @@
                         class="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm leading-6"
                     ></textarea>
                 </div>
-                @if ((array) ($story['list'] ?? []) !== [])
+                @if ($storyIndex === 2 || (array) ($story['list'] ?? []) !== [])
                     <div class="mt-4 rounded-xl border border-slate-200 bg-white p-3">
                         <p class="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Popis u kartici</p>
-                        @foreach ((array) ($story['list'] ?? []) as $listIndex => $listItem)
-                            <input type="text" wire:model="form.career_content.stories.{{ $storyIndex }}.list.{{ $listIndex }}" class="mt-2 w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" aria-label="Stavka {{ $listIndex + 1 }}" />
-                        @endforeach
+                        <textarea rows="6" wire:model="form.career_content.stories.{{ $storyIndex }}.list_text" class="mt-2 w-full rounded-xl border border-slate-300 px-3 py-2 text-sm leading-6"></textarea>
+                        <p class="mt-1 text-xs text-slate-500">Svaku stavku upišite u novi red.</p>
                     </div>
                 @endif
             </div>
@@ -247,13 +240,15 @@
             <input type="text" wire:model="form.career_content.application.highlight" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
         </div>
     </div>
-    <div class="mt-5 grid gap-4 xl:grid-cols-3">
-        @foreach ((array) ($careerApplication['paragraphs'] ?? []) as $paragraphIndex => $paragraph)
-            <div class="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-                <label class="block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Odlomak {{ $paragraphIndex + 1 }}</label>
-                <textarea rows="5" wire:model="form.career_content.application.paragraphs.{{ $paragraphIndex }}" class="mt-2 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm leading-6"></textarea>
-            </div>
-        @endforeach
+    <div class="mt-5">
+        <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Tekst poziva na prijavu</label>
+        <textarea
+            id="career-application-body"
+            rows="10"
+            wire:model.live.debounce.300ms="form.career_content.application.body_html"
+            data-quill-editor
+            class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm leading-6"
+        ></textarea>
     </div>
 </div>
 

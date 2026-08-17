@@ -17,7 +17,10 @@
     $careerFormContent = is_array($careerContent['form'] ?? null) ? $careerContent['form'] : [];
     $careerStoriesSection = is_array($careerContent['stories_section'] ?? null) ? $careerContent['stories_section'] : [];
     $isCroatian = str_starts_with(strtolower((string) $locale), 'hr');
-    $careerValues = collect((array) ($careerContent['values'] ?? []))
+    $careerValuesSource = array_key_exists('values_text', $careerContent)
+        ? (preg_split('/\R/u', (string) $careerContent['values_text']) ?: [])
+        : (array) ($careerContent['values'] ?? []);
+    $careerValues = collect($careerValuesSource)
         ->map(static fn ($value): string => trim((string) $value))
         ->filter()
         ->values();
@@ -25,10 +28,18 @@
         ->map(static fn ($paragraph): string => trim((string) $paragraph))
         ->filter()
         ->values();
+    $careerHeroBodyHtmlIsDefined = array_key_exists('hero_body_html', $careerIntro);
+    $careerHeroBodyHtml = $careerHeroBodyHtmlIsDefined
+        ? trim((string) $careerIntro['hero_body_html'])
+        : '';
     $careerApplicationParagraphs = collect((array) ($careerApplication['paragraphs'] ?? []))
         ->map(static fn ($paragraph): string => trim((string) $paragraph))
         ->filter()
         ->values();
+    $careerApplicationBodyHtmlIsDefined = array_key_exists('body_html', $careerApplication);
+    $careerApplicationBodyHtml = $careerApplicationBodyHtmlIsDefined
+        ? trim((string) $careerApplication['body_html'])
+        : '';
     $careerProcessSteps = collect((array) ($careerProcess['steps'] ?? []))
         ->map(static fn ($step): array => is_array($step) ? $step : [])
         ->filter(static fn (array $step): bool => trim((string) ($step['title'] ?? '')) !== '')
@@ -40,13 +51,16 @@
             return [
                 'kicker' => trim((string) ($story['kicker'] ?? '')),
                 'title' => trim((string) ($story['title'] ?? '')),
+                'body_html_is_defined' => array_key_exists('body_html', $story),
                 'body_html' => trim((string) ($story['body_html'] ?? '')),
                 'paragraphs' => collect((array) ($story['paragraphs'] ?? []))
                     ->map(static fn ($paragraph): string => trim((string) $paragraph))
                     ->filter()
                     ->values()
                     ->all(),
-                'list' => collect((array) ($story['list'] ?? []))
+                'list' => collect(array_key_exists('list_text', $story)
+                    ? (preg_split('/\R/u', (string) $story['list_text']) ?: [])
+                    : (array) ($story['list'] ?? []))
                     ->map(static fn ($item): string => trim((string) $item))
                     ->filter()
                     ->values()
@@ -70,11 +84,15 @@
     $careerHeroStatValue = trim((string) ($careerIntro['stat_value'] ?? ''));
     $careerHeroStatLabel = trim((string) ($careerIntro['stat_label'] ?? ''));
     $careerIntroLead = (string) ($careerIntroBody->first() ?? '');
-    $careerHeroParagraphs = $careerIntroBody->skip(1)->values();
-    $careerProcessTitle = trim(implode(' ', array_filter([
-        trim((string) ($careerProcess['title_line_one'] ?? '')),
-        trim((string) ($careerProcess['title_line_two'] ?? '')),
-    ])));
+    $careerHeroParagraphs = $careerHeroBodyHtmlIsDefined
+        ? collect()
+        : $careerIntroBody->skip(1)->values();
+    $careerProcessTitle = array_key_exists('title', $careerProcess)
+        ? trim((string) $careerProcess['title'])
+        : trim(implode(' ', array_filter([
+            trim((string) ($careerProcess['title_line_one'] ?? '')),
+            trim((string) ($careerProcess['title_line_two'] ?? '')),
+        ])));
     $careerProcessTitle = $careerProcessTitle !== '' ? $careerProcessTitle : ($isCroatian ? 'Razvoj koji nije samo fraza' : 'Growth that is more than a phrase');
     $careerApplicationTitle = trim((string) ($careerApplication['title'] ?? '')) ?: ($isCroatian ? 'Otvorene pozicije' : 'Open positions');
     $careerApplicationHighlight = trim((string) ($careerApplication['highlight'] ?? ''));
@@ -141,11 +159,15 @@
                         @endforeach
                     </h2>
 
-                    @if ($careerHeroParagraphs->isNotEmpty())
+                    @if ($careerHeroBodyHtml !== '' || $careerHeroParagraphs->isNotEmpty())
                         <div class="ac-career-copy-stack ac-career-copy-stack--light content-reveal animation-index-1" data-image-reveal>
-                            @foreach ($careerHeroParagraphs as $paragraph)
-                                <p>{{ $paragraph }}</p>
-                            @endforeach
+                            @if ($careerHeroBodyHtmlIsDefined)
+                                {!! $careerHeroBodyHtml !!}
+                            @else
+                                @foreach ($careerHeroParagraphs as $paragraph)
+                                    <p>{{ $paragraph }}</p>
+                                @endforeach
+                            @endif
                         </div>
                     @endif
 
@@ -262,7 +284,7 @@
                                 @endif
                                 <h3>{{ $story['title'] }}</h3>
                                 <div class="ac-career-copy-stack ac-career-copy-stack--light">
-                                    @if ($story['body_html'] !== '')
+                                    @if ($story['body_html_is_defined'])
                                         {!! $story['body_html'] !!}
                                     @else
                                         @foreach ($story['paragraphs'] as $paragraph)
@@ -304,9 +326,13 @@
                     @endif
 
                     <div class="ac-career-copy-stack">
-                        @foreach ($careerApplicationParagraphs as $paragraph)
-                            <p>{{ $paragraph }}</p>
-                        @endforeach
+                        @if ($careerApplicationBodyHtmlIsDefined)
+                            {!! $careerApplicationBodyHtml !!}
+                        @else
+                            @foreach ($careerApplicationParagraphs as $paragraph)
+                                <p>{{ $paragraph }}</p>
+                            @endforeach
+                        @endif
                     </div>
                 </div>
 

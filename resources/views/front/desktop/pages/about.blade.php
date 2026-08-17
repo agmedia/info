@@ -56,16 +56,43 @@
     $pageTitle = trim((string) ($translation?->title ?? '')) ?: 'O nama';
     $heroTitle = trim((string) ($hero['title'] ?? '')) ?: $pageTitle;
     $heroLead = trim((string) ($hero['lead'] ?? ''));
-    $storyParagraphs = collect((array) ($story['paragraphs'] ?? []))
-        ->map(static fn ($paragraph): string => trim((string) $paragraph))
-        ->filter()
-        ->values();
-    $introStoryHtml = e((string) ($storyParagraphs->first() ?? ''));
-    $introStoryHtml = str_replace(
-        'ALPHA CAPITALIS',
-        '<a class="services-index-inline-link" href="'.e(route('contact.create')).'">ALPHA CAPITALIS</a>',
-        $introStoryHtml,
-    );
+    $richTextBlocks = static function (array $section, array $legacyParagraphs): \Illuminate\Support\Collection {
+        $bodyHtml = array_key_exists('body_html', $section)
+            ? trim((string) $section['body_html'])
+            : \App\Support\Content\StructuredRichText::fromParagraphs($legacyParagraphs);
+        $plainText = trim(html_entity_decode(strip_tags(str_ireplace(['<br>', '<br/>', '<br />'], '', $bodyHtml))));
+
+        return $bodyHtml === '' || $plainText === ''
+            ? collect()
+            : collect(\App\Support\Content\StructuredRichText::blocks($bodyHtml));
+    };
+    $linkTermsInHtml = static function (string $html, array $termLinks, string $class): string {
+        $linkedHtml = preg_replace_callback(
+            '/<a\b[^>]*>.*?<\/a>|<[^>]+>|[^<]+/isu',
+            static function (array $matches) use ($termLinks, $class): string {
+                $fragment = (string) ($matches[0] ?? '');
+
+                if (str_starts_with($fragment, '<')) {
+                    return $fragment;
+                }
+
+                $replacements = [];
+                foreach ($termLinks as $term => $url) {
+                    $replacements[(string) $term] = '<a class="'.e($class).'" href="'.e($url).'">'.e($term).'</a>';
+                }
+
+                return strtr($fragment, $replacements);
+            },
+            $html,
+        );
+
+        return is_string($linkedHtml) ? $linkedHtml : $html;
+    };
+    $storyBlocks = $richTextBlocks($story, (array) ($story['paragraphs'] ?? []));
+    $storyContactLinks = ['ALPHA CAPITALIS' => route('contact.create')];
+    $introStoryHtml = $storyBlocks->isNotEmpty()
+        ? $linkTermsInHtml((string) $storyBlocks->first(), $storyContactLinks, 'services-index-inline-link')
+        : '';
     $headingWords = static fn (string $title): array => preg_split('/\s+/u', trim($title), -1, PREG_SPLIT_NO_EMPTY) ?: [];
     $valuesLabel = trim((string) ($values['label'] ?? ''));
     $valuesTitle = trim((string) ($values['title'] ?? '')) ?: 'Jednostavni principi koji vode svaki dan';
@@ -80,10 +107,7 @@
     );
     $whyLabel = trim((string) ($why['kicker'] ?? '')) ?: 'Zašto postojimo';
     $whyTitle = trim((string) ($why['title'] ?? '')) ?: 'Podrška za sigurno, kvalitetno i održivo poslovanje';
-    $whyParagraphs = collect((array) ($why['paragraphs'] ?? []))
-        ->map(static fn ($paragraph): string => trim((string) $paragraph))
-        ->filter()
-        ->values();
+    $whyBlocks = $richTextBlocks($why, (array) ($why['paragraphs'] ?? []));
     $whyServiceTermLinks = [
         'strateškog razvoja' => route('advisory.show'),
         'računovodstva' => route('accounting.show'),
@@ -96,17 +120,12 @@
         'finance' => route('advisory.finance.show'),
         'audit' => route('audit.show'),
     ];
-    $linkWhyServiceTerms = static function (string $paragraph) use ($whyServiceTermLinks): string {
-        $replacements = [];
-
-        foreach ($whyServiceTermLinks as $term => $url) {
-            $replacements[e($term)] = '<a class="ac-about-dark-inline-link" href="'.e($url).'">'.e($term).'</a>';
-        }
-
-        return strtr(e($paragraph), $replacements);
-    };
     $teamTitle = trim((string) ($team['title'] ?? '')) ?: 'Tim';
     $teamLabel = trim((string) ($team['label'] ?? ''));
+    $teamBlocks = $richTextBlocks(
+        $team,
+        [($team['intro'] ?? ''), ($team['body'] ?? '')],
+    );
     $teamStats = collect((array) ($team['stats'] ?? []))
         ->map(static fn ($stat): array => is_array($stat) ? $stat : [])
         ->filter(static fn (array $stat): bool => trim((string) ($stat['value'] ?? '')) !== '')
@@ -115,25 +134,16 @@
         str_starts_with(strtolower((string) $locale), 'hr') ? 'Naša kultura' : 'Our culture'
     );
     $cultureTitle = trim((string) ($culture['title'] ?? '')) ?: 'Kvalitetno poslovanje počinje kvalitetnim odnosima';
-    $cultureParagraphs = collect((array) ($culture['paragraphs'] ?? []))
-        ->map(static fn ($paragraph): string => trim((string) $paragraph))
-        ->filter()
-        ->values();
-    $cultureColumnSplit = $cultureParagraphs->count() >= 4 ? 2 : 1;
+    $cultureBlocks = $richTextBlocks($culture, (array) ($culture['paragraphs'] ?? []));
+    $cultureColumnSplit = $cultureBlocks->count() >= 4 ? 2 : 1;
     $responsibilityLabel = trim((string) ($responsibility['kicker'] ?? '')) ?: (
         str_starts_with(strtolower((string) $locale), 'hr') ? 'Društveno odgovorno poslovanje' : 'Social responsibility'
     );
     $responsibilityTitle = trim((string) ($responsibility['title'] ?? ''));
-    $responsibilityParagraphs = collect((array) ($responsibility['paragraphs'] ?? []))
-        ->map(static fn ($paragraph): string => trim((string) $paragraph))
-        ->filter()
-        ->values();
+    $responsibilityBlocks = $richTextBlocks($responsibility, (array) ($responsibility['paragraphs'] ?? []));
     $referencesLabel = trim((string) ($references['label'] ?? ''));
     $referencesTitle = trim((string) ($references['title'] ?? '')) ?: 'Reference';
-    $referenceParagraphs = collect((array) ($references['paragraphs'] ?? []))
-        ->map(static fn ($paragraph): string => trim((string) $paragraph))
-        ->filter()
-        ->values();
+    $referenceBlocks = $richTextBlocks($references, (array) ($references['paragraphs'] ?? []));
     $valueIconClasses = [
         'fa-brain-circuit',
         'fa-lightbulb-gear',
@@ -167,9 +177,9 @@
                     </h1>
                 </div>
 
-                @if ($storyParagraphs->isNotEmpty())
+                @if ($storyBlocks->isNotEmpty())
                     <div class="values-copy services-index-intro-copy ac-about-intro-copy content-reveal" data-image-reveal>
-                        <p>{!! $introStoryHtml !!}</p>
+                        {!! $introStoryHtml !!}
                     </div>
                 @endif
             </div>
@@ -213,17 +223,10 @@
                             </h2>
                         @endif
 
-                        @if ($storyParagraphs->count() > 1)
+                        @if ($storyBlocks->count() > 1)
                             <div class="ac-about-hero-paragraphs content-reveal animation-index-1" data-image-reveal>
-                                @foreach ($storyParagraphs->skip(1) as $paragraph)
-                                    @php
-                                        $storyParagraphHtml = str_replace(
-                                            'ALPHA CAPITALIS',
-                                            '<a class="ac-about-dark-inline-link" href="'.e(route('contact.create')).'">ALPHA CAPITALIS</a>',
-                                            e($paragraph),
-                                        );
-                                    @endphp
-                                    <p>{!! $storyParagraphHtml !!}</p>
+                                @foreach ($storyBlocks->skip(1) as $block)
+                                    {!! $linkTermsInHtml((string) $block, $storyContactLinks, 'ac-about-dark-inline-link') !!}
                                 @endforeach
                             </div>
                         @endif
@@ -254,6 +257,11 @@
                         @php
                             $item = is_array($item) ? $item : [];
                             $itemTitle = trim((string) ($item['title'] ?? ''));
+                            $itemLegacyParagraphs = array_merge(
+                                [($item['lead'] ?? '')],
+                                (array) ($item['paragraphs'] ?? []),
+                            );
+                            $itemBlocks = $richTextBlocks($item, $itemLegacyParagraphs);
                         @endphp
 
                         @continue($itemTitle === '')
@@ -264,16 +272,20 @@
                             </span>
                             <h3>{{ $itemTitle }}</h3>
 
-                            @if (trim((string) ($item['lead'] ?? '')) !== '')
-                                <p class="ac-about-card-lead">{{ $item['lead'] }}</p>
+                            @if ($itemBlocks->isNotEmpty())
+                                {!! \App\Support\Content\StructuredRichText::addClassToFirstBlock(
+                                    (string) $itemBlocks->first(),
+                                    'ac-about-card-lead',
+                                ) !!}
                             @endif
 
-                            <div class="ac-about-copy-stack">
-                                @foreach ((array) ($item['paragraphs'] ?? []) as $paragraph)
-                                    @continue(trim((string) $paragraph) === '')
-                                    <p>{{ $paragraph }}</p>
-                                @endforeach
-                            </div>
+                            @if ($itemBlocks->count() > 1)
+                                <div class="ac-about-copy-stack">
+                                    @foreach ($itemBlocks->skip(1) as $block)
+                                        {!! $block !!}
+                                    @endforeach
+                                </div>
+                            @endif
                         </article>
                     @endforeach
                 </div>
@@ -304,17 +316,17 @@
                     @endif
                 </div>
 
-                @if ($whyParagraphs->isNotEmpty())
+                @if ($whyBlocks->isNotEmpty())
                     <div class="ac-about-why-body">
                         <div class="ac-about-why-body-lead content-reveal animation-index-1" data-image-reveal>
-                            @foreach ($whyParagraphs->take(2) as $paragraph)
-                                <p>{!! $linkWhyServiceTerms($paragraph) !!}</p>
+                            @foreach ($whyBlocks->take(2) as $block)
+                                {!! $linkTermsInHtml((string) $block, $whyServiceTermLinks, 'ac-about-dark-inline-link') !!}
                             @endforeach
                         </div>
 
                         <div class="ac-about-copy-stack ac-about-why-body-copy content-reveal animation-index-2" data-image-reveal>
-                            @foreach ($whyParagraphs->skip(2) as $paragraph)
-                                <p>{!! $linkWhyServiceTerms($paragraph) !!}</p>
+                            @foreach ($whyBlocks->skip(2) as $block)
+                                {!! $linkTermsInHtml((string) $block, $whyServiceTermLinks, 'ac-about-dark-inline-link') !!}
                             @endforeach
                         </div>
                     </div>
@@ -339,15 +351,15 @@
                                 @endforeach
                             </h2>
 
-                            @if (trim((string) ($team['intro'] ?? '')) !== '' || trim((string) ($team['body'] ?? '')) !== '')
+                            @if ($teamBlocks->isNotEmpty())
                                 <div class="ac-about-team-text content-reveal animation-index-1" data-image-reveal>
-                                    @if (trim((string) ($team['intro'] ?? '')) !== '')
-                                        <p class="ac-about-team-lead">{{ $team['intro'] }}</p>
-                                    @endif
-
-                                    @if (trim((string) ($team['body'] ?? '')) !== '')
-                                        <p>{{ $team['body'] }}</p>
-                                    @endif
+                                    {!! \App\Support\Content\StructuredRichText::addClassToFirstBlock(
+                                        (string) $teamBlocks->first(),
+                                        'ac-about-team-lead',
+                                    ) !!}
+                                    @foreach ($teamBlocks->skip(1) as $block)
+                                        {!! $block !!}
+                                    @endforeach
                                 </div>
                             @endif
                         </div>
@@ -456,17 +468,17 @@
                     @endif
                 </div>
 
-                @if ($cultureParagraphs->isNotEmpty())
+                @if ($cultureBlocks->isNotEmpty())
                     <div class="ac-about-culture-body">
                         <div class="ac-about-culture-body-lead content-reveal animation-index-1" data-image-reveal>
-                            @foreach ($cultureParagraphs->take($cultureColumnSplit) as $paragraph)
-                                <p>{{ $paragraph }}</p>
+                            @foreach ($cultureBlocks->take($cultureColumnSplit) as $block)
+                                {!! $block !!}
                             @endforeach
                         </div>
 
                         <div class="ac-about-copy-stack ac-about-culture-body-copy content-reveal animation-index-2" data-image-reveal>
-                            @foreach ($cultureParagraphs->skip($cultureColumnSplit) as $paragraph)
-                                <p>{{ $paragraph }}</p>
+                            @foreach ($cultureBlocks->skip($cultureColumnSplit) as $block)
+                                {!! $block !!}
                             @endforeach
                         </div>
                     </div>
@@ -498,17 +510,17 @@
                     @endif
                 </div>
 
-                @if ($responsibilityParagraphs->isNotEmpty())
+                @if ($responsibilityBlocks->isNotEmpty())
                     <div class="ac-about-responsibility-body">
                         <div class="ac-about-responsibility-body-lead content-reveal animation-index-1" data-image-reveal>
-                            @foreach ($responsibilityParagraphs->take(2) as $paragraph)
-                                <p>{{ $paragraph }}</p>
+                            @foreach ($responsibilityBlocks->take(2) as $block)
+                                {!! $block !!}
                             @endforeach
                         </div>
 
                         <div class="ac-about-copy-stack ac-about-responsibility-body-copy content-reveal animation-index-2" data-image-reveal>
-                            @foreach ($responsibilityParagraphs->skip(2) as $paragraph)
-                                <p>{{ $paragraph }}</p>
+                            @foreach ($responsibilityBlocks->skip(2) as $block)
+                                {!! $block !!}
                             @endforeach
                         </div>
                     </div>
@@ -564,17 +576,17 @@
                     </div>
                 </div>
 
-                @if ($referenceParagraphs->isNotEmpty())
+                @if ($referenceBlocks->isNotEmpty())
                     <div class="ac-about-reference-body">
                         <div class="ac-about-reference-body-lead content-reveal animation-index-1" data-image-reveal>
-                            @foreach ($referenceParagraphs->take(2) as $paragraph)
-                                <p>{{ $paragraph }}</p>
+                            @foreach ($referenceBlocks->take(2) as $block)
+                                {!! $block !!}
                             @endforeach
                         </div>
 
                         <div class="ac-about-copy-stack ac-about-reference-body-copy content-reveal animation-index-2" data-image-reveal>
-                            @foreach ($referenceParagraphs->skip(2) as $paragraph)
-                                <p>{{ $paragraph }}</p>
+                            @foreach ($referenceBlocks->skip(2) as $block)
+                                {!! $block !!}
                             @endforeach
                         </div>
                     </div>

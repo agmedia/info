@@ -1,13 +1,7 @@
 @php
     $aboutContent = is_array($form['about_content'] ?? null) ? $form['about_content'] : [];
-    $aboutHero = is_array($aboutContent['hero'] ?? null) ? $aboutContent['hero'] : [];
-    $aboutStory = is_array($aboutContent['story'] ?? null) ? $aboutContent['story'] : [];
     $aboutValues = is_array($aboutContent['values'] ?? null) ? $aboutContent['values'] : [];
-    $aboutWhy = is_array($aboutContent['why'] ?? null) ? $aboutContent['why'] : [];
     $aboutTeam = is_array($aboutContent['team'] ?? null) ? $aboutContent['team'] : [];
-    $aboutCulture = is_array($aboutContent['culture'] ?? null) ? $aboutContent['culture'] : [];
-    $aboutResponsibility = is_array($aboutContent['responsibility'] ?? null) ? $aboutContent['responsibility'] : [];
-    $aboutReferences = is_array($aboutContent['references'] ?? null) ? $aboutContent['references'] : [];
     $aboutHeroUpload = $pageHeroImageUpload ?? null;
     $aboutHeroPreviewUrl = $aboutHeroUpload instanceof \Livewire\Features\SupportFileUploads\TemporaryUploadedFile
         ? $aboutHeroUpload->temporaryUrl()
@@ -64,15 +58,16 @@
                 <textarea rows="3" wire:model="form.about_content.hero.lead" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm leading-6"></textarea>
             </div>
 
-            <div class="space-y-3">
-                @foreach ((array) ($aboutStory['paragraphs'] ?? []) as $paragraphIndex => $paragraph)
-                    <div class="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-                        <label class="block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
-                            {{ $paragraphIndex === 0 ? 'Uvodni odlomak uz glavni naslov' : 'Odlomak priče '.$paragraphIndex }}
-                        </label>
-                        <textarea rows="5" wire:model="form.about_content.story.paragraphs.{{ $paragraphIndex }}" class="mt-2 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm leading-6"></textarea>
-                    </div>
-                @endforeach
+            <div>
+                <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Tekst naše priče</label>
+                <textarea
+                    id="about-story-body"
+                    rows="12"
+                    wire:model.live.debounce.300ms="form.about_content.story.body_html"
+                    data-quill-editor
+                    class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm leading-6"
+                ></textarea>
+                <p class="mt-1 text-xs text-slate-500">Prvi odlomak prikazuje se uz glavni naslov, a ostali uz fotografiju.</p>
             </div>
         </div>
 
@@ -147,15 +142,16 @@
                     <input type="text" wire:model="form.about_content.values.items.{{ $itemIndex }}.title" class="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm" />
                 </div>
                 <div class="mt-3">
-                    <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Istaknuti tekst</label>
-                    <textarea rows="3" wire:model="form.about_content.values.items.{{ $itemIndex }}.lead" class="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm"></textarea>
+                    <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Tekst kartice</label>
+                    <textarea
+                        id="about-value-body-{{ $itemIndex }}"
+                        rows="10"
+                        wire:model.live.debounce.300ms="form.about_content.values.items.{{ $itemIndex }}.body_html"
+                        data-quill-editor
+                        class="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm leading-6"
+                    ></textarea>
+                    <p class="mt-1 text-xs text-slate-500">Prvi blok prikazuje se kao istaknuti uvod kartice.</p>
                 </div>
-                @foreach ((array) ($item['paragraphs'] ?? []) as $paragraphIndex => $paragraph)
-                    <div class="mt-3">
-                        <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Odlomak {{ $paragraphIndex + 1 }}</label>
-                        <textarea rows="5" wire:model="form.about_content.values.items.{{ $itemIndex }}.paragraphs.{{ $paragraphIndex }}" class="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm leading-6"></textarea>
-                    </div>
-                @endforeach
             </div>
         @endforeach
     </div>
@@ -180,13 +176,16 @@
         <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Istaknuti citat</label>
         <textarea rows="4" wire:model="form.about_content.why.quote" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm leading-6"></textarea>
     </div>
-    <div class="mt-4 grid gap-4 xl:grid-cols-2">
-        @foreach ((array) ($aboutWhy['paragraphs'] ?? []) as $paragraphIndex => $paragraph)
-            <div class="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-                <label class="block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Odlomak {{ $paragraphIndex + 1 }}</label>
-                <textarea rows="5" wire:model="form.about_content.why.paragraphs.{{ $paragraphIndex }}" class="mt-2 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm leading-6"></textarea>
-            </div>
-        @endforeach
+    <div class="mt-4">
+        <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Glavni tekst sekcije</label>
+        <textarea
+            id="about-why-body"
+            rows="12"
+            wire:model.live.debounce.300ms="form.about_content.why.body_html"
+            data-quill-editor
+            class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm leading-6"
+        ></textarea>
+        <p class="mt-1 text-xs text-slate-500">Sadržaj se na frontu automatski raspoređuje u dva stupca.</p>
     </div>
 </div>
 
@@ -213,15 +212,16 @@
             <input type="text" wire:model="form.about_content.team.title" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
         </div>
     </div>
-    <div class="mt-4 grid gap-4 lg:grid-cols-2">
-        <div>
-            <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Uvodni tekst</label>
-            <textarea rows="5" wire:model="form.about_content.team.intro" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm leading-6"></textarea>
-        </div>
-        <div>
-            <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Dodatni tekst</label>
-            <textarea rows="5" wire:model="form.about_content.team.body" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm leading-6"></textarea>
-        </div>
+    <div class="mt-4">
+        <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Tekst o timu</label>
+        <textarea
+            id="about-team-body"
+            rows="10"
+            wire:model.live.debounce.300ms="form.about_content.team.body_html"
+            data-quill-editor
+            class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm leading-6"
+        ></textarea>
+        <p class="mt-1 text-xs text-slate-500">Prvi odlomak prikazuje se kao istaknuti uvod.</p>
     </div>
 
     <div class="mt-5 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
@@ -264,13 +264,16 @@
         <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Istaknuti citat</label>
         <textarea rows="4" wire:model="form.about_content.culture.quote" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm leading-6"></textarea>
     </div>
-    <div class="mt-4 grid gap-4 xl:grid-cols-2">
-        @foreach ((array) ($aboutCulture['paragraphs'] ?? []) as $paragraphIndex => $paragraph)
-            <div class="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-                <label class="block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Odlomak {{ $paragraphIndex + 1 }}</label>
-                <textarea rows="5" wire:model="form.about_content.culture.paragraphs.{{ $paragraphIndex }}" class="mt-2 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm leading-6"></textarea>
-            </div>
-        @endforeach
+    <div class="mt-4">
+        <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Glavni tekst sekcije</label>
+        <textarea
+            id="about-culture-body"
+            rows="12"
+            wire:model.live.debounce.300ms="form.about_content.culture.body_html"
+            data-quill-editor
+            class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm leading-6"
+        ></textarea>
+        <p class="mt-1 text-xs text-slate-500">Sadržaj se na frontu automatski raspoređuje u dva stupca.</p>
     </div>
 </div>
 
@@ -293,13 +296,16 @@
         <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Istaknuti citat</label>
         <textarea rows="4" wire:model="form.about_content.responsibility.quote" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm leading-6"></textarea>
     </div>
-    <div class="mt-4 grid gap-4 xl:grid-cols-2">
-        @foreach ((array) ($aboutResponsibility['paragraphs'] ?? []) as $paragraphIndex => $paragraph)
-            <div class="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-                <label class="block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Odlomak {{ $paragraphIndex + 1 }}</label>
-                <textarea rows="5" wire:model="form.about_content.responsibility.paragraphs.{{ $paragraphIndex }}" class="mt-2 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm leading-6"></textarea>
-            </div>
-        @endforeach
+    <div class="mt-4">
+        <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Glavni tekst sekcije</label>
+        <textarea
+            id="about-responsibility-body"
+            rows="12"
+            wire:model.live.debounce.300ms="form.about_content.responsibility.body_html"
+            data-quill-editor
+            class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm leading-6"
+        ></textarea>
+        <p class="mt-1 text-xs text-slate-500">Sadržaj se na frontu automatski raspoređuje u dva stupca.</p>
     </div>
 </div>
 
@@ -351,13 +357,16 @@
             <input type="text" wire:model="form.about_content.references.title" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
         </div>
     </div>
-    <div class="mt-4 grid gap-4 xl:grid-cols-2">
-        @foreach ((array) ($aboutReferences['paragraphs'] ?? []) as $paragraphIndex => $paragraph)
-            <div class="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-                <label class="block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Odlomak {{ $paragraphIndex + 1 }}</label>
-                <textarea rows="5" wire:model="form.about_content.references.paragraphs.{{ $paragraphIndex }}" class="mt-2 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm leading-6"></textarea>
-            </div>
-        @endforeach
+    <div class="mt-4">
+        <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Glavni tekst sekcije</label>
+        <textarea
+            id="about-references-body"
+            rows="12"
+            wire:model.live.debounce.300ms="form.about_content.references.body_html"
+            data-quill-editor
+            class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm leading-6"
+        ></textarea>
+        <p class="mt-1 text-xs text-slate-500">Sadržaj se na frontu automatski raspoređuje u dva stupca.</p>
     </div>
     <div class="mt-4 max-w-xl">
         <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Tekst gumba za sve reference</label>

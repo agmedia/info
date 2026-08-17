@@ -9,10 +9,41 @@ class AboutPageDefaults
      */
     public static function merge(mixed $payload, string $locale): array
     {
-        return self::mergeValues(
-            self::forLocale($locale),
-            is_array($payload) ? $payload : [],
+        $source = is_array($payload) ? $payload : [];
+        $merged = self::mergeValues(self::forLocale($locale), $source);
+
+        $merged['story']['body_html'] = self::bodyHtml(
+            is_array($source['story'] ?? null) ? $source['story'] : [],
+            (array) data_get($merged, 'story.paragraphs', []),
         );
+
+        foreach ((array) data_get($merged, 'values.items', []) as $itemIndex => $item) {
+            $sourceItem = is_array(data_get($source, 'values.items.'.$itemIndex))
+                ? data_get($source, 'values.items.'.$itemIndex)
+                : [];
+
+            $merged['values']['items'][$itemIndex]['body_html'] = self::bodyHtml(
+                $sourceItem,
+                [
+                    data_get($item, 'lead', ''),
+                    ...(array) data_get($item, 'paragraphs', []),
+                ],
+            );
+        }
+
+        foreach (['why', 'culture', 'responsibility', 'references'] as $section) {
+            $merged[$section]['body_html'] = self::bodyHtml(
+                is_array($source[$section] ?? null) ? $source[$section] : [],
+                (array) data_get($merged, $section.'.paragraphs', []),
+            );
+        }
+
+        $merged['team']['body_html'] = self::bodyHtml(
+            is_array($source['team'] ?? null) ? $source['team'] : [],
+            [data_get($merged, 'team.intro', ''), data_get($merged, 'team.body', '')],
+        );
+
+        return $merged;
     }
 
     /**
@@ -308,6 +339,19 @@ class AboutPageDefaults
         }
 
         return $merged;
+    }
+
+    /**
+     * @param  array<string|int, mixed>  $source
+     * @param  array<int|string, mixed>  $paragraphs
+     */
+    private static function bodyHtml(array $source, array $paragraphs): string
+    {
+        if (array_key_exists('body_html', $source)) {
+            return trim((string) $source['body_html']);
+        }
+
+        return StructuredRichText::fromParagraphs($paragraphs);
     }
 
     private static function isCroatian(string $locale): bool
