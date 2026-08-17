@@ -11,7 +11,8 @@
     $isTaxTemplate = $currentTemplateKey === \App\Support\Content\ServicePageTemplateRegistry::TAX;
     $isEuFundsTemplate = $currentTemplateKey === \App\Support\Content\ServicePageTemplateRegistry::EU_FUNDS;
     $isFamilyBusinessTemplate = $currentTemplateKey === \App\Support\Content\ServicePageTemplateRegistry::FAMILY_BUSINESS;
-    $usesStandardHero = ! $isServicesIndexTemplate && ! $isAuditTemplate && ! $isAccountingTemplate;
+    $isAdvisorySubpageEditor = $isAdvisoryTemplate && ($contentSection ?? 'main') !== 'main';
+    $usesStandardHero = ! $isServicesIndexTemplate && ! $isAuditTemplate && ! $isAccountingTemplate && ! $isAdvisoryTemplate && ! $isEuFundsTemplate;
     $serviceMediaCollections = $isServicesIndexTemplate
         ? array_values(\App\Support\Content\ServicePageTemplateRegistry::SERVICES_INDEX_CARD_MEDIA_COLLECTIONS)
         : (($isAuditTemplate || $isAccountingTemplate) ? ['service_hero_image'] : ['service_hero_image', 'service_logo']);
@@ -34,28 +35,6 @@
         'tax-due-diligence-admin' => __('Due Diligence'),
         'tax-transfer-pricing-admin' => __('Transfer Pricing'),
         'tax-meeting-admin' => __('Meeting'),
-    ];
-    $euFundsEditorSections = [
-        'eu-funds-about' => 'About',
-        'eu-funds-overview' => 'Overview',
-        'eu-funds-chart' => 'Funding Chart',
-        'eu-funds-process' => 'Process',
-        'eu-funds-calls' => 'Calls',
-        'eu-funds-resources' => 'Resources',
-        'eu-funds-laws' => 'Laws',
-        'eu-funds-testimonials' => 'Testimonials',
-        'eu-funds-blog' => 'Blog',
-        'eu-funds-meeting' => 'Meeting',
-    ];
-    $advisoryEditorSections = [
-        'advisory-overview-admin' => 'Overview',
-        'advisory-services-admin' => 'Services',
-        'advisory-pandea-admin' => 'Pandea',
-        'advisory-funding-admin' => 'Funding',
-        'advisory-transactions-admin' => 'Transactions',
-        'advisory-tax-admin' => 'Tax',
-        'advisory-modules-admin' => 'Modules',
-        'advisory-meeting-admin' => 'Meeting',
     ];
     $blogAutoCategoryLabel = $isAccountingTemplate
         ? __('Auto (current accounting category)')
@@ -91,17 +70,19 @@
                 <button type="button" wire:click="setTab('content')" class="rounded-lg border px-3 py-2 text-xs font-semibold uppercase tracking-[0.12em] {{ $activeTab === 'content' ? 'border-slate-900 bg-slate-900 text-white' : 'border-slate-300 bg-white text-slate-700 hover:bg-slate-100' }}">
                     {{ __('Content') }}
                 </button>
-                @if ($templateSupportsSources)
+                @if ($templateSupportsSources && ! $isAdvisorySubpageEditor)
                     <button type="button" wire:click="setTab('sources')" class="rounded-lg border px-3 py-2 text-xs font-semibold uppercase tracking-[0.12em] {{ $activeTab === 'sources' ? 'border-slate-900 bg-slate-900 text-white' : 'border-slate-300 bg-white text-slate-700 hover:bg-slate-100' }}">
                         {{ __('Sources') }}
                     </button>
                 @endif
-                <button type="button" wire:click="setTab('seo')" class="rounded-lg border px-3 py-2 text-xs font-semibold uppercase tracking-[0.12em] {{ $activeTab === 'seo' ? 'border-slate-900 bg-slate-900 text-white' : 'border-slate-300 bg-white text-slate-700 hover:bg-slate-100' }}">
-                    {{ __('SEO') }}
-                </button>
-                <button type="button" wire:click="setTab('media')" class="rounded-lg border px-3 py-2 text-xs font-semibold uppercase tracking-[0.12em] {{ $activeTab === 'media' ? 'border-slate-900 bg-slate-900 text-white' : 'border-slate-300 bg-white text-slate-700 hover:bg-slate-100' }}">
-                    {{ __('Media') }}
-                </button>
+                @if (! $isAdvisorySubpageEditor)
+                    <button type="button" wire:click="setTab('seo')" class="rounded-lg border px-3 py-2 text-xs font-semibold uppercase tracking-[0.12em] {{ $activeTab === 'seo' ? 'border-slate-900 bg-slate-900 text-white' : 'border-slate-300 bg-white text-slate-700 hover:bg-slate-100' }}">
+                        {{ __('SEO') }}
+                    </button>
+                    <button type="button" wire:click="setTab('media')" class="rounded-lg border px-3 py-2 text-xs font-semibold uppercase tracking-[0.12em] {{ $activeTab === 'media' ? 'border-slate-900 bg-slate-900 text-white' : 'border-slate-300 bg-white text-slate-700 hover:bg-slate-100' }}">
+                        {{ __('Media') }}
+                    </button>
+                @endif
             </div>
         </div>
 
@@ -112,16 +93,23 @@
                 @include('livewire.admin.content.service.partials.audit-editor')
             @elseif ($isAccountingTemplate)
                 @include('livewire.admin.content.service.partials.accounting-editor')
+            @elseif ($isAdvisoryTemplate)
+                @include('livewire.admin.content.service.partials.advisory-editor')
+            @elseif ($isEuFundsTemplate)
+                @include('livewire.admin.content.service.partials.eu-funds-editor')
             @endif
 
+            @if (! $isAdvisorySubpageEditor)
             <div
                 @if ($isServicesIndexTemplate) id="services-index-settings"
                 @elseif ($isAuditTemplate) id="audit-settings-admin"
                 @elseif ($isAccountingTemplate) id="accounting-settings-admin"
+                @elseif ($isAdvisoryTemplate) id="advisory-settings-admin"
+                @elseif ($isEuFundsTemplate) id="eu-funds-settings-admin"
                 @endif
                 class="admin-panel admin-form-panel scroll-mt-24 p-6"
             >
-                <p class="admin-section-title">{{ ($isServicesIndexTemplate || $isAuditTemplate || $isAccountingTemplate) ? __('Page Settings') : __('Core Data') }}</p>
+                <p class="admin-section-title">{{ ($isServicesIndexTemplate || $isAuditTemplate || $isAccountingTemplate || $isAdvisoryTemplate || $isEuFundsTemplate) ? __('Page Settings') : __('Core Data') }}</p>
 
                 @if ($isServicesIndexTemplate)
                     <p class="mt-2 text-sm text-slate-600">{{ __('Technical settings for the Usluge landing page. The visible page copy is grouped above in frontend order.') }}</p>
@@ -129,6 +117,10 @@
                     <p class="mt-2 text-sm text-slate-600">{{ __('Technical settings for the Audit page. All visible frontend content is grouped above in page order.') }}</p>
                 @elseif ($isAccountingTemplate)
                     <p class="mt-2 text-sm text-slate-600">{{ __('Tehničke postavke stranice Računovodstvo. Sav vidljivi sadržaj s fronta grupiran je iznad redom kojim se prikazuje.') }}</p>
+                @elseif ($isAdvisoryTemplate)
+                    <p class="mt-2 text-sm text-slate-600">Tehničke postavke Savjetovanja i njegovih podstranica. Sav vidljivi sadržaj s fronta grupiran je iznad prema javnim rutama.</p>
+                @elseif ($isEuFundsTemplate)
+                    <p class="mt-2 text-sm text-slate-600">Tehničke postavke stranice EU fondovi. Sav vidljivi sadržaj s fronta grupiran je iznad redom kojim se prikazuje.</p>
                 @endif
 
                 <div class="mt-4 grid gap-3" style="grid-template-columns: repeat(12, minmax(0, 1fr));">
@@ -205,6 +197,7 @@
                     </div>
                 </div>
             </div>
+            @endif
 
             @if ($usesStandardHero)
             <div class="admin-panel admin-form-panel p-6">
@@ -1238,10 +1231,6 @@
                         </div>
                     </div>
                 </div>
-            @elseif ($isAdvisoryTemplate)
-                @include('livewire.admin.content.service.partials.advisory-editor')
-            @elseif ($isEuFundsTemplate)
-                @include('livewire.admin.content.service.partials.eu-funds-editor')
             @elseif ($isFamilyBusinessTemplate)
             <div class="admin-panel admin-form-panel p-6">
                 <p class="admin-section-title">{{ __('Audience & FFI') }}</p>

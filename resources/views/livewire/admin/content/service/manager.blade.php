@@ -54,7 +54,11 @@
                             $tr = $row->translations->first();
                             $adminPage = (array) ($adminPageTree[$row->template_key] ?? []);
                             $childPages = (array) ($adminPage['children'] ?? []);
-                            $editUrl = route('admin.content.services.edit', ['servicePage' => $row->id, 'locale' => $locale]);
+                            $editParameters = ['servicePage' => $row->id, 'locale' => $locale];
+                            if ($row->template_key === \App\Support\Content\ServicePageTemplateRegistry::ADVISORY) {
+                                $editParameters['section'] = 'main';
+                            }
+                            $editUrl = route('admin.content.services.edit', $editParameters);
                             $frontRoute = (string) ($adminPage['route'] ?? '');
                             $frontUrl = $frontRoute !== '' && \Illuminate\Support\Facades\Route::has($frontRoute) ? route($frontRoute) : '';
                             $isPrimaryService = in_array($row->template_key, $primaryServiceTemplateKeys ?? [], true);
@@ -106,11 +110,15 @@
                             @php
                                 $childRoute = (string) ($childPage['route'] ?? '');
                                 $childFrontUrl = $childRoute !== '' && \Illuminate\Support\Facades\Route::has($childRoute) ? route($childRoute) : '';
-                                $childAnchor = (string) ($childPage['admin_anchor'] ?? '');
+                                $childContentKey = trim((string) ($childPage['content_key'] ?? ''));
                                 $childTemplateKey = (string) ($childPage['template_key'] ?? '');
                                 $childTargetRow = $childTemplateKey !== '' ? $servicePagesByTemplate->get($childTemplateKey) : $row;
                                 $childEditUrl = $childTargetRow
-                                    ? route('admin.content.services.edit', ['servicePage' => $childTargetRow->id, 'locale' => $locale]).$childAnchor
+                                    ? route('admin.content.services.edit', array_filter([
+                                        'servicePage' => $childTargetRow->id,
+                                        'locale' => $locale,
+                                        'section' => $childContentKey !== '' ? $childContentKey : null,
+                                    ], static fn ($value): bool => $value !== null))
                                     : '#';
                                 $grandchildPages = (array) ($childPage['children'] ?? []);
                             @endphp
@@ -150,11 +158,15 @@
                                 @php
                                     $grandchildRoute = (string) ($grandchildPage['route'] ?? '');
                                     $grandchildFrontUrl = $grandchildRoute !== '' && \Illuminate\Support\Facades\Route::has($grandchildRoute) ? route($grandchildRoute) : '';
-                                    $grandchildAnchor = (string) ($grandchildPage['admin_anchor'] ?? '');
+                                    $grandchildContentKey = trim((string) ($grandchildPage['content_key'] ?? ''));
                                     $grandchildTemplateKey = (string) ($grandchildPage['template_key'] ?? '');
                                     $grandchildTargetRow = $grandchildTemplateKey !== '' ? $servicePagesByTemplate->get($grandchildTemplateKey) : $row;
                                     $grandchildEditUrl = $grandchildTargetRow
-                                        ? route('admin.content.services.edit', ['servicePage' => $grandchildTargetRow->id, 'locale' => $locale]).$grandchildAnchor
+                                        ? route('admin.content.services.edit', array_filter([
+                                            'servicePage' => $grandchildTargetRow->id,
+                                            'locale' => $locale,
+                                            'section' => $grandchildContentKey !== '' ? $grandchildContentKey : null,
+                                        ], static fn ($value): bool => $value !== null))
                                         : '#';
                                 @endphp
                                 <tr class="bg-slate-50/80">

@@ -22,6 +22,18 @@ class Form extends Component
 {
     use WithFileUploads;
 
+    private const ADVISORY_CONTENT_SECTIONS = [
+        'main',
+        'financial',
+        'funding',
+        'bank_loans',
+        'zopu',
+        'ma',
+        'due_diligence',
+        'valuations',
+        'tax',
+    ];
+
     private const TAB_OPTIONS = ['content', 'sources', 'seo', 'media'];
 
     private const SOURCE_ENABLED_TEMPLATES = [
@@ -64,6 +76,8 @@ class Form extends Component
 
     public ?int $servicePageId = null;
 
+    public string $contentSection = 'main';
+
     public string $activeTab = 'content';
 
     public ?int $blogPickerId = null;
@@ -81,6 +95,12 @@ class Form extends Component
     public ?TemporaryUploadedFile $auditHeroImageUpload = null;
 
     public ?TemporaryUploadedFile $accountingHeroImageUpload = null;
+
+    public ?TemporaryUploadedFile $advisoryHeroImageUpload = null;
+
+    public ?TemporaryUploadedFile $advisoryPandeaLogoUpload = null;
+
+    public ?TemporaryUploadedFile $euFundsHeroImageUpload = null;
 
     /**
      * @var array<string, string>
@@ -118,6 +138,10 @@ class Form extends Component
 
     public function mount(?int $servicePageId = null): void
     {
+        $requestedSection = trim((string) request()->query('section', 'main'));
+        $this->contentSection = in_array($requestedSection, self::ADVISORY_CONTENT_SECTIONS, true)
+            ? $requestedSection
+            : 'main';
         $this->form['locale'] = (string) (request()->query('locale') ?: app()->getLocale() ?: config('admin_ui.locale.default', 'hr'));
         $this->initializeTemplateDefaults((string) $this->form['template_key']);
 
@@ -137,6 +161,9 @@ class Form extends Component
         $this->landingImageUploads = [];
         $this->auditHeroImageUpload = null;
         $this->accountingHeroImageUpload = null;
+        $this->advisoryHeroImageUpload = null;
+        $this->advisoryPandeaLogoUpload = null;
+        $this->euFundsHeroImageUpload = null;
     }
 
     public function updatedFormTemplateKey(string $templateKey): void
@@ -345,6 +372,8 @@ class Form extends Component
             $this->storeServicesIndexCardImages($savedServicePage);
             $this->storeAuditHeroImage($savedServicePage);
             $this->storeAccountingHeroImage($savedServicePage);
+            $this->storeAdvisoryMedia($savedServicePage);
+            $this->storeEuFundsHeroImage($savedServicePage);
         }
 
         $message = $wasEditing ? __('Service page updated.') : __('Service page created.');
@@ -414,10 +443,40 @@ class Form extends Component
         $this->dispatch('notify', type: 'success', message: 'Vraćena je zadana hero slika za Računovodstvo.');
     }
 
+    public function removeAdvisoryHeroImage(): void
+    {
+        $this->removeAdvisoryMedia('service_hero_image', 'Vraćena je zadana hero slika za Savjetovanje.');
+        $this->advisoryHeroImageUpload = null;
+    }
+
+    public function removeAdvisoryPandeaLogo(): void
+    {
+        $this->removeAdvisoryMedia('service_logo', 'Vraćen je zadani Pandea logotip.');
+        $this->advisoryPandeaLogoUpload = null;
+    }
+
+    public function removeEuFundsHeroImage(): void
+    {
+        if (! $this->servicePageId) {
+            return;
+        }
+
+        $servicePage = ServicePage::query()->find($this->servicePageId);
+        if (! $servicePage || $servicePage->template_key !== ServicePageTemplateRegistry::EU_FUNDS) {
+            return;
+        }
+
+        $servicePage->clearMediaCollection('service_hero_image');
+        $this->euFundsHeroImageUpload = null;
+
+        $this->dispatch('notify', type: 'success', message: 'Vraćena je zadana hero slika za EU fondove.');
+    }
+
     public function render()
     {
         return view('livewire.admin.content.service.form', [
             'isEdit' => (bool) $this->servicePageId,
+            'contentSection' => $this->contentSection,
             'templateOptions' => ServicePageTemplateRegistry::labels(),
             'templateSupportsSources' => $this->templateSupportsSources(),
             'templateSupportsBlogSource' => $this->templateSupportsBlogSource(),
@@ -427,6 +486,9 @@ class Form extends Component
             'servicesIndexCardImages' => $this->servicesIndexCardImages(),
             'auditHeroImage' => $this->auditHeroImage(),
             'accountingHeroImage' => $this->accountingHeroImage(),
+            'advisoryHeroImage' => $this->advisoryHeroImage(),
+            'advisoryPandeaLogo' => $this->advisoryPandeaLogo(),
+            'euFundsHeroImage' => $this->euFundsHeroImage(),
         ]);
     }
 
@@ -697,6 +759,130 @@ class Form extends Component
             $rules['accountingHeroImageUpload'] = ['nullable', 'file', 'mimes:jpg,jpeg,png,webp,avif,svg', 'max:8192'];
         }
 
+        if ((string) ($this->form['template_key'] ?? '') === ServicePageTemplateRegistry::ADVISORY) {
+            if ($this->contentSection === 'main') {
+                $rules['form.translation_payload.hero.subtitle_lead'] = ['required', 'string', 'max:255'];
+                $rules['form.translation_payload.hero.intro'] = ['required', 'string'];
+                $rules['form.translation_payload.hero.image_alt'] = ['required', 'string', 'max:255'];
+                $rules['form.translation_payload.overview.title'] = ['required', 'string', 'max:255'];
+                $rules['form.translation_payload.overview.body'] = ['required', 'array', 'min:1'];
+                $rules['form.translation_payload.overview.body.*'] = ['required', 'string'];
+                $rules['form.translation_payload.pandea.title'] = ['required', 'string', 'max:255'];
+                $rules['form.translation_payload.pandea.logo_alt'] = ['required', 'string', 'max:255'];
+                $rules['form.translation_payload.pandea.body'] = ['required', 'array', 'min:1'];
+                $rules['form.translation_payload.pandea.body.*'] = ['required', 'string'];
+                $rules['form.translation_payload.services_intro.title'] = ['required', 'string', 'max:255'];
+                $rules['form.translation_payload.services_intro.intro'] = ['nullable', 'string'];
+                $rules['form.translation_payload.services_intro.card_action_label'] = ['required', 'string', 'max:80'];
+                $rules['form.translation_payload.service_cards'] = ['required', 'array', 'min:1'];
+                $rules['form.translation_payload.service_cards.*.title'] = ['required', 'string', 'max:255'];
+                $rules['form.translation_payload.service_cards.*.text'] = ['required', 'string'];
+                $rules['form.translation_payload.service_cards.*.url'] = ['required', 'string', 'max:2048'];
+                $rules['form.translation_payload.approach.title'] = ['required', 'string', 'max:255'];
+                $rules['form.translation_payload.approach.body'] = ['nullable', 'array'];
+                $rules['form.translation_payload.approach.body.*'] = ['nullable', 'string'];
+                $rules['form.translation_payload.blog_section.title'] = ['required', 'string', 'max:255'];
+                $rules['form.translation_payload.blog_section.all_posts_label'] = ['required', 'string', 'max:80'];
+                $rules['form.translation_payload.blog_section.post_action_label'] = ['required', 'string', 'max:80'];
+                $rules['form.translation_payload.meeting.title'] = ['required', 'string', 'max:255'];
+                $rules['form.translation_payload.meeting.contact_title'] = ['required', 'string', 'max:255'];
+                $rules['form.translation_payload.meeting.intro'] = ['required', 'string'];
+                $rules['form.translation_payload.meeting.button_label'] = ['required', 'string', 'max:80'];
+                $rules['form.translation_payload.meeting.status'] = ['required', 'string', 'max:255'];
+                $rules['advisoryHeroImageUpload'] = ['nullable', 'file', 'mimes:jpg,jpeg,png,webp,avif,svg', 'max:8192'];
+                $rules['advisoryPandeaLogoUpload'] = ['nullable', 'file', 'mimes:jpg,jpeg,png,webp,avif,svg', 'max:4096'];
+            } elseif ($this->contentSection === 'funding') {
+                $rules['form.translation_payload.funding.title'] = ['required', 'string', 'max:255'];
+                $rules['form.translation_payload.funding.intro'] = ['required', 'string'];
+                $rules['form.translation_payload.funding.hero_intro'] = ['required', 'string'];
+                $rules['form.translation_payload.funding.hero_image_alt'] = ['required', 'string', 'max:255'];
+                $rules['form.translation_payload.funding.cards'] = ['nullable', 'array'];
+                $rules['form.translation_payload.funding.cards.*.title'] = ['required', 'string', 'max:255'];
+                $rules['form.translation_payload.funding.cards.*.text'] = ['required', 'string'];
+                $rules['form.translation_payload.funding.cards.*.url'] = ['required', 'string', 'max:2048'];
+                $rules['form.translation_payload.funding.approach_title'] = ['required', 'string', 'max:255'];
+                $rules['form.translation_payload.funding.approach_body'] = ['nullable', 'array'];
+                $rules['form.translation_payload.funding.approach_body.*'] = ['nullable', 'string'];
+                $rules['form.translation_payload.source_modules.title'] = ['required', 'string', 'max:255'];
+                $rules['form.translation_payload.source_modules.intro'] = ['nullable', 'string'];
+            } else {
+                $detailKey = $this->contentSection;
+                $rules['form.translation_payload.'.$detailKey.'.title'] = ['required', 'string', 'max:255'];
+                $rules['form.translation_payload.'.$detailKey.'.hero_intro'] = ['required', 'string'];
+                $rules['form.translation_payload.'.$detailKey.'.hero_image_alt'] = ['required', 'string', 'max:255'];
+                $rules['form.translation_payload.'.$detailKey.'.overview_title'] = ['nullable', 'string', 'max:255'];
+                $rules['form.translation_payload.'.$detailKey.'.overview_body'] = ['nullable', 'array'];
+                $rules['form.translation_payload.'.$detailKey.'.overview_body.*'] = ['nullable', 'string'];
+                $rules['form.translation_payload.'.$detailKey.'.services_title'] = ['nullable', 'string', 'max:255'];
+                $rules['form.translation_payload.'.$detailKey.'.services_body'] = ['nullable', 'array'];
+                $rules['form.translation_payload.'.$detailKey.'.services_body.*'] = ['nullable', 'string'];
+                $rules['form.translation_payload.'.$detailKey.'.help_items'] = ['nullable', 'array'];
+                $rules['form.translation_payload.'.$detailKey.'.help_items.*'] = ['nullable', 'string'];
+                $rules['form.translation_payload.'.$detailKey.'.approach_title'] = ['nullable', 'string', 'max:255'];
+                $rules['form.translation_payload.'.$detailKey.'.approach_body'] = ['nullable', 'array'];
+                $rules['form.translation_payload.'.$detailKey.'.approach_body.*'] = ['nullable', 'string'];
+
+                if ($detailKey === 'ma') {
+                    $rules['form.translation_payload.ma.show_pandea'] = ['boolean'];
+                    $rules['form.translation_payload.ma.pandea.title'] = ['required', 'string', 'max:255'];
+                    $rules['form.translation_payload.ma.pandea.logo_alt'] = ['required', 'string', 'max:255'];
+                    $rules['form.translation_payload.ma.pandea.body'] = ['required', 'array', 'min:1'];
+                    $rules['form.translation_payload.ma.pandea.body.*'] = ['required', 'string'];
+                }
+            }
+
+            if ($this->contentSection !== 'main') {
+                $pageKey = $this->contentSection;
+                $rules['form.translation_payload.'.$pageKey.'.blog_section.title'] = ['required', 'string', 'max:255'];
+                $rules['form.translation_payload.'.$pageKey.'.blog_section.all_posts_label'] = ['required', 'string', 'max:80'];
+                $rules['form.translation_payload.'.$pageKey.'.blog_section.post_action_label'] = ['required', 'string', 'max:80'];
+                $rules['form.translation_payload.'.$pageKey.'.meeting.title'] = ['required', 'string', 'max:255'];
+                $rules['form.translation_payload.'.$pageKey.'.meeting.contact_title'] = ['required', 'string', 'max:255'];
+                $rules['form.translation_payload.'.$pageKey.'.meeting.intro'] = ['required', 'string'];
+                $rules['form.translation_payload.'.$pageKey.'.meeting.button_label'] = ['required', 'string', 'max:80'];
+                $rules['form.translation_payload.'.$pageKey.'.meeting.status'] = ['required', 'string', 'max:255'];
+            }
+        }
+
+        if ((string) ($this->form['template_key'] ?? '') === ServicePageTemplateRegistry::EU_FUNDS) {
+            $rules['form.translation_payload.hero.subtitle_lead'] = ['required', 'string', 'max:255'];
+            $rules['form.translation_payload.hero.intro'] = ['required', 'string'];
+            $rules['form.translation_payload.hero.image_alt'] = ['required', 'string', 'max:255'];
+            $rules['form.translation_payload.overview.title'] = ['required', 'string', 'max:255'];
+            $rules['form.translation_payload.overview.body'] = ['required', 'array', 'min:1'];
+            $rules['form.translation_payload.overview.body.*'] = ['required', 'string'];
+            $rules['form.translation_payload.process.title'] = ['required', 'string', 'max:255'];
+            $rules['form.translation_payload.process.intro'] = ['nullable', 'string'];
+            $rules['form.translation_payload.process.items'] = ['required', 'array', 'min:1'];
+            $rules['form.translation_payload.process.items.*.title'] = ['required', 'string', 'max:255'];
+            $rules['form.translation_payload.process.items.*.text'] = ['required', 'string'];
+            $rules['form.translation_payload.approach.title'] = ['required', 'string', 'max:255'];
+            $rules['form.translation_payload.approach.body'] = ['required', 'array', 'min:1'];
+            $rules['form.translation_payload.approach.body.*'] = ['required', 'string'];
+            $rules['form.translation_payload.source_modules.title'] = ['required', 'string', 'max:255'];
+            $rules['form.translation_payload.source_modules.intro'] = ['nullable', 'string'];
+            $rules['form.translation_payload.source_modules.items'] = ['required', 'array', 'min:1'];
+            $rules['form.translation_payload.source_modules.items.*.title'] = ['required', 'string', 'max:255'];
+            $rules['form.translation_payload.source_modules.items.*.text'] = ['required', 'string'];
+            $rules['form.translation_payload.source_modules.items.*.url'] = ['required', 'string', 'max:2048'];
+            $rules['form.translation_payload.calls.title'] = ['required', 'string', 'max:255'];
+            $rules['form.translation_payload.calls.intro'] = ['nullable', 'string'];
+            $rules['form.translation_payload.calls.view_all_label'] = ['required', 'string', 'max:80'];
+            $rules['form.translation_payload.resources.title'] = ['required', 'string', 'max:255'];
+            $rules['form.translation_payload.resources.intro'] = ['nullable', 'string'];
+            $rules['form.translation_payload.laws.title'] = ['required', 'string', 'max:255'];
+            $rules['form.translation_payload.laws.intro'] = ['nullable', 'string'];
+            $rules['form.translation_payload.blog_section.title'] = ['required', 'string', 'max:255'];
+            $rules['form.translation_payload.blog_section.all_posts_label'] = ['required', 'string', 'max:80'];
+            $rules['form.translation_payload.blog_section.post_action_label'] = ['required', 'string', 'max:80'];
+            $rules['form.translation_payload.meeting.title'] = ['required', 'string', 'max:255'];
+            $rules['form.translation_payload.meeting.intro'] = ['required', 'string'];
+            $rules['form.translation_payload.meeting.contact_title'] = ['required', 'string', 'max:255'];
+            $rules['form.translation_payload.meeting.button_label'] = ['required', 'string', 'max:80'];
+            $rules['form.translation_payload.meeting.status'] = ['required', 'string', 'max:255'];
+            $rules['euFundsHeroImageUpload'] = ['nullable', 'file', 'mimes:jpg,jpeg,png,webp,avif,svg', 'max:8192'];
+        }
+
         return $rules;
     }
 
@@ -729,6 +915,9 @@ class Form extends Component
         $this->landingImageUploads = [];
         $this->auditHeroImageUpload = null;
         $this->accountingHeroImageUpload = null;
+        $this->advisoryHeroImageUpload = null;
+        $this->advisoryPandeaLogoUpload = null;
+        $this->euFundsHeroImageUpload = null;
 
         if ($translation) {
             $this->form['locale'] = $translation->locale;
@@ -780,6 +969,9 @@ class Form extends Component
         $this->landingImageUploads = [];
         $this->auditHeroImageUpload = null;
         $this->accountingHeroImageUpload = null;
+        $this->advisoryHeroImageUpload = null;
+        $this->advisoryPandeaLogoUpload = null;
+        $this->euFundsHeroImageUpload = null;
     }
 
     private function clearTranslationFields(string $templateKey): void
@@ -799,6 +991,9 @@ class Form extends Component
         $this->landingImageUploads = [];
         $this->auditHeroImageUpload = null;
         $this->accountingHeroImageUpload = null;
+        $this->advisoryHeroImageUpload = null;
+        $this->advisoryPandeaLogoUpload = null;
+        $this->euFundsHeroImageUpload = null;
     }
 
     private function initializeTemplateDefaults(string $templateKey): void
@@ -1189,6 +1384,66 @@ class Form extends Component
         ];
     }
 
+    /**
+     * @return array{url: string, is_custom: bool}
+     */
+    private function advisoryHeroImage(): array
+    {
+        return $this->advisoryMediaPreview(
+            'service_hero_image',
+            'front-theme/images/services/advisory-editorial-3d.svg'
+        );
+    }
+
+    /**
+     * @return array{url: string, is_custom: bool}
+     */
+    private function advisoryPandeaLogo(): array
+    {
+        return $this->advisoryMediaPreview(
+            'service_logo',
+            'front-theme/images/logos/pandea-global-ma-logo.png'
+        );
+    }
+
+    /**
+     * @return array{url: string, is_custom: bool}
+     */
+    private function euFundsHeroImage(): array
+    {
+        $servicePage = $this->servicePageId
+            ? ServicePage::query()->find($this->servicePageId)
+            : null;
+        $media = $servicePage?->template_key === ServicePageTemplateRegistry::EU_FUNDS
+            ? $servicePage->getFirstMedia('service_hero_image')
+            : null;
+
+        return [
+            'url' => $media
+                ? $media->getUrl()
+                : asset('front-theme/images/services/advisory-editorial-3d.svg'),
+            'is_custom' => (bool) $media,
+        ];
+    }
+
+    /**
+     * @return array{url: string, is_custom: bool}
+     */
+    private function advisoryMediaPreview(string $collection, string $fallback): array
+    {
+        $servicePage = $this->servicePageId
+            ? ServicePage::query()->find($this->servicePageId)
+            : null;
+        $media = $servicePage?->template_key === ServicePageTemplateRegistry::ADVISORY
+            ? $servicePage->getFirstMedia($collection)
+            : null;
+
+        return [
+            'url' => $media ? $media->getUrl() : asset($fallback),
+            'is_custom' => (bool) $media,
+        ];
+    }
+
     private function storeServicesIndexCardImages(ServicePage $servicePage): void
     {
         if ($servicePage->template_key !== ServicePageTemplateRegistry::SERVICES_INDEX) {
@@ -1254,6 +1509,85 @@ class Form extends Component
             ->toMediaCollection('service_hero_image');
 
         $this->accountingHeroImageUpload = null;
+    }
+
+    private function storeAdvisoryMedia(ServicePage $servicePage): void
+    {
+        if ($servicePage->template_key !== ServicePageTemplateRegistry::ADVISORY) {
+            return;
+        }
+
+        $this->storeAdvisoryUpload(
+            $servicePage,
+            $this->advisoryHeroImageUpload,
+            'service_hero_image',
+            'savjetovanje-hero'
+        );
+        $this->storeAdvisoryUpload(
+            $servicePage,
+            $this->advisoryPandeaLogoUpload,
+            'service_logo',
+            'pandea-logo'
+        );
+
+        $this->advisoryHeroImageUpload = null;
+        $this->advisoryPandeaLogoUpload = null;
+    }
+
+    private function storeEuFundsHeroImage(ServicePage $servicePage): void
+    {
+        if (
+            $servicePage->template_key !== ServicePageTemplateRegistry::EU_FUNDS
+            || ! $this->euFundsHeroImageUpload instanceof TemporaryUploadedFile
+        ) {
+            return;
+        }
+
+        $originalName = (string) pathinfo($this->euFundsHeroImageUpload->getClientOriginalName(), PATHINFO_FILENAME);
+        $safeBaseName = Str::slug($originalName) ?: 'eu-fondovi-hero';
+        $extension = strtolower($this->euFundsHeroImageUpload->getClientOriginalExtension() ?: 'jpg');
+
+        $servicePage->addMedia($this->euFundsHeroImageUpload->getRealPath())
+            ->usingName($originalName !== '' ? $originalName : $safeBaseName)
+            ->usingFileName($safeBaseName.'-'.Str::lower(Str::random(6)).'.'.$extension)
+            ->toMediaCollection('service_hero_image');
+
+        $this->euFundsHeroImageUpload = null;
+    }
+
+    private function storeAdvisoryUpload(
+        ServicePage $servicePage,
+        ?TemporaryUploadedFile $upload,
+        string $collection,
+        string $fallbackName
+    ): void {
+        if (! $upload instanceof TemporaryUploadedFile) {
+            return;
+        }
+
+        $originalName = (string) pathinfo($upload->getClientOriginalName(), PATHINFO_FILENAME);
+        $safeBaseName = Str::slug($originalName) ?: $fallbackName;
+        $extension = strtolower($upload->getClientOriginalExtension() ?: 'jpg');
+
+        $servicePage->addMedia($upload->getRealPath())
+            ->usingName($originalName !== '' ? $originalName : $safeBaseName)
+            ->usingFileName($safeBaseName.'-'.Str::lower(Str::random(6)).'.'.$extension)
+            ->toMediaCollection($collection);
+    }
+
+    private function removeAdvisoryMedia(string $collection, string $message): void
+    {
+        if (! $this->servicePageId) {
+            return;
+        }
+
+        $servicePage = ServicePage::query()->find($this->servicePageId);
+        if (! $servicePage || $servicePage->template_key !== ServicePageTemplateRegistry::ADVISORY) {
+            return;
+        }
+
+        $servicePage->clearMediaCollection($collection);
+        $this->dispatch('notify', type: 'success', message: $message);
     }
 
     /**

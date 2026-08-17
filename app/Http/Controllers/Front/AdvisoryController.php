@@ -62,7 +62,7 @@ class AdvisoryController extends Controller
             'servicePageMetaTitle' => trim((string) ($servicePageTranslation?->meta_title ?? '')) ?: 'Savjetovanje | ALPHA CAPITALIS',
             'servicePageMetaDescription' => trim((string) ($servicePageTranslation?->meta_description ?? '')) ?: 'Financijsko i porezno savjetovanje, pribavljanje financiranja, due diligence, procjene vrijednosti i M&A savjetovanje.',
             'servicePageOgImage' => $this->resolveServiceHeroBackgroundUrl($servicePage),
-            'pandeaLogoUrl' => $this->versionedAsset('front-theme/images/logos/pandea-global-ma-logo.png'),
+            'pandeaLogoUrl' => $this->resolvePandeaLogoUrl($servicePage),
             'locale' => $locale,
             'fallbackLocale' => $fallbackLocale,
         ]);
@@ -70,7 +70,7 @@ class AdvisoryController extends Controller
 
     public function financial(Request $request): View
     {
-        return $this->subpage($request, 'ma');
+        return $this->subpage($request, 'financial');
     }
 
     public function tax(Request $request): View
@@ -132,38 +132,44 @@ class AdvisoryController extends Controller
         );
 
         $detailPages = [
+            'financial' => [
+                'title' => trim((string) data_get($translationPayload, 'financial.title')) ?: 'Financijsko savjetovanje',
+                'intro' => (string) data_get($translationPayload, 'financial.overview_body.0', ''),
+                'meta_title' => 'Financijsko savjetovanje | ALPHA CAPITALIS',
+                'meta_description' => 'Financijska analiza, modeliranje, planiranje kapitala i stručna podrška pri važnim poslovnim odlukama.',
+            ],
             'ma' => [
-                'title' => 'Prodaja i kupnja poduzeća (M&A)',
+                'title' => trim((string) data_get($translationPayload, 'ma.title')) ?: 'Prodaja i kupnja poduzeća (M&A)',
                 'intro' => (string) data_get($translationPayload, 'ma.overview_body.0', ''),
                 'meta_title' => 'Prodaja i kupnja poduzeća (M&A) | ALPHA CAPITALIS',
                 'meta_description' => 'Savjetovanje u prodaji i kupnji poduzeća, pripremi transakcije, procjeni vrijednosti i pregovorima.',
             ],
             'due_diligence' => [
-                'title' => 'Dubinska snimanja (Due Diligence)',
+                'title' => trim((string) data_get($translationPayload, 'due_diligence.title')) ?: 'Dubinska snimanja (Due Diligence)',
                 'intro' => (string) data_get($translationPayload, 'due_diligence.overview_body.0', ''),
                 'meta_title' => 'Dubinska snimanja (Due Diligence) | ALPHA CAPITALIS',
                 'meta_description' => 'Dubinska analiza poslovanja, financijskih rezultata, rizika i prilika prije transakcija i strateških odluka.',
             ],
             'valuations' => [
-                'title' => 'Procjena vrijednosti društva',
+                'title' => trim((string) data_get($translationPayload, 'valuations.title')) ?: 'Procjena vrijednosti društva',
                 'intro' => (string) data_get($translationPayload, 'valuations.overview_body.0', ''),
                 'meta_title' => 'Procjena vrijednosti društva | ALPHA CAPITALIS',
                 'meta_description' => 'Procjena vrijednosti društva, financijsko modeliranje i stručna podloga za transakcije i strateške odluke.',
             ],
             'tax' => [
-                'title' => 'Porezno savjetovanje',
+                'title' => trim((string) data_get($translationPayload, 'tax.title')) ?: 'Porezno savjetovanje',
                 'intro' => (string) data_get($translationPayload, 'tax.overview_body.0', ''),
                 'meta_title' => 'Porezno savjetovanje | ALPHA CAPITALIS',
                 'meta_description' => 'Porezno planiranje, analiza poreznih rizika, porezna mišljenja, PDV savjetovanje i porezna podrška transakcijama.',
             ],
             'bank_loans' => [
-                'title' => 'Bankovni krediti',
+                'title' => trim((string) data_get($translationPayload, 'bank_loans.title')) ?: 'Bankovni krediti',
                 'intro' => (string) data_get($translationPayload, 'bank_loans.overview_body.0', ''),
                 'meta_title' => 'Bankovni krediti | ALPHA CAPITALIS',
                 'meta_description' => 'Podrška pri pribavljanju bankovnog financiranja, pripremi dokumentacije, projekcija i pregovorima s bankama.',
             ],
             'zopu' => [
-                'title' => 'Zakon o poticanju ulaganja',
+                'title' => trim((string) data_get($translationPayload, 'zopu.title')) ?: 'Zakon o poticanju ulaganja',
                 'intro' => (string) data_get($translationPayload, 'zopu.overview_body.0', ''),
                 'meta_title' => 'Zakon o poticanju ulaganja | ALPHA CAPITALIS',
                 'meta_description' => 'Podrška pri korištenju potpora prema Zakonu o poticanju ulaganja i provedbi investicijskih projekata.',
@@ -173,26 +179,23 @@ class AdvisoryController extends Controller
         $subpage = match ($type) {
             'funding' => [
                 'type' => 'funding',
-                'title' => 'Pribavljanje financiranja',
+                'title' => trim((string) data_get($translationPayload, 'funding.title')) ?: 'Pribavljanje financiranja',
                 'intro' => (string) data_get($translationPayload, 'funding.intro', ''),
                 'meta_title' => 'Pribavljanje financiranja | ALPHA CAPITALIS',
                 'meta_description' => 'EU fondovi, bankovni krediti, Zakon o poticanju ulaganja i strukturiranje financiranja.',
             ],
-            'ma', 'due_diligence', 'valuations', 'tax', 'bank_loans', 'zopu' => [
+            'financial', 'ma', 'due_diligence', 'valuations', 'tax', 'bank_loans', 'zopu' => [
                 'type' => 'detail',
                 'detail_key' => $type,
                 ...$detailPages[$type],
             ],
-            default => [
-                'type' => 'financial',
-                'title' => 'Financijsko savjetovanje',
-                'intro' => (string) data_get($translationPayload, 'overview.body.0', ''),
-                'meta_title' => 'Financijsko savjetovanje | ALPHA CAPITALIS',
-                'meta_description' => 'M&A savjetovanje, due diligence, procjene vrijednosti i podrška u transakcijama.',
-            ],
+            default => abort(404),
         };
 
         $subpage['hook'] = $this->resolveSubpageHook($translationPayload, $type, $subpage);
+        $subpage['hero_image_alt'] = $type === 'funding'
+            ? trim((string) data_get($translationPayload, 'funding.hero_image_alt'))
+            : trim((string) data_get($translationPayload, $type.'.hero_image_alt'));
 
         return view($this->frontendView($request, 'pages.advisory-subpage'), [
             'advisoryPosts' => $advisoryPosts,
@@ -211,7 +214,7 @@ class AdvisoryController extends Controller
             'servicePageMetaTitle' => $subpage['meta_title'],
             'servicePageMetaDescription' => $subpage['meta_description'],
             'servicePageOgImage' => $this->resolveServiceHeroBackgroundUrl($servicePage),
-            'pandeaLogoUrl' => $this->versionedAsset('front-theme/images/logos/pandea-global-ma-logo.png'),
+            'pandeaLogoUrl' => $this->resolvePandeaLogoUrl($servicePage),
             'locale' => $locale,
             'fallbackLocale' => $fallbackLocale,
         ]);
@@ -223,7 +226,13 @@ class AdvisoryController extends Controller
      */
     private function resolveSubpageHook(array $translationPayload, string $type, array $subpage): string
     {
+        $configuredHook = trim((string) data_get($translationPayload, $type.'.hero_intro'));
+        if ($configuredHook !== '') {
+            return $configuredHook;
+        }
+
         $routeFragments = [
+            'financial' => '/savjetovanje/financijsko-savjetovanje',
             'funding' => '/savjetovanje/pribavljanje-financiranja',
             'ma' => '/savjetovanje/prodaja-i-kupnja-poduzeca',
             'due_diligence' => '/savjetovanje/dubinska-snimanja',
@@ -483,6 +492,19 @@ class AdvisoryController extends Controller
         }
 
         return $this->versionedAsset('front-theme/images/services/advisory-editorial-3d.svg');
+    }
+
+    private function resolvePandeaLogoUrl(?ServicePage $servicePage): string
+    {
+        $mediaUrl = $servicePage
+            ? (string) ($servicePage->getFirstMediaUrl('service_logo', 'detail_960x960') ?: $servicePage->getFirstMediaUrl('service_logo'))
+            : '';
+
+        if ($mediaUrl !== '') {
+            return $mediaUrl;
+        }
+
+        return $this->versionedAsset('front-theme/images/logos/pandea-global-ma-logo.png');
     }
 
     private function versionedAsset(string $relativePath): string

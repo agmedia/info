@@ -9,7 +9,9 @@
     $funding = (array) ($content['funding'] ?? []);
     $sourceModules = (array) ($content['source_modules'] ?? []);
     $pandea = (array) ($content['pandea'] ?? []);
-    $meeting = (array) ($content['meeting'] ?? []);
+    $pageContent = $type === 'funding' ? $funding : $detail;
+    $meeting = (array) ($pageContent['meeting'] ?? $content['meeting'] ?? []);
+    $blogSection = (array) ($pageContent['blog_section'] ?? $content['blog_section'] ?? []);
     $isCroatian = str_starts_with(strtolower((string) ($locale ?? app()->getLocale())), 'hr');
 
     $overviewTitle = $type === 'funding'
@@ -56,7 +58,10 @@
         ));
 
     $approach = $type === 'funding'
-        ? (array) ($content['approach'] ?? [])
+        ? [
+            'title' => $funding['approach_title'] ?? data_get($content, 'approach.title', ''),
+            'body' => $funding['approach_body'] ?? data_get($content, 'approach.body', []),
+        ]
         : [
             'title' => $detail['approach_title'] ?? '',
             'body' => $detail['approach_body'] ?? [],
@@ -70,6 +75,7 @@
 
     $serviceIconSets = [
         'funding' => ['fa-hand-holding-circle-dollar', 'fa-landmark-dome', 'fa-badge-percent'],
+        'financial' => ['fa-chart-line-up', 'fa-calculator', 'fa-money-check-dollar-pen', 'fa-landmark', 'fa-file-chart-column', 'fa-chart-network'],
         'ma' => ['fa-chart-mixed', 'fa-chart-user', 'fa-diagram-project', 'fa-file-certificate', 'fa-people-group', 'fa-buildings', 'fa-handshake', 'fa-badge-check'],
         'due_diligence' => ['fa-magnifying-glass-chart', 'fa-chart-waterfall', 'fa-shield-halved', 'fa-chart-column', 'fa-bullseye-pointer', 'fa-lightbulb-on'],
         'valuations' => ['fa-chart-user', 'fa-calculator', 'fa-chart-mixed', 'fa-coins', 'fa-people-arrows-left-right', 'fa-file-certificate'],
@@ -82,7 +88,8 @@
 
     $heroLabel = trim((string) ($heroSection['subtitle_lead'] ?? $subpage['title'] ?? ''));
     $heroHook = trim((string) ($heroSection['intro'] ?? $subpage['hook'] ?? ''));
-    $heroImageAlt = $heroLabel.($isCroatian ? ' — stručna savjetodavna podrška' : ' — expert advisory support');
+    $heroImageAlt = trim((string) ($subpage['hero_image_alt'] ?? ''))
+        ?: $heroLabel.($isCroatian ? ' — stručna savjetodavna podrška' : ' — expert advisory support');
     $heroLabelClass = mb_strlen($heroLabel) > 26 ? 'is-long' : '';
     $meetingTitle = trim((string) ($meeting['title'] ?? ''))
         ?: ($isCroatian ? 'Razgovarajmo o vašim poslovnim odlukama' : 'Let’s discuss your business decisions');
@@ -92,21 +99,25 @@
             : 'Contact us and we will assess which form of advisory support best fits your goal.');
     $meetingCardTitle = trim((string) ($meeting['contact_title'] ?? ''))
         ?: ($isCroatian ? 'Kontaktirajte nas' : 'Contact us');
-    $meetingButtonLabel = $isCroatian ? 'Dogovorite sastanak' : 'Schedule a meeting';
-    $meetingStatus = $isCroatian ? 'Termin razgovora prilagođavamo vama.' : 'We arrange the meeting around your schedule.';
-    $blogHeadingTitle = $isCroatian
-        ? 'Stručni uvidi u financije, poreze i transakcije'
-        : 'Expert insights into finance, tax and transactions';
-    $allPostsLabel = $isCroatian ? 'Pogledaj sve objave' : 'View all posts';
-    $readMoreLabel = $isCroatian ? 'Opširnije' : 'Read more';
+    $meetingButtonLabel = trim((string) ($meeting['button_label'] ?? ''))
+        ?: ($isCroatian ? 'Dogovorite sastanak' : 'Schedule a meeting');
+    $meetingStatus = trim((string) ($meeting['status'] ?? ''))
+        ?: ($isCroatian ? 'Termin razgovora prilagođavamo vama.' : 'We arrange the meeting around your schedule.');
+    $blogHeadingTitle = trim((string) ($blogSection['title'] ?? ''))
+        ?: ($isCroatian ? 'Stručni uvidi u financije, poreze i transakcije' : 'Expert insights into finance, tax and transactions');
+    $allPostsLabel = trim((string) ($blogSection['all_posts_label'] ?? ''))
+        ?: ($isCroatian ? 'Pogledaj sve objave' : 'View all posts');
+    $readMoreLabel = trim((string) ($blogSection['post_action_label'] ?? ''))
+        ?: ($isCroatian ? 'Opširnije' : 'Read more');
 
+    $pagePandea = (array) ($detail['pandea'] ?? $pandea);
     $pandeaBody = (bool) ($detail['show_pandea'] ?? false)
         ? array_values(array_filter(
-            (array) ($pandea['body'] ?? []),
+            (array) ($pagePandea['body'] ?? []),
             static fn ($paragraph): bool => trim((string) $paragraph) !== '',
         ))
         : [];
-    $networkTitle = trim((string) ($pandea['title'] ?? ''));
+    $networkTitle = trim((string) ($pagePandea['title'] ?? ''));
     $networkTitleLines = preg_split('/(?=Pandea Global M&A)/u', $networkTitle, 2, PREG_SPLIT_NO_EMPTY) ?: [$networkTitle];
 
     $currentHost = request()->getHost();
@@ -212,7 +223,7 @@
                             <div class="ac-advisory-network-logo-card content-reveal" data-image-reveal>
                                 <img
                                     src="{{ $networkLogoUrl }}"
-                                    alt="{{ $pandea['logo_alt'] ?? 'Pandea Global M&A' }}"
+                                    alt="{{ $pagePandea['logo_alt'] ?? 'Pandea Global M&A' }}"
                                     class="ac-advisory-network-logo"
                                     width="380"
                                     height="100"
@@ -270,7 +281,7 @@
                                         <span class="ac-advisory-service-icon" aria-hidden="true">
                                             <i class="fa-duotone fa-thin fa-fw {{ $serviceIcons[$loop->index] ?? 'fa-chart-network' }}"></i>
                                         </span>
-                                        <h3>{{ \Illuminate\Support\Str::ucfirst((string) ($card['title'] ?? '')) }}</h3>
+                                        <h3>{{ $card['title'] ?? '' }}</h3>
                                     </article>
                                 @endif
                             @endforeach

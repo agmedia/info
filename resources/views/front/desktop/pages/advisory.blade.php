@@ -12,6 +12,7 @@
     $pandea = (array) ($content['pandea'] ?? []);
     $approach = (array) ($content['approach'] ?? []);
     $meeting = (array) ($content['meeting'] ?? []);
+    $blogSection = (array) ($content['blog_section'] ?? []);
     $isCroatian = str_starts_with(strtolower((string) ($locale ?? app()->getLocale())), 'hr');
     $overviewBody = array_values(array_filter(
         (array) ($overview['body'] ?? []),
@@ -36,7 +37,8 @@
     ];
     $heroLabel = trim((string) ($hero['subtitle_lead'] ?? '')) ?: ($isCroatian ? 'Savjetovanje' : 'Advisory');
     $heroHook = trim((string) ($hero['intro'] ?? ''));
-    $heroImageAlt = $isCroatian ? 'Stručno financijsko i strateško savjetovanje' : 'Expert financial and strategic advisory';
+    $heroImageAlt = trim((string) ($hero['image_alt'] ?? ''))
+        ?: ($isCroatian ? 'Stručno financijsko i strateško savjetovanje' : 'Expert financial and strategic advisory');
     $meetingTitle = trim((string) ($meeting['title'] ?? ''))
         ?: ($isCroatian ? 'Razgovarajmo o vašim poslovnim odlukama' : 'Let’s discuss your business decisions');
     $meetingIntro = trim((string) ($meeting['intro'] ?? ''))
@@ -45,13 +47,17 @@
             : 'Contact us and we will assess which form of advisory support best fits your goal.');
     $meetingCardTitle = trim((string) ($meeting['contact_title'] ?? ''))
         ?: ($isCroatian ? 'Kontaktirajte nas' : 'Contact us');
-    $meetingButtonLabel = $isCroatian ? 'Dogovorite sastanak' : 'Schedule a meeting';
-    $meetingStatus = $isCroatian ? 'Termin razgovora prilagođavamo vama.' : 'We arrange the meeting around your schedule.';
-    $blogHeadingTitle = $isCroatian
-        ? 'Stručni uvidi u financije, poreze i transakcije'
-        : 'Expert insights into finance, tax and transactions';
-    $allPostsLabel = $isCroatian ? 'Pogledaj sve objave' : 'View all posts';
-    $readMoreLabel = $isCroatian ? 'Opširnije' : 'Read more';
+    $meetingButtonLabel = trim((string) ($meeting['button_label'] ?? ''))
+        ?: ($isCroatian ? 'Dogovorite sastanak' : 'Schedule a meeting');
+    $meetingStatus = trim((string) ($meeting['status'] ?? ''))
+        ?: ($isCroatian ? 'Termin razgovora prilagođavamo vama.' : 'We arrange the meeting around your schedule.');
+    $blogHeadingTitle = trim((string) ($blogSection['title'] ?? ''))
+        ?: ($isCroatian ? 'Stručni uvidi u financije, poreze i transakcije' : 'Expert insights into finance, tax and transactions');
+    $allPostsLabel = trim((string) ($blogSection['all_posts_label'] ?? ''))
+        ?: ($isCroatian ? 'Pogledaj sve objave' : 'View all posts');
+    $readMoreLabel = trim((string) ($blogSection['post_action_label'] ?? ''))
+        ?: ($isCroatian ? 'Opširnije' : 'Read more');
+    $serviceActionLabel = trim((string) ($services['card_action_label'] ?? '')) ?: $readMoreLabel;
     $currentHost = request()->getHost();
     $sameOriginAssetUrl = static function (?string $url) use ($currentHost): string {
         $assetUrl = trim((string) $url);
@@ -199,7 +205,7 @@
                             <h3>{{ $card['title'] ?? '' }}</h3>
                             <p>{{ $card['text'] ?? '' }}</p>
                             <span class="ac-advisory-service-link" aria-hidden="true">
-                                {{ $readMoreLabel }}
+                                {{ $serviceActionLabel }}
                                 <i class="fa-duotone fa-thin fa-arrow-right fa-fw"></i>
                             </span>
                         </a>

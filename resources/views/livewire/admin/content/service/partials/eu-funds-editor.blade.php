@@ -1,625 +1,109 @@
+@php
+    $euFundsHeroUpload = $euFundsHeroImageUpload ?? null;
+    $euFundsHeroPreviewUrl = $euFundsHeroUpload instanceof \Livewire\Features\SupportFileUploads\TemporaryUploadedFile
+        ? $euFundsHeroUpload->temporaryUrl()
+        : (string) ($euFundsHeroImage['url'] ?? '');
+@endphp
+
 <div class="admin-panel admin-form-panel p-6">
-    <p class="admin-section-title">{{ __('EU Funds Navigator') }}</p>
-    <div class="mt-4 flex flex-wrap gap-2">
-        @foreach ($euFundsEditorSections as $sectionId => $sectionLabel)
-            <a href="#{{ $sectionId }}" class="admin-chip">{{ $sectionLabel }}</a>
-        @endforeach
-    </div>
-    <p class="mt-4 text-sm text-slate-600">
-        {{ __('EU fondovi koristi zaseban landing layout. Ovdje uređujete tekstove sekcija, kartice programa, zakonske blokove i završne kontakt/blog elemente koji se prikazuju na frontend stranici.') }}
-    </p>
-</div>
-
-<div id="eu-funds-about" class="admin-panel admin-form-panel p-6 scroll-mt-24">
-    <p class="admin-section-title">{{ __('About Block') }}</p>
-
-    <div class="mt-4 grid gap-3 md:grid-cols-2">
+    <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
         <div>
-            <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Kicker') }}</label>
-            <input type="text" wire:model="form.translation_payload.about.kicker" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+            <p class="admin-section-title">Sadržaj s fronta</p>
+            <h2 class="mt-2 text-xl font-semibold tracking-tight text-slate-900">Stranica EU fondovi</h2>
+            <p class="mt-2 max-w-3xl text-sm leading-6 text-slate-600">Sekcije su složene istim redom kao na frontu. Prikazana su samo polja koja se stvarno vide na stranici.</p>
         </div>
-        <div>
-            <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Title') }}</label>
-            <input type="text" wire:model="form.translation_payload.about.title" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
-        </div>
+        <a href="{{ route('eu-funds.show') }}" target="_blank" rel="noopener" class="inline-flex items-center justify-center gap-2 rounded-xl border border-cyan-700 bg-white px-4 py-2 text-sm font-semibold text-cyan-800 hover:bg-cyan-50">Otvori front <i class="fa-light fa-arrow-up-right-from-square" aria-hidden="true"></i></a>
     </div>
-
-    @foreach (($translationPayload['about']['body'] ?? []) as $index => $paragraph)
-        <div class="mt-3">
-            <div class="mb-1 flex items-center justify-between gap-3">
-                <label class="block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Paragraph') }} #{{ $index + 1 }}</label>
-                <button type="button" wire:click="removeTranslationListItem('about.body', {{ $index }})" class="text-xs font-semibold text-rose-600 hover:text-rose-700">{{ __('Remove') }}</button>
-            </div>
-            <textarea rows="5" wire:model="form.translation_payload.about.body.{{ $index }}" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm"></textarea>
-        </div>
-    @endforeach
-
-    <div class="mt-3">
-        <button type="button" wire:click="addTranslationListItem('about.body')" class="rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-100">
-            {{ __('Add Paragraph') }}
-        </button>
-    </div>
-
-    <div class="mt-6">
-        <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Supporting Box Title') }}</label>
-        <input type="text" wire:model="form.translation_payload.about.box_title" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
-    </div>
-
-    @foreach (($translationPayload['about']['box_items'] ?? []) as $index => $item)
-        <div class="mt-3">
-            <div class="mb-1 flex items-center justify-between gap-3">
-                <label class="block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Supporting Box Item') }} #{{ $index + 1 }}</label>
-                <button type="button" wire:click="removeTranslationListItem('about.box_items', {{ $index }})" class="text-xs font-semibold text-rose-600 hover:text-rose-700">{{ __('Remove') }}</button>
-            </div>
-            <input type="text" wire:model="form.translation_payload.about.box_items.{{ $index }}" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
-        </div>
-    @endforeach
-
-    <div class="mt-3">
-        <button type="button" wire:click="addTranslationListItem('about.box_items')" class="rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-100">
-            {{ __('Add Supporting Item') }}
-        </button>
+    <div class="mt-5 flex flex-wrap gap-2" aria-label="Navigacija po sekcijama stranice EU fondovi">
+        <a href="#eu-funds-hero-admin" class="admin-chip">1. Hero i slika</a>
+        <a href="#eu-funds-overview-admin" class="admin-chip">2. Što su EU fondovi</a>
+        <a href="#eu-funds-process-admin" class="admin-chip">3. Naše usluge</a>
+        <a href="#eu-funds-approach-admin" class="admin-chip">4. Naš pristup</a>
+        <a href="#eu-funds-sources-admin" class="admin-chip">5. Izvori financiranja</a>
+        <a href="#eu-funds-calls-admin" class="admin-chip">6. Natječaji</a>
+        <a href="#eu-funds-resources-admin" class="admin-chip">7. Programi i instrumenti</a>
+        <a href="#eu-funds-laws-admin" class="admin-chip">8. Zakoni i olakšice</a>
+        <a href="#eu-funds-blog-admin" class="admin-chip">9. Stručne objave</a>
+        <a href="#eu-funds-meeting-admin" class="admin-chip">10. Kontaktni poziv</a>
+        <a href="#eu-funds-settings-admin" class="admin-chip">11. Postavke stranice</a>
     </div>
 </div>
 
-<div class="grid gap-6 xl:grid-cols-2">
-    <div id="eu-funds-overview" class="admin-panel admin-form-panel p-6 scroll-mt-24">
-        <p class="admin-section-title">{{ __('Overview Block') }}</p>
-
-        <div class="mt-4">
-            <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Kicker') }}</label>
-            <input type="text" wire:model="form.translation_payload.overview.kicker" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+<div id="eu-funds-hero-admin" class="admin-panel admin-form-panel scroll-mt-24 p-6">
+    <div class="border-b border-slate-200 pb-4"><p class="text-xs font-semibold uppercase tracking-[0.16em] text-cyan-700">1. Hero i slika</p><h2 class="mt-1 text-lg font-semibold text-slate-900">Vrh stranice EU fondovi</h2></div>
+    <div class="mt-5 grid gap-5 xl:grid-cols-[minmax(0,1.2fr)_minmax(320px,0.8fr)]">
+        <div class="space-y-4">
+            <div class="grid gap-4 md:grid-cols-2">
+                <div><label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Naziv usluge</label><input type="text" wire:model="form.translation_payload.hero.subtitle_lead" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" /></div>
+                <div><label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Istaknuti dio naziva</label><input type="text" wire:model="form.translation_payload.hero.subtitle_accent" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" /><p class="mt-1 text-xs text-slate-500">Ostavite prazno ako cijeli naziv treba biti u jednom retku.</p></div>
+            </div>
+            <div><label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Glavna hero poruka</label><textarea rows="6" wire:model="form.translation_payload.hero.intro" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm leading-6"></textarea></div>
+            <div><label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Alternativni opis slike</label><input type="text" wire:model="form.translation_payload.hero.image_alt" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" /></div>
         </div>
-
-        <div class="mt-3">
-            <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Title') }}</label>
-            <input type="text" wire:model="form.translation_payload.overview.title" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+        <div>
+            <div class="overflow-hidden rounded-xl border border-slate-200 bg-slate-100">@if ($euFundsHeroPreviewUrl !== '')<img src="{{ $euFundsHeroPreviewUrl }}" alt="" class="aspect-video w-full object-cover" />@endif</div>
+            <div class="mt-3 flex items-center justify-between gap-3"><label class="block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Hero slika</label><span class="admin-chip">{{ ($euFundsHeroImage['is_custom'] ?? false) ? 'Vlastita slika' : 'Zadana slika' }}</span></div>
+            <input type="file" wire:model="euFundsHeroImageUpload" accept="image/jpeg,image/png,image/webp,image/avif,image/svg+xml" class="mt-1 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm file:mr-3 file:rounded-lg file:border-0 file:bg-slate-100 file:px-3 file:py-1.5 file:text-xs file:font-semibold file:text-slate-700 hover:file:bg-slate-200" />
+            <p class="mt-1 text-xs text-slate-500">Preporučeni omjer je 16:9.</p>
+            @error('euFundsHeroImageUpload') <p class="mt-1 text-xs text-rose-600">{{ $message }}</p> @enderror
+            @if (($euFundsHeroImage['is_custom'] ?? false) && ! $euFundsHeroUpload)<button type="button" wire:click="removeEuFundsHeroImage" wire:confirm="Ukloniti vlastitu hero sliku i vratiti zadanu?" class="mt-2 text-xs font-semibold text-rose-600 hover:text-rose-700">Vrati zadanu sliku</button>@endif
         </div>
+    </div>
+</div>
 
-        <div class="mt-3">
-            <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Intro') }}</label>
-            <textarea rows="4" wire:model="form.translation_payload.overview.intro" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm"></textarea>
-        </div>
-
+<div id="eu-funds-overview-admin" class="admin-panel admin-form-panel scroll-mt-24 p-6">
+    <div class="border-b border-slate-200 pb-4"><p class="text-xs font-semibold uppercase tracking-[0.16em] text-cyan-700">2. Što su EU fondovi</p><h2 class="mt-1 text-lg font-semibold text-slate-900">Uvodna 50/50 sekcija</h2></div>
+    <div class="mt-5"><label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Naslov</label><input type="text" wire:model="form.translation_payload.overview.title" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" /></div>
+    <div class="mt-4 space-y-4">
         @foreach (($translationPayload['overview']['body'] ?? []) as $index => $paragraph)
-            <div class="mt-3">
-                <div class="mb-1 flex items-center justify-between gap-3">
-                    <label class="block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Paragraph') }} #{{ $index + 1 }}</label>
-                    <button type="button" wire:click="removeTranslationListItem('overview.body', {{ $index }})" class="text-xs font-semibold text-rose-600 hover:text-rose-700">{{ __('Remove') }}</button>
-                </div>
-                <textarea rows="4" wire:model="form.translation_payload.overview.body.{{ $index }}" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm"></textarea>
-            </div>
+            <div class="rounded-2xl border border-slate-200 bg-slate-50 p-4"><div class="flex items-center justify-between gap-3"><label class="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Odlomak {{ $index + 1 }}</label><button type="button" wire:click="removeTranslationListItem('overview.body', {{ $index }})" class="text-xs font-semibold text-rose-600 hover:text-rose-700">Ukloni</button></div><textarea rows="6" wire:model="form.translation_payload.overview.body.{{ $index }}" class="mt-2 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm leading-6"></textarea></div>
         @endforeach
-
-        <div class="mt-3">
-            <button type="button" wire:click="addTranslationListItem('overview.body')" class="rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-100">
-                {{ __('Add Paragraph') }}
-            </button>
-        </div>
     </div>
-
-    <div id="eu-funds-chart" class="admin-panel admin-form-panel p-6 scroll-mt-24">
-        <p class="admin-section-title">{{ __('Funding Chart') }}</p>
-
-        <div class="mt-4">
-            <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Kicker') }}</label>
-            <input type="text" wire:model="form.translation_payload.chart.kicker" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
-        </div>
-
-        <div class="mt-3">
-            <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Title') }}</label>
-            <input type="text" wire:model="form.translation_payload.chart.title" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
-        </div>
-
-        <div class="mt-3">
-            <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Intro') }}</label>
-            <textarea rows="4" wire:model="form.translation_payload.chart.intro" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm"></textarea>
-        </div>
-
-        @foreach (($translationPayload['chart']['stats'] ?? []) as $index => $stat)
-            <div class="mt-4 rounded-2xl border border-slate-200 bg-slate-50 p-4">
-                <div class="mb-3 flex items-center justify-between gap-3">
-                    <p class="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Stat') }} #{{ $index + 1 }}</p>
-                    <button type="button" wire:click="removeTranslationListItem('chart.stats', {{ $index }})" class="text-xs font-semibold text-rose-600 hover:text-rose-700">{{ __('Remove') }}</button>
-                </div>
-
-                <div class="grid gap-3 md:grid-cols-2">
-                    <div>
-                        <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Label') }}</label>
-                        <input type="text" wire:model="form.translation_payload.chart.stats.{{ $index }}.label" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
-                    </div>
-                    <div>
-                        <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Value') }}</label>
-                        <input type="text" wire:model="form.translation_payload.chart.stats.{{ $index }}.value" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
-                    </div>
-                </div>
-
-                <div class="mt-3 grid gap-3 md:grid-cols-[160px_1fr]">
-                    <div>
-                        <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Share (%)') }}</label>
-                        <input type="number" min="0" max="100" wire:model="form.translation_payload.chart.stats.{{ $index }}.share" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
-                    </div>
-                    <div>
-                        <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Description') }}</label>
-                        <input type="text" wire:model="form.translation_payload.chart.stats.{{ $index }}.description" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
-                    </div>
-                </div>
-            </div>
-        @endforeach
-
-        <div class="mt-3">
-            <button type="button" wire:click="addTranslationListItem('chart.stats', 'eu_chart_stat')" class="rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-100">
-                {{ __('Add Stat') }}
-            </button>
-        </div>
-
-        <div class="mt-4">
-            <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Footnote') }}</label>
-            <textarea rows="3" wire:model="form.translation_payload.chart.footnote" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm"></textarea>
-        </div>
-    </div>
+    <button type="button" wire:click="addTranslationListItem('overview.body')" class="mt-4 rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-100">Dodaj odlomak</button>
 </div>
 
-<div class="grid gap-6 xl:grid-cols-2">
-    <div id="eu-funds-process" class="admin-panel admin-form-panel p-6 scroll-mt-24">
-        <p class="admin-section-title">{{ __('Process Section') }}</p>
-
-        <div class="mt-4">
-            <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Kicker') }}</label>
-            <input type="text" wire:model="form.translation_payload.process.kicker" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
-        </div>
-
-        <div class="mt-3">
-            <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Title') }}</label>
-            <input type="text" wire:model="form.translation_payload.process.title" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
-        </div>
-
-        <div class="mt-3">
-            <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Intro') }}</label>
-            <textarea rows="4" wire:model="form.translation_payload.process.intro" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm"></textarea>
-        </div>
-
+<div id="eu-funds-process-admin" class="admin-panel admin-form-panel scroll-mt-24 p-6">
+    <div class="border-b border-slate-200 pb-4"><p class="text-xs font-semibold uppercase tracking-[0.16em] text-cyan-700">3. Naše usluge</p><h2 class="mt-1 text-lg font-semibold text-slate-900">Kartice usluga EU fondova</h2></div>
+    <div class="mt-5 grid gap-4 xl:grid-cols-2">
+        <div><label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Naslov sekcije</label><input type="text" wire:model="form.translation_payload.process.title" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" /></div>
+        <div><label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Uvod sekcije</label><textarea rows="3" wire:model="form.translation_payload.process.intro" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm leading-6"></textarea></div>
+    </div>
+    <div class="mt-5 grid gap-4 xl:grid-cols-3">
         @foreach (($translationPayload['process']['items'] ?? []) as $index => $item)
-            <div class="mt-4 rounded-2xl border border-slate-200 bg-slate-50 p-4">
-                <div class="mb-3 flex items-center justify-between gap-3">
-                    <p class="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Process Item') }} #{{ $index + 1 }}</p>
-                    <button type="button" wire:click="removeTranslationListItem('process.items', {{ $index }})" class="text-xs font-semibold text-rose-600 hover:text-rose-700">{{ __('Remove') }}</button>
-                </div>
-
-                <div>
-                    <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Title') }}</label>
-                    <input type="text" wire:model="form.translation_payload.process.items.{{ $index }}.title" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
-                </div>
-
-                <div class="mt-3">
-                    <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Text') }}</label>
-                    <textarea rows="4" wire:model="form.translation_payload.process.items.{{ $index }}.text" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm"></textarea>
-                </div>
-            </div>
-        @endforeach
-
-        <div class="mt-3">
-            <button type="button" wire:click="addTranslationListItem('process.items', 'eu_process_item')" class="rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-100">
-                {{ __('Add Process Item') }}
-            </button>
-        </div>
-    </div>
-
-    <div id="eu-funds-calls" class="admin-panel admin-form-panel p-6 scroll-mt-24">
-        <p class="admin-section-title">{{ __('Calls Section') }}</p>
-
-        <div class="mt-4">
-            <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Kicker') }}</label>
-            <input type="text" wire:model="form.translation_payload.calls.kicker" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
-        </div>
-
-        <div class="mt-3">
-            <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Title') }}</label>
-            <input type="text" wire:model="form.translation_payload.calls.title" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
-        </div>
-
-        <div class="mt-3">
-            <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Intro') }}</label>
-            <textarea rows="4" wire:model="form.translation_payload.calls.intro" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm"></textarea>
-        </div>
-
-        <p class="mt-4 text-sm text-slate-600">
-            {{ __('Kartice poziva na frontend stranici popunjavaju se automatski iz Call sadržaja kada je dostupan. Ovdje uređujete naslov sekcije i fallback download CTA.') }}
-        </p>
-
-        <div class="mt-4 rounded-2xl border border-slate-200 bg-slate-50 p-4">
-            <p class="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Download CTA') }}</p>
-
-            <div class="mt-3 grid gap-3 md:grid-cols-2">
-                <div>
-                    <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Button Label') }}</label>
-                    <input type="text" wire:model="form.translation_payload.calls.download_link.label" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
-                </div>
-                <div>
-                    <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Link Type') }}</label>
-                    <select wire:model="form.translation_payload.calls.download_link.type" data-tom-select data-tom-no-search="1" class="admin-select w-full rounded-xl border border-slate-300 px-3 py-2 text-sm">
-                        <option value="none">{{ __('None') }}</option>
-                        <option value="external">{{ __('External / Internal URL') }}</option>
-                        <option value="blog">{{ __('Blog Post') }}</option>
-                        <option value="call">{{ __('Call Post') }}</option>
-                        <option value="pdf">{{ __('PDF Asset') }}</option>
-                    </select>
-                </div>
-            </div>
-
-                <div class="mt-3 grid gap-3 md:grid-cols-3">
-                    <div>
-                        <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('URL') }}</label>
-                        <input type="text" wire:model="form.translation_payload.calls.download_link.url" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
-                    </div>
-                <div>
-                        <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Slug') }}</label>
-                        <input type="text" wire:model="form.translation_payload.calls.download_link.slug" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
-                    </div>
-                    @include('livewire.admin.content.service.partials.pdf-asset-upload-field', [
-                        'currentPath' => (string) ($translationPayload['calls']['download_link']['path'] ?? ''),
-                        'uploadModel' => 'assetUploads.calls_download_link_path',
-                    ])
-                </div>
-            </div>
-        </div>
-</div>
-
-<div id="eu-funds-resources" class="admin-panel admin-form-panel p-6 scroll-mt-24">
-    <p class="admin-section-title">{{ __('Resources Section') }}</p>
-
-    <div class="mt-4 grid gap-3 md:grid-cols-2">
-        <div>
-            <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Kicker') }}</label>
-            <input type="text" wire:model="form.translation_payload.resources.kicker" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
-        </div>
-        <div>
-            <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Title') }}</label>
-            <input type="text" wire:model="form.translation_payload.resources.title" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
-        </div>
-    </div>
-
-    <div class="mt-3">
-        <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Intro') }}</label>
-        <textarea rows="4" wire:model="form.translation_payload.resources.intro" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm"></textarea>
-    </div>
-
-    <div class="mt-6 space-y-5">
-        @foreach (($translationPayload['resources']['cards'] ?? []) as $cardIndex => $card)
-            <div class="rounded-2xl border border-slate-200 bg-slate-50 p-5">
-                <p class="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Resource Card') }} #{{ $cardIndex + 1 }}</p>
-
-                <div class="mt-3 grid gap-3 md:grid-cols-2">
-                    <div>
-                        <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Eyebrow') }}</label>
-                        <input type="text" wire:model="form.translation_payload.resources.cards.{{ $cardIndex }}.eyebrow" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
-                    </div>
-                    <div>
-                        <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Title') }}</label>
-                        <input type="text" wire:model="form.translation_payload.resources.cards.{{ $cardIndex }}.title" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
-                    </div>
-                </div>
-
-                @foreach (($card['body'] ?? []) as $paragraphIndex => $paragraph)
-                    <div class="mt-3">
-                        <div class="mb-1 flex items-center justify-between gap-3">
-                            <label class="block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Paragraph') }} #{{ $paragraphIndex + 1 }}</label>
-                            <button type="button" wire:click="removeTranslationListItem('resources.cards.{{ $cardIndex }}.body', {{ $paragraphIndex }})" class="text-xs font-semibold text-rose-600 hover:text-rose-700">{{ __('Remove') }}</button>
-                        </div>
-                        <textarea rows="4" wire:model="form.translation_payload.resources.cards.{{ $cardIndex }}.body.{{ $paragraphIndex }}" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm"></textarea>
-                    </div>
-                @endforeach
-
-                <div class="mt-3">
-                    <button type="button" wire:click="addTranslationListItem('resources.cards.{{ $cardIndex }}.body')" class="rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-100">
-                        {{ __('Add Paragraph') }}
-                    </button>
-                </div>
-
-                @foreach (($card['groups'] ?? []) as $groupIndex => $group)
-                    <div class="mt-5 rounded-2xl border border-slate-200 bg-white p-4">
-                        <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Group Label') }} #{{ $groupIndex + 1 }}</label>
-                        <input type="text" wire:model="form.translation_payload.resources.cards.{{ $cardIndex }}.groups.{{ $groupIndex }}.label" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
-
-                        @foreach (($group['items'] ?? []) as $itemIndex => $item)
-                            <div class="mt-4 rounded-xl border border-slate-200 bg-slate-50 p-4">
-                                <p class="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Group Item') }} #{{ $itemIndex + 1 }}</p>
-
-                                <div class="mt-3">
-                                    <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Title') }}</label>
-                                    <input type="text" wire:model="form.translation_payload.resources.cards.{{ $cardIndex }}.groups.{{ $groupIndex }}.items.{{ $itemIndex }}.title" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
-                                </div>
-
-                                <div class="mt-3 grid gap-3 md:grid-cols-2">
-                                    <div>
-                                        <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Link Type') }}</label>
-                                        <select wire:model="form.translation_payload.resources.cards.{{ $cardIndex }}.groups.{{ $groupIndex }}.items.{{ $itemIndex }}.link.type" data-tom-select data-tom-no-search="1" class="admin-select w-full rounded-xl border border-slate-300 px-3 py-2 text-sm">
-                                            <option value="none">{{ __('None') }}</option>
-                                            <option value="external">{{ __('External / Internal URL') }}</option>
-                                            <option value="blog">{{ __('Blog Post') }}</option>
-                                            <option value="call">{{ __('Call Post') }}</option>
-                                            <option value="pdf">{{ __('PDF Asset') }}</option>
-                                        </select>
-                                    </div>
-                                    <div>
-                                        <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Link Label') }}</label>
-                                        <input type="text" wire:model="form.translation_payload.resources.cards.{{ $cardIndex }}.groups.{{ $groupIndex }}.items.{{ $itemIndex }}.link.label" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
-                                    </div>
-                                </div>
-
-                                <div class="mt-3 grid gap-3 md:grid-cols-3">
-                                    <div>
-                                        <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('URL') }}</label>
-                                        <input type="text" wire:model="form.translation_payload.resources.cards.{{ $cardIndex }}.groups.{{ $groupIndex }}.items.{{ $itemIndex }}.link.url" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
-                                    </div>
-                                    <div>
-                                        <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Slug') }}</label>
-                                        <input type="text" wire:model="form.translation_payload.resources.cards.{{ $cardIndex }}.groups.{{ $groupIndex }}.items.{{ $itemIndex }}.link.slug" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
-                                    </div>
-                                    @include('livewire.admin.content.service.partials.pdf-asset-upload-field', [
-                                        'currentPath' => (string) ($item['link']['path'] ?? ''),
-                                        'uploadModel' => 'assetUploads.resources_cards_'.$cardIndex.'_groups_'.$groupIndex.'_items_'.$itemIndex.'_link_path',
-                                    ])
-                                </div>
-                            </div>
-                        @endforeach
-                    </div>
-                @endforeach
-
-                <div class="mt-5 grid gap-4 xl:grid-cols-2">
-                    <div class="rounded-2xl border border-slate-200 bg-white p-4">
-                        <p class="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Primary Link') }}</p>
-
-                        <div class="mt-3 grid gap-3 md:grid-cols-2">
-                            <div>
-                                <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Label') }}</label>
-                                <input type="text" wire:model="form.translation_payload.resources.cards.{{ $cardIndex }}.primary_link.label" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
-                            </div>
-                            <div>
-                                <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Type') }}</label>
-                                <select wire:model="form.translation_payload.resources.cards.{{ $cardIndex }}.primary_link.type" data-tom-select data-tom-no-search="1" class="admin-select w-full rounded-xl border border-slate-300 px-3 py-2 text-sm">
-                                    <option value="none">{{ __('None') }}</option>
-                                    <option value="external">{{ __('External / Internal URL') }}</option>
-                                    <option value="blog">{{ __('Blog Post') }}</option>
-                                    <option value="call">{{ __('Call Post') }}</option>
-                                    <option value="pdf">{{ __('PDF Asset') }}</option>
-                                </select>
-                            </div>
-                        </div>
-
-                        <div class="mt-3 grid gap-3 md:grid-cols-3">
-                            <div>
-                                <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('URL') }}</label>
-                                <input type="text" wire:model="form.translation_payload.resources.cards.{{ $cardIndex }}.primary_link.url" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
-                            </div>
-                            <div>
-                                <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Slug') }}</label>
-                                <input type="text" wire:model="form.translation_payload.resources.cards.{{ $cardIndex }}.primary_link.slug" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
-                            </div>
-                            @include('livewire.admin.content.service.partials.pdf-asset-upload-field', [
-                                'currentPath' => (string) ($card['primary_link']['path'] ?? ''),
-                                'uploadModel' => 'assetUploads.resources_cards_'.$cardIndex.'_primary_link_path',
-                            ])
-                        </div>
-                    </div>
-
-                    <div class="rounded-2xl border border-slate-200 bg-white p-4">
-                        <p class="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Secondary Link') }}</p>
-
-                        <div class="mt-3 grid gap-3 md:grid-cols-2">
-                            <div>
-                                <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Label') }}</label>
-                                <input type="text" wire:model="form.translation_payload.resources.cards.{{ $cardIndex }}.secondary_link.label" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
-                            </div>
-                            <div>
-                                <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Type') }}</label>
-                                <select wire:model="form.translation_payload.resources.cards.{{ $cardIndex }}.secondary_link.type" data-tom-select data-tom-no-search="1" class="admin-select w-full rounded-xl border border-slate-300 px-3 py-2 text-sm">
-                                    <option value="none">{{ __('None') }}</option>
-                                    <option value="external">{{ __('External / Internal URL') }}</option>
-                                    <option value="blog">{{ __('Blog Post') }}</option>
-                                    <option value="call">{{ __('Call Post') }}</option>
-                                    <option value="pdf">{{ __('PDF Asset') }}</option>
-                                </select>
-                            </div>
-                        </div>
-
-                        <div class="mt-3 grid gap-3 md:grid-cols-3">
-                            <div>
-                                <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('URL') }}</label>
-                                <input type="text" wire:model="form.translation_payload.resources.cards.{{ $cardIndex }}.secondary_link.url" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
-                            </div>
-                            <div>
-                                <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Slug') }}</label>
-                                <input type="text" wire:model="form.translation_payload.resources.cards.{{ $cardIndex }}.secondary_link.slug" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
-                            </div>
-                            @include('livewire.admin.content.service.partials.pdf-asset-upload-field', [
-                                'currentPath' => (string) ($card['secondary_link']['path'] ?? ''),
-                                'uploadModel' => 'assetUploads.resources_cards_'.$cardIndex.'_secondary_link_path',
-                            ])
-                        </div>
-                    </div>
-                </div>
-            </div>
+            <div class="rounded-2xl border border-slate-200 bg-slate-50 p-4"><div class="flex items-center justify-between gap-3"><p class="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Kartica usluge {{ $index + 1 }}</p><button type="button" wire:click="removeTranslationListItem('process.items', {{ $index }})" class="text-xs font-semibold text-rose-600 hover:text-rose-700">Ukloni</button></div><label class="mb-1 mt-3 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Naslov</label><input type="text" wire:model="form.translation_payload.process.items.{{ $index }}.title" class="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm" /><label class="mb-1 mt-3 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Opis</label><textarea rows="6" wire:model="form.translation_payload.process.items.{{ $index }}.text" class="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm leading-6"></textarea></div>
         @endforeach
     </div>
+    <button type="button" wire:click="addTranslationListItem('process.items', 'eu_process_item')" class="mt-4 rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-100">Dodaj karticu usluge</button>
 </div>
 
-<div id="eu-funds-laws" class="admin-panel admin-form-panel p-6 scroll-mt-24">
-    <p class="admin-section-title">{{ __('Laws Section') }}</p>
-
-    <div class="mt-4 grid gap-3 md:grid-cols-2">
-        <div>
-            <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Kicker') }}</label>
-            <input type="text" wire:model="form.translation_payload.laws.kicker" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
-        </div>
-        <div>
-            <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Title') }}</label>
-            <input type="text" wire:model="form.translation_payload.laws.title" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
-        </div>
-    </div>
-
-    <div class="mt-3">
-        <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Intro') }}</label>
-        <textarea rows="4" wire:model="form.translation_payload.laws.intro" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm"></textarea>
-    </div>
-
-    <div class="mt-6 space-y-5">
-        @foreach (($translationPayload['laws']['cards'] ?? []) as $cardIndex => $card)
-            <div class="rounded-2xl border border-slate-200 bg-slate-50 p-5">
-                <p class="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Law Card') }} #{{ $cardIndex + 1 }}</p>
-
-                <div class="mt-3">
-                    <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Title') }}</label>
-                    <input type="text" wire:model="form.translation_payload.laws.cards.{{ $cardIndex }}.title" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
-                </div>
-
-                <div class="mt-3">
-                    <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Summary') }}</label>
-                    <textarea rows="4" wire:model="form.translation_payload.laws.cards.{{ $cardIndex }}.summary" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm"></textarea>
-                </div>
-
-                @foreach (($card['lists'] ?? []) as $listIndex => $list)
-                    <div class="mt-4 rounded-2xl border border-slate-200 bg-white p-4">
-                        <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('List Label') }} #{{ $listIndex + 1 }}</label>
-                        <input type="text" wire:model="form.translation_payload.laws.cards.{{ $cardIndex }}.lists.{{ $listIndex }}.label" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
-
-                        @foreach (($list['items'] ?? []) as $itemIndex => $item)
-                            <div class="mt-3">
-                                <div class="mb-1 flex items-center justify-between gap-3">
-                                    <label class="block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('List Item') }} #{{ $itemIndex + 1 }}</label>
-                                    <button type="button" wire:click="removeTranslationListItem('laws.cards.{{ $cardIndex }}.lists.{{ $listIndex }}.items', {{ $itemIndex }})" class="text-xs font-semibold text-rose-600 hover:text-rose-700">{{ __('Remove') }}</button>
-                                </div>
-                                <input type="text" wire:model="form.translation_payload.laws.cards.{{ $cardIndex }}.lists.{{ $listIndex }}.items.{{ $itemIndex }}" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
-                            </div>
-                        @endforeach
-
-                        <div class="mt-3">
-                            <button type="button" wire:click="addTranslationListItem('laws.cards.{{ $cardIndex }}.lists.{{ $listIndex }}.items')" class="rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-100">
-                                {{ __('Add List Item') }}
-                            </button>
-                        </div>
-                    </div>
-                @endforeach
-
-                <div class="mt-4">
-                    <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Note') }}</label>
-                    <textarea rows="3" wire:model="form.translation_payload.laws.cards.{{ $cardIndex }}.note" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm"></textarea>
-                </div>
-
-                <div class="mt-5 grid gap-4 xl:grid-cols-2">
-                    <div class="rounded-2xl border border-slate-200 bg-white p-4">
-                        <p class="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Primary Link') }}</p>
-
-                        <div class="mt-3 grid gap-3 md:grid-cols-2">
-                            <div>
-                                <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Label') }}</label>
-                                <input type="text" wire:model="form.translation_payload.laws.cards.{{ $cardIndex }}.primary_link.label" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
-                            </div>
-                            <div>
-                                <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Type') }}</label>
-                                <select wire:model="form.translation_payload.laws.cards.{{ $cardIndex }}.primary_link.type" data-tom-select data-tom-no-search="1" class="admin-select w-full rounded-xl border border-slate-300 px-3 py-2 text-sm">
-                                    <option value="none">{{ __('None') }}</option>
-                                    <option value="external">{{ __('External / Internal URL') }}</option>
-                                    <option value="blog">{{ __('Blog Post') }}</option>
-                                    <option value="call">{{ __('Call Post') }}</option>
-                                    <option value="pdf">{{ __('PDF Asset') }}</option>
-                                </select>
-                            </div>
-                        </div>
-
-                        <div class="mt-3 grid gap-3 md:grid-cols-3">
-                            <div>
-                                <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('URL') }}</label>
-                                <input type="text" wire:model="form.translation_payload.laws.cards.{{ $cardIndex }}.primary_link.url" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
-                            </div>
-                            <div>
-                                <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Slug') }}</label>
-                                <input type="text" wire:model="form.translation_payload.laws.cards.{{ $cardIndex }}.primary_link.slug" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
-                            </div>
-                            @include('livewire.admin.content.service.partials.pdf-asset-upload-field', [
-                                'currentPath' => (string) ($card['primary_link']['path'] ?? ''),
-                                'uploadModel' => 'assetUploads.laws_cards_'.$cardIndex.'_primary_link_path',
-                            ])
-                        </div>
-                    </div>
-
-                    <div class="rounded-2xl border border-slate-200 bg-white p-4">
-                        <p class="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Secondary Link') }}</p>
-
-                        <div class="mt-3 grid gap-3 md:grid-cols-2">
-                            <div>
-                                <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Label') }}</label>
-                                <input type="text" wire:model="form.translation_payload.laws.cards.{{ $cardIndex }}.secondary_link.label" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
-                            </div>
-                            <div>
-                                <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Type') }}</label>
-                                <select wire:model="form.translation_payload.laws.cards.{{ $cardIndex }}.secondary_link.type" data-tom-select data-tom-no-search="1" class="admin-select w-full rounded-xl border border-slate-300 px-3 py-2 text-sm">
-                                    <option value="none">{{ __('None') }}</option>
-                                    <option value="external">{{ __('External / Internal URL') }}</option>
-                                    <option value="blog">{{ __('Blog Post') }}</option>
-                                    <option value="call">{{ __('Call Post') }}</option>
-                                    <option value="pdf">{{ __('PDF Asset') }}</option>
-                                </select>
-                            </div>
-                        </div>
-
-                        <div class="mt-3 grid gap-3 md:grid-cols-3">
-                            <div>
-                                <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('URL') }}</label>
-                                <input type="text" wire:model="form.translation_payload.laws.cards.{{ $cardIndex }}.secondary_link.url" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
-                            </div>
-                            <div>
-                                <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Slug') }}</label>
-                                <input type="text" wire:model="form.translation_payload.laws.cards.{{ $cardIndex }}.secondary_link.slug" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
-                            </div>
-                            @include('livewire.admin.content.service.partials.pdf-asset-upload-field', [
-                                'currentPath' => (string) ($card['secondary_link']['path'] ?? ''),
-                                'uploadModel' => 'assetUploads.laws_cards_'.$cardIndex.'_secondary_link_path',
-                            ])
-                        </div>
-                    </div>
-                </div>
-            </div>
-        @endforeach
-    </div>
+<div id="eu-funds-approach-admin" class="admin-panel admin-form-panel scroll-mt-24 p-6">
+    <div class="border-b border-slate-200 pb-4"><p class="text-xs font-semibold uppercase tracking-[0.16em] text-cyan-700">4. Naš pristup</p><h2 class="mt-1 text-lg font-semibold text-slate-900">Istaknuta citatna sekcija</h2></div>
+    <div class="mt-5"><label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Naslov</label><input type="text" wire:model="form.translation_payload.approach.title" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" /></div>
+    <div class="mt-4 space-y-4">@foreach (($translationPayload['approach']['body'] ?? []) as $index => $paragraph)<div class="rounded-2xl border border-slate-200 bg-slate-50 p-4"><div class="flex items-center justify-between gap-3"><label class="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Odlomak {{ $index + 1 }}</label><button type="button" wire:click="removeTranslationListItem('approach.body', {{ $index }})" class="text-xs font-semibold text-rose-600 hover:text-rose-700">Ukloni</button></div><textarea rows="5" wire:model="form.translation_payload.approach.body.{{ $index }}" class="mt-2 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm leading-6"></textarea></div>@endforeach</div>
+    <button type="button" wire:click="addTranslationListItem('approach.body')" class="mt-4 rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-100">Dodaj odlomak</button>
 </div>
 
-<div class="grid gap-6 xl:grid-cols-2">
-    <div id="eu-funds-testimonials" class="admin-panel admin-form-panel p-6 scroll-mt-24">
-        <p class="admin-section-title">{{ __('Testimonials Section') }}</p>
-
-        <div class="mt-4">
-            <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Kicker') }}</label>
-            <input type="text" wire:model="form.translation_payload.testimonials.kicker" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
-        </div>
-
-        <div class="mt-3">
-            <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Title') }}</label>
-            <input type="text" wire:model="form.translation_payload.testimonials.title" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
-        </div>
-
-        <div class="mt-3">
-            <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Intro') }}</label>
-            <textarea rows="4" wire:model="form.translation_payload.testimonials.intro" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm"></textarea>
-        </div>
-    </div>
-
-    <div id="eu-funds-blog" class="admin-panel admin-form-panel p-6 scroll-mt-24">
-        <p class="admin-section-title">{{ __('Blog Section') }}</p>
-
-        <div class="mt-4">
-            <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Title') }}</label>
-            <input type="text" wire:model="form.translation_payload.blog_section.title" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
-            <p class="mt-1 text-xs text-slate-500">{{ __('Use :category placeholder if you want the current blog category name inserted automatically.') }}</p>
-        </div>
-
-        <div class="mt-3">
-            <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Intro') }}</label>
-            <textarea rows="4" wire:model="form.translation_payload.blog_section.intro" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm"></textarea>
-        </div>
-    </div>
+<div id="eu-funds-sources-admin" class="admin-panel admin-form-panel scroll-mt-24 p-6">
+    <div class="border-b border-slate-200 pb-4"><p class="text-xs font-semibold uppercase tracking-[0.16em] text-cyan-700">5. Izvori financiranja</p><h2 class="mt-1 text-lg font-semibold text-slate-900">Navigacijske kartice izvora</h2></div>
+    <div class="mt-5 grid gap-4 xl:grid-cols-2"><div><label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Naslov sekcije</label><input type="text" wire:model="form.translation_payload.source_modules.title" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" /></div><div><label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Uvod sekcije</label><textarea rows="3" wire:model="form.translation_payload.source_modules.intro" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm leading-6"></textarea></div></div>
+    <div class="mt-5 grid gap-4 xl:grid-cols-3">@foreach (($translationPayload['source_modules']['items'] ?? []) as $index => $item)<div class="rounded-2xl border border-slate-200 bg-slate-50 p-4"><div class="flex items-center justify-between gap-3"><p class="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Kartica izvora {{ $index + 1 }}</p><button type="button" wire:click="removeTranslationListItem('source_modules.items', {{ $index }})" class="text-xs font-semibold text-rose-600 hover:text-rose-700">Ukloni</button></div><label class="mb-1 mt-3 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Naslov</label><input type="text" wire:model="form.translation_payload.source_modules.items.{{ $index }}.title" class="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm" /><label class="mb-1 mt-3 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Opis</label><textarea rows="5" wire:model="form.translation_payload.source_modules.items.{{ $index }}.text" class="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm leading-6"></textarea><label class="mb-1 mt-3 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Poveznica</label><input type="text" wire:model="form.translation_payload.source_modules.items.{{ $index }}.url" class="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm" /></div>@endforeach</div>
+    <button type="button" wire:click="addTranslationListItem('source_modules.items', 'service_card')" class="mt-4 rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-100">Dodaj karticu izvora</button>
 </div>
 
-@include('livewire.admin.content.service.partials.meeting-cta-editor', [
-    'sectionId' => 'eu-funds-meeting',
-])
+<div id="eu-funds-calls-admin" class="admin-panel admin-form-panel scroll-mt-24 p-6">
+    <div class="border-b border-slate-200 pb-4"><p class="text-xs font-semibold uppercase tracking-[0.16em] text-cyan-700">6. Natječaji</p><h2 class="mt-1 text-lg font-semibold text-slate-900">Naslovi iznad aktualnih natječaja</h2><p class="mt-1 text-sm text-slate-600">Kartice automatski dolaze iz sadržaja Natječaji. Ovdje uređujete vidljive natpise sekcije.</p></div>
+    <div class="mt-5 grid gap-4 xl:grid-cols-2"><div><label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Oznaka iznad naslova</label><input type="text" wire:model="form.translation_payload.calls.kicker" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" /></div><div><label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Naslov</label><input type="text" wire:model="form.translation_payload.calls.title" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" /></div><div class="xl:col-span-2"><label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Uvod</label><textarea rows="4" wire:model="form.translation_payload.calls.intro" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm leading-6"></textarea></div><div><label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Natpis za prikaz svih natječaja</label><input type="text" wire:model="form.translation_payload.calls.view_all_label" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" /></div></div>
+</div>
+
+@include('livewire.admin.content.service.partials.eu-funds-resources-editor')
+@include('livewire.admin.content.service.partials.eu-funds-laws-editor')
+
+<div id="eu-funds-blog-admin" class="admin-panel admin-form-panel scroll-mt-24 p-6">
+    <div class="border-b border-slate-200 pb-4"><p class="text-xs font-semibold uppercase tracking-[0.16em] text-cyan-700">9. Stručne objave</p><h2 class="mt-1 text-lg font-semibold text-slate-900">Vidljivi natpisi blog sekcije</h2><p class="mt-1 text-sm text-slate-600">Kategorija i objave biraju se u kartici Izvori.</p></div>
+    <div class="mt-5 grid gap-4 xl:grid-cols-3"><div class="xl:col-span-3"><label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Naslov sekcije</label><input type="text" wire:model="form.translation_payload.blog_section.title" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" /><p class="mt-1 text-xs text-slate-500">Možete koristiti <code>:category</code> za automatski naziv blog kategorije.</p></div><div><label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Natpis poveznice svih objava</label><input type="text" wire:model="form.translation_payload.blog_section.all_posts_label" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" /></div><div><label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Natpis na kartici objave</label><input type="text" wire:model="form.translation_payload.blog_section.post_action_label" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" /></div></div>
+</div>
+
+<div id="eu-funds-meeting-admin" class="admin-panel admin-form-panel scroll-mt-24 p-6">
+    <div class="border-b border-slate-200 pb-4"><p class="text-xs font-semibold uppercase tracking-[0.16em] text-cyan-700">10. Kontaktni poziv</p><h2 class="mt-1 text-lg font-semibold text-slate-900">Završna kontaktna sekcija</h2></div>
+    <div class="mt-5 grid gap-4 xl:grid-cols-2"><div><label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Glavni naslov</label><input type="text" wire:model="form.translation_payload.meeting.title" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" /></div><div><label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Naslov kontaktne kartice</label><input type="text" wire:model="form.translation_payload.meeting.contact_title" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" /></div><div class="xl:col-span-2"><label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Kontaktni tekst</label><textarea rows="4" wire:model="form.translation_payload.meeting.intro" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm leading-6"></textarea></div><div><label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Natpis gumba</label><input type="text" wire:model="form.translation_payload.meeting.button_label" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" /></div><div><label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Napomena uz termin</label><input type="text" wire:model="form.translation_payload.meeting.status" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" /></div></div>
+</div>

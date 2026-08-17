@@ -467,19 +467,19 @@ class ServicePageTemplateRegistry
             self::ACCOUNTING => [
                 'title' => 'Računovodstvo',
                 'route' => 'accounting.show',
-                'admin_anchor' => '#accounting-intro-admin',
+                'admin_anchor' => '#accounting-hero-admin',
                 'children' => [],
             ],
             self::ADVISORY => [
                 'title' => 'Savjetovanje',
                 'route' => 'advisory.show',
-                'admin_anchor' => '#advisory-overview-admin',
+                'admin_anchor' => '#advisory-main-admin',
                 'children' => [
                     [
                         'title' => 'Financijsko savjetovanje',
                         'route' => 'advisory.finance.show',
-                        'admin_anchor' => '#advisory-ma-admin',
-                        'content_key' => 'ma',
+                        'admin_anchor' => '#advisory-financial-admin',
+                        'content_key' => 'financial',
                     ],
                     [
                         'title' => 'Pribavljanje financiranja',
@@ -652,6 +652,73 @@ class ServicePageTemplateRegistry
 
             if (trim((string) data_get($merged, 'blog_section.title')) === $legacyBlogTitle) {
                 data_set($merged, 'blog_section.title', (string) data_get($defaults, 'blog_section.title', ''));
+            }
+        }
+
+        if ($templateKey === self::ADVISORY) {
+            $effectiveLocale = (string) ($locale ?: config('app.locale', 'en'));
+            $isCroatian = str_starts_with(strtolower($effectiveLocale), 'hr');
+            $legacyBlogTitle = $isCroatian ? 'Savjetovanje' : 'Advisory';
+
+            if (trim((string) data_get($merged, 'blog_section.title')) === $legacyBlogTitle) {
+                data_set($merged, 'blog_section.title', (string) data_get($defaults, 'blog_section.title', ''));
+            }
+
+            $routeCards = [
+                'funding' => ['/savjetovanje/pribavljanje-financiranja', 'service_cards'],
+                'ma' => ['/savjetovanje/prodaja-i-kupnja-poduzeca', 'service_cards'],
+                'due_diligence' => ['/savjetovanje/dubinska-snimanja', 'service_cards'],
+                'valuations' => ['/savjetovanje/procjena-vrijednosti-drustva', 'service_cards'],
+                'tax' => ['/savjetovanje/porezno-savjetovanje', 'service_cards'],
+                'bank_loans' => ['/savjetovanje/pribavljanje-financiranja/bankovni-krediti', 'funding.cards'],
+                'zopu' => ['/savjetovanje/pribavljanje-financiranja/zakon-o-poticanju-ulaganja', 'funding.cards'],
+            ];
+
+            foreach (['financial', 'funding', 'bank_loans', 'zopu', 'ma', 'due_diligence', 'valuations', 'tax'] as $pageKey) {
+                $pageOverrides = is_array($overrides[$pageKey] ?? null) ? $overrides[$pageKey] : [];
+
+                if (! array_key_exists('blog_section', $pageOverrides)) {
+                    data_set($merged, $pageKey.'.blog_section', (array) data_get($merged, 'blog_section', []));
+                }
+
+                if (! array_key_exists('meeting', $pageOverrides)) {
+                    data_set($merged, $pageKey.'.meeting', (array) data_get($merged, 'meeting', []));
+                }
+
+                if (! array_key_exists('hero_intro', $pageOverrides)) {
+                    $heroIntro = '';
+
+                    if (isset($routeCards[$pageKey])) {
+                        [$route, $cardPath] = $routeCards[$pageKey];
+
+                        foreach ((array) data_get($merged, $cardPath, []) as $card) {
+                            if (is_array($card) && str_ends_with((string) ($card['url'] ?? ''), $route)) {
+                                $heroIntro = trim((string) ($card['text'] ?? ''));
+                                break;
+                            }
+                        }
+                    }
+
+                    if ($heroIntro === '') {
+                        $heroIntro = $pageKey === 'funding'
+                            ? trim((string) data_get($merged, 'funding.intro', ''))
+                            : trim((string) data_get($merged, $pageKey.'.overview_body.0', ''));
+                    }
+
+                    data_set($merged, $pageKey.'.hero_intro', $heroIntro);
+                }
+            }
+
+            if (! array_key_exists('approach_title', (array) ($overrides['funding'] ?? []))) {
+                data_set($merged, 'funding.approach_title', (string) data_get($merged, 'approach.title', ''));
+            }
+
+            if (! array_key_exists('approach_body', (array) ($overrides['funding'] ?? []))) {
+                data_set($merged, 'funding.approach_body', (array) data_get($merged, 'approach.body', []));
+            }
+
+            if (! array_key_exists('pandea', (array) ($overrides['ma'] ?? []))) {
+                data_set($merged, 'ma.pandea', (array) data_get($merged, 'pandea', []));
             }
         }
 

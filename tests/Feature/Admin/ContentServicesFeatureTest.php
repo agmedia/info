@@ -114,6 +114,145 @@ class ContentServicesFeatureTest extends TestCase
             ->assertSee('Bankovni krediti');
     }
 
+    public function test_each_advisory_row_links_to_its_own_page_editor(): void
+    {
+        $user = $this->makeAdminUser();
+        $page = ServicePage::query()
+            ->where('template_key', ServicePageTemplateRegistry::ADVISORY)
+            ->firstOrFail();
+
+        $response = $this->actingAs($user)->get('/admin/content/services?locale=hr');
+
+        foreach (['financial', 'funding', 'bank_loans', 'zopu', 'ma', 'due_diligence', 'valuations', 'tax'] as $section) {
+            $response->assertSee(route('admin.content.services.edit', [
+                'servicePage' => $page->id,
+                'locale' => 'hr',
+                'section' => $section,
+            ]));
+        }
+    }
+
+    public function test_main_advisory_editor_only_shows_fields_from_the_main_route(): void
+    {
+        $user = $this->makeAdminUser();
+        $page = ServicePage::query()
+            ->where('template_key', ServicePageTemplateRegistry::ADVISORY)
+            ->firstOrFail();
+
+        Livewire::withQueryParams(['section' => 'main'])
+            ->actingAs($user)
+            ->test(ServiceForm::class, ['servicePageId' => $page->id])
+            ->assertSet('contentSection', 'main')
+            ->assertSeeHtml('wire:model="form.translation_payload.hero.subtitle_lead"')
+            ->assertSeeHtml('wire:model="form.translation_payload.meeting.title"')
+            ->assertDontSeeHtml('wire:model="form.translation_payload.financial.title"')
+            ->assertDontSeeHtml('wire:model="form.translation_payload.funding.title"')
+            ->assertDontSeeHtml('wire:model="form.translation_payload.ma.title"');
+    }
+
+    public function test_each_advisory_subpage_editor_only_shows_fields_for_that_route(): void
+    {
+        $user = $this->makeAdminUser();
+        $page = ServicePage::query()
+            ->where('template_key', ServicePageTemplateRegistry::ADVISORY)
+            ->firstOrFail();
+
+        $sections = [
+            'financial' => 'Financijsko savjetovanje',
+            'funding' => 'Pribavljanje financiranja',
+            'bank_loans' => 'Bankovni krediti',
+            'zopu' => 'Zakon o poticanju ulaganja',
+            'ma' => 'Prodaja i kupnja poduzeća (M&amp;A)',
+            'due_diligence' => 'Dubinska snimanja (Due Diligence)',
+            'valuations' => 'Procjena vrijednosti društva',
+            'tax' => 'Porezno savjetovanje',
+        ];
+
+        foreach ($sections as $section => $title) {
+            $component = Livewire::withQueryParams(['section' => $section])
+                ->actingAs($user)
+                ->test(ServiceForm::class, ['servicePageId' => $page->id])
+                ->assertSet('contentSection', $section)
+                ->assertSeeHtml('wire:model="form.translation_payload.'.$section.'.meeting.title"')
+                ->assertDontSeeHtml('wire:model="form.translation_payload.meeting.title"')
+                ->assertDontSeeHtml('wire:model="form.translation_payload.hero.subtitle_lead"');
+
+            $this->assertStringContainsString($title, $component->html());
+
+            foreach (array_keys($sections) as $otherSection) {
+                if ($otherSection === $section) {
+                    continue;
+                }
+
+                $this->assertStringNotContainsString(
+                    'wire:model="form.translation_payload.'.$otherSection.'.title"',
+                    $component->html()
+                );
+            }
+        }
+    }
+
+    public function test_advisory_subpages_start_with_existing_shared_content_without_losing_custom_copy(): void
+    {
+        $merged = ServicePageTemplateRegistry::mergeTranslationPayload(
+            ServicePageTemplateRegistry::ADVISORY,
+            [
+                'meeting' => [
+                    'title' => 'Postojeći prilagođeni kontaktni naslov',
+                ],
+                'blog_section' => [
+                    'title' => 'Postojeći prilagođeni naslov objava',
+                ],
+                'service_cards' => [
+                    [
+                        'title' => 'Pribavljanje financiranja',
+                        'text' => 'Postojeća prilagođena hero poruka financiranja.',
+                        'url' => '/savjetovanje/pribavljanje-financiranja',
+                    ],
+                ],
+                'pandea' => [
+                    'title' => 'Postojeći prilagođeni Pandea naslov',
+                ],
+            ],
+            'hr'
+        );
+
+        $this->assertSame('Postojeći prilagođeni kontaktni naslov', data_get($merged, 'financial.meeting.title'));
+        $this->assertSame('Postojeći prilagođeni naslov objava', data_get($merged, 'tax.blog_section.title'));
+        $this->assertSame('Postojeća prilagođena hero poruka financiranja.', data_get($merged, 'funding.hero_intro'));
+        $this->assertSame('Postojeći prilagođeni Pandea naslov', data_get($merged, 'ma.pandea.title'));
+    }
+
+    public function test_advisory_subpage_copy_is_saved_and_rendered_only_on_its_route(): void
+    {
+        config()->set('app.locale', 'hr');
+        config()->set('app.fallback_locale', 'hr');
+
+        $user = $this->makeAdminUser();
+        $page = ServicePage::query()
+            ->where('template_key', ServicePageTemplateRegistry::ADVISORY)
+            ->firstOrFail();
+
+        Livewire::withQueryParams(['section' => 'financial'])
+            ->actingAs($user)
+            ->test(ServiceForm::class, ['servicePageId' => $page->id])
+            ->set('form.locale', 'hr')
+            ->set('form.translation_payload.financial.hero_intro', 'Jedinstvena hero poruka samo za financijsko savjetovanje.')
+            ->set('form.translation_payload.financial.meeting.title', 'Jedinstveni kontakt samo za financijsko savjetovanje')
+            ->call('save')
+            ->assertRedirect(route('admin.content.services.index', ['locale' => 'hr']));
+
+        $this->get('/savjetovanje/financijsko-savjetovanje')
+            ->assertOk()
+            ->assertSee('Jedinstvena hero poruka samo za financijsko savjetovanje.')
+            ->assertSee('Jedinstveni kontakt samo za financijsko savjetovanje');
+
+        $this->get('/savjetovanje/prodaja-i-kupnja-poduzeca')
+            ->assertOk()
+            ->assertDontSee('Jedinstvena hero poruka samo za financijsko savjetovanje.')
+            ->assertDontSee('Jedinstveni kontakt samo za financijsko savjetovanje');
+    }
+
     public function test_admin_can_open_seeded_service_page_edit_screen(): void
     {
         $user = $this->makeAdminUser();
@@ -457,8 +596,10 @@ class ContentServicesFeatureTest extends TestCase
 
         $this->assertSame(ServicePageTemplateRegistry::EU_FUNDS, $component->get('form.template_key'));
         $this->assertStringContainsString('value="EU fondovi"', $component->html());
-        $this->assertStringContainsString('Navigacija EU fondova', $component->html());
-        $this->assertStringContainsString('Sekcija resursa', $component->html());
+        $this->assertStringContainsString('Navigacija po sekcijama stranice EU fondovi', $component->html());
+        $this->assertStringContainsString('Programi i instrumenti', $component->html());
+        $this->assertStringNotContainsString('wire:model="form.translation_payload.testimonials.title"', $component->html());
+        $this->assertStringNotContainsString('wire:model="form.translation_payload.chart.title"', $component->html());
 
         $component->call('setTab', 'sources');
 
@@ -474,7 +615,8 @@ class ContentServicesFeatureTest extends TestCase
             ->where('template_key', ServicePageTemplateRegistry::EU_FUNDS)
             ->firstOrFail();
 
-        Livewire::actingAs($user)
+        Livewire::withQueryParams(['section' => 'bank_loans'])
+            ->actingAs($user)
             ->test(ServiceForm::class, ['servicePageId' => $page->id])
             ->set('form.locale', 'hr')
             ->set('form.translation_payload.calls.download_link.type', 'pdf')

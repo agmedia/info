@@ -1,455 +1,545 @@
 @php
-    $advisoryEditorSections = [
-        'advisory-overview-admin' => 'Overview',
-        'advisory-services-admin' => 'Services',
-        'advisory-pandea-admin' => 'Pandea',
-        'advisory-funding-admin' => 'Pribavljanje financiranja',
-        'advisory-bank-loans-admin' => 'Bankovni krediti',
-        'advisory-zopu-admin' => 'Zakon o poticanju ulaganja',
-        'advisory-ma-admin' => 'M&A',
-        'advisory-due-diligence-admin' => 'Due Diligence',
-        'advisory-valuations-admin' => 'Procjene vrijednosti',
-        'advisory-tax-admin' => 'Porezno savjetovanje',
-        'advisory-approach-admin' => 'Approach',
-        'advisory-meeting-admin' => 'Meeting',
-    ];
-
     $advisoryDetailSections = [
+        'financial' => [
+            'id' => 'advisory-financial-admin',
+            'number' => 5,
+            'title' => 'Financijsko savjetovanje',
+            'route' => 'advisory.finance.show',
+        ],
         'bank_loans' => [
             'id' => 'advisory-bank-loans-admin',
-            'label' => 'Bankovni krediti',
+            'number' => 7,
+            'title' => 'Bankovni krediti',
+            'route' => 'advisory.bank-loans.show',
         ],
         'zopu' => [
             'id' => 'advisory-zopu-admin',
-            'label' => 'Zakon o poticanju ulaganja',
+            'number' => 8,
+            'title' => 'Zakon o poticanju ulaganja',
+            'route' => 'advisory.investment-incentives.show',
         ],
         'ma' => [
             'id' => 'advisory-ma-admin',
-            'label' => 'Prodaja i kupnja poduzeca (M&A)',
+            'number' => 9,
+            'title' => 'Prodaja i kupnja poduzeća (M&A)',
+            'route' => 'advisory.ma.show',
         ],
         'due_diligence' => [
             'id' => 'advisory-due-diligence-admin',
-            'label' => 'Dubinska snimanja (Due Diligence)',
+            'number' => 10,
+            'title' => 'Dubinska snimanja (Due Diligence)',
+            'route' => 'advisory.due-diligence.show',
         ],
         'valuations' => [
             'id' => 'advisory-valuations-admin',
-            'label' => 'Procjena vrijednosti drustva',
+            'number' => 11,
+            'title' => 'Procjena vrijednosti društva',
+            'route' => 'advisory.valuations.show',
         ],
         'tax' => [
             'id' => 'advisory-tax-admin',
-            'label' => 'Porezno savjetovanje',
+            'number' => 12,
+            'title' => 'Porezno savjetovanje',
+            'route' => 'advisory.tax.show',
         ],
     ];
+
+    $advisoryHeroUpload = $advisoryHeroImageUpload ?? null;
+    $advisoryHeroPreviewUrl = $advisoryHeroUpload instanceof \Livewire\Features\SupportFileUploads\TemporaryUploadedFile
+        ? $advisoryHeroUpload->temporaryUrl()
+        : (string) ($advisoryHeroImage['url'] ?? '');
+    $advisoryLogoUpload = $advisoryPandeaLogoUpload ?? null;
+    $advisoryLogoPreviewUrl = $advisoryLogoUpload instanceof \Livewire\Features\SupportFileUploads\TemporaryUploadedFile
+        ? $advisoryLogoUpload->temporaryUrl()
+        : (string) ($advisoryPandeaLogo['url'] ?? '');
+    $advisoryEditorPages = [
+        'main' => ['title' => 'Savjetovanje', 'route' => 'advisory.show'],
+        'funding' => ['title' => 'Pribavljanje financiranja', 'route' => 'advisory.funding.show'],
+        ...collect($advisoryDetailSections)->map(fn (array $section): array => [
+            'title' => $section['title'],
+            'route' => $section['route'],
+        ])->all(),
+    ];
+    $currentAdvisoryEditor = $advisoryEditorPages[$contentSection] ?? $advisoryEditorPages['main'];
 @endphp
 
 <div class="admin-panel admin-form-panel p-6">
-    <p class="admin-section-title">{{ __('Advisory Navigator') }}</p>
-    <div class="mt-4 flex flex-wrap gap-2">
-        @foreach ($advisoryEditorSections as $sectionId => $sectionLabel)
-            <a href="#{{ $sectionId }}" class="admin-chip">{{ $sectionLabel }}</a>
-        @endforeach
+    <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+        <div>
+            <p class="admin-section-title">Sadržaj s fronta</p>
+            <h2 class="mt-2 text-xl font-semibold tracking-tight text-slate-900">{{ $currentAdvisoryEditor['title'] }}</h2>
+            <p class="mt-2 max-w-3xl text-sm leading-6 text-slate-600">
+                Ovdje uređujete samo sadržaj koji se prikazuje na ovoj konkretnoj front stranici.
+            </p>
+        </div>
+
+        <a href="{{ route($currentAdvisoryEditor['route']) }}" target="_blank" rel="noopener" class="inline-flex items-center justify-center gap-2 rounded-xl border border-cyan-700 bg-white px-4 py-2 text-sm font-semibold text-cyan-800 hover:bg-cyan-50">
+            Otvori ovu stranicu
+            <i class="fa-light fa-arrow-up-right-from-square" aria-hidden="true"></i>
+        </a>
     </div>
-    <p class="mt-4 text-sm text-slate-600">
-        {{ __('Savjetovanje je krovna usluga. Podstranice su prikazane ispod i uređuju isti zapis, ali svaki blok odgovara jednoj front ruti.') }}
-    </p>
 </div>
 
-<div class="grid gap-6 xl:grid-cols-2">
-    <div id="advisory-overview-admin" class="admin-panel admin-form-panel p-6 scroll-mt-24">
-        <p class="admin-section-title">{{ __('Overview') }}</p>
+@if ($contentSection === 'main')
+<div id="advisory-main-admin" class="admin-panel admin-form-panel scroll-mt-24 p-6">
+    <div class="flex flex-col gap-3 border-b border-slate-200 pb-4 lg:flex-row lg:items-start lg:justify-between">
+        <div>
+            <p class="text-xs font-semibold uppercase tracking-[0.16em] text-cyan-700">1. Glavna stranica</p>
+            <h2 class="mt-1 text-lg font-semibold text-slate-900">Hero i uvod stranice Savjetovanje</h2>
+            <p class="mt-1 text-sm text-slate-600">Glavna slika koristi se i na podstranicama; svaka podstranica ima vlastiti alternativni opis slike.</p>
+        </div>
+        <a href="{{ route('advisory.show') }}" target="_blank" rel="noopener" class="inline-flex items-center gap-2 text-sm font-semibold text-cyan-800 hover:text-cyan-950">
+            Otvori front <i class="fa-light fa-arrow-up-right-from-square" aria-hidden="true"></i>
+        </a>
+    </div>
 
-        <div class="mt-4 grid gap-3 md:grid-cols-2">
+    <div class="mt-5 grid gap-5 xl:grid-cols-[minmax(0,1.2fr)_minmax(320px,0.8fr)]">
+        <div class="space-y-4">
             <div>
-                <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Kicker') }}</label>
-                <input type="text" wire:model="form.translation_payload.overview.kicker" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+                <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Naziv usluge u hero sekciji</label>
+                <input type="text" wire:model="form.translation_payload.hero.subtitle_lead" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+                @error('form.translation_payload.hero.subtitle_lead') <p class="mt-1 text-xs text-rose-600">{{ $message }}</p> @enderror
             </div>
             <div>
-                <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Title') }}</label>
-                <input type="text" wire:model="form.translation_payload.overview.title" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+                <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Glavna hero poruka</label>
+                <textarea rows="5" wire:model="form.translation_payload.hero.intro" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm leading-6"></textarea>
+                @error('form.translation_payload.hero.intro') <p class="mt-1 text-xs text-rose-600">{{ $message }}</p> @enderror
+            </div>
+            <div>
+                <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Alternativni opis glavne slike</label>
+                <input type="text" wire:model="form.translation_payload.hero.image_alt" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+                @error('form.translation_payload.hero.image_alt') <p class="mt-1 text-xs text-rose-600">{{ $message }}</p> @enderror
             </div>
         </div>
 
-        @foreach (($translationPayload['overview']['body'] ?? []) as $index => $paragraph)
-            <div class="mt-3">
-                <div class="mb-1 flex items-center justify-between gap-3">
-                    <label class="block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Paragraph') }} #{{ $index + 1 }}</label>
-                    <button type="button" wire:click="removeTranslationListItem('overview.body', {{ $index }})" class="text-xs font-semibold text-rose-600 hover:text-rose-700">{{ __('Remove') }}</button>
+        <div>
+            <div class="overflow-hidden rounded-xl border border-slate-200 bg-slate-100">
+                @if ($advisoryHeroPreviewUrl !== '')
+                    <img src="{{ $advisoryHeroPreviewUrl }}" alt="" class="aspect-video w-full object-cover" />
+                @endif
+            </div>
+            <div class="mt-3 flex items-center justify-between gap-3">
+                <label class="block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Zajednička hero slika</label>
+                <span class="admin-chip">{{ ($advisoryHeroImage['is_custom'] ?? false) ? 'Vlastita slika' : 'Zadana slika' }}</span>
+            </div>
+            <input type="file" wire:model="advisoryHeroImageUpload" accept="image/jpeg,image/png,image/webp,image/avif,image/svg+xml" class="mt-1 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm file:mr-3 file:rounded-lg file:border-0 file:bg-slate-100 file:px-3 file:py-1.5 file:text-xs file:font-semibold file:text-slate-700 hover:file:bg-slate-200" />
+            <p class="mt-1 text-xs text-slate-500">Preporučeni omjer 16:9. Promjena vrijedi na svim stranicama Savjetovanja.</p>
+            @error('advisoryHeroImageUpload') <p class="mt-1 text-xs text-rose-600">{{ $message }}</p> @enderror
+            @if (($advisoryHeroImage['is_custom'] ?? false) && ! $advisoryHeroUpload)
+                <button type="button" wire:click="removeAdvisoryHeroImage" wire:confirm="Ukloniti vlastitu hero sliku i vratiti zadanu?" class="mt-2 text-xs font-semibold text-rose-600 hover:text-rose-700">Vrati zadanu sliku</button>
+            @endif
+        </div>
+    </div>
+
+    <div class="mt-6 border-t border-slate-200 pt-5">
+        <h3 class="text-base font-semibold text-slate-900">Uvodna 50/50 sekcija</h3>
+        <div class="mt-4">
+            <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Naslov</label>
+            <input type="text" wire:model="form.translation_payload.overview.title" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+        </div>
+        <div class="mt-4 space-y-4">
+            @foreach (($translationPayload['overview']['body'] ?? []) as $index => $paragraph)
+                <div class="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                    <div class="flex items-center justify-between gap-3">
+                        <label class="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Odlomak {{ $index + 1 }}</label>
+                        <button type="button" wire:click="removeTranslationListItem('overview.body', {{ $index }})" class="text-xs font-semibold text-rose-600 hover:text-rose-700">Ukloni</button>
+                    </div>
+                    <textarea rows="5" wire:model="form.translation_payload.overview.body.{{ $index }}" class="mt-2 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm leading-6"></textarea>
                 </div>
-                <textarea rows="5" wire:model="form.translation_payload.overview.body.{{ $index }}" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm"></textarea>
-            </div>
-        @endforeach
-
-        <div class="mt-3">
-            <button type="button" wire:click="addTranslationListItem('overview.body')" class="rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-100">
-                {{ __('Add Paragraph') }}
-            </button>
+            @endforeach
         </div>
+        <button type="button" wire:click="addTranslationListItem('overview.body')" class="mt-4 rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-100">Dodaj odlomak</button>
+    </div>
+</div>
+
+<div id="advisory-pandea-admin" class="admin-panel admin-form-panel scroll-mt-24 p-6">
+    <div class="border-b border-slate-200 pb-4">
+        <p class="text-xs font-semibold uppercase tracking-[0.16em] text-cyan-700">2. Pandea</p>
+        <h2 class="mt-1 text-lg font-semibold text-slate-900">Pandea Global M&amp;A blok</h2>
+        <p class="mt-1 text-sm text-slate-600">Prikazuje se na glavnoj stranici i, kada je uključeno, na M&amp;A podstranici.</p>
     </div>
 
-    <div id="advisory-services-admin" class="admin-panel admin-form-panel p-6 scroll-mt-24">
-        <p class="admin-section-title">{{ __('Services Intro') }}</p>
-
-        <div class="mt-4 grid gap-3 md:grid-cols-2">
-            <div>
-                <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Kicker') }}</label>
-                <input type="text" wire:model="form.translation_payload.services_intro.kicker" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+    <div class="mt-5 grid gap-5 xl:grid-cols-[minmax(0,1.2fr)_minmax(320px,0.8fr)]">
+        <div>
+            <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Naslov</label>
+            <input type="text" wire:model="form.translation_payload.pandea.title" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+            <div class="mt-4 space-y-4">
+                @foreach (($translationPayload['pandea']['body'] ?? []) as $index => $paragraph)
+                    <div class="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                        <div class="flex items-center justify-between gap-3">
+                            <label class="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Odlomak {{ $index + 1 }}</label>
+                            <button type="button" wire:click="removeTranslationListItem('pandea.body', {{ $index }})" class="text-xs font-semibold text-rose-600 hover:text-rose-700">Ukloni</button>
+                        </div>
+                        <textarea rows="5" wire:model="form.translation_payload.pandea.body.{{ $index }}" class="mt-2 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm leading-6"></textarea>
+                    </div>
+                @endforeach
             </div>
-            <div>
-                <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Title') }}</label>
-                <input type="text" wire:model="form.translation_payload.services_intro.title" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
-            </div>
+            <button type="button" wire:click="addTranslationListItem('pandea.body')" class="mt-4 rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-100">Dodaj odlomak</button>
         </div>
-        <div class="mt-3">
-            <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Intro') }}</label>
-            <textarea rows="5" wire:model="form.translation_payload.services_intro.intro" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm"></textarea>
+
+        <div>
+            <div class="flex min-h-48 items-center justify-center overflow-hidden rounded-xl border border-slate-200 bg-slate-50 p-6">
+                @if ($advisoryLogoPreviewUrl !== '')
+                    <img src="{{ $advisoryLogoPreviewUrl }}" alt="" class="max-h-32 max-w-full object-contain" />
+                @endif
+            </div>
+            <div class="mt-3 flex items-center justify-between gap-3">
+                <label class="block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Pandea logotip</label>
+                <span class="admin-chip">{{ ($advisoryPandeaLogo['is_custom'] ?? false) ? 'Vlastiti logotip' : 'Zadani logotip' }}</span>
+            </div>
+            <input type="file" wire:model="advisoryPandeaLogoUpload" accept="image/jpeg,image/png,image/webp,image/avif,image/svg+xml" class="mt-1 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm file:mr-3 file:rounded-lg file:border-0 file:bg-slate-100 file:px-3 file:py-1.5 file:text-xs file:font-semibold file:text-slate-700 hover:file:bg-slate-200" />
+            @error('advisoryPandeaLogoUpload') <p class="mt-1 text-xs text-rose-600">{{ $message }}</p> @enderror
+            @if (($advisoryPandeaLogo['is_custom'] ?? false) && ! $advisoryLogoUpload)
+                <button type="button" wire:click="removeAdvisoryPandeaLogo" wire:confirm="Ukloniti vlastiti logotip i vratiti zadani?" class="mt-2 text-xs font-semibold text-rose-600 hover:text-rose-700">Vrati zadani logotip</button>
+            @endif
+            <div class="mt-4">
+                <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Alternativni opis logotipa</label>
+                <input type="text" wire:model="form.translation_payload.pandea.logo_alt" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+            </div>
         </div>
     </div>
 </div>
 
-<div class="admin-panel admin-form-panel p-6">
-    <div class="flex items-center justify-between gap-3">
-        <p class="admin-section-title">{{ __('Service Cards') }}</p>
-        <button type="button" wire:click="addTranslationListItem('service_cards', 'service_card')" class="rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-100">
-            {{ __('Add Card') }}
-        </button>
+<div id="advisory-services-admin" class="admin-panel admin-form-panel scroll-mt-24 p-6">
+    <div class="border-b border-slate-200 pb-4">
+        <p class="text-xs font-semibold uppercase tracking-[0.16em] text-cyan-700">3. Kartice usluga</p>
+        <h2 class="mt-1 text-lg font-semibold text-slate-900">Usluge prikazane na glavnoj stranici</h2>
     </div>
-    <div class="mt-4 grid gap-4 lg:grid-cols-2">
+
+    <div class="mt-5 grid gap-4 xl:grid-cols-3">
+        <div>
+            <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Naslov sekcije</label>
+            <input type="text" wire:model="form.translation_payload.services_intro.title" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+        </div>
+        <div>
+            <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Uvod sekcije</label>
+            <textarea rows="3" wire:model="form.translation_payload.services_intro.intro" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm leading-6"></textarea>
+        </div>
+        <div>
+            <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Natpis poveznice na kartici</label>
+            <input type="text" wire:model="form.translation_payload.services_intro.card_action_label" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+        </div>
+    </div>
+
+    <div class="mt-5 grid gap-4 xl:grid-cols-2">
         @foreach (($translationPayload['service_cards'] ?? []) as $index => $card)
             <div class="rounded-2xl border border-slate-200 bg-slate-50 p-4">
                 <div class="flex items-center justify-between gap-3">
-                    <p class="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Card') }} #{{ $index + 1 }}</p>
-                    <button type="button" wire:click="removeTranslationListItem('service_cards', {{ $index }})" class="text-xs font-semibold text-rose-600 hover:text-rose-700">{{ __('Remove') }}</button>
+                    <p class="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Kartica usluge {{ $index + 1 }}</p>
+                    <button type="button" wire:click="removeTranslationListItem('service_cards', {{ $index }})" class="text-xs font-semibold text-rose-600 hover:text-rose-700">Ukloni</button>
                 </div>
-                <div class="mt-3 grid gap-3 md:grid-cols-[1fr_1fr]">
+                <div class="mt-3 grid gap-3 md:grid-cols-2">
                     <div>
-                        <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Title') }}</label>
-                        <input type="text" wire:model="form.translation_payload.service_cards.{{ $index }}.title" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+                        <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Naslov</label>
+                        <input type="text" wire:model="form.translation_payload.service_cards.{{ $index }}.title" class="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm" />
                     </div>
                     <div>
-                        <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('URL') }}</label>
-                        <input type="text" wire:model="form.translation_payload.service_cards.{{ $index }}.url" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+                        <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Poveznica</label>
+                        <input type="text" wire:model="form.translation_payload.service_cards.{{ $index }}.url" class="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm" />
                     </div>
                 </div>
                 <div class="mt-3">
-                    <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Text') }}</label>
-                    <textarea rows="4" wire:model="form.translation_payload.service_cards.{{ $index }}.text" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm"></textarea>
+                    <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Opis</label>
+                    <textarea rows="5" wire:model="form.translation_payload.service_cards.{{ $index }}.text" class="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm leading-6"></textarea>
                 </div>
             </div>
         @endforeach
     </div>
+    <button type="button" wire:click="addTranslationListItem('service_cards', 'service_card')" class="mt-4 rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-100">Dodaj karticu usluge</button>
 </div>
 
-<div id="advisory-pandea-admin" class="admin-panel admin-form-panel p-6 scroll-mt-24">
-    <p class="admin-section-title">{{ __('Pandea') }}</p>
-    <div class="mt-4 grid gap-3 md:grid-cols-2">
-        <div>
-            <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Title') }}</label>
-            <input type="text" wire:model="form.translation_payload.pandea.title" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
-        </div>
-        <div>
-            <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Logo Alt') }}</label>
-            <input type="text" wire:model="form.translation_payload.pandea.logo_alt" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
-        </div>
+<div id="advisory-approach-admin" class="admin-panel admin-form-panel scroll-mt-24 p-6">
+    <div class="border-b border-slate-200 pb-4">
+        <p class="text-xs font-semibold uppercase tracking-[0.16em] text-cyan-700">4. Naš pristup</p>
+        <h2 class="mt-1 text-lg font-semibold text-slate-900">Zajednička istaknuta sekcija</h2>
+        <p class="mt-1 text-sm text-slate-600">Prikazuje se na glavnoj stranici i na podstranici Pribavljanje financiranja.</p>
     </div>
-    @foreach (($translationPayload['pandea']['body'] ?? []) as $index => $paragraph)
-        <div class="mt-3">
-            <div class="mb-1 flex items-center justify-between gap-3">
-                <label class="block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Paragraph') }} #{{ $index + 1 }}</label>
-                <button type="button" wire:click="removeTranslationListItem('pandea.body', {{ $index }})" class="text-xs font-semibold text-rose-600 hover:text-rose-700">{{ __('Remove') }}</button>
+    <div class="mt-5">
+        <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Naslov</label>
+        <input type="text" wire:model="form.translation_payload.approach.title" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+    </div>
+    <div class="mt-4 space-y-4">
+        @foreach (($translationPayload['approach']['body'] ?? []) as $index => $paragraph)
+            <div class="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                <div class="flex items-center justify-between gap-3">
+                    <label class="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Odlomak {{ $index + 1 }}</label>
+                    <button type="button" wire:click="removeTranslationListItem('approach.body', {{ $index }})" class="text-xs font-semibold text-rose-600 hover:text-rose-700">Ukloni</button>
+                </div>
+                <textarea rows="5" wire:model="form.translation_payload.approach.body.{{ $index }}" class="mt-2 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm leading-6"></textarea>
             </div>
-            <textarea rows="5" wire:model="form.translation_payload.pandea.body.{{ $index }}" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm"></textarea>
-        </div>
-    @endforeach
-    <div class="mt-3">
-        <button type="button" wire:click="addTranslationListItem('pandea.body')" class="rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-100">
-            {{ __('Add Paragraph') }}
-        </button>
+        @endforeach
     </div>
+    <button type="button" wire:click="addTranslationListItem('approach.body')" class="mt-4 rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-100">Dodaj odlomak</button>
 </div>
+@endif
 
-<div id="advisory-funding-admin" class="admin-panel admin-form-panel p-6 scroll-mt-24">
-    <p class="admin-section-title">{{ __('Pribavljanje financiranja') }}</p>
+@if ($contentSection === 'financial')
+@include('livewire.admin.content.service.partials.advisory-detail-editor', [
+    'detailKey' => 'financial',
+    'detailConfig' => $advisoryDetailSections['financial'],
+    'detail' => (array) ($translationPayload['financial'] ?? []),
+])
+@endif
 
-    <div class="mt-4 grid gap-3 md:grid-cols-2">
+@if ($contentSection === 'funding')
+<div id="advisory-funding-admin" class="admin-panel admin-form-panel scroll-mt-24 p-6">
+    <div class="flex flex-col gap-3 border-b border-slate-200 pb-4 lg:flex-row lg:items-start lg:justify-between">
         <div>
-            <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Title') }}</label>
+            <p class="text-xs font-semibold uppercase tracking-[0.16em] text-cyan-700">6. Podstranica</p>
+            <h2 class="mt-1 text-lg font-semibold text-slate-900">Pribavljanje financiranja</h2>
+            <p class="mt-1 text-sm text-slate-600">Ovaj blok uređuje samo sadržaj podstranice Pribavljanje financiranja.</p>
+        </div>
+        <a href="{{ route('advisory.funding.show') }}" target="_blank" rel="noopener" class="inline-flex items-center gap-2 text-sm font-semibold text-cyan-800 hover:text-cyan-950">Otvori front <i class="fa-light fa-arrow-up-right-from-square" aria-hidden="true"></i></a>
+    </div>
+
+    <div class="mt-5 grid gap-4 xl:grid-cols-2">
+        <div>
+            <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Naslov podstranice i uvodne sekcije</label>
             <input type="text" wire:model="form.translation_payload.funding.title" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
         </div>
         <div>
-            <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Overview Title') }}</label>
-            <input type="text" wire:model="form.translation_payload.funding.overview_title" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+            <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Alternativni opis hero slike</label>
+            <input type="text" wire:model="form.translation_payload.funding.hero_image_alt" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+        </div>
+        <div class="xl:col-span-2">
+            <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Uvodni tekst</label>
+            <textarea rows="5" wire:model="form.translation_payload.funding.intro" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm leading-6"></textarea>
+        </div>
+        <div class="xl:col-span-2">
+            <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Poruka u hero sekciji</label>
+            <textarea rows="4" wire:model="form.translation_payload.funding.hero_intro" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm leading-6"></textarea>
+        </div>
+        <div>
+            <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Naslov kartica izvora financiranja</label>
+            <input type="text" wire:model="form.translation_payload.source_modules.title" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+        </div>
+        <div>
+            <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Uvod iznad kartica</label>
+            <textarea rows="3" wire:model="form.translation_payload.source_modules.intro" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm leading-6"></textarea>
         </div>
     </div>
 
-    <div class="mt-3">
-        <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Intro') }}</label>
-        <textarea rows="4" wire:model="form.translation_payload.funding.intro" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm"></textarea>
-    </div>
-
-    @foreach (($translationPayload['funding']['overview_body'] ?? []) as $index => $paragraph)
-        <div class="mt-3">
-            <div class="mb-1 flex items-center justify-between gap-3">
-                <label class="block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Overview Paragraph') }} #{{ $index + 1 }}</label>
-                <button type="button" wire:click="removeTranslationListItem('funding.overview_body', {{ $index }})" class="text-xs font-semibold text-rose-600 hover:text-rose-700">{{ __('Remove') }}</button>
-            </div>
-            <textarea rows="4" wire:model="form.translation_payload.funding.overview_body.{{ $index }}" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm"></textarea>
-        </div>
-    @endforeach
-
-    <div class="mt-3">
-        <button type="button" wire:click="addTranslationListItem('funding.overview_body')" class="rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-100">
-            {{ __('Add Overview Paragraph') }}
-        </button>
-    </div>
-
-    <div class="mt-6 flex items-center justify-between gap-3">
-        <p class="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Funding Cards') }}</p>
-        <button type="button" wire:click="addTranslationListItem('funding.cards', 'service_card')" class="rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-100">
-            {{ __('Add Card') }}
-        </button>
-    </div>
-    <div class="mt-4 grid gap-4 lg:grid-cols-3">
+    <div class="mt-5 grid gap-4 xl:grid-cols-3">
         @foreach (($translationPayload['funding']['cards'] ?? []) as $index => $card)
             <div class="rounded-2xl border border-slate-200 bg-slate-50 p-4">
                 <div class="flex items-center justify-between gap-3">
-                    <p class="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Card') }} #{{ $index + 1 }}</p>
-                    <button type="button" wire:click="removeTranslationListItem('funding.cards', {{ $index }})" class="text-xs font-semibold text-rose-600 hover:text-rose-700">{{ __('Remove') }}</button>
+                    <p class="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Kartica izvora {{ $index + 1 }}</p>
+                    <button type="button" wire:click="removeTranslationListItem('funding.cards', {{ $index }})" class="text-xs font-semibold text-rose-600 hover:text-rose-700">Ukloni</button>
                 </div>
-                <label class="mb-1 mt-3 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Title') }}</label>
-                <input type="text" wire:model="form.translation_payload.funding.cards.{{ $index }}.title" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
-                <label class="mb-1 mt-3 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Text') }}</label>
-                <textarea rows="4" wire:model="form.translation_payload.funding.cards.{{ $index }}.text" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm"></textarea>
-                <label class="mb-1 mt-3 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('URL') }}</label>
-                <input type="text" wire:model="form.translation_payload.funding.cards.{{ $index }}.url" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+                <label class="mb-1 mt-3 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Naslov</label>
+                <input type="text" wire:model="form.translation_payload.funding.cards.{{ $index }}.title" class="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm" />
+                <label class="mb-1 mt-3 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Opis</label>
+                <textarea rows="5" wire:model="form.translation_payload.funding.cards.{{ $index }}.text" class="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm leading-6"></textarea>
+                <label class="mb-1 mt-3 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Poveznica</label>
+                <input type="text" wire:model="form.translation_payload.funding.cards.{{ $index }}.url" class="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm" />
             </div>
         @endforeach
     </div>
+    <button type="button" wire:click="addTranslationListItem('funding.cards', 'service_card')" class="mt-4 rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-100">Dodaj karticu izvora</button>
 
-    <div class="mt-6">
-        <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Services Title') }}</label>
-        <input type="text" wire:model="form.translation_payload.funding.services_title" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm md:max-w-md" />
-    </div>
-    <div class="mt-4 grid gap-4 lg:grid-cols-2">
-        @foreach (($translationPayload['funding']['services'] ?? []) as $index => $item)
-            <div class="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-                <div class="flex items-center justify-between gap-3">
-                    <p class="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Funding Service') }} #{{ $index + 1 }}</p>
-                    <button type="button" wire:click="removeTranslationListItem('funding.services', {{ $index }})" class="text-xs font-semibold text-rose-600 hover:text-rose-700">{{ __('Remove') }}</button>
-                </div>
-                <label class="mb-1 mt-3 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Title') }}</label>
-                <input type="text" wire:model="form.translation_payload.funding.services.{{ $index }}.title" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
-                <label class="mb-1 mt-3 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Text') }}</label>
-                <textarea rows="4" wire:model="form.translation_payload.funding.services.{{ $index }}.text" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm"></textarea>
-            </div>
-        @endforeach
-    </div>
-    <div class="mt-3">
-        <button type="button" wire:click="addTranslationListItem('funding.services', 'title_text')" class="rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-100">
-            {{ __('Add Service') }}
-        </button>
+    <div class="mt-6 border-t border-slate-200 pt-5">
+        <h3 class="text-base font-semibold text-slate-900">Naš pristup</h3>
+        <div class="mt-4"><label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Naslov sekcije</label><input type="text" wire:model="form.translation_payload.funding.approach_title" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" /></div>
+        <div class="mt-4 space-y-3">
+            @foreach (($translationPayload['funding']['approach_body'] ?? []) as $index => $paragraph)
+                <div class="rounded-xl bg-slate-50 p-4"><div class="flex items-center justify-between gap-3"><label class="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Odlomak {{ $index + 1 }}</label><button type="button" wire:click="removeTranslationListItem('funding.approach_body', {{ $index }})" class="text-xs font-semibold text-rose-600 hover:text-rose-700">Ukloni</button></div><textarea rows="5" wire:model="form.translation_payload.funding.approach_body.{{ $index }}" class="mt-2 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm leading-6"></textarea></div>
+            @endforeach
+        </div>
+        <button type="button" wire:click="addTranslationListItem('funding.approach_body')" class="mt-3 rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-100">Dodaj odlomak pristupa</button>
     </div>
 </div>
+@endif
 
 @foreach ($advisoryDetailSections as $detailKey => $detailConfig)
+    @continue($detailKey === 'financial' || $detailKey !== $contentSection)
     @php $detail = (array) ($translationPayload[$detailKey] ?? []); @endphp
-    <div id="{{ $detailConfig['id'] }}" class="admin-panel admin-form-panel p-6 scroll-mt-24">
-        <div class="flex flex-wrap items-center justify-between gap-3">
-            <p class="admin-section-title">{{ $detailConfig['label'] }}</p>
-            <span class="admin-chip">{{ $detailKey }}</span>
+    <div id="{{ $detailConfig['id'] }}" class="admin-panel admin-form-panel scroll-mt-24 p-6">
+        <div class="flex flex-col gap-3 border-b border-slate-200 pb-4 lg:flex-row lg:items-start lg:justify-between">
+            <div>
+                <p class="text-xs font-semibold uppercase tracking-[0.16em] text-cyan-700">{{ $detailConfig['number'] }}. Podstranica</p>
+                <h2 class="mt-1 text-lg font-semibold text-slate-900">{{ $detailConfig['title'] }}</h2>
+                <p class="mt-1 text-sm text-slate-600">Zaseban CMS: promjene u ovom bloku vrijede samo na ovoj podstranici.</p>
+            </div>
+            <a href="{{ route($detailConfig['route']) }}" target="_blank" rel="noopener" class="inline-flex items-center gap-2 text-sm font-semibold text-cyan-800 hover:text-cyan-950">Otvori front <i class="fa-light fa-arrow-up-right-from-square" aria-hidden="true"></i></a>
         </div>
 
-        <div class="mt-4 grid gap-3 md:grid-cols-3">
+        <div class="mt-5 grid gap-4 xl:grid-cols-2">
             <div>
-                <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Title') }}</label>
+                <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Naslov podstranice</label>
                 <input type="text" wire:model="form.translation_payload.{{ $detailKey }}.title" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
             </div>
             <div>
-                <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Kicker') }}</label>
-                <input type="text" wire:model="form.translation_payload.{{ $detailKey }}.kicker" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+                <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Alternativni opis hero slike</label>
+                <input type="text" wire:model="form.translation_payload.{{ $detailKey }}.hero_image_alt" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
             </div>
-            <div>
-                <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Overview Title') }}</label>
-                <input type="text" wire:model="form.translation_payload.{{ $detailKey }}.overview_title" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
-            </div>
+        </div>
+
+        <div class="mt-4">
+            <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Poruka u hero sekciji</label>
+            <textarea rows="4" wire:model="form.translation_payload.{{ $detailKey }}.hero_intro" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm leading-6"></textarea>
         </div>
 
         @if ($detailKey === 'ma')
-            <div class="mt-4">
-                <button
-                    type="button"
-                    wire:click="$toggle('form.translation_payload.ma.show_pandea')"
-                    class="admin-switch"
-                    data-state="{{ data_get($translationPayload, 'ma.show_pandea') ? 'on' : 'off' }}"
-                    role="switch"
-                    aria-checked="{{ data_get($translationPayload, 'ma.show_pandea') ? 'true' : 'false' }}"
-                    aria-label="{{ __('Toggle Pandea block on M&A page') }}"
-                >
+            <div class="mt-4 rounded-xl border border-slate-200 bg-slate-50 p-4">
+                <button type="button" wire:click="$toggle('form.translation_payload.ma.show_pandea')" class="admin-switch" data-state="{{ data_get($translationPayload, 'ma.show_pandea') ? 'on' : 'off' }}" role="switch" aria-checked="{{ data_get($translationPayload, 'ma.show_pandea') ? 'true' : 'false' }}" aria-label="Uključi ili isključi Pandea blok na M&amp;A stranici">
                     <span class="admin-switch-track"><span class="admin-switch-thumb"></span></span>
-                    <span class="admin-switch-label">{{ data_get($translationPayload, 'ma.show_pandea') ? __('Pandea visible') : __('Pandea hidden') }}</span>
+                    <span class="admin-switch-label">{{ data_get($translationPayload, 'ma.show_pandea') ? 'Pandea blok je prikazan' : 'Pandea blok je skriven' }}</span>
                 </button>
+            </div>
+
+            <div class="mt-5 rounded-2xl border border-slate-200 p-5">
+                <h3 class="text-base font-semibold text-slate-900">Pandea Global M&amp;A blok</h3>
+                <div class="mt-4 grid gap-4 xl:grid-cols-2">
+                    <div><label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Naslov</label><input type="text" wire:model="form.translation_payload.ma.pandea.title" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" /></div>
+                    <div><label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Alternativni opis logotipa</label><input type="text" wire:model="form.translation_payload.ma.pandea.logo_alt" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" /></div>
+                </div>
+                <div class="mt-4 space-y-3">
+                    @foreach (($detail['pandea']['body'] ?? []) as $index => $paragraph)
+                        <div class="rounded-xl bg-slate-50 p-4"><div class="flex items-center justify-between gap-3"><label class="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Odlomak {{ $index + 1 }}</label><button type="button" wire:click="removeTranslationListItem('ma.pandea.body', {{ $index }})" class="text-xs font-semibold text-rose-600 hover:text-rose-700">Ukloni</button></div><textarea rows="5" wire:model="form.translation_payload.ma.pandea.body.{{ $index }}" class="mt-2 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm leading-6"></textarea></div>
+                    @endforeach
+                </div>
+                <button type="button" wire:click="addTranslationListItem('ma.pandea.body')" class="mt-3 rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-100">Dodaj odlomak</button>
             </div>
         @endif
 
-        <div class="mt-6">
-            <div class="mb-3 flex items-center justify-between gap-3">
-                <p class="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Overview Paragraphs') }}</p>
-                <button type="button" wire:click="addTranslationListItem('{{ $detailKey }}.overview_body')" class="rounded-xl border border-slate-300 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-100">
-                    {{ __('Add Paragraph') }}
-                </button>
+        <div class="mt-6 rounded-2xl border border-slate-200 p-5">
+            <h3 class="text-base font-semibold text-slate-900">Uvodna sekcija</h3>
+            <div class="mt-4">
+                <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Naslov</label>
+                <input type="text" wire:model="form.translation_payload.{{ $detailKey }}.overview_title" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
             </div>
-            <div class="space-y-3">
+            <div class="mt-4 space-y-3">
                 @foreach (($detail['overview_body'] ?? []) as $index => $paragraph)
-                    <div>
-                        <div class="mb-1 flex items-center justify-between gap-3">
-                            <label class="block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Paragraph') }} #{{ $index + 1 }}</label>
-                            <button type="button" wire:click="removeTranslationListItem('{{ $detailKey }}.overview_body', {{ $index }})" class="text-xs font-semibold text-rose-600 hover:text-rose-700">{{ __('Remove') }}</button>
+                    <div class="rounded-xl bg-slate-50 p-4">
+                        <div class="flex items-center justify-between gap-3">
+                            <label class="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Odlomak {{ $index + 1 }}</label>
+                            <button type="button" wire:click="removeTranslationListItem('{{ $detailKey }}.overview_body', {{ $index }})" class="text-xs font-semibold text-rose-600 hover:text-rose-700">Ukloni</button>
                         </div>
-                        <textarea rows="4" wire:model="form.translation_payload.{{ $detailKey }}.overview_body.{{ $index }}" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm"></textarea>
+                        <textarea rows="5" wire:model="form.translation_payload.{{ $detailKey }}.overview_body.{{ $index }}" class="mt-2 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm leading-6"></textarea>
                     </div>
                 @endforeach
             </div>
+            <button type="button" wire:click="addTranslationListItem('{{ $detailKey }}.overview_body')" class="mt-3 rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-100">Dodaj uvodni odlomak</button>
         </div>
 
-        <div class="mt-6">
-            <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Services Title') }}</label>
-            <input type="text" wire:model="form.translation_payload.{{ $detailKey }}.services_title" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm md:max-w-md" />
-        </div>
-
-        <div class="mt-4">
-            <div class="mb-3 flex items-center justify-between gap-3">
-                <p class="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Services Paragraphs') }}</p>
-                <button type="button" wire:click="addTranslationListItem('{{ $detailKey }}.services_body')" class="rounded-xl border border-slate-300 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-100">
-                    {{ __('Add Paragraph') }}
-                </button>
+        <div class="mt-5 rounded-2xl border border-slate-200 p-5">
+            <h3 class="text-base font-semibold text-slate-900">Naše usluge</h3>
+            <div class="mt-4">
+                <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Naslov sekcije</label>
+                <input type="text" wire:model="form.translation_payload.{{ $detailKey }}.services_title" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
             </div>
-            <div class="space-y-3">
+            <div class="mt-4 space-y-3">
                 @foreach (($detail['services_body'] ?? []) as $index => $paragraph)
-                    <div>
-                        <div class="mb-1 flex items-center justify-between gap-3">
-                            <label class="block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Paragraph') }} #{{ $index + 1 }}</label>
-                            <button type="button" wire:click="removeTranslationListItem('{{ $detailKey }}.services_body', {{ $index }})" class="text-xs font-semibold text-rose-600 hover:text-rose-700">{{ __('Remove') }}</button>
+                    <div class="rounded-xl bg-slate-50 p-4">
+                        <div class="flex items-center justify-between gap-3">
+                            <label class="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Uvodni odlomak {{ $index + 1 }}</label>
+                            <button type="button" wire:click="removeTranslationListItem('{{ $detailKey }}.services_body', {{ $index }})" class="text-xs font-semibold text-rose-600 hover:text-rose-700">Ukloni</button>
                         </div>
-                        <textarea rows="4" wire:model="form.translation_payload.{{ $detailKey }}.services_body.{{ $index }}" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm"></textarea>
+                        <textarea rows="5" wire:model="form.translation_payload.{{ $detailKey }}.services_body.{{ $index }}" class="mt-2 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm leading-6"></textarea>
                     </div>
                 @endforeach
             </div>
-        </div>
+            <button type="button" wire:click="addTranslationListItem('{{ $detailKey }}.services_body')" class="mt-3 rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-100">Dodaj uvodni odlomak</button>
 
-        <div class="mt-6">
-            <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Help Title') }}</label>
-            <input type="text" wire:model="form.translation_payload.{{ $detailKey }}.help_title" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm md:max-w-md" />
-        </div>
-
-        <div class="mt-4">
-            <div class="mb-3 flex items-center justify-between gap-3">
-                <p class="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Help Items') }}</p>
-                <button type="button" wire:click="addTranslationListItem('{{ $detailKey }}.help_items')" class="rounded-xl border border-slate-300 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-100">
-                    {{ __('Add Item') }}
-                </button>
-            </div>
-            <div class="grid gap-3 lg:grid-cols-3">
-                @foreach (($detail['help_items'] ?? []) as $index => $item)
-                    <div>
-                        <div class="mb-1 flex items-center justify-between gap-3">
-                            <label class="block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Item') }} #{{ $index + 1 }}</label>
-                            <button type="button" wire:click="removeTranslationListItem('{{ $detailKey }}.help_items', {{ $index }})" class="text-xs font-semibold text-rose-600 hover:text-rose-700">{{ __('Remove') }}</button>
+            <div class="mt-6 border-t border-slate-200 pt-5">
+                <div class="flex items-center justify-between gap-3">
+                    <h4 class="text-sm font-semibold text-slate-900">Kartice usluga</h4>
+                    <button type="button" wire:click="addTranslationListItem('{{ $detailKey }}.help_items')" class="rounded-xl border border-slate-300 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-100">Dodaj karticu</button>
+                </div>
+                <div class="mt-4 grid gap-3 lg:grid-cols-3">
+                    @foreach (($detail['help_items'] ?? []) as $index => $item)
+                        <div class="rounded-xl bg-slate-50 p-4">
+                            <div class="flex items-center justify-between gap-3">
+                                <label class="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Kartica {{ $index + 1 }}</label>
+                                <button type="button" wire:click="removeTranslationListItem('{{ $detailKey }}.help_items', {{ $index }})" class="text-xs font-semibold text-rose-600 hover:text-rose-700">Ukloni</button>
+                            </div>
+                            <textarea rows="3" wire:model="form.translation_payload.{{ $detailKey }}.help_items.{{ $index }}" class="mt-2 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm leading-6"></textarea>
                         </div>
-                        <input type="text" wire:model="form.translation_payload.{{ $detailKey }}.help_items.{{ $index }}" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
-                    </div>
-                @endforeach
+                    @endforeach
+                </div>
             </div>
         </div>
 
-        <div class="mt-6">
-            <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Approach Title') }}</label>
-            <input type="text" wire:model="form.translation_payload.{{ $detailKey }}.approach_title" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm md:max-w-md" />
-        </div>
-
-        <div class="mt-4">
-            <div class="mb-3 flex items-center justify-between gap-3">
-                <p class="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Approach Paragraphs') }}</p>
-                <button type="button" wire:click="addTranslationListItem('{{ $detailKey }}.approach_body')" class="rounded-xl border border-slate-300 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-100">
-                    {{ __('Add Paragraph') }}
-                </button>
+        <div class="mt-5 rounded-2xl border border-slate-200 p-5">
+            <h3 class="text-base font-semibold text-slate-900">Naš pristup</h3>
+            <div class="mt-4">
+                <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Naslov sekcije</label>
+                <input type="text" wire:model="form.translation_payload.{{ $detailKey }}.approach_title" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
             </div>
-            <div class="space-y-3">
+            <div class="mt-4 space-y-3">
                 @foreach (($detail['approach_body'] ?? []) as $index => $paragraph)
-                    <div>
-                        <div class="mb-1 flex items-center justify-between gap-3">
-                            <label class="block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Paragraph') }} #{{ $index + 1 }}</label>
-                            <button type="button" wire:click="removeTranslationListItem('{{ $detailKey }}.approach_body', {{ $index }})" class="text-xs font-semibold text-rose-600 hover:text-rose-700">{{ __('Remove') }}</button>
+                    <div class="rounded-xl bg-slate-50 p-4">
+                        <div class="flex items-center justify-between gap-3">
+                            <label class="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Odlomak {{ $index + 1 }}</label>
+                            <button type="button" wire:click="removeTranslationListItem('{{ $detailKey }}.approach_body', {{ $index }})" class="text-xs font-semibold text-rose-600 hover:text-rose-700">Ukloni</button>
                         </div>
-                        <textarea rows="4" wire:model="form.translation_payload.{{ $detailKey }}.approach_body.{{ $index }}" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm"></textarea>
+                        <textarea rows="5" wire:model="form.translation_payload.{{ $detailKey }}.approach_body.{{ $index }}" class="mt-2 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm leading-6"></textarea>
                     </div>
                 @endforeach
             </div>
+            <button type="button" wire:click="addTranslationListItem('{{ $detailKey }}.approach_body')" class="mt-3 rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-100">Dodaj odlomak pristupa</button>
         </div>
     </div>
 @endforeach
 
-<div class="grid gap-6 xl:grid-cols-2">
-    <div id="advisory-approach-admin" class="admin-panel admin-form-panel p-6 scroll-mt-24">
-        <p class="admin-section-title">{{ __('Approach') }}</p>
-        <div class="mt-4 grid gap-3 md:grid-cols-2">
-            <div>
-                <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Kicker') }}</label>
-                <input type="text" wire:model="form.translation_payload.approach.kicker" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
-            </div>
-            <div>
-                <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Title') }}</label>
-                <input type="text" wire:model="form.translation_payload.approach.title" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
-            </div>
-        </div>
-        @foreach (($translationPayload['approach']['body'] ?? []) as $index => $paragraph)
-            <div class="mt-3">
-                <div class="mb-1 flex items-center justify-between gap-3">
-                    <label class="block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Paragraph') }} #{{ $index + 1 }}</label>
-                    <button type="button" wire:click="removeTranslationListItem('approach.body', {{ $index }})" class="text-xs font-semibold text-rose-600 hover:text-rose-700">{{ __('Remove') }}</button>
-                </div>
-                <textarea rows="4" wire:model="form.translation_payload.approach.body.{{ $index }}" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm"></textarea>
-            </div>
-        @endforeach
-        <div class="mt-3">
-            <button type="button" wire:click="addTranslationListItem('approach.body')" class="rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-100">
-                {{ __('Add Paragraph') }}
-            </button>
-        </div>
+@if ($contentSection === 'main')
+<div id="advisory-blog-admin" class="admin-panel admin-form-panel scroll-mt-24 p-6">
+    <div class="border-b border-slate-200 pb-4">
+        <p class="text-xs font-semibold uppercase tracking-[0.16em] text-cyan-700">13. Stručne objave</p>
+        <h2 class="mt-1 text-lg font-semibold text-slate-900">Tekstovi blog sekcije</h2>
+        <p class="mt-1 text-sm text-slate-600">Kategorija i objave biraju se u kartici Izvori. Ovi natpisi vrijede samo na glavnoj stranici Savjetovanja.</p>
     </div>
-
-    <div id="advisory-meeting-admin" class="admin-panel admin-form-panel p-6 scroll-mt-24">
-        <p class="admin-section-title">{{ __('Meeting / Blog') }}</p>
-        <div class="mt-4 grid gap-3 md:grid-cols-2">
-            <div>
-                <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Meeting Kicker') }}</label>
-                <input type="text" wire:model="form.translation_payload.meeting.kicker" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
-            </div>
-            <div>
-                <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Meeting Title') }}</label>
-                <input type="text" wire:model="form.translation_payload.meeting.title" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
-            </div>
+    <div class="mt-5 grid gap-4 xl:grid-cols-3">
+        <div class="xl:col-span-3">
+            <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Naslov sekcije</label>
+            <input type="text" wire:model="form.translation_payload.blog_section.title" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
         </div>
-        <div class="mt-3">
-            <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Meeting Intro') }}</label>
-            <textarea rows="4" wire:model="form.translation_payload.meeting.intro" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm"></textarea>
+        <div>
+            <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Natpis poveznice svih objava</label>
+            <input type="text" wire:model="form.translation_payload.blog_section.all_posts_label" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
         </div>
-        <div class="mt-3">
-            <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Contact Title') }}</label>
-            <input type="text" wire:model="form.translation_payload.meeting.contact_title" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm md:max-w-md" />
-        </div>
-
-        <div class="mt-6 grid gap-3 md:grid-cols-2">
-            <div>
-                <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Blog Kicker') }}</label>
-                <input type="text" wire:model="form.translation_payload.blog_section.kicker" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
-            </div>
-            <div>
-                <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Blog Title') }}</label>
-                <input type="text" wire:model="form.translation_payload.blog_section.title" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
-            </div>
-        </div>
-        <div class="mt-3">
-            <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Blog Intro') }}</label>
-            <textarea rows="4" wire:model="form.translation_payload.blog_section.intro" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm"></textarea>
+        <div>
+            <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Natpis na kartici objave</label>
+            <input type="text" wire:model="form.translation_payload.blog_section.post_action_label" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
         </div>
     </div>
 </div>
+@endif
+
+@if ($contentSection === 'main')
+<div id="advisory-meeting-admin" class="admin-panel admin-form-panel scroll-mt-24 p-6">
+    <div class="border-b border-slate-200 pb-4">
+        <p class="text-xs font-semibold uppercase tracking-[0.16em] text-cyan-700">14. Kontaktni poziv</p>
+        <h2 class="mt-1 text-lg font-semibold text-slate-900">Završna kontaktna sekcija</h2>
+        <p class="mt-1 text-sm text-slate-600">Ovaj kontaktni sadržaj vrijedi samo na glavnoj stranici Savjetovanja.</p>
+    </div>
+    <div class="mt-5 grid gap-4 xl:grid-cols-2">
+        <div>
+            <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Glavni naslov</label>
+            <input type="text" wire:model="form.translation_payload.meeting.title" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+        </div>
+        <div>
+            <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Naslov kontaktne kartice</label>
+            <input type="text" wire:model="form.translation_payload.meeting.contact_title" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+        </div>
+        <div class="xl:col-span-2">
+            <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Kontaktni tekst</label>
+            <textarea rows="4" wire:model="form.translation_payload.meeting.intro" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm leading-6"></textarea>
+        </div>
+        <div>
+            <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Natpis gumba</label>
+            <input type="text" wire:model="form.translation_payload.meeting.button_label" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+        </div>
+        <div>
+            <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Napomena uz termin</label>
+            <input type="text" wire:model="form.translation_payload.meeting.status" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+        </div>
+    </div>
+</div>
+@endif
+
+@if ($contentSection !== 'main')
+    @include('livewire.admin.content.service.partials.advisory-page-ending-editor', [
+        'pageKey' => $contentSection,
+    ])
+@endif

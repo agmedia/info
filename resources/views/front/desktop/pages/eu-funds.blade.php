@@ -21,8 +21,12 @@
     $resourceCards = array_values((array) ($resourcesSection['cards'] ?? []));
     $lawCards = array_values((array) ($lawsSection['cards'] ?? []));
     $isCroatian = str_starts_with(strtolower((string) ($locale ?? app()->getLocale())), 'hr');
-    $readMoreLabel = $isCroatian ? 'Opširnije' : 'Read more';
-    $allPostsLabel = $isCroatian ? 'Pogledaj sve objave' : 'View all posts';
+    $readMoreLabel = trim((string) ($blogSection['post_action_label'] ?? ''))
+        ?: ($isCroatian ? 'Opširnije' : 'Read more');
+    $allPostsLabel = trim((string) ($blogSection['all_posts_label'] ?? ''))
+        ?: ($isCroatian ? 'Pogledaj sve objave' : 'View all posts');
+    $viewAllCallsLabel = trim((string) ($callsSection['view_all_label'] ?? ''))
+        ?: ($isCroatian ? 'Pogledaj sve natječaje' : 'View all calls');
     $meetingTitle = trim((string) ($meetingSection['title'] ?? ''))
         ?: ($isCroatian ? 'Razgovarajmo o vašem projektu' : 'Let’s discuss your project');
     $meetingIntro = trim((string) ($meetingSection['intro'] ?? ''))
@@ -31,13 +35,16 @@
             : 'Contact us and we will assess which funding sources are available for your project.');
     $meetingCardTitle = trim((string) ($meetingSection['contact_title'] ?? ''))
         ?: ($isCroatian ? 'Kontaktirajte nas' : 'Contact us');
-    $meetingButtonLabel = $isCroatian ? 'Dogovorite sastanak' : 'Schedule a meeting';
-    $meetingStatus = $isCroatian ? 'Termin razgovora prilagođavamo vama.' : 'We arrange the meeting around your schedule.';
+    $meetingButtonLabel = trim((string) ($meetingSection['button_label'] ?? ''))
+        ?: ($isCroatian ? 'Dogovorite sastanak' : 'Schedule a meeting');
+    $meetingStatus = trim((string) ($meetingSection['status'] ?? ''))
+        ?: ($isCroatian ? 'Termin razgovora prilagođavamo vama.' : 'We arrange the meeting around your schedule.');
     $heroLabel = trim((string) ($heroSection['subtitle_lead'] ?? '')) ?: 'EU fondovi';
     $heroAccent = trim((string) ($heroSection['subtitle_accent'] ?? ''));
     $heroLabel = trim($heroLabel.' '.$heroAccent);
     $heroHook = trim((string) ($heroSection['intro'] ?? ''));
-    $heroImageAlt = $isCroatian ? 'Savjetovanje i podrška za EU fondove' : 'EU funds advisory and support';
+    $heroImageAlt = trim((string) ($heroSection['image_alt'] ?? ''))
+        ?: ($isCroatian ? 'Savjetovanje i podrška za EU fondove' : 'EU funds advisory and support');
     $serviceIcons = ['fa-magnifying-glass-chart', 'fa-file-certificate', 'fa-diagram-project', 'fa-wallet', 'fa-badge-percent', 'fa-bullseye-pointer'];
     $sourceIcons = ['fa-folder-open', 'fa-lightbulb-on', 'fa-file-check', 'fa-coins', 'fa-badge-percent', 'fa-landmark-dome'];
     $headingWords = static fn (string $heading): array => preg_split('/\s+/u', trim($heading)) ?: [];
@@ -242,7 +249,7 @@
 
                                     @if ($hiddenItems !== [])
                                         <details class="ac-eu-call-details">
-                                            <summary>{{ $isCroatian ? 'Pogledaj sve natječaje' : 'View all calls' }}</summary>
+                                            <summary>{{ $viewAllCallsLabel }}</summary>
                                             <ul class="ac-eu-call-list ac-eu-call-list--details">
                                                 @foreach ($hiddenItems as $item)
                                                     @include('front.desktop.pages.partials.eu-funds-call-item', ['item' => $item])

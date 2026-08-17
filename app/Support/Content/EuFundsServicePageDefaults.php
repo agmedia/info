@@ -25,6 +25,7 @@ class EuFundsServicePageDefaults
                 'subtitle_lead' => 'EU fondovi',
                 'subtitle_accent' => '',
                 'intro' => 'Pomažemo poduzetnicima u identifikaciji, prijavi i provedbi projekata financiranih iz EU i nacionalnih izvora — od odabira natječaja do ishođenja ugovora i administrativnog praćenja provedbe.',
+                'image_alt' => 'Savjetovanje i podrška za EU fondove',
             ],
             'overview' => [
                 'kicker' => 'EU FONDOVI',
@@ -114,6 +115,7 @@ class EuFundsServicePageDefaults
                 'kicker' => 'NATJEČAJI',
                 'title' => 'Natječaji prema statusu',
                 'intro' => 'Aktualni pozivi povlače se iz postojeće baze natječaja i prikazuju odvojeno od opisa savjetodavne usluge.',
+                'view_all_label' => 'Pogledaj sve natječaje',
                 'download_link' => [
                     'label' => '',
                     'type' => 'none',
@@ -250,10 +252,14 @@ class EuFundsServicePageDefaults
                 'title' => 'Razgovarajmo o vašem projektu',
                 'intro' => 'Javite nam se i zajedno ćemo procijeniti koji su izvori financiranja dostupni za vaš projekt te koji je najprikladniji put prijave i provedbe.',
                 'contact_title' => 'Kontaktirajte nas',
+                'button_label' => 'Dogovorite sastanak',
+                'status' => 'Termin razgovora prilagođavamo vama.',
             ],
             'blog_section' => [
                 'title' => 'Objave iz kategorije :category',
                 'intro' => 'Aktualni natječaji, programske novosti i korisni savjeti za pripremu, prijavu i provedbu projekata financiranih iz EU fondova.',
+                'all_posts_label' => 'Pogledaj sve objave',
+                'post_action_label' => 'Opširnije',
             ],
         ];
     }

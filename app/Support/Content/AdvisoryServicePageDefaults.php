@@ -9,9 +9,53 @@ class AdvisoryServicePageDefaults
      */
     public static function defaultsForLocale(string $locale): array
     {
-        return self::isCroatian($locale)
+        $defaults = self::isCroatian($locale)
             ? self::croatianDefaults()
             : self::englishDefaults();
+
+        $routeCards = [
+            'funding' => ['/savjetovanje/pribavljanje-financiranja', 'service_cards'],
+            'ma' => ['/savjetovanje/prodaja-i-kupnja-poduzeca', 'service_cards'],
+            'due_diligence' => ['/savjetovanje/dubinska-snimanja', 'service_cards'],
+            'valuations' => ['/savjetovanje/procjena-vrijednosti-drustva', 'service_cards'],
+            'tax' => ['/savjetovanje/porezno-savjetovanje', 'service_cards'],
+            'bank_loans' => ['/savjetovanje/pribavljanje-financiranja/bankovni-krediti', 'funding.cards'],
+            'zopu' => ['/savjetovanje/pribavljanje-financiranja/zakon-o-poticanju-ulaganja', 'funding.cards'],
+        ];
+
+        foreach (['financial', 'funding', 'bank_loans', 'zopu', 'ma', 'due_diligence', 'valuations', 'tax'] as $pageKey) {
+            $defaults[$pageKey]['blog_section'] = $defaults['blog_section'];
+            $defaults[$pageKey]['meeting'] = $defaults['meeting'];
+
+            $heroIntro = '';
+            if (isset($routeCards[$pageKey])) {
+                [$route, $cardPath] = $routeCards[$pageKey];
+                $cards = $cardPath === 'service_cards'
+                    ? (array) ($defaults['service_cards'] ?? [])
+                    : (array) data_get($defaults, $cardPath, []);
+
+                foreach ($cards as $card) {
+                    if (is_array($card) && str_ends_with((string) ($card['url'] ?? ''), $route)) {
+                        $heroIntro = trim((string) ($card['text'] ?? ''));
+                        break;
+                    }
+                }
+            }
+
+            if ($heroIntro === '') {
+                $heroIntro = $pageKey === 'funding'
+                    ? trim((string) data_get($defaults, 'funding.intro', ''))
+                    : trim((string) data_get($defaults, $pageKey.'.overview_body.0', ''));
+            }
+
+            $defaults[$pageKey]['hero_intro'] = $heroIntro;
+        }
+
+        $defaults['funding']['approach_title'] = (string) data_get($defaults, 'approach.title', '');
+        $defaults['funding']['approach_body'] = (array) data_get($defaults, 'approach.body', []);
+        $defaults['ma']['pandea'] = (array) ($defaults['pandea'] ?? []);
+
+        return $defaults;
     }
 
     /**
@@ -25,6 +69,7 @@ class AdvisoryServicePageDefaults
                 'subtitle_lead' => 'Savjetovanje',
                 'subtitle_accent' => '',
                 'intro' => 'Budućnost poslovanja oblikuju odluke koje donosite danas. Zato Vam pružamo stručnu financijsku i stratešku perspektivu koja pomaže prepoznati prilike, upravljati rizicima i stvarati dugoročnu vrijednost.',
+                'image_alt' => 'Stručno financijsko i strateško savjetovanje',
                 'cta_label' => '',
                 'cta_url' => '',
             ],
@@ -40,6 +85,7 @@ class AdvisoryServicePageDefaults
                 'kicker' => 'USLUGE SAVJETOVANJA',
                 'title' => 'Usluge savjetovanja',
                 'intro' => '',
+                'card_action_label' => 'Opširnije',
             ],
             'service_cards' => [
                 [
@@ -77,9 +123,34 @@ class AdvisoryServicePageDefaults
                 ],
                 'logo_alt' => 'Pandea Global M&A',
             ],
+            'financial' => [
+                'title' => 'Financijsko savjetovanje',
+                'hero_image_alt' => 'Financijsko savjetovanje — stručna savjetodavna podrška',
+                'overview_title' => 'Što je financijsko savjetovanje?',
+                'overview_body' => [
+                    'Financijsko savjetovanje pomaže vlasnicima, upravama i investitorima donositi kvalitetnije odluke na temelju pouzdanih analiza, realnih projekcija i jasnog razumijevanja financijskog položaja društva.',
+                ],
+                'services_title' => 'Naše usluge',
+                'services_body' => [
+                    'Pružamo stručnu podršku pri planiranju rasta, strukturiranju financiranja, financijskom modeliranju i pripremi važnih poslovnih odluka. Svaki angažman prilagođavamo konkretnom cilju, dostupnim podacima i fazi razvoja društva.',
+                ],
+                'help_items' => [
+                    'analizi poslovanja i financijskih pokazatelja',
+                    'izradi financijskih modela i projekcija',
+                    'planiranju novčanih tokova i potreba za kapitalom',
+                    'optimizaciji izvora i strukture financiranja',
+                    'pripremi investicijskih i upravljačkih podloga',
+                    'procjeni rizika i scenarija razvoja poslovanja',
+                ],
+                'approach_title' => 'Naš pristup',
+                'approach_body' => [
+                    'Proces započinjemo razumijevanjem poslovnog modela, ciljeva i ključnih izazova. Financijske podatke povezujemo s poslovnim kontekstom kako bismo preporuke pretvorili u jasne i provedive korake.',
+                ],
+            ],
             'funding' => [
                 'title' => 'Pribavljanje financiranja',
                 'intro' => 'Pribavljanje financiranja obuhvaća podršku društvima u pronalasku odgovarajućih izvora kapitala za rast poslovanja, investicije i ostvarenje strateških ciljeva.',
+                'hero_image_alt' => 'Pribavljanje financiranja — stručna savjetodavna podrška',
                 'cards' => [
                     [
                         'title' => 'EU fondovi',
@@ -164,6 +235,7 @@ class AdvisoryServicePageDefaults
             ],
             'bank_loans' => [
                 'title' => 'Bankovni krediti',
+                'hero_image_alt' => 'Bankovni krediti — stručna savjetodavna podrška',
                 'kicker' => 'BANKOVNI KREDITI',
                 'overview_title' => 'Što su bankovni krediti?',
                 'overview_body' => [
@@ -189,6 +261,7 @@ class AdvisoryServicePageDefaults
             ],
             'zopu' => [
                 'title' => 'Zakon o poticanju ulaganja',
+                'hero_image_alt' => 'Zakon o poticanju ulaganja — stručna savjetodavna podrška',
                 'kicker' => 'ZAKON O POTICANJU ULAGANJA',
                 'overview_title' => 'Što je Zakon o poticanju ulaganja?',
                 'overview_body' => [
@@ -214,6 +287,7 @@ class AdvisoryServicePageDefaults
             ],
             'ma' => [
                 'title' => 'Prodaja i kupnja poduzeća (M&A)',
+                'hero_image_alt' => 'Prodaja i kupnja poduzeća — stručna savjetodavna podrška',
                 'kicker' => 'M&A SAVJETOVANJE',
                 'overview_title' => 'Što je prodaja i kupnja poduzeća?',
                 'overview_body' => [
@@ -242,6 +316,7 @@ class AdvisoryServicePageDefaults
             ],
             'valuations' => [
                 'title' => 'Procjena vrijednosti društva',
+                'hero_image_alt' => 'Procjena vrijednosti društva — stručna savjetodavna podrška',
                 'kicker' => 'PROCJENA VRIJEDNOSTI',
                 'overview_title' => 'Što je procjena vrijednosti?',
                 'overview_body' => [
@@ -267,6 +342,7 @@ class AdvisoryServicePageDefaults
             ],
             'due_diligence' => [
                 'title' => 'Dubinska snimanja (Due Diligence)',
+                'hero_image_alt' => 'Dubinska snimanja — stručna savjetodavna podrška',
                 'kicker' => 'DUE DILIGENCE',
                 'overview_title' => 'Što je dubinsko snimanje (Due Diligence)?',
                 'overview_body' => [
@@ -292,6 +368,7 @@ class AdvisoryServicePageDefaults
             ],
             'tax' => [
                 'title' => 'Porezno savjetovanje',
+                'hero_image_alt' => 'Porezno savjetovanje — stručna savjetodavna podrška',
                 'kicker' => 'POREZNO SAVJETOVANJE',
                 'overview_title' => 'Što je porezno savjetovanje?',
                 'overview_body' => [
@@ -329,11 +406,15 @@ class AdvisoryServicePageDefaults
                 'title' => 'Razgovarajmo o vašim poslovnim odlukama',
                 'intro' => 'Javite nam se i zajedno ćemo procijeniti koji oblik savjetodavne podrške najbolje odgovara vašim ciljevima, fazi poslovanja i konkretnom izazovu.',
                 'contact_title' => 'Kontaktirajte nas',
+                'button_label' => 'Dogovorite sastanak',
+                'status' => 'Termin razgovora prilagođavamo vama.',
             ],
             'blog_section' => [
                 'kicker' => 'OBJAVE',
-                'title' => 'Savjetovanje',
+                'title' => 'Stručni uvidi u financije, poreze i transakcije',
                 'intro' => 'Zadnje objave i novosti iz područja financija, poreza, transakcija i savjetovanja.',
+                'all_posts_label' => 'Pogledaj sve objave',
+                'post_action_label' => 'Opširnije',
             ],
         ];
     }
@@ -349,6 +430,7 @@ class AdvisoryServicePageDefaults
                 'subtitle_lead' => 'Business',
                 'subtitle_accent' => 'advisory',
                 'intro' => 'Advisory includes expert support in financial, tax, and investment matters, helping companies, investors, and entrepreneurs make quality decisions, manage risk, and create long-term value.',
+                'image_alt' => 'Expert financial and strategic advisory',
                 'cta_label' => '',
                 'cta_url' => '',
             ],
@@ -363,6 +445,7 @@ class AdvisoryServicePageDefaults
                 'kicker' => 'BUSINESS ADVISORY SERVICES',
                 'title' => 'Our Services',
                 'intro' => 'Our team combines transaction experience, financial analysis, and a structured delivery process to help clients prepare clearly and make better decisions.',
+                'card_action_label' => 'Read more',
             ],
             'service_cards' => [
                 [
@@ -394,8 +477,34 @@ class AdvisoryServicePageDefaults
                 ],
                 'logo_alt' => 'Pandea Global M&A',
             ],
+            'financial' => [
+                'title' => 'Financial Advisory',
+                'hero_image_alt' => 'Financial advisory — expert advisory support',
+                'overview_title' => 'What is financial advisory?',
+                'overview_body' => [
+                    'Financial advisory helps owners, management teams, and investors make better decisions based on reliable analysis, realistic projections, and a clear understanding of the company’s financial position.',
+                ],
+                'services_title' => 'Our services',
+                'services_body' => [
+                    'We support growth planning, financing structures, financial modelling, and the preparation of important business decisions, adapting each engagement to the client’s objective and stage of development.',
+                ],
+                'help_items' => [
+                    'business and financial performance analysis',
+                    'financial models and projections',
+                    'cash-flow and capital requirement planning',
+                    'financing structure optimisation',
+                    'investment and management decision support',
+                    'risk and business scenario assessment',
+                ],
+                'approach_title' => 'Our approach',
+                'approach_body' => [
+                    'We begin by understanding the business model, goals, and key challenges, then connect financial data with business context to turn recommendations into clear, actionable steps.',
+                ],
+            ],
             'funding' => [
                 'title' => 'Financing',
+                'intro' => 'Advisory support in selecting and structuring financing for growth, investments, acquisitions, and strategic projects.',
+                'hero_image_alt' => 'Financing — expert advisory support',
                 'cards' => [],
                 'overview_title' => 'EU Funds',
                 'overview_body' => [],
@@ -409,15 +518,15 @@ class AdvisoryServicePageDefaults
                 'intro' => 'Funding source overviews are separated from the advisory service description for clearer navigation.',
                 'items' => [],
             ],
-            'bank_loans' => ['title' => 'Bank Loans', 'body' => []],
-            'zopu' => ['title' => 'Investment Incentives Act', 'body' => []],
-            'ma' => ['title' => 'Mergers and Acquisitions (M&A)', 'intro' => '', 'sale' => ['title' => 'Company Sale', 'body' => ''], 'acquisition' => ['title' => 'Company Acquisition', 'body' => '']],
-            'valuations' => ['title' => 'Valuations', 'body' => [], 'methods_title' => 'Valuation Methods', 'methods' => []],
-            'due_diligence' => ['title' => 'Due diligence', 'intro' => '', 'help_title' => '', 'help_items' => [], 'closing' => ''],
-            'tax' => ['title' => 'Tax Advisory', 'overview_title' => 'What is tax advisory?', 'overview_body' => [], 'services_title' => 'Our tax services', 'services' => [], 'cards' => [], 'approach_title' => '', 'approach_body' => []],
+            'bank_loans' => ['title' => 'Bank Loans', 'hero_image_alt' => 'Bank loans — expert advisory support', 'body' => []],
+            'zopu' => ['title' => 'Investment Incentives Act', 'hero_image_alt' => 'Investment incentives — expert advisory support', 'body' => []],
+            'ma' => ['title' => 'Mergers and Acquisitions (M&A)', 'hero_image_alt' => 'Mergers and acquisitions — expert advisory support', 'intro' => '', 'sale' => ['title' => 'Company Sale', 'body' => ''], 'acquisition' => ['title' => 'Company Acquisition', 'body' => '']],
+            'valuations' => ['title' => 'Valuations', 'hero_image_alt' => 'Business valuations — expert advisory support', 'body' => [], 'methods_title' => 'Valuation Methods', 'methods' => []],
+            'due_diligence' => ['title' => 'Due diligence', 'hero_image_alt' => 'Due diligence — expert advisory support', 'intro' => '', 'help_title' => '', 'help_items' => [], 'closing' => ''],
+            'tax' => ['title' => 'Tax Advisory', 'hero_image_alt' => 'Tax advisory — expert advisory support', 'overview_title' => 'What is tax advisory?', 'overview_body' => [], 'services_title' => 'Our tax services', 'services' => [], 'cards' => [], 'approach_title' => '', 'approach_body' => []],
             'approach' => ['kicker' => 'OUR APPROACH', 'title' => 'Structured business advisory approach', 'body' => []],
-            'meeting' => ['kicker' => 'CONTACT', 'title' => 'Let’s Talk About Business Advisory', 'intro' => 'Our team will analyse your case and recommend the right approach.', 'contact_title' => 'Contact us'],
-            'blog_section' => ['kicker' => 'INSIGHTS', 'title' => 'Advisory', 'intro' => 'Latest insights from finance, tax, transactions, and business advisory.'],
+            'meeting' => ['kicker' => 'CONTACT', 'title' => 'Let’s Talk About Business Advisory', 'intro' => 'Our team will analyse your case and recommend the right approach.', 'contact_title' => 'Contact us', 'button_label' => 'Schedule a meeting', 'status' => 'We arrange the meeting around your schedule.'],
+            'blog_section' => ['kicker' => 'INSIGHTS', 'title' => 'Expert insights into finance, tax and transactions', 'intro' => 'Latest insights from finance, tax, transactions, and business advisory.', 'all_posts_label' => 'View all posts', 'post_action_label' => 'Read more'],
         ];
     }
 
