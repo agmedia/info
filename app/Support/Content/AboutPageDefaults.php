@@ -7,6 +7,17 @@ class AboutPageDefaults
     /**
      * @return array<string, mixed>
      */
+    public static function merge(mixed $payload, string $locale): array
+    {
+        return self::mergeValues(
+            self::forLocale($locale),
+            is_array($payload) ? $payload : [],
+        );
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
     public static function forLocale(string $locale): array
     {
         return self::isCroatian($locale)
@@ -24,6 +35,9 @@ class AboutPageDefaults
                 'eyebrow' => 'O nama',
                 'title' => 'Naša priča',
                 'lead' => 'Od stručnosti i iskustva do dugoročnih odnosa s klijentima.',
+                'image_alt' => '',
+                'stat_value' => '600+',
+                'stat_label' => 'klijenata kojima svakodnevno pružamo podršku',
             ],
             'story' => [
                 'kicker' => 'Naša priča',
@@ -37,6 +51,7 @@ class AboutPageDefaults
             ],
             'values' => [
                 'kicker' => 'Naše vrijednosti',
+                'label' => 'Naše vrijednosti',
                 'title' => 'Jednostavni principi koji vode svaki dan',
                 'intro' => 'U ALPHA CAPITALISU vrijednosti nisu samo riječi - one određuju kako razmišljamo, kako radimo i kako gradimo odnose. One su prisutne u svakodnevnim odlukama, u načinu na koji surađujemo unutar tima i u odnosu koji gradimo s klijentima.',
                 'items' => [
@@ -82,6 +97,7 @@ class AboutPageDefaults
             ],
             'team' => [
                 'kicker' => 'TIM',
+                'label' => 'Naš tim',
                 'title' => 'Ljudi koji stoje iza ALPHA CAPITALISA',
                 'intro' => 'ALPHA CAPITALIS danas čini snažan i multidisciplinaran tim stručnjaka koji svakodnevno pruža podršku klijentima iz različitih industrija i poslovnih sektora.',
                 'body' => 'Naš tim čine stručnjaci iz područja računovodstva, revizije i poslovnog savjetovanja koji zajednički rade na pružanju kvalitetnih, pravovremenih i prilagođenih rješenja.',
@@ -91,6 +107,7 @@ class AboutPageDefaults
                     ['value' => '600+', 'label' => 'klijenata'],
                     ['value' => '3', 'label' => 'ureda u Zagrebu, Vinkovcima i Rijeci'],
                 ],
+                'button_label' => 'Upoznaj cijeli tim',
             ],
             'culture' => [
                 'kicker' => 'Naša kultura',
@@ -116,9 +133,12 @@ class AboutPageDefaults
                 'cta_intro' => 'Želite biti dio ove priče?',
                 'cta_text' => 'Pozivamo pojedince, partnere i tvrtke da nam se pridruže u stvaranju novih prilika za mlade i zajedno pomognemo graditi bolju budućnost.',
                 'cta_button_label' => 'Kontaktirajte nas',
+                'cta_card_title' => 'Zajedno možemo više.',
+                'cta_status' => 'Otvoreni smo za razgovor i nova partnerstva.',
             ],
             'references' => [
                 'kicker' => 'Reference',
+                'label' => 'Naše reference',
                 'title' => 'Povjerenje klijenata potvrđuje kvalitetu našeg rada',
                 'paragraphs' => [
                     'Povjerenje više od 600 klijenata iz različitih industrija i sektora potvrda je kvalitete i stručnosti koju svakodnevno pružamo.',
@@ -126,6 +146,7 @@ class AboutPageDefaults
                     'Naši dugoročni odnosi s klijentima temelje se na povjerenju, dostupnosti, stručnosti i razumijevanju njihovih poslovnih ciljeva.',
                     'Uspjeh naših klijenata ujedno je i najveća potvrda našeg rada.',
                 ],
+                'button_label' => 'Sve reference',
             ],
         ];
     }
@@ -140,6 +161,9 @@ class AboutPageDefaults
                 'eyebrow' => 'About us',
                 'title' => 'Our story',
                 'lead' => 'From expertise and experience to long-term client relationships.',
+                'image_alt' => '',
+                'stat_value' => '600+',
+                'stat_label' => 'clients supported by our team',
             ],
             'story' => [
                 'kicker' => 'Our story',
@@ -153,6 +177,7 @@ class AboutPageDefaults
             ],
             'values' => [
                 'kicker' => 'Our values',
+                'label' => 'Our values',
                 'title' => 'Simple principles that guide our work',
                 'intro' => 'At ALPHA CAPITALIS, values are not only words. They define how we think, work and build relationships with each other and with our clients.',
                 'items' => [
@@ -197,6 +222,7 @@ class AboutPageDefaults
             ],
             'team' => [
                 'kicker' => 'TEAM',
+                'label' => 'Our team',
                 'title' => 'The people behind ALPHA CAPITALIS',
                 'intro' => 'ALPHA CAPITALIS is a strong multidisciplinary team of experts supporting clients from different industries and business sectors every day.',
                 'body' => 'Our team brings together specialists in accounting, audit and business advisory who work together to provide quality, timely and tailored solutions.',
@@ -206,6 +232,7 @@ class AboutPageDefaults
                     ['value' => '600+', 'label' => 'clients'],
                     ['value' => '3', 'label' => 'offices in Zagreb, Vinkovci and Rijeka'],
                 ],
+                'button_label' => 'Meet the full team',
             ],
             'culture' => [
                 'kicker' => 'Our culture',
@@ -229,9 +256,12 @@ class AboutPageDefaults
                 'cta_intro' => 'Would you like to be part of this story?',
                 'cta_text' => 'We invite individuals, partners and companies to join us in creating new opportunities for young people and helping build a better future.',
                 'cta_button_label' => 'Contact us',
+                'cta_card_title' => 'Together, we can do more.',
+                'cta_status' => 'We are open to conversations and new partnerships.',
             ],
             'references' => [
                 'kicker' => 'References',
+                'label' => 'Our references',
                 'title' => 'Client trust confirms the quality of our work',
                 'paragraphs' => [
                     'The trust of more than 600 clients across different industries and sectors confirms the quality and expertise we provide every day.',
@@ -239,8 +269,45 @@ class AboutPageDefaults
                     'Our long-term client relationships are based on trust, availability, expertise and an understanding of their business goals.',
                     'The success of our clients is also the strongest confirmation of our work.',
                 ],
+                'button_label' => 'All references',
             ],
         ];
+    }
+
+    /**
+     * @param  array<string|int, mixed>  $defaults
+     * @param  array<string|int, mixed>  $source
+     * @return array<string|int, mixed>
+     */
+    private static function mergeValues(array $defaults, array $source): array
+    {
+        $merged = $defaults;
+
+        foreach ($source as $key => $value) {
+            if (array_key_exists($key, $defaults) && is_array($defaults[$key])) {
+                if (is_array($value)) {
+                    $merged[$key] = self::mergeValues($defaults[$key], $value);
+                }
+
+                continue;
+            }
+
+            if (array_key_exists($key, $defaults) && is_array($value)) {
+                continue;
+            }
+
+            if (is_array($value)) {
+                $merged[$key] = self::mergeValues([], $value);
+
+                continue;
+            }
+
+            if (is_scalar($value) || $value === null) {
+                $merged[$key] = trim((string) $value);
+            }
+        }
+
+        return $merged;
     }
 
     private static function isCroatian(string $locale): bool

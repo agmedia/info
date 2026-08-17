@@ -15,6 +15,7 @@
     $careerProcess = is_array($careerContent['process'] ?? null) ? $careerContent['process'] : [];
     $careerApplication = is_array($careerContent['application'] ?? null) ? $careerContent['application'] : [];
     $careerFormContent = is_array($careerContent['form'] ?? null) ? $careerContent['form'] : [];
+    $careerStoriesSection = is_array($careerContent['stories_section'] ?? null) ? $careerContent['stories_section'] : [];
     $isCroatian = str_starts_with(strtolower((string) $locale), 'hr');
     $careerValues = collect((array) ($careerContent['values'] ?? []))
         ->map(static fn ($value): string => trim((string) $value))
@@ -39,6 +40,7 @@
             return [
                 'kicker' => trim((string) ($story['kicker'] ?? '')),
                 'title' => trim((string) ($story['title'] ?? '')),
+                'body_html' => trim((string) ($story['body_html'] ?? '')),
                 'paragraphs' => collect((array) ($story['paragraphs'] ?? []))
                     ->map(static fn ($paragraph): string => trim((string) $paragraph))
                     ->filter()
@@ -59,9 +61,14 @@
     $careerPageTitle = $careerTranslationTitle !== '' && ! in_array($careerTranslationTitle, ['Ljudski potencijali', 'Human potential'], true)
         ? $careerTranslationTitle
         : $careerCanonicalTitle;
-    $careerIntroTitle = $isCroatian ? 'Karijera u ALPHA CAPITALISU' : 'A career at ALPHA CAPITALIS';
+    $careerIntroTitle = trim((string) ($careerIntro['section_title'] ?? '')) ?: ($isCroatian ? 'Karijera u ALPHA CAPITALISU' : 'A career at ALPHA CAPITALIS');
     $careerHeroTitle = trim((string) ($careerIntro['title'] ?? '')) ?: ($isCroatian ? 'Mjesto gdje karijera stvarno raste' : 'A place where careers truly grow');
     $careerHeroHighlight = trim((string) ($careerIntro['highlight'] ?? '')) ?: ($isCroatian ? 'Ne tražimo samo zaposlenike.' : 'We are not simply looking for employees.');
+    $careerHeroKicker = trim((string) ($careerIntro['kicker'] ?? ''));
+    $careerValuesLabel = trim((string) ($careerIntro['values_label'] ?? ''));
+    $careerHeroButtonLabel = trim((string) ($careerIntro['button_label'] ?? ''));
+    $careerHeroStatValue = trim((string) ($careerIntro['stat_value'] ?? ''));
+    $careerHeroStatLabel = trim((string) ($careerIntro['stat_label'] ?? ''));
     $careerIntroLead = (string) ($careerIntroBody->first() ?? '');
     $careerHeroParagraphs = $careerIntroBody->skip(1)->values();
     $careerProcessTitle = trim(implode(' ', array_filter([
@@ -71,6 +78,9 @@
     $careerProcessTitle = $careerProcessTitle !== '' ? $careerProcessTitle : ($isCroatian ? 'Razvoj koji nije samo fraza' : 'Growth that is more than a phrase');
     $careerApplicationTitle = trim((string) ($careerApplication['title'] ?? '')) ?: ($isCroatian ? 'Otvorene pozicije' : 'Open positions');
     $careerApplicationHighlight = trim((string) ($careerApplication['highlight'] ?? ''));
+    $careerApplicationKicker = trim((string) ($careerApplication['kicker'] ?? ''));
+    $careerStoriesTitle = trim((string) ($careerStoriesSection['title'] ?? ''));
+    $careerStoriesIntro = trim((string) ($careerStoriesSection['intro'] ?? ''));
     $headingWords = static fn (string $title): array => preg_split('/\s+/u', trim($title), -1, PREG_SPLIT_NO_EMPTY) ?: [];
     $processIconClasses = ['fa-handshake', 'fa-hands-holding-heart', 'fa-chart-line-up', 'fa-lightbulb-on'];
     $storyIconClasses = ['fa-people-group', 'fa-compass', 'fa-seedling'];
@@ -80,14 +90,18 @@
         ?: data_get($careerHeroMedia?->custom_properties, 'alt.'.$fallbackLocale)
         ?: $careerHeroMedia?->name
     ));
+    $careerHeroContentAlt = trim((string) ($careerIntro['image_alt'] ?? ''));
     $careerHeroPhoto = [
         'src' => $careerHeroMedia?->hasGeneratedConversion('career_hero_1440x1059')
             ? $careerHeroMedia->getUrl('career_hero_1440x1059')
             : ($careerHeroMedia?->getUrl() ?: asset('front-theme/images/career/karijera.png')),
-        'alt' => $careerHeroMediaAlt !== ''
-            ? $careerHeroMediaAlt
-            : ($isCroatian ? 'ALPHA CAPITALIS tim' : 'ALPHA CAPITALIS team'),
+        'alt' => $careerHeroContentAlt !== ''
+            ? $careerHeroContentAlt
+            : ($careerHeroMediaAlt !== ''
+                ? $careerHeroMediaAlt
+                : ($isCroatian ? 'ALPHA CAPITALIS tim' : 'ALPHA CAPITALIS team')),
     ];
+    $careerFormText = static fn (string $key): string => trim((string) ($careerFormContent[$key] ?? '')) ?: (string) __('career.form.'.$key);
 @endphp
 
 @section('title', $careerPageTitle)
@@ -118,7 +132,9 @@
         <section class="ac-career-hero" aria-labelledby="ac-career-hero-title">
             <div class="ac-career-container ac-career-hero-grid">
                 <div class="ac-career-hero-copy">
-                    <p class="ac-family-section-kicker ac-career-kicker">{{ $isCroatian ? 'Rastemo zajedno' : 'Growing together' }}</p>
+                    @if ($careerHeroKicker !== '')
+                        <p class="ac-family-section-kicker ac-career-kicker">{{ $careerHeroKicker }}</p>
+                    @endif
                     <h2 class="ac-career-dark-title" id="ac-career-hero-title" data-words-slide-from-right aria-label="{{ $careerHeroTitle }}">
                         @foreach ($headingWords($careerHeroTitle) as $word)
                             <span class="service-title-word animation-index-{{ $loop->index }} {{ $loop->last ? 'is-accent' : '' }}" aria-hidden="true">{{ $word }}</span>
@@ -134,7 +150,7 @@
                     @endif
 
                     @if ($careerValues->isNotEmpty())
-                        <ul class="ac-career-value-list content-reveal animation-index-2" data-image-reveal aria-label="{{ $isCroatian ? 'Što nudimo' : 'What we offer' }}">
+                        <ul class="ac-career-value-list content-reveal animation-index-2" data-image-reveal aria-label="{{ $careerValuesLabel }}">
                             @foreach ($careerValues as $value)
                                 <li>
                                     <i class="fa-solid fa-check" aria-hidden="true"></i>
@@ -144,11 +160,13 @@
                         </ul>
                     @endif
 
-                    <div class="ac-career-hero-actions content-reveal animation-index-3" data-image-reveal>
-                        <a href="#career-open-positions" class="button button-gold">
-                            <span>{{ $isCroatian ? 'OTVORENE POZICIJE' : 'OPEN POSITIONS' }}</span>
-                        </a>
-                    </div>
+                    @if ($careerHeroButtonLabel !== '')
+                        <div class="ac-career-hero-actions content-reveal animation-index-3" data-image-reveal>
+                            <a href="#career-open-positions" class="button button-gold">
+                                <span>{{ $careerHeroButtonLabel }}</span>
+                            </a>
+                        </div>
+                    @endif
                 </div>
 
                 <div class="ac-career-hero-media content-reveal animation-index-1" data-image-reveal>
@@ -165,10 +183,16 @@
                         <span class="image-reveal-curtain" aria-hidden="true"></span>
                     </figure>
 
-                    <div class="ac-career-stat-card">
-                        <strong>70+</strong>
-                        <span>{{ $isCroatian ? 'stručnjaka iz računovodstva, financija, revizije i savjetovanja' : 'experts in accounting, finance, audit and advisory' }}</span>
-                    </div>
+                    @if ($careerHeroStatValue !== '' || $careerHeroStatLabel !== '')
+                        <div class="ac-career-stat-card">
+                            @if ($careerHeroStatValue !== '')
+                                <strong>{{ $careerHeroStatValue }}</strong>
+                            @endif
+                            @if ($careerHeroStatLabel !== '')
+                                <span>{{ $careerHeroStatLabel }}</span>
+                            @endif
+                        </div>
+                    @endif
                 </div>
             </div>
         </section>
@@ -216,14 +240,14 @@
             <section class="ac-career-stories" aria-labelledby="ac-career-stories-title">
                 <div class="ac-career-container">
                     <div class="ac-career-section-intro ac-career-stories-head">
-                        <h2 class="values-title services-index-intro-title ac-career-section-title ac-career-stories-title" id="ac-career-stories-title" data-words-slide-from-right aria-label="{{ $isCroatian ? 'Život u ALPHA CAPITALISU' : 'Life at ALPHA CAPITALIS' }}">
-                            @foreach ($headingWords($isCroatian ? 'Život u ALPHA CAPITALISU' : 'Life at ALPHA CAPITALIS') as $word)
+                        <h2 class="values-title services-index-intro-title ac-career-section-title ac-career-stories-title" id="ac-career-stories-title" data-words-slide-from-right aria-label="{{ $careerStoriesTitle }}">
+                            @foreach ($headingWords($careerStoriesTitle) as $word)
                                 <span class="values-word animation-index-{{ $loop->index }} {{ $loop->last ? 'is-accent' : '' }}" aria-hidden="true">{{ $word }}</span>
                             @endforeach
                         </h2>
 
                         <div class="ac-career-stories-intro content-reveal animation-index-1" data-image-reveal>
-                            <h3>{{ $isCroatian ? 'Više od radnog mjesta' : 'More than a workplace' }}</h3>
+                            <h3>{{ $careerStoriesIntro }}</h3>
                         </div>
                     </div>
 
@@ -238,9 +262,13 @@
                                 @endif
                                 <h3>{{ $story['title'] }}</h3>
                                 <div class="ac-career-copy-stack ac-career-copy-stack--light">
-                                    @foreach ($story['paragraphs'] as $paragraph)
-                                        <p>{{ $paragraph }}</p>
-                                    @endforeach
+                                    @if ($story['body_html'] !== '')
+                                        {!! $story['body_html'] !!}
+                                    @else
+                                        @foreach ($story['paragraphs'] as $paragraph)
+                                            <p>{{ $paragraph }}</p>
+                                        @endforeach
+                                    @endif
                                 </div>
                                 @if ($story['list'] !== [])
                                     <ul class="ac-career-story-list">
@@ -262,7 +290,9 @@
         <section id="career-open-positions" class="ac-career-openings" aria-labelledby="ac-career-openings-title">
             <div class="ac-career-container ac-career-openings-grid">
                 <div class="ac-career-openings-copy">
-                    <p class="ac-family-section-kicker ac-career-kicker">{{ $isCroatian ? 'Prijave' : 'Applications' }}</p>
+                    @if ($careerApplicationKicker !== '')
+                        <p class="ac-family-section-kicker ac-career-kicker">{{ $careerApplicationKicker }}</p>
+                    @endif
                     <h2 class="values-title services-index-intro-title ac-career-section-title" id="ac-career-openings-title" data-words-slide-from-right aria-label="{{ $careerApplicationTitle }}">
                         @foreach ($headingWords($careerApplicationTitle) as $word)
                             <span class="values-word animation-index-{{ $loop->index }} {{ $loop->last ? 'is-accent' : '' }}" aria-hidden="true">{{ $word }}</span>
@@ -282,8 +312,8 @@
 
                 <div id="career-cta" class="ac-career-form-wrap content-reveal animation-index-1" data-image-reveal>
                     <div class="ac-career-form-head">
-                        <h3 id="ac-career-form-title">{{ trim((string) ($careerFormContent['title'] ?? '')) ?: __('career.form.title') }}</h3>
-                        <p>{{ __('career.form.intro') }}</p>
+                        <h3 id="ac-career-form-title">{{ $careerFormText('title') }}</h3>
+                        <p>{{ $careerFormText('intro') }}</p>
                     </div>
 
                     <form
@@ -299,7 +329,7 @@
                         data-msg-email-invalid="{{ __('career.validation.inline.email_invalid') }}"
                         data-msg-cv-required="{{ __('career.validation.inline.cv_required') }}"
                         data-msg-accept-terms="{{ __('career.validation.inline.accept_terms') }}"
-                        data-file-empty-label="{{ __('career.form.cv_empty') }}"
+                        data-file-empty-label="{{ $careerFormText('cv_empty') }}"
                         data-scroll-on-load="{{ $careerFormShouldScroll ? 'true' : 'false' }}"
                         @if($careerCaptchaEnabled) data-recaptcha-form data-recaptcha-site-key="{{ $careerCaptchaSiteKey }}" data-recaptcha-action="career_application_form" @endif
                     >
@@ -308,56 +338,56 @@
 
                         <div class="ac-career-form-grid">
                             <div>
-                                <label class="ac-career-form-label" for="career-first-name">{{ __('career.form.first_name') }}</label>
+                                <label class="ac-career-form-label" for="career-first-name">{{ $careerFormText('first_name') }}</label>
                                 <input id="career-first-name" type="text" name="first_name" value="{{ old('first_name') }}" class="ac-career-form-input" required>
                                 <p class="ac-career-form-error {{ $errors->has('first_name') ? '' : 'hidden' }}" data-field-error="first_name">@error('first_name'){{ $message }}@enderror</p>
                             </div>
                             <div>
-                                <label class="ac-career-form-label" for="career-last-name">{{ __('career.form.last_name') }}</label>
+                                <label class="ac-career-form-label" for="career-last-name">{{ $careerFormText('last_name') }}</label>
                                 <input id="career-last-name" type="text" name="last_name" value="{{ old('last_name') }}" class="ac-career-form-input" required>
                                 <p class="ac-career-form-error {{ $errors->has('last_name') ? '' : 'hidden' }}" data-field-error="last_name">@error('last_name'){{ $message }}@enderror</p>
                             </div>
                         </div>
 
                         <div>
-                            <label class="ac-career-form-label" for="career-email">{{ __('career.form.email') }}</label>
+                            <label class="ac-career-form-label" for="career-email">{{ $careerFormText('email') }}</label>
                             <input id="career-email" type="email" name="email" value="{{ old('email', auth()->user()?->email) }}" class="ac-career-form-input" required>
                             <p class="ac-career-form-error {{ $errors->has('email') ? '' : 'hidden' }}" data-field-error="email">@error('email'){{ $message }}@enderror</p>
                         </div>
 
                         <div>
-                            <label class="ac-career-form-label" for="career-message">{{ __('career.form.message') }}</label>
+                            <label class="ac-career-form-label" for="career-message">{{ $careerFormText('message') }}</label>
                             <textarea id="career-message" name="message" rows="3" class="ac-career-form-textarea">{{ old('message') }}</textarea>
                             <p class="ac-career-form-error {{ $errors->has('message') ? '' : 'hidden' }}" data-field-error="message">@error('message'){{ $message }}@enderror</p>
                         </div>
 
                         <div>
-                            <label class="ac-career-form-label" for="career-cv">{{ __('career.form.cv') }}</label>
+                            <label class="ac-career-form-label" for="career-cv">{{ $careerFormText('cv') }}</label>
                             <div class="ac-career-form-file-wrap">
                                 <input id="career-cv" type="file" name="cv" accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document" class="ac-career-form-file" aria-describedby="career-cv-status career-cv-help" required>
                                 <div class="ac-career-form-file-ui">
                                     <span class="ac-career-form-file-button">
                                         <i class="fa-duotone fa-thin fa-cloud-arrow-up" aria-hidden="true"></i>
-                                        {{ __('career.form.cv_button') }}
+                                        {{ $careerFormText('cv_button') }}
                                     </span>
-                                    <span id="career-cv-status" class="ac-career-form-file-name" data-file-name aria-live="polite">{{ __('career.form.cv_empty') }}</span>
+                                    <span id="career-cv-status" class="ac-career-form-file-name" data-file-name aria-live="polite">{{ $careerFormText('cv_empty') }}</span>
                                 </div>
                             </div>
-                            <p id="career-cv-help" class="ac-career-form-help">{{ __('career.form.cv_help') }}</p>
+                            <p id="career-cv-help" class="ac-career-form-help">{{ $careerFormText('cv_help') }}</p>
                             <p class="ac-career-form-error {{ $errors->has('cv') ? '' : 'hidden' }}" data-field-error="cv">@error('cv'){{ $message }}@enderror</p>
                         </div>
 
                         <div class="ac-career-form-consent-wrap">
                             <label class="ac-career-form-consent">
                                 <input type="checkbox" name="accept_terms" value="1" class="ac-career-form-checkbox" @checked((bool) old('accept_terms'))>
-                                <span>{{ __('career.form.accept_terms') }}</span>
+                                <span>{{ $careerFormText('accept_terms') }}</span>
                             </label>
                             <p class="ac-career-form-error {{ $errors->has('accept_terms') ? '' : 'hidden' }}" data-field-error="accept_terms">@error('accept_terms'){{ $message }}@enderror</p>
                         </div>
 
                         <div class="ac-career-form-actions">
                             <button type="submit" class="editorial-dark-button ac-career-submit-button">
-                                <span>{{ __('career.form.submit') }}</span>
+                                <span>{{ $careerFormText('submit') }}</span>
                                 <i class="fa-duotone fa-thin fa-arrow-right" aria-hidden="true"></i>
                             </button>
                             <p class="ac-career-form-error {{ $errors->has('recaptcha_token') ? '' : 'hidden' }}" data-field-error="recaptcha_token">@error('recaptcha_token'){{ $message }}@enderror</p>

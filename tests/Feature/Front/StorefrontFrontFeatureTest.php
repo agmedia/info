@@ -187,11 +187,19 @@ class StorefrontFrontFeatureTest extends TestCase
             'payload' => [
                 'career_page' => [
                     'intro' => [
+                        'section_title' => 'Karijera po tvojoj mjeri',
                         'title' => 'Rasti s nama',
                         'highlight' => 'Custom uvodni highlight za karijera stranicu.',
+                        'kicker' => 'Zajedno napredujemo',
+                        'button_label' => 'POGLEDAJ POZICIJE',
+                        'stat_value' => '75+',
+                        'stat_label' => 'kolegica i kolega u našem timu',
                         'body' => [
                             'Custom uvodni odlomak za karijera stranicu.',
                         ],
+                    ],
+                    'values' => [
+                        'povjerenje od prvog dana',
                     ],
                     'process' => [
                         'kicker' => 'Kako izgleda prijava',
@@ -212,6 +220,7 @@ class StorefrontFrontFeatureTest extends TestCase
                         ],
                     ],
                     'application' => [
+                        'kicker' => 'Pridruži se',
                         'title' => 'Pridruzi nam se danas',
                         'highlight' => 'Custom CTA highlight.',
                         'paragraphs' => [
@@ -222,6 +231,19 @@ class StorefrontFrontFeatureTest extends TestCase
                     ],
                     'form' => [
                         'title' => 'Posalji otvorenu prijavu',
+                        'intro' => 'Predstavi nam se u nekoliko koraka.',
+                        'first_name' => 'Tvoje ime',
+                        'submit' => 'Prijavi se sada',
+                    ],
+                    'stories_section' => [
+                        'title' => 'Kako izgleda život kod nas',
+                        'intro' => 'Tim koji te podržava',
+                    ],
+                    'stories' => [
+                        [
+                            'title' => 'Ljudi koji dijele znanje',
+                            'body_html' => '<p>Jedan editor za cijeli tekst kartice.</p><p><strong>Formatirani tekst kartice.</strong></p>',
+                        ],
                     ],
                 ],
             ],
@@ -230,17 +252,31 @@ class StorefrontFrontFeatureTest extends TestCase
         $this->get('/karijera')
             ->assertOk()
             ->assertSee('Rasti s nama')
+            ->assertSee('Karijera po tvojoj mjeri')
             ->assertSee('Custom uvodni highlight za karijera stranicu.')
             ->assertSee('Custom uvodni odlomak za karijera stranicu.')
+            ->assertSee('Zajedno napredujemo')
+            ->assertSee('POGLEDAJ POZICIJE')
+            ->assertSee('75+')
+            ->assertSee('kolegica i kolega u našem timu')
+            ->assertSee('povjerenje od prvog dana')
             ->assertSee('Kako izgleda prijava')
             ->assertSee('Proces zapošljavanja u')
             ->assertDontSee('Faza 01')
             ->assertSee('Prvi kontakt')
             ->assertSee('Custom opis prvog koraka.')
             ->assertSee('Pridruzi nam se danas')
+            ->assertSee('Pridruži se')
             ->assertSee('Custom CTA highlight.')
             ->assertSee('Custom CTA odlomak 2.')
+            ->assertSee('Kako izgleda život kod nas')
+            ->assertSee('Tim koji te podržava')
+            ->assertSee('Ljudi koji dijele znanje')
+            ->assertSee('<p>Jedan editor za cijeli tekst kartice.</p><p><strong>Formatirani tekst kartice.</strong></p>', false)
             ->assertSee('Posalji otvorenu prijavu')
+            ->assertSee('Predstavi nam se u nekoliko koraka.')
+            ->assertSee('Tvoje ime')
+            ->assertSee('Prijavi se sada')
             ->assertDontSee('Postani dio tima')
             ->assertDontSee('Pošaljite nam svoj CV');
     }
@@ -1238,6 +1274,52 @@ class StorefrontFrontFeatureTest extends TestCase
             ->assertSee('<a class="ac-about-dark-inline-link" href="'.route('eu-funds.show').'">EU fondova</a>', false)
             ->assertDontSee('class="footer-newsletter"', false)
             ->assertDontSee('This page has no body content.');
+    }
+
+    public function test_about_page_renders_custom_copy_from_translation_payload(): void
+    {
+        $page = InfoPage::query()->where('code', 'about-us')->firstOrFail();
+        $translation = $page->translation('hr')->firstOrFail();
+        $translation->update([
+            'payload' => [
+                'about_page' => [
+                    'hero' => [
+                        'title' => 'Priča po mjeri našeg tima',
+                        'stat_value' => '75+',
+                        'stat_label' => 'stručnjaka koji svakodnevno pomažu klijentima',
+                    ],
+                    'story' => [
+                        'paragraphs' => [
+                            'Prilagođeni uvodni odlomak O nama stranice.',
+                        ],
+                    ],
+                    'values' => [
+                        'label' => 'Vrijednosti koje živimo',
+                    ],
+                    'team' => [
+                        'button_label' => 'Upoznaj sve kolege',
+                    ],
+                    'responsibility' => [
+                        'cta_card_title' => 'Zajedno stvaramo prilike.',
+                        'cta_status' => 'Javite nam se za suradnju.',
+                    ],
+                    'references' => [
+                        'button_label' => 'Istraži reference',
+                    ],
+                ],
+            ],
+        ]);
+
+        $this->get('/o-nama')
+            ->assertOk()
+            ->assertSee('Priča po mjeri našeg tima')
+            ->assertSee('Prilagođeni uvodni odlomak O nama stranice.')
+            ->assertSee('75+')
+            ->assertSee('stručnjaka koji svakodnevno pomažu klijentima')
+            ->assertSee('Vrijednosti koje živimo')
+            ->assertSee('Zajedno stvaramo prilike.')
+            ->assertSee('Javite nam se za suradnju.')
+            ->assertSee('Istraži reference');
     }
 
     public function test_about_page_uses_uploaded_hero_image(): void

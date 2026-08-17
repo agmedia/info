@@ -3,8 +3,8 @@
 namespace App\Http\Controllers\Front;
 
 use App\Http\Controllers\Controller;
-use App\Models\Catalog\Category\Category;
 use App\Http\Controllers\Front\Concerns\ResolvesFrontendView;
+use App\Models\Catalog\Category\Category;
 use App\Models\Content\Blog\BlogPost;
 use App\Models\Content\Glossary\GlossaryTerm;
 use App\Models\Content\Page\InfoPage;
@@ -108,7 +108,7 @@ class PageController extends Controller
     private function pageMatchScore(InfoPage $page, string $slug, string $locale, string $fallbackLocale): int
     {
         $translation = $this->pickTranslation($page, $slug, $locale, $fallbackLocale);
-        if (!$translation) {
+        if (! $translation) {
             return 99;
         }
 
@@ -154,7 +154,7 @@ class PageController extends Controller
             ->sortBy(fn (InfoPage $candidate): int => $this->pageMatchScore($candidate, $slug, (string) $locale, $fallbackLocale))
             ->first();
 
-        abort_if(!$page, 404);
+        abort_if(! $page, 404);
 
         $selectedTranslation = $this->pickTranslation($page, $slug, (string) $locale, $fallbackLocale);
 
@@ -215,7 +215,10 @@ class PageController extends Controller
             return view($this->frontendView($request, 'pages.about'), [
                 'page' => $page,
                 'selectedTranslation' => $selectedTranslation,
-                'aboutContent' => AboutPageDefaults::forLocale((string) ($selectedTranslation?->locale ?: $locale)),
+                'aboutContent' => $this->resolveAboutContent(
+                    $selectedTranslation?->payload,
+                    (string) ($selectedTranslation?->locale ?: $locale)
+                ),
                 'aboutTeamMembers' => $aboutTeamMembers,
                 'aboutReferenceItems' => $aboutReferenceItems,
                 'topBlocks' => $topBlocks,
@@ -317,6 +320,16 @@ class PageController extends Controller
         $payload = is_array($translationPayload) ? $translationPayload : [];
 
         return CareerPageDefaults::merge($payload['career_page'] ?? null, $locale);
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function resolveAboutContent(mixed $translationPayload, string $locale): array
+    {
+        $payload = is_array($translationPayload) ? $translationPayload : [];
+
+        return AboutPageDefaults::merge($payload['about_page'] ?? null, $locale);
     }
 
     /**

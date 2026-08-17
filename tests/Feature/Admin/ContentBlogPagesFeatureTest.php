@@ -81,30 +81,36 @@ class ContentBlogPagesFeatureTest extends TestCase
         $this->assertSame('Shipping Info', (string) $page->translation('en')->first()?->title);
     }
 
-    public function test_about_info_page_exposes_its_hero_image_in_media_tab(): void
+    public function test_about_info_page_exposes_its_front_content_and_hero_image_in_page_editor(): void
     {
         $user = $this->makeAdminUser();
         $page = InfoPage::query()->where('code', 'about-us')->firstOrFail();
 
         Livewire::actingAs($user)
             ->test(PageForm::class, ['pageId' => $page->id])
-            ->call('setTab', 'media')
-            ->assertSet('activeTab', 'media')
-            ->assertSee('About Hero Image')
-            ->assertSee('about_hero_image');
+            ->assertSet('activeTab', 'content')
+            ->assertSee('Stranica O nama')
+            ->assertSee('1. Uvod i naša priča')
+            ->assertSee('Hero fotografija')
+            ->assertSee('9. Postavke stranice')
+            ->assertDontSee('Page Categories');
     }
 
-    public function test_career_info_page_exposes_its_hero_image_in_media_tab(): void
+    public function test_career_info_page_exposes_its_front_content_and_hero_image_in_page_editor(): void
     {
         $user = $this->makeAdminUser();
         $page = InfoPage::query()->where('code', 'career')->firstOrFail();
 
         Livewire::actingAs($user)
             ->test(PageForm::class, ['pageId' => $page->id])
-            ->call('setTab', 'media')
-            ->assertSet('activeTab', 'media')
-            ->assertSee('Career Hero Image')
-            ->assertSee('career_hero_image');
+            ->assertSet('activeTab', 'content')
+            ->assertSee('Stranica Ljudski potencijali')
+            ->assertSee('1. Uvod i hero')
+            ->assertSee('Hero fotografija')
+            ->assertSee('5. Prijavna forma')
+            ->assertSee('Tekst kartice')
+            ->assertSeeHtml('data-quill-editor')
+            ->assertDontSee('Page Categories');
     }
 
     public function test_admin_can_save_academy_blog_source_settings_on_info_page(): void
@@ -309,22 +315,27 @@ class ContentBlogPagesFeatureTest extends TestCase
             ->set('form.is_active', true)
             ->set('form.title', 'Career')
             ->set('form.slug', 'career')
-            ->set('form.career_intro_title', 'Grow with our team')
-            ->set('form.career_intro_highlight', 'Custom intro highlight for the career page.')
-            ->set('form.career_intro_body', 'Custom intro body copy for the career page.')
-            ->set('form.career_process_kicker', 'Application flow')
-            ->set('form.career_process_title_line_one', 'Hiring journey at')
-            ->set('form.career_process_title_line_two', 'ALPHA CAPITALIS')
-            ->set('form.career_process_intro', 'A clear overview of the hiring process.')
-            ->set('form.career_process_steps.0.step', 'Step A')
-            ->set('form.career_process_steps.0.title', 'Initial review')
-            ->set('form.career_process_steps.0.description', 'We review each application carefully.')
-            ->set('form.career_application_title', 'Join us today')
-            ->set('form.career_application_highlight', 'Custom application highlight copy.')
-            ->set('form.career_application_paragraphs.0', 'Custom application paragraph one.')
-            ->set('form.career_application_paragraphs.1', 'Custom application paragraph two.')
-            ->set('form.career_application_paragraphs.2', 'Custom application paragraph three.')
-            ->set('form.career_form_title', 'Send an open application')
+            ->set('form.career_content.intro.title', 'Grow with our team')
+            ->set('form.career_content.intro.highlight', 'Custom intro highlight for the career page.')
+            ->set('form.career_content.intro.body.0', 'Custom intro body copy for the career page.')
+            ->set('form.career_content.intro.body.2', 'Custom third hero paragraph.')
+            ->set('form.career_content.values.4', 'a team that grows together')
+            ->set('form.career_content.process.kicker', 'Application flow')
+            ->set('form.career_content.process.title_line_one', 'Hiring journey at')
+            ->set('form.career_content.process.title_line_two', 'ALPHA CAPITALIS')
+            ->set('form.career_content.process.intro', 'A clear overview of the hiring process.')
+            ->set('form.career_content.process.steps.0.title', 'Initial review')
+            ->set('form.career_content.process.steps.0.description', 'We review each application carefully.')
+            ->set('form.career_content.stories.1.title', 'Work that keeps changing')
+            ->set('form.career_content.stories.1.body_html', '<p>One editor for the full story.</p><p><strong>Formatted story copy.</strong></p>')
+            ->set('form.career_content.stories.2.list.4', 'a career with impact')
+            ->set('form.career_content.application.title', 'Join us today')
+            ->set('form.career_content.application.highlight', 'Custom application highlight copy.')
+            ->set('form.career_content.application.paragraphs.0', 'Custom application paragraph one.')
+            ->set('form.career_content.application.paragraphs.1', 'Custom application paragraph two.')
+            ->set('form.career_content.application.paragraphs.2', 'Custom application paragraph three.')
+            ->set('form.career_content.form.title', 'Send an open application')
+            ->set('form.career_content.form.submit', 'Apply now')
             ->call('save')
             ->assertRedirect(route('admin.content.pages.index', ['locale' => 'en']));
 
@@ -334,10 +345,94 @@ class ContentBlogPagesFeatureTest extends TestCase
         $this->assertSame('career', $page->layout);
         $this->assertSame('Grow with our team', (string) data_get($page->translation('en')->first()?->payload, 'career_page.intro.title'));
         $this->assertSame('Custom intro highlight for the career page.', (string) data_get($page->translation('en')->first()?->payload, 'career_page.intro.highlight'));
+        $this->assertSame('Custom third hero paragraph.', (string) data_get($page->translation('en')->first()?->payload, 'career_page.intro.body.2'));
+        $this->assertSame('a team that grows together', (string) data_get($page->translation('en')->first()?->payload, 'career_page.values.4'));
         $this->assertSame('Hiring journey at', (string) data_get($page->translation('en')->first()?->payload, 'career_page.process.title_line_one'));
-        $this->assertSame('Step A', (string) data_get($page->translation('en')->first()?->payload, 'career_page.process.steps.0.step'));
+        $this->assertSame('Initial review', (string) data_get($page->translation('en')->first()?->payload, 'career_page.process.steps.0.title'));
+        $this->assertSame('Work that keeps changing', (string) data_get($page->translation('en')->first()?->payload, 'career_page.stories.1.title'));
+        $this->assertSame('<p>One editor for the full story.</p><p><strong>Formatted story copy.</strong></p>', (string) data_get($page->translation('en')->first()?->payload, 'career_page.stories.1.body_html'));
+        $this->assertSame('a career with impact', (string) data_get($page->translation('en')->first()?->payload, 'career_page.stories.2.list.4'));
         $this->assertSame('Join us today', (string) data_get($page->translation('en')->first()?->payload, 'career_page.application.title'));
         $this->assertSame('Send an open application', (string) data_get($page->translation('en')->first()?->payload, 'career_page.form.title'));
+        $this->assertSame('Apply now', (string) data_get($page->translation('en')->first()?->payload, 'career_page.form.submit'));
+    }
+
+    public function test_admin_can_save_about_page_content_without_generic_body_fields(): void
+    {
+        $user = $this->makeAdminUser();
+        $page = InfoPage::query()->where('code', 'about-us')->firstOrFail();
+
+        Livewire::actingAs($user)
+            ->test(PageForm::class, ['pageId' => $page->id])
+            ->set('form.about_content.hero.title', 'Priča koju gradimo zajedno')
+            ->set('form.about_content.story.paragraphs.2', 'Prilagođeni treći odlomak naše priče.')
+            ->set('form.about_content.values.items.1.title', 'Radimo promišljeno')
+            ->set('form.about_content.team.stats.0.value', '75+')
+            ->set('form.about_content.responsibility.cta_card_title', 'Stvorimo prilike zajedno.')
+            ->set('form.about_content.references.button_label', 'Pogledaj sve reference')
+            ->call('save')
+            ->assertRedirect(route('admin.content.pages.index', ['locale' => 'hr']));
+
+        $payload = $page->fresh()->translation('hr')->first()?->payload;
+
+        $this->assertSame('Priča koju gradimo zajedno', (string) data_get($payload, 'about_page.hero.title'));
+        $this->assertSame('Prilagođeni treći odlomak naše priče.', (string) data_get($payload, 'about_page.story.paragraphs.2'));
+        $this->assertSame('Radimo promišljeno', (string) data_get($payload, 'about_page.values.items.1.title'));
+        $this->assertSame('75+', (string) data_get($payload, 'about_page.team.stats.0.value'));
+        $this->assertSame('Stvorimo prilike zajedno.', (string) data_get($payload, 'about_page.responsibility.cta_card_title'));
+        $this->assertSame('Pogledaj sve reference', (string) data_get($payload, 'about_page.references.button_label'));
+    }
+
+    public function test_admin_can_replace_about_hero_image_from_page_specific_editor(): void
+    {
+        Storage::fake('public');
+        config()->set('media-library.disk_name', 'public');
+        config()->set('media-library.queue_conversions_by_default', false);
+
+        $user = $this->makeAdminUser();
+        $page = InfoPage::query()->where('code', 'about-us')->firstOrFail();
+        $page->clearMediaCollection('about_hero_image');
+
+        Livewire::actingAs($user)
+            ->test(PageForm::class, ['pageId' => $page->id])
+            ->set('form.about_content.hero.image_alt', 'Nova fotografija ALPHA CAPITALIS tima')
+            ->set('pageHeroImageUpload', UploadedFile::fake()->image('nova-o-nama.jpg', 1440, 1059))
+            ->call('save')
+            ->assertRedirect(route('admin.content.pages.index', ['locale' => 'hr']));
+
+        $media = $page->fresh()->getFirstMedia('about_hero_image');
+
+        $this->assertNotNull($media);
+        $this->assertSame('Nova fotografija ALPHA CAPITALIS tima', (string) data_get($media->custom_properties, 'alt.hr'));
+        Storage::disk('public')->assertExists($media->getPathRelativeToRoot());
+    }
+
+    public function test_career_editor_uses_large_hero_image_for_its_preview(): void
+    {
+        Storage::fake('public');
+        config()->set('media-library.disk_name', 'public');
+        config()->set('media-library.queue_conversions_by_default', false);
+
+        $user = $this->makeAdminUser();
+        $page = InfoPage::query()->where('code', 'career')->firstOrFail();
+        $page->clearMediaCollection('career_hero_image');
+
+        Livewire::actingAs($user)
+            ->test(PageForm::class, ['pageId' => $page->id])
+            ->set('pageHeroImageUpload', UploadedFile::fake()->image('karijera-visoka-kvaliteta.jpg', 1800, 1324))
+            ->call('save')
+            ->assertRedirect(route('admin.content.pages.index', ['locale' => 'hr']));
+
+        $media = $page->fresh()->getFirstMedia('career_hero_image')?->fresh();
+
+        $this->assertNotNull($media);
+        $expectedPreviewUrl = $media->hasGeneratedConversion('career_hero_1440x1059')
+            ? $media->getUrl('career_hero_1440x1059')
+            : $media->getUrl();
+
+        Livewire::actingAs($user)
+            ->test(PageForm::class, ['pageId' => $page->id])
+            ->assertSee($expectedPreviewUrl, false);
     }
 
     public function test_admin_cannot_use_reserved_clean_slug_for_info_page(): void

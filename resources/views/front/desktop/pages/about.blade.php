@@ -23,23 +23,25 @@
         ?: data_get($aboutHeroMedia?->custom_properties, 'alt.'.$fallbackLocale)
         ?: $aboutHeroMedia?->name
     ));
+    $aboutHeroContentAlt = trim((string) ($hero['image_alt'] ?? ''));
     $aboutHeroPhoto = [
         'class' => 'ac-about-image--hero',
         'src' => $aboutHeroMedia?->hasGeneratedConversion('about_hero_1440x1059')
             ? $aboutHeroMedia->getUrl('about_hero_1440x1059')
             : ($aboutHeroMedia?->getUrl() ?: asset('front-theme/images/about/o-nama.jpg')),
-        'alt' => $aboutHeroMediaAlt !== ''
-            ? $aboutHeroMediaAlt
+        'alt' => $aboutHeroContentAlt !== ''
+            ? $aboutHeroContentAlt
+            : ($aboutHeroMediaAlt !== ''
+                ? $aboutHeroMediaAlt
             : (str_starts_with(strtolower((string) $locale), 'hr')
                 ? 'ALPHA CAPITALIS tim'
-                : 'ALPHA CAPITALIS team'),
+                : 'ALPHA CAPITALIS team')),
     ];
     $referencePageUrl = route('pages.show', ['slug' => 'reference']);
-    $teamButtonLabel = str_starts_with(strtolower((string) $locale), 'hr') ? 'Upoznaj cijeli tim' : 'Meet the full team';
-    $referencesButtonLabel = str_starts_with(strtolower((string) $locale), 'hr') ? 'Sve reference' : 'All references';
-    $heroStatLabel = str_starts_with(strtolower((string) $locale), 'hr')
-        ? 'klijenata kojima svakodnevno pružamo podršku'
-        : 'clients supported by our team';
+    $teamButtonLabel = trim((string) ($team['button_label'] ?? ''));
+    $referencesButtonLabel = trim((string) ($references['button_label'] ?? ''));
+    $heroStatValue = trim((string) ($hero['stat_value'] ?? ''));
+    $heroStatLabel = trim((string) ($hero['stat_label'] ?? ''));
     $whyQuote = trim((string) ($why['quote'] ?? ''));
     $cultureQuote = trim((string) ($culture['quote'] ?? ''));
     $responsibilityQuote = trim((string) ($responsibility['quote'] ?? ''));
@@ -48,12 +50,8 @@
     $responsibilityCtaLabel = trim((string) ($responsibility['cta_button_label'] ?? '')) ?: (
         str_starts_with(strtolower((string) $locale), 'hr') ? 'Kontaktirajte nas' : 'Contact us'
     );
-    $responsibilityCtaCardTitle = str_starts_with(strtolower((string) $locale), 'hr')
-        ? 'Zajedno možemo više.'
-        : 'Together, we can do more.';
-    $responsibilityCtaStatus = str_starts_with(strtolower((string) $locale), 'hr')
-        ? 'Otvoreni smo za razgovor i nova partnerstva.'
-        : 'We are open to conversations and new partnerships.';
+    $responsibilityCtaCardTitle = trim((string) ($responsibility['cta_card_title'] ?? ''));
+    $responsibilityCtaStatus = trim((string) ($responsibility['cta_status'] ?? ''));
 
     $pageTitle = trim((string) ($translation?->title ?? '')) ?: 'O nama';
     $heroTitle = trim((string) ($hero['title'] ?? '')) ?: $pageTitle;
@@ -69,9 +67,7 @@
         $introStoryHtml,
     );
     $headingWords = static fn (string $title): array => preg_split('/\s+/u', trim($title), -1, PREG_SPLIT_NO_EMPTY) ?: [];
-    $valuesLabel = str_starts_with(strtolower((string) $locale), 'hr')
-        ? 'Naše vrijednosti'
-        : 'Our values';
+    $valuesLabel = trim((string) ($values['label'] ?? ''));
     $valuesTitle = trim((string) ($values['title'] ?? '')) ?: 'Jednostavni principi koji vode svaki dan';
     $valuesIntro = trim((string) ($values['intro'] ?? ''));
     $valuesIntroLinkText = str_contains($valuesIntro, 'ALPHA CAPITALISU')
@@ -110,7 +106,7 @@
         return strtr(e($paragraph), $replacements);
     };
     $teamTitle = trim((string) ($team['title'] ?? '')) ?: 'Tim';
-    $teamLabel = str_starts_with(strtolower((string) $locale), 'hr') ? 'Naš tim' : 'Our team';
+    $teamLabel = trim((string) ($team['label'] ?? ''));
     $teamStats = collect((array) ($team['stats'] ?? []))
         ->map(static fn ($stat): array => is_array($stat) ? $stat : [])
         ->filter(static fn (array $stat): bool => trim((string) ($stat['value'] ?? '')) !== '')
@@ -132,9 +128,7 @@
         ->map(static fn ($paragraph): string => trim((string) $paragraph))
         ->filter()
         ->values();
-    $referencesLabel = str_starts_with(strtolower((string) $locale), 'hr')
-        ? 'Naše reference'
-        : 'Our references';
+    $referencesLabel = trim((string) ($references['label'] ?? ''));
     $referencesTitle = trim((string) ($references['title'] ?? '')) ?: 'Reference';
     $referenceParagraphs = collect((array) ($references['paragraphs'] ?? []))
         ->map(static fn ($paragraph): string => trim((string) $paragraph))
@@ -198,10 +192,16 @@
                             <span class="image-reveal-curtain" aria-hidden="true"></span>
                         </figure>
 
-                        <div class="ac-about-stat-card">
-                            <strong>600+</strong>
-                            <span>{{ $heroStatLabel }}</span>
-                        </div>
+                        @if ($heroStatValue !== '' || $heroStatLabel !== '')
+                            <div class="ac-about-stat-card">
+                                @if ($heroStatValue !== '')
+                                    <strong>{{ $heroStatValue }}</strong>
+                                @endif
+                                @if ($heroStatLabel !== '')
+                                    <span>{{ $heroStatLabel }}</span>
+                                @endif
+                            </div>
+                        @endif
                     </div>
 
                     <div class="ac-about-copy-stack ac-about-hero-story">
@@ -529,7 +529,9 @@
                     </div>
 
                     <div class="contact-cta-card" data-image-reveal>
-                        <div class="contact-cta-card-heading"><span>{{ $responsibilityCtaCardTitle }}</span></div>
+                        @if ($responsibilityCtaCardTitle !== '')
+                            <div class="contact-cta-card-heading"><span>{{ $responsibilityCtaCardTitle }}</span></div>
+                        @endif
 
                         @if ($responsibilityCtaText !== '')
                             <p>{{ $responsibilityCtaText }}</p>
@@ -540,7 +542,9 @@
                             <i class="fa-duotone fa-thin fa-arrow-right" aria-hidden="true"></i>
                         </a>
 
-                        <small><span class="contact-cta-status-dot" aria-hidden="true"></span>{{ $responsibilityCtaStatus }}</small>
+                        @if ($responsibilityCtaStatus !== '')
+                            <small><span class="contact-cta-status-dot" aria-hidden="true"></span>{{ $responsibilityCtaStatus }}</small>
+                        @endif
                     </div>
                 </div>
             </section>

@@ -3,9 +3,10 @@
 namespace App\Livewire\Admin\Content\Page;
 
 use App\Models\Catalog\Category\Category;
-use App\Models\Content\Resource\ResourceDocument;
 use App\Models\Content\Page\InfoPage;
 use App\Models\Content\Page\InfoPageTranslation;
+use App\Models\Content\Resource\ResourceDocument;
+use App\Support\Content\AboutPageDefaults;
 use App\Support\Content\AcademyPageDefaults;
 use App\Support\Content\CareerPageDefaults;
 use App\Support\Content\ResourceDocumentGroupRegistry;
@@ -15,14 +16,22 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Livewire\Component;
+use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
+use Livewire\WithFileUploads;
 
 class Form extends Component
 {
+    use WithFileUploads;
+
     private const TAB_OPTIONS = ['content', 'sources', 'media', 'seo'];
 
     public ?int $pageId = null;
+
     public string $activeTab = 'content';
+
     public ?int $academyDocumentPickerId = null;
+
+    public ?TemporaryUploadedFile $pageHeroImageUpload = null;
 
     public array $form = [
         'code' => '',
@@ -51,18 +60,8 @@ class Form extends Component
         'academy_video_title' => '',
         'academy_video_intro' => '',
         'academy_programs' => [],
-        'career_intro_title' => '',
-        'career_intro_highlight' => '',
-        'career_intro_body' => '',
-        'career_process_kicker' => '',
-        'career_process_title_line_one' => '',
-        'career_process_title_line_two' => '',
-        'career_process_intro' => '',
-        'career_process_steps' => [],
-        'career_application_title' => '',
-        'career_application_highlight' => '',
-        'career_application_paragraphs' => [],
-        'career_form_title' => '',
+        'about_content' => [],
+        'career_content' => [],
     ];
 
     public function mount(?int $pageId = null): void
@@ -77,6 +76,7 @@ class Form extends Component
 
     public function updatedFormLocale(): void
     {
+        $this->pageHeroImageUpload = null;
         $this->loadTranslationForLocale();
         $this->academyDocumentPickerId = null;
     }
@@ -87,9 +87,15 @@ class Form extends Component
             $this->form['academy_programs'] = $this->defaultAcademyPrograms();
         }
 
-        if ($layout === 'career' && $this->careerFieldsAreEmpty()) {
-            $this->fillCareerFields($this->defaultCareerContent());
+        if ($layout === 'about' && (array) ($this->form['about_content'] ?? []) === []) {
+            $this->form['about_content'] = $this->defaultAboutContent();
         }
+
+        if ($layout === 'career' && (array) ($this->form['career_content'] ?? []) === []) {
+            $this->form['career_content'] = $this->defaultCareerContent();
+        }
+
+        $this->hydratePageHeroImageAlt();
 
         if (
             ($this->activeTab === 'sources' && ! $this->layoutSupportsSources($layout))
@@ -226,7 +232,14 @@ class Form extends Component
         $academyVideoIntro = trim((string) ($validated['form']['academy_video_intro'] ?? ''));
         $academyVideoItems = $this->normalizeAcademyVideoItems((array) ($validated['form']['academy_video_items'] ?? []));
         $academyPrograms = $this->normalizeAcademyPrograms((array) ($validated['form']['academy_programs'] ?? []));
-        $careerContent = $this->normalizeCareerContent($validated['form']);
+        $aboutContent = AboutPageDefaults::merge(
+            $validated['form']['about_content'] ?? [],
+            (string) $validated['form']['locale'],
+        );
+        $careerContent = CareerPageDefaults::merge(
+            $validated['form']['career_content'] ?? [],
+            (string) $validated['form']['locale'],
+        );
 
         if ($academyVideoItems === false) {
             return null;
@@ -302,6 +315,12 @@ class Form extends Component
             unset($translationPayload['academy_programs']);
         }
 
+        if ((string) ($validated['form']['layout'] ?? '') === 'about') {
+            $translationPayload['about_page'] = $aboutContent;
+        } else {
+            unset($translationPayload['about_page']);
+        }
+
         if ((string) ($validated['form']['layout'] ?? '') === 'career') {
             $translationPayload['career_page'] = $careerContent;
         } else {
@@ -312,8 +331,9 @@ class Form extends Component
         $translationPayloadToSave = $translationPayload === [] ? null : $translationPayload;
 
         $userId = auth()->id();
+        $savedPage = null;
 
-        DB::transaction(function () use ($validated, $payloadToSave, $translationPayloadToSave, $userId, $wasEditing): void {
+        DB::transaction(function () use ($validated, $payloadToSave, $translationPayloadToSave, $userId, $wasEditing, &$savedPage): void {
             $pageData = [
                 'code' => trim((string) $validated['form']['code']),
                 'layout' => trim((string) $validated['form']['layout']) !== '' ? trim((string) $validated['form']['layout']) : 'default',
@@ -353,6 +373,7 @@ class Form extends Component
                 ];
             }
             $page->categories()->sync($syncPayload);
+            $savedPage = $page;
 
             activity('content_pages')
                 ->performedOn($page)
@@ -366,6 +387,21 @@ class Form extends Component
                 ])
                 ->log(__('Info page saved'));
         });
+
+        if ($savedPage instanceof InfoPage) {
+            $this->storePageHeroImage(
+                $savedPage,
+                (string) $validated['form']['layout'],
+                (string) $validated['form']['locale'],
+                (string) data_get(
+                    $validated['form'],
+                    (string) $validated['form']['layout'] === 'about'
+                        ? 'about_content.hero.image_alt'
+                        : 'career_content.intro.image_alt',
+                    ''
+                ),
+            );
+        }
 
         $message = $wasEditing ? __('Info page updated.') : __('Info page created.');
 
@@ -382,10 +418,31 @@ class Form extends Component
         return redirect()->route('admin.content.pages.index', ['locale' => $this->form['locale']]);
     }
 
+    public function removePageHeroImage(): void
+    {
+        $layout = (string) ($this->form['layout'] ?? '');
+        $collection = $this->heroMediaCollection($layout);
+
+        if (! $collection || ! $this->pageId) {
+            return;
+        }
+
+        $page = InfoPage::query()->find($this->pageId);
+        if (! $page || $page->layout !== $layout) {
+            return;
+        }
+
+        $page->clearMediaCollection($collection);
+        $this->pageHeroImageUpload = null;
+
+        $this->dispatch('notify', type: 'success', message: 'Vraćena je zadana hero slika.');
+    }
+
     public function render()
     {
         return view('livewire.admin.content.page.form', [
             'isEdit' => (bool) $this->pageId,
+            'pageHeroImage' => $this->pageHeroImage(),
         ]);
     }
 
@@ -516,7 +573,7 @@ class Form extends Component
      */
     private function rules(): array
     {
-        return [
+        $rules = [
             'form.code' => ['required', 'string', 'max:120', Rule::unique('content_info_pages', 'code')->ignore($this->pageId)],
             'form.layout' => ['nullable', 'string', 'max:80'],
             'form.is_active' => ['boolean'],
@@ -565,27 +622,24 @@ class Form extends Component
             'form.academy_programs.*.items' => ['nullable', 'array'],
             'form.academy_programs.*.items.*.title' => ['nullable', 'string', 'max:255'],
             'form.academy_programs.*.items.*.text' => ['nullable', 'string'],
-            'form.career_intro_title' => ['nullable', 'string', 'max:255'],
-            'form.career_intro_highlight' => ['nullable', 'string'],
-            'form.career_intro_body' => ['nullable', 'string'],
-            'form.career_process_kicker' => ['nullable', 'string', 'max:255'],
-            'form.career_process_title_line_one' => ['nullable', 'string', 'max:255'],
-            'form.career_process_title_line_two' => ['nullable', 'string', 'max:255'],
-            'form.career_process_intro' => ['nullable', 'string'],
-            'form.career_process_steps' => ['nullable', 'array'],
-            'form.career_process_steps.*.step' => ['nullable', 'string', 'max:255'],
-            'form.career_process_steps.*.title' => ['nullable', 'string', 'max:255'],
-            'form.career_process_steps.*.description' => ['nullable', 'string'],
-            'form.career_application_title' => ['nullable', 'string', 'max:255'],
-            'form.career_application_highlight' => ['nullable', 'string'],
-            'form.career_application_paragraphs' => ['nullable', 'array'],
-            'form.career_application_paragraphs.*' => ['nullable', 'string'],
-            'form.career_form_title' => ['nullable', 'string', 'max:255'],
+            'form.about_content' => ['nullable', 'array'],
+            'form.career_content' => ['nullable', 'array'],
             'form.category_ids.*' => [
                 'integer',
                 Rule::exists('categories', 'id')->where(fn ($q) => $q->where('scope', Category::SCOPE_PAGE)),
             ],
         ];
+
+        if (in_array((string) ($this->form['layout'] ?? ''), ['about', 'career'], true)) {
+            $rules['pageHeroImageUpload'] = [
+                'nullable',
+                'file',
+                'mimes:jpg,jpeg,png,webp,avif',
+                'max:8192',
+            ];
+        }
+
+        return $rules;
     }
 
     /**
@@ -600,7 +654,7 @@ class Form extends Component
 
     private function loadPage(): void
     {
-        if (!$this->pageId) {
+        if (! $this->pageId) {
             return;
         }
 
@@ -649,9 +703,12 @@ class Form extends Component
             $academyPrograms = $page->layout === 'academy'
                 ? AcademyPageDefaults::mergePrograms($translationPayload['academy_programs'] ?? null)
                 : [];
+            $aboutContent = $page->layout === 'about'
+                ? AboutPageDefaults::merge($translationPayload['about_page'] ?? null, (string) $translation->locale)
+                : [];
             $careerContent = $page->layout === 'career'
                 ? CareerPageDefaults::merge($translationPayload['career_page'] ?? null, (string) $translation->locale)
-                : null;
+                : [];
 
             $this->form['locale'] = $translation->locale;
             $this->form['title'] = $translation->title;
@@ -667,11 +724,8 @@ class Form extends Component
             $this->form['academy_video_title'] = (string) ($academyVideoSection['title'] ?? '');
             $this->form['academy_video_intro'] = (string) ($academyVideoSection['intro'] ?? '');
             $this->form['academy_programs'] = $academyPrograms;
-            if ($careerContent !== null) {
-                $this->fillCareerFields($careerContent);
-            } else {
-                $this->clearCareerFields();
-            }
+            $this->form['about_content'] = $aboutContent;
+            $this->form['career_content'] = $careerContent;
             $this->form['translation_payload_text'] = $translation->payload
                 ? json_encode($translation->payload, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES)
                 : '';
@@ -683,14 +737,18 @@ class Form extends Component
             $this->form['academy_video_title'] = '';
             $this->form['academy_video_intro'] = '';
             $this->form['academy_programs'] = $page->layout === 'academy' ? $this->defaultAcademyPrograms() : [];
-            $this->clearCareerFields();
+            $this->form['about_content'] = $page->layout === 'about' ? $this->defaultAboutContent() : [];
+            $this->form['career_content'] = $page->layout === 'career' ? $this->defaultCareerContent() : [];
         }
+
+        $this->hydratePageHeroImageAlt();
     }
 
     private function loadTranslationForLocale(): void
     {
-        if (!$this->pageId) {
+        if (! $this->pageId) {
             $this->clearTranslationFields();
+
             return;
         }
 
@@ -699,8 +757,9 @@ class Form extends Component
             ->where('locale', $this->form['locale'])
             ->first();
 
-        if (!$translation) {
+        if (! $translation) {
             $this->clearTranslationFields();
+
             return;
         }
 
@@ -720,9 +779,12 @@ class Form extends Component
         $academyVideoSection = is_array($translationPayload['academy_video_section'] ?? null)
             ? $translationPayload['academy_video_section']
             : [];
+        $aboutContent = (string) ($this->form['layout'] ?? '') === 'about'
+            ? AboutPageDefaults::merge($translationPayload['about_page'] ?? null, (string) $translation->locale)
+            : [];
         $careerContent = (string) ($this->form['layout'] ?? '') === 'career'
             ? CareerPageDefaults::merge($translationPayload['career_page'] ?? null, (string) $translation->locale)
-            : null;
+            : [];
         $this->form['academy_programs'] = (string) ($this->form['layout'] ?? '') === 'academy'
             ? AcademyPageDefaults::mergePrograms($translationPayload['academy_programs'] ?? null)
             : [];
@@ -732,14 +794,12 @@ class Form extends Component
         $this->form['academy_resource_intro'] = (string) ($academyResourceSection['intro'] ?? '');
         $this->form['academy_video_title'] = (string) ($academyVideoSection['title'] ?? '');
         $this->form['academy_video_intro'] = (string) ($academyVideoSection['intro'] ?? '');
-        if ($careerContent !== null) {
-            $this->fillCareerFields($careerContent);
-        } else {
-            $this->clearCareerFields();
-        }
+        $this->form['about_content'] = $aboutContent;
+        $this->form['career_content'] = $careerContent;
         $this->form['translation_payload_text'] = $translation->payload
             ? json_encode($translation->payload, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES)
             : '';
+        $this->hydratePageHeroImageAlt();
     }
 
     private function clearTranslationFields(): void
@@ -759,8 +819,14 @@ class Form extends Component
         $this->form['academy_programs'] = (string) ($this->form['layout'] ?? '') === 'academy'
             ? $this->defaultAcademyPrograms()
             : [];
-        $this->clearCareerFields();
+        $this->form['about_content'] = (string) ($this->form['layout'] ?? '') === 'about'
+            ? $this->defaultAboutContent()
+            : [];
+        $this->form['career_content'] = (string) ($this->form['layout'] ?? '') === 'career'
+            ? $this->defaultCareerContent()
+            : [];
         $this->form['translation_payload_text'] = '';
+        $this->hydratePageHeroImageAlt();
     }
 
     /**
@@ -803,12 +869,14 @@ class Form extends Component
         if (json_last_error() !== JSON_ERROR_NONE) {
             $this->addError($field, (string) __('Invalid JSON payload.'));
             $this->dispatch('notify', type: 'danger', message: __('Invalid JSON payload.'));
+
             return false;
         }
 
-        if (!is_array($decoded)) {
+        if (! is_array($decoded)) {
             $this->addError($field, (string) __('JSON payload must decode to object/array.'));
             $this->dispatch('notify', type: 'danger', message: __('JSON payload must decode to object/array.'));
+
             return false;
         }
 
@@ -877,6 +945,7 @@ class Form extends Component
             if ($youtubeUrl === '') {
                 $this->addError("form.academy_video_items.$index.youtube_url", __('YouTube URL je obavezan ako je red popunjen.'));
                 $hasErrors = true;
+
                 continue;
             }
 
@@ -885,6 +954,7 @@ class Form extends Component
             if ($parsed === null) {
                 $this->addError("form.academy_video_items.$index.youtube_url", __('Podržani su samo valjani YouTube linkovi.'));
                 $hasErrors = true;
+
                 continue;
             }
 
@@ -939,6 +1009,14 @@ class Form extends Component
     /**
      * @return array<string, mixed>
      */
+    private function defaultAboutContent(?string $locale = null): array
+    {
+        return AboutPageDefaults::merge([], (string) ($locale ?: $this->form['locale'] ?: config('app.locale', 'en')));
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
     private function defaultCareerContent(?string $locale = null): array
     {
         return CareerPageDefaults::merge([], (string) ($locale ?: $this->form['locale'] ?: config('app.locale', 'en')));
@@ -968,115 +1046,103 @@ class Form extends Component
             ->all();
     }
 
-    private function fillCareerFields(array $careerContent): void
+    /**
+     * @return array{url:string,is_custom:bool}
+     */
+    private function pageHeroImage(): array
     {
-        $intro = is_array($careerContent['intro'] ?? null) ? $careerContent['intro'] : [];
-        $process = is_array($careerContent['process'] ?? null) ? $careerContent['process'] : [];
-        $application = is_array($careerContent['application'] ?? null) ? $careerContent['application'] : [];
-        $form = is_array($careerContent['form'] ?? null) ? $careerContent['form'] : [];
+        $layout = (string) ($this->form['layout'] ?? '');
+        $fallback = match ($layout) {
+            'about' => 'front-theme/images/about/o-nama.jpg',
+            'career' => 'front-theme/images/career/karijera.png',
+            default => '',
+        };
+        $previewConversion = match ($layout) {
+            'about' => 'about_hero_1440x1059',
+            'career' => 'career_hero_1440x1059',
+            default => null,
+        };
+        $collection = $this->heroMediaCollection($layout);
+        $media = ($collection && $this->pageId)
+            ? InfoPage::query()->find($this->pageId)?->getFirstMedia($collection)
+            : null;
 
-        $this->form['career_intro_title'] = (string) ($intro['title'] ?? '');
-        $this->form['career_intro_highlight'] = (string) ($intro['highlight'] ?? '');
-        $this->form['career_intro_body'] = (string) ((is_array($intro['body'] ?? null) ? $intro['body'][0] ?? '' : ''));
-        $this->form['career_process_kicker'] = (string) ($process['kicker'] ?? '');
-        $this->form['career_process_title_line_one'] = (string) ($process['title_line_one'] ?? '');
-        $this->form['career_process_title_line_two'] = (string) ($process['title_line_two'] ?? '');
-        $this->form['career_process_intro'] = (string) ($process['intro'] ?? '');
-        $this->form['career_process_steps'] = collect((array) ($process['steps'] ?? []))
-            ->map(fn ($step): array => [
-                'step' => (string) data_get($step, 'step', ''),
-                'title' => (string) data_get($step, 'title', ''),
-                'description' => (string) data_get($step, 'description', ''),
-            ])
-            ->values()
-            ->all();
-        $this->form['career_application_title'] = (string) ($application['title'] ?? '');
-        $this->form['career_application_highlight'] = (string) ($application['highlight'] ?? '');
-        $this->form['career_application_paragraphs'] = collect((array) ($application['paragraphs'] ?? []))
-            ->map(fn ($paragraph): string => (string) $paragraph)
-            ->values()
-            ->all();
-        $this->form['career_form_title'] = (string) ($form['title'] ?? '');
+        return [
+            'url' => $previewConversion && $media?->hasGeneratedConversion($previewConversion)
+                ? $media->getUrl($previewConversion)
+                : ($media?->getUrl() ?: ($fallback !== '' ? asset($fallback) : '')),
+            'is_custom' => (bool) $media,
+        ];
     }
 
-    private function clearCareerFields(): void
+    private function hydratePageHeroImageAlt(): void
     {
-        if ((string) ($this->form['layout'] ?? '') === 'career') {
-            $this->fillCareerFields($this->defaultCareerContent());
+        $layout = (string) ($this->form['layout'] ?? '');
+        $path = match ($layout) {
+            'about' => 'about_content.hero.image_alt',
+            'career' => 'career_content.intro.image_alt',
+            default => null,
+        };
 
+        if (! $path || trim((string) data_get($this->form, $path, '')) !== '') {
             return;
         }
 
-        $this->form['career_intro_title'] = '';
-        $this->form['career_intro_highlight'] = '';
-        $this->form['career_intro_body'] = '';
-        $this->form['career_process_kicker'] = '';
-        $this->form['career_process_title_line_one'] = '';
-        $this->form['career_process_title_line_two'] = '';
-        $this->form['career_process_intro'] = '';
-        $this->form['career_process_steps'] = [];
-        $this->form['career_application_title'] = '';
-        $this->form['career_application_highlight'] = '';
-        $this->form['career_application_paragraphs'] = [];
-        $this->form['career_form_title'] = '';
+        $locale = (string) ($this->form['locale'] ?? config('app.locale', 'en'));
+        $fallbackLocale = (string) config('app.fallback_locale', config('app.locale', 'en'));
+        $collection = $this->heroMediaCollection($layout);
+        $media = ($collection && $this->pageId)
+            ? InfoPage::query()->find($this->pageId)?->getFirstMedia($collection)
+            : null;
+        $alt = trim((string) (
+            data_get($media?->custom_properties, 'alt.'.$locale)
+            ?: data_get($media?->custom_properties, 'alt.'.$fallbackLocale)
+        ));
+
+        if ($alt === '') {
+            $isCroatian = str_starts_with(strtolower($locale), 'hr');
+            $alt = $isCroatian ? 'ALPHA CAPITALIS tim' : 'ALPHA CAPITALIS team';
+        }
+
+        data_set($this->form, $path, $alt);
     }
 
-    /**
-     * @param  array<string, mixed>  $validatedForm
-     * @return array<string, mixed>
-     */
-    private function normalizeCareerContent(array $validatedForm): array
+    private function storePageHeroImage(InfoPage $page, string $layout, string $locale, string $alt): void
     {
-        return CareerPageDefaults::merge([
-            'intro' => [
-                'title' => trim((string) ($validatedForm['career_intro_title'] ?? '')),
-                'highlight' => trim((string) ($validatedForm['career_intro_highlight'] ?? '')),
-                'body' => [
-                    trim((string) ($validatedForm['career_intro_body'] ?? '')),
-                ],
-            ],
-            'process' => [
-                'kicker' => trim((string) ($validatedForm['career_process_kicker'] ?? '')),
-                'title_line_one' => trim((string) ($validatedForm['career_process_title_line_one'] ?? '')),
-                'title_line_two' => trim((string) ($validatedForm['career_process_title_line_two'] ?? '')),
-                'intro' => trim((string) ($validatedForm['career_process_intro'] ?? '')),
-                'steps' => collect((array) ($validatedForm['career_process_steps'] ?? []))
-                    ->map(fn ($step): array => [
-                        'step' => trim((string) data_get($step, 'step', '')),
-                        'title' => trim((string) data_get($step, 'title', '')),
-                        'description' => trim((string) data_get($step, 'description', '')),
-                    ])
-                    ->values()
-                    ->all(),
-            ],
-            'application' => [
-                'title' => trim((string) ($validatedForm['career_application_title'] ?? '')),
-                'highlight' => trim((string) ($validatedForm['career_application_highlight'] ?? '')),
-                'paragraphs' => collect((array) ($validatedForm['career_application_paragraphs'] ?? []))
-                    ->map(fn ($paragraph): string => trim((string) $paragraph))
-                    ->values()
-                    ->all(),
-            ],
-            'form' => [
-                'title' => trim((string) ($validatedForm['career_form_title'] ?? '')),
-            ],
-        ], (string) ($validatedForm['locale'] ?? $this->form['locale'] ?? config('app.locale', 'en')));
+        $collection = $this->heroMediaCollection($layout);
+        if (! $collection) {
+            return;
+        }
+
+        if ($this->pageHeroImageUpload instanceof TemporaryUploadedFile) {
+            $originalName = (string) pathinfo($this->pageHeroImageUpload->getClientOriginalName(), PATHINFO_FILENAME);
+            $safeBaseName = Str::slug($originalName) ?: $layout.'-hero';
+            $extension = strtolower($this->pageHeroImageUpload->getClientOriginalExtension() ?: 'jpg');
+
+            $page->addMedia($this->pageHeroImageUpload->getRealPath())
+                ->usingName($originalName !== '' ? $originalName : $safeBaseName)
+                ->usingFileName($safeBaseName.'-'.Str::lower(Str::random(6)).'.'.$extension)
+                ->toMediaCollection($collection);
+        }
+
+        $media = $page->getFirstMedia($collection);
+        if ($media) {
+            $customProperties = (array) ($media->custom_properties ?? []);
+            data_set($customProperties, 'alt.'.$locale, trim($alt));
+            $media->custom_properties = $customProperties;
+            $media->save();
+        }
+
+        $this->pageHeroImageUpload = null;
     }
 
-    private function careerFieldsAreEmpty(): bool
+    private function heroMediaCollection(string $layout): ?string
     {
-        return trim((string) ($this->form['career_intro_title'] ?? '')) === ''
-            && trim((string) ($this->form['career_intro_highlight'] ?? '')) === ''
-            && trim((string) ($this->form['career_intro_body'] ?? '')) === ''
-            && trim((string) ($this->form['career_process_kicker'] ?? '')) === ''
-            && trim((string) ($this->form['career_process_title_line_one'] ?? '')) === ''
-            && trim((string) ($this->form['career_process_title_line_two'] ?? '')) === ''
-            && trim((string) ($this->form['career_process_intro'] ?? '')) === ''
-            && (array) ($this->form['career_process_steps'] ?? []) === []
-            && trim((string) ($this->form['career_application_title'] ?? '')) === ''
-            && trim((string) ($this->form['career_application_highlight'] ?? '')) === ''
-            && (array) ($this->form['career_application_paragraphs'] ?? []) === []
-            && trim((string) ($this->form['career_form_title'] ?? '')) === '';
+        return match ($layout) {
+            'about' => 'about_hero_image',
+            'career' => 'career_hero_image',
+            default => null,
+        };
     }
 
     private function layoutSupportsSources(string $layout): bool
@@ -1086,6 +1152,6 @@ class Form extends Component
 
     private function layoutSupportsMedia(string $layout): bool
     {
-        return in_array($layout, ['about', 'academy', 'career', 'references'], true);
+        return in_array($layout, ['academy', 'references'], true);
     }
 }
