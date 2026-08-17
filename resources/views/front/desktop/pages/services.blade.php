@@ -1,15 +1,15 @@
 @extends('front.desktop.layouts.store')
 
-@section('title', $servicePageTitle ?? 'Usluge')
+@section('title', $servicePageMetaTitle ?? $servicePageTitle ?? 'Usluge')
 @section('main_class', 'w-full px-0 py-0')
 
 @section('content')
     @php
         $showcase = (array) ($servicesShowcase ?? []);
         $titleLead = trim((string) ($showcase['title_lead'] ?? '')) ?: 'Naše usluge';
-        $titleAccent = trim((string) ($showcase['title_accent'] ?? ''));
         $intro = trim((string) ($showcase['intro'] ?? ''))
             ?: 'Kroz integrirani pristup reviziji, računovodstvu i financijskom savjetovanju stvaramo dodatnu vrijednost pomažući klijentima da posluju sigurnije, transparentnije i učinkovitije.';
+        $cardActionLabel = trim((string) ($showcase['card_action_label'] ?? '')) ?: 'SAZNAJTE VIŠE';
         $introWithServiceLinks = e($intro);
         $introServiceLinks = [
             route('advisory.show') => ['financijskom savjetovanju', 'financial advisory'],
@@ -28,7 +28,6 @@
             }
         }
         $introTitleWords = preg_split('/\s+/u', $titleLead, -1, PREG_SPLIT_NO_EMPTY) ?: [];
-        $introTitleAccentWords = preg_split('/\s+/u', $titleAccent, -1, PREG_SPLIT_NO_EMPTY) ?: [];
 
         $cardDesign = collect([
             'audit' => [
@@ -76,6 +75,8 @@
                     'title' => trim((string) ($service['title'] ?? '')) ?: $fallback['title'],
                     'statement' => trim((string) ($service['subtitle'] ?? '')) ?: $fallback['statement'],
                     'text' => trim((string) ($service['text'] ?? '')) ?: $fallback['text'],
+                    'image' => trim((string) ($service['image_url'] ?? '')) ?: $fallback['image'],
+                    'image_alt' => trim((string) ($service['image_alt'] ?? '')) ?: $fallback['image_alt'],
                     'url' => trim((string) ($service['url'] ?? '')) ?: $fallback['url'],
                 ]);
             })
@@ -90,12 +91,9 @@
     <section class="values-section services-index-intro" aria-labelledby="ac-services-index-title">
         <div class="values-inner services-index-intro-layout">
             <div class="values-intro">
-                <h1 class="values-title services-index-intro-title" id="ac-services-index-title" data-words-slide-from-right aria-label="{{ trim($titleLead.' '.$titleAccent) }}">
+                <h1 class="values-title services-index-intro-title" id="ac-services-index-title" data-words-slide-from-right aria-label="{{ $titleLead }}">
                     @foreach ($introTitleWords as $word)
-                        <span class="values-word animation-index-{{ $loop->index }} {{ mb_strtolower(trim($word, '.,!?')) === 'usluge' || ($introTitleAccentWords === [] && $loop->last) ? 'is-accent' : '' }}" aria-hidden="true">{{ $word }}</span>
-                    @endforeach
-                    @foreach ($introTitleAccentWords as $word)
-                        <span class="values-word animation-index-{{ count($introTitleWords) + $loop->index }} is-accent" aria-hidden="true">{{ $word }}</span>
+                        <span class="values-word animation-index-{{ $loop->index }} {{ mb_strtolower(trim($word, '.,!?')) === 'usluge' || $loop->last ? 'is-accent' : '' }}" aria-hidden="true">{{ $word }}</span>
                     @endforeach
                 </h1>
 
@@ -122,7 +120,7 @@
                             </h2>
                             <p class="service-statement">{{ $service['statement'] }}</p>
                             <p class="service-description">{{ $service['text'] }}</p>
-                            <span class="service-link" aria-hidden="true">SAZNAJTE VIŠE <i class="fa-duotone fa-thin fa-arrow-right fa-fw"></i></span>
+                            <span class="service-link" aria-hidden="true">{{ $cardActionLabel }} <i class="fa-duotone fa-thin fa-arrow-right fa-fw"></i></span>
                         </div>
                     </a>
                 @endforeach

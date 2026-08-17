@@ -130,6 +130,11 @@
         $description = $cleanupText((string) __('ui.team.subtitle'), 320);
     }
 
+    if (request()->routeIs('services.index')) {
+        $title = $cleanupText((string) ($servicePageMetaTitle ?? $servicePageTitle ?? $title), 191);
+        $description = $cleanupText((string) ($servicePageMetaDescription ?? $description), 320);
+    }
+
     if (request()->routeIs('family-business.show')) {
         $title = $cleanupText((string) ($servicePageMetaTitle ?? $servicePageTitle ?? $title), 191);
         $description = $cleanupText((string) ($servicePageMetaDescription ?? $description), 320);

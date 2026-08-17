@@ -38,6 +38,7 @@ class ServicesController extends Controller
             $fallbackLocale,
             (array) ($translationPayload['primary_pillars'] ?? [])
         );
+        $primaryPillars = $this->withLandingCardImages($primaryPillars, $servicePage);
 
         return view($this->frontendView($request, 'pages.services'), [
             'serviceCards' => $this->serviceCardService->cards((string) $locale, $fallbackLocale),
@@ -84,5 +85,35 @@ class ServicesController extends Controller
             ?? $servicePage->translations->first();
 
         return [$servicePage, $translation];
+    }
+
+    /**
+     * @param  array<int, array<string, mixed>>  $pillars
+     * @return array<int, array<string, mixed>>
+     */
+    private function withLandingCardImages(array $pillars, ?ServicePage $servicePage): array
+    {
+        $fallbacks = [
+            'audit' => asset('alpha/service-revizija.jpg'),
+            'accounting' => asset('alpha/service-racunovodstvo.jpg'),
+            'advisory' => asset('alpha/service-savjetovanje.jpg'),
+        ];
+
+        return collect($pillars)
+            ->map(function (array $pillar) use ($servicePage, $fallbacks): array {
+                $cardKey = trim((string) ($pillar['key'] ?? ''));
+                $collection = ServicePageTemplateRegistry::SERVICES_INDEX_CARD_MEDIA_COLLECTIONS[$cardKey] ?? null;
+                $media = $collection ? $servicePage?->getFirstMedia($collection) : null;
+
+                $pillar['image_url'] = $media
+                    ? ($media->hasGeneratedConversion('services_index_card_1080x1350')
+                        ? $media->getUrl('services_index_card_1080x1350')
+                        : $media->getUrl())
+                    : (string) ($fallbacks[$cardKey] ?? '');
+
+                return $pillar;
+            })
+            ->values()
+            ->all();
     }
 }

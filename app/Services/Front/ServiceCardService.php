@@ -68,6 +68,7 @@ class ServiceCardService
                 'title' => 'Revizija',
                 'subtitle' => 'sigurnost i povjerenje u brojke',
                 'text' => 'Neovisna provjera financijskih izvještaja koja povećava povjerenje vlasnika, investitora i partnera.',
+                'image_alt' => 'Potpisivanje poslovnog dokumenta za stolom',
                 'bullets' => [
                     'Pomažemo vlasnicima, investitorima i upravi da imaju potpunu sigurnost u financijske izvještaje.',
                     'Revizija smanjuje rizik pogrešnih odluka jer potvrđuje da su podaci točni, potpuni i u skladu s propisima.',
@@ -82,6 +83,7 @@ class ServiceCardService
                 'title' => 'Računovodstvo',
                 'subtitle' => 'kontrola i jasnoća poslovanja',
                 'text' => 'Precizno vođenje knjiga i pravovremeno izvještavanje koje oslobađa menadžment za strateške odluke.',
+                'image_alt' => 'Rad na financijskim podacima na prijenosnom računalu',
                 'bullets' => [
                     'Omogućujemo da vaše poslovanje bude financijski uredno, pregledno i uvijek spremno za odluke.',
                     'To znači da u svakom trenutku imate točne podatke o prihodima, troškovima i rezultatu, bez kašnjenja i nejasnoća.',
@@ -96,6 +98,7 @@ class ServiceCardService
                 'title' => 'Savjetovanje',
                 'subtitle' => 'rast, optimizacija i bolji financijski izbor',
                 'text' => 'Financijsko i porezno savjetovanje te pribavljanje kapitala - sve na jednom mjestu.',
+                'image_alt' => 'Poslovni razgovor tijekom savjetovanja',
                 'bullets' => [
                     'Pomažemo društvima, investitorima i poduzetnicima u donošenju kvalitetnih odluka, upravljanju rizicima i stvaranju dugoročne vrijednosti.',
                     'Pružamo podršku u procjenama vrijednosti, due diligence postupcima, M&A procesima i strukturiranju financiranja.',
@@ -145,6 +148,7 @@ class ServiceCardService
                     'title' => trim((string) ($override['title'] ?? ($default['title'] ?? ''))),
                     'subtitle' => trim((string) ($override['subtitle'] ?? ($default['subtitle'] ?? ''))),
                     'text' => trim((string) ($override['text'] ?? ($default['text'] ?? ''))),
+                    'image_alt' => trim((string) ($override['image_alt'] ?? ($default['image_alt'] ?? ''))),
                     'url' => $this->normalizeCardUrl($url),
                     'action_label' => trim((string) ($override['action_label'] ?? ($default['action_label'] ?? ''))),
                     'bullets' => collect((array) ($override['bullets'] ?? ($default['bullets'] ?? [])))

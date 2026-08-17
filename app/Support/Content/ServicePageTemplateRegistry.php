@@ -8,6 +8,12 @@ class ServicePageTemplateRegistry
 {
     public const SERVICES_INDEX = 'services_index';
 
+    public const SERVICES_INDEX_CARD_MEDIA_COLLECTIONS = [
+        'audit' => 'services_index_audit_image',
+        'accounting' => 'services_index_accounting_image',
+        'advisory' => 'services_index_advisory_image',
+    ];
+
     public const ADVISORY = 'advisory';
 
     public const FINANCE = 'finance';
@@ -614,10 +620,18 @@ class ServicePageTemplateRegistry
      */
     public static function mergeTranslationPayload(string $templateKey, ?array $payload, ?string $locale = null): array
     {
-        return self::deepMerge(
-            self::defaultTranslationPayload($templateKey, $locale),
-            is_array($payload) ? $payload : []
-        );
+        $defaults = self::defaultTranslationPayload($templateKey, $locale);
+        $overrides = is_array($payload) ? $payload : [];
+        $merged = self::deepMerge($defaults, $overrides);
+
+        if ($templateKey === self::SERVICES_INDEX) {
+            $merged['primary_pillars'] = self::mergeServicesIndexPillars(
+                (array) ($defaults['primary_pillars'] ?? []),
+                (array) ($overrides['primary_pillars'] ?? [])
+            );
+        }
+
+        return $merged;
     }
 
     /**
@@ -629,8 +643,8 @@ class ServicePageTemplateRegistry
             return [
                 'showcase' => [
                     'title_lead' => 'Naše usluge',
-                    'title_accent' => '',
                     'intro' => 'Kroz integrirani pristup reviziji, računovodstvu i financijskom savjetovanju stvaramo dodatnu vrijednost pomažući klijentima da posluju sigurnije, transparentnije i učinkovitije.',
+                    'card_action_label' => 'SAZNAJTE VIŠE',
                     'outro' => [
                         'Kroz integrirani pristup reviziji, računovodstvu i financijskom savjetovanju stvaramo dodatnu vrijednost za klijente koji žele stabilan rast, jasnije odluke i pouzdanu podršku u ključnim poslovnim trenucima.',
                         'Naša podrška omogućuje bolje upravljanje financijama, kvalitetnije strateško planiranje i sigurnije donošenje odluka.',
@@ -642,6 +656,7 @@ class ServicePageTemplateRegistry
                         'title' => 'Revizija',
                         'subtitle' => 'sigurnost i povjerenje u brojke',
                         'text' => 'Neovisna provjera financijskih izvještaja koja povećava povjerenje vlasnika, investitora i partnera.',
+                        'image_alt' => 'Potpisivanje poslovnog dokumenta za stolom',
                         'bullets' => [
                             'Pomažemo vlasnicima, investitorima i upravi da imaju potpunu sigurnost u financijske izvještaje.',
                             'Revizija smanjuje rizik pogrešnih odluka jer potvrđuje da su podaci točni, potpuni i u skladu s propisima.',
@@ -655,6 +670,7 @@ class ServicePageTemplateRegistry
                         'title' => 'Računovodstvo',
                         'subtitle' => 'kontrola i jasnoća poslovanja',
                         'text' => 'Precizno vođenje knjiga i pravovremeno izvještavanje koje oslobađa menadžment za strateške odluke.',
+                        'image_alt' => 'Rad na financijskim podacima na prijenosnom računalu',
                         'bullets' => [
                             'Omogućujemo da vaše poslovanje bude financijski uredno, pregledno i uvijek spremno za odluke.',
                             'To znači da u svakom trenutku imate točne podatke o prihodima, troškovima i rezultatu, bez kašnjenja i nejasnoća.',
@@ -668,6 +684,7 @@ class ServicePageTemplateRegistry
                         'title' => 'Savjetovanje',
                         'subtitle' => 'rast, optimizacija i bolji financijski izbor',
                         'text' => 'Financijsko i porezno savjetovanje te pribavljanje kapitala - sve na jednom mjestu.',
+                        'image_alt' => 'Poslovni razgovor tijekom savjetovanja',
                         'bullets' => [
                             'Pomažemo društvima, investitorima i poduzetnicima u donošenju kvalitetnih odluka, upravljanju rizicima i stvaranju dugoročne vrijednosti.',
                             'Pružamo podršku u procjenama vrijednosti, due diligence postupcima, M&A procesima i strukturiranju financiranja.',
@@ -683,8 +700,8 @@ class ServicePageTemplateRegistry
         return [
             'showcase' => [
                 'title_lead' => 'Our services',
-                'title_accent' => '',
                 'intro' => 'Through an integrated approach to audit, accounting, and financial advisory, we create value by helping clients operate with more confidence, transparency, and efficiency.',
+                'card_action_label' => 'LEARN MORE',
                 'outro' => [
                     'Our support helps companies manage finance more clearly, plan strategically, and make safer decisions in key business moments.',
                 ],
@@ -695,6 +712,7 @@ class ServicePageTemplateRegistry
                     'title' => 'Audit',
                     'subtitle' => 'assurance and confidence in the numbers',
                     'text' => 'Independent review of financial statements that increases confidence for owners, investors, and partners.',
+                    'image_alt' => 'Signing a business document at a desk',
                     'bullets' => [
                         'We help owners, investors, and management gain confidence in financial statements.',
                         'Audit reduces the risk of wrong decisions by confirming that data is accurate, complete, and compliant.',
@@ -708,6 +726,7 @@ class ServicePageTemplateRegistry
                     'title' => 'Accounting',
                     'subtitle' => 'control and clarity of operations',
                     'text' => 'Precise bookkeeping and timely reporting that frees management for strategic decisions.',
+                    'image_alt' => 'Working with financial data on a laptop',
                     'bullets' => [
                         'We help keep your business financially organized, transparent, and ready for decisions.',
                         'That means accurate data on revenue, costs, and results at any moment, without delays or uncertainty.',
@@ -721,6 +740,7 @@ class ServicePageTemplateRegistry
                     'title' => 'Advisory',
                     'subtitle' => 'growth, optimization and better financial choices',
                     'text' => 'Financial and tax advisory plus capital raising - all in one place.',
+                    'image_alt' => 'Business conversation during an advisory meeting',
                     'bullets' => [
                         'We help companies, investors, and entrepreneurs make better decisions, manage risk, and create long-term value.',
                         'We support valuations, due diligence, M&A processes, and financing structuring.',
@@ -731,6 +751,36 @@ class ServicePageTemplateRegistry
                 ],
             ],
         ];
+    }
+
+    /**
+     * Keep the three fixed landing cards in their frontend order while filling in
+     * newly introduced fields for payloads saved before those fields existed.
+     *
+     * @param  array<int, mixed>  $defaults
+     * @param  array<int, mixed>  $overrides
+     * @return array<int, array<string, mixed>>
+     */
+    private static function mergeServicesIndexPillars(array $defaults, array $overrides): array
+    {
+        $overridesByKey = collect($overrides)
+            ->filter(fn ($item): bool => is_array($item) && trim((string) ($item['key'] ?? '')) !== '')
+            ->keyBy(fn (array $item): string => trim((string) $item['key']));
+
+        return collect($defaults)
+            ->map(function ($default, int $index) use ($overrides, $overridesByKey): array {
+                $default = is_array($default) ? $default : [];
+                $key = trim((string) ($default['key'] ?? ''));
+                $override = $key !== '' ? $overridesByKey->get($key) : null;
+
+                if (! is_array($override)) {
+                    $override = is_array($overrides[$index] ?? null) ? $overrides[$index] : [];
+                }
+
+                return self::deepMerge($default, $override);
+            })
+            ->values()
+            ->all();
     }
 
     /**

@@ -12,6 +12,7 @@ use App\Support\Content\ServicePageTemplateRegistry;
 use App\Support\Content\YouTubeUrl;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Livewire\Component;
 use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
@@ -74,6 +75,9 @@ class Form extends Component
     /** @var array<string, TemporaryUploadedFile|null> */
     public array $assetUploads = [];
 
+    /** @var array<string, TemporaryUploadedFile|null> */
+    public array $landingImageUploads = [];
+
     /**
      * @var array<string, string>
      */
@@ -126,6 +130,7 @@ class Form extends Component
         $this->faqPickerId = null;
         $this->teamPickerId = null;
         $this->assetUploads = [];
+        $this->landingImageUploads = [];
     }
 
     public function updatedFormTemplateKey(string $templateKey): void
@@ -274,6 +279,7 @@ class Form extends Component
         $validated = $this->validate($this->rules());
         $wasEditing = (bool) $this->servicePageId;
         $userId = auth()->id();
+        $savedServicePage = null;
 
         $pagePayload = $this->normalizedPagePayload($pagePayloadInput);
         if ($pagePayload === false) {
@@ -285,7 +291,7 @@ class Form extends Component
             $translationPayloadInput
         );
 
-        DB::transaction(function () use ($validated, $pagePayload, $translationPayload, $userId, $wasEditing): void {
+        DB::transaction(function () use ($validated, $pagePayload, $translationPayload, $userId, $wasEditing, &$savedServicePage): void {
             $servicePageData = [
                 'code' => trim((string) $validated['form']['code']),
                 'template_key' => trim((string) $validated['form']['template_key']),
@@ -315,6 +321,8 @@ class Form extends Component
                 ]
             );
 
+            $savedServicePage = $servicePage;
+
             activity('content_service_pages')
                 ->performedOn($servicePage)
                 ->causedBy(auth()->user())
@@ -326,6 +334,10 @@ class Form extends Component
                 ])
                 ->log('Service page saved');
         });
+
+        if ($savedServicePage instanceof ServicePage) {
+            $this->storeServicesIndexCardImages($savedServicePage);
+        }
 
         $message = $wasEditing ? __('Service page updated.') : __('Service page created.');
 
@@ -342,6 +354,24 @@ class Form extends Component
         return redirect()->route('admin.content.services.index', ['locale' => $this->form['locale']]);
     }
 
+    public function removeServicesIndexCardImage(string $cardKey): void
+    {
+        $collection = ServicePageTemplateRegistry::SERVICES_INDEX_CARD_MEDIA_COLLECTIONS[$cardKey] ?? null;
+        if (! $collection || ! $this->servicePageId) {
+            return;
+        }
+
+        $servicePage = ServicePage::query()->find($this->servicePageId);
+        if (! $servicePage || $servicePage->template_key !== ServicePageTemplateRegistry::SERVICES_INDEX) {
+            return;
+        }
+
+        $servicePage->clearMediaCollection($collection);
+        unset($this->landingImageUploads[$cardKey]);
+
+        $this->dispatch('notify', type: 'success', message: __('Default card image restored.'));
+    }
+
     public function render()
     {
         return view('livewire.admin.content.service.form', [
@@ -352,6 +382,7 @@ class Form extends Component
             'templateSupportsFaqSource' => $this->templateSupportsFaqSource(),
             'templateSupportsTeamSource' => $this->templateSupportsTeamSource(),
             'templateSupportsBrochure' => $this->templateSupportsBrochure(),
+            'servicesIndexCardImages' => $this->servicesIndexCardImages(),
         ]);
     }
 
@@ -549,6 +580,20 @@ class Form extends Component
             $rules['form.translation_payload.video_section.intro'] = ['nullable', 'string'];
         }
 
+        if ((string) ($this->form['template_key'] ?? '') === ServicePageTemplateRegistry::SERVICES_INDEX) {
+            $rules['form.translation_payload.showcase.title_lead'] = ['required', 'string', 'max:255'];
+            $rules['form.translation_payload.showcase.intro'] = ['required', 'string'];
+            $rules['form.translation_payload.showcase.card_action_label'] = ['required', 'string', 'max:80'];
+            $rules['form.translation_payload.primary_pillars'] = ['required', 'array', 'size:3'];
+            $rules['form.translation_payload.primary_pillars.*.key'] = ['required', Rule::in(['audit', 'accounting', 'advisory'])];
+            $rules['form.translation_payload.primary_pillars.*.title'] = ['required', 'string', 'max:255'];
+            $rules['form.translation_payload.primary_pillars.*.subtitle'] = ['required', 'string', 'max:255'];
+            $rules['form.translation_payload.primary_pillars.*.text'] = ['required', 'string'];
+            $rules['form.translation_payload.primary_pillars.*.url'] = ['required', 'string', 'max:2048'];
+            $rules['form.translation_payload.primary_pillars.*.image_alt'] = ['required', 'string', 'max:255'];
+            $rules['landingImageUploads.*'] = ['nullable', 'file', 'mimes:jpg,jpeg,png,webp,avif', 'max:8192'];
+        }
+
         return $rules;
     }
 
@@ -578,6 +623,7 @@ class Form extends Component
             $servicePage->payload
         );
         $this->assetUploads = [];
+        $this->landingImageUploads = [];
 
         if ($translation) {
             $this->form['locale'] = $translation->locale;
@@ -626,6 +672,7 @@ class Form extends Component
             $translation->locale
         );
         $this->assetUploads = [];
+        $this->landingImageUploads = [];
     }
 
     private function clearTranslationFields(string $templateKey): void
@@ -642,6 +689,7 @@ class Form extends Component
             $locale
         );
         $this->assetUploads = [];
+        $this->landingImageUploads = [];
     }
 
     private function initializeTemplateDefaults(string $templateKey): void
@@ -930,6 +978,10 @@ class Form extends Component
     {
         $merged = ServicePageTemplateRegistry::mergeTranslationPayload($templateKey, $payload, (string) $this->form['locale']);
 
+        if ($templateKey === ServicePageTemplateRegistry::SERVICES_INDEX) {
+            data_forget($merged, 'showcase.title_accent');
+        }
+
         if ($templateKey === ServicePageTemplateRegistry::ACCOUNTING) {
             $detailTitles = collect((array) data_get($merged, 'detail_sections', []))
                 ->map(fn ($section): string => trim((string) data_get($section, 'title', '')))
@@ -947,6 +999,66 @@ class Form extends Component
         }
 
         return $merged;
+    }
+
+    /**
+     * @return array<string, array{url: string, is_custom: bool}>
+     */
+    private function servicesIndexCardImages(): array
+    {
+        $fallbacks = [
+            'audit' => asset('alpha/service-revizija.jpg'),
+            'accounting' => asset('alpha/service-racunovodstvo.jpg'),
+            'advisory' => asset('alpha/service-savjetovanje.jpg'),
+        ];
+        $servicePage = $this->servicePageId
+            ? ServicePage::query()->find($this->servicePageId)
+            : null;
+
+        return collect(ServicePageTemplateRegistry::SERVICES_INDEX_CARD_MEDIA_COLLECTIONS)
+            ->mapWithKeys(function (string $collection, string $cardKey) use ($fallbacks, $servicePage): array {
+                $media = $servicePage?->template_key === ServicePageTemplateRegistry::SERVICES_INDEX
+                    ? $servicePage->getFirstMedia($collection)
+                    : null;
+                $url = $media
+                    ? ($media->hasGeneratedConversion('services_index_card_1080x1350')
+                        ? $media->getUrl('services_index_card_1080x1350')
+                        : $media->getUrl())
+                    : (string) ($fallbacks[$cardKey] ?? '');
+
+                return [
+                    $cardKey => [
+                        'url' => $url,
+                        'is_custom' => (bool) $media,
+                    ],
+                ];
+            })
+            ->all();
+    }
+
+    private function storeServicesIndexCardImages(ServicePage $servicePage): void
+    {
+        if ($servicePage->template_key !== ServicePageTemplateRegistry::SERVICES_INDEX) {
+            return;
+        }
+
+        foreach (ServicePageTemplateRegistry::SERVICES_INDEX_CARD_MEDIA_COLLECTIONS as $cardKey => $collection) {
+            $upload = $this->landingImageUploads[$cardKey] ?? null;
+            if (! $upload instanceof TemporaryUploadedFile) {
+                continue;
+            }
+
+            $originalName = (string) pathinfo($upload->getClientOriginalName(), PATHINFO_FILENAME);
+            $safeBaseName = Str::slug($originalName) ?: $cardKey.'-card';
+            $extension = strtolower($upload->getClientOriginalExtension() ?: 'jpg');
+
+            $servicePage->addMedia($upload->getRealPath())
+                ->usingName($originalName !== '' ? $originalName : $safeBaseName)
+                ->usingFileName($safeBaseName.'-'.Str::lower(Str::random(6)).'.'.$extension)
+                ->toMediaCollection($collection);
+        }
+
+        $this->landingImageUploads = [];
     }
 
     /**

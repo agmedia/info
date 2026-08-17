@@ -246,19 +246,91 @@ class ContentServicesFeatureTest extends TestCase
         Livewire::actingAs($user)
             ->test(ServiceForm::class, ['servicePageId' => $page->id])
             ->set('form.locale', 'hr')
+            ->set('form.meta_title', 'Usluge custom meta naslov')
+            ->set('form.meta_description', 'Custom meta opis Usluge landing stranice.')
             ->set('form.translation_payload.showcase.title_lead', 'Sve usluge na jednom mjestu')
             ->set('form.translation_payload.showcase.intro', 'Custom uvod za pregled usluga iz admina.')
+            ->set('form.translation_payload.showcase.card_action_label', 'ISTRAŽITE USLUGU')
             ->set('form.translation_payload.primary_pillars.0.title', 'Revizija custom')
+            ->set('form.translation_payload.primary_pillars.0.subtitle', 'Custom podnaslov revizije')
             ->set('form.translation_payload.primary_pillars.0.text', 'Custom tekst kartice revizije.')
+            ->set('form.translation_payload.primary_pillars.0.image_alt', 'Custom opis fotografije revizije')
             ->call('save')
             ->assertRedirect(route('admin.content.services.index', ['locale' => 'hr']));
 
         $this->get('/usluge')
             ->assertOk()
+            ->assertSee('<title>Usluge custom meta naslov</title>', false)
+            ->assertSee('<meta name="description" content="Custom meta opis Usluge landing stranice.">', false)
             ->assertSee('Sve usluge na jednom mjestu')
             ->assertSee('Custom uvod za pregled usluga iz admina.')
             ->assertSee('Revizija custom')
-            ->assertSee('Custom tekst kartice revizije.');
+            ->assertSee('Custom podnaslov revizije')
+            ->assertSee('Custom tekst kartice revizije.')
+            ->assertSee('ISTRAŽITE USLUGU')
+            ->assertSee('alt="Custom opis fotografije revizije"', false);
+    }
+
+    public function test_services_index_editor_follows_frontend_order_and_contains_every_visible_copy_field(): void
+    {
+        $user = $this->makeAdminUser();
+        $page = ServicePage::query()
+            ->where('template_key', ServicePageTemplateRegistry::SERVICES_INDEX)
+            ->firstOrFail();
+
+        Livewire::actingAs($user)
+            ->test(ServiceForm::class, ['servicePageId' => $page->id])
+            ->assertSee('Sadržaj s fronta')
+            ->assertSee('1. Uvodna sekcija')
+            ->assertSee('2. Kartice usluga')
+            ->assertSee('Naslov')
+            ->assertSee('Podnaslov')
+            ->assertSee('Tekst poveznice na kartici')
+            ->assertSee('Slika kartice')
+            ->assertSee('Alternativni tekst slike')
+            ->assertDontSeeHtml('wire:model="form.translation_payload.showcase.title_accent"')
+            ->assertSeeHtml('wire:model="form.translation_payload.showcase.card_action_label"')
+            ->assertSeeHtml('wire:model="form.translation_payload.primary_pillars.0.subtitle"')
+            ->assertSeeHtml('wire:model="form.translation_payload.primary_pillars.0.image_alt"')
+            ->assertSeeHtml('wire:model="landingImageUploads.audit"')
+            ->assertDontSeeHtml('wire:model="form.translation_payload.audience.headline"')
+            ->assertDontSeeHtml('wire:model="form.translation_payload.ffi.title"')
+            ->assertDontSeeHtml('wire:model="form.translation_payload.advisory_approach.title"');
+    }
+
+    public function test_admin_can_replace_and_restore_a_services_index_card_image(): void
+    {
+        Storage::fake('public');
+
+        $user = $this->makeAdminUser();
+        $page = ServicePage::query()
+            ->where('template_key', ServicePageTemplateRegistry::SERVICES_INDEX)
+            ->firstOrFail();
+
+        Livewire::actingAs($user)
+            ->test(ServiceForm::class, ['servicePageId' => $page->id])
+            ->set('landingImageUploads.audit', UploadedFile::fake()->image('revizija-custom.jpg', 1080, 1350))
+            ->call('save')
+            ->assertRedirect(route('admin.content.services.index', ['locale' => 'hr']));
+
+        $page->refresh();
+        $media = $page->getFirstMedia('services_index_audit_image');
+
+        $this->assertNotNull($media);
+        $this->assertFileExists($media->getPath());
+        $expectedImageUrl = $media->hasGeneratedConversion('services_index_card_1080x1350')
+            ? $media->getUrl('services_index_card_1080x1350')
+            : $media->getUrl();
+
+        $this->get('/usluge')
+            ->assertOk()
+            ->assertSee($expectedImageUrl, false);
+
+        Livewire::actingAs($user)
+            ->test(ServiceForm::class, ['servicePageId' => $page->id])
+            ->call('removeServicesIndexCardImage', 'audit');
+
+        $this->assertNull($page->refresh()->getFirstMedia('services_index_audit_image'));
     }
 
     public function test_admin_can_update_advisory_subpage_content_used_on_front(): void

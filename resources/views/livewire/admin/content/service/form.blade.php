@@ -10,7 +10,11 @@
     $isAuditTemplate = $currentTemplateKey === \App\Support\Content\ServicePageTemplateRegistry::AUDIT;
     $isTaxTemplate = $currentTemplateKey === \App\Support\Content\ServicePageTemplateRegistry::TAX;
     $isEuFundsTemplate = $currentTemplateKey === \App\Support\Content\ServicePageTemplateRegistry::EU_FUNDS;
+    $isFamilyBusinessTemplate = $currentTemplateKey === \App\Support\Content\ServicePageTemplateRegistry::FAMILY_BUSINESS;
     $usesStandardHero = ! $isServicesIndexTemplate;
+    $serviceMediaCollections = $isServicesIndexTemplate
+        ? array_values(\App\Support\Content\ServicePageTemplateRegistry::SERVICES_INDEX_CARD_MEDIA_COLLECTIONS)
+        : ['service_hero_image', 'service_logo'];
     $accountingEditorSections = [
         'accounting-intro-admin' => __('Overview'),
         'accounting-editorial-admin' => __('Editorial'),
@@ -118,8 +122,16 @@
         </div>
 
         @if ($activeTab === 'content')
-            <div class="admin-panel admin-form-panel p-6">
-                <p class="admin-section-title">{{ __('Core Data') }}</p>
+            @if ($isServicesIndexTemplate)
+                @include('livewire.admin.content.service.partials.services-index-editor')
+            @endif
+
+            <div @if ($isServicesIndexTemplate) id="services-index-settings" @endif class="admin-panel admin-form-panel scroll-mt-24 p-6">
+                <p class="admin-section-title">{{ $isServicesIndexTemplate ? __('Page Settings') : __('Core Data') }}</p>
+
+                @if ($isServicesIndexTemplate)
+                    <p class="mt-2 text-sm text-slate-600">{{ __('Technical settings for the Usluge landing page. The visible page copy is grouped above in frontend order.') }}</p>
+                @endif
 
                 <div class="mt-4 grid gap-3" style="grid-template-columns: repeat(12, minmax(0, 1fr));">
                     <div style="grid-column: span 3;">
@@ -233,81 +245,7 @@
             </div>
             @endif
 
-            @if ($isServicesIndexTemplate)
-                <div id="services-index-editor" class="admin-panel admin-form-panel p-6 scroll-mt-24">
-                    <p class="admin-section-title">{{ __('Services Overview') }}</p>
-
-                    <div class="mt-4 grid gap-3 md:grid-cols-2">
-                        <div>
-                            <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Title Lead') }}</label>
-                            <input type="text" wire:model="form.translation_payload.showcase.title_lead" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
-                        </div>
-                        <div>
-                            <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Title Accent') }}</label>
-                            <input type="text" wire:model="form.translation_payload.showcase.title_accent" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
-                        </div>
-                    </div>
-
-                    <div class="mt-3">
-                        <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Intro') }}</label>
-                        <textarea rows="5" wire:model="form.translation_payload.showcase.intro" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm"></textarea>
-                    </div>
-
-                    <div class="mt-6">
-                        <div class="mb-3 flex items-center justify-between gap-3">
-                            <p class="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Outro Paragraphs') }}</p>
-                            <button type="button" wire:click="addTranslationListItem('showcase.outro')" class="rounded-xl border border-slate-300 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-100">
-                                {{ __('Add Paragraph') }}
-                            </button>
-                        </div>
-
-                        <div class="space-y-3">
-                            @foreach (($translationPayload['showcase']['outro'] ?? []) as $index => $paragraph)
-                                <div>
-                                    <div class="mb-1 flex items-center justify-between gap-3">
-                                        <label class="block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Paragraph') }} #{{ $index + 1 }}</label>
-                                        <button type="button" wire:click="removeTranslationListItem('showcase.outro', {{ $index }})" class="text-xs font-semibold text-rose-600 hover:text-rose-700">{{ __('Remove') }}</button>
-                                    </div>
-                                    <textarea rows="4" wire:model="form.translation_payload.showcase.outro.{{ $index }}" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm"></textarea>
-                                </div>
-                            @endforeach
-                        </div>
-                    </div>
-                </div>
-
-                <div class="admin-panel admin-form-panel p-6">
-                    <p class="admin-section-title">{{ __('Primary Service Cards') }}</p>
-
-                    <div class="mt-4 space-y-5">
-                        @foreach (($translationPayload['primary_pillars'] ?? []) as $cardIndex => $card)
-                            <div class="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-                                <p class="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Card') }} #{{ $cardIndex + 1 }}</p>
-
-                                <div class="mt-3 grid gap-3 md:grid-cols-2">
-                                    <div>
-                                        <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Title') }}</label>
-                                        <input type="text" wire:model="form.translation_payload.primary_pillars.{{ $cardIndex }}.title" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
-                                    </div>
-                                    <div>
-                                        <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('URL') }}</label>
-                                        <input type="text" wire:model="form.translation_payload.primary_pillars.{{ $cardIndex }}.url" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
-                                    </div>
-                                </div>
-
-                                <div class="mt-3">
-                                    <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Text') }}</label>
-                                    <textarea rows="4" wire:model="form.translation_payload.primary_pillars.{{ $cardIndex }}.text" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm"></textarea>
-                                </div>
-
-                                <div class="mt-3">
-                                    <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Action Label') }}</label>
-                                    <input type="text" wire:model="form.translation_payload.primary_pillars.{{ $cardIndex }}.action_label" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm md:max-w-sm" />
-                                </div>
-                            </div>
-                        @endforeach
-                    </div>
-                </div>
-            @elseif ($isFinanceTemplate)
+            @if ($isFinanceTemplate)
                 <div class="admin-panel admin-form-panel p-6">
                     <p class="admin-section-title">{{ __('Finance Navigator') }}</p>
                     <div class="mt-4 flex flex-wrap gap-2">
@@ -1866,7 +1804,7 @@
                 @include('livewire.admin.content.service.partials.advisory-editor')
             @elseif ($isEuFundsTemplate)
                 @include('livewire.admin.content.service.partials.eu-funds-editor')
-            @else
+            @elseif ($isFamilyBusinessTemplate)
             <div class="admin-panel admin-form-panel p-6">
                 <p class="admin-section-title">{{ __('Audience & FFI') }}</p>
 
@@ -2454,6 +2392,7 @@
                 :model-class="\App\Models\Content\Service\ServicePage::class"
                 :model-id="$servicePageId"
                 :locale="$form['locale']"
+                :only-collections="$serviceMediaCollections"
                 :wire:key="'service-page-media-manager-'.($servicePageId ?? 'new').'-'.$form['locale']"
             />
         @endif
