@@ -13,9 +13,10 @@
     @php
         $pageTitle = $translation?->title ?? $page->code;
         $pageTitleWords = preg_split('/\s+/u', trim((string) $pageTitle), -1, PREG_SPLIT_NO_EMPTY) ?: [];
+        $isLegalPage = $page->layout === 'legal';
     @endphp
 
-    <div class="ac-default-page">
+    <div class="{{ $isLegalPage ? 'ac-default-page ac-legal-page' : 'ac-default-page' }}">
         @if ($topBlocks->isNotEmpty())
             <section class="ac-default-blocks ac-default-blocks--top">
                 @include('components.content-placement', ['items' => $topBlocks])
@@ -39,7 +40,7 @@
 
         <section class="ac-default-content-section" aria-label="{{ $pageTitle }}">
             <div class="ac-default-container">
-                <article class="ac-default-article content-reveal" data-image-reveal>
+                <article class="{{ $isLegalPage ? 'ac-default-article ac-legal-article content-reveal' : 'ac-default-article content-reveal' }}" data-image-reveal>
                     <div class="ac-page-body-inner">
                         <div class="content-richtext">
                             {!! $translation?->body_html ?: '' !!}
@@ -59,4 +60,7 @@
 
 @push('styles')
     <link rel="stylesheet" href="{{ asset('front-theme/styles/pages/default.css') }}?v={{ filemtime(public_path('front-theme/styles/pages/default.css')) }}">
+    @if ($page->layout === 'legal')
+        <link rel="stylesheet" href="{{ asset('front-theme/styles/pages/legal.css') }}?v={{ filemtime(public_path('front-theme/styles/pages/legal.css')) }}">
+    @endif
 @endpush
