@@ -25,6 +25,7 @@ class AuditServicePageDefaults
                 'subtitle_lead' => 'Revizija',
                 'subtitle_accent' => '',
                 'intro' => 'Povjerenje u financijske informacije počinje neovisnom i stručnom revizijom.',
+                'image_alt' => 'Revizija financijskih izvještaja',
                 'cta_label' => '',
                 'cta_url' => '',
             ],
@@ -131,6 +132,8 @@ class AuditServicePageDefaults
                     '10110 Zagreb / Sky Office, 19. kat',
                 ],
                 'contact_title' => 'Kontaktirajte nas',
+                'button_label' => 'Dogovorite sastanak',
+                'status' => 'Termin razgovora prilagođavamo vama.',
                 'direct_phone_label' => 'Telefon',
                 'direct_email_label' => 'Email',
                 'form_labels' => [
@@ -146,8 +149,10 @@ class AuditServicePageDefaults
             ],
             'blog_section' => [
                 'kicker' => 'BLOG',
-                'title' => 'Najnovije objave iz kategorije :category',
+                'title' => 'Stručni uvidi u reviziju, izvještavanje i usklađenost',
                 'intro' => 'Članci, novosti i stručni uvidi vezani uz reviziju, financijsko izvještavanje, kontrole i usklađenost.',
+                'all_posts_label' => 'Pogledaj sve objave',
+                'post_action_label' => 'Opširnije',
             ],
         ];
     }
@@ -163,6 +168,7 @@ class AuditServicePageDefaults
                 'subtitle_lead' => 'Audit',
                 'subtitle_accent' => '',
                 'intro' => 'Trust in financial information begins with an independent and expert audit.',
+                'image_alt' => 'Financial statement audit',
                 'cta_label' => '',
                 'cta_url' => '',
             ],
@@ -269,6 +275,8 @@ class AuditServicePageDefaults
                     '10110 Zagreb / Sky Office, 19th floor',
                 ],
                 'contact_title' => 'Contact us',
+                'button_label' => 'Schedule a meeting',
+                'status' => 'We arrange the meeting around your schedule.',
                 'direct_phone_label' => 'Phone',
                 'direct_email_label' => 'Email',
                 'form_labels' => [
@@ -284,8 +292,10 @@ class AuditServicePageDefaults
             ],
             'blog_section' => [
                 'kicker' => 'BLOG',
-                'title' => 'Latest posts from :category',
+                'title' => 'Expert insights into audit, reporting and compliance',
                 'intro' => 'Articles, updates, and expert insights related to audit, financial reporting, controls, and compliance.',
+                'all_posts_label' => 'View all posts',
+                'post_action_label' => 'Read more',
             ],
         ];
     }

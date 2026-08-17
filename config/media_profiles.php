@@ -156,7 +156,7 @@ return [
             'label' => 'Service Page',
             'collections' => [
                 'service_hero_image' => [
-                    'label' => 'Hero Background',
+                    'label' => 'Hero slika',
                     'single_file' => true,
                     'max_upload_kb' => 8192,
                     'accept_mime_types' => ['image/jpeg', 'image/png', 'image/webp', 'image/avif', 'image/svg+xml'],

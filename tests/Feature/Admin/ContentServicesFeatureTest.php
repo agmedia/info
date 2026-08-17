@@ -3,6 +3,8 @@
 namespace Tests\Feature\Admin;
 
 use App\Livewire\Admin\Content\Service\Form as ServiceForm;
+use App\Models\Content\Blog\BlogPost;
+use App\Models\Content\Blog\BlogPostTranslation;
 use App\Models\Content\Service\ServicePage;
 use App\Models\User;
 use App\Support\Content\ServicePageTemplateRegistry;
@@ -126,20 +128,150 @@ class ContentServicesFeatureTest extends TestCase
             ->assertSee('Obiteljski biznis');
     }
 
-    public function test_audit_service_page_edit_screen_shows_locked_audit_template_and_editor(): void
+    public function test_audit_editor_follows_frontend_order_and_only_shows_visible_page_content(): void
     {
         $user = $this->makeAdminUser();
         $page = ServicePage::query()
             ->where('template_key', ServicePageTemplateRegistry::AUDIT)
             ->firstOrFail();
 
-        $component = Livewire::actingAs($user)
-            ->test(ServiceForm::class, ['servicePageId' => $page->id]);
+        Livewire::actingAs($user)
+            ->test(ServiceForm::class, ['servicePageId' => $page->id])
+            ->assertSet('form.template_key', ServicePageTemplateRegistry::AUDIT)
+            ->assertSee('Sadržaj s fronta')
+            ->assertSee('Stranica Revizija')
+            ->assertSee('1. Hero i slika')
+            ->assertSee('2. Zašto je revizija bitna')
+            ->assertSee('3. Obveznici revizije')
+            ->assertSee('4. Revizijske usluge')
+            ->assertSee('5. Naš pristup')
+            ->assertSee('6. Stručne objave')
+            ->assertSee('7. Kontaktni poziv')
+            ->assertSeeHtml('wire:model="auditHeroImageUpload"')
+            ->assertSeeHtml('wire:model="form.translation_payload.hero.image_alt"')
+            ->assertSeeHtml('wire:model="form.translation_payload.obligors.primary_items.2.children.0"')
+            ->assertSeeHtml('wire:model="form.translation_payload.blog_section.all_posts_label"')
+            ->assertSeeHtml('wire:model="form.translation_payload.meeting.status"')
+            ->assertDontSeeHtml('wire:model="form.translation_payload.hero.brand_title"')
+            ->assertDontSeeHtml('wire:model="form.translation_payload.hero.subtitle_accent"')
+            ->assertDontSeeHtml('wire:model="form.translation_payload.hero.cta_label"')
+            ->assertDontSeeHtml('wire:model="form.translation_payload.overview.highlight_title"')
+            ->assertDontSeeHtml('wire:model="form.translation_payload.value.title"')
+            ->assertDontSeeHtml('wire:model="form.translation_payload.approach.principles_title"')
+            ->assertDontSeeHtml('wire:model="form.translation_payload.meeting.visit_title"')
+            ->assertDontSeeHtml('wire:model="form.translation_payload.blog_section.intro"');
+    }
 
-        $this->assertSame(ServicePageTemplateRegistry::AUDIT, $component->get('form.template_key'));
-        $this->assertStringContainsString('value="Revizija"', $component->html());
-        $this->assertStringContainsString('Navigacija revizije', $component->html());
-        $this->assertStringContainsString('Blok pregleda', $component->html());
+    public function test_admin_can_update_audit_content_used_on_front(): void
+    {
+        config()->set('app.locale', 'hr');
+        config()->set('app.fallback_locale', 'hr');
+
+        $user = $this->makeAdminUser();
+        $page = ServicePage::query()
+            ->where('template_key', ServicePageTemplateRegistry::AUDIT)
+            ->firstOrFail();
+        $post = BlogPost::query()->create([
+            'code' => 'audit-admin-content-test',
+            'is_active' => true,
+            'published_at' => now()->subDay(),
+        ]);
+        BlogPostTranslation::query()->create([
+            'post_id' => $post->id,
+            'locale' => 'hr',
+            'title' => 'Custom testna objava Revizije',
+            'slug' => 'custom-testna-objava-revizije',
+            'excerpt' => 'Sažetak testne objave Revizije.',
+            'body_html' => '<p>Testna objava.</p>',
+        ]);
+
+        Livewire::actingAs($user)
+            ->test(ServiceForm::class, ['servicePageId' => $page->id])
+            ->set('form.locale', 'hr')
+            ->set('form.page_payload.blog_source.mode', 'manual')
+            ->set('form.page_payload.blog_source.post_ids', [$post->id])
+            ->set('form.meta_title', 'Revizija custom meta naslov')
+            ->set('form.meta_description', 'Custom meta opis Revizije.')
+            ->set('form.translation_payload.hero.subtitle_lead', 'Revizija custom')
+            ->set('form.translation_payload.hero.intro', 'Custom hero poruka Revizije.')
+            ->set('form.translation_payload.hero.image_alt', 'Custom opis hero slike Revizije')
+            ->set('form.translation_payload.overview.title', 'Custom važnost revizije')
+            ->set('form.translation_payload.overview.body.0', 'Custom uvodni odlomak Revizije.')
+            ->set('form.translation_payload.obligors.title', 'Custom obveznici revizije')
+            ->set('form.translation_payload.obligors.primary_items.0', 'Custom prvi obveznik')
+            ->set('form.translation_payload.services.title', 'Custom revizijske usluge')
+            ->set('form.translation_payload.services.items.0.title', 'Custom usluga revizije')
+            ->set('form.translation_payload.services.items.0.text', 'Custom opis usluge revizije.')
+            ->set('form.translation_payload.approach.title', 'Custom pristup reviziji')
+            ->set('form.translation_payload.approach.body.0', 'Custom tekst pristupa reviziji.')
+            ->set('form.translation_payload.blog_section.title', 'Custom stručne objave')
+            ->set('form.translation_payload.blog_section.all_posts_label', 'SVE CUSTOM OBJAVE')
+            ->set('form.translation_payload.blog_section.post_action_label', 'CUSTOM OPŠIRNIJE')
+            ->set('form.translation_payload.meeting.title', 'Custom razgovor o reviziji')
+            ->set('form.translation_payload.meeting.contact_title', 'Custom kontakt naslov')
+            ->set('form.translation_payload.meeting.intro', 'Custom kontaktni tekst Revizije.')
+            ->set('form.translation_payload.meeting.button_label', 'CUSTOM DOGOVOR')
+            ->set('form.translation_payload.meeting.status', 'Custom status termina.')
+            ->call('save')
+            ->assertHasNoErrors()
+            ->assertRedirect(route('admin.content.services.index', ['locale' => 'hr']));
+
+        $this->get('/revizija')
+            ->assertOk()
+            ->assertSee('<title>Revizija custom meta naslov</title>', false)
+            ->assertSee('<meta name="description" content="Custom meta opis Revizije.">', false)
+            ->assertSee('Revizija custom')
+            ->assertSee('Custom hero poruka Revizije.')
+            ->assertSee('alt="Custom opis hero slike Revizije"', false)
+            ->assertSee('Custom važnost revizije')
+            ->assertSee('Custom uvodni odlomak Revizije.')
+            ->assertSee('Custom obveznici revizije')
+            ->assertSee('Custom prvi obveznik')
+            ->assertSee('Custom revizijske usluge')
+            ->assertSee('Custom usluga revizije')
+            ->assertSee('Custom opis usluge revizije.')
+            ->assertSee('Custom pristup reviziji')
+            ->assertSee('Custom tekst pristupa reviziji.')
+            ->assertSee('Custom stručne objave')
+            ->assertSee('SVE CUSTOM OBJAVE')
+            ->assertSee('CUSTOM OPŠIRNIJE')
+            ->assertSee('Custom razgovor o reviziji')
+            ->assertSee('Custom kontakt naslov')
+            ->assertSee('Custom kontaktni tekst Revizije.')
+            ->assertSee('CUSTOM DOGOVOR')
+            ->assertSee('Custom status termina.');
+    }
+
+    public function test_admin_can_replace_and_restore_the_audit_hero_image(): void
+    {
+        Storage::fake('public');
+
+        $user = $this->makeAdminUser();
+        $page = ServicePage::query()
+            ->where('template_key', ServicePageTemplateRegistry::AUDIT)
+            ->firstOrFail();
+
+        Livewire::actingAs($user)
+            ->test(ServiceForm::class, ['servicePageId' => $page->id])
+            ->set('auditHeroImageUpload', UploadedFile::fake()->image('revizija-hero.jpg', 1920, 1080))
+            ->call('save')
+            ->assertHasNoErrors()
+            ->assertRedirect(route('admin.content.services.index', ['locale' => 'hr']));
+
+        $media = $page->refresh()->getFirstMedia('service_hero_image');
+
+        $this->assertNotNull($media);
+        $this->assertFileExists($media->getPath());
+
+        $this->get('/revizija')
+            ->assertOk()
+            ->assertSee($media->getUrl(), false);
+
+        Livewire::actingAs($user)
+            ->test(ServiceForm::class, ['servicePageId' => $page->id])
+            ->call('removeAuditHeroImage');
+
+        $this->assertNull($page->refresh()->getFirstMedia('service_hero_image'));
     }
 
     public function test_tax_service_page_edit_screen_shows_locked_tax_template_and_editor(): void
