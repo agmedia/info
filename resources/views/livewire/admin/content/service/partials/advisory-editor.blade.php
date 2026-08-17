@@ -137,18 +137,17 @@
             <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Naslov</label>
             <input type="text" wire:model="form.translation_payload.overview.title" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
         </div>
-        <div class="mt-4 space-y-4">
-            @foreach (($translationPayload['overview']['body'] ?? []) as $index => $paragraph)
-                <div class="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-                    <div class="flex items-center justify-between gap-3">
-                        <label class="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Odlomak {{ $index + 1 }}</label>
-                        <button type="button" wire:click="removeTranslationListItem('overview.body', {{ $index }})" class="text-xs font-semibold text-rose-600 hover:text-rose-700">Ukloni</button>
-                    </div>
-                    <textarea rows="5" wire:model="form.translation_payload.overview.body.{{ $index }}" class="mt-2 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm leading-6"></textarea>
-                </div>
-            @endforeach
+        <div class="mt-4">
+            <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Tekst uvodne sekcije</label>
+            <textarea
+                rows="10"
+                wire:model.live.debounce.300ms="form.translation_payload.overview.body_html"
+                data-quill-editor
+                data-quill-profile="service-text"
+                class="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm leading-6"
+            ></textarea>
+            <p class="mt-1 text-xs text-slate-500">Sve odlomke uređujete u jednom editoru. Zadnji odlomak ostaje vizualno istaknut na frontu.</p>
         </div>
-        <button type="button" wire:click="addTranslationListItem('overview.body')" class="mt-4 rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-100">Dodaj odlomak</button>
     </div>
 </div>
 
@@ -156,25 +155,23 @@
     <div class="border-b border-slate-200 pb-4">
         <p class="text-xs font-semibold uppercase tracking-[0.16em] text-cyan-700">2. Pandea</p>
         <h2 class="mt-1 text-lg font-semibold text-slate-900">Pandea Global M&amp;A blok</h2>
-        <p class="mt-1 text-sm text-slate-600">Prikazuje se na glavnoj stranici i, kada je uključeno, na M&amp;A podstranici.</p>
+        <p class="mt-1 text-sm text-slate-600">Ovaj sadržaj vrijedi samo za glavnu stranicu Savjetovanja. M&amp;A podstranica ima vlastiti Pandea editor.</p>
     </div>
 
     <div class="mt-5 grid gap-5 xl:grid-cols-[minmax(0,1.2fr)_minmax(320px,0.8fr)]">
         <div>
             <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Naslov</label>
             <input type="text" wire:model="form.translation_payload.pandea.title" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
-            <div class="mt-4 space-y-4">
-                @foreach (($translationPayload['pandea']['body'] ?? []) as $index => $paragraph)
-                    <div class="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-                        <div class="flex items-center justify-between gap-3">
-                            <label class="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Odlomak {{ $index + 1 }}</label>
-                            <button type="button" wire:click="removeTranslationListItem('pandea.body', {{ $index }})" class="text-xs font-semibold text-rose-600 hover:text-rose-700">Ukloni</button>
-                        </div>
-                        <textarea rows="5" wire:model="form.translation_payload.pandea.body.{{ $index }}" class="mt-2 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm leading-6"></textarea>
-                    </div>
-                @endforeach
+            <div class="mt-4">
+                <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Tekst Pandea bloka</label>
+                <textarea
+                    rows="12"
+                    wire:model.live.debounce.300ms="form.translation_payload.pandea.body_html"
+                    data-quill-editor
+                    data-quill-profile="service-text"
+                    class="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm leading-6"
+                ></textarea>
             </div>
-            <button type="button" wire:click="addTranslationListItem('pandea.body')" class="mt-4 rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-100">Dodaj odlomak</button>
         </div>
 
         <div>
@@ -251,25 +248,23 @@
 <div id="advisory-approach-admin" class="admin-panel admin-form-panel scroll-mt-24 p-6">
     <div class="border-b border-slate-200 pb-4">
         <p class="text-xs font-semibold uppercase tracking-[0.16em] text-cyan-700">4. Naš pristup</p>
-        <h2 class="mt-1 text-lg font-semibold text-slate-900">Zajednička istaknuta sekcija</h2>
-        <p class="mt-1 text-sm text-slate-600">Prikazuje se na glavnoj stranici i na podstranici Pribavljanje financiranja.</p>
+        <h2 class="mt-1 text-lg font-semibold text-slate-900">Istaknuta sekcija glavne stranice</h2>
+        <p class="mt-1 text-sm text-slate-600">Ovaj sadržaj vrijedi samo za glavnu stranicu Savjetovanja. Pribavljanje financiranja ima vlastiti editor pristupa.</p>
     </div>
     <div class="mt-5">
         <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Naslov</label>
         <input type="text" wire:model="form.translation_payload.approach.title" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
     </div>
-    <div class="mt-4 space-y-4">
-        @foreach (($translationPayload['approach']['body'] ?? []) as $index => $paragraph)
-            <div class="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-                <div class="flex items-center justify-between gap-3">
-                    <label class="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Odlomak {{ $index + 1 }}</label>
-                    <button type="button" wire:click="removeTranslationListItem('approach.body', {{ $index }})" class="text-xs font-semibold text-rose-600 hover:text-rose-700">Ukloni</button>
-                </div>
-                <textarea rows="5" wire:model="form.translation_payload.approach.body.{{ $index }}" class="mt-2 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm leading-6"></textarea>
-            </div>
-        @endforeach
+    <div class="mt-4">
+        <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Tekst pristupa</label>
+        <textarea
+            rows="10"
+            wire:model.live.debounce.300ms="form.translation_payload.approach.body_html"
+            data-quill-editor
+            data-quill-profile="service-text"
+            class="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm leading-6"
+        ></textarea>
     </div>
-    <button type="button" wire:click="addTranslationListItem('approach.body')" class="mt-4 rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-100">Dodaj odlomak</button>
 </div>
 @endif
 
@@ -340,12 +335,16 @@
     <div class="mt-6 border-t border-slate-200 pt-5">
         <h3 class="text-base font-semibold text-slate-900">Naš pristup</h3>
         <div class="mt-4"><label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Naslov sekcije</label><input type="text" wire:model="form.translation_payload.funding.approach_title" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" /></div>
-        <div class="mt-4 space-y-3">
-            @foreach (($translationPayload['funding']['approach_body'] ?? []) as $index => $paragraph)
-                <div class="rounded-xl bg-slate-50 p-4"><div class="flex items-center justify-between gap-3"><label class="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Odlomak {{ $index + 1 }}</label><button type="button" wire:click="removeTranslationListItem('funding.approach_body', {{ $index }})" class="text-xs font-semibold text-rose-600 hover:text-rose-700">Ukloni</button></div><textarea rows="5" wire:model="form.translation_payload.funding.approach_body.{{ $index }}" class="mt-2 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm leading-6"></textarea></div>
-            @endforeach
+        <div class="mt-4">
+            <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Tekst pristupa</label>
+            <textarea
+                rows="10"
+                wire:model.live.debounce.300ms="form.translation_payload.funding.approach_body_html"
+                data-quill-editor
+                data-quill-profile="service-text"
+                class="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm leading-6"
+            ></textarea>
         </div>
-        <button type="button" wire:click="addTranslationListItem('funding.approach_body')" class="mt-3 rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-100">Dodaj odlomak pristupa</button>
     </div>
 </div>
 @endif
@@ -393,12 +392,16 @@
                     <div><label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Naslov</label><input type="text" wire:model="form.translation_payload.ma.pandea.title" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" /></div>
                     <div><label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Alternativni opis logotipa</label><input type="text" wire:model="form.translation_payload.ma.pandea.logo_alt" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" /></div>
                 </div>
-                <div class="mt-4 space-y-3">
-                    @foreach (($detail['pandea']['body'] ?? []) as $index => $paragraph)
-                        <div class="rounded-xl bg-slate-50 p-4"><div class="flex items-center justify-between gap-3"><label class="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Odlomak {{ $index + 1 }}</label><button type="button" wire:click="removeTranslationListItem('ma.pandea.body', {{ $index }})" class="text-xs font-semibold text-rose-600 hover:text-rose-700">Ukloni</button></div><textarea rows="5" wire:model="form.translation_payload.ma.pandea.body.{{ $index }}" class="mt-2 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm leading-6"></textarea></div>
-                    @endforeach
+                <div class="mt-4">
+                    <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Tekst Pandea bloka</label>
+                    <textarea
+                        rows="12"
+                        wire:model.live.debounce.300ms="form.translation_payload.ma.pandea.body_html"
+                        data-quill-editor
+                        data-quill-profile="service-text"
+                        class="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm leading-6"
+                    ></textarea>
                 </div>
-                <button type="button" wire:click="addTranslationListItem('ma.pandea.body')" class="mt-3 rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-100">Dodaj odlomak</button>
             </div>
         @endif
 
@@ -408,18 +411,16 @@
                 <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Naslov</label>
                 <input type="text" wire:model="form.translation_payload.{{ $detailKey }}.overview_title" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
             </div>
-            <div class="mt-4 space-y-3">
-                @foreach (($detail['overview_body'] ?? []) as $index => $paragraph)
-                    <div class="rounded-xl bg-slate-50 p-4">
-                        <div class="flex items-center justify-between gap-3">
-                            <label class="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Odlomak {{ $index + 1 }}</label>
-                            <button type="button" wire:click="removeTranslationListItem('{{ $detailKey }}.overview_body', {{ $index }})" class="text-xs font-semibold text-rose-600 hover:text-rose-700">Ukloni</button>
-                        </div>
-                        <textarea rows="5" wire:model="form.translation_payload.{{ $detailKey }}.overview_body.{{ $index }}" class="mt-2 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm leading-6"></textarea>
-                    </div>
-                @endforeach
+            <div class="mt-4">
+                <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Tekst uvodne sekcije</label>
+                <textarea
+                    rows="10"
+                    wire:model.live.debounce.300ms="form.translation_payload.{{ $detailKey }}.overview_body_html"
+                    data-quill-editor
+                    data-quill-profile="service-text"
+                    class="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm leading-6"
+                ></textarea>
             </div>
-            <button type="button" wire:click="addTranslationListItem('{{ $detailKey }}.overview_body')" class="mt-3 rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-100">Dodaj uvodni odlomak</button>
         </div>
 
         <div class="mt-5 rounded-2xl border border-slate-200 p-5">
@@ -428,35 +429,21 @@
                 <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Naslov sekcije</label>
                 <input type="text" wire:model="form.translation_payload.{{ $detailKey }}.services_title" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
             </div>
-            <div class="mt-4 space-y-3">
-                @foreach (($detail['services_body'] ?? []) as $index => $paragraph)
-                    <div class="rounded-xl bg-slate-50 p-4">
-                        <div class="flex items-center justify-between gap-3">
-                            <label class="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Uvodni odlomak {{ $index + 1 }}</label>
-                            <button type="button" wire:click="removeTranslationListItem('{{ $detailKey }}.services_body', {{ $index }})" class="text-xs font-semibold text-rose-600 hover:text-rose-700">Ukloni</button>
-                        </div>
-                        <textarea rows="5" wire:model="form.translation_payload.{{ $detailKey }}.services_body.{{ $index }}" class="mt-2 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm leading-6"></textarea>
-                    </div>
-                @endforeach
+            <div class="mt-4">
+                <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Uvodni tekst usluga</label>
+                <textarea
+                    rows="10"
+                    wire:model.live.debounce.300ms="form.translation_payload.{{ $detailKey }}.services_body_html"
+                    data-quill-editor
+                    data-quill-profile="service-text"
+                    class="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm leading-6"
+                ></textarea>
             </div>
-            <button type="button" wire:click="addTranslationListItem('{{ $detailKey }}.services_body')" class="mt-3 rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-100">Dodaj uvodni odlomak</button>
 
             <div class="mt-6 border-t border-slate-200 pt-5">
-                <div class="flex items-center justify-between gap-3">
-                    <h4 class="text-sm font-semibold text-slate-900">Kartice usluga</h4>
-                    <button type="button" wire:click="addTranslationListItem('{{ $detailKey }}.help_items')" class="rounded-xl border border-slate-300 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-100">Dodaj karticu</button>
-                </div>
-                <div class="mt-4 grid gap-3 lg:grid-cols-3">
-                    @foreach (($detail['help_items'] ?? []) as $index => $item)
-                        <div class="rounded-xl bg-slate-50 p-4">
-                            <div class="flex items-center justify-between gap-3">
-                                <label class="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Kartica {{ $index + 1 }}</label>
-                                <button type="button" wire:click="removeTranslationListItem('{{ $detailKey }}.help_items', {{ $index }})" class="text-xs font-semibold text-rose-600 hover:text-rose-700">Ukloni</button>
-                            </div>
-                            <textarea rows="3" wire:model="form.translation_payload.{{ $detailKey }}.help_items.{{ $index }}" class="mt-2 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm leading-6"></textarea>
-                        </div>
-                    @endforeach
-                </div>
+                <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Kartice usluga</label>
+                <textarea rows="10" wire:model="form.translation_payload.{{ $detailKey }}.help_items_text" class="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm leading-6"></textarea>
+                <p class="mt-1 text-xs text-slate-500">Upišite jednu karticu po retku. Redoslijed redaka određuje redoslijed kartica na frontu.</p>
             </div>
         </div>
 
@@ -466,18 +453,16 @@
                 <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Naslov sekcije</label>
                 <input type="text" wire:model="form.translation_payload.{{ $detailKey }}.approach_title" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
             </div>
-            <div class="mt-4 space-y-3">
-                @foreach (($detail['approach_body'] ?? []) as $index => $paragraph)
-                    <div class="rounded-xl bg-slate-50 p-4">
-                        <div class="flex items-center justify-between gap-3">
-                            <label class="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Odlomak {{ $index + 1 }}</label>
-                            <button type="button" wire:click="removeTranslationListItem('{{ $detailKey }}.approach_body', {{ $index }})" class="text-xs font-semibold text-rose-600 hover:text-rose-700">Ukloni</button>
-                        </div>
-                        <textarea rows="5" wire:model="form.translation_payload.{{ $detailKey }}.approach_body.{{ $index }}" class="mt-2 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm leading-6"></textarea>
-                    </div>
-                @endforeach
+            <div class="mt-4">
+                <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Tekst pristupa</label>
+                <textarea
+                    rows="10"
+                    wire:model.live.debounce.300ms="form.translation_payload.{{ $detailKey }}.approach_body_html"
+                    data-quill-editor
+                    data-quill-profile="service-text"
+                    class="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm leading-6"
+                ></textarea>
             </div>
-            <button type="button" wire:click="addTranslationListItem('{{ $detailKey }}.approach_body')" class="mt-3 rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-100">Dodaj odlomak pristupa</button>
         </div>
     </div>
 @endforeach

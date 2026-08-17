@@ -30,18 +30,16 @@
             <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Naslov</label>
             <input type="text" wire:model="form.translation_payload.{{ $detailKey }}.overview_title" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
         </div>
-        <div class="mt-4 space-y-3">
-            @foreach (($detail['overview_body'] ?? []) as $index => $paragraph)
-                <div class="rounded-xl bg-slate-50 p-4">
-                    <div class="flex items-center justify-between gap-3">
-                        <label class="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Odlomak {{ $index + 1 }}</label>
-                        <button type="button" wire:click="removeTranslationListItem('{{ $detailKey }}.overview_body', {{ $index }})" class="text-xs font-semibold text-rose-600 hover:text-rose-700">Ukloni</button>
-                    </div>
-                    <textarea rows="5" wire:model="form.translation_payload.{{ $detailKey }}.overview_body.{{ $index }}" class="mt-2 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm leading-6"></textarea>
-                </div>
-            @endforeach
+        <div class="mt-4">
+            <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Tekst uvodne sekcije</label>
+            <textarea
+                rows="10"
+                wire:model.live.debounce.300ms="form.translation_payload.{{ $detailKey }}.overview_body_html"
+                data-quill-editor
+                data-quill-profile="service-text"
+                class="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm leading-6"
+            ></textarea>
         </div>
-        <button type="button" wire:click="addTranslationListItem('{{ $detailKey }}.overview_body')" class="mt-3 rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-100">Dodaj uvodni odlomak</button>
     </div>
 
     <div class="mt-5 rounded-2xl border border-slate-200 p-5">
@@ -50,35 +48,21 @@
             <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Naslov sekcije</label>
             <input type="text" wire:model="form.translation_payload.{{ $detailKey }}.services_title" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
         </div>
-        <div class="mt-4 space-y-3">
-            @foreach (($detail['services_body'] ?? []) as $index => $paragraph)
-                <div class="rounded-xl bg-slate-50 p-4">
-                    <div class="flex items-center justify-between gap-3">
-                        <label class="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Uvodni odlomak {{ $index + 1 }}</label>
-                        <button type="button" wire:click="removeTranslationListItem('{{ $detailKey }}.services_body', {{ $index }})" class="text-xs font-semibold text-rose-600 hover:text-rose-700">Ukloni</button>
-                    </div>
-                    <textarea rows="5" wire:model="form.translation_payload.{{ $detailKey }}.services_body.{{ $index }}" class="mt-2 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm leading-6"></textarea>
-                </div>
-            @endforeach
+        <div class="mt-4">
+            <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Uvodni tekst usluga</label>
+            <textarea
+                rows="10"
+                wire:model.live.debounce.300ms="form.translation_payload.{{ $detailKey }}.services_body_html"
+                data-quill-editor
+                data-quill-profile="service-text"
+                class="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm leading-6"
+            ></textarea>
         </div>
-        <button type="button" wire:click="addTranslationListItem('{{ $detailKey }}.services_body')" class="mt-3 rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-100">Dodaj uvodni odlomak</button>
 
         <div class="mt-6 border-t border-slate-200 pt-5">
-            <div class="flex items-center justify-between gap-3">
-                <h4 class="text-sm font-semibold text-slate-900">Kartice usluga</h4>
-                <button type="button" wire:click="addTranslationListItem('{{ $detailKey }}.help_items')" class="rounded-xl border border-slate-300 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-100">Dodaj karticu</button>
-            </div>
-            <div class="mt-4 grid gap-3 lg:grid-cols-3">
-                @foreach (($detail['help_items'] ?? []) as $index => $item)
-                    <div class="rounded-xl bg-slate-50 p-4">
-                        <div class="flex items-center justify-between gap-3">
-                            <label class="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Kartica {{ $index + 1 }}</label>
-                            <button type="button" wire:click="removeTranslationListItem('{{ $detailKey }}.help_items', {{ $index }})" class="text-xs font-semibold text-rose-600 hover:text-rose-700">Ukloni</button>
-                        </div>
-                        <textarea rows="3" wire:model="form.translation_payload.{{ $detailKey }}.help_items.{{ $index }}" class="mt-2 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm leading-6"></textarea>
-                    </div>
-                @endforeach
-            </div>
+            <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Kartice usluga</label>
+            <textarea rows="10" wire:model="form.translation_payload.{{ $detailKey }}.help_items_text" class="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm leading-6"></textarea>
+            <p class="mt-1 text-xs text-slate-500">Upišite jednu karticu po retku. Redoslijed redaka određuje redoslijed kartica na frontu.</p>
         </div>
     </div>
 
@@ -88,17 +72,15 @@
             <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Naslov sekcije</label>
             <input type="text" wire:model="form.translation_payload.{{ $detailKey }}.approach_title" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
         </div>
-        <div class="mt-4 space-y-3">
-            @foreach (($detail['approach_body'] ?? []) as $index => $paragraph)
-                <div class="rounded-xl bg-slate-50 p-4">
-                    <div class="flex items-center justify-between gap-3">
-                        <label class="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Odlomak {{ $index + 1 }}</label>
-                        <button type="button" wire:click="removeTranslationListItem('{{ $detailKey }}.approach_body', {{ $index }})" class="text-xs font-semibold text-rose-600 hover:text-rose-700">Ukloni</button>
-                    </div>
-                    <textarea rows="5" wire:model="form.translation_payload.{{ $detailKey }}.approach_body.{{ $index }}" class="mt-2 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm leading-6"></textarea>
-                </div>
-            @endforeach
+        <div class="mt-4">
+            <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Tekst pristupa</label>
+            <textarea
+                rows="10"
+                wire:model.live.debounce.300ms="form.translation_payload.{{ $detailKey }}.approach_body_html"
+                data-quill-editor
+                data-quill-profile="service-text"
+                class="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm leading-6"
+            ></textarea>
         </div>
-        <button type="button" wire:click="addTranslationListItem('{{ $detailKey }}.approach_body')" class="mt-3 rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-100">Dodaj odlomak pristupa</button>
     </div>
 </div>

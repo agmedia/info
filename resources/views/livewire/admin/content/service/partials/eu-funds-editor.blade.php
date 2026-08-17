@@ -54,12 +54,17 @@
 <div id="eu-funds-overview-admin" class="admin-panel admin-form-panel scroll-mt-24 p-6">
     <div class="border-b border-slate-200 pb-4"><p class="text-xs font-semibold uppercase tracking-[0.16em] text-cyan-700">2. Što su EU fondovi</p><h2 class="mt-1 text-lg font-semibold text-slate-900">Uvodna 50/50 sekcija</h2></div>
     <div class="mt-5"><label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Naslov</label><input type="text" wire:model="form.translation_payload.overview.title" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" /></div>
-    <div class="mt-4 space-y-4">
-        @foreach (($translationPayload['overview']['body'] ?? []) as $index => $paragraph)
-            <div class="rounded-2xl border border-slate-200 bg-slate-50 p-4"><div class="flex items-center justify-between gap-3"><label class="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Odlomak {{ $index + 1 }}</label><button type="button" wire:click="removeTranslationListItem('overview.body', {{ $index }})" class="text-xs font-semibold text-rose-600 hover:text-rose-700">Ukloni</button></div><textarea rows="6" wire:model="form.translation_payload.overview.body.{{ $index }}" class="mt-2 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm leading-6"></textarea></div>
-        @endforeach
+    <div class="mt-4">
+        <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Tekst uvodne sekcije</label>
+        <textarea
+            rows="10"
+            wire:model.live.debounce.300ms="form.translation_payload.overview.body_html"
+            data-quill-editor
+            data-quill-profile="service-text"
+            class="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm leading-6"
+        ></textarea>
+        <p class="mt-1 text-xs text-slate-500">Sve odlomke uređujete u jednom editoru. Zadnji odlomak ostaje vizualno istaknut na frontu.</p>
     </div>
-    <button type="button" wire:click="addTranslationListItem('overview.body')" class="mt-4 rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-100">Dodaj odlomak</button>
 </div>
 
 <div id="eu-funds-process-admin" class="admin-panel admin-form-panel scroll-mt-24 p-6">
@@ -79,8 +84,16 @@
 <div id="eu-funds-approach-admin" class="admin-panel admin-form-panel scroll-mt-24 p-6">
     <div class="border-b border-slate-200 pb-4"><p class="text-xs font-semibold uppercase tracking-[0.16em] text-cyan-700">4. Naš pristup</p><h2 class="mt-1 text-lg font-semibold text-slate-900">Istaknuta citatna sekcija</h2></div>
     <div class="mt-5"><label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Naslov</label><input type="text" wire:model="form.translation_payload.approach.title" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" /></div>
-    <div class="mt-4 space-y-4">@foreach (($translationPayload['approach']['body'] ?? []) as $index => $paragraph)<div class="rounded-2xl border border-slate-200 bg-slate-50 p-4"><div class="flex items-center justify-between gap-3"><label class="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Odlomak {{ $index + 1 }}</label><button type="button" wire:click="removeTranslationListItem('approach.body', {{ $index }})" class="text-xs font-semibold text-rose-600 hover:text-rose-700">Ukloni</button></div><textarea rows="5" wire:model="form.translation_payload.approach.body.{{ $index }}" class="mt-2 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm leading-6"></textarea></div>@endforeach</div>
-    <button type="button" wire:click="addTranslationListItem('approach.body')" class="mt-4 rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-100">Dodaj odlomak</button>
+    <div class="mt-4">
+        <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Tekst pristupa</label>
+        <textarea
+            rows="10"
+            wire:model.live.debounce.300ms="form.translation_payload.approach.body_html"
+            data-quill-editor
+            data-quill-profile="service-text"
+            class="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm leading-6"
+        ></textarea>
+    </div>
 </div>
 
 <div id="eu-funds-sources-admin" class="admin-panel admin-form-panel scroll-mt-24 p-6">

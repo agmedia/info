@@ -1,3 +1,66 @@
+@php
+    $accountingEditorPayload = (array) ($translationPayload ?? []);
+    $accountingEditorOverview = (array) ($accountingEditorPayload['overview'] ?? []);
+    $accountingEditorApproach = (array) ($accountingEditorPayload['approach'] ?? []);
+    $accountingEditorOverviewBody = array_values((array) ($accountingEditorOverview['body'] ?? []));
+    $accountingEditorLocale = strtolower((string) data_get($form ?? [], 'locale', app()->getLocale()));
+    $accountingEditorOverviewLead = str_starts_with($accountingEditorLocale, 'hr')
+        ? 'Mirnije poslovanje počinje jasnim i pouzdanim brojkama.'
+        : 'Calmer business operations begin with clear and reliable numbers.';
+    $accountingEditorParagraphHtml = static function (mixed $paragraph, ?string $strongLead = null): string {
+        $paragraph = trim((string) $paragraph);
+        if ($paragraph === '') {
+            return '';
+        }
+
+        if ($strongLead !== null && str_starts_with($paragraph, $strongLead)) {
+            return '<p><strong>'.e($strongLead).'</strong>'.nl2br(e(\Illuminate\Support\Str::after($paragraph, $strongLead)), false).'</p>';
+        }
+
+        return '<p>'.nl2br(e($paragraph), false).'</p>';
+    };
+    $accountingEditorParagraphsHtml = static function (array $paragraphs) use ($accountingEditorParagraphHtml): string {
+        return collect($paragraphs)
+            ->map(static fn ($paragraph): string => $accountingEditorParagraphHtml($paragraph))
+            ->filter()
+            ->implode('');
+    };
+    $accountingEditorEnsureLeadStrong = static function (string $html, string $lead): string {
+        if ($html === '' || $lead === '') {
+            return $html;
+        }
+
+        return (string) preg_replace_callback(
+            '/<p(\s[^>]*)?>\s*'.preg_quote(e($lead), '/').'/u',
+            static fn (array $matches): string => '<p'.($matches[1] ?? '').'><strong>'.e($lead).'</strong>',
+            $html,
+            1,
+        );
+    };
+    $accountingOverviewBodyEditorHtml = array_key_exists('body_html', $accountingEditorOverview)
+        ? trim((string) $accountingEditorOverview['body_html'])
+        : $accountingEditorParagraphHtml($accountingEditorOverview['intro'] ?? '')
+            .$accountingEditorParagraphHtml($accountingEditorOverviewBody[0] ?? '', $accountingEditorOverviewLead);
+    $accountingOverviewBodyEditorHtml = $accountingEditorEnsureLeadStrong(
+        $accountingOverviewBodyEditorHtml,
+        $accountingEditorOverviewLead,
+    );
+    $accountingPartnerBodyEditorHtml = array_key_exists('partner_body_html', $accountingEditorOverview)
+        ? trim((string) $accountingEditorOverview['partner_body_html'])
+        : $accountingEditorParagraphsHtml(array_slice($accountingEditorOverviewBody, 1));
+    $accountingEditorApproachBody = array_values(array_filter(
+        (array) ($accountingEditorApproach['body'] ?? []),
+        static fn ($paragraph): bool => trim((string) $paragraph) !== '',
+    ));
+    $accountingApproachBodyEditorHtml = array_key_exists('body_html', $accountingEditorApproach)
+        ? trim((string) $accountingEditorApproach['body_html'])
+        : $accountingEditorParagraphsHtml(
+            $accountingEditorApproachBody !== []
+                ? $accountingEditorApproachBody
+                : [$accountingEditorApproach['intro'] ?? ''],
+        );
+@endphp
+
 <div class="admin-panel admin-form-panel p-6">
     <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
         <div>
@@ -114,14 +177,17 @@
     </div>
 
     <div class="mt-4">
-        <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Neobavezni uvodni odlomak</label>
-        <textarea rows="3" wire:model="form.translation_payload.overview.intro" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm leading-6"></textarea>
-    </div>
-
-    <div class="mt-4 rounded-2xl border border-slate-200 bg-slate-50 p-4">
-        <label class="block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Glavni odlomak</label>
-        <textarea rows="6" wire:model="form.translation_payload.overview.body.0" class="mt-2 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm leading-6"></textarea>
-        @error('form.translation_payload.overview.body.0') <p class="mt-1 text-xs text-rose-600">{{ $message }}</p> @enderror
+        <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Tekst uvodne sekcije</label>
+        <textarea
+            id="accounting-overview-body"
+            rows="10"
+            wire:model.live.debounce.300ms="form.translation_payload.overview.body_html"
+            data-quill-editor
+            data-quill-profile="service-text"
+            class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm leading-6"
+        >{{ $accountingOverviewBodyEditorHtml }}</textarea>
+        <p class="mt-1 text-xs text-slate-500">Svi odlomci ostaju zajedno u desnoj polovici uvodne sekcije.</p>
+        @error('form.translation_payload.overview.body_html') <p class="mt-1 text-xs text-rose-600">{{ $message }}</p> @enderror
     </div>
 </div>
 
@@ -129,25 +195,21 @@
     <div class="border-b border-slate-200 pb-4">
         <p class="text-xs font-semibold uppercase tracking-[0.16em] text-cyan-700">3. Partnerska poruka</p>
         <h2 class="mt-1 text-lg font-semibold text-slate-900">Istaknuti tekst u tamnoj sekciji</h2>
-        <p class="mt-1 text-sm text-slate-600">Svaki odlomak ovdje prikazuje se kao dio istaknute poruke ispod uvoda.</p>
+        <p class="mt-1 text-sm text-slate-600">Cijeli sadržaj editora prikazuje se kao istaknuta poruka ispod uvoda.</p>
     </div>
 
-    <div class="mt-5 space-y-4">
-        @foreach (array_slice((array) ($translationPayload['overview']['body'] ?? []), 1, null, true) as $index => $paragraph)
-            <div class="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-                <div class="flex items-center justify-between gap-3">
-                    <label class="block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Odlomak {{ $loop->iteration }}</label>
-                    <button type="button" wire:click="removeTranslationListItem('overview.body', {{ $index }})" class="text-xs font-semibold text-rose-600 hover:text-rose-700">Ukloni</button>
-                </div>
-                <textarea rows="5" wire:model="form.translation_payload.overview.body.{{ $index }}" class="mt-2 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm leading-6"></textarea>
-                @error('form.translation_payload.overview.body.'.$index) <p class="mt-1 text-xs text-rose-600">{{ $message }}</p> @enderror
-            </div>
-        @endforeach
+    <div class="mt-5">
+        <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Tekst partnerske poruke</label>
+        <textarea
+            id="accounting-partner-body"
+            rows="10"
+            wire:model.live.debounce.300ms="form.translation_payload.overview.partner_body_html"
+            data-quill-editor
+            data-quill-profile="service-text"
+            class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm leading-6"
+        >{{ $accountingPartnerBodyEditorHtml }}</textarea>
+        @error('form.translation_payload.overview.partner_body_html') <p class="mt-1 text-xs text-rose-600">{{ $message }}</p> @enderror
     </div>
-
-    <button type="button" wire:click="addTranslationListItem('overview.body')" class="mt-4 rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-100">
-        Dodaj odlomak
-    </button>
 </div>
 
 <div id="accounting-services-admin" class="admin-panel admin-form-panel scroll-mt-24 p-6">
@@ -206,22 +268,18 @@
         @error('form.translation_payload.approach.title') <p class="mt-1 text-xs text-rose-600">{{ $message }}</p> @enderror
     </div>
 
-    <div class="mt-5 space-y-4">
-        @foreach (($translationPayload['approach']['body'] ?? []) as $index => $paragraph)
-            <div class="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-                <div class="flex items-center justify-between gap-3">
-                    <label class="block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Odlomak citata {{ $index + 1 }}</label>
-                    <button type="button" wire:click="removeTranslationListItem('approach.body', {{ $index }})" class="text-xs font-semibold text-rose-600 hover:text-rose-700">Ukloni</button>
-                </div>
-                <textarea rows="5" wire:model="form.translation_payload.approach.body.{{ $index }}" class="mt-2 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm leading-6"></textarea>
-                @error('form.translation_payload.approach.body.'.$index) <p class="mt-1 text-xs text-rose-600">{{ $message }}</p> @enderror
-            </div>
-        @endforeach
+    <div class="mt-5">
+        <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Tekst citata</label>
+        <textarea
+            id="accounting-approach-body"
+            rows="10"
+            wire:model.live.debounce.300ms="form.translation_payload.approach.body_html"
+            data-quill-editor
+            data-quill-profile="service-text"
+            class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm leading-6"
+        >{{ $accountingApproachBodyEditorHtml }}</textarea>
+        @error('form.translation_payload.approach.body_html') <p class="mt-1 text-xs text-rose-600">{{ $message }}</p> @enderror
     </div>
-
-    <button type="button" wire:click="addTranslationListItem('approach.body')" class="mt-4 rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-100">
-        Dodaj odlomak
-    </button>
 </div>
 
 <div id="accounting-blog-admin" class="admin-panel admin-form-panel scroll-mt-24 p-6">

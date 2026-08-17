@@ -14,20 +14,18 @@
     $meeting = (array) ($content['meeting'] ?? []);
     $blogSection = (array) ($content['blog_section'] ?? []);
     $isCroatian = str_starts_with(strtolower((string) ($locale ?? app()->getLocale())), 'hr');
-    $overviewBody = array_values(array_filter(
-        (array) ($overview['body'] ?? []),
-        static fn ($paragraph): bool => trim((string) $paragraph) !== '',
-    ));
-    $pandeaBody = array_values(array_filter(
-        (array) ($pandea['body'] ?? []),
-        static fn ($paragraph): bool => trim((string) $paragraph) !== '',
-    ));
+    $richTextBlocks = static function (array $section, string $htmlKey = 'body_html', string $legacyKey = 'body'): array {
+        $html = array_key_exists($htmlKey, $section)
+            ? trim((string) ($section[$htmlKey] ?? ''))
+            : \App\Support\Content\StructuredRichText::fromParagraphs((array) ($section[$legacyKey] ?? []));
+
+        return \App\Support\Content\StructuredRichText::blocks($html);
+    };
+    $overviewBlocks = $richTextBlocks($overview);
+    $pandeaBlocks = $richTextBlocks($pandea);
     $networkTitle = trim((string) ($pandea['title'] ?? ''));
     $networkTitleLines = preg_split('/(?=Pandea Global M&A)/u', $networkTitle, 2, PREG_SPLIT_NO_EMPTY) ?: [$networkTitle];
-    $approachBody = array_values(array_filter(
-        (array) ($approach['body'] ?? []),
-        static fn ($paragraph): bool => trim((string) $paragraph) !== '',
-    ));
+    $approachBlocks = $richTextBlocks($approach);
     $serviceIcons = [
         'fa-hand-holding-circle-dollar',
         'fa-people-arrows-left-right',
@@ -136,14 +134,16 @@
                 </div>
 
                 <div class="ac-advisory-intro-copy content-reveal animation-index-1" data-image-reveal>
-                    @foreach ($overviewBody as $paragraph)
-                        <p class="{{ $loop->last ? 'is-emphasis' : '' }}">{{ $paragraph }}</p>
+                    @foreach ($overviewBlocks as $block)
+                        {!! $loop->last
+                            ? \App\Support\Content\StructuredRichText::addClassToFirstBlock($block, 'is-emphasis')
+                            : $block !!}
                     @endforeach
                 </div>
             </div>
         </section>
 
-        @if ($pandeaBody !== [])
+        @if ($pandeaBlocks !== [])
             <section class="ac-advisory-network" id="advisory-network" aria-labelledby="ac-advisory-network-title">
                 <div class="ac-advisory-wide-shell ac-advisory-network-grid">
                     <div class="ac-advisory-network-heading">
@@ -173,8 +173,8 @@
                     </div>
 
                     <div class="ac-advisory-network-copy content-reveal animation-index-1" data-image-reveal>
-                        @foreach ($pandeaBody as $paragraph)
-                            <p>{{ $paragraph }}</p>
+                        @foreach ($pandeaBlocks as $block)
+                            {!! $block !!}
                         @endforeach
                     </div>
                 </div>
@@ -214,7 +214,7 @@
             </div>
         </section>
 
-        @if ($approachBody !== [])
+        @if ($approachBlocks !== [])
             <section class="ac-advisory-approach" aria-labelledby="ac-advisory-approach-title">
                 <div class="ac-advisory-wide-shell ac-advisory-approach-grid">
                     <div class="ac-advisory-approach-heading">
@@ -227,8 +227,8 @@
 
                     <blockquote class="ac-advisory-approach-quote content-reveal animation-index-1" data-image-reveal>
                         <i class="fa-duotone fa-thin fa-quote-left" aria-hidden="true"></i>
-                        @foreach ($approachBody as $paragraph)
-                            <p>{{ $paragraph }}</p>
+                        @foreach ($approachBlocks as $block)
+                            {!! $block !!}
                         @endforeach
                     </blockquote>
                 </div>

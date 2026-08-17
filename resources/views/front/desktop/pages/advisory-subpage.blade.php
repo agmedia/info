@@ -13,20 +13,24 @@
     $meeting = (array) ($pageContent['meeting'] ?? $content['meeting'] ?? []);
     $blogSection = (array) ($pageContent['blog_section'] ?? $content['blog_section'] ?? []);
     $isCroatian = str_starts_with(strtolower((string) ($locale ?? app()->getLocale())), 'hr');
+    $richTextBlocks = static function (array $section, string $htmlKey, string $legacyKey): array {
+        $html = array_key_exists($htmlKey, $section)
+            ? trim((string) ($section[$htmlKey] ?? ''))
+            : \App\Support\Content\StructuredRichText::fromParagraphs((array) ($section[$legacyKey] ?? []));
+
+        return \App\Support\Content\StructuredRichText::blocks($html);
+    };
 
     $overviewTitle = $type === 'funding'
         ? trim((string) ($funding['title'] ?? $subpage['title'] ?? ''))
         : trim((string) ($detail['overview_title'] ?? $detail['title'] ?? $subpage['title'] ?? ''));
-    $overviewBody = $type === 'funding'
-        ? [trim((string) ($funding['intro'] ?? $subpage['intro'] ?? ''))]
-        : array_values(array_filter(
-            (array) ($detail['overview_body'] ?? []),
-            static fn ($paragraph): bool => trim((string) $paragraph) !== '',
-        ));
-    $overviewBody = array_values(array_filter(
-        $overviewBody,
-        static fn ($paragraph): bool => trim((string) $paragraph) !== '',
-    ));
+    $overviewBlocks = $type === 'funding'
+        ? \App\Support\Content\StructuredRichText::blocks(
+            \App\Support\Content\StructuredRichText::fromParagraphs([
+                trim((string) ($funding['intro'] ?? $subpage['intro'] ?? '')),
+            ])
+        )
+        : $richTextBlocks($detail, 'overview_body_html', 'overview_body');
 
     $servicesTitle = $type === 'funding'
         ? trim((string) ($sourceModules['title'] ?? ''))
@@ -34,15 +38,13 @@
     $servicesTitle = $servicesTitle !== ''
         ? $servicesTitle
         : ($isCroatian ? 'Naše usluge' : 'Our services');
-    $servicesBody = $type === 'funding'
-        ? array_values(array_filter(
-            [trim((string) ($sourceModules['intro'] ?? ''))],
-            static fn ($paragraph): bool => $paragraph !== '',
-        ))
-        : array_values(array_filter(
-            (array) ($detail['services_body'] ?? []),
-            static fn ($paragraph): bool => trim((string) $paragraph) !== '',
-        ));
+    $servicesBlocks = $type === 'funding'
+        ? \App\Support\Content\StructuredRichText::blocks(
+            \App\Support\Content\StructuredRichText::fromParagraphs([
+                trim((string) ($sourceModules['intro'] ?? '')),
+            ])
+        )
+        : $richTextBlocks($detail, 'services_body_html', 'services_body');
 
     $serviceCards = $type === 'funding'
         ? array_values(array_filter(
@@ -68,10 +70,9 @@
         ];
     $approachTitle = trim((string) ($approach['title'] ?? ''))
         ?: ($isCroatian ? 'Naš pristup' : 'Our approach');
-    $approachBody = array_values(array_filter(
-        (array) ($approach['body'] ?? []),
-        static fn ($paragraph): bool => trim((string) $paragraph) !== '',
-    ));
+    $approachBlocks = $type === 'funding'
+        ? $richTextBlocks($funding, 'approach_body_html', 'approach_body')
+        : $richTextBlocks($detail, 'approach_body_html', 'approach_body');
 
     $serviceIconSets = [
         'funding' => ['fa-hand-holding-circle-dollar', 'fa-landmark-dome', 'fa-badge-percent'],
@@ -111,11 +112,8 @@
         ?: ($isCroatian ? 'Opširnije' : 'Read more');
 
     $pagePandea = (array) ($detail['pandea'] ?? $pandea);
-    $pandeaBody = (bool) ($detail['show_pandea'] ?? false)
-        ? array_values(array_filter(
-            (array) ($pagePandea['body'] ?? []),
-            static fn ($paragraph): bool => trim((string) $paragraph) !== '',
-        ))
+    $pandeaBlocks = (bool) ($detail['show_pandea'] ?? false)
+        ? $richTextBlocks($pagePandea, 'body_html', 'body')
         : [];
     $networkTitle = trim((string) ($pagePandea['title'] ?? ''));
     $networkTitleLines = preg_split('/(?=Pandea Global M&A)/u', $networkTitle, 2, PREG_SPLIT_NO_EMPTY) ?: [$networkTitle];
@@ -198,14 +196,16 @@
                 </div>
 
                 <div class="ac-advisory-intro-copy content-reveal animation-index-1" data-image-reveal>
-                    @foreach ($overviewBody as $paragraph)
-                        <p class="{{ $overviewBody !== [] && count($overviewBody) > 1 && $loop->last ? 'is-emphasis' : '' }}">{{ $paragraph }}</p>
+                    @foreach ($overviewBlocks as $block)
+                        {!! count($overviewBlocks) > 1 && $loop->last
+                            ? \App\Support\Content\StructuredRichText::addClassToFirstBlock($block, 'is-emphasis')
+                            : $block !!}
                     @endforeach
                 </div>
             </div>
         </section>
 
-        @if ($pandeaBody !== [])
+        @if ($pandeaBlocks !== [])
             <section class="ac-advisory-network" aria-labelledby="ac-advisory-subpage-network-title">
                 <div class="ac-advisory-wide-shell ac-advisory-network-grid">
                     <div class="ac-advisory-network-heading">
@@ -235,15 +235,15 @@
                     </div>
 
                     <div class="ac-advisory-network-copy content-reveal animation-index-1" data-image-reveal>
-                        @foreach ($pandeaBody as $paragraph)
-                            <p>{{ $paragraph }}</p>
+                        @foreach ($pandeaBlocks as $block)
+                            {!! $block !!}
                         @endforeach
                     </div>
                 </div>
             </section>
         @endif
 
-        @if ($servicesTitle !== '' || $servicesBody !== [] || $serviceCards !== [])
+        @if ($servicesTitle !== '' || $servicesBlocks !== [] || $serviceCards !== [])
             <section class="ac-advisory-services ac-advisory-subpage-services" id="advisory-subpage-services" aria-labelledby="ac-advisory-subpage-services-title">
                 <div class="ac-advisory-wide-shell">
                     <header class="ac-advisory-section-heading">
@@ -252,8 +252,8 @@
                                 <span class="service-title-word animation-index-{{ $loop->index }} {{ $loop->last ? 'is-accent' : '' }}" aria-hidden="true">{{ $word }}</span>
                             @endforeach
                         </h2>
-                        @foreach ($servicesBody as $paragraph)
-                            <p>{{ $paragraph }}</p>
+                        @foreach ($servicesBlocks as $block)
+                            {!! $block !!}
                         @endforeach
                     </header>
 
@@ -291,7 +291,7 @@
             </section>
         @endif
 
-        @if ($approachBody !== [])
+        @if ($approachBlocks !== [])
             <section class="ac-advisory-approach" aria-labelledby="ac-advisory-subpage-approach-title">
                 <div class="ac-advisory-wide-shell ac-advisory-approach-grid">
                     <div class="ac-advisory-approach-heading">
@@ -304,8 +304,8 @@
 
                     <blockquote class="ac-advisory-approach-quote content-reveal animation-index-1" data-image-reveal>
                         <i class="fa-duotone fa-thin fa-quote-left" aria-hidden="true"></i>
-                        @foreach ($approachBody as $paragraph)
-                            <p>{{ $paragraph }}</p>
+                        @foreach ($approachBlocks as $block)
+                            {!! $block !!}
                         @endforeach
                     </blockquote>
                 </div>

@@ -1,18 +1,19 @@
 @extends('front.desktop.layouts.store')
 
 @php
-    $overviewBody = array_values(array_filter(
-        (array) ($overviewSection['body'] ?? []),
-        static fn ($paragraph): bool => trim((string) $paragraph) !== '',
-    ));
+    $richTextBlocks = static function (array $section, string $htmlKey = 'body_html', string $legacyKey = 'body'): array {
+        $html = array_key_exists($htmlKey, $section)
+            ? trim((string) ($section[$htmlKey] ?? ''))
+            : \App\Support\Content\StructuredRichText::fromParagraphs((array) ($section[$legacyKey] ?? []));
+
+        return \App\Support\Content\StructuredRichText::blocks($html);
+    };
+    $overviewBlocks = $richTextBlocks((array) $overviewSection);
     $serviceItems = array_values(array_filter(
         (array) ($processSection['items'] ?? []),
         static fn ($item): bool => is_array($item) && trim((string) ($item['title'] ?? '')) !== '',
     ));
-    $approachBody = array_values(array_filter(
-        (array) ($approachSection['body'] ?? []),
-        static fn ($paragraph): bool => trim((string) $paragraph) !== '',
-    ));
+    $approachBlocks = $richTextBlocks((array) $approachSection);
     $sourceCards = array_values(array_filter(
         (array) ($sourceModulesSection['items'] ?? []),
         static fn ($item): bool => is_array($item) && trim((string) ($item['title'] ?? '')) !== '',
@@ -127,8 +128,10 @@
                 </div>
 
                 <div class="ac-advisory-intro-copy content-reveal animation-index-1" data-image-reveal>
-                    @foreach ($overviewBody as $paragraph)
-                        <p class="{{ count($overviewBody) > 1 && $loop->last ? 'is-emphasis' : '' }}">{{ $paragraph }}</p>
+                    @foreach ($overviewBlocks as $block)
+                        {!! count($overviewBlocks) > 1 && $loop->last
+                            ? \App\Support\Content\StructuredRichText::addClassToFirstBlock($block, 'is-emphasis')
+                            : $block !!}
                     @endforeach
                 </div>
             </div>
@@ -161,7 +164,7 @@
             </div>
         </section>
 
-        @if ($approachBody !== [])
+        @if ($approachBlocks !== [])
             <section class="ac-advisory-approach" id="eu-funds-approach" aria-labelledby="ac-eu-funds-approach-title">
                 <div class="ac-advisory-wide-shell ac-advisory-approach-grid">
                     <div class="ac-advisory-approach-heading">
@@ -174,8 +177,8 @@
 
                     <blockquote class="ac-advisory-approach-quote content-reveal animation-index-1" data-image-reveal>
                         <i class="fa-duotone fa-thin fa-quote-left" aria-hidden="true"></i>
-                        @foreach ($approachBody as $paragraph)
-                            <p>{{ $paragraph }}</p>
+                        @foreach ($approachBlocks as $block)
+                            {!! $block !!}
                         @endforeach
                     </blockquote>
                 </div>
@@ -281,16 +284,15 @@
 
                     <div class="ac-eu-program-grid">
                         @foreach ($resourceCards as $card)
+                            @php $cardBodyBlocks = $richTextBlocks((array) $card); @endphp
                             <article class="ac-advisory-text-panel ac-eu-program-card content-reveal animation-index-{{ $loop->index }}" data-image-reveal>
                                 @if (trim((string) ($card['eyebrow'] ?? '')) !== '')
                                     <p class="ac-eu-program-eyebrow">{{ $card['eyebrow'] }}</p>
                                 @endif
                                 <h3>{{ $card['title'] ?? '' }}</h3>
 
-                                @foreach ((array) ($card['body'] ?? []) as $paragraph)
-                                    @if (trim((string) $paragraph) !== '')
-                                        <p>{{ $paragraph }}</p>
-                                    @endif
+                                @foreach ($cardBodyBlocks as $block)
+                                    {!! $block !!}
                                 @endforeach
 
                                 @foreach ((array) ($card['groups'] ?? []) as $group)

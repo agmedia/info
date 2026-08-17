@@ -706,11 +706,13 @@ class Form extends Component
             $rules['form.translation_payload.hero.image_alt'] = ['required', 'string', 'max:255'];
             $rules['form.translation_payload.overview.title'] = ['required', 'string', 'max:255'];
             $rules['form.translation_payload.overview.intro'] = ['nullable', 'string'];
-            $rules['form.translation_payload.overview.body'] = ['required', 'array', 'min:1'];
+            $rules['form.translation_payload.overview.body'] = ['nullable', 'array'];
             $rules['form.translation_payload.overview.body.*'] = ['nullable', 'string'];
+            $rules['form.translation_payload.overview.body_html'] = ['required', 'string'];
             $rules['form.translation_payload.obligors.title'] = ['required', 'string', 'max:255'];
             $rules['form.translation_payload.obligors.primary_title'] = ['nullable', 'string', 'max:255'];
             $rules['form.translation_payload.obligors.primary_items'] = ['required', 'array', 'min:1'];
+            $rules['form.translation_payload.obligors.primary_items.*.children_text'] = ['nullable', 'string'];
             $rules['form.translation_payload.obligors.note'] = ['nullable', 'string'];
             $rules['form.translation_payload.services.title'] = ['required', 'string', 'max:255'];
             $rules['form.translation_payload.services.intro'] = ['nullable', 'string'];
@@ -718,8 +720,9 @@ class Form extends Component
             $rules['form.translation_payload.services.items.*.title'] = ['required', 'string', 'max:255'];
             $rules['form.translation_payload.services.items.*.text'] = ['required', 'string'];
             $rules['form.translation_payload.approach.title'] = ['required', 'string', 'max:255'];
-            $rules['form.translation_payload.approach.body'] = ['required', 'array', 'min:1'];
-            $rules['form.translation_payload.approach.body.*'] = ['required', 'string'];
+            $rules['form.translation_payload.approach.body'] = ['nullable', 'array'];
+            $rules['form.translation_payload.approach.body.*'] = ['nullable', 'string'];
+            $rules['form.translation_payload.approach.body_html'] = ['required', 'string'];
             $rules['form.translation_payload.blog_section.title'] = ['required', 'string', 'max:255'];
             $rules['form.translation_payload.blog_section.all_posts_label'] = ['required', 'string', 'max:80'];
             $rules['form.translation_payload.blog_section.post_action_label'] = ['required', 'string', 'max:80'];
@@ -737,17 +740,20 @@ class Form extends Component
             $rules['form.translation_payload.hero.image_alt'] = ['required', 'string', 'max:255'];
             $rules['form.translation_payload.overview.title'] = ['required', 'string', 'max:255'];
             $rules['form.translation_payload.overview.intro'] = ['nullable', 'string'];
-            $rules['form.translation_payload.overview.body'] = ['required', 'array', 'min:1'];
-            $rules['form.translation_payload.overview.body.0'] = ['required', 'string'];
-            $rules['form.translation_payload.overview.body.*'] = ['required', 'string'];
+            $rules['form.translation_payload.overview.body'] = ['nullable', 'array'];
+            $rules['form.translation_payload.overview.body.0'] = ['nullable', 'string'];
+            $rules['form.translation_payload.overview.body.*'] = ['nullable', 'string'];
+            $rules['form.translation_payload.overview.body_html'] = ['required', 'string'];
+            $rules['form.translation_payload.overview.partner_body_html'] = ['nullable', 'string'];
             $rules['form.translation_payload.services.title'] = ['required', 'string', 'max:255'];
             $rules['form.translation_payload.services.intro'] = ['nullable', 'string'];
             $rules['form.translation_payload.services.items'] = ['required', 'array', 'min:1'];
             $rules['form.translation_payload.services.items.*.title'] = ['required', 'string', 'max:255'];
             $rules['form.translation_payload.services.items.*.text'] = ['required', 'string'];
             $rules['form.translation_payload.approach.title'] = ['required', 'string', 'max:255'];
-            $rules['form.translation_payload.approach.body'] = ['required', 'array', 'min:1'];
-            $rules['form.translation_payload.approach.body.*'] = ['required', 'string'];
+            $rules['form.translation_payload.approach.body'] = ['nullable', 'array'];
+            $rules['form.translation_payload.approach.body.*'] = ['nullable', 'string'];
+            $rules['form.translation_payload.approach.body_html'] = ['required', 'string'];
             $rules['form.translation_payload.blog_section.title'] = ['required', 'string', 'max:255'];
             $rules['form.translation_payload.blog_section.all_posts_label'] = ['required', 'string', 'max:80'];
             $rules['form.translation_payload.blog_section.post_action_label'] = ['required', 'string', 'max:80'];
@@ -765,12 +771,14 @@ class Form extends Component
                 $rules['form.translation_payload.hero.intro'] = ['required', 'string'];
                 $rules['form.translation_payload.hero.image_alt'] = ['required', 'string', 'max:255'];
                 $rules['form.translation_payload.overview.title'] = ['required', 'string', 'max:255'];
-                $rules['form.translation_payload.overview.body'] = ['required', 'array', 'min:1'];
-                $rules['form.translation_payload.overview.body.*'] = ['required', 'string'];
+                $rules['form.translation_payload.overview.body'] = ['nullable', 'array'];
+                $rules['form.translation_payload.overview.body.*'] = ['nullable', 'string'];
+                $rules['form.translation_payload.overview.body_html'] = ['required', 'string'];
                 $rules['form.translation_payload.pandea.title'] = ['required', 'string', 'max:255'];
                 $rules['form.translation_payload.pandea.logo_alt'] = ['required', 'string', 'max:255'];
-                $rules['form.translation_payload.pandea.body'] = ['required', 'array', 'min:1'];
-                $rules['form.translation_payload.pandea.body.*'] = ['required', 'string'];
+                $rules['form.translation_payload.pandea.body'] = ['nullable', 'array'];
+                $rules['form.translation_payload.pandea.body.*'] = ['nullable', 'string'];
+                $rules['form.translation_payload.pandea.body_html'] = ['required', 'string'];
                 $rules['form.translation_payload.services_intro.title'] = ['required', 'string', 'max:255'];
                 $rules['form.translation_payload.services_intro.intro'] = ['nullable', 'string'];
                 $rules['form.translation_payload.services_intro.card_action_label'] = ['required', 'string', 'max:80'];
@@ -781,6 +789,7 @@ class Form extends Component
                 $rules['form.translation_payload.approach.title'] = ['required', 'string', 'max:255'];
                 $rules['form.translation_payload.approach.body'] = ['nullable', 'array'];
                 $rules['form.translation_payload.approach.body.*'] = ['nullable', 'string'];
+                $rules['form.translation_payload.approach.body_html'] = ['nullable', 'string'];
                 $rules['form.translation_payload.blog_section.title'] = ['required', 'string', 'max:255'];
                 $rules['form.translation_payload.blog_section.all_posts_label'] = ['required', 'string', 'max:80'];
                 $rules['form.translation_payload.blog_section.post_action_label'] = ['required', 'string', 'max:80'];
@@ -803,6 +812,7 @@ class Form extends Component
                 $rules['form.translation_payload.funding.approach_title'] = ['required', 'string', 'max:255'];
                 $rules['form.translation_payload.funding.approach_body'] = ['nullable', 'array'];
                 $rules['form.translation_payload.funding.approach_body.*'] = ['nullable', 'string'];
+                $rules['form.translation_payload.funding.approach_body_html'] = ['nullable', 'string'];
                 $rules['form.translation_payload.source_modules.title'] = ['required', 'string', 'max:255'];
                 $rules['form.translation_payload.source_modules.intro'] = ['nullable', 'string'];
             } else {
@@ -813,21 +823,26 @@ class Form extends Component
                 $rules['form.translation_payload.'.$detailKey.'.overview_title'] = ['nullable', 'string', 'max:255'];
                 $rules['form.translation_payload.'.$detailKey.'.overview_body'] = ['nullable', 'array'];
                 $rules['form.translation_payload.'.$detailKey.'.overview_body.*'] = ['nullable', 'string'];
+                $rules['form.translation_payload.'.$detailKey.'.overview_body_html'] = ['nullable', 'string'];
                 $rules['form.translation_payload.'.$detailKey.'.services_title'] = ['nullable', 'string', 'max:255'];
                 $rules['form.translation_payload.'.$detailKey.'.services_body'] = ['nullable', 'array'];
                 $rules['form.translation_payload.'.$detailKey.'.services_body.*'] = ['nullable', 'string'];
+                $rules['form.translation_payload.'.$detailKey.'.services_body_html'] = ['nullable', 'string'];
                 $rules['form.translation_payload.'.$detailKey.'.help_items'] = ['nullable', 'array'];
                 $rules['form.translation_payload.'.$detailKey.'.help_items.*'] = ['nullable', 'string'];
+                $rules['form.translation_payload.'.$detailKey.'.help_items_text'] = ['nullable', 'string'];
                 $rules['form.translation_payload.'.$detailKey.'.approach_title'] = ['nullable', 'string', 'max:255'];
                 $rules['form.translation_payload.'.$detailKey.'.approach_body'] = ['nullable', 'array'];
                 $rules['form.translation_payload.'.$detailKey.'.approach_body.*'] = ['nullable', 'string'];
+                $rules['form.translation_payload.'.$detailKey.'.approach_body_html'] = ['nullable', 'string'];
 
                 if ($detailKey === 'ma') {
                     $rules['form.translation_payload.ma.show_pandea'] = ['boolean'];
                     $rules['form.translation_payload.ma.pandea.title'] = ['required', 'string', 'max:255'];
                     $rules['form.translation_payload.ma.pandea.logo_alt'] = ['required', 'string', 'max:255'];
-                    $rules['form.translation_payload.ma.pandea.body'] = ['required', 'array', 'min:1'];
-                    $rules['form.translation_payload.ma.pandea.body.*'] = ['required', 'string'];
+                    $rules['form.translation_payload.ma.pandea.body'] = ['nullable', 'array'];
+                    $rules['form.translation_payload.ma.pandea.body.*'] = ['nullable', 'string'];
+                    $rules['form.translation_payload.ma.pandea.body_html'] = ['required', 'string'];
                 }
             }
 
@@ -849,16 +864,18 @@ class Form extends Component
             $rules['form.translation_payload.hero.intro'] = ['required', 'string'];
             $rules['form.translation_payload.hero.image_alt'] = ['required', 'string', 'max:255'];
             $rules['form.translation_payload.overview.title'] = ['required', 'string', 'max:255'];
-            $rules['form.translation_payload.overview.body'] = ['required', 'array', 'min:1'];
-            $rules['form.translation_payload.overview.body.*'] = ['required', 'string'];
+            $rules['form.translation_payload.overview.body'] = ['nullable', 'array'];
+            $rules['form.translation_payload.overview.body.*'] = ['nullable', 'string'];
+            $rules['form.translation_payload.overview.body_html'] = ['required', 'string'];
             $rules['form.translation_payload.process.title'] = ['required', 'string', 'max:255'];
             $rules['form.translation_payload.process.intro'] = ['nullable', 'string'];
             $rules['form.translation_payload.process.items'] = ['required', 'array', 'min:1'];
             $rules['form.translation_payload.process.items.*.title'] = ['required', 'string', 'max:255'];
             $rules['form.translation_payload.process.items.*.text'] = ['required', 'string'];
             $rules['form.translation_payload.approach.title'] = ['required', 'string', 'max:255'];
-            $rules['form.translation_payload.approach.body'] = ['required', 'array', 'min:1'];
-            $rules['form.translation_payload.approach.body.*'] = ['required', 'string'];
+            $rules['form.translation_payload.approach.body'] = ['nullable', 'array'];
+            $rules['form.translation_payload.approach.body.*'] = ['nullable', 'string'];
+            $rules['form.translation_payload.approach.body_html'] = ['required', 'string'];
             $rules['form.translation_payload.source_modules.title'] = ['required', 'string', 'max:255'];
             $rules['form.translation_payload.source_modules.intro'] = ['nullable', 'string'];
             $rules['form.translation_payload.source_modules.items'] = ['required', 'array', 'min:1'];
@@ -870,8 +887,10 @@ class Form extends Component
             $rules['form.translation_payload.calls.view_all_label'] = ['required', 'string', 'max:80'];
             $rules['form.translation_payload.resources.title'] = ['required', 'string', 'max:255'];
             $rules['form.translation_payload.resources.intro'] = ['nullable', 'string'];
+            $rules['form.translation_payload.resources.cards.*.body_html'] = ['nullable', 'string'];
             $rules['form.translation_payload.laws.title'] = ['required', 'string', 'max:255'];
             $rules['form.translation_payload.laws.intro'] = ['nullable', 'string'];
+            $rules['form.translation_payload.laws.cards.*.lists.*.items_text'] = ['nullable', 'string'];
             $rules['form.translation_payload.blog_section.title'] = ['required', 'string', 'max:255'];
             $rules['form.translation_payload.blog_section.all_posts_label'] = ['required', 'string', 'max:80'];
             $rules['form.translation_payload.blog_section.post_action_label'] = ['required', 'string', 'max:80'];
@@ -983,8 +1002,9 @@ class Form extends Component
         $this->form['slug'] = $defaults['slug'];
         $this->form['meta_title'] = $defaults['meta_title'];
         $this->form['meta_description'] = $defaults['meta_description'];
-        $this->form['translation_payload'] = ServicePageTemplateRegistry::defaultTranslationPayload(
+        $this->form['translation_payload'] = ServicePageTemplateRegistry::mergeTranslationPayload(
             $templateKey,
+            null,
             $locale
         );
         $this->assetUploads = [];
@@ -1003,8 +1023,9 @@ class Form extends Component
             ? $this->form['code']
             : ServicePageTemplateRegistry::defaultCode($templateKey);
         $this->form['page_payload'] = ServicePageTemplateRegistry::defaultPagePayload($templateKey);
-        $this->form['translation_payload'] = ServicePageTemplateRegistry::defaultTranslationPayload(
+        $this->form['translation_payload'] = ServicePageTemplateRegistry::mergeTranslationPayload(
             $templateKey,
+            null,
             (string) ($this->form['locale'] ?? config('app.locale', 'en'))
         );
 
@@ -1623,6 +1644,7 @@ class Form extends Component
             if ($youtubeUrl === '') {
                 $this->addError("form.page_payload.video_source.items.$index.youtube_url", __('YouTube URL je obavezan ako je red popunjen.'));
                 $hasErrors = true;
+
                 continue;
             }
 
@@ -1631,6 +1653,7 @@ class Form extends Component
             if ($parsed === null) {
                 $this->addError("form.page_payload.video_source.items.$index.youtube_url", __('Podržani su samo valjani YouTube linkovi.'));
                 $hasErrors = true;
+
                 continue;
             }
 

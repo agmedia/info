@@ -722,7 +722,352 @@ class ServicePageTemplateRegistry
             }
         }
 
-        return $merged;
+        $merged = self::applyLatestBriefCopy(
+            $templateKey,
+            $merged,
+            (string) ($locale ?: config('app.locale', 'en')),
+        );
+
+        return self::hydrateStructuredEditorFields($templateKey, $merged, $overrides);
+    }
+
+    /**
+     * Upgrade only known untouched legacy copy before editor fields are
+     * materialized. Custom copy and explicitly saved HTML remain authoritative.
+     *
+     * @param  array<string, mixed>  $payload
+     * @return array<string, mixed>
+     */
+    private static function applyLatestBriefCopy(string $templateKey, array $payload, string $locale): array
+    {
+        $isCroatian = str_starts_with(strtolower($locale), 'hr');
+
+        if ($templateKey === self::AUDIT) {
+            $legacyHeroIntro = $isCroatian
+                ? 'Neovisna, stručna provjera vaših financijskih izvještaja. Povećavamo povjerenje, smanjujemo rizike i jačamo kredibilitet vašeg poslovanja.'
+                : 'Independent, expert review of your financial statements. We increase trust, reduce risk, and strengthen the credibility of your business.';
+            $legacyOverviewTitle = $isCroatian ? 'Što je revizija?' : 'What is an audit?';
+            $hero = (array) ($payload['hero'] ?? []);
+            $overview = (array) ($payload['overview'] ?? []);
+
+            if (trim((string) ($hero['intro'] ?? '')) === $legacyHeroIntro) {
+                $hero['intro'] = $isCroatian
+                    ? 'Povjerenje u financijske informacije počinje neovisnom i stručnom revizijom.'
+                    : 'Trust in financial information begins with an independent and expert audit.';
+                $payload['hero'] = $hero;
+            }
+
+            if (trim((string) ($overview['title'] ?? '')) === $legacyOverviewTitle) {
+                $overview['title'] = $isCroatian ? 'Zašto Vam je revizija bitna?' : 'Why does audit matter to you?';
+                $overview['highlight_title'] = $overview['title'];
+                $overview['intro'] = '';
+                $overview['body'] = $isCroatian
+                    ? [
+                        'Revizija pruža neovisnu i objektivnu procjenu financijskih informacija, povećava transparentnost i pouzdanost poslovanja te pomaže u prepoznavanju potencijalnih rizika.',
+                        'Neovisna revizija daje Vam sigurnost da odluke donosite na temelju pouzdanih informacija. Uz stručan i objektivan pristup, Vaše poslovanje sagledavamo šire od samih brojki.',
+                    ]
+                    : [
+                        'Audit provides an independent and objective assessment of financial information, increases transparency and reliability, and helps identify potential risks.',
+                        'An independent audit gives you confidence that your decisions are based on reliable information. Through an expert and objective approach, we look beyond the numbers to understand the wider context of your business.',
+                    ];
+                $payload['overview'] = $overview;
+            }
+
+            return $payload;
+        }
+
+        if ($templateKey !== self::ACCOUNTING) {
+            return $payload;
+        }
+
+        $legacyHeroIntro = $isCroatian
+            ? 'Precizno, pravovremeno i transparentno - preuzimamo vođenje vaših poslovnih knjiga kako biste se fokusirali na ono što zaista donosi rast.'
+            : 'Precise, timely, and transparent accounting - we take over your books so you can stay focused on what truly drives growth.';
+        $legacyOverviewTitle = $isCroatian ? 'Što je računovodstvo?' : 'What is accounting?';
+        $legacyOverviewBody = $isCroatian
+            ? [
+                'Računovodstvo je sustavan zapis poslovnih transakcija koji osigurava točan prikaz financijskog stanja društva. Dobro računovodstvo nije samo zakonska obveza - to je temelj za donošenje kvalitetnih poslovnih odluka.',
+            ]
+            : [
+                'Accounting is the systematic recording of business transactions that provides an accurate view of a company’s financial position. Good accounting is not only a legal obligation - it is the foundation for sound business decisions.',
+            ];
+        $hero = (array) ($payload['hero'] ?? []);
+        $overview = (array) ($payload['overview'] ?? []);
+
+        if (trim((string) ($hero['intro'] ?? '')) === $legacyHeroIntro) {
+            $hero['intro'] = $isCroatian
+                ? 'Vi vodite poslovanje. Mi brinemo da Vaše brojke budu točne, pravovremene i spremne za svaku odluku.'
+                : 'You run the business. We make sure your numbers are accurate, timely, and ready for every decision.';
+            $payload['hero'] = $hero;
+        }
+
+        $currentOverviewBody = array_values(array_map(
+            static fn ($paragraph): string => trim((string) $paragraph),
+            (array) ($overview['body'] ?? []),
+        ));
+
+        if (
+            trim((string) ($overview['title'] ?? '')) === $legacyOverviewTitle
+            && $currentOverviewBody === $legacyOverviewBody
+        ) {
+            $overview['title'] = $isCroatian
+                ? 'Zašto Vam je računovodstvo bitno?'
+                : 'Why does accounting matter to you?';
+            $overview['highlight_title'] = $overview['title'];
+            $overview['intro'] = '';
+            $overview['body'] = $isCroatian
+                ? [
+                    'Mirnije poslovanje počinje jasnim i pouzdanim brojkama. Ažurne financijske informacije daju Vam kontrolu nad poslovanjem, pomažu prepoznati prilike i rizike te donijeti sigurnije odluke.',
+                    'Uz ALPHA CAPITALIS ne dobivate samo računovodstvenu uslugu, već pouzdanog partnera koji razumije Vaše poslovanje i prati Vas kroz svakodnevne izazove i planove rasta.',
+                ]
+                : [
+                    'Calmer business operations begin with clear and reliable numbers. Up-to-date financial information gives you control over your business, helps you identify opportunities and risks, and supports more confident decisions.',
+                    'With ALPHA CAPITALIS, you get more than an accounting service - you get a reliable partner who understands your business and supports you through everyday challenges and growth plans.',
+                ];
+            $payload['overview'] = $overview;
+        }
+
+        return $payload;
+    }
+
+    /**
+     * Populate the consolidated CMS fields without overwriting a value that was
+     * explicitly saved, including an intentionally empty editor.
+     *
+     * @param  array<string, mixed>  $payload
+     * @param  array<string, mixed>  $overrides
+     * @return array<string, mixed>
+     */
+    public static function hydrateStructuredEditorFields(string $templateKey, array $payload, array $overrides = []): array
+    {
+        if ($templateKey === self::AUDIT) {
+            $overviewParagraphs = [];
+            $overviewIntro = trim((string) data_get($payload, 'overview.intro', ''));
+
+            if ($overviewIntro !== '') {
+                $overviewParagraphs[] = $overviewIntro;
+            }
+
+            $overviewParagraphs = array_merge(
+                $overviewParagraphs,
+                (array) data_get($payload, 'overview.body', []),
+            );
+            $payload = self::hydrateRichTextField(
+                $payload,
+                $overrides,
+                'overview.body_html',
+                $overviewParagraphs,
+            );
+
+            $approachParagraphs = (array) data_get($payload, 'approach.body', []);
+            if (collect($approachParagraphs)->filter(fn ($paragraph): bool => trim((string) $paragraph) !== '')->isEmpty()) {
+                $approachIntro = trim((string) data_get($payload, 'approach.intro', ''));
+                $approachParagraphs = $approachIntro !== '' ? [$approachIntro] : [];
+            }
+            $payload = self::hydrateRichTextField(
+                $payload,
+                $overrides,
+                'approach.body_html',
+                $approachParagraphs,
+            );
+
+            $primaryItems = array_values((array) data_get($payload, 'obligors.primary_items', []));
+            foreach ($primaryItems as $index => $item) {
+                if (! is_array($item)) {
+                    continue;
+                }
+
+                $textPath = 'obligors.primary_items.'.$index.'.children_text';
+                $itemsPath = 'obligors.primary_items.'.$index.'.children';
+                $payload = self::hydrateLineListField($payload, $overrides, $textPath, $itemsPath);
+            }
+        }
+
+        if ($templateKey === self::ACCOUNTING) {
+            $overviewParagraphs = [];
+            $overviewIntro = trim((string) data_get($payload, 'overview.intro', ''));
+            $legacyOverviewBody = array_values((array) data_get($payload, 'overview.body', []));
+
+            if ($overviewIntro !== '') {
+                $overviewParagraphs[] = $overviewIntro;
+            }
+            if (array_key_exists(0, $legacyOverviewBody)) {
+                $overviewParagraphs[] = $legacyOverviewBody[0];
+            }
+
+            $payload = self::hydrateRichTextField(
+                $payload,
+                $overrides,
+                'overview.body_html',
+                $overviewParagraphs,
+            );
+            $payload = self::hydrateRichTextField(
+                $payload,
+                $overrides,
+                'overview.partner_body_html',
+                array_slice($legacyOverviewBody, 1),
+            );
+
+            $approachParagraphs = (array) data_get($payload, 'approach.body', []);
+            if (collect($approachParagraphs)->filter(fn ($paragraph): bool => trim((string) $paragraph) !== '')->isEmpty()) {
+                $approachIntro = trim((string) data_get($payload, 'approach.intro', ''));
+                $approachParagraphs = $approachIntro !== '' ? [$approachIntro] : [];
+            }
+            $payload = self::hydrateRichTextField(
+                $payload,
+                $overrides,
+                'approach.body_html',
+                $approachParagraphs,
+            );
+        }
+
+        if ($templateKey === self::ADVISORY) {
+            foreach ([
+                ['overview.body_html', 'overview.body'],
+                ['pandea.body_html', 'pandea.body'],
+                ['approach.body_html', 'approach.body'],
+                ['funding.approach_body_html', 'funding.approach_body'],
+                ['ma.pandea.body_html', 'ma.pandea.body'],
+            ] as [$htmlPath, $legacyPath]) {
+                $payload = self::hydrateRichTextField(
+                    $payload,
+                    $overrides,
+                    $htmlPath,
+                    (array) data_get($payload, $legacyPath, []),
+                );
+            }
+
+            foreach (['financial', 'bank_loans', 'zopu', 'ma', 'due_diligence', 'valuations', 'tax'] as $pageKey) {
+                foreach ([
+                    ['overview_body_html', 'overview_body'],
+                    ['services_body_html', 'services_body'],
+                    ['approach_body_html', 'approach_body'],
+                ] as [$htmlKey, $legacyKey]) {
+                    $payload = self::hydrateRichTextField(
+                        $payload,
+                        $overrides,
+                        $pageKey.'.'.$htmlKey,
+                        (array) data_get($payload, $pageKey.'.'.$legacyKey, []),
+                    );
+                }
+
+                $payload = self::hydrateLineListField(
+                    $payload,
+                    $overrides,
+                    $pageKey.'.help_items_text',
+                    $pageKey.'.help_items',
+                );
+            }
+        }
+
+        if ($templateKey === self::EU_FUNDS) {
+            foreach ([
+                ['overview.body_html', 'overview.body'],
+                ['approach.body_html', 'approach.body'],
+            ] as [$htmlPath, $legacyPath]) {
+                $payload = self::hydrateRichTextField(
+                    $payload,
+                    $overrides,
+                    $htmlPath,
+                    (array) data_get($payload, $legacyPath, []),
+                );
+            }
+
+            foreach (array_values((array) data_get($payload, 'resources.cards', [])) as $cardIndex => $card) {
+                $payload = self::hydrateRichTextField(
+                    $payload,
+                    $overrides,
+                    'resources.cards.'.$cardIndex.'.body_html',
+                    (array) data_get($card, 'body', []),
+                );
+            }
+
+            foreach (array_values((array) data_get($payload, 'laws.cards', [])) as $cardIndex => $card) {
+                foreach (array_values((array) data_get($card, 'lists', [])) as $listIndex => $list) {
+                    $payload = self::hydrateLineListField(
+                        $payload,
+                        $overrides,
+                        'laws.cards.'.$cardIndex.'.lists.'.$listIndex.'.items_text',
+                        'laws.cards.'.$cardIndex.'.lists.'.$listIndex.'.items',
+                    );
+                }
+            }
+        }
+
+        return $payload;
+    }
+
+    /**
+     * @param  array<string, mixed>  $payload
+     * @param  array<string, mixed>  $overrides
+     * @param  array<int|string, mixed>  $legacyParagraphs
+     * @return array<string, mixed>
+     */
+    private static function hydrateRichTextField(
+        array $payload,
+        array $overrides,
+        string $htmlPath,
+        array $legacyParagraphs,
+    ): array {
+        if (! self::nestedKeyExists($overrides, $htmlPath)) {
+            data_set($payload, $htmlPath, StructuredRichText::fromParagraphs($legacyParagraphs));
+        }
+
+        data_set(
+            $payload,
+            $htmlPath,
+            StructuredRichText::sanitize(data_get($payload, $htmlPath, '')),
+        );
+
+        return $payload;
+    }
+
+    /**
+     * @param  array<string, mixed>  $payload
+     * @param  array<string, mixed>  $overrides
+     * @return array<string, mixed>
+     */
+    private static function hydrateLineListField(
+        array $payload,
+        array $overrides,
+        string $textPath,
+        string $itemsPath,
+    ): array {
+        if (self::nestedKeyExists($overrides, $textPath)) {
+            $items = StructuredRichText::itemsFromLines(data_get($payload, $textPath, ''));
+            data_set($payload, $itemsPath, $items);
+            data_set($payload, $textPath, StructuredRichText::lines($items));
+
+            return $payload;
+        }
+
+        data_set(
+            $payload,
+            $textPath,
+            StructuredRichText::lines((array) data_get($payload, $itemsPath, [])),
+        );
+
+        return $payload;
+    }
+
+    /**
+     * Check for a nested key without treating null or an empty string as absent.
+     *
+     * @param  array<string, mixed>  $payload
+     */
+    private static function nestedKeyExists(array $payload, string $path): bool
+    {
+        $current = $payload;
+
+        foreach (explode('.', $path) as $segment) {
+            if (! is_array($current) || ! array_key_exists($segment, $current)) {
+                return false;
+            }
+
+            $current = $current[$segment];
+        }
+
+        return true;
     }
 
     /**
@@ -890,6 +1235,7 @@ class ServicePageTemplateRegistry
                 && ! array_is_list($value)
             ) {
                 $defaults[$key] = self::deepMerge($defaults[$key], $value);
+
                 continue;
             }
 

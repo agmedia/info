@@ -2,7 +2,7 @@
 
 @php
     $isCroatian = str_starts_with(strtolower((string) ($locale ?? app()->getLocale())), 'hr');
-    $overviewBody = array_values(array_filter(
+    $legacyOverviewBody = array_values(array_filter(
         (array) ($overviewSection['body'] ?? []),
         static fn ($paragraph): bool => trim((string) $paragraph) !== '',
     ));
@@ -18,7 +18,7 @@
         'fa-building-shield',
         'fa-diagram-project',
     ];
-    $approachBody = array_values(array_filter(
+    $legacyApproachBody = array_values(array_filter(
         (array) ($approachSection['body'] ?? []),
         static fn ($paragraph): bool => trim((string) $paragraph) !== '',
     ));
@@ -71,18 +71,76 @@
     $overviewLead = $isCroatian
         ? 'Mirnije poslovanje počinje jasnim i pouzdanim brojkama.'
         : 'Calmer business operations begin with clear and reliable numbers.';
+    $legacyParagraphHtml = static function (mixed $paragraph, ?string $strongLead = null): string {
+        $paragraph = trim((string) $paragraph);
+        if ($paragraph === '') {
+            return '';
+        }
+
+        if ($strongLead !== null && str_starts_with($paragraph, $strongLead)) {
+            return '<p><strong>'.e($strongLead).'</strong>'.nl2br(e(\Illuminate\Support\Str::after($paragraph, $strongLead)), false).'</p>';
+        }
+
+        return '<p>'.nl2br(e($paragraph), false).'</p>';
+    };
+    $legacyParagraphsHtml = static function (array $paragraphs) use ($legacyParagraphHtml): string {
+        return collect($paragraphs)
+            ->map(static fn ($paragraph): string => $legacyParagraphHtml($paragraph))
+            ->filter()
+            ->implode('');
+    };
+    $ensureOverviewLeadStrong = static function (string $html, string $lead): string {
+        if ($html === '' || $lead === '') {
+            return $html;
+        }
+
+        return (string) preg_replace_callback(
+            '/<p(\s[^>]*)?>\s*'.preg_quote(e($lead), '/').'/u',
+            static fn (array $matches): string => '<p'.($matches[1] ?? '').'><strong>'.e($lead).'</strong>',
+            $html,
+            1,
+        );
+    };
+    $normalizeRichHtml = static function (mixed $html): string {
+        $html = trim((string) $html);
+        if ($html === '') {
+            return '';
+        }
+
+        $plainText = trim(html_entity_decode(strip_tags(str_ireplace(['<br>', '<br/>', '<br />'], '', $html))));
+
+        return $plainText !== '' ? $html : '';
+    };
+    $richTextBlocks = static function (string $html) use ($normalizeRichHtml): array {
+        $html = $normalizeRichHtml($html);
+
+        return $html === ''
+            ? []
+            : \App\Support\Content\StructuredRichText::blocks($html);
+    };
+    $overviewBodyHtml = array_key_exists('body_html', $overviewSection)
+        ? $normalizeRichHtml($overviewSection['body_html'])
+        : $legacyParagraphHtml($overviewSection['intro'] ?? '')
+            .$legacyParagraphHtml($legacyOverviewBody[0] ?? '', $overviewLead);
+    $overviewBodyHtml = $ensureOverviewLeadStrong($overviewBodyHtml, $overviewLead);
+    $partnerBodyHtml = array_key_exists('partner_body_html', $overviewSection)
+        ? $normalizeRichHtml($overviewSection['partner_body_html'])
+        : $legacyParagraphsHtml(array_slice($legacyOverviewBody, 1));
+    $approachBodyHtml = array_key_exists('body_html', $approachSection)
+        ? $normalizeRichHtml($approachSection['body_html'])
+        : $legacyParagraphsHtml(
+            $legacyApproachBody !== []
+                ? $legacyApproachBody
+                : [$approachIntro],
+        );
+    $overviewBodyBlocks = $richTextBlocks($overviewBodyHtml);
+    $partnerBodyBlocks = $richTextBlocks($partnerBodyHtml);
+    $approachBodyBlocks = $richTextBlocks($approachBodyHtml);
     $overviewTitle = trim((string) ($overviewSection['title'] ?? ''));
     $overviewTitleBreakIndex = in_array($overviewTitle, [
         'Zašto Vam je računovodstvo bitno?',
         'Why does accounting matter to you?',
     ], true) ? 3 : null;
-    $partnerStatements = array_slice($overviewBody, 1);
-    $overviewBody = array_slice($overviewBody, 0, 1);
-
-    if ($approachBody === [] && $approachIntro !== '') {
-        $approachBody = [$approachIntro];
-    }
-
     $hasAccountingPosts = ($accountingPosts ?? collect())->isNotEmpty();
 @endphp
 
@@ -140,25 +198,14 @@
                 </div>
 
                 <div class="ac-audit-intro-copy content-reveal animation-index-1" data-image-reveal>
-                    @if (trim((string) ($overviewSection['intro'] ?? '')) !== '')
-                        <p>{{ $overviewSection['intro'] }}</p>
-                    @endif
-
-                    @foreach ($overviewBody as $paragraph)
-                        @php $paragraphText = trim((string) $paragraph); @endphp
-                        <p>
-                            @if ($loop->first && str_starts_with($paragraphText, $overviewLead))
-                                <strong>{{ $overviewLead }}</strong>{{ \Illuminate\Support\Str::after($paragraphText, $overviewLead) }}
-                            @else
-                                {{ $paragraphText }}
-                            @endif
-                        </p>
+                    @foreach ($overviewBodyBlocks as $block)
+                        {!! $block !!}
                     @endforeach
                 </div>
             </div>
         </section>
 
-        @if ($partnerStatements !== [])
+        @if ($partnerBodyBlocks !== [])
             <section
                 class="ac-audit-obligors ac-accounting-partner-note"
                 aria-label="{{ $isCroatian ? 'ALPHA CAPITALIS kao računovodstveni partner' : 'ALPHA CAPITALIS as your accounting partner' }}"
@@ -166,10 +213,11 @@
                 <div class="ac-audit-wide-shell ac-accounting-partner-note-shell">
                     <blockquote class="ac-accounting-partner-note-quote content-reveal" data-image-reveal>
                         <i class="fa-duotone fa-thin fa-quote-left" aria-hidden="true"></i>
-                        @foreach ($partnerStatements as $statement)
-                            <p class="ac-accounting-partner-note-text">
-                                {{ trim((string) $statement) }}
-                            </p>
+                        @foreach ($partnerBodyBlocks as $block)
+                            {!! \App\Support\Content\StructuredRichText::addClassToFirstBlock(
+                                $block,
+                                'ac-accounting-partner-note-text',
+                            ) !!}
                         @endforeach
                     </blockquote>
                 </div>
@@ -203,7 +251,7 @@
             </div>
         </section>
 
-        @if ($approachBody !== [])
+        @if ($approachBodyBlocks !== [])
             <section class="ac-audit-approach" aria-labelledby="ac-accounting-approach-title">
                 <div class="ac-audit-wide-shell ac-audit-approach-grid">
                     <div class="ac-audit-approach-heading">
@@ -216,8 +264,8 @@
 
                     <blockquote class="ac-audit-approach-quote content-reveal animation-index-1" data-image-reveal>
                         <i class="fa-duotone fa-thin fa-quote-left" aria-hidden="true"></i>
-                        @foreach ($approachBody as $paragraph)
-                            <p>{{ $paragraph }}</p>
+                        @foreach ($approachBodyBlocks as $block)
+                            {!! $block !!}
                         @endforeach
                     </blockquote>
                 </div>

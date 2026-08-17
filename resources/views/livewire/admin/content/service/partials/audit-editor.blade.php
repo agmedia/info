@@ -114,26 +114,18 @@
     </div>
 
     <div class="mt-4">
-        <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Optional opening paragraph') }}</label>
-        <textarea rows="3" wire:model="form.translation_payload.overview.intro" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm leading-6"></textarea>
+        <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Section text') }}</label>
+        <textarea
+            id="audit-overview-body-html"
+            rows="12"
+            wire:model.live.debounce.300ms="form.translation_payload.overview.body_html"
+            data-quill-editor
+            data-quill-profile="service-text"
+            class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm leading-6"
+        ></textarea>
+        <p class="mt-1 text-xs text-slate-500">{{ __('The final content block is displayed as the emphasized paragraph.') }}</p>
+        @error('form.translation_payload.overview.body_html') <p class="mt-1 text-xs text-rose-600">{{ $message }}</p> @enderror
     </div>
-
-    <div class="mt-5 grid gap-4 xl:grid-cols-2">
-        @foreach (($translationPayload['overview']['body'] ?? []) as $index => $paragraph)
-            <div class="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-                <div class="flex items-center justify-between gap-3">
-                    <label class="block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Paragraph') }} {{ $index + 1 }}</label>
-                    <button type="button" wire:click="removeTranslationListItem('overview.body', {{ $index }})" class="text-xs font-semibold text-rose-600 hover:text-rose-700">{{ __('Remove') }}</button>
-                </div>
-                <textarea rows="5" wire:model="form.translation_payload.overview.body.{{ $index }}" class="mt-2 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm leading-6"></textarea>
-                @error('form.translation_payload.overview.body.'.$index) <p class="mt-1 text-xs text-rose-600">{{ $message }}</p> @enderror
-            </div>
-        @endforeach
-    </div>
-
-    <button type="button" wire:click="addTranslationListItem('overview.body')" class="mt-4 rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-100">
-        {{ __('Add paragraph') }}
-    </button>
 </div>
 
 <div id="audit-obligors-admin" class="admin-panel admin-form-panel scroll-mt-24 p-6">
@@ -163,7 +155,6 @@
         @foreach (($translationPayload['obligors']['primary_items'] ?? []) as $index => $item)
             @php
                 $isStructuredObligor = is_array($item);
-                $obligorChildren = $isStructuredObligor ? array_values((array) ($item['children'] ?? [])) : [];
             @endphp
             <div class="rounded-2xl border border-slate-200 bg-slate-50 p-4">
                 <div class="flex items-center justify-between gap-3">
@@ -176,17 +167,12 @@
 
                     <div class="mt-4 border-l-2 border-cyan-200 pl-4">
                         <p class="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Criteria shown under this item') }}</p>
-                        <div class="mt-3 space-y-3">
-                            @foreach ($obligorChildren as $childIndex => $child)
-                                <div class="flex items-start gap-2">
-                                    <input type="text" wire:model="form.translation_payload.obligors.primary_items.{{ $index }}.children.{{ $childIndex }}" class="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm" />
-                                    <button type="button" wire:click="removeTranslationListItem('obligors.primary_items.{{ $index }}.children', {{ $childIndex }})" class="mt-2 text-xs font-semibold text-rose-600 hover:text-rose-700">{{ __('Remove') }}</button>
-                                </div>
-                            @endforeach
-                        </div>
-                        <button type="button" wire:click="addTranslationListItem('obligors.primary_items.{{ $index }}.children')" class="mt-3 text-xs font-semibold text-cyan-800 hover:text-cyan-950">
-                            {{ __('Add criterion') }}
-                        </button>
+                        <textarea
+                            rows="6"
+                            wire:model="form.translation_payload.obligors.primary_items.{{ $index }}.children_text"
+                            class="mt-3 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm leading-6"
+                        ></textarea>
+                        <p class="mt-1 text-xs text-slate-500">{{ __('Enter each criterion on a new line.') }}</p>
                     </div>
                 @else
                     <textarea rows="3" wire:model="form.translation_payload.obligors.primary_items.{{ $index }}" class="mt-3 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm leading-6"></textarea>
@@ -256,22 +242,18 @@
         @error('form.translation_payload.approach.title') <p class="mt-1 text-xs text-rose-600">{{ $message }}</p> @enderror
     </div>
 
-    <div class="mt-5 space-y-4">
-        @foreach (($translationPayload['approach']['body'] ?? []) as $index => $paragraph)
-            <div class="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-                <div class="flex items-center justify-between gap-3">
-                    <label class="block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Quote paragraph') }} {{ $index + 1 }}</label>
-                    <button type="button" wire:click="removeTranslationListItem('approach.body', {{ $index }})" class="text-xs font-semibold text-rose-600 hover:text-rose-700">{{ __('Remove') }}</button>
-                </div>
-                <textarea rows="5" wire:model="form.translation_payload.approach.body.{{ $index }}" class="mt-2 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm leading-6"></textarea>
-                @error('form.translation_payload.approach.body.'.$index) <p class="mt-1 text-xs text-rose-600">{{ $message }}</p> @enderror
-            </div>
-        @endforeach
+    <div class="mt-5">
+        <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Quote text') }}</label>
+        <textarea
+            id="audit-approach-body-html"
+            rows="12"
+            wire:model.live.debounce.300ms="form.translation_payload.approach.body_html"
+            data-quill-editor
+            data-quill-profile="service-text"
+            class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm leading-6"
+        ></textarea>
+        @error('form.translation_payload.approach.body_html') <p class="mt-1 text-xs text-rose-600">{{ $message }}</p> @enderror
     </div>
-
-    <button type="button" wire:click="addTranslationListItem('approach.body')" class="mt-4 rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-100">
-        {{ __('Add quote paragraph') }}
-    </button>
 </div>
 
 <div id="audit-blog-admin" class="admin-panel admin-form-panel scroll-mt-24 p-6">

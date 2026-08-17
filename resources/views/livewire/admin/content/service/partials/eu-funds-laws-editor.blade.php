@@ -14,12 +14,8 @@
                     <div class="mt-4 rounded-xl border border-slate-200 bg-white p-4">
                         <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Naslov popisa {{ $listIndex + 1 }}</label>
                         <input type="text" wire:model="form.translation_payload.laws.cards.{{ $cardIndex }}.lists.{{ $listIndex }}.label" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
-                        <div class="mt-3 space-y-3">
-                            @foreach (($list['items'] ?? []) as $itemIndex => $item)
-                                <div><div class="flex items-center justify-between gap-3"><label class="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Stavka {{ $itemIndex + 1 }}</label><button type="button" wire:click="removeTranslationListItem('laws.cards.{{ $cardIndex }}.lists.{{ $listIndex }}.items', {{ $itemIndex }})" class="text-xs font-semibold text-rose-600 hover:text-rose-700">Ukloni</button></div><input type="text" wire:model="form.translation_payload.laws.cards.{{ $cardIndex }}.lists.{{ $listIndex }}.items.{{ $itemIndex }}" class="mt-2 w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" /></div>
-                            @endforeach
-                        </div>
-                        <button type="button" wire:click="addTranslationListItem('laws.cards.{{ $cardIndex }}.lists.{{ $listIndex }}.items')" class="mt-3 rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-100">Dodaj stavku</button>
+                        <textarea rows="8" wire:model="form.translation_payload.laws.cards.{{ $cardIndex }}.lists.{{ $listIndex }}.items_text" class="mt-3 w-full rounded-xl border border-slate-300 px-3 py-2 text-sm leading-6"></textarea>
+                        <p class="mt-1 text-xs text-slate-500">Upišite jednu stavku po retku.</p>
                     </div>
                 @endforeach
                 <div class="mt-4"><label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Istaknuta napomena</label><textarea rows="3" wire:model="form.translation_payload.laws.cards.{{ $cardIndex }}.note" class="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm leading-6"></textarea></div>

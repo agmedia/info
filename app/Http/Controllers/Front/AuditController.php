@@ -37,7 +37,6 @@ class AuditController extends Controller
             $servicePageTranslation?->payload,
             (string) ($servicePageTranslation?->locale ?: $locale)
         );
-        $translationPayload = $this->applyLatestAuditBriefCopy($translationPayload, $locale);
         $serviceVideoPayload = $this->resolveServiceVideoPayload($pagePayload, $translationPayload);
 
         $auditCategory = $this->resolveConfiguredBlogCategory(
@@ -261,11 +260,13 @@ class AuditController extends Controller
 
             if (in_array($name, $nameCandidates, true)) {
                 $bestScore = min($bestScore, 1);
+
                 continue;
             }
 
             if (str_contains($slug, 'reviz') || str_contains($slug, 'audit')) {
                 $bestScore = min($bestScore, 2);
+
                 continue;
             }
 
@@ -297,50 +298,5 @@ class AuditController extends Controller
         return is_file($absolutePath)
             ? asset($relativePath).'?v='.filemtime($absolutePath)
             : asset($relativePath);
-    }
-
-    /**
-     * Keep the DOCX-approved copy visible before the narrow CMS content migration is applied,
-     * without overwriting copy that an editor has already customized.
-     *
-     * @param  array<string, mixed>  $payload
-     * @return array<string, mixed>
-     */
-    private function applyLatestAuditBriefCopy(array $payload, string $locale): array
-    {
-        $isCroatian = str_starts_with(strtolower($locale), 'hr');
-        $legacyHeroIntro = $isCroatian
-            ? 'Neovisna, stručna provjera vaših financijskih izvještaja. Povećavamo povjerenje, smanjujemo rizike i jačamo kredibilitet vašeg poslovanja.'
-            : 'Independent, expert review of your financial statements. We increase trust, reduce risk, and strengthen the credibility of your business.';
-        $legacyOverviewTitle = $isCroatian ? 'Što je revizija?' : 'What is an audit?';
-        $hero = (array) ($payload['hero'] ?? []);
-        $overview = (array) ($payload['overview'] ?? []);
-
-        if (trim((string) ($hero['intro'] ?? '')) === $legacyHeroIntro) {
-            $hero['intro'] = $isCroatian
-                ? 'Povjerenje u financijske informacije počinje neovisnom i stručnom revizijom.'
-                : 'Trust in financial information begins with an independent and expert audit.';
-            $payload['hero'] = $hero;
-        }
-
-        if (trim((string) ($overview['title'] ?? '')) !== $legacyOverviewTitle) {
-            return $payload;
-        }
-
-        $overview['title'] = $isCroatian ? 'Zašto Vam je revizija bitna?' : 'Why does audit matter to you?';
-        $overview['highlight_title'] = $overview['title'];
-        $overview['intro'] = '';
-        $overview['body'] = $isCroatian
-            ? [
-                'Revizija pruža neovisnu i objektivnu procjenu financijskih informacija, povećava transparentnost i pouzdanost poslovanja te pomaže u prepoznavanju potencijalnih rizika.',
-                'Neovisna revizija daje Vam sigurnost da odluke donosite na temelju pouzdanih informacija. Uz stručan i objektivan pristup, Vaše poslovanje sagledavamo šire od samih brojki.',
-            ]
-            : [
-                'Audit provides an independent and objective assessment of financial information, increases transparency and reliability, and helps identify potential risks.',
-                'An independent audit gives you confidence that your decisions are based on reliable information. Through an expert and objective approach, we look beyond the numbers to understand the wider context of your business.',
-            ];
-        $payload['overview'] = $overview;
-
-        return $payload;
     }
 }

@@ -2,10 +2,14 @@
 
 @php
     $isCroatian = str_starts_with(strtolower((string) ($locale ?? app()->getLocale())), 'hr');
-    $overviewBody = array_values(array_filter(
-        (array) ($overviewSection['body'] ?? []),
-        static fn ($paragraph): bool => trim((string) $paragraph) !== '',
-    ));
+    $legacyOverviewBody = array_values(array_filter([
+        ($overviewSection['intro'] ?? ''),
+        ...(array) ($overviewSection['body'] ?? []),
+    ], static fn ($paragraph): bool => trim((string) $paragraph) !== ''));
+    $overviewBodyHtml = array_key_exists('body_html', $overviewSection)
+        ? trim((string) $overviewSection['body_html'])
+        : \App\Support\Content\StructuredRichText::fromParagraphs($legacyOverviewBody);
+    $overviewBlocks = \App\Support\Content\StructuredRichText::blocks($overviewBodyHtml);
     $obligorsIntro = trim((string) ($obligorsSection['intro'] ?? ''));
     $obligorsPrimaryTitle = trim((string) ($obligorsSection['primary_title'] ?? ''));
     $obligorsPrimaryItems = array_values((array) ($obligorsSection['primary_items'] ?? []));
@@ -37,11 +41,18 @@
         'fa-chart-column',
         'fa-user-group',
     ];
-    $approachBody = array_values(array_filter(
+    $legacyApproachBody = array_values(array_filter(
         (array) ($approachSection['body'] ?? []),
         static fn ($paragraph): bool => trim((string) $paragraph) !== '',
     ));
     $approachIntro = trim((string) ($approachSection['intro'] ?? ''));
+    if ($legacyApproachBody === [] && $approachIntro !== '') {
+        $legacyApproachBody = [$approachIntro];
+    }
+    $approachBodyHtml = array_key_exists('body_html', $approachSection)
+        ? trim((string) $approachSection['body_html'])
+        : \App\Support\Content\StructuredRichText::fromParagraphs($legacyApproachBody);
+    $approachBlocks = \App\Support\Content\StructuredRichText::blocks($approachBodyHtml);
     $meetingTitle = trim((string) ($meetingSection['title'] ?? ''))
         ?: ($isCroatian ? 'Razgovarajmo o vašem revizorskom angažmanu' : 'Let’s discuss your audit engagement');
     $meetingIntro = trim((string) ($meetingSection['intro'] ?? ''))
@@ -87,10 +98,6 @@
     };
     $heroImageUrl = $sameOriginAssetUrl((string) $heroBackgroundUrl);
     $headingWords = static fn (string $heading): array => preg_split('/\s+/u', trim($heading)) ?: [];
-
-    if ($approachBody === [] && $approachIntro !== '') {
-        $approachBody = [$approachIntro];
-    }
 
     $hasAuditPosts = ($auditPosts ?? collect())->isNotEmpty();
 @endphp
@@ -140,12 +147,10 @@
                 </div>
 
                 <div class="ac-audit-intro-copy content-reveal animation-index-1" data-image-reveal>
-                    @if (trim((string) ($overviewSection['intro'] ?? '')) !== '')
-                        <p>{{ $overviewSection['intro'] }}</p>
-                    @endif
-
-                    @foreach ($overviewBody as $paragraph)
-                        <p class="{{ $loop->last ? 'is-emphasis' : '' }}">{{ $paragraph }}</p>
+                    @foreach ($overviewBlocks as $block)
+                        {!! $loop->last
+                            ? \App\Support\Content\StructuredRichText::addClassToFirstBlock((string) $block, 'is-emphasis')
+                            : $block !!}
                     @endforeach
                 </div>
             </div>
@@ -241,7 +246,7 @@
             </div>
         </section>
 
-        @if ($approachBody !== [])
+        @if ($approachBlocks !== [])
             <section class="ac-audit-approach" aria-labelledby="ac-audit-approach-title">
                 <div class="ac-audit-wide-shell ac-audit-approach-grid">
                     <div class="ac-audit-approach-heading">
@@ -254,8 +259,8 @@
 
                     <blockquote class="ac-audit-approach-quote content-reveal animation-index-1" data-image-reveal>
                         <i class="fa-duotone fa-thin fa-quote-left" aria-hidden="true"></i>
-                        @foreach ($approachBody as $paragraph)
-                            <p>{{ $paragraph }}</p>
+                        @foreach ($approachBlocks as $block)
+                            {!! $block !!}
                         @endforeach
                     </blockquote>
                 </div>

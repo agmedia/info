@@ -336,7 +336,7 @@ const initQuillEditors = () => {
 
     const normalizeHtml = (html) => {
         const value = String(html ?? '').trim();
-        return value === '<p><br></p>' ? '' : value;
+        return ['<p><br></p>', '<p></p>'].includes(value) ? '' : value;
     };
 
     const parseYouTubeTimestamp = (rawValue) => {
@@ -508,13 +508,21 @@ const initQuillEditors = () => {
         }
         textarea.dataset.quillBound = '1';
         const imageUploadUrl = String(textarea.dataset.quillImageUploadUrl || '').trim();
-        const toolbarControls = [
-            [{ header: [2, 3, false] }],
-            ['bold', 'italic', 'underline'],
-            [{ list: 'ordered' }, { list: 'bullet' }],
-            imageUploadUrl !== '' ? ['blockquote', 'link', 'video', 'image'] : ['blockquote', 'link', 'video'],
-            ['clean'],
-        ];
+        const editorProfile = String(textarea.dataset.quillProfile || '').trim();
+        const toolbarControls = editorProfile === 'service-text'
+            ? [
+                ['bold', 'italic', 'underline'],
+                [{ list: 'ordered' }, { list: 'bullet' }],
+                ['blockquote', 'link'],
+                ['clean'],
+            ]
+            : [
+                [{ header: [2, 3, false] }],
+                ['bold', 'italic', 'underline'],
+                [{ list: 'ordered' }, { list: 'bullet' }],
+                imageUploadUrl !== '' ? ['blockquote', 'link', 'video', 'image'] : ['blockquote', 'link', 'video'],
+                ['clean'],
+            ];
 
         const wrapper = document.createElement('div');
         wrapper.className = 'admin-quill';
@@ -642,6 +650,13 @@ const initQuillEditors = () => {
 
         let syncingFromQuill = false;
         let syncingFromTextarea = false;
+        const readEditorHtml = () => {
+            if (editorProfile === 'service-text' && typeof quill.getSemanticHTML === 'function') {
+                return quill.getSemanticHTML();
+            }
+
+            return quill.root.innerHTML;
+        };
         const notify = (type, message) => {
             window.dispatchEvent(new CustomEvent('admin:notify', {
                 detail: { type, message },
@@ -652,7 +667,7 @@ const initQuillEditors = () => {
             if (syncingFromTextarea) {
                 return;
             }
-            const html = stripInlineStyles(normalizeHtml(quill.root.innerHTML));
+            const html = stripInlineStyles(normalizeHtml(readEditorHtml()));
             if (normalizeHtml(textarea.value) === html) {
                 return;
             }
@@ -668,7 +683,7 @@ const initQuillEditors = () => {
                 return;
             }
             const source = stripInlineStyles(readTextareaHtml(textarea));
-            const current = normalizeHtml(quill.root.innerHTML);
+            const current = stripInlineStyles(normalizeHtml(readEditorHtml()));
             if (source === current) {
                 return;
             }
