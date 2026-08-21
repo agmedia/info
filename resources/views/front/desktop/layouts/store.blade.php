@@ -84,6 +84,7 @@
             'showMore' => __('ui.search.show_more'),
         ]) }};
     </script>
+    <link rel="stylesheet" href="{{ asset('alpha/fonts/bodoni-moda-wght.css') }}?v={{ filemtime(public_path('alpha/fonts/bodoni-moda-wght.css')) }}">
     @vite(['resources/css/app.css', 'resources/js/cookie-consent.js'])
     <link rel="stylesheet" href="{{ asset('front-theme/styles/typography.css') }}?v={{ filemtime(public_path('front-theme/styles/typography.css')) }}">
     <link rel="stylesheet" href="{{ asset('front-theme/styles/alpha-redesign.css') }}?v={{ filemtime(public_path('front-theme/styles/alpha-redesign.css')) }}">
