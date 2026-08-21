@@ -4,6 +4,10 @@
             <div>
                 <h1 class="text-xl font-semibold tracking-tight">{{ __('admin.messages.eu_funds_questionnaire.manager.title') }}</h1>
                 <p class="mt-1 text-sm text-slate-600">{{ __('admin.messages.eu_funds_questionnaire.manager.subtitle') }}</p>
+                <a href="{{ route('eu-funds.questionnaire.create') }}" target="_blank" rel="noreferrer" class="mt-3 inline-flex items-center gap-2 text-xs font-semibold text-amber-700 hover:text-amber-800 hover:underline">
+                    <i class="fa-regular fa-arrow-up-right-from-square" aria-hidden="true"></i>
+                    <span>{{ __('admin.common.open_front_form') }}</span>
+                </a>
                 <p class="mt-2 text-xs text-slate-500">{{ __('admin.messages.eu_funds_questionnaire.manager.items_per_page') }}: <span class="admin-chip">{{ $perPage }}</span></p>
             </div>
 
@@ -72,6 +76,23 @@
                             $projectSectors = implode(', ', array_values(array_filter((array) ($answers['project_sectors'] ?? []))));
                             $plannedCosts = implode(', ', array_values(array_filter((array) ($answers['planned_costs'] ?? []))));
                             $interestedServices = implode(', ', array_values(array_filter((array) ($answers['interested_services'] ?? []))));
+                            $detailFields = [
+                                'company_name',
+                                'company_oib',
+                                'company_activity',
+                                'employee_count',
+                                'related_companies',
+                                'project_sectors',
+                                'project_sector_other',
+                                'investment_location',
+                                'planned_costs',
+                                'investment_amount',
+                                'interested_services',
+                                'additional_notes',
+                                'contact_name',
+                                'email',
+                                'contact_phone',
+                            ];
                             $statusClasses = match ($row->status) {
                                 'read' => 'bg-sky-100 text-sky-800',
                                 'resolved' => 'bg-emerald-100 text-emerald-800',
@@ -140,6 +161,28 @@
                                         {{ \Illuminate\Support\Str::limit((string) $answers['additional_notes'], 120) }}
                                     </div>
                                 @endif
+                                <details class="mt-3 rounded-xl border border-slate-200 bg-white p-3 text-left">
+                                    <summary class="flex cursor-pointer list-none items-center gap-2 text-xs font-semibold text-slate-700">
+                                        <i class="fa-regular fa-list-check text-amber-700" aria-hidden="true"></i>
+                                        <span>{{ __('admin.common.show_all_answers') }}</span>
+                                    </summary>
+                                    <dl class="mt-3 space-y-3 border-t border-slate-100 pt-3">
+                                        @foreach ($detailFields as $field)
+                                            @php
+                                                $rawValue = $answers[$field] ?? null;
+                                                $displayValue = is_array($rawValue)
+                                                    ? implode(', ', array_values(array_filter(array_map(static fn ($item): string => trim((string) $item), $rawValue))))
+                                                    : trim((string) $rawValue);
+                                            @endphp
+                                            @if ($displayValue !== '')
+                                                <div>
+                                                    <dt class="text-[11px] font-semibold uppercase tracking-[0.08em] text-slate-500">{{ __('eu_funds_questionnaire.form.'.$field) }}</dt>
+                                                    <dd class="mt-1 whitespace-pre-line break-words text-xs text-slate-800">{{ $displayValue }}</dd>
+                                                </div>
+                                            @endif
+                                        @endforeach
+                                    </dl>
+                                </details>
                             </td>
                             <td class="px-3 py-3 text-center">
                                 <span class="rounded-full px-2.5 py-1 text-xs font-semibold {{ $statusClasses }}">

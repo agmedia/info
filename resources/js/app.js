@@ -919,44 +919,6 @@ const initQuillEditors = () => {
         subtree: true,
     });
 
-    if (window.__adminQuillSmartLinkBound !== '1') {
-        window.__adminQuillSmartLinkBound = '1';
-        window.addEventListener('admin-quill-insert-link', (event) => {
-            const detail = event?.detail || {};
-            const url = String(detail.url || '').trim();
-            const label = String(detail.label || '').trim();
-            if (!url) {
-                return;
-            }
-
-            let quill = window.__activeAdminQuill || null;
-            if (!quill && Array.isArray(window.__adminQuillEditors) && window.__adminQuillEditors.length > 0) {
-                quill = window.__adminQuillEditors[0];
-            }
-            if (!quill) {
-                return;
-            }
-
-            let range = quill.getSelection();
-            if (!range && quill.__lastRange) {
-                range = quill.__lastRange;
-                quill.setSelection(range.index, range.length || 0, 'silent');
-            }
-            if (!range) {
-                return;
-            }
-
-            if (range.length > 0) {
-                quill.formatText(range.index, range.length, 'link', url, 'user');
-                quill.setSelection(range.index + range.length, 0, 'silent');
-                return;
-            }
-
-            const text = label !== '' ? label : url;
-            quill.insertText(range.index, text, 'link', url, 'user');
-            quill.setSelection(range.index + text.length, 0, 'silent');
-        });
-    }
 };
 
 const initMediaImageEditor = () => {
@@ -2260,6 +2222,130 @@ const initFrontVisualEffects = () => {
     return;
 };
 
+const initAdminDirtyForms = () => {
+    const body = document.body;
+    if (!body || body.dataset.adminDirtyFormsReady === '1') {
+        return;
+    }
+
+    body.dataset.adminDirtyFormsReady = '1';
+
+    const dirtyForms = () => Array.from(document.querySelectorAll('form[data-admin-dirty-form][data-admin-dirty="true"]'));
+    const markDirty = (form) => {
+        if (form instanceof HTMLFormElement && form.dataset.adminSubmitting !== 'true') {
+            form.dataset.adminDirty = 'true';
+        }
+    };
+
+    const formFromEvent = (event) => event.target instanceof Element
+        ? event.target.closest('form[data-admin-dirty-form]')
+        : null;
+
+    document.addEventListener('input', (event) => markDirty(formFromEvent(event)), true);
+    document.addEventListener('change', (event) => markDirty(formFromEvent(event)), true);
+
+    document.addEventListener('click', (event) => {
+        if (!(event.target instanceof Element)) {
+            return;
+        }
+
+        const leaveTrigger = event.target.closest('[data-admin-leave]');
+        if (leaveTrigger) {
+            const forms = dirtyForms();
+            if (forms.length === 0) {
+                return;
+            }
+
+            const shouldLeave = window.confirm('Imate nespremljene izmjene. Želite li napustiti obrazac?');
+            if (!shouldLeave) {
+                event.preventDefault();
+                event.stopImmediatePropagation();
+                return;
+            }
+
+            forms.forEach((form) => {
+                form.dataset.adminDirty = 'false';
+                form.dataset.adminSubmitting = 'true';
+            });
+            return;
+        }
+
+        const actionButton = event.target.closest('form[data-admin-dirty-form] button[wire\\:click]');
+        if (!(actionButton instanceof HTMLButtonElement)) {
+            return;
+        }
+
+        const action = actionButton.getAttribute('wire:click') || '';
+        if (action.includes('form.') || /(?:add|remove|move|generate|quickCreate)/.test(action)) {
+            markDirty(actionButton.closest('form[data-admin-dirty-form]'));
+        }
+    }, true);
+
+    document.addEventListener('submit', (event) => {
+        const form = formFromEvent(event);
+        if (!(form instanceof HTMLFormElement)) {
+            return;
+        }
+
+        form.dataset.adminSubmitting = 'true';
+        window.setTimeout(() => {
+            if (document.contains(form)) {
+                form.dataset.adminSubmitting = 'false';
+            }
+        }, 2500);
+    }, true);
+
+    document.addEventListener('keydown', (event) => {
+        if (!(event.metaKey || event.ctrlKey) || event.key.toLowerCase() !== 's') {
+            return;
+        }
+
+        const form = dirtyForms()[0];
+        if (!(form instanceof HTMLFormElement)) {
+            return;
+        }
+
+        event.preventDefault();
+        form.requestSubmit();
+    });
+
+    window.addEventListener('beforeunload', (event) => {
+        const hasBlockingChanges = dirtyForms().some((form) => form.dataset.adminSubmitting !== 'true');
+        if (!hasBlockingChanges) {
+            return;
+        }
+
+        event.preventDefault();
+        event.returnValue = '';
+    });
+
+    const revealErrorSummary = (root = document) => {
+        const summary = root instanceof Element && root.matches('[data-admin-error-summary]')
+            ? root
+            : root.querySelector?.('[data-admin-error-summary]');
+        if (!(summary instanceof HTMLElement) || summary.dataset.adminErrorRevealed === 'true') {
+            return;
+        }
+
+        summary.dataset.adminErrorRevealed = 'true';
+        window.requestAnimationFrame(() => {
+            summary.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        });
+    };
+
+    revealErrorSummary();
+    const errorObserver = new MutationObserver((mutations) => {
+        mutations.forEach((mutation) => {
+            mutation.addedNodes.forEach((node) => {
+                if (node instanceof Element) {
+                    revealErrorSummary(node);
+                }
+            });
+        });
+    });
+    errorObserver.observe(body, { childList: true, subtree: true });
+};
+
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', () => {
         initAceLauncher();
@@ -2272,6 +2358,7 @@ if (document.readyState === 'loading') {
         initFrontVisualEffects();
         initFrontDesktopHeader();
         initHeroStatCounters();
+        initAdminDirtyForms();
         disableLegacyPwaRuntime();
     }, { once: true });
 } else {
@@ -2285,6 +2372,7 @@ if (document.readyState === 'loading') {
     initFrontVisualEffects();
     initFrontDesktopHeader();
     initHeroStatCounters();
+    initAdminDirtyForms();
     disableLegacyPwaRuntime();
 }
 
@@ -2294,5 +2382,6 @@ document.addEventListener('livewire:navigated', () => {
     initFrontVisualEffects();
     initFrontDesktopHeader();
     initHeroStatCounters();
+    initAdminDirtyForms();
     disableLegacyPwaRuntime();
 });

@@ -10,6 +10,13 @@
         <title>{{ $title ? $title.' | ALPHA ADMIN' : 'ALPHA ADMIN' }}</title>
         <link rel="icon" href="{{ asset('favicon.ico') }}" sizes="any">
 
+        @foreach (['fontawesome.min.css', 'light.min.css', 'duotone-thin.min.css', 'brands.min.css'] as $fontAwesomeStylesheet)
+            @php
+                $fontAwesomePath = 'fontawesome-pro-7.3.1-web/css/'.$fontAwesomeStylesheet;
+            @endphp
+            <link rel="stylesheet" href="{{ asset($fontAwesomePath).'?v='.filemtime(public_path($fontAwesomePath)) }}">
+        @endforeach
+
         @vite(['resources/css/app.css', 'resources/js/app.js'])
         <style>
             summary::-webkit-details-marker { display: none; }
@@ -1027,22 +1034,21 @@
         </style>
         @stack('page-styles')
     </head>
-    <body class="min-h-screen bg-slate-100 text-slate-900 antialiased">
+    <body class="admin-shell min-h-screen bg-slate-100 text-slate-900 antialiased">
         <div class="min-h-screen">
             <aside id="admin-sidebar" class="admin-sidebar admin-sidebar-rail fixed inset-y-0 left-0 z-50 w-72 overflow-y-auto border-r border-slate-200 bg-white md:z-30">
-                <div class="flex h-16 items-center justify-between gap-3 border-b border-slate-200 px-6">
-                    <a href="{{ route('admin.dashboard') }}" class="text-lg font-semibold tracking-tight">
-                        ALPHA ADMIN
+                <div class="admin-brand">
+                    <a href="{{ route('admin.dashboard') }}" class="admin-brand__link" aria-label="{{ __('Alpha Capitalis admin početna') }}">
+                        <img src="{{ asset('front-theme/images/branding/alpha-capitalis-logo.svg') }}" alt="Alpha Capitalis" class="admin-brand__logo">
+                        <span class="admin-brand__label">Admin</span>
                     </a>
                     <button
                         type="button"
                         id="admin-nav-close"
-                        class="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-slate-200 text-slate-700 hover:bg-slate-100 md:hidden"
+                        class="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-white/20 text-white hover:bg-white/10 md:hidden"
                         aria-label="{{ __('admin.layout.close_navigation') }}"
                     >
-                        <svg class="h-4 w-4" viewBox="0 0 20 20" fill="none" aria-hidden="true">
-                            <path d="M5 5l10 10M15 5 5 15" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
-                        </svg>
+                        <i class="fa-light fa-xmark" aria-hidden="true"></i>
                     </button>
                 </div>
 
@@ -1642,9 +1648,7 @@
                             aria-controls="admin-sidebar"
                             aria-expanded="false"
                         >
-                            <svg class="h-5 w-5" viewBox="0 0 20 20" fill="none" aria-hidden="true">
-                                <path d="M3.5 5.5h13M3.5 10h13M3.5 14.5h13" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
-                            </svg>
+                            <i class="fa-light fa-bars" aria-hidden="true"></i>
                         </button>
                         <div class="min-w-0 truncate text-sm font-semibold text-slate-800 md:text-base">
                             {{ $title ?? __('admin.layout.admin') }}

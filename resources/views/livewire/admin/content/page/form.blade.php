@@ -18,12 +18,13 @@
             </div>
             <div class="flex flex-wrap items-center gap-2">
                 <span class="admin-chip">{{ __('Locale:') }} {{ $form['locale'] }}</span>
-                <button type="button" wire:click="backToList" class="rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-100">{{ __('Back to List') }}</button>
+                <button type="button" wire:click="backToList" data-admin-leave class="rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-100">{{ __('Back to List') }}</button>
             </div>
         </div>
     </div>
 
-    <form wire:submit="save" class="space-y-6">
+    <form wire:submit="save" class="space-y-6" data-admin-dirty-form>
+        @include('livewire.admin.partials.form-error-summary')
         <div class="admin-panel admin-form-panel p-3 sm:p-4">
             <div class="flex flex-wrap gap-2">
                 <button type="button" wire:click="setTab('content')" class="rounded-lg border px-3 py-2 text-xs font-semibold uppercase tracking-[0.12em] {{ $activeTab === 'content' ? 'border-slate-900 bg-slate-900 text-white' : 'border-slate-300 bg-white text-slate-700 hover:bg-slate-100' }}">
@@ -54,28 +55,20 @@
             <div class="admin-panel admin-form-panel p-6">
                 <p class="admin-section-title">{{ __('Core Data') }}</p>
 
-                <div class="mt-4 grid gap-3" style="grid-template-columns: repeat(12, minmax(0, 1fr));">
-                    <div style="grid-column: span 3;">
-                        <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Code') }}</label>
-                        <input type="text" wire:model="form.code" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm font-mono" />
-                        @error('form.code') <p class="mt-1 text-xs text-rose-600">{{ $message }}</p> @enderror
-                    </div>
-                    <div style="grid-column: span 2;">
-                        <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Layout') }}</label>
-                        <input type="text" wire:model="form.layout" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
-                        @error('form.layout') <p class="mt-1 text-xs text-rose-600">{{ $message }}</p> @enderror
-                    </div>
-                    <div style="grid-column: span 3;">
-                        <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Published At') }}</label>
-                        <input type="datetime-local" wire:model="form.published_at" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
-                        @error('form.published_at') <p class="mt-1 text-xs text-rose-600">{{ $message }}</p> @enderror
-                    </div>
-                    <div style="grid-column: span 2;">
-                        <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Sort Order') }}</label>
-                        <input type="number" min="0" wire:model="form.sort_order" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
-                        @error('form.sort_order') <p class="mt-1 text-xs text-rose-600">{{ $message }}</p> @enderror
-                    </div>
-                    <div style="grid-column: span 2;">
+                <div class="mt-4 grid gap-3 md:grid-cols-2">
+                    @unless ($isEdit)
+                        <div>
+                            <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Layout') }}</label>
+                            <select wire:model.live="form.layout" data-tom-select data-tom-no-search="1" class="admin-select w-full rounded-xl border border-slate-300 px-3 py-2 text-sm">
+                                <option value="default">Standardna stranica</option>
+                                <option value="academy">Akademija</option>
+                                <option value="career">Karijera</option>
+                                <option value="references">Reference</option>
+                            </select>
+                            @error('form.layout') <p class="mt-1 text-xs text-rose-600">{{ $message }}</p> @enderror
+                        </div>
+                    @endunless
+                    <div>
                         <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Locale') }}</label>
                         <select wire:model.live="form.locale" data-tom-select data-tom-no-search="1" class="admin-select w-full rounded-xl border border-slate-300 px-3 py-2 text-sm lowercase">
                             @foreach ($adminLocaleOptions as $localeOption)
@@ -508,7 +501,7 @@
 
         @if ($activeTab === 'seo')
             <div class="admin-panel admin-form-panel p-6">
-                <p class="admin-section-title">{{ __('SEO & Payload') }}</p>
+                <p class="admin-section-title">{{ __('SEO') }}</p>
 
                 <div class="mt-4">
                     <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Meta Title') }}</label>
@@ -521,19 +514,6 @@
                     <textarea rows="3" wire:model="form.meta_description" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm"></textarea>
                 </div>
 
-                @unless (in_array(($form['layout'] ?? ''), ['about', 'career'], true))
-                    <div class="mt-3">
-                        <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Page Payload JSON') }}</label>
-                        <textarea rows="6" wire:model="form.payload_text" class="w-full rounded-xl border border-slate-300 px-3 py-2 font-mono text-xs"></textarea>
-                        @error('form.payload_text') <p class="mt-1 text-xs text-rose-600">{{ $message }}</p> @enderror
-                    </div>
-
-                    <div class="mt-3">
-                        <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Translation Payload JSON') }}</label>
-                        <textarea rows="6" wire:model="form.translation_payload_text" class="w-full rounded-xl border border-slate-300 px-3 py-2 font-mono text-xs"></textarea>
-                        @error('form.translation_payload_text') <p class="mt-1 text-xs text-rose-600">{{ $message }}</p> @enderror
-                    </div>
-                @endunless
             </div>
         @endif
 
@@ -555,13 +535,9 @@
             />
         @endif
 
-        <div class="admin-form-actions flex items-center gap-2 pt-2">
-            <button type="submit" class="rounded-xl bg-cyan-700 px-4 py-2 text-sm font-semibold text-white hover:bg-cyan-800">
-                {{ $isEdit ? __('Update Info Page') : __('Create Info Page') }}
-            </button>
-            <button type="button" wire:click="backToList" class="rounded-xl border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-100">
-                {{ __('Cancel') }}
-            </button>
-        </div>
+        @include('livewire.admin.partials.form-actions', [
+            'previewUrl' => $isEdit && trim((string) ($form['slug'] ?? '')) !== '' ? route('pages.show', ['slug' => $form['slug']]) : null,
+            'submitLabel' => $isEdit ? __('Spremi stranicu') : __('Kreiraj stranicu'),
+        ])
     </form>
 </div>

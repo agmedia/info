@@ -438,7 +438,7 @@
     }
 
 @endphp
-<body class="front-desktop-shell {{ request()->routeIs('home') ? 'front-route-home' : 'front-preload-pending' }} {{ request()->routeIs('audit.show') ? 'front-route-audit' : '' }} {{ request()->routeIs('accounting.show') ? 'front-route-accounting' : '' }} {{ request()->routeIs('advisory.*', 'eu-funds.show') ? 'front-route-advisory' : '' }} {{ request()->routeIs('eu-funds.show') ? 'front-route-eu-funds' : '' }} min-h-screen overflow-x-hidden antialiased" data-front-font="{{ $frontTypography['key'] }}" style="--front-header-hero-backdrop: url('{{ $headerHeroBackdropUrl }}');">
+<body class="front-desktop-shell {{ request()->routeIs('home') ? 'front-route-home' : 'front-preload-pending' }} {{ request()->routeIs('audit.show') ? 'front-route-audit' : '' }} {{ request()->routeIs('accounting.show') ? 'front-route-accounting' : '' }} {{ request()->routeIs('tax.show') ? 'front-route-tax' : '' }} {{ request()->routeIs('advisory.*', 'eu-funds.show') ? 'front-route-advisory' : '' }} {{ request()->routeIs('eu-funds.show') ? 'front-route-eu-funds' : '' }} min-h-screen overflow-x-hidden antialiased" data-front-font="{{ $frontTypography['key'] }}" style="--front-header-hero-backdrop: url('{{ $headerHeroBackdropUrl }}');">
     @unless (request()->routeIs('home'))
         <div id="front-initial-preloader" aria-hidden="true"></div>
     @endunless

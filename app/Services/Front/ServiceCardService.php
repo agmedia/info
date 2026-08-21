@@ -17,7 +17,6 @@ class ServiceCardService
         ServicePageTemplateRegistry::AUDIT,
         ServicePageTemplateRegistry::TAX,
         ServicePageTemplateRegistry::EU_FUNDS,
-        ServicePageTemplateRegistry::FAMILY_BUSINESS,
     ];
 
     /**
@@ -60,7 +59,6 @@ class ServiceCardService
         $audit = $card(ServicePageTemplateRegistry::AUDIT);
         $accounting = $card(ServicePageTemplateRegistry::ACCOUNTING);
         $advisory = $card(ServicePageTemplateRegistry::ADVISORY);
-        $familyBusiness = $card(ServicePageTemplateRegistry::FAMILY_BUSINESS);
 
         $defaults = [
             [
@@ -105,7 +103,7 @@ class ServiceCardService
                     'EU fondovi, bankovni krediti i porezne olakšice povezani su u okviru pribavljanja financiranja.',
                 ],
                 'url' => route('advisory.show'),
-                'image_url' => $advisory['image_url'] ?? $familyBusiness['image_url'] ?? $this->versionedAsset('front-theme/images/services/advisory-editorial-3d.svg'),
+                'image_url' => $advisory['image_url'] ?? $this->versionedAsset('front-theme/images/services/advisory-editorial-3d.svg'),
                 'children' => [
                     [
                         'title' => 'Financijsko savjetovanje',
@@ -353,11 +351,6 @@ class ServiceCardService
                 'title' => 'EU fondovi',
                 'url' => route('eu-funds.show'),
                 'fallback_image' => 'front-theme/images/services/advisory-editorial-3d.svg',
-            ],
-            ServicePageTemplateRegistry::FAMILY_BUSINESS => [
-                'title' => 'Obiteljski biznis',
-                'url' => route('family-business.show'),
-                'fallback_image' => 'front-theme/images/services/family-business-editorial-3d.svg',
             ],
         ];
     }

@@ -4,6 +4,10 @@
             <div>
                 <h1 class="text-xl font-semibold tracking-tight">{{ __('admin.messages.contact.manager.title') }}</h1>
                 <p class="mt-1 text-sm text-slate-600">{{ __('admin.messages.contact.manager.subtitle') }}</p>
+                <a href="{{ route('contact.create') }}" target="_blank" rel="noreferrer" class="mt-3 inline-flex items-center gap-2 text-xs font-semibold text-amber-700 hover:text-amber-800 hover:underline">
+                    <i class="fa-regular fa-arrow-up-right-from-square" aria-hidden="true"></i>
+                    <span>{{ __('admin.common.open_front_form') }}</span>
+                </a>
                 <p class="mt-2 text-xs text-slate-500">{{ __('admin.messages.contact.manager.items_per_page') }}: <span class="admin-chip">{{ $perPage }}</span></p>
             </div>
 
@@ -92,6 +96,14 @@
                                 <div class="mt-1 text-xs text-slate-500">
                                     {{ \Illuminate\Support\Str::limit((string) $row->message, 180) }}
                                 </div>
+                                @if (mb_strlen((string) $row->message) > 180)
+                                    <details class="mt-2 text-left">
+                                        <summary class="cursor-pointer text-xs font-semibold text-amber-700 hover:text-amber-800">
+                                            {{ __('admin.common.show_full_text') }}
+                                        </summary>
+                                        <p class="mt-2 whitespace-pre-line break-words rounded-xl border border-slate-200 bg-white p-3 text-xs leading-5 text-slate-800">{{ $row->message }}</p>
+                                    </details>
+                                @endif
                             </td>
                             <td class="px-3 py-3 text-slate-700">
                                 <div class="text-xs text-slate-500">

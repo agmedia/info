@@ -15,7 +15,6 @@ use App\Http\Controllers\Front\CollaborationAssessmentController;
 use App\Http\Controllers\Front\ContactController;
 use App\Http\Controllers\Front\EuFundsController;
 use App\Http\Controllers\Front\EuFundsQuestionnaireController;
-use App\Http\Controllers\Front\FamilyBusinessController;
 use App\Http\Controllers\Front\FinanceController;
 use App\Http\Controllers\Front\FaqController;
 use App\Http\Controllers\Front\GlossaryController;
@@ -106,7 +105,6 @@ Route::middleware(['front.locale', 'front.device'])
         Route::get('eu-fondovi/upitnik', [EuFundsQuestionnaireController::class, 'create'])->name('eu-funds.questionnaire.create');
         Route::post('eu-fondovi/upitnik', [EuFundsQuestionnaireController::class, 'store'])->name('eu-funds.questionnaire.store');
         Route::get('eu-fondovi/pozivi/{slug}', [CallPostController::class, 'show'])->name('eu-funds.calls.show');
-        Route::get('obiteljski-biznis', [FamilyBusinessController::class, 'show'])->name('family-business.show');
         Route::get('glossary', [GlossaryController::class, 'index'])->name('glossary.index');
         Route::get('glossary/{slug}', [GlossaryController::class, 'show'])->name('glossary.show');
         Route::get('search/suggest', [SearchController::class, 'suggest'])->name('search.suggest');
@@ -208,6 +206,11 @@ Route::middleware(['admin.locale', 'auth', 'verified', 'admin.access', 'admin.ma
             Route::view('services', 'admin.content.services.index')->name('services.index');
             Route::view('services/create', 'admin.content.services.create')->name('services.create');
             Route::get('services/{servicePage}/edit', function (ServicePage $servicePage) {
+                abort_if(
+                    $servicePage->template_key === \App\Support\Content\ServicePageTemplateRegistry::FAMILY_BUSINESS,
+                    404
+                );
+
                 return view('admin.content.services.edit', compact('servicePage'));
             })->name('services.edit');
 

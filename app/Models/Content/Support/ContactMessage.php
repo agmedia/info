@@ -24,6 +24,7 @@ class ContactMessage extends Model
         'subject',
         'message',
         'status',
+        'form_type',
         'ip_address',
         'user_agent',
         'payload',
@@ -37,6 +38,38 @@ class ContactMessage extends Model
         'reviewed_by' => 'int',
         'reviewed_at' => 'datetime',
     ];
+
+    protected static function booted(): void
+    {
+        static::saving(function (self $message): void {
+            $payloadFormType = trim((string) data_get($message->payload, 'form_type', ''));
+
+            if (in_array($payloadFormType, self::formTypes(), true)) {
+                $message->form_type = $payloadFormType;
+
+                return;
+            }
+
+            if (trim((string) $message->form_type) === '') {
+                $message->form_type = $message->subject === self::SUBJECT_EU_FUNDS_QUESTIONNAIRE
+                    ? self::FORM_TYPE_EU_FUNDS_QUESTIONNAIRE
+                    : self::FORM_TYPE_CONTACT;
+            }
+        });
+    }
+
+    /**
+     * @return array<int, string>
+     */
+    public static function formTypes(): array
+    {
+        return [
+            self::FORM_TYPE_CONTACT,
+            self::FORM_TYPE_SERVICE_CONTACT,
+            self::FORM_TYPE_COLLABORATION_ASSESSMENT,
+            self::FORM_TYPE_EU_FUNDS_QUESTIONNAIRE,
+        ];
+    }
 
     public function user(): BelongsTo
     {

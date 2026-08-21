@@ -71,6 +71,35 @@ class StoreSettingsFeatureTest extends TestCase
         }
     }
 
+    public function test_ga4_field_rejects_a_google_tag_manager_container_id(): void
+    {
+        $admin = $this->makeAdminUser();
+
+        Livewire::actingAs($admin)
+            ->test(StoreSettings::class)
+            ->set('tab', 'integrations')
+            ->set('form.store_analytics_enabled', true)
+            ->set('form.store_analytics_ga4_measurement_id', 'GTM-P898Q4XG')
+            ->call('save')
+            ->assertHasErrors(['form.store_analytics_ga4_measurement_id']);
+    }
+
+    public function test_ga4_measurement_id_is_normalized_and_saved(): void
+    {
+        $admin = $this->makeAdminUser();
+
+        Livewire::actingAs($admin)
+            ->test(StoreSettings::class)
+            ->set('form.store_analytics_enabled', true)
+            ->set('form.store_analytics_ga4_measurement_id', '  g-ab12cd34  ')
+            ->call('save')
+            ->assertHasNoErrors();
+
+        $settings = app(SystemSettingsService::class);
+        $this->assertTrue((bool) $settings->get('store_analytics_enabled'));
+        $this->assertSame('G-AB12CD34', $settings->get('store_analytics_ga4_measurement_id'));
+    }
+
     private function makeAdminUser(): User
     {
         $user = User::factory()->create();

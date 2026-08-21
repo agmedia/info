@@ -101,7 +101,7 @@ class StorefrontFrontFeatureTest extends TestCase
             ->assertStatus(301)
             ->assertRedirect(route('pages.show', ['slug' => $pageSlug]));
         $this->get('/alpha-capitalis-tim')->assertOk();
-        $this->get('/obiteljski-biznis')->assertOk();
+        $this->get('/obiteljski-biznis')->assertNotFound();
         $this->get('/contact')->assertOk();
         $this->get('/reference')->assertOk();
         $this->get('/ac-forma-robot')->assertOk();
@@ -806,19 +806,19 @@ class StorefrontFrontFeatureTest extends TestCase
         $this->assertSame('/contact', $message->payload['source_page'] ?? null);
     }
 
-    public function test_family_business_contact_form_can_redirect_back_to_section(): void
+    public function test_finance_contact_form_can_redirect_back_to_section(): void
     {
         $this->post('/contact', [
             'first_name' => 'Ana',
             'last_name' => 'Horvat',
-            'company' => 'Obitelj Horvat d.o.o.',
+            'company' => 'Horvat Finance d.o.o.',
             'email' => 'ana@example.test',
             'phone' => '+38598111222',
             'subject' => 'Dogovor sastanka',
-            'message' => 'Želim dogovoriti inicijalni sastanak za temu tranzicije vlasništva.',
+            'message' => 'Želim dogovoriti inicijalni sastanak za financijsko savjetovanje.',
             'accept_terms' => '1',
-            'redirect_to' => '/obiteljski-biznis#family-business-sastanak',
-        ])->assertRedirect('/obiteljski-biznis#family-business-sastanak');
+            'redirect_to' => '/financije#finance-sastanak',
+        ])->assertRedirect('/financije#finance-sastanak');
 
         $this->assertDatabaseHas('contact_messages', [
             'name' => 'Ana Horvat',
@@ -834,7 +834,27 @@ class StorefrontFrontFeatureTest extends TestCase
 
         $this->assertNotNull($message);
         $this->assertSame(ContactMessage::FORM_TYPE_SERVICE_CONTACT, $message->payload['form_type'] ?? null);
-        $this->assertSame('/obiteljski-biznis', $message->payload['source_page'] ?? null);
+        $this->assertSame('/financije', $message->payload['source_page'] ?? null);
+    }
+
+    public function test_contact_form_rejects_protocol_relative_redirect_target(): void
+    {
+        $this->post('/contact', [
+            'name' => 'Sigurnosni test',
+            'email' => 'redirect@example.test',
+            'message' => 'Provjera da kontakt forma ne dopušta vanjsko preusmjeravanje.',
+            'accept_terms' => '1',
+            'redirect_to' => '//evil.example/collect',
+        ])->assertRedirect('/contact');
+
+        $message = ContactMessage::query()
+            ->where('email', 'redirect@example.test')
+            ->latest('id')
+            ->first();
+
+        $this->assertNotNull($message);
+        $this->assertSame(ContactMessage::FORM_TYPE_CONTACT, $message->payload['form_type'] ?? null);
+        $this->assertSame('/contact', $message->payload['source_page'] ?? null);
     }
 
     public function test_contact_page_renders_official_office_data(): void
@@ -1763,67 +1783,6 @@ class StorefrontFrontFeatureTest extends TestCase
             ->assertSee('Guide to export tax credits')
             ->assertSee('Export credit tax planning')
             ->assertDontSee('Export tax credit guide for founders');
-    }
-
-    public function test_family_business_page_shows_only_family_business_blog_posts_when_category_exists(): void
-    {
-        $familyBusiness = $this->seedBlogCategory('Family Business', 'family-business');
-        $tax = $this->seedBlogCategory('Tax', 'tax');
-
-        $this->seedBlogPost([$familyBusiness->id], 'Succession Playbook', 'succession-playbook');
-        $this->seedBlogPost([$tax->id], 'VAT Reminder', 'vat-reminder');
-
-        $this->get('/obiteljski-biznis')
-            ->assertOk()
-            ->assertSee('Obiteljski biznis')
-            ->assertSee('Succession Playbook')
-            ->assertDontSee('VAT Reminder')
-            ->assertSee('Najnovije objave iz kategorije');
-    }
-
-    public function test_family_business_page_shows_only_team_members_from_family_business_department(): void
-    {
-        $familyMember = TeamMember::query()->create([
-            'code' => 'family-team-'.strtolower((string) str()->random(6)),
-            'is_active' => true,
-            'sort_order' => 1,
-            'email' => 'family@example.test',
-            'linkedin_url' => 'https://linkedin.com/in/family-team',
-        ]);
-
-        TeamMemberTranslation::query()->create([
-            'team_member_id' => $familyMember->id,
-            'locale' => 'en',
-            'name' => 'Danijel Pevec',
-            'position' => 'Partner',
-            'departments' => "obiteljski-biznis\nSavjetovanje",
-            'description_html' => '<p>Radi s obiteljskim poduzećima kroz tranzicije i upravljanje.</p>',
-        ]);
-
-        $otherMember = TeamMember::query()->create([
-            'code' => 'tax-team-'.strtolower((string) str()->random(6)),
-            'is_active' => true,
-            'sort_order' => 2,
-            'email' => 'tax@example.test',
-        ]);
-
-        TeamMemberTranslation::query()->create([
-            'team_member_id' => $otherMember->id,
-            'locale' => 'en',
-            'name' => 'Tax Specialist',
-            'position' => 'Senior Manager',
-            'departments' => "tax\nfinance",
-            'description_html' => '<p>Porezno savjetovanje.</p>',
-        ]);
-
-        $this->get('/obiteljski-biznis')
-            ->assertOk()
-            ->assertSee('Naš tim za obiteljsko savjetovanje')
-            ->assertSee('Tu smo kako biste zadobili uvid u cjelovitu perspektivu.')
-            ->assertSee('Ugovorite sastanak')
-            ->assertSee('Danijel Pevec')
-            ->assertSee('family@example.test')
-            ->assertDontSee('Tax Specialist');
     }
 
     public function test_removed_public_auth_and_account_routes_are_not_available(): void

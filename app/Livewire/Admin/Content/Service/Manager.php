@@ -69,6 +69,7 @@ class Manager extends Component
             .' else 999 end';
 
         $rows = ServicePage::query()
+            ->where('template_key', '!=', ServicePageTemplateRegistry::FAMILY_BUSINESS)
             ->with([
                 'translations' => fn ($q) => $q->where('locale', $this->locale),
             ])
@@ -95,6 +96,7 @@ class Manager extends Component
             ->paginate($perPage);
 
         $servicePagesByTemplate = ServicePage::query()
+            ->where('template_key', '!=', ServicePageTemplateRegistry::FAMILY_BUSINESS)
             ->with([
                 'translations' => fn ($q) => $q->where('locale', $this->locale),
             ])

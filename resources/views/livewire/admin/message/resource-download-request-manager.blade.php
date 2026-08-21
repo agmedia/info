@@ -4,6 +4,10 @@
             <div>
                 <h1 class="text-xl font-semibold tracking-tight">{{ __('admin.messages.download_requests.manager.title') }}</h1>
                 <p class="mt-1 text-sm text-slate-600">{{ __('admin.messages.download_requests.manager.subtitle') }}</p>
+                <a href="{{ route('resources.index') }}" target="_blank" rel="noreferrer" class="mt-3 inline-flex items-center gap-2 text-xs font-semibold text-amber-700 hover:text-amber-800 hover:underline">
+                    <i class="fa-regular fa-arrow-up-right-from-square" aria-hidden="true"></i>
+                    <span>{{ __('admin.common.open_front_form') }}</span>
+                </a>
                 <p class="mt-2 text-xs text-slate-500">{{ __('admin.messages.download_requests.manager.items_per_page') }}: <span class="admin-chip">{{ $perPage }}</span></p>
             </div>
 

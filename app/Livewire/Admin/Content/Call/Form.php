@@ -3,7 +3,6 @@
 namespace App\Livewire\Admin\Content\Call;
 
 use App\Models\Catalog\Category\Category;
-use App\Models\Content\Blog\BlogPost;
 use App\Models\Content\Call\CallPost;
 use App\Models\Content\Call\CallPostTranslation;
 use Illuminate\Support\Collection;
@@ -17,9 +16,6 @@ class Form extends Component
     public ?int $postId = null;
     public string $activeTab = 'content';
     public string $categorySearch = '';
-    public string $linkType = 'category';
-    public string $linkSearch = '';
-    public ?int $linkTargetId = null;
 
     public array $form = [
         'code' => '',
@@ -52,20 +48,6 @@ class Form extends Component
     public function updatedFormLocale(): void
     {
         $this->loadTranslationForLocale();
-        $this->linkTargetId = null;
-    }
-
-    public function updatedLinkType(): void
-    {
-        $this->linkSearch = '';
-        $this->linkTargetId = null;
-    }
-
-    public function updatedLinkSearch(): void
-    {
-        $options = $this->getLinkTargetOptionsProperty();
-        $firstId = (int) ($options->first()['id'] ?? 0);
-        $this->linkTargetId = $firstId > 0 ? $firstId : null;
     }
 
     public function generateSlug(): void
@@ -130,24 +112,6 @@ class Form extends Component
             ->reject(fn ($id) => $id === $categoryId)
             ->values()
             ->all();
-    }
-
-    public function insertEditorLink(): void
-    {
-        $targetId = (int) ($this->linkTargetId ?? 0);
-        if ($targetId <= 0) {
-            $this->skipRender();
-            return;
-        }
-
-        $target = $this->resolveLinkTarget($targetId);
-        if ($target === null) {
-            $this->skipRender();
-            return;
-        }
-
-        $this->dispatch('admin-quill-insert-link', url: $target['url'], label: $target['label']);
-        $this->skipRender();
     }
 
     public function save()
@@ -336,53 +300,6 @@ class Form extends Component
         }
 
         return $labels;
-    }
-
-    public function getLinkTargetOptionsProperty(): Collection
-    {
-        $search = trim((string) $this->linkSearch);
-        $locale = (string) ($this->form['locale'] ?: config('app.locale', 'en'));
-        $fallbackLocale = (string) config('app.locale', 'en');
-
-        if ($this->linkType === 'blog') {
-            $query = BlogPost::query()
-                ->select(['id', 'code'])
-                ->with(['translations' => fn ($q) => $q->whereIn('locale', [$locale, $fallbackLocale])->select(['post_id', 'locale', 'title', 'slug'])]);
-            if ($search !== '') {
-                $query->whereHas('translations', function ($q) use ($search, $locale, $fallbackLocale): void {
-                    $q->whereIn('locale', [$locale, $fallbackLocale])
-                        ->where(function ($tq) use ($search): void {
-                            $tq->where('title', 'like', '%'.$search.'%')
-                                ->orWhere('slug', 'like', '%'.$search.'%');
-                        });
-                });
-            }
-
-            return $query->orderByDesc('id')->limit(40)->get()->map(function (BlogPost $post) use ($locale, $fallbackLocale): array {
-                $tr = $post->translations->firstWhere('locale', $locale) ?? $post->translations->firstWhere('locale', $fallbackLocale);
-                return ['id' => (int) $post->id, 'label' => (string) ($tr?->title ?? $post->code), 'hint' => (string) ($tr?->slug ?? $post->code)];
-            });
-        }
-
-        $query = Category::query()
-            ->where('scope', Category::SCOPE_PAGE)
-            ->select(['id', 'code'])
-            ->with(['translations' => fn ($q) => $q->where('scope', Category::SCOPE_PAGE)->whereIn('locale', [$locale, $fallbackLocale])->select(['category_id', 'locale', 'name', 'slug'])]);
-        if ($search !== '') {
-            $query->whereHas('translations', function ($q) use ($search, $locale, $fallbackLocale): void {
-                $q->where('scope', Category::SCOPE_PAGE)
-                    ->whereIn('locale', [$locale, $fallbackLocale])
-                    ->where(function ($tq) use ($search): void {
-                        $tq->where('name', 'like', '%'.$search.'%')
-                            ->orWhere('slug', 'like', '%'.$search.'%');
-                    });
-            });
-        }
-
-        return $query->orderByDesc('id')->limit(40)->get()->map(function (Category $category) use ($locale, $fallbackLocale): array {
-            $tr = $category->translations->firstWhere('locale', $locale) ?? $category->translations->firstWhere('locale', $fallbackLocale);
-            return ['id' => (int) $category->id, 'label' => (string) ($tr?->name ?? $category->code), 'hint' => (string) ($tr?->slug ?? $category->code)];
-        });
     }
 
     /**
@@ -576,35 +493,4 @@ class Form extends Component
         return $auto !== '' ? $auto : null;
     }
 
-    /**
-     * @return array{url:string,label:string}|null
-     */
-    private function resolveLinkTarget(int $targetId): ?array
-    {
-        $locale = (string) ($this->form['locale'] ?: config('app.locale', 'en'));
-        $fallbackLocale = (string) config('app.locale', 'en');
-
-        if ($this->linkType === 'blog') {
-            $post = BlogPost::query()
-                ->with(['translations' => fn ($q) => $q->whereIn('locale', [$locale, $fallbackLocale])])
-                ->find($targetId);
-            if (!$post) {
-                return null;
-            }
-            $tr = $post->translations->firstWhere('locale', $locale) ?? $post->translations->firstWhere('locale', $fallbackLocale);
-            $slug = (string) ($tr?->slug ?? $post->id);
-            return ['url' => route('blog.show', ['slug' => $slug]), 'label' => (string) ($tr?->title ?? $post->code)];
-        }
-
-        $category = Category::query()
-            ->where('scope', Category::SCOPE_PAGE)
-            ->with(['translations' => fn ($q) => $q->where('scope', Category::SCOPE_PAGE)->whereIn('locale', [$locale, $fallbackLocale])])
-            ->find($targetId);
-        if (!$category) {
-            return null;
-        }
-        $tr = $category->translations->firstWhere('locale', $locale) ?? $category->translations->firstWhere('locale', $fallbackLocale);
-        $slug = (string) ($tr?->slug ?? $category->id);
-        return ['url' => route('pages.category', ['slug' => $slug]), 'label' => (string) ($tr?->name ?? $category->code)];
-    }
 }

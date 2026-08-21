@@ -106,10 +106,7 @@ class EuFundsQuestionnaireManager extends Component
     private function baseQuery()
     {
         return ContactMessage::query()
-            ->where(function ($query): void {
-                $query->where('subject', ContactMessage::SUBJECT_EU_FUNDS_QUESTIONNAIRE)
-                    ->orWhere('payload->form_type', ContactMessage::FORM_TYPE_EU_FUNDS_QUESTIONNAIRE);
-            });
+            ->where('form_type', ContactMessage::FORM_TYPE_EU_FUNDS_QUESTIONNAIRE);
     }
 
     /**

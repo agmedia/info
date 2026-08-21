@@ -44,12 +44,24 @@ class EuFundsQuestionnaireMessagesFeatureTest extends TestCase
             ],
         ]));
 
+        ContactMessage::query()->create($this->messagePayload([
+            'name' => 'Običan kontakt',
+            'email' => 'contact@example.test',
+            'subject' => ContactMessage::SUBJECT_EU_FUNDS_QUESTIONNAIRE,
+            'payload' => [
+                'form_type' => ContactMessage::FORM_TYPE_CONTACT,
+                'source_page' => '/contact',
+            ],
+        ]));
+
         $this->actingAs($user)
             ->get(route('admin.messages.eu-funds-questionnaire.index'))
             ->assertOk()
             ->assertSee(__('admin.messages.eu_funds_questionnaire.manager.title'))
             ->assertSee('Ivana Horvat')
-            ->assertSee('Kreativni studio d.o.o.');
+            ->assertSee('Kreativni studio d.o.o.')
+            ->assertSee('Povezano društvo: Studio projekt d.o.o.')
+            ->assertDontSee('Običan kontakt');
     }
 
     public function test_admin_can_mark_eu_funds_questionnaire_as_read(): void

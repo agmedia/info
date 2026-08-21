@@ -1,3 +1,9 @@
+@php
+    $callPreviewUrl = $isEdit && trim((string) ($form['slug'] ?? '')) !== ''
+        ? route('eu-funds.calls.show', ['slug' => $form['slug']])
+        : null;
+@endphp
+
 <div class="space-y-6">
     <div class="admin-panel admin-search-panel p-6">
         <div class="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
@@ -8,12 +14,13 @@
             </div>
             <div class="flex flex-wrap items-center gap-2">
                 <span class="admin-chip">{{ __('Locale:') }} {{ $form['locale'] }}</span>
-                <button type="button" wire:click="backToList" class="rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-100">{{ __('Back to List') }}</button>
+                <button type="button" wire:click="backToList" data-admin-leave class="rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-100">{{ __('Back to List') }}</button>
             </div>
         </div>
     </div>
 
-    <form wire:submit="save" class="space-y-6">
+    <form wire:submit="save" class="space-y-6" data-admin-dirty-form>
+        @include('livewire.admin.partials.form-error-summary')
         <div class="admin-panel admin-form-panel p-3 sm:p-4">
             <div class="flex flex-wrap gap-2">
                 <button type="button" wire:click="setTab('content')" class="rounded-lg border px-3 py-2 text-xs font-semibold uppercase tracking-[0.12em] {{ $activeTab === 'content' ? 'border-slate-900 bg-slate-900 text-white' : 'border-slate-300 bg-white text-slate-700 hover:bg-slate-100' }}">
@@ -113,57 +120,6 @@
                     <p class="mt-2 text-xs text-slate-500">{{ __('Image ikona u editoru podrzava upload direktno u clanak. Ako zelis promijeniti postojecu sliku, klikni nju u editoru pa opet odaberi image ikonu.') }}</p>
                 </div>
 
-                <div class="mt-4 rounded-xl border border-slate-200 bg-slate-50 p-4">
-                    <p class="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Smart Link') }}</p>
-                    <p class="mt-1 text-xs text-slate-500">{{ __('Odaberi tip i cilj, pa umetni link na trenutno označeni tekst u editoru.') }}</p>
-                    <div class="mt-3 grid gap-3 md:grid-cols-3">
-                        <div>
-                            <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Tip') }}</label>
-                            <select wire:model.live="linkType" data-tom-select data-tom-no-search="1" class="admin-select w-full rounded-xl border border-slate-300 px-3 py-2 text-sm">
-                                <option value="category">{{ __('Page category') }}</option>
-                                <option value="blog">{{ __('Blog') }}</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Pretraga') }}</label>
-                            <input type="text" wire:model.live.debounce.250ms="linkSearch" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" placeholder="{{ __('Upisi naziv ili slug...') }}">
-                        </div>
-                        <div>
-                            <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Rezultat') }}</label>
-                            <select wire:model="linkTargetId" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm">
-                                <option value="">{{ __('Odaberi') }}</option>
-                                @foreach ($this->linkTargetOptions as $row)
-                                    <option value="{{ $row['id'] }}">{{ $row['label'] }} @if(!empty($row['hint'])) ({{ $row['hint'] }}) @endif</option>
-                                @endforeach
-                            </select>
-                        </div>
-                    </div>
-                    <div class="mt-2 flex flex-wrap items-center gap-3 text-xs">
-                        @if ($this->linkTargetOptions->count() > 0)
-                            <span class="rounded-full border border-emerald-200 bg-emerald-50 px-2 py-0.5 font-semibold text-emerald-700">
-                                {{ $this->linkTargetOptions->count() }} {{ __('rezultata') }}
-                            </span>
-                        @else
-                            <span class="rounded-full border border-rose-200 bg-rose-50 px-2 py-0.5 font-semibold text-rose-700">
-                                {{ __('Nema rezultata') }}
-                            </span>
-                        @endif
-                        @php
-                            $selectedLinkRow = $this->linkTargetOptions->firstWhere('id', (int) ($linkTargetId ?? 0));
-                        @endphp
-                        @if ($selectedLinkRow)
-                            <span class="text-slate-600">
-                                {{ __('Odabrano:') }} <strong>{{ $selectedLinkRow['label'] }}</strong>
-                            </span>
-                        @endif
-                    </div>
-                    <div class="mt-3">
-                        <button type="button" wire:click="insertEditorLink" class="rounded-lg border border-slate-900 bg-slate-900 px-3 py-2 text-xs font-semibold uppercase tracking-[0.12em] text-white hover:bg-slate-700">
-                            {{ __('Umetni link u editor') }}
-                        </button>
-                    </div>
-                </div>
-
                 <div class="mt-4 grid gap-4 xl:grid-cols-2">
                     <div class="rounded-xl border border-slate-200 p-4">
                         <p class="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Kategorije poziva') }}</p>
@@ -230,13 +186,9 @@
             />
         @endif
 
-        <div class="admin-form-actions flex items-center gap-2 pt-2">
-            <button type="submit" class="rounded-xl bg-cyan-700 px-4 py-2 text-sm font-semibold text-white hover:bg-cyan-800">
-                {{ $isEdit ? __('Update Call Post') : __('Create Call Post') }}
-            </button>
-            <button type="button" wire:click="backToList" class="rounded-xl border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-100">
-                {{ __('Cancel') }}
-            </button>
-        </div>
+        @include('livewire.admin.partials.form-actions', [
+            'previewUrl' => $callPreviewUrl,
+            'submitLabel' => $isEdit ? __('Spremi poziv') : __('Kreiraj poziv'),
+        ])
     </form>
 </div>

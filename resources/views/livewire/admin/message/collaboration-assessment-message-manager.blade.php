@@ -4,6 +4,10 @@
             <div>
                 <h1 class="text-xl font-semibold tracking-tight">{{ __('admin.messages.collaboration_assessment.manager.title') }}</h1>
                 <p class="mt-1 text-sm text-slate-600">{{ __('admin.messages.collaboration_assessment.manager.subtitle') }}</p>
+                <a href="{{ route('assessment.create') }}" target="_blank" rel="noreferrer" class="mt-3 inline-flex items-center gap-2 text-xs font-semibold text-amber-700 hover:text-amber-800 hover:underline">
+                    <i class="fa-regular fa-arrow-up-right-from-square" aria-hidden="true"></i>
+                    <span>{{ __('admin.common.open_front_form') }}</span>
+                </a>
                 <p class="mt-2 text-xs text-slate-500">{{ __('admin.messages.collaboration_assessment.manager.items_per_page') }}: <span class="admin-chip">{{ $perPage }}</span></p>
             </div>
 
@@ -72,6 +76,31 @@
                             $booleanMap = [
                                 'yes' => __('admin.common.yes'),
                                 'no' => __('admin.common.no'),
+                            ];
+                            $detailFields = [
+                                'company_name',
+                                'company_oib',
+                                'activity',
+                                'contact_email',
+                                'contact_phone',
+                                'incoming_invoices_monthly',
+                                'outgoing_invoices_monthly',
+                                'bank_accounts_monthly',
+                                'payroll_calculations_monthly',
+                                'other_calculations_monthly',
+                                'incoming_invoice_payments',
+                                'inventory_bookkeeping',
+                                'travel_orders_monthly',
+                                'cost_centers_tracking',
+                                'intrastat_obligation',
+                                'audit_obligation',
+                                'monthly_reporting',
+                                'vat_status',
+                                'accounting_software',
+                                'tax_issues',
+                                'document_delivery',
+                                'additional_requirements',
+                                'potential_start_date',
                             ];
                             $statusClasses = match ($row->status) {
                                 'read' => 'bg-sky-100 text-sky-800',
@@ -147,6 +176,26 @@
                                         {{ \Illuminate\Support\Str::limit((string) $answers['tax_issues'], 120) }}
                                     </div>
                                 @endif
+                                <details class="mt-3 rounded-xl border border-slate-200 bg-white p-3 text-left">
+                                    <summary class="flex cursor-pointer list-none items-center gap-2 text-xs font-semibold text-slate-700">
+                                        <i class="fa-regular fa-list-check text-amber-700" aria-hidden="true"></i>
+                                        <span>{{ __('admin.messages.collaboration_assessment.manager.all_details') }}</span>
+                                    </summary>
+                                    <dl class="mt-3 space-y-3 border-t border-slate-100 pt-3">
+                                        @foreach ($detailFields as $field)
+                                            @php
+                                                $rawValue = trim((string) ($answers[$field] ?? ''));
+                                                $displayValue = $booleanMap[$rawValue] ?? $rawValue;
+                                            @endphp
+                                            @if ($displayValue !== '')
+                                                <div>
+                                                    <dt class="text-[11px] font-semibold uppercase tracking-[0.08em] text-slate-500">{{ __('assessment.form.'.$field) }}</dt>
+                                                    <dd class="mt-1 whitespace-pre-line break-words text-xs text-slate-800">{{ $displayValue }}</dd>
+                                                </div>
+                                            @endif
+                                        @endforeach
+                                    </dl>
+                                </details>
                             </td>
                             <td class="px-3 py-3 text-center">
                                 <span class="rounded-full px-2.5 py-1 text-xs font-semibold {{ $statusClasses }}">

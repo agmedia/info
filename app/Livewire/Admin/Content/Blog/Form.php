@@ -16,9 +16,7 @@ class Form extends Component
     public ?int $postId = null;
     public string $activeTab = 'content';
     public string $categorySearch = '';
-    public string $linkType = 'category';
-    public string $linkSearch = '';
-    public ?int $linkTargetId = null;
+    public string $newCategoryName = '';
 
     public array $form = [
         'code' => '',
@@ -51,20 +49,6 @@ class Form extends Component
     public function updatedFormLocale(): void
     {
         $this->loadTranslationForLocale();
-        $this->linkTargetId = null;
-    }
-
-    public function updatedLinkType(): void
-    {
-        $this->linkSearch = '';
-        $this->linkTargetId = null;
-    }
-
-    public function updatedLinkSearch(): void
-    {
-        $options = $this->getLinkTargetOptionsProperty();
-        $firstId = (int) ($options->first()['id'] ?? 0);
-        $this->linkTargetId = $firstId > 0 ? $firstId : null;
     }
 
     public function generateSlug(): void
@@ -77,7 +61,7 @@ class Form extends Component
 
     public function setTab(string $tab): void
     {
-        if (!in_array($tab, ['content', 'seo', 'media'], true)) {
+        if (!in_array($tab, ['content', 'categories', 'seo', 'media'], true)) {
             return;
         }
 
@@ -131,26 +115,81 @@ class Form extends Component
             ->all();
     }
 
-    public function insertEditorLink(): void
+    public function moveCategoryUp(int $index): void
     {
-        $targetId = (int) ($this->linkTargetId ?? 0);
-        if ($targetId <= 0) {
-            $this->skipRender();
+        $this->moveCategory($index, -1);
+    }
+
+    public function moveCategoryDown(int $index): void
+    {
+        $this->moveCategory($index, 1);
+    }
+
+    public function quickCreateCategory(): void
+    {
+        $validated = $this->validate([
+            'newCategoryName' => ['required', 'string', 'max:255'],
+        ]);
+        $name = trim((string) $validated['newCategoryName']);
+        $slug = Str::slug($name);
+        $locale = (string) ($this->form['locale'] ?: config('app.locale', 'hr'));
+
+        if ($slug === '') {
+            $this->addError('newCategoryName', __('Naziv mora sadržavati barem jedno slovo ili broj.'));
             return;
         }
 
-        $target = $this->resolveLinkTarget($targetId);
-        if ($target === null) {
-            $this->skipRender();
+        $slugExists = Category::query()
+            ->whereHas('translations', fn ($query) => $query
+                ->where('locale', $locale)
+                ->where('slug', $slug))
+            ->exists();
+
+        if ($slugExists) {
+            $this->addError('newCategoryName', __('Kategorija s ovim nazivom već postoji.'));
             return;
         }
 
-        $this->dispatch('admin-quill-insert-link', url: $target['url'], label: $target['label']);
-        $this->skipRender();
+        $category = DB::transaction(function () use ($locale, $name, $slug): Category {
+            $userId = auth()->id();
+            $category = new Category([
+                'scope' => Category::SCOPE_BLOG,
+                'code' => null,
+                'is_active' => true,
+                'show_in_menu' => true,
+                'sort_order' => 0,
+                'payload' => null,
+                'created_by' => $userId,
+                'updated_by' => $userId,
+            ]);
+            $category->saveAsRoot();
+            $category->translations()->create([
+                'scope' => Category::SCOPE_BLOG,
+                'locale' => $locale,
+                'name' => $name,
+                'slug' => $slug,
+                'meta_title' => $name,
+            ]);
+
+            return $category;
+        });
+
+        $this->addCategory((int) $category->id);
+        $this->newCategoryName = '';
+        $this->categorySearch = '';
+        $this->dispatch('notify', type: 'success', message: __('Kategorija je dodana i odmah odabrana.'));
     }
 
     public function save()
     {
+        if (trim((string) ($this->form['slug'] ?? '')) === '') {
+            $this->form['slug'] = Str::slug((string) ($this->form['title'] ?? ''));
+        }
+
+        if (trim((string) ($this->form['code'] ?? '')) === '') {
+            $this->form['code'] = $this->uniqueCodeFromBase((string) $this->form['slug']);
+        }
+
         $validated = $this->validate($this->rules());
         $wasEditing = (bool) $this->postId;
 
@@ -337,53 +376,6 @@ class Form extends Component
         return $labels;
     }
 
-    public function getLinkTargetOptionsProperty(): Collection
-    {
-        $search = trim((string) $this->linkSearch);
-        $locale = (string) ($this->form['locale'] ?: config('app.locale', 'en'));
-        $fallbackLocale = (string) config('app.locale', 'en');
-
-        if ($this->linkType === 'blog') {
-            $query = BlogPost::query()
-                ->select(['id', 'code'])
-                ->with(['translations' => fn ($q) => $q->whereIn('locale', [$locale, $fallbackLocale])->select(['post_id', 'locale', 'title', 'slug'])]);
-            if ($search !== '') {
-                $query->whereHas('translations', function ($q) use ($search, $locale, $fallbackLocale): void {
-                    $q->whereIn('locale', [$locale, $fallbackLocale])
-                        ->where(function ($tq) use ($search): void {
-                            $tq->where('title', 'like', '%'.$search.'%')
-                                ->orWhere('slug', 'like', '%'.$search.'%');
-                        });
-                });
-            }
-
-            return $query->orderByDesc('id')->limit(40)->get()->map(function (BlogPost $post) use ($locale, $fallbackLocale): array {
-                $tr = $post->translations->firstWhere('locale', $locale) ?? $post->translations->firstWhere('locale', $fallbackLocale);
-                return ['id' => (int) $post->id, 'label' => (string) ($tr?->title ?? $post->code), 'hint' => (string) ($tr?->slug ?? $post->code)];
-            });
-        }
-
-        $query = Category::query()
-            ->where('scope', Category::SCOPE_PAGE)
-            ->select(['id', 'code'])
-            ->with(['translations' => fn ($q) => $q->where('scope', Category::SCOPE_PAGE)->whereIn('locale', [$locale, $fallbackLocale])->select(['category_id', 'locale', 'name', 'slug'])]);
-        if ($search !== '') {
-            $query->whereHas('translations', function ($q) use ($search, $locale, $fallbackLocale): void {
-                $q->where('scope', Category::SCOPE_PAGE)
-                    ->whereIn('locale', [$locale, $fallbackLocale])
-                    ->where(function ($tq) use ($search): void {
-                        $tq->where('name', 'like', '%'.$search.'%')
-                            ->orWhere('slug', 'like', '%'.$search.'%');
-                    });
-            });
-        }
-
-        return $query->orderByDesc('id')->limit(40)->get()->map(function (Category $category) use ($locale, $fallbackLocale): array {
-            $tr = $category->translations->firstWhere('locale', $locale) ?? $category->translations->firstWhere('locale', $fallbackLocale);
-            return ['id' => (int) $category->id, 'label' => (string) ($tr?->name ?? $category->code), 'hint' => (string) ($tr?->slug ?? $category->code)];
-        });
-    }
-
     /**
      * @return array<string, mixed>
      */
@@ -546,6 +538,19 @@ class Form extends Component
         return $code;
     }
 
+    private function moveCategory(int $index, int $offset): void
+    {
+        $ids = array_values((array) ($this->form['category_ids'] ?? []));
+        $targetIndex = $index + $offset;
+
+        if (! array_key_exists($index, $ids) || ! array_key_exists($targetIndex, $ids)) {
+            return;
+        }
+
+        [$ids[$index], $ids[$targetIndex]] = [$ids[$targetIndex], $ids[$index]];
+        $this->form['category_ids'] = $ids;
+    }
+
     private function metaDescriptionFromBody(string $bodyHtml): string
     {
         $plain = preg_replace('/\s+/u', ' ', trim(strip_tags($bodyHtml)));
@@ -575,35 +580,4 @@ class Form extends Component
         return $auto !== '' ? $auto : null;
     }
 
-    /**
-     * @return array{url:string,label:string}|null
-     */
-    private function resolveLinkTarget(int $targetId): ?array
-    {
-        $locale = (string) ($this->form['locale'] ?: config('app.locale', 'en'));
-        $fallbackLocale = (string) config('app.locale', 'en');
-
-        if ($this->linkType === 'blog') {
-            $post = BlogPost::query()
-                ->with(['translations' => fn ($q) => $q->whereIn('locale', [$locale, $fallbackLocale])])
-                ->find($targetId);
-            if (!$post) {
-                return null;
-            }
-            $tr = $post->translations->firstWhere('locale', $locale) ?? $post->translations->firstWhere('locale', $fallbackLocale);
-            $slug = (string) ($tr?->slug ?? $post->id);
-            return ['url' => route('blog.show', ['slug' => $slug]), 'label' => (string) ($tr?->title ?? $post->code)];
-        }
-
-        $category = Category::query()
-            ->where('scope', Category::SCOPE_PAGE)
-            ->with(['translations' => fn ($q) => $q->where('scope', Category::SCOPE_PAGE)->whereIn('locale', [$locale, $fallbackLocale])])
-            ->find($targetId);
-        if (!$category) {
-            return null;
-        }
-        $tr = $category->translations->firstWhere('locale', $locale) ?? $category->translations->firstWhere('locale', $fallbackLocale);
-        $slug = (string) ($tr?->slug ?? $category->id);
-        return ['url' => route('pages.category', ['slug' => $slug]), 'label' => (string) ($tr?->name ?? $category->code)];
-    }
 }

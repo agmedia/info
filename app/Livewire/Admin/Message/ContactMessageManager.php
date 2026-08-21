@@ -110,7 +110,10 @@ class ContactMessageManager extends Component
     private function baseQuery()
     {
         return ContactMessage::query()
-            ->where('payload->form_type', ContactMessage::FORM_TYPE_CONTACT);
+            ->whereIn('form_type', [
+                ContactMessage::FORM_TYPE_CONTACT,
+                ContactMessage::FORM_TYPE_SERVICE_CONTACT,
+            ]);
     }
 
     /**

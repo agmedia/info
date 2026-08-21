@@ -190,6 +190,10 @@ class StoreSettings extends Component
     {
         $this->authorizeAccess();
 
+        $this->form['store_analytics_ga4_measurement_id'] = strtoupper(trim(
+            (string) ($this->form['store_analytics_ga4_measurement_id'] ?? '')
+        ));
+
         $validated = $this->validate($this->rules());
         $payload = $validated['form'];
         $payload['store_schema_address_country'] = strtoupper((string) ($payload['store_schema_address_country'] ?? 'HR'));
@@ -306,7 +310,13 @@ class StoreSettings extends Component
             'form.store_captcha_recaptcha_v3_min_score' => ['required', 'numeric', 'min:0', 'max:1'],
 
             'form.store_analytics_enabled' => ['required', 'boolean'],
-            'form.store_analytics_ga4_measurement_id' => ['nullable', 'string', 'max:64'],
+            'form.store_analytics_ga4_measurement_id' => [
+                Rule::requiredIf(fn (): bool => (bool) ($this->form['store_analytics_enabled'] ?? false)),
+                'nullable',
+                'string',
+                'max:32',
+                'regex:/^G-[A-Z0-9]+$/',
+            ],
 
             'form.store_seo_default_title' => ['nullable', 'string', 'max:191'],
             'form.store_seo_default_description' => ['nullable', 'string', 'max:320'],
@@ -350,6 +360,15 @@ class StoreSettings extends Component
             'ogCategoryImageUpload' => ['nullable', 'image', 'max:4096'],
             'ogPageImageUpload' => ['nullable', 'image', 'max:4096'],
             'ogBlogImageUpload' => ['nullable', 'image', 'max:4096'],
+        ];
+    }
+
+    /** @return array<string, string> */
+    protected function messages(): array
+    {
+        return [
+            'form.store_analytics_ga4_measurement_id.required' => __('Unesite GA4 Measurement ID ako je praćenje uključeno.'),
+            'form.store_analytics_ga4_measurement_id.regex' => __('Measurement ID mora biti oblika G-XXXXXXXXXX. GTM- oznaka pripada Google Tag Manageru i ne radi u ovom polju.'),
         ];
     }
 

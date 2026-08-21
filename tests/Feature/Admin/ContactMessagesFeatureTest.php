@@ -51,9 +51,9 @@ class ContactMessagesFeatureTest extends TestCase
                 'form_type' => ContactMessage::FORM_TYPE_SERVICE_CONTACT,
                 'company' => 'Service d.o.o.',
                 'locale' => 'hr',
-                'url' => 'https://info.test/contact',
-                'source_page' => '/obiteljski-biznis',
-                'redirect_to' => '/obiteljski-biznis#family-business-sastanak',
+                'url' => 'https://info.test/financije',
+                'source_page' => '/financije',
+                'redirect_to' => '/financije#finance-sastanak',
             ],
         ]));
 
@@ -64,7 +64,8 @@ class ContactMessagesFeatureTest extends TestCase
             ->assertSee('Ivana Horvat')
             ->assertSee('Dogovor sastanka')
             ->assertDontSee('Procjena primjer')
-            ->assertDontSee('Usluga primjer');
+            ->assertSee('Usluga primjer')
+            ->assertSee('/financije');
     }
 
     public function test_admin_can_mark_contact_message_as_read(): void

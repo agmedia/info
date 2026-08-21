@@ -19,7 +19,14 @@ class DashboardFeatureTest extends TestCase
         $this->actingAs($admin)
             ->get('/admin/dashboard')
             ->assertOk()
-            ->assertSee('Pregled info sitea');
+            ->assertSee('Pregled posjećenosti')
+            ->assertSee('Novi blog post')
+            ->assertSee('Blog objave')
+            ->assertSee('Postavke stranice')
+            ->assertSee('Otvori web')
+            ->assertSee('Kako povezati GA4')
+            ->assertSee('G-YCD72KQJTC')
+            ->assertDontSee('Upiti kroz vrijeme');
     }
 
     public function test_dashboard_hides_loyalty_and_tracking_sections_when_disabled(): void

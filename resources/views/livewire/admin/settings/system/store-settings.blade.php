@@ -359,15 +359,17 @@
 
                     <div class="md:col-span-2 rounded-xl border border-slate-200 bg-slate-50 p-4 mt-2">
                         <h3 class="text-sm font-bold text-slate-800">{{ __('Google Analytics (GA4)') }}</h3>
-                        <p class="mt-1 text-xs text-slate-600">{{ __('Inject the global GA4 gtag script on public pages.') }}</p>
+                        <p class="mt-1 text-xs text-slate-600">{{ __('Unesite Measurement ID iz GA4 web data streama. Google Tag Manager oznaka GTM-… nije Measurement ID.') }}</p>
                     </div>
                     <label class="inline-flex items-center gap-2 text-sm font-semibold text-slate-700 md:col-span-2">
                         <input type="checkbox" wire:model="form.store_analytics_enabled" class="rounded border-slate-300 text-cyan-700 focus:ring-cyan-500" />
-                        {{ __('Enable GA4 tracking') }}
+                        {{ __('Uključi GA4 praćenje') }}
                     </label>
                     <div>
-                        <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('GA4 Measurement ID') }}</label>
-                        <input type="text" wire:model="form.store_analytics_ga4_measurement_id" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" placeholder="G-XXXXXXXXXX" />
+                        <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('GA4 Measurement ID (počinje s G-)') }}</label>
+                        <input type="text" wire:model="form.store_analytics_ga4_measurement_id" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" placeholder="G-XXXXXXXXXX" autocomplete="off" spellcheck="false" />
+                        <p class="mt-1 text-xs text-slate-500">{{ __('Pronađite ga u Google Analytics: Admin → Data streams → Web.') }}</p>
+                        @error('form.store_analytics_ga4_measurement_id') <p class="mt-1 text-xs font-medium text-rose-600">{{ $message }}</p> @enderror
                     </div>
                     <div></div>
                 </div>

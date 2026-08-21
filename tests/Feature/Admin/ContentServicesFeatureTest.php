@@ -20,22 +20,6 @@ class ContentServicesFeatureTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_default_family_business_service_page_is_seeded(): void
-    {
-        $page = ServicePage::query()
-            ->where('template_key', ServicePageTemplateRegistry::FAMILY_BUSINESS)
-            ->with('translations')
-            ->first();
-
-        $this->assertNotNull($page);
-        $this->assertSame('family-business', $page->code);
-        $this->assertTrue((bool) $page->is_active);
-        $this->assertSame(
-            'Obiteljski biznis',
-            (string) $page->translations->firstWhere('locale', 'hr')?->title
-        );
-    }
-
     public function test_default_services_index_page_is_seeded(): void
     {
         $page = ServicePage::query()
@@ -94,7 +78,7 @@ class ContentServicesFeatureTest extends TestCase
             ->assertSee('Usluge')
             ->assertSee('Bankovni krediti')
             ->assertSee('Zakon o poticanju ulaganja')
-            ->assertSee('Obiteljski biznis')
+            ->assertDontSee('Obiteljski biznis')
             ->assertSee('Porezi');
     }
 
@@ -577,20 +561,6 @@ class ContentServicesFeatureTest extends TestCase
             ->assertSee('<p><u>Custom pristup Savjetovanju.</u></p>', false);
     }
 
-    public function test_admin_can_open_seeded_service_page_edit_screen(): void
-    {
-        $user = $this->makeAdminUser();
-        $page = ServicePage::query()
-            ->where('template_key', ServicePageTemplateRegistry::FAMILY_BUSINESS)
-            ->firstOrFail();
-
-        $this->actingAs($user)
-            ->get("/admin/content/services/{$page->id}/edit?locale=hr")
-            ->assertOk()
-            ->assertSee('Uredi stranicu usluge')
-            ->assertSee('Obiteljski biznis');
-    }
-
     public function test_audit_editor_follows_frontend_order_and_only_shows_visible_page_content(): void
     {
         $user = $this->makeAdminUser();
@@ -905,7 +875,7 @@ class ContentServicesFeatureTest extends TestCase
         $this->assertNull($page->refresh()->getFirstMedia('service_hero_image'));
     }
 
-    public function test_tax_service_page_edit_screen_shows_locked_tax_template_and_editor(): void
+    public function test_tax_service_page_edit_screen_hides_locked_template_and_shows_editor(): void
     {
         $user = $this->makeAdminUser();
         $page = ServicePage::query()
@@ -916,12 +886,12 @@ class ContentServicesFeatureTest extends TestCase
             ->test(ServiceForm::class, ['servicePageId' => $page->id]);
 
         $this->assertSame(ServicePageTemplateRegistry::TAX, $component->get('form.template_key'));
-        $this->assertStringContainsString('value="Porezi"', $component->html());
+        $this->assertStringNotContainsString('wire:model.live="form.template_key"', $component->html());
         $this->assertStringContainsString('Navigacija poreza', $component->html());
         $this->assertStringContainsString('Blok usklađenosti', $component->html());
     }
 
-    public function test_eu_funds_service_page_edit_screen_shows_locked_eu_funds_template_and_editor(): void
+    public function test_eu_funds_service_page_edit_screen_hides_locked_template_and_shows_editor(): void
     {
         $user = $this->makeAdminUser();
         $page = ServicePage::query()
@@ -932,7 +902,7 @@ class ContentServicesFeatureTest extends TestCase
             ->test(ServiceForm::class, ['servicePageId' => $page->id]);
 
         $this->assertSame(ServicePageTemplateRegistry::EU_FUNDS, $component->get('form.template_key'));
-        $this->assertStringContainsString('value="EU fondovi"', $component->html());
+        $this->assertStringNotContainsString('wire:model.live="form.template_key"', $component->html());
         $this->assertStringContainsString('Navigacija po sekcijama stranice EU fondovi', $component->html());
         $this->assertStringContainsString('Programi i instrumenti', $component->html());
         $this->assertStringContainsString('wire:model.live.debounce.300ms="form.translation_payload.overview.body_html"', $component->html());
@@ -1005,35 +975,6 @@ class ContentServicesFeatureTest extends TestCase
         $this->assertNotSame('', $storedPath);
         $this->assertStringStartsWith('service-assets/eu-funds/', $storedPath);
         Storage::disk('public')->assertExists($storedPath);
-    }
-
-    public function test_admin_can_update_seeded_service_page(): void
-    {
-        $user = $this->makeAdminUser();
-        $page = ServicePage::query()
-            ->where('template_key', ServicePageTemplateRegistry::FAMILY_BUSINESS)
-            ->firstOrFail();
-
-        Livewire::actingAs($user)
-            ->test(ServiceForm::class, ['servicePageId' => $page->id])
-            ->set('form.locale', 'hr')
-            ->set('form.title', 'Obiteljski biznis Plus')
-            ->set('form.slug', 'obiteljski-biznis-plus')
-            ->set('form.translation_payload.hero.brand_title', 'ALPHA CAPITALIS PLUS')
-            ->set('form.translation_payload.capability_cta.label', 'Rezervirajte konzultacije')
-            ->set('form.translation_payload.brochure_label', 'Preuzmite vodič')
-            ->call('save')
-            ->assertRedirect(route('admin.content.services.index', ['locale' => 'hr']));
-
-        $page->refresh();
-        $translation = $page->translation('hr')->first();
-
-        $this->assertNotNull($translation);
-        $this->assertSame('Obiteljski biznis Plus', (string) $translation->title);
-        $this->assertSame('obiteljski-biznis-plus', (string) $translation->slug);
-        $this->assertSame('ALPHA CAPITALIS PLUS', $translation->payload['hero']['brand_title'] ?? null);
-        $this->assertSame('Rezervirajte konzultacije', $translation->payload['capability_cta']['label'] ?? null);
-        $this->assertSame('Preuzmite vodič', $translation->payload['brochure_label'] ?? null);
     }
 
     public function test_admin_can_update_services_index_content_used_on_front(): void

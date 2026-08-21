@@ -307,6 +307,14 @@ class Form extends Component
 
     public function save()
     {
+        if (trim((string) ($this->form['code'] ?? '')) === '') {
+            $this->form['code'] = ServicePageTemplateRegistry::defaultCode((string) $this->form['template_key']);
+        }
+
+        if (trim((string) ($this->form['slug'] ?? '')) === '') {
+            $this->form['slug'] = Str::slug((string) ($this->form['title'] ?? ''));
+        }
+
         $pagePayloadInput = (array) data_get($this->form, 'page_payload', []);
         $translationPayloadInput = (array) data_get($this->form, 'translation_payload', []);
         $validated = $this->validate($this->rules());

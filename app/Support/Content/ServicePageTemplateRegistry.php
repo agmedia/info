@@ -41,7 +41,6 @@ class ServicePageTemplateRegistry
             self::AUDIT => 'Revizija',
             self::TAX => 'Porezi',
             self::EU_FUNDS => 'EU fondovi',
-            self::FAMILY_BUSINESS => 'Family Business',
         ];
     }
 
@@ -67,7 +66,6 @@ class ServicePageTemplateRegistry
             self::AUDIT => 10,
             self::ACCOUNTING => 20,
             self::ADVISORY => 30,
-            self::FAMILY_BUSINESS => 40,
             self::FINANCE => 100,
             self::TAX => 110,
             self::EU_FUNDS => 120,
@@ -532,12 +530,6 @@ class ServicePageTemplateRegistry
                         'content_key' => 'tax',
                     ],
                 ],
-            ],
-            self::FAMILY_BUSINESS => [
-                'title' => 'Obiteljski biznis',
-                'route' => 'family-business.show',
-                'admin_anchor' => '#family-business-audience-admin',
-                'children' => [],
             ],
             self::FINANCE => [
                 'title' => 'Financije',

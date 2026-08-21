@@ -110,17 +110,6 @@ class SiteSearchService
                     : 'advisory business financial tax eu funds financing due diligence valuations m&a mergers acquisitions',
                 'url' => route('advisory.show'),
             ],
-            [
-                'title' => $isCroatian ? 'Obiteljski biznis' : 'Family Business',
-                'eyebrow' => $isCroatian ? 'Nasljeđe' : 'Legacy',
-                'excerpt' => $isCroatian
-                    ? 'Podrška vlasničkoj tranziciji, upravljanju i dugoročnoj stabilnosti obitelji i poslovanja.'
-                    : 'Support for ownership transition, governance, and long-term family business stability.',
-                'search' => $isCroatian
-                    ? 'obiteljski biznis tranzicija nasljeđivanje nasljedivanje upravljanje stabilnost'
-                    : 'family business transition succession governance stability',
-                'url' => route('family-business.show'),
-            ],
         ]);
 
         return $catalog

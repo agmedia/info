@@ -1,51 +1,35 @@
 {
-  "_ace-CrEVOquz.js": {
-    "file": "assets/ace-CrEVOquz.js",
+  "_ace-FrO6SvKt.js": {
+    "file": "assets/ace-FrO6SvKt.js",
     "name": "ace",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.js"
     ]
   },
-  "_ext-language_tools-xz5p8CBT.js": {
-    "file": "assets/ext-language_tools-xz5p8CBT.js",
+  "_ext-language_tools-B1TiGba7.js": {
+    "file": "assets/ext-language_tools-B1TiGba7.js",
     "name": "ext-language_tools",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.js"
     ]
   },
-  "_mode-html-AGjMLCqd.js": {
-    "file": "assets/mode-html-AGjMLCqd.js",
+  "_mode-html-BMSjCTGH.js": {
+    "file": "assets/mode-html-BMSjCTGH.js",
     "name": "mode-html",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.js"
     ]
   },
-  "_theme-tomorrow_night-B0M_tK7A.js": {
-    "file": "assets/theme-tomorrow_night-B0M_tK7A.js",
+  "_theme-tomorrow_night-Bfhu52hf.js": {
+    "file": "assets/theme-tomorrow_night-Bfhu52hf.js",
     "name": "theme-tomorrow_night",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.js"
     ]
-  },
-  "public/alpha/fonts/files/bodoni-moda-latin-ext-wght-normal.woff2": {
-    "file": "assets/bodoni-moda-latin-ext-wght-normal-BlIE6rrN.woff2",
-    "src": "public/alpha/fonts/files/bodoni-moda-latin-ext-wght-normal.woff2"
-  },
-  "public/alpha/fonts/files/bodoni-moda-latin-wght-normal.woff2": {
-    "file": "assets/bodoni-moda-latin-wght-normal-BIFT5Qnz.woff2",
-    "src": "public/alpha/fonts/files/bodoni-moda-latin-wght-normal.woff2"
-  },
-  "public/alpha/fonts/files/bodoni-moda-math-wght-normal.woff2": {
-    "file": "assets/bodoni-moda-math-wght-normal-_TL2RCrf.woff2",
-    "src": "public/alpha/fonts/files/bodoni-moda-math-wght-normal.woff2"
-  },
-  "public/alpha/fonts/files/bodoni-moda-symbols-wght-normal.woff2": {
-    "file": "assets/bodoni-moda-symbols-wght-normal-DO7lZbk6.woff2",
-    "src": "public/alpha/fonts/files/bodoni-moda-symbols-wght-normal.woff2"
   },
   "public/alpha/fonts/files/instrument-sans-latin-ext-wght-normal.woff2": {
     "file": "assets/instrument-sans-latin-ext-wght-normal-B5bTHO_g.woff2",
@@ -56,7 +40,7 @@
     "src": "public/alpha/fonts/files/instrument-sans-latin-wght-normal.woff2"
   },
   "resources/css/app.css": {
-    "file": "assets/app-C--Zv6V3.css",
+    "file": "assets/app-DQzgdXFn.css",
     "src": "resources/css/app.css",
     "isEntry": true,
     "name": "app",
@@ -73,15 +57,15 @@
     "src": "resources/images/patterns/usluge-lines.svg"
   },
   "resources/js/app.js": {
-    "file": "assets/app-C_UKew0Y.js",
+    "file": "assets/app-CfMSGh8P.js",
     "name": "app",
     "src": "resources/js/app.js",
     "isEntry": true,
     "dynamicImports": [
-      "_ace-CrEVOquz.js",
-      "_ext-language_tools-xz5p8CBT.js",
-      "_mode-html-AGjMLCqd.js",
-      "_theme-tomorrow_night-B0M_tK7A.js"
+      "_ace-FrO6SvKt.js",
+      "_ext-language_tools-B1TiGba7.js",
+      "_mode-html-BMSjCTGH.js",
+      "_theme-tomorrow_night-Bfhu52hf.js"
     ],
     "css": [
       "assets/app-8Ofu9GWj.css"

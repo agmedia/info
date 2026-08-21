@@ -109,7 +109,7 @@ class CollaborationAssessmentMessageManager extends Component
     private function baseQuery()
     {
         return ContactMessage::query()
-            ->where('payload->form_type', ContactMessage::FORM_TYPE_COLLABORATION_ASSESSMENT);
+            ->where('form_type', ContactMessage::FORM_TYPE_COLLABORATION_ASSESSMENT);
     }
 
     /**

@@ -92,6 +92,10 @@ class Form extends Component
 
     public function save()
     {
+        if (trim((string) ($this->form['slug'] ?? '')) === '') {
+            $this->form['slug'] = Str::slug((string) ($this->form['name'] ?? ''));
+        }
+
         $validated = $this->validate($this->rules());
         $wasEditing = (bool) $this->categoryId;
 

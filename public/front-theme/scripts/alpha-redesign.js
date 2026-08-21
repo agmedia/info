@@ -415,6 +415,12 @@ document.addEventListener('DOMContentLoaded', function () {
     };
 
     const fontReady = document.fonts?.load('450 96px "Bodoni Moda Variable"').catch(function () { return []; }) ?? Promise.resolve();
+    const heroFontReady = homeHero instanceof HTMLElement && document.fonts
+        ? Promise.race([
+            fontReady,
+            new Promise(function (resolve) { window.setTimeout(resolve, 1200); }),
+        ])
+        : Promise.resolve();
     const shouldLoadHeroVideo = video instanceof HTMLVideoElement
         && !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
@@ -450,7 +456,7 @@ document.addEventListener('DOMContentLoaded', function () {
         window.addEventListener('load', loadHeroVideo, { once: true });
     }
 
-    revealIntro();
+    heroFontReady.then(revealIntro, revealIntro);
 
     const headings = Array.from(document.querySelectorAll('[data-words-slide-from-right]'));
     const imageReveals = Array.from(document.querySelectorAll('[data-image-reveal]'));

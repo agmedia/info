@@ -205,6 +205,14 @@ class Form extends Component
 
     public function save()
     {
+        if (trim((string) ($this->form['slug'] ?? '')) === '') {
+            $this->form['slug'] = Str::slug((string) ($this->form['title'] ?? ''));
+        }
+
+        if (trim((string) ($this->form['code'] ?? '')) === '') {
+            $this->form['code'] = $this->uniqueCodeFromBase((string) $this->form['slug']);
+        }
+
         $validated = $this->validate($this->rules());
         $wasEditing = (bool) $this->pageId;
 
@@ -640,6 +648,23 @@ class Form extends Component
         }
 
         return $rules;
+    }
+
+    private function uniqueCodeFromBase(string $base): string
+    {
+        $cleanBase = trim($base) !== '' ? trim($base) : 'page';
+        $code = $cleanBase;
+        $suffix = 2;
+
+        while (InfoPage::query()
+            ->where('code', $code)
+            ->when($this->pageId, fn ($query) => $query->where('id', '!=', $this->pageId))
+            ->exists()) {
+            $code = $cleanBase.'-'.$suffix;
+            $suffix++;
+        }
+
+        return $code;
     }
 
     /**

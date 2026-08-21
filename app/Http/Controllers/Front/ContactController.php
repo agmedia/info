@@ -179,11 +179,11 @@ class ContactController extends Controller
     {
         $target = trim($target);
 
-        if ($target === '') {
+        if ($target === '' || preg_match('/[\x00-\x1F\x7F]/', $target) === 1) {
             return null;
         }
 
-        if (str_starts_with($target, '/')) {
+        if ($this->isSafeLocalRedirect($target)) {
             return $target;
         }
 
@@ -195,12 +195,19 @@ class ContactController extends Controller
             $query = (string) parse_url($target, PHP_URL_QUERY);
             $fragment = (string) parse_url($target, PHP_URL_FRAGMENT);
 
-            return $path
+            $localTarget = ($path !== '' ? $path : '/')
                 .($query !== '' ? '?'.$query : '')
                 .($fragment !== '' ? '#'.$fragment : '');
+
+            return $this->isSafeLocalRedirect($localTarget) ? $localTarget : null;
         }
 
         return null;
+    }
+
+    private function isSafeLocalRedirect(string $target): bool
+    {
+        return preg_match('~^/(?![/\\\\])~', $target) === 1;
     }
 
     private function resolveSourcePage(?string $redirectTo): string

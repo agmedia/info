@@ -1,4 +1,4 @@
-:is(.front-route-audit, .front-route-accounting) .ac-audit-page {
+:is(.front-route-audit, .front-route-accounting, .front-route-tax) .ac-audit-page {
     --audit-cream: var(--surface-cream, #f2efe7);
     --audit-navy: var(--navy-deep, #03121f);
     --audit-navy-soft: var(--navy, #061a2b);
@@ -9,23 +9,23 @@
     overflow: hidden;
 }
 
-:is(.front-route-audit, .front-route-accounting) .ac-audit-wide-shell {
+:is(.front-route-audit, .front-route-accounting, .front-route-tax) .ac-audit-wide-shell {
     width: min(1600px, calc(100% - 136px));
     margin-inline: auto;
 }
 
-.front-desktop-shell:is(.front-route-audit, .front-route-accounting) .site-header {
+.front-desktop-shell:is(.front-route-audit, .front-route-accounting, .front-route-tax) .site-header {
     position: sticky;
     inset: 0 0 auto;
     background: rgba(3, 18, 31, 0.35);
     box-shadow: none;
 }
 
-.front-desktop-shell:is(.front-route-audit, .front-route-accounting) .front-content-shell {
+.front-desktop-shell:is(.front-route-audit, .front-route-accounting, .front-route-tax) .front-content-shell {
     margin-top: calc(var(--header-height) * -1);
 }
 
-:is(.front-route-audit, .front-route-accounting) .ac-audit-hero {
+:is(.front-route-audit, .front-route-accounting, .front-route-tax) .ac-audit-hero {
     position: relative;
     min-height: clamp(28rem, 65vh, 48rem);
     min-height: clamp(28rem, 65svh, 48rem);
@@ -35,17 +35,17 @@
     background: var(--audit-navy);
 }
 
-:is(.front-route-audit, .front-route-accounting) .ac-audit-hero-media,
-:is(.front-route-audit, .front-route-accounting) .ac-audit-hero-overlay {
+:is(.front-route-audit, .front-route-accounting, .front-route-tax) .ac-audit-hero-media,
+:is(.front-route-audit, .front-route-accounting, .front-route-tax) .ac-audit-hero-overlay {
     position: absolute;
     inset: 0;
 }
 
-:is(.front-route-audit, .front-route-accounting) .ac-audit-hero-media {
+:is(.front-route-audit, .front-route-accounting, .front-route-tax) .ac-audit-hero-media {
     z-index: -2;
 }
 
-:is(.front-route-audit, .front-route-accounting) .ac-audit-hero-image {
+:is(.front-route-audit, .front-route-accounting, .front-route-tax) .ac-audit-hero-image {
     width: 100%;
     height: 100%;
     object-fit: cover;
@@ -54,18 +54,18 @@
     transition: transform 1800ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-:is(.front-route-audit, .front-route-accounting).intro-ready .ac-audit-hero-image {
+:is(.front-route-audit, .front-route-accounting, .front-route-tax).intro-ready .ac-audit-hero-image {
     transform: scale(1);
 }
 
-:is(.front-route-audit, .front-route-accounting) .ac-audit-hero-overlay {
+:is(.front-route-audit, .front-route-accounting, .front-route-tax) .ac-audit-hero-overlay {
     z-index: -1;
     background:
         linear-gradient(180deg, rgba(3, 18, 31, 0.62) 0%, rgba(3, 18, 31, 0.46) 38%, rgba(3, 18, 31, 0.72) 100%),
         linear-gradient(90deg, rgba(3, 18, 31, 0.46) 0%, rgba(3, 18, 31, 0.14) 50%, rgba(3, 18, 31, 0.46) 100%);
 }
 
-:is(.front-route-audit, .front-route-accounting) .ac-audit-hero-shell {
+:is(.front-route-audit, .front-route-accounting, .front-route-tax) .ac-audit-hero-shell {
     display: flex;
     box-sizing: border-box;
     width: min(1320px, calc(100% - 136px));
@@ -76,19 +76,19 @@
     justify-content: center;
 }
 
-:is(.front-route-audit, .front-route-accounting) .ac-audit-hero-copy {
+:is(.front-route-audit, .front-route-accounting, .front-route-tax) .ac-audit-hero-copy {
     width: min(100%, 1120px);
     text-align: center;
 }
 
-:is(.front-route-audit, .front-route-accounting) .ac-audit-hero-copy h1 {
+:is(.front-route-audit, .front-route-accounting, .front-route-tax) .ac-audit-hero-copy h1 {
     display: grid;
     gap: clamp(1rem, 1.5vw, 1.35rem);
     margin: 0;
     color: var(--white, #f7f7f5);
 }
 
-:is(.front-route-audit, .front-route-accounting) .ac-audit-hero-label {
+:is(.front-route-audit, .front-route-accounting, .front-route-tax) .ac-audit-hero-label {
     opacity: 0;
     font-family: var(--front-font-family, "Instrument Sans Variable", Arial, sans-serif) !important;
     font-size: clamp(5rem, 8vw, 9rem);
@@ -99,7 +99,7 @@
     transition: opacity 820ms ease 120ms, transform 920ms cubic-bezier(0.16, 1, 0.3, 1) 120ms;
 }
 
-:is(.front-route-audit, .front-route-accounting) .ac-audit-hero-hook {
+:is(.front-route-audit, .front-route-accounting, .front-route-tax) .ac-audit-hero-hook {
     max-width: 52ch;
     margin-inline: auto;
     opacity: 0;
@@ -114,45 +114,45 @@
     transition: opacity 820ms ease 260ms, transform 920ms cubic-bezier(0.16, 1, 0.3, 1) 260ms;
 }
 
-.front-desktop-shell:is(.front-route-audit, .front-route-accounting) .front-content-shell .ac-audit-hero-hook {
+.front-desktop-shell:is(.front-route-audit, .front-route-accounting, .front-route-tax) .front-content-shell .ac-audit-hero-hook {
     font-family: var(--front-font-family, "Instrument Sans Variable", Arial, sans-serif) !important;
 }
 
-:is(.front-route-audit, .front-route-accounting).intro-ready .ac-audit-hero-label,
-:is(.front-route-audit, .front-route-accounting).intro-ready .ac-audit-hero-hook {
+:is(.front-route-audit, .front-route-accounting, .front-route-tax).intro-ready .ac-audit-hero-label,
+:is(.front-route-audit, .front-route-accounting, .front-route-tax).intro-ready .ac-audit-hero-hook {
     opacity: 1;
     transform: translate3d(0, 0, 0);
 }
 
-:is(.front-route-audit, .front-route-accounting) .ac-audit-obligors-content i,
-:is(.front-route-audit, .front-route-accounting) .ac-audit-approach-quote > i {
+:is(.front-route-audit, .front-route-accounting, .front-route-tax) .ac-audit-obligors-content i,
+:is(.front-route-audit, .front-route-accounting, .front-route-tax) .ac-audit-approach-quote > i {
     --fa-primary-color: currentColor;
     --fa-primary-opacity: 1;
     --fa-secondary-color: currentColor;
     --fa-secondary-opacity: 0.52;
 }
 
-:is(.front-route-audit, .front-route-accounting) .ac-audit-intro {
+:is(.front-route-audit, .front-route-accounting, .front-route-tax) .ac-audit-intro {
     position: relative;
     padding: clamp(3.5rem, 5vw, 5.5rem) 0;
     background: var(--audit-cream);
 }
 
-:is(.front-route-audit, .front-route-accounting) .ac-audit-intro-grid {
+:is(.front-route-audit, .front-route-accounting, .front-route-tax) .ac-audit-intro-grid {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 0;
     align-items: center;
 }
 
-:is(.front-route-audit, .front-route-accounting) .ac-audit-intro-heading {
+:is(.front-route-audit, .front-route-accounting, .front-route-tax) .ac-audit-intro-heading {
     padding-right: clamp(3.5rem, 7vw, 8rem);
 }
 
-:is(.front-route-audit, .front-route-accounting) .ac-audit-intro-heading h2,
-:is(.front-route-audit, .front-route-accounting) .ac-audit-obligors-heading h2,
-:is(.front-route-audit, .front-route-accounting) .ac-audit-section-heading h2,
-:is(.front-route-audit, .front-route-accounting) .ac-audit-approach-heading h2 {
+:is(.front-route-audit, .front-route-accounting, .front-route-tax) .ac-audit-intro-heading h2,
+:is(.front-route-audit, .front-route-accounting, .front-route-tax) .ac-audit-obligors-heading h2,
+:is(.front-route-audit, .front-route-accounting, .front-route-tax) .ac-audit-section-heading h2,
+:is(.front-route-audit, .front-route-accounting, .front-route-tax) .ac-audit-approach-heading h2 {
     margin: 0;
     font-family: var(--front-font-family, "Instrument Sans Variable", Arial, sans-serif);
     font-weight: 420;
@@ -161,23 +161,23 @@
     text-wrap: balance;
 }
 
-:is(.front-route-audit, .front-route-accounting) .ac-audit-intro-heading h2 {
+:is(.front-route-audit, .front-route-accounting, .front-route-tax) .ac-audit-intro-heading h2 {
     max-width: none;
     color: #101820;
     font-size: clamp(3rem, 3.75vw, 4.75rem);
 }
 
-:is(.front-route-audit, .front-route-accounting) .ac-audit-intro-heading .service-title-word.is-accent,
-:is(.front-route-audit, .front-route-accounting) .ac-audit-obligors-heading .service-title-word.is-accent,
-:is(.front-route-audit, .front-route-accounting) .ac-audit-section-heading .service-title-word.is-accent,
-:is(.front-route-audit, .front-route-accounting) .ac-audit-approach-heading .service-title-word.is-accent {
+:is(.front-route-audit, .front-route-accounting, .front-route-tax) .ac-audit-intro-heading .service-title-word.is-accent,
+:is(.front-route-audit, .front-route-accounting, .front-route-tax) .ac-audit-obligors-heading .service-title-word.is-accent,
+:is(.front-route-audit, .front-route-accounting, .front-route-tax) .ac-audit-section-heading .service-title-word.is-accent,
+:is(.front-route-audit, .front-route-accounting, .front-route-tax) .ac-audit-approach-heading .service-title-word.is-accent {
     color: #a48143;
     font-family: var(--front-font-family, "Instrument Sans Variable", Arial, sans-serif);
     font-style: italic;
     font-weight: 500;
 }
 
-:is(.front-route-audit, .front-route-accounting) .ac-audit-intro-copy {
+:is(.front-route-audit, .front-route-accounting, .front-route-tax) .ac-audit-intro-copy {
     display: grid;
     min-height: 12rem;
     padding-left: clamp(3.5rem, 7vw, 8rem);
@@ -186,7 +186,7 @@
     gap: 1.45rem;
 }
 
-:is(.front-route-audit, .front-route-accounting) .ac-audit-intro-copy p {
+:is(.front-route-audit, .front-route-accounting, .front-route-tax) .ac-audit-intro-copy p {
     max-width: 46rem;
     margin: 0;
     color: #4d4a44;
@@ -195,12 +195,12 @@
     text-wrap: pretty;
 }
 
-:is(.front-route-audit, .front-route-accounting) .ac-audit-intro-copy p.is-emphasis {
+:is(.front-route-audit, .front-route-accounting, .front-route-tax) .ac-audit-intro-copy p.is-emphasis {
     color: #18202a;
     font-weight: 600;
 }
 
-:is(.front-route-audit, .front-route-accounting) .ac-audit-obligors {
+:is(.front-route-audit, .front-route-accounting, .front-route-tax) .ac-audit-obligors {
     position: relative;
     padding: clamp(5.5rem, 7vw, 8.2rem) 0;
     overflow: hidden;
@@ -210,28 +210,28 @@
     color: var(--white, #f7f7f5);
 }
 
-:is(.front-route-audit, .front-route-accounting) .ac-audit-obligors-grid {
+:is(.front-route-audit, .front-route-accounting, .front-route-tax) .ac-audit-obligors-grid {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 0;
     align-items: center;
 }
 
-:is(.front-route-audit, .front-route-accounting) .ac-audit-obligors-heading {
+:is(.front-route-audit, .front-route-accounting, .front-route-tax) .ac-audit-obligors-heading {
     padding-right: clamp(3.5rem, 7vw, 8rem);
 }
 
-:is(.front-route-audit, .front-route-accounting) .ac-audit-obligors-heading h2 {
+:is(.front-route-audit, .front-route-accounting, .front-route-tax) .ac-audit-obligors-heading h2 {
     max-width: none;
     color: rgba(247, 247, 245, 0.98);
     font-size: clamp(3rem, 3.75vw, 4.75rem);
 }
 
-:is(.front-route-audit, .front-route-accounting) .ac-audit-obligors-heading .service-title-word.is-accent {
+:is(.front-route-audit, .front-route-accounting, .front-route-tax) .ac-audit-obligors-heading .service-title-word.is-accent {
     color: var(--audit-gold);
 }
 
-.front-desktop-shell:is(.front-route-audit, .front-route-accounting) .front-content-shell .ac-audit-obligors-content > h3 {
+.front-desktop-shell:is(.front-route-audit, .front-route-accounting, .front-route-tax) .front-content-shell .ac-audit-obligors-content > h3 {
     margin: 0 0 2rem;
     color: rgba(247, 247, 245, 0.96);
     font-family: var(--front-font-family, "Instrument Sans Variable", Arial, sans-serif) !important;
@@ -241,26 +241,26 @@
     line-height: 1.18;
 }
 
-:is(.front-route-audit, .front-route-accounting) .ac-audit-obligors-content {
+:is(.front-route-audit, .front-route-accounting, .front-route-tax) .ac-audit-obligors-content {
     grid-column: 1 / -1;
     width: 100%;
     margin-top: clamp(3.5rem, 5vw, 5.5rem);
 }
 
-:is(.front-route-audit, .front-route-accounting) .ac-audit-obligors-list,
-:is(.front-route-audit, .front-route-accounting) .ac-audit-obligor-criteria {
+:is(.front-route-audit, .front-route-accounting, .front-route-tax) .ac-audit-obligors-list,
+:is(.front-route-audit, .front-route-accounting, .front-route-tax) .ac-audit-obligor-criteria {
     margin: 0;
     padding: 0;
     list-style: none;
 }
 
-:is(.front-route-audit, .front-route-accounting) .ac-audit-obligors-list {
+:is(.front-route-audit, .front-route-accounting, .front-route-tax) .ac-audit-obligors-list {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 1rem;
 }
 
-:is(.front-route-audit, .front-route-accounting) .ac-audit-obligor-card {
+:is(.front-route-audit, .front-route-accounting, .front-route-tax) .ac-audit-obligor-card {
     display: grid;
     min-height: 8rem;
     padding: clamp(1.35rem, 1.8vw, 1.75rem);
@@ -272,17 +272,17 @@
     align-items: center;
 }
 
-:is(.front-route-audit, .front-route-accounting) .ac-audit-obligor-card:nth-child(even) {
+:is(.front-route-audit, .front-route-accounting, .front-route-tax) .ac-audit-obligor-card:nth-child(even) {
     border-radius: 4px 34px 4px 34px;
 }
 
-:is(.front-route-audit, .front-route-accounting) .ac-audit-obligor-card--wide {
+:is(.front-route-audit, .front-route-accounting, .front-route-tax) .ac-audit-obligor-card--wide {
     min-height: 0;
     grid-column: 1 / -1;
     align-items: start;
 }
 
-:is(.front-route-audit, .front-route-accounting) .ac-audit-obligor-icon {
+:is(.front-route-audit, .front-route-accounting, .front-route-tax) .ac-audit-obligor-icon {
     --fa-primary-color: rgba(247, 247, 245, 0.98);
     --fa-primary-opacity: 1;
     --fa-secondary-color: var(--audit-gold);
@@ -301,11 +301,11 @@
     line-height: 1;
 }
 
-:is(.front-route-audit, .front-route-accounting) .ac-audit-obligor-copy {
+:is(.front-route-audit, .front-route-accounting, .front-route-tax) .ac-audit-obligor-copy {
     min-width: 0;
 }
 
-:is(.front-route-audit, .front-route-accounting) .ac-audit-obligor-icon i {
+:is(.front-route-audit, .front-route-accounting, .front-route-tax) .ac-audit-obligor-icon i {
     --fa-primary-color: rgba(247, 247, 245, 0.98);
     --fa-primary-opacity: 1;
     --fa-secondary-color: var(--audit-gold);
@@ -317,7 +317,7 @@
     line-height: 1;
 }
 
-:is(.front-route-audit, .front-route-accounting) .ac-audit-obligor-title {
+:is(.front-route-audit, .front-route-accounting, .front-route-tax) .ac-audit-obligor-title {
     display: block;
     color: rgba(247, 247, 245, 0.86);
     font-size: 1rem;
@@ -326,14 +326,14 @@
     text-wrap: pretty;
 }
 
-:is(.front-route-audit, .front-route-accounting) .ac-audit-obligor-criteria {
+:is(.front-route-audit, .front-route-accounting, .front-route-tax) .ac-audit-obligor-criteria {
     display: grid;
     margin-top: 1.35rem;
     grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 0;
 }
 
-:is(.front-route-audit, .front-route-accounting) .ac-audit-obligor-criteria li {
+:is(.front-route-audit, .front-route-accounting, .front-route-tax) .ac-audit-obligor-criteria li {
     display: grid;
     min-height: 5.5rem;
     padding: 1rem 1.4rem;
@@ -346,11 +346,11 @@
     line-height: 1.55;
 }
 
-:is(.front-route-audit, .front-route-accounting) .ac-audit-obligor-criteria li:first-child {
+:is(.front-route-audit, .front-route-accounting, .front-route-tax) .ac-audit-obligor-criteria li:first-child {
     border-left: 0;
 }
 
-:is(.front-route-audit, .front-route-accounting) .ac-audit-obligor-criteria i {
+:is(.front-route-audit, .front-route-accounting, .front-route-tax) .ac-audit-obligor-criteria i {
     --fa-primary-color: rgba(247, 247, 245, 0.96);
     --fa-primary-opacity: 1;
     --fa-secondary-color: var(--audit-gold);
@@ -367,14 +367,14 @@
     font-size: 1rem;
 }
 
-:is(.front-route-audit, .front-route-accounting) .ac-audit-obligors-content > p {
+:is(.front-route-audit, .front-route-accounting, .front-route-tax) .ac-audit-obligors-content > p {
     margin: 0;
     color: rgba(247, 247, 245, 0.75);
     font-size: 1rem;
     line-height: 1.75;
 }
 
-:is(.front-route-audit, .front-route-accounting) .ac-audit-obligors-note {
+:is(.front-route-audit, .front-route-accounting, .front-route-tax) .ac-audit-obligors-note {
     display: flex;
     min-height: 12rem;
     padding-left: clamp(3.5rem, 7vw, 8rem);
@@ -382,7 +382,7 @@
     align-items: center;
 }
 
-:is(.front-route-audit, .front-route-accounting) .ac-audit-obligors-note p {
+:is(.front-route-audit, .front-route-accounting, .front-route-tax) .ac-audit-obligors-note p {
     max-width: 46rem;
     margin: 0;
     color: rgba(247, 247, 245, 0.8);
@@ -391,24 +391,24 @@
     text-wrap: pretty;
 }
 
-:is(.front-route-audit, .front-route-accounting) .ac-audit-services {
+:is(.front-route-audit, .front-route-accounting, .front-route-tax) .ac-audit-services {
     position: relative;
     padding: clamp(5.5rem, 7vw, 8.2rem) 0;
     background: var(--audit-cream);
 }
 
-:is(.front-route-audit, .front-route-accounting) .ac-audit-section-heading {
+:is(.front-route-audit, .front-route-accounting, .front-route-tax) .ac-audit-section-heading {
     max-width: 64rem;
     margin: 0 auto clamp(3.5rem, 5vw, 5.5rem);
     text-align: center;
 }
 
-:is(.front-route-audit, .front-route-accounting) .ac-audit-section-heading h2 {
+:is(.front-route-audit, .front-route-accounting, .front-route-tax) .ac-audit-section-heading h2 {
     color: #101820;
     font-size: clamp(3rem, 3.75vw, 4.75rem);
 }
 
-:is(.front-route-audit, .front-route-accounting) .ac-audit-section-heading > p:last-child {
+:is(.front-route-audit, .front-route-accounting, .front-route-tax) .ac-audit-section-heading > p:last-child {
     max-width: 47rem;
     margin: 1.5rem auto 0;
     color: #5a5650;
@@ -416,13 +416,13 @@
     line-height: 1.72;
 }
 
-:is(.front-route-audit, .front-route-accounting) .ac-audit-services-grid {
+:is(.front-route-audit, .front-route-accounting, .front-route-tax) .ac-audit-services-grid {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: clamp(1.25rem, 2vw, 2rem);
 }
 
-:is(.front-route-audit, .front-route-accounting) .ac-audit-service-card {
+:is(.front-route-audit, .front-route-accounting, .front-route-tax) .ac-audit-service-card {
     position: relative;
     display: flex;
     min-height: 26.5rem;
@@ -435,16 +435,16 @@
     transition: border-color 280ms ease, background-color 280ms ease;
 }
 
-:is(.front-route-audit, .front-route-accounting) .ac-audit-service-card:nth-child(3n + 2) {
+:is(.front-route-audit, .front-route-accounting, .front-route-tax) .ac-audit-service-card:nth-child(3n + 2) {
     border-radius: 6px clamp(44px, 3.5vw, 64px) 6px clamp(44px, 3.5vw, 64px);
 }
 
-:is(.front-route-audit, .front-route-accounting) .ac-audit-service-card:hover {
+:is(.front-route-audit, .front-route-accounting, .front-route-tax) .ac-audit-service-card:hover {
     border-color: rgba(157, 122, 61, 0.4);
     background: rgba(255, 253, 249, 0.98);
 }
 
-:is(.front-route-audit, .front-route-accounting) .ac-audit-service-icon {
+:is(.front-route-audit, .front-route-accounting, .front-route-tax) .ac-audit-service-icon {
     --fa-primary-color: var(--audit-navy);
     --fa-primary-opacity: 1;
     --fa-secondary-color: var(--audit-gold-deep);
@@ -458,7 +458,7 @@
     line-height: 1;
 }
 
-:is(.front-route-audit, .front-route-accounting) .ac-audit-service-icon i {
+:is(.front-route-audit, .front-route-accounting, .front-route-tax) .ac-audit-service-icon i {
     --fa-primary-color: var(--audit-navy);
     --fa-primary-opacity: 1;
     --fa-secondary-color: var(--audit-gold-deep);
@@ -470,7 +470,7 @@
     line-height: 1;
 }
 
-.front-desktop-shell:is(.front-route-audit, .front-route-accounting) .front-content-shell .ac-audit-service-card h3 {
+.front-desktop-shell:is(.front-route-audit, .front-route-accounting, .front-route-tax) .front-content-shell .ac-audit-service-card h3 {
     margin: 0;
     color: #101820;
     font-family: var(--front-font-family, "Instrument Sans Variable", Arial, sans-serif) !important;
@@ -481,7 +481,7 @@
     text-wrap: balance;
 }
 
-:is(.front-route-audit, .front-route-accounting) .ac-audit-service-card p {
+:is(.front-route-audit, .front-route-accounting, .front-route-tax) .ac-audit-service-card p {
     margin: 1rem 0 0;
     color: #5a5650;
     font-size: 1rem;
@@ -489,7 +489,7 @@
     text-wrap: pretty;
 }
 
-:is(.front-route-audit, .front-route-accounting) .ac-audit-approach {
+:is(.front-route-audit, .front-route-accounting, .front-route-tax) .ac-audit-approach {
     position: relative;
     padding: clamp(5.5rem, 7vw, 8.2rem) 0;
     background:
@@ -498,24 +498,24 @@
     color: var(--white, #f7f7f5);
 }
 
-:is(.front-route-audit, .front-route-accounting) .ac-audit-approach-grid {
+:is(.front-route-audit, .front-route-accounting, .front-route-tax) .ac-audit-approach-grid {
     display: grid;
     grid-template-columns: minmax(0, 0.72fr) minmax(0, 1.28fr);
     gap: clamp(4rem, 8vw, 9rem);
     align-items: center;
 }
 
-:is(.front-route-audit, .front-route-accounting) .ac-audit-approach-heading h2 {
+:is(.front-route-audit, .front-route-accounting, .front-route-tax) .ac-audit-approach-heading h2 {
     max-width: none;
     color: var(--white, #f7f7f5);
     font-size: clamp(3rem, 3.75vw, 4.75rem);
 }
 
-:is(.front-route-audit, .front-route-accounting) .ac-audit-approach-heading .service-title-word.is-accent {
+:is(.front-route-audit, .front-route-accounting, .front-route-tax) .ac-audit-approach-heading .service-title-word.is-accent {
     color: var(--audit-gold);
 }
 
-:is(.front-route-audit, .front-route-accounting) .ac-audit-approach-quote {
+:is(.front-route-audit, .front-route-accounting, .front-route-tax) .ac-audit-approach-quote {
     position: relative;
     margin: 0;
     padding: clamp(2.2rem, 3.5vw, 3.6rem);
@@ -524,7 +524,7 @@
     background: rgba(10, 34, 55, 0.68);
 }
 
-:is(.front-route-audit, .front-route-accounting) .ac-audit-approach-quote > i {
+:is(.front-route-audit, .front-route-accounting, .front-route-tax) .ac-audit-approach-quote > i {
     --fa-primary-color: var(--audit-gold);
     --fa-primary-opacity: 1;
     --fa-secondary-color: rgba(247, 247, 245, 0.92);
@@ -535,7 +535,7 @@
     font-size: clamp(2.2rem, 3vw, 3.5rem);
 }
 
-:is(.front-route-audit, .front-route-accounting) .ac-audit-approach-quote p {
+:is(.front-route-audit, .front-route-accounting, .front-route-tax) .ac-audit-approach-quote p {
     margin: 0;
     color: rgba(247, 247, 245, 0.9);
     font-family: var(--front-font-family, "Instrument Sans Variable", Arial, sans-serif);
@@ -546,45 +546,45 @@
     text-wrap: balance;
 }
 
-:is(.front-route-audit, .front-route-accounting) .ac-audit-approach-quote p + p {
+:is(.front-route-audit, .front-route-accounting, .front-route-tax) .ac-audit-approach-quote p + p {
     margin-top: 1.25rem;
 }
 
-:is(.front-route-audit, .front-route-accounting) .ac-audit-contact-cta {
+:is(.front-route-audit, .front-route-accounting, .front-route-tax) .ac-audit-contact-cta {
     content-visibility: visible;
     contain-intrinsic-size: none;
 }
 
-.front-desktop-shell:is(.front-route-audit, .front-route-accounting) .front-content-shell .ac-audit-contact-cta .contact-cta-title {
+.front-desktop-shell:is(.front-route-audit, .front-route-accounting, .front-route-tax) .front-content-shell .ac-audit-contact-cta .contact-cta-title {
     max-width: 760px;
     font-size: clamp(3rem, 3.75vw, 4.75rem);
     letter-spacing: -0.018em;
     line-height: 1.04;
 }
 
-.front-desktop-shell:is(.front-route-audit, .front-route-accounting) .front-content-shell .ac-audit-contact-cta .contact-cta-button {
+.front-desktop-shell:is(.front-route-audit, .front-route-accounting, .front-route-tax) .front-content-shell .ac-audit-contact-cta .contact-cta-button {
     color: var(--audit-navy);
 }
 
-.front-desktop-shell:is(.front-route-audit, .front-route-accounting) .front-content-shell .ac-audit-contact-cta .contact-cta-button:hover,
-.front-desktop-shell:is(.front-route-audit, .front-route-accounting) .front-content-shell .ac-audit-contact-cta .contact-cta-button:focus-visible {
+.front-desktop-shell:is(.front-route-audit, .front-route-accounting, .front-route-tax) .front-content-shell .ac-audit-contact-cta .contact-cta-button:hover,
+.front-desktop-shell:is(.front-route-audit, .front-route-accounting, .front-route-tax) .front-content-shell .ac-audit-contact-cta .contact-cta-button:focus-visible {
     color: var(--white, #f7f7f5);
 }
 
-:is(.front-route-audit, .front-route-accounting) .ac-audit-news {
+:is(.front-route-audit, .front-route-accounting, .front-route-tax) .ac-audit-news {
     background:
         radial-gradient(circle at 18% 6%, rgba(216, 185, 111, 0.12), transparent 30%),
         var(--audit-cream);
 }
 
-.front-desktop-shell:is(.front-route-audit, .front-route-accounting) .front-content-shell .ac-audit-news .news-title {
+.front-desktop-shell:is(.front-route-audit, .front-route-accounting, .front-route-tax) .front-content-shell .ac-audit-news .news-title {
     max-width: 62rem;
     font-size: clamp(2.6rem, 3vw, 3.75rem);
     letter-spacing: -0.018em;
     line-height: 1.04;
 }
 
-:is(.front-route-audit, .front-route-accounting) .ac-audit-news-heading-copy > p {
+:is(.front-route-audit, .front-route-accounting, .front-route-tax) .ac-audit-news-heading-copy > p {
     max-width: 47rem;
     margin: 1.35rem 0 0;
     color: rgba(3, 18, 31, 0.72);
@@ -592,160 +592,160 @@
     line-height: 1.72;
 }
 
-:is(.front-route-audit, .front-route-accounting) .ac-audit-news .news-card.animation-index-0 {
+:is(.front-route-audit, .front-route-accounting, .front-route-tax) .ac-audit-news .news-card.animation-index-0 {
     --news-index: 0;
 }
 
-:is(.front-route-audit, .front-route-accounting) .ac-audit-news .news-card.animation-index-1 {
+:is(.front-route-audit, .front-route-accounting, .front-route-tax) .ac-audit-news .news-card.animation-index-1 {
     --news-index: 1;
 }
 
-:is(.front-route-audit, .front-route-accounting) .ac-audit-news .news-card.animation-index-2 {
+:is(.front-route-audit, .front-route-accounting, .front-route-tax) .ac-audit-news .news-card.animation-index-2 {
     --news-index: 2;
 }
 
-:is(.front-route-audit, .front-route-accounting) .ac-audit-news .news-all-link:focus-visible,
-:is(.front-route-audit, .front-route-accounting) .ac-audit-news .news-card:focus-visible {
+:is(.front-route-audit, .front-route-accounting, .front-route-tax) .ac-audit-news .news-all-link:focus-visible,
+:is(.front-route-audit, .front-route-accounting, .front-route-tax) .ac-audit-news .news-card:focus-visible {
     outline: 2px solid var(--audit-gold);
     outline-offset: 4px;
 }
 
 @media (max-width: 1280px) {
-    :is(.front-route-audit, .front-route-accounting) .ac-audit-wide-shell,
-    :is(.front-route-audit, .front-route-accounting) .ac-audit-hero-shell {
+    :is(.front-route-audit, .front-route-accounting, .front-route-tax) .ac-audit-wide-shell,
+    :is(.front-route-audit, .front-route-accounting, .front-route-tax) .ac-audit-hero-shell {
         width: min(1180px, calc(100% - 80px));
     }
 
 }
 
 @media (max-width: 1024px) {
-    :is(.front-route-audit, .front-route-accounting) .ac-audit-intro-heading {
+    :is(.front-route-audit, .front-route-accounting, .front-route-tax) .ac-audit-intro-heading {
         padding-right: 3rem;
     }
 
-    :is(.front-route-audit, .front-route-accounting) .ac-audit-intro-copy {
+    :is(.front-route-audit, .front-route-accounting, .front-route-tax) .ac-audit-intro-copy {
         padding-left: 3rem;
     }
 
-    :is(.front-route-audit, .front-route-accounting) .ac-audit-obligors-grid {
+    :is(.front-route-audit, .front-route-accounting, .front-route-tax) .ac-audit-obligors-grid {
         gap: 0;
     }
 
-    :is(.front-route-audit, .front-route-accounting) .ac-audit-approach-grid {
+    :is(.front-route-audit, .front-route-accounting, .front-route-tax) .ac-audit-approach-grid {
         gap: 4rem;
     }
 
-    :is(.front-route-audit, .front-route-accounting) .ac-audit-obligors-list {
+    :is(.front-route-audit, .front-route-accounting, .front-route-tax) .ac-audit-obligors-list {
         grid-template-columns: minmax(0, 1fr);
     }
 
-    :is(.front-route-audit, .front-route-accounting) .ac-audit-obligor-card--wide {
+    :is(.front-route-audit, .front-route-accounting, .front-route-tax) .ac-audit-obligor-card--wide {
         grid-column: auto;
     }
 
-    :is(.front-route-audit, .front-route-accounting) .ac-audit-obligor-criteria {
+    :is(.front-route-audit, .front-route-accounting, .front-route-tax) .ac-audit-obligor-criteria {
         grid-template-columns: minmax(0, 1fr);
     }
 
-    :is(.front-route-audit, .front-route-accounting) .ac-audit-obligor-criteria li {
+    :is(.front-route-audit, .front-route-accounting, .front-route-tax) .ac-audit-obligor-criteria li {
         min-height: 0;
         border-top: 1px solid rgba(216, 185, 111, 0.16);
         border-left: 0;
     }
 
-    :is(.front-route-audit, .front-route-accounting) .ac-audit-obligor-criteria li:first-child {
+    :is(.front-route-audit, .front-route-accounting, .front-route-tax) .ac-audit-obligor-criteria li:first-child {
         border-top: 0;
     }
 
-    :is(.front-route-audit, .front-route-accounting) .ac-audit-services-grid {
+    :is(.front-route-audit, .front-route-accounting, .front-route-tax) .ac-audit-services-grid {
         grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 
-    :is(.front-route-audit, .front-route-accounting) .ac-audit-service-card {
+    :is(.front-route-audit, .front-route-accounting, .front-route-tax) .ac-audit-service-card {
         min-height: 25rem;
     }
 
 }
 
 @media (max-width: 760px) {
-    :is(.front-route-audit, .front-route-accounting) .ac-audit-wide-shell,
-    :is(.front-route-audit, .front-route-accounting) .ac-audit-hero-shell {
+    :is(.front-route-audit, .front-route-accounting, .front-route-tax) .ac-audit-wide-shell,
+    :is(.front-route-audit, .front-route-accounting, .front-route-tax) .ac-audit-hero-shell {
         width: calc(100% - 40px);
     }
 
-    :is(.front-route-audit, .front-route-accounting) .ac-audit-hero {
+    :is(.front-route-audit, .front-route-accounting, .front-route-tax) .ac-audit-hero {
         min-height: clamp(30rem, 70vh, 38rem);
         min-height: clamp(30rem, 70svh, 38rem);
         min-height: clamp(30rem, 70dvh, 38rem);
     }
 
-    :is(.front-route-audit, .front-route-accounting) .ac-audit-hero-image {
+    :is(.front-route-audit, .front-route-accounting, .front-route-tax) .ac-audit-hero-image {
         object-position: 54% center;
     }
 
-    :is(.front-route-audit, .front-route-accounting) .ac-audit-hero-overlay {
+    :is(.front-route-audit, .front-route-accounting, .front-route-tax) .ac-audit-hero-overlay {
         background:
             linear-gradient(180deg, rgba(3, 18, 31, 0.68) 0%, rgba(3, 18, 31, 0.5) 38%, rgba(3, 18, 31, 0.78) 100%),
             linear-gradient(90deg, rgba(3, 18, 31, 0.32), rgba(3, 18, 31, 0.18));
     }
 
-    :is(.front-route-audit, .front-route-accounting) .ac-audit-hero-shell {
+    :is(.front-route-audit, .front-route-accounting, .front-route-tax) .ac-audit-hero-shell {
         padding: var(--header-height) 0 0;
     }
 
-    :is(.front-route-audit, .front-route-accounting) .ac-audit-hero-copy h1 {
+    :is(.front-route-audit, .front-route-accounting, .front-route-tax) .ac-audit-hero-copy h1 {
         gap: 1rem;
     }
 
-    :is(.front-route-audit, .front-route-accounting) .ac-audit-hero-label {
+    :is(.front-route-audit, .front-route-accounting, .front-route-tax) .ac-audit-hero-label {
         font-size: clamp(3.8rem, 19vw, 5.4rem);
         letter-spacing: 0.01em;
     }
 
-    :is(.front-route-audit, .front-route-accounting) .ac-audit-hero-hook {
+    :is(.front-route-audit, .front-route-accounting, .front-route-tax) .ac-audit-hero-hook {
         max-width: 30ch;
         font-size: clamp(1rem, 4.8vw, 1.2rem);
         line-height: 1.48;
     }
 
-    :is(.front-route-audit, .front-route-accounting) .ac-audit-intro,
-    :is(.front-route-audit, .front-route-accounting) .ac-audit-obligors,
-    :is(.front-route-audit, .front-route-accounting) .ac-audit-services,
-    :is(.front-route-audit, .front-route-accounting) .ac-audit-approach {
+    :is(.front-route-audit, .front-route-accounting, .front-route-tax) .ac-audit-intro,
+    :is(.front-route-audit, .front-route-accounting, .front-route-tax) .ac-audit-obligors,
+    :is(.front-route-audit, .front-route-accounting, .front-route-tax) .ac-audit-services,
+    :is(.front-route-audit, .front-route-accounting, .front-route-tax) .ac-audit-approach {
         padding-top: 5.25rem;
         padding-bottom: 5.5rem;
     }
 
-    :is(.front-route-audit, .front-route-accounting) .ac-audit-intro {
+    :is(.front-route-audit, .front-route-accounting, .front-route-tax) .ac-audit-intro {
         padding-top: 4rem;
         padding-bottom: 4rem;
     }
 
-    :is(.front-route-audit, .front-route-accounting) .ac-audit-news .news-shell {
+    :is(.front-route-audit, .front-route-accounting, .front-route-tax) .ac-audit-news .news-shell {
         padding-top: 4.5rem;
         padding-bottom: 4.5rem;
     }
 
-    :is(.front-route-audit, .front-route-accounting) .ac-audit-intro-grid,
-    :is(.front-route-audit, .front-route-accounting) .ac-audit-obligors-grid,
-    :is(.front-route-audit, .front-route-accounting) .ac-audit-approach-grid {
+    :is(.front-route-audit, .front-route-accounting, .front-route-tax) .ac-audit-intro-grid,
+    :is(.front-route-audit, .front-route-accounting, .front-route-tax) .ac-audit-obligors-grid,
+    :is(.front-route-audit, .front-route-accounting, .front-route-tax) .ac-audit-approach-grid {
         grid-template-columns: minmax(0, 1fr);
     }
 
-    :is(.front-route-audit, .front-route-accounting) .ac-audit-intro-heading,
-    :is(.front-route-audit, .front-route-accounting) .ac-audit-intro-copy {
+    :is(.front-route-audit, .front-route-accounting, .front-route-tax) .ac-audit-intro-heading,
+    :is(.front-route-audit, .front-route-accounting, .front-route-tax) .ac-audit-intro-copy {
         padding: 0;
     }
 
-    :is(.front-route-audit, .front-route-accounting) .ac-audit-intro-heading h2,
-    :is(.front-route-audit, .front-route-accounting) .ac-audit-obligors-heading h2,
-    :is(.front-route-audit, .front-route-accounting) .ac-audit-section-heading h2,
-    :is(.front-route-audit, .front-route-accounting) .ac-audit-approach-heading h2 {
+    :is(.front-route-audit, .front-route-accounting, .front-route-tax) .ac-audit-intro-heading h2,
+    :is(.front-route-audit, .front-route-accounting, .front-route-tax) .ac-audit-obligors-heading h2,
+    :is(.front-route-audit, .front-route-accounting, .front-route-tax) .ac-audit-section-heading h2,
+    :is(.front-route-audit, .front-route-accounting, .front-route-tax) .ac-audit-approach-heading h2 {
         max-width: none;
         font-size: clamp(3rem, 12vw, 3.75rem);
     }
 
-    :is(.front-route-audit, .front-route-accounting) .ac-audit-intro-copy {
+    :is(.front-route-audit, .front-route-accounting, .front-route-tax) .ac-audit-intro-copy {
         min-height: 0;
         margin-top: 2.5rem;
         padding-top: 2.5rem;
@@ -753,24 +753,24 @@
         border-left: 0;
     }
 
-    :is(.front-route-audit, .front-route-accounting) .ac-audit-intro-copy p {
+    :is(.front-route-audit, .front-route-accounting, .front-route-tax) .ac-audit-intro-copy p {
         font-size: 1.02rem;
         line-height: 1.72;
     }
 
-    :is(.front-route-audit, .front-route-accounting) .ac-audit-obligors-grid {
+    :is(.front-route-audit, .front-route-accounting, .front-route-tax) .ac-audit-obligors-grid {
         gap: 0;
     }
 
-    :is(.front-route-audit, .front-route-accounting) .ac-audit-approach-grid {
+    :is(.front-route-audit, .front-route-accounting, .front-route-tax) .ac-audit-approach-grid {
         gap: 2.8rem;
     }
 
-    :is(.front-route-audit, .front-route-accounting) .ac-audit-obligors-heading {
+    :is(.front-route-audit, .front-route-accounting, .front-route-tax) .ac-audit-obligors-heading {
         padding-right: 0;
     }
 
-    :is(.front-route-audit, .front-route-accounting) .ac-audit-obligors-note {
+    :is(.front-route-audit, .front-route-accounting, .front-route-tax) .ac-audit-obligors-note {
         min-height: 0;
         margin-top: 2.5rem;
         padding: 2.5rem 0 0;
@@ -778,58 +778,58 @@
         border-left: 0;
     }
 
-    :is(.front-route-audit, .front-route-accounting) .ac-audit-obligors-content {
+    :is(.front-route-audit, .front-route-accounting, .front-route-tax) .ac-audit-obligors-content {
         margin-top: 2.8rem;
     }
 
-    :is(.front-route-audit, .front-route-accounting) .ac-audit-obligor-card {
+    :is(.front-route-audit, .front-route-accounting, .front-route-tax) .ac-audit-obligor-card {
         min-height: 0;
         padding: 1.5rem;
         border-radius: 30px 4px 30px 4px;
     }
 
-    :is(.front-route-audit, .front-route-accounting) .ac-audit-obligor-card:nth-child(even) {
+    :is(.front-route-audit, .front-route-accounting, .front-route-tax) .ac-audit-obligor-card:nth-child(even) {
         border-radius: 4px 30px 4px 30px;
     }
 
-    :is(.front-route-audit, .front-route-accounting) .ac-audit-obligor-icon {
+    :is(.front-route-audit, .front-route-accounting, .front-route-tax) .ac-audit-obligor-icon {
         margin: 0;
     }
 
-    :is(.front-route-audit, .front-route-accounting) .ac-audit-obligor-criteria {
+    :is(.front-route-audit, .front-route-accounting, .front-route-tax) .ac-audit-obligor-criteria {
         margin-top: 1rem;
     }
 
-    :is(.front-route-audit, .front-route-accounting) .ac-audit-section-heading {
+    :is(.front-route-audit, .front-route-accounting, .front-route-tax) .ac-audit-section-heading {
         margin-inline: 0;
         margin-bottom: 2.8rem;
         text-align: left;
     }
 
-    :is(.front-route-audit, .front-route-accounting) .ac-audit-section-heading > p:last-child {
+    :is(.front-route-audit, .front-route-accounting, .front-route-tax) .ac-audit-section-heading > p:last-child {
         margin-inline: 0;
     }
 
-    :is(.front-route-audit, .front-route-accounting) .ac-audit-services-grid {
+    :is(.front-route-audit, .front-route-accounting, .front-route-tax) .ac-audit-services-grid {
         grid-template-columns: minmax(0, 1fr);
     }
 
-    :is(.front-route-audit, .front-route-accounting) .ac-audit-service-card {
+    :is(.front-route-audit, .front-route-accounting, .front-route-tax) .ac-audit-service-card {
         min-height: 0;
         padding: 2rem;
         border-radius: 44px 5px 44px 5px;
     }
 
-    :is(.front-route-audit, .front-route-accounting) .ac-audit-service-card:nth-child(3n + 2) {
+    :is(.front-route-audit, .front-route-accounting, .front-route-tax) .ac-audit-service-card:nth-child(3n + 2) {
         border-radius: 5px 44px 5px 44px;
     }
 
-    :is(.front-route-audit, .front-route-accounting) .ac-audit-approach-quote {
+    :is(.front-route-audit, .front-route-accounting, .front-route-tax) .ac-audit-approach-quote {
         padding: 1.65rem;
         border-radius: 42px 4px 42px 4px;
     }
 
-    :is(.front-route-audit, .front-route-accounting) .ac-audit-approach-quote p {
+    :is(.front-route-audit, .front-route-accounting, .front-route-tax) .ac-audit-approach-quote p {
         font-size: 1.35rem;
         line-height: 1.5;
     }
@@ -837,12 +837,75 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-    :is(.front-route-audit, .front-route-accounting) .ac-audit-hero-image,
-    :is(.front-route-audit, .front-route-accounting) .ac-audit-hero-label,
-    :is(.front-route-audit, .front-route-accounting) .ac-audit-hero-hook,
-    :is(.front-route-audit, .front-route-accounting) .ac-audit-service-card {
+    :is(.front-route-audit, .front-route-accounting, .front-route-tax) .ac-audit-hero-image,
+    :is(.front-route-audit, .front-route-accounting, .front-route-tax) .ac-audit-hero-label,
+    :is(.front-route-audit, .front-route-accounting, .front-route-tax) .ac-audit-hero-hook,
+    :is(.front-route-audit, .front-route-accounting, .front-route-tax) .ac-audit-service-card {
         opacity: 1;
         transform: none;
         transition: none;
     }
+}
+
+.front-route-tax .ac-tax-copy-list,
+.front-route-tax .ac-tax-compliance-list {
+    display: grid;
+    margin: 0;
+    padding: 0;
+    gap: 0.8rem;
+    list-style: none;
+}
+
+.front-route-tax .ac-tax-copy-list li,
+.front-route-tax .ac-tax-compliance-list li {
+    position: relative;
+    padding-left: 1.35rem;
+    color: inherit;
+    font-size: 0.96rem;
+    line-height: 1.65;
+}
+
+.front-route-tax .ac-tax-copy-list li::before,
+.front-route-tax .ac-tax-compliance-list li::before {
+    position: absolute;
+    top: 0.65em;
+    left: 0;
+    width: 0.42rem;
+    height: 0.42rem;
+    border-radius: 50%;
+    background: var(--audit-gold-deep);
+    content: "";
+}
+
+.front-route-tax .ac-audit-obligor-copy > p {
+    margin: 0.75rem 0 1rem;
+    color: rgba(247, 247, 245, 0.72);
+    font-size: 0.96rem;
+    line-height: 1.65;
+}
+
+.front-route-tax .ac-tax-compliance-list {
+    margin-top: 1rem;
+    color: rgba(247, 247, 245, 0.76);
+}
+
+.front-route-tax .ac-tax-editorial-section:nth-of-type(even) {
+    background: #ebe6da;
+}
+
+.front-route-tax .ac-tax-contact-phone {
+    display: flex;
+    margin: 0;
+    gap: 0.4rem;
+    align-items: baseline;
+    flex-wrap: wrap;
+}
+
+.front-route-tax .ac-tax-contact-phone span {
+    color: rgba(255, 255, 255, 0.68);
+}
+
+.front-route-tax .ac-tax-contact-phone a {
+    color: var(--white, #f7f7f5);
+    font-weight: 600;
 }
