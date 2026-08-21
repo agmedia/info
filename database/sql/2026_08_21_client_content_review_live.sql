@@ -4,9 +4,9 @@
 --
 -- IMPORTANT:
 -- 1. Deploy the matching application code before importing.
--- 2. This SQL updates CMS text and the requested counts only. It contains no writes
---    to the media table and does not change team-member activation, ordering,
---    contact details, photos, or other team settings.
+-- 2. This SQL updates CMS text, counts and only the requested editorial images:
+--    the Career hero/gallery and the Audit image. It does not change team-member
+--    activation, ordering, contact details, photos, or other team settings.
 -- 3. Within the team content, it changes only Danijel's displayed credential and
 --    Ana Mandić's Croatian biography, when those members already exist.
 -- 4. This script does not mark Laravel migrations as applied.
@@ -579,6 +579,164 @@ SET
 WHERE team_member_id = @ac_ana_id
   AND locale = 'hr';
 
+-- Editorial media linked to the versioned image files deployed with the application.
+-- These records remain replaceable through the normal CMS upload fields. No team media
+-- collection is selected, deleted or inserted anywhere in this section.
+SET @ac_audit_page_id := (
+    SELECT id
+    FROM content_service_pages
+    WHERE code = 'audit' OR template_key = 'audit'
+    ORDER BY CASE WHEN code = 'audit' THEN 0 ELSE 1 END, id
+    LIMIT 1
+);
+
+SET @ac_services_index_page_id := (
+    SELECT id
+    FROM content_service_pages
+    WHERE code = 'services' OR template_key = 'services_index'
+    ORDER BY CASE WHEN code = 'services' THEN 0 ELSE 1 END, id
+    LIMIT 1
+);
+
+DELETE FROM media
+WHERE model_type = 'App\\Models\\Content\\Page\\InfoPage'
+  AND model_id = @ac_career_page_id
+  AND collection_name IN ('career_hero_image', 'career_gallery_images');
+
+INSERT INTO media (
+    model_type, model_id, uuid, collection_name, name, file_name, mime_type,
+    disk, conversions_disk, size, manipulations, custom_properties,
+    generated_conversions, responsive_images, order_column, created_at, updated_at
+)
+SELECT
+    'App\\Models\\Content\\Page\\InfoPage', @ac_career_page_id, UUID(),
+    'career_hero_image', 'ALPHA CAPITALIS tim na team buildingu',
+    'career-team-building.jpg', 'image/jpeg', 'public', 'public', 356500,
+    JSON_OBJECT(),
+    JSON_OBJECT(
+        'bundled_asset_path', 'front-theme/images/career/career-team-building.jpg',
+        'alt', JSON_OBJECT(
+            'hr', 'ALPHA CAPITALIS tim na team buildingu',
+            'en', 'ALPHA CAPITALIS team at a team-building gathering'
+        )
+    ),
+    JSON_OBJECT(), JSON_OBJECT(), 1, NOW(), NOW()
+FROM DUAL
+WHERE @ac_career_page_id IS NOT NULL;
+
+INSERT INTO media (
+    model_type, model_id, uuid, collection_name, name, file_name, mime_type,
+    disk, conversions_disk, size, manipulations, custom_properties,
+    generated_conversions, responsive_images, order_column, created_at, updated_at
+)
+SELECT
+    'App\\Models\\Content\\Page\\InfoPage', @ac_career_page_id, UUID(),
+    'career_gallery_images', 'Detalj ureda ALPHA CAPITALISA',
+    'career-office-detail.jpg', 'image/jpeg', 'public', 'public', 263152,
+    JSON_OBJECT(),
+    JSON_OBJECT(
+        'bundled_asset_path', 'front-theme/images/career/career-office-detail.jpg',
+        'alt', JSON_OBJECT(
+            'hr', 'Brendirani prostor ureda ALPHA CAPITALISA',
+            'en', 'A branded area in the ALPHA CAPITALIS office'
+        )
+    ),
+    JSON_OBJECT(), JSON_OBJECT(), 1, NOW(), NOW()
+FROM DUAL
+WHERE @ac_career_page_id IS NOT NULL;
+
+INSERT INTO media (
+    model_type, model_id, uuid, collection_name, name, file_name, mime_type,
+    disk, conversions_disk, size, manipulations, custom_properties,
+    generated_conversions, responsive_images, order_column, created_at, updated_at
+)
+SELECT
+    'App\\Models\\Content\\Page\\InfoPage', @ac_career_page_id, UUID(),
+    'career_gallery_images', 'Radni prostor ALPHA CAPITALISA',
+    'career-office.jpg', 'image/jpeg', 'public', 'public', 166589,
+    JSON_OBJECT(),
+    JSON_OBJECT(
+        'bundled_asset_path', 'front-theme/images/career/career-office.jpg',
+        'alt', JSON_OBJECT(
+            'hr', 'ALPHA CAPITALIS tim u zajedničkom uredskom prostoru',
+            'en', 'The ALPHA CAPITALIS team in a shared office space'
+        )
+    ),
+    JSON_OBJECT(), JSON_OBJECT(), 2, NOW(), NOW()
+FROM DUAL
+WHERE @ac_career_page_id IS NOT NULL;
+
+INSERT INTO media (
+    model_type, model_id, uuid, collection_name, name, file_name, mime_type,
+    disk, conversions_disk, size, manipulations, custom_properties,
+    generated_conversions, responsive_images, order_column, created_at, updated_at
+)
+SELECT
+    'App\\Models\\Content\\Page\\InfoPage', @ac_career_page_id, UUID(),
+    'career_gallery_images', 'Suradnja ALPHA CAPITALIS stručnjaka',
+    'career-team-collaboration.jpg', 'image/jpeg', 'public', 'public', 109524,
+    JSON_OBJECT(),
+    JSON_OBJECT(
+        'bundled_asset_path', 'front-theme/images/career/career-team-collaboration.jpg',
+        'alt', JSON_OBJECT(
+            'hr', 'Dvojica ALPHA CAPITALIS stručnjaka tijekom zajedničkog rada',
+            'en', 'Two ALPHA CAPITALIS specialists working together'
+        )
+    ),
+    JSON_OBJECT(), JSON_OBJECT(), 3, NOW(), NOW()
+FROM DUAL
+WHERE @ac_career_page_id IS NOT NULL;
+
+DELETE FROM media
+WHERE model_type = 'App\\Models\\Content\\Service\\ServicePage'
+  AND (
+      (model_id = @ac_audit_page_id AND collection_name = 'service_hero_image')
+      OR
+      (model_id = @ac_services_index_page_id AND collection_name = 'services_index_audit_image')
+  );
+
+INSERT INTO media (
+    model_type, model_id, uuid, collection_name, name, file_name, mime_type,
+    disk, conversions_disk, size, manipulations, custom_properties,
+    generated_conversions, responsive_images, order_column, created_at, updated_at
+)
+SELECT
+    'App\\Models\\Content\\Service\\ServicePage', @ac_audit_page_id, UUID(),
+    'service_hero_image', 'Predaja ALPHA CAPITALIS vizitke na poslovnom sastanku',
+    'audit-client-meeting.jpg', 'image/jpeg', 'public', 'public', 89548,
+    JSON_OBJECT(),
+    JSON_OBJECT(
+        'bundled_asset_path', 'front-theme/images/services/audit-client-meeting.jpg',
+        'alt', JSON_OBJECT(
+            'hr', 'Predaja ALPHA CAPITALIS vizitke na poslovnom sastanku',
+            'en', 'An ALPHA CAPITALIS business card being handed over at a client meeting'
+        )
+    ),
+    JSON_OBJECT(), JSON_OBJECT(), 1, NOW(), NOW()
+FROM DUAL
+WHERE @ac_audit_page_id IS NOT NULL;
+
+INSERT INTO media (
+    model_type, model_id, uuid, collection_name, name, file_name, mime_type,
+    disk, conversions_disk, size, manipulations, custom_properties,
+    generated_conversions, responsive_images, order_column, created_at, updated_at
+)
+SELECT
+    'App\\Models\\Content\\Service\\ServicePage', @ac_services_index_page_id, UUID(),
+    'services_index_audit_image', 'Predaja ALPHA CAPITALIS vizitke na poslovnom sastanku',
+    'audit-client-meeting.jpg', 'image/jpeg', 'public', 'public', 89548,
+    JSON_OBJECT(),
+    JSON_OBJECT(
+        'bundled_asset_path', 'front-theme/images/services/audit-client-meeting.jpg',
+        'alt', JSON_OBJECT(
+            'hr', 'Predaja ALPHA CAPITALIS vizitke na poslovnom sastanku',
+            'en', 'An ALPHA CAPITALIS business card being handed over at a client meeting'
+        )
+    ),
+    JSON_OBJECT(), JSON_OBJECT(), 1, NOW(), NOW()
+FROM DUAL
+WHERE @ac_services_index_page_id IS NOT NULL;
+
 COMMIT;
 
 -- Verification: updated CMS content.
@@ -617,3 +775,26 @@ LEFT JOIN content_team_member_translations AS translation
     ON translation.team_member_id = member.id
 WHERE member.code IN ('danijel-pevec', 'ana-mandic')
 ORDER BY member.sort_order, translation.locale;
+
+SELECT
+    model_type,
+    model_id,
+    collection_name,
+    file_name,
+    JSON_UNQUOTE(JSON_EXTRACT(custom_properties, '$.bundled_asset_path')) AS bundled_asset_path,
+    order_column
+FROM media
+WHERE (
+        model_type = 'App\\Models\\Content\\Page\\InfoPage'
+        AND model_id = @ac_career_page_id
+        AND collection_name IN ('career_hero_image', 'career_gallery_images')
+    )
+    OR (
+        model_type = 'App\\Models\\Content\\Service\\ServicePage'
+        AND (
+            (model_id = @ac_audit_page_id AND collection_name = 'service_hero_image')
+            OR
+            (model_id = @ac_services_index_page_id AND collection_name = 'services_index_audit_image')
+        )
+    )
+ORDER BY model_type, model_id, collection_name, order_column;

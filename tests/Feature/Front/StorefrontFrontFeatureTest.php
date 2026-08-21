@@ -22,11 +22,38 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;
+use Spatie\MediaLibrary\MediaCollections\Models\Media;
 use Tests\TestCase;
 
 class StorefrontFrontFeatureTest extends TestCase
 {
     use RefreshDatabase;
+
+    public function test_bundled_cms_media_resolves_to_its_deployed_public_asset(): void
+    {
+        $media = new Media([
+            'id' => 999999,
+            'file_name' => 'career-team-building.jpg',
+            'disk' => 'public',
+            'conversions_disk' => 'public',
+            'manipulations' => [],
+            'custom_properties' => [
+                'bundled_asset_path' => 'front-theme/images/career/career-team-building.jpg',
+            ],
+            'generated_conversions' => [],
+            'responsive_images' => [],
+        ]);
+
+        $this->assertSame(
+            asset('front-theme/images/career/career-team-building.jpg'),
+            $media->getUrl(),
+        );
+        $this->assertSame(
+            public_path('front-theme/images/career/career-team-building.jpg'),
+            $media->getPath(),
+        );
+        $this->assertFileExists($media->getPath());
+    }
 
     public function test_public_content_routes_are_available(): void
     {
