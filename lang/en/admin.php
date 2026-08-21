@@ -162,6 +162,19 @@ return [
                 'subtitle' => 'Manage team members, bios, contact links, and photos by locale.',
                 'items_per_page' => 'Items per page',
                 'search_placeholder' => 'Code, name, position, department, or email...',
+                'page_settings' => [
+                    'eyebrow' => 'Team page',
+                    'title' => 'Intro copy and SEO',
+                    'subtitle' => 'Content is saved for the currently selected language (:locale).',
+                    'intro_hint' => 'This copy appears to the right of the main heading on the public page.',
+                    'fields' => [
+                        'intro' => 'Intro copy',
+                        'meta_title' => 'SEO title',
+                        'meta_description' => 'SEO description',
+                    ],
+                    'save' => 'Save page settings',
+                    'notify_saved' => 'Team page settings saved.',
+                ],
                 'table' => [
                     'preview' => 'Preview',
                     'member' => 'Member',

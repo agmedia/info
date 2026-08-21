@@ -699,7 +699,7 @@ return [
     'team' => [
         'page_title' => 'ALPHA CAPITALIS Team',
         'title' => 'ALPHA CAPITALIS Team',
-        'subtitle' => 'Meet the specialists behind finance, accounting, tax, audit, and advisory engagements.',
+        'subtitle' => 'Meet the experts who connect knowledge across different fields to support clients where they need it most.',
         'eyebrow' => 'Expert team',
         'intro_lead' => 'ALPHA CAPITALIS brings together a young team focused on creating measurable value for clients.',
         'intro_body' => 'We approach controlling, management accounting, and broader financial services by thinking beyond standard frameworks, with clear communication, operational precision, and support shaped around real business needs.',

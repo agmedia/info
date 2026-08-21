@@ -126,8 +126,12 @@
     }
 
     if (request()->routeIs('team.index')) {
-        $title = $cleanupText((string) __('ui.team.page_title'), 191);
-        $description = $cleanupText((string) __('ui.team.subtitle'), 320);
+        $translation = $teamPageTranslation
+            ?? ($teamPage?->translations->firstWhere('locale', $locale) ?? null)
+            ?? ($teamPage?->translations->firstWhere('locale', $fallbackLocale) ?? null)
+            ?? ($teamPage?->translations->first() ?? null);
+        $title = $cleanupText($translation?->meta_title ?: $translation?->title ?: (string) __('ui.team.page_title'), 191);
+        $description = $cleanupText($translation?->meta_description ?: $translation?->excerpt ?: (string) __('ui.team.subtitle'), 320);
     }
 
     if (request()->routeIs('services.index')) {

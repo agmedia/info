@@ -699,7 +699,7 @@ return [
     'team' => [
         'page_title' => 'ALPHA CAPITALIS Tim',
         'title' => 'ALPHA CAPITALIS Tim',
-        'subtitle' => 'Upoznajte stručnjake koji vode projekte iz financija, računovodstva, poreza, revizije i poslovnog savjetovanja.',
+        'subtitle' => 'Upoznajte stručnjake koji povezuju znanja iz različitih područja kako bi klijentima pružili podršku tamo gdje im je najpotrebnija.',
         'eyebrow' => 'Stručni tim',
         'intro_lead' => 'ALPHA CAPITALIS čini tim mladih ljudi fokusiranih na stvaranje vrijednosti svojim klijentima.',
         'intro_body' => 'Kontrolingu, menadžerskom računovodstvu i ostalim financijskim uslugama pristupamo razmišljanjem izvan uobičajenih okvira, uz jasnu komunikaciju, operativnu preciznost i podršku koja prati stvarne poslovne potrebe.',

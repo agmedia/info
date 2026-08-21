@@ -3,10 +3,12 @@
 namespace Tests\Feature\Admin;
 
 use App\Livewire\Admin\Content\Team\Form as TeamForm;
+use App\Livewire\Admin\Content\Team\Manager as TeamManager;
+use App\Models\Content\Page\InfoPage;
 use App\Models\Content\Team\TeamMember;
 use App\Models\User;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\DB;
 use Livewire\Livewire;
 use Silber\Bouncer\BouncerFacade as Bouncer;
 use Silber\Bouncer\Database\Ability;
@@ -53,6 +55,27 @@ class ContentTeamFeatureTest extends TestCase
         $this->assertSame('Ivan Horvat, ovl. rev.', (string) $member->translation('hr')->first()?->name);
         $this->assertSame('Partner', (string) $member->translation('hr')->first()?->position);
         $this->assertSame("Revizija\nPorezno savjetovanje", (string) $member->translation('hr')->first()?->departments);
+    }
+
+    public function test_admin_can_update_team_page_intro_and_seo(): void
+    {
+        $user = $this->makeAdminUser();
+
+        Livewire::actingAs($user)
+            ->test(TeamManager::class)
+            ->set('locale', 'hr')
+            ->set('pageSettings.intro', 'Novi uvodni tekst stranice tima.')
+            ->set('pageSettings.meta_title', 'Naš tim | Alpha Capitalis')
+            ->set('pageSettings.meta_description', 'SEO opis stranice našeg tima.')
+            ->call('savePageSettings')
+            ->assertHasNoErrors();
+
+        $page = InfoPage::query()->where('code', 'team-page')->firstOrFail();
+        $translation = $page->translation('hr')->firstOrFail();
+
+        $this->assertSame('Novi uvodni tekst stranice tima.', $translation->excerpt);
+        $this->assertSame('Naš tim | Alpha Capitalis', $translation->meta_title);
+        $this->assertSame('SEO opis stranice našeg tima.', $translation->meta_description);
     }
 
     public function test_team_abilities_are_auto_synced_for_existing_admin_role(): void

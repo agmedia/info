@@ -34,6 +34,50 @@
         </div>
     </div>
 
+    <form wire:submit="savePageSettings" class="admin-panel admin-form-panel p-6">
+        <div class="flex flex-col gap-2 border-b border-slate-200 pb-4 sm:flex-row sm:items-start sm:justify-between">
+            <div>
+                <p class="text-xs font-semibold uppercase tracking-[0.16em] text-cyan-700">{{ __('admin.content.team.manager.page_settings.eyebrow') }}</p>
+                <h2 class="mt-1 text-lg font-semibold text-slate-900">{{ __('admin.content.team.manager.page_settings.title') }}</h2>
+                <p class="mt-1 text-sm text-slate-600">{{ __('admin.content.team.manager.page_settings.subtitle', ['locale' => $locale]) }}</p>
+            </div>
+            <span class="admin-chip lowercase">{{ $locale }}</span>
+        </div>
+
+        <div class="mt-5">
+            <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
+                {{ __('admin.content.team.manager.page_settings.fields.intro') }}
+            </label>
+            <textarea rows="3" wire:model="pageSettings.intro" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm"></textarea>
+            <p class="mt-1 text-xs text-slate-500">{{ __('admin.content.team.manager.page_settings.intro_hint') }}</p>
+            @error('pageSettings.intro') <p class="mt-1 text-xs text-rose-600">{{ $message }}</p> @enderror
+        </div>
+
+        <div class="mt-5 grid gap-4 lg:grid-cols-2">
+            <div>
+                <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
+                    {{ __('admin.content.team.manager.page_settings.fields.meta_title') }}
+                </label>
+                <input type="text" wire:model="pageSettings.meta_title" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+                @error('pageSettings.meta_title') <p class="mt-1 text-xs text-rose-600">{{ $message }}</p> @enderror
+            </div>
+
+            <div>
+                <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
+                    {{ __('admin.content.team.manager.page_settings.fields.meta_description') }}
+                </label>
+                <textarea rows="3" wire:model="pageSettings.meta_description" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm"></textarea>
+                @error('pageSettings.meta_description') <p class="mt-1 text-xs text-rose-600">{{ $message }}</p> @enderror
+            </div>
+        </div>
+
+        <div class="mt-5 flex justify-end">
+            <button type="submit" class="rounded-xl bg-cyan-700 px-4 py-2 text-sm font-semibold text-white hover:bg-cyan-800">
+                {{ __('admin.content.team.manager.page_settings.save') }}
+            </button>
+        </div>
+    </form>
+
     <div class="admin-panel admin-panel-soft p-5">
         <h2 class="admin-section-title">{{ __('admin.common.items') }}</h2>
 

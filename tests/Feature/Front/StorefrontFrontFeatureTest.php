@@ -1580,6 +1580,22 @@ class StorefrontFrontFeatureTest extends TestCase
             ->assertSee('front-theme/scripts/team.js', false);
     }
 
+    public function test_team_page_renders_admin_managed_intro_and_seo(): void
+    {
+        $page = InfoPage::query()->where('code', 'team-page')->firstOrFail();
+        $page->translation('hr')->firstOrFail()->update([
+            'excerpt' => 'Uvod kojim upravlja administrator.',
+            'meta_title' => 'Stručni tim | Alpha Capitalis',
+            'meta_description' => 'Prilagođeni SEO opis stranice tima.',
+        ]);
+
+        $this->get('/alpha-capitalis-tim')
+            ->assertOk()
+            ->assertSee('Uvod kojim upravlja administrator.')
+            ->assertSee('<title>Stručni tim | Alpha Capitalis</title>', false)
+            ->assertSee('<meta name="description" content="Prilagođeni SEO opis stranice tima.">', false);
+    }
+
     public function test_blog_article_breadcrumb_links_primary_category_without_current_article(): void
     {
         $news = $this->seedBlogCategory('News', 'news');

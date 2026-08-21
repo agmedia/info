@@ -4,9 +4,9 @@ namespace App\Http\Controllers\Front;
 
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\Front\Concerns\ResolvesFrontendView;
+use App\Models\Content\Page\InfoPage;
 use App\Models\Content\Team\TeamMember;
 use Illuminate\Http\Request;
-use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
 
@@ -18,6 +18,16 @@ class TeamController extends Controller
     {
         $locale = app()->getLocale();
         $fallbackLocale = (string) config('app.fallback_locale', config('app.locale', 'en'));
+        $teamPage = InfoPage::query()
+            ->where('code', 'team-page')
+            ->where('is_active', true)
+            ->with('translations')
+            ->first();
+        $teamPageTranslation = $teamPage?->translations->firstWhere('locale', $locale)
+            ?? $teamPage?->translations->firstWhere('locale', $fallbackLocale)
+            ?? $teamPage?->translations->first();
+        $teamIntro = trim((string) ($teamPageTranslation?->excerpt ?? ''))
+            ?: (string) __('ui.team.subtitle');
 
         $members = TeamMember::query()
             ->where('is_active', true)
@@ -33,6 +43,9 @@ class TeamController extends Controller
             'members' => $members,
             'locale' => $locale,
             'fallbackLocale' => $fallbackLocale,
+            'teamPage' => $teamPage,
+            'teamPageTranslation' => $teamPageTranslation,
+            'teamIntro' => $teamIntro,
         ]);
     }
 

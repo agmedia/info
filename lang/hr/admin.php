@@ -162,6 +162,19 @@ return [
                 'subtitle' => 'Upravljanje članovima tima, opisima, kontaktima i fotografijama po jeziku.',
                 'items_per_page' => 'Stavki po stranici',
                 'search_placeholder' => 'Kod, ime, pozicija, odjel ili email...',
+                'page_settings' => [
+                    'eyebrow' => 'Stranica Tim',
+                    'title' => 'Uvodni tekst i SEO',
+                    'subtitle' => 'Sadržaj se sprema za trenutno odabrani jezik (:locale).',
+                    'intro_hint' => 'Ovaj tekst prikazuje se desno od glavnog naslova na javnoj stranici.',
+                    'fields' => [
+                        'intro' => 'Uvodni tekst',
+                        'meta_title' => 'SEO naslov',
+                        'meta_description' => 'SEO opis',
+                    ],
+                    'save' => 'Spremi postavke stranice',
+                    'notify_saved' => 'Postavke stranice Tim su spremljene.',
+                ],
                 'table' => [
                     'preview' => 'Slika',
                     'member' => 'Član',

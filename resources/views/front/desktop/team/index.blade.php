@@ -34,7 +34,7 @@
                     </h1>
                 </div>
 
-                <p class="values-copy services-index-intro-copy content-reveal" data-image-reveal>{{ __('ui.team.subtitle') }}</p>
+                <p class="values-copy services-index-intro-copy content-reveal" data-image-reveal>{{ $teamIntro }}</p>
             </div>
         </section>
 
