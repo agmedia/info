@@ -172,10 +172,12 @@ class StorefrontFrontFeatureTest extends TestCase
     {
         $this->get('/karijera')
             ->assertOk()
-            ->assertSee('Mjesto gdje karijera stvarno raste')
-            ->assertSee('Ne tražimo samo zaposlenike.')
-            ->assertSee('ALPHA CAPITALIS danas okuplja više od 70 stručnjaka')
+            ->assertSee('Mjesto gdje ljudi i karijere rastu')
+            ->assertSee('Tražimo ljude, ne samo životopise.')
+            ->assertSee('ALPHA CAPITALIS danas okuplja 75 stručnjaka')
+            ->assertSee('Sky Officeu')
             ->assertSee('Razvoj koji nije samo fraza')
+            ->assertSee('class="ac-career-gallery"', false)
             ->assertSee('Ljudi zbog kojih ostaješ')
             ->assertSee('Otvorene pozicije')
             ->assertSee('Pošalji nam svoj životopis')
@@ -969,7 +971,7 @@ class StorefrontFrontFeatureTest extends TestCase
             ->assertSee('fetchpriority="high"', false)
             ->assertSee('data-alpha-hero-video-mobile-src=', false)
             ->assertSee('alpha-zagreb-loop-mobile.mp4', false)
-            ->assertSee('service-revizija-480.webp', false)
+            ->assertSee('audit-client-meeting', false)
             ->assertSee('data-deferred-stylesheet', false)
             ->assertDontSee('splide.min.css', false)
             ->assertDontSee('splide.min.js', false);
@@ -1310,12 +1312,13 @@ class StorefrontFrontFeatureTest extends TestCase
             ->assertSee('fa-duotone fa-thin fa-fw fa-buildings', false)
             ->assertSee('<a class="services-index-inline-link" href="'.route('contact.create').'">ALPHA CAPITALIS</a>', false)
             ->assertSee('<a class="services-index-inline-link" href="'.route('contact.create').'">ALPHA CAPITALISU</a>', false)
-            ->assertSee('<a class="ac-about-dark-inline-link" href="'.route('contact.create').'">ALPHA CAPITALIS</a>', false)
-            ->assertSee('<a class="ac-about-dark-inline-link" href="'.route('advisory.finance.show').'">financija</a>', false)
-            ->assertSee('<a class="ac-about-dark-inline-link" href="'.route('accounting.show').'">računovodstva</a>', false)
-            ->assertSee('<a class="ac-about-dark-inline-link" href="'.route('advisory.show').'">strateškog razvoja</a>', false)
-            ->assertSee('<a class="ac-about-dark-inline-link" href="'.route('audit.show').'">revizije</a>', false)
-            ->assertSee('<a class="ac-about-dark-inline-link" href="'.route('eu-funds.show').'">EU fondova</a>', false)
+            ->assertSee('Jer poslovanje nije ravna linija.')
+            ->assertSee('<strong>Jer poslovanje nije ravna linija.</strong>', false)
+            ->assertSee('<strong>snažan multidisciplinarni tim</strong>', false)
+            ->assertSee('Tim stručnjaka na jednom mjestu')
+            ->assertSee('Uz vas prije, tijekom i nakon svake važne odluke')
+            ->assertSee('data-count-target="75"', false)
+            ->assertSee('data-count-target="700"', false)
             ->assertDontSee('class="footer-newsletter"', false)
             ->assertDontSee('This page has no body content.');
     }
@@ -1578,6 +1581,28 @@ class StorefrontFrontFeatureTest extends TestCase
             ->assertSee('data-team-lightbox-trigger', false)
             ->assertSee('data-team-lightbox', false)
             ->assertSee('front-theme/scripts/team.js', false);
+    }
+
+    public function test_client_review_keeps_ana_mandic_active_with_public_profile_and_photo(): void
+    {
+        $ana = TeamMember::query()
+            ->where('code', 'ana-mandic')
+            ->with(['translations', 'media'])
+            ->firstOrFail();
+
+        $this->assertTrue($ana->is_active);
+        $this->assertSame('ana.mandic@alphacapitalis.com', $ana->email);
+        $this->assertSame('https://www.linkedin.com/in/ana-mandic-phd-aa572b44', $ana->linkedin_url);
+        $this->assertSame('Ana Mandić', (string) $ana->translations->firstWhere('locale', 'hr')?->name);
+        $this->assertSame('Menadžer / Savjetovanje', (string) $ana->translations->firstWhere('locale', 'hr')?->position);
+        $this->assertSame('ana-mandic.png', $ana->getFirstMedia('team_photo')?->file_name);
+
+        $this->get('/alpha-capitalis-tim')
+            ->assertOk()
+            ->assertSee('Ana Mandić')
+            ->assertSee('Menadžer / Savjetovanje')
+            ->assertSee('ana.mandic@alphacapitalis.com')
+            ->assertSee('ana-mandic.png', false);
     }
 
     public function test_team_page_renders_admin_managed_intro_and_seo(): void

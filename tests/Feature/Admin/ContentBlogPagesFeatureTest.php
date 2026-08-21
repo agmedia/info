@@ -104,7 +104,7 @@ class ContentBlogPagesFeatureTest extends TestCase
         $user = $this->makeAdminUser();
         $page = InfoPage::query()->where('code', 'career')->firstOrFail();
 
-        Livewire::actingAs($user)
+        $component = Livewire::actingAs($user)
             ->test(PageForm::class, ['pageId' => $page->id])
             ->assertSet('activeTab', 'content')
             ->assertSee('Stranica Ljudski potencijali')
@@ -118,6 +118,11 @@ class ContentBlogPagesFeatureTest extends TestCase
             ->assertDontSee('Hero odlomak')
             ->assertDontSee('Odlomak 1')
             ->assertDontSee('Page Categories');
+
+        $component
+            ->call('setTab', 'media')
+            ->assertSet('activeTab', 'media')
+            ->assertSee('Career Gallery');
     }
 
     public function test_admin_can_save_academy_blog_source_settings_on_info_page(): void

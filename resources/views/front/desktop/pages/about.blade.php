@@ -319,13 +319,13 @@
                 @if ($whyBlocks->isNotEmpty())
                     <div class="ac-about-why-body">
                         <div class="ac-about-why-body-lead content-reveal animation-index-1" data-image-reveal>
-                            @foreach ($whyBlocks->take(2) as $block)
+                            @foreach ($whyBlocks->take(1) as $block)
                                 {!! $linkTermsInHtml((string) $block, $whyServiceTermLinks, 'ac-about-dark-inline-link') !!}
                             @endforeach
                         </div>
 
                         <div class="ac-about-copy-stack ac-about-why-body-copy content-reveal animation-index-2" data-image-reveal>
-                            @foreach ($whyBlocks->skip(2) as $block)
+                            @foreach ($whyBlocks->skip(1) as $block)
                                 {!! $linkTermsInHtml((string) $block, $whyServiceTermLinks, 'ac-about-dark-inline-link') !!}
                             @endforeach
                         </div>

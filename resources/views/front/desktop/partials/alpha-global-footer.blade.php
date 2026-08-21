@@ -73,7 +73,7 @@
                 <a class="footer-brand" href="{{ $alphaFooterHome }}" aria-label="Alpha Capitalis — početna">
                     <img src="{{ asset('alpha/logo.svg') }}" alt="Alpha Capitalis" width="300" height="80">
                 </a>
-                <p>Jedna adresa za sve brojke.</p>
+                <p>Vaš kompas kroz svijet financija.</p>
                 @if ($alphaFooterSocials->isNotEmpty())
                     <div class="footer-socials" aria-label="Društvene mreže">
                         @foreach ($alphaFooterSocials as $social)

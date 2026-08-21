@@ -119,6 +119,24 @@
                 ? $careerHeroMediaAlt
                 : ($isCroatian ? 'ALPHA CAPITALIS tim' : 'ALPHA CAPITALIS team')),
     ];
+    $careerGallery = $page->getMedia('career_gallery_images')
+        ->map(static function ($media) use ($locale, $fallbackLocale): array {
+            $alt = trim((string) (
+                data_get($media->custom_properties, 'alt.'.$locale)
+                ?: data_get($media->custom_properties, 'alt.'.$fallbackLocale)
+                ?: $media->name
+            ));
+
+            return [
+                'src' => $media->hasGeneratedConversion('detail_960x960')
+                    ? $media->getUrl('detail_960x960')
+                    : $media->getUrl(),
+                'alt' => $alt,
+            ];
+        })
+        ->filter(static fn (array $image): bool => trim((string) $image['src']) !== '')
+        ->take(3)
+        ->values();
     $careerFormText = static fn (string $key): string => trim((string) ($careerFormContent[$key] ?? '')) ?: (string) __('career.form.'.$key);
 @endphp
 
@@ -272,6 +290,26 @@
                             <h3>{{ $careerStoriesIntro }}</h3>
                         </div>
                     </div>
+
+                    @if ($careerGallery->isNotEmpty())
+                        <div class="ac-career-gallery" aria-label="{{ $isCroatian ? 'Naše radno okruženje' : 'Our working environment' }}">
+                            @foreach ($careerGallery as $image)
+                                <figure class="ac-career-gallery-item content-reveal animation-index-{{ $loop->index }}" data-image-reveal>
+                                    <div class="ac-career-gallery-image image-reveal-media">
+                                        <img
+                                            src="{{ $image['src'] }}"
+                                            alt="{{ $image['alt'] }}"
+                                            width="960"
+                                            height="960"
+                                            loading="lazy"
+                                            decoding="async"
+                                        >
+                                        <span class="image-reveal-curtain" aria-hidden="true"></span>
+                                    </div>
+                                </figure>
+                            @endforeach
+                        </div>
+                    @endif
 
                     <div class="ac-career-story-grid">
                         @foreach ($careerStories as $story)

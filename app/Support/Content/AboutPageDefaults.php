@@ -12,10 +12,13 @@ class AboutPageDefaults
         $source = is_array($payload) ? $payload : [];
         $merged = self::mergeValues(self::forLocale($locale), $source);
 
-        $merged['story']['body_html'] = self::bodyHtml(
-            is_array($source['story'] ?? null) ? $source['story'] : [],
-            (array) data_get($merged, 'story.paragraphs', []),
-        );
+        $storySource = is_array($source['story'] ?? null) ? $source['story'] : [];
+        $merged['story']['body_html'] = array_key_exists('body_html', $storySource)
+            || array_key_exists('paragraphs', $storySource)
+                ? self::bodyHtml($storySource, (array) data_get($merged, 'story.paragraphs', []))
+                : (self::isCroatian($locale)
+                    ? self::croatianStoryBodyHtml()
+                    : StructuredRichText::fromParagraphs((array) data_get($merged, 'story.paragraphs', [])));
 
         foreach ((array) data_get($merged, 'values.items', []) as $itemIndex => $item) {
             $sourceItem = is_array(data_get($source, 'values.items.'.$itemIndex))
@@ -65,19 +68,23 @@ class AboutPageDefaults
             'hero' => [
                 'eyebrow' => 'O nama',
                 'title' => 'Naša priča',
-                'lead' => 'Od stručnosti i iskustva do dugoročnih odnosa s klijentima.',
+                'lead' => 'Više od stručne podrške. Partner kroz svaku fazu poslovanja.',
                 'image_alt' => '',
-                'stat_value' => '600+',
+                'stat_value' => '700',
                 'stat_label' => 'klijenata kojima svakodnevno pružamo podršku',
             ],
             'story' => [
                 'kicker' => 'Naša priča',
-                'title' => 'Partner za sigurne poslovne odluke',
+                'title' => 'Više od stručne podrške. Partner kroz svaku fazu poslovanja.',
                 'paragraphs' => [
-                    'ALPHA CAPITALIS nastao je iz želje da poduzetnicima pružimo više od standardne poslovne podrške. Od samih početaka gradimo tvrtku koja spaja stručnost, iskustvo i razumijevanje stvarnih izazova s kojima se susreću poduzetnici, obiteljske tvrtke i organizacije u razvoju.',
-                    'Kroz godine rada razvili smo multidisciplinarni tim stručnjaka iz područja računovodstva, financija, poreza, revizije i EU fondova s ciljem pružanja cjelovitih i dugoročnih rješenja za naše klijente.',
-                    'Danas ALPHA CAPITALIS posluje kao partner koji svojim klijentima pruža sigurnost u donošenju poslovnih odluka, stabilnost u poslovanju i podršku u svim fazama razvoja - od svakodnevnog operativnog poslovanja do strateških odluka i prijenosa poslovanja na nove generacije.',
-                    'Naša priča temelji se na povjerenju, stručnosti i dugoročnim odnosima koje gradimo s klijentima. Upravo zato mnogi od njih s nama rastu već godinama.',
+                    'ALPHA CAPITALIS okuplja stručnjake iz područja računovodstva, revizije i savjetovanja s jednom zajedničkom idejom – pomoći poduzetnicima da sigurnije prolaze kroz sve faze poslovanja.',
+                    'Jer poslovanje nije ravna linija.',
+                    'Tvrtke rastu, mijenjaju se, ulaze u nova tržišta, zapošljavaju, ulažu, prolaze kroz izazove i donose odluke koje mogu odrediti njihov sljedeći korak. Ponekad je potrebno pronaći priliku za rast. Ponekad zaštititi ono što se godinama gradilo. A ponekad pronaći rješenje kada stvari ne idu prema planu.',
+                    'Upravo zato postojimo.',
+                    'Želimo biti uz poduzetnike kada donose važne odluke, kada prelaze iz jedne faze poslovanja u drugu i kada se susreću s problemima za koje nije dovoljno jedno mišljenje ili jedno područje stručnosti.',
+                    'Jer jedna osoba ne može znati i riješiti sve.',
+                    'Ali snažan multidisciplinarni tim može sagledati poslovanje iz više perspektiva, povezati različita znanja i pomoći pronaći cjelovitije rješenje.',
+                    'Zato naši klijenti uz sebe nemaju samo jednog savjetnika. Imaju tim stručnjaka koji razumije različite dijelove poslovanja i koji može pružiti podršku onda kada je ona najpotrebnija, od svakodnevnog računovodstva i poreznih pitanja do financijskih odluka, revizije, rasta, promjena i složenijih poslovnih izazova.',
                 ],
             ],
             'values' => [
@@ -117,25 +124,23 @@ class AboutPageDefaults
             ],
             'why' => [
                 'kicker' => 'Zašto postojimo',
-                'title' => 'Podrška za sigurno, kvalitetno i održivo poslovanje',
-                'quote' => 'Vjerujemo da uspješno poslovanje ne počiva samo na brojkama, već i na kvalitetnim odnosima, jasnoj strategiji i pravovremenim odlukama.',
+                'title' => 'Uz vas prije, tijekom i nakon svake važne odluke',
+                'quote' => 'Kvalitetna stručna podrška nije samo odgovor kada se problem već pojavi.',
                 'paragraphs' => [
-                    'Postojimo kako bismo poduzetnicima omogućili sigurnije, kvalitetnije i održivije poslovanje.',
-                    'Naša je misija biti pouzdan partner koji klijentima pruža stručnu podršku u svim ključnim poslovnim područjima - od financija i računovodstva do strateškog razvoja, revizije i EU fondova.',
-                    'Zato klijentima pristupamo individualno, razumijemo njihove izazove i zajedno stvaramo rješenja prilagođena njihovim ciljevima.',
-                    'Naš cilj nije samo pratiti poslovanje klijenata, već aktivno doprinositi njihovom rastu i dugoročnoj stabilnosti.',
+                    'Naš je cilj pomoći klijentima da prevladaju prepreke prije nego što postanu ozbiljan problem, da izbjegnu najteže scenarije kada je to moguće i da, ako se ipak nađu u zahtjevnoj situaciji, zajedno pronađemo put dalje.',
+                    'Vjerujemo da kvalitetna stručna podrška znači imati prave ljude uz sebe prije, tijekom i nakon svake važne poslovne odluke.',
                 ],
             ],
             'team' => [
                 'kicker' => 'TIM',
                 'label' => 'Naš tim',
-                'title' => 'Ljudi koji stoje iza ALPHA CAPITALISA',
-                'intro' => 'ALPHA CAPITALIS danas čini snažan i multidisciplinaran tim stručnjaka koji svakodnevno pruža podršku klijentima iz različitih industrija i poslovnih sektora.',
-                'body' => 'Naš tim čine stručnjaci iz područja računovodstva, revizije i poslovnog savjetovanja koji zajednički rade na pružanju kvalitetnih, pravovremenih i prilagođenih rješenja.',
+                'title' => 'Tim stručnjaka na jednom mjestu',
+                'intro' => 'Različiti izazovi zahtijevaju različita znanja. Svako poslovanje je drugačije, a ono što je jednoj tvrtki potrebno u fazi osnivanja nije isto što joj je potrebno tijekom rasta, širenja, reorganizacije ili prijenosa poslovanja na novu generaciju.',
+                'body' => 'Zato u ALPHA CAPITALISU povezujemo stručnjake iz računovodstva, revizije, poreza, financija i poslovnog savjetovanja. Kada je potrebno, za istim izazovom okupljamo različite perspektive i znanja kako bi klijent dobio povezan tim koji razumije širi kontekst njegova poslovanja i može pružiti podršku kroz različite faze razvoja.',
                 'stats' => [
-                    ['value' => '70+', 'label' => 'stručnjaka'],
+                    ['value' => '75', 'label' => 'stručnjaka'],
                     ['value' => '9', 'label' => 'članova uprave'],
-                    ['value' => '600+', 'label' => 'klijenata'],
+                    ['value' => '700', 'label' => 'klijenata'],
                     ['value' => '3', 'label' => 'ureda u Zagrebu, Vinkovcima i Rijeci'],
                 ],
                 'button_label' => 'Upoznaj cijeli tim',
@@ -172,7 +177,7 @@ class AboutPageDefaults
                 'label' => 'Naše reference',
                 'title' => 'Povjerenje klijenata potvrđuje kvalitetu našeg rada',
                 'paragraphs' => [
-                    'Povjerenje više od 600 klijenata iz različitih industrija i sektora potvrda je kvalitete i stručnosti koju svakodnevno pružamo.',
+                    'Povjerenje 700 klijenata iz različitih industrija i sektora potvrda je kvalitete i stručnosti koju svakodnevno pružamo.',
                     'Surađujemo s malim, srednjim i velikim poduzećima kojima pružamo podršku u području računovodstva, revizije i poslovnog savjetovanja.',
                     'Naši dugoročni odnosi s klijentima temelje se na povjerenju, dostupnosti, stručnosti i razumijevanju njihovih poslovnih ciljeva.',
                     'Uspjeh naših klijenata ujedno je i najveća potvrda našeg rada.',
@@ -193,7 +198,7 @@ class AboutPageDefaults
                 'title' => 'Our story',
                 'lead' => 'From expertise and experience to long-term client relationships.',
                 'image_alt' => '',
-                'stat_value' => '600+',
+                'stat_value' => '700',
                 'stat_label' => 'clients supported by our team',
             ],
             'story' => [
@@ -258,9 +263,9 @@ class AboutPageDefaults
                 'intro' => 'ALPHA CAPITALIS is a strong multidisciplinary team of experts supporting clients from different industries and business sectors every day.',
                 'body' => 'Our team brings together specialists in accounting, audit and business advisory who work together to provide quality, timely and tailored solutions.',
                 'stats' => [
-                    ['value' => '70+', 'label' => 'experts'],
+                    ['value' => '75', 'label' => 'experts'],
                     ['value' => '9', 'label' => 'management board members'],
-                    ['value' => '600+', 'label' => 'clients'],
+                    ['value' => '700', 'label' => 'clients'],
                     ['value' => '3', 'label' => 'offices in Zagreb, Vinkovci and Rijeka'],
                 ],
                 'button_label' => 'Meet the full team',
@@ -295,7 +300,7 @@ class AboutPageDefaults
                 'label' => 'Our references',
                 'title' => 'Client trust confirms the quality of our work',
                 'paragraphs' => [
-                    'The trust of more than 600 clients across different industries and sectors confirms the quality and expertise we provide every day.',
+                    'The trust of 700 clients across different industries and sectors confirms the quality and expertise we provide every day.',
                     'We work with small, medium-sized and large companies, supporting them in accounting, audit and business advisory.',
                     'Our long-term client relationships are based on trust, availability, expertise and an understanding of their business goals.',
                     'The success of our clients is also the strongest confirmation of our work.',
@@ -352,6 +357,20 @@ class AboutPageDefaults
         }
 
         return StructuredRichText::fromParagraphs($paragraphs);
+    }
+
+    private static function croatianStoryBodyHtml(): string
+    {
+        return <<<'HTML'
+<p>ALPHA CAPITALIS okuplja stručnjake iz područja računovodstva, revizije i savjetovanja s jednom zajedničkom idejom – pomoći poduzetnicima da sigurnije prolaze kroz sve faze poslovanja.</p>
+<p><strong>Jer poslovanje nije ravna linija.</strong></p>
+<p>Tvrtke rastu, mijenjaju se, ulaze u nova tržišta, zapošljavaju, ulažu, prolaze kroz izazove i donose odluke koje mogu odrediti njihov sljedeći korak. Ponekad je potrebno pronaći priliku za rast. Ponekad zaštititi ono što se godinama gradilo. A ponekad pronaći rješenje kada stvari ne idu prema planu.</p>
+<p><strong>Upravo zato postojimo.</strong></p>
+<p>Želimo biti uz poduzetnike kada donose važne odluke, kada prelaze iz jedne faze poslovanja u drugu i kada se susreću s problemima za koje nije dovoljno jedno mišljenje ili jedno područje stručnosti.</p>
+<p><strong>Jer jedna osoba ne može znati i riješiti sve.</strong></p>
+<p>Ali <strong>snažan multidisciplinarni tim</strong> može sagledati poslovanje iz više perspektiva, povezati različita znanja i pomoći pronaći cjelovitije rješenje.</p>
+<p>Zato naši klijenti uz sebe nemaju samo jednog savjetnika. <strong>Imaju tim stručnjaka koji razumije različite dijelove poslovanja</strong> i koji može pružiti podršku onda kada je ona najpotrebnija, od svakodnevnog računovodstva i poreznih pitanja do financijskih odluka, revizije, rasta, promjena i složenijih poslovnih izazova.</p>
+HTML;
     }
 
     private static function isCroatian(string $locale): bool

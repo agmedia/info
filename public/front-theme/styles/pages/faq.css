@@ -116,7 +116,7 @@
 
 .ac-faq-count strong {
     color: var(--ac-faq-gold-dark);
-    font-family: "Bodoni Moda Variable", "Times New Roman", serif;
+    font-family: "Instrument Sans Variable", Arial, sans-serif;
     font-size: 1.3rem;
     font-weight: 500;
 }
@@ -147,7 +147,7 @@
 
 .ac-faq-number {
     color: var(--ac-faq-gold-dark);
-    font-family: "Bodoni Moda Variable", "Times New Roman", serif;
+    font-family: "Instrument Sans Variable", Arial, sans-serif;
     font-size: 1rem;
     font-weight: 500;
     line-height: 1;

@@ -1,6 +1,6 @@
 @extends('front.desktop.layouts.store')
 
-@section('title', 'Alpha Capitalis | Jedna adresa za sve brojke')
+@section('title', 'Alpha Capitalis | Vaš kompas kroz svijet financija')
 @section('main_class', 'hero-page')
 
 @section('content')
@@ -23,7 +23,7 @@
         $cmsHeroSubtitle = trim((string) ($homeHeroTranslation?->subtitle ?? ''));
         $heroTitle = $cmsHeroTitle !== '' && mb_strtoupper($cmsHeroTitle) !== 'ALPHA CAPITALIS'
             ? $cmsHeroTitle
-            : 'Jedna adresa za sve brojke';
+            : 'Vaš kompas kroz svijet financija';
         $heroSubtitle = $cmsHeroSubtitle !== '' && mb_strtoupper($cmsHeroSubtitle) !== 'VAŠ KOMPAS KROZ SVIJET FINANCIJA'
             ? $cmsHeroSubtitle
             : 'Računovodstvo, revizija i savjetovanje — sve na jednom mjestu.';
@@ -41,9 +41,9 @@
         $heroSecondaryUrl = $heroSecondaryLabel === 'Naše usluge'
             ? route('services.index')
             : (trim((string) ($homeHeroPayload['secondary_cta_url'] ?? '')) ?: route('services.index'));
-        $heroTitleWords = preg_split('/\s+/u', $heroTitle, -1, PREG_SPLIT_NO_EMPTY) ?: ['Jedna', 'adresa', 'za', 'sve', 'brojke'];
-        $heroTitleLines = $heroTitle === 'Jedna adresa za sve brojke'
-            ? [['Jedna', 'adresa'], ['za', 'sve', 'brojke']]
+        $heroTitleWords = preg_split('/\s+/u', $heroTitle, -1, PREG_SPLIT_NO_EMPTY) ?: ['Vaš', 'kompas', 'kroz', 'svijet', 'financija'];
+        $heroTitleLines = $heroTitle === 'Vaš kompas kroz svijet financija'
+            ? [['Vaš', 'kompas', 'kroz'], ['svijet', 'financija']]
             : collect($heroTitleWords)->chunk(max(1, (int) ceil(count($heroTitleWords) / 2)))->map(fn ($line) => $line->values()->all())->values()->all();
 
         $homeServicesItem = collect($homeServicesBlocks ?? [])->first(fn ($item) => (string) (($item['block'] ?? null)?->type ?? '') === 'home_services')
@@ -64,6 +64,7 @@
 
         $serviceDesign = collect([
             'audit' => [
+                'key' => 'audit',
                 'title' => 'Revizija',
                 'statement' => 'Sigurnost i povjerenje u svakoj odluci.',
                 'text' => 'Pouzdani financijski izvještaji jačaju povjerenje vlasnika, banaka, investitora i partnera te smanjuju rizik u važnim poslovnim odlukama.',
@@ -73,6 +74,7 @@
                 'url' => route('audit.show'),
             ],
             'accounting' => [
+                'key' => 'accounting',
                 'title' => 'Računovodstvo',
                 'statement' => 'Red u brojkama, mir u poslovanju.',
                 'text' => 'Ažurni podaci, uredna administracija i kontrola nad financijama oslobađaju vam vrijeme za ono što je najvažnije — razvoj poslovanja.',
@@ -82,6 +84,7 @@
                 'url' => route('accounting.show'),
             ],
             'advisory' => [
+                'key' => 'advisory',
                 'title' => 'Savjetovanje',
                 'statement' => 'Prave odluke stvaraju najveću vrijednost.',
                 'text' => 'Stručna podrška pomaže prepoznati prilike, smanjiti rizike i donijeti sigurnije odluke za rast, financiranje i budućnost poslovanja.',
@@ -161,14 +164,14 @@
             $rawValue = trim((string) ($stat['value'] ?? '0'));
             return [
                 'value' => (int) (preg_replace('/\D+/', '', $rawValue) ?: 0),
-                'suffix' => trim((string) ($stat['suffix'] ?? '')) ?: '+',
+                'suffix' => array_key_exists('suffix', $stat) ? trim((string) $stat['suffix']) : '+',
                 'label' => trim((string) ($stat['label'] ?? '')),
             ];
         })->filter(fn (array $stat) => $stat['value'] > 0 && $stat['label'] !== '')->values();
         $statFallbacks = collect([
             ['value' => 300, 'suffix' => '+', 'label' => 'Zadovoljnih klijenata'],
-            ['value' => 600, 'suffix' => '+', 'label' => 'Poslovnih klijenata'],
-            ['value' => 60, 'suffix' => '+', 'label' => 'Kvalificiranih stručnjaka'],
+            ['value' => 700, 'suffix' => '', 'label' => 'Poslovnih klijenata'],
+            ['value' => 75, 'suffix' => '', 'label' => 'Kvalificiranih stručnjaka'],
             ['value' => 20, 'suffix' => '+', 'label' => 'Godina iskustva'],
         ]);
         $locationStats = $statFallbacks->map(fn (array $fallback, int $index) => array_merge($fallback, (array) $dynamicStats->get($index, [])));
@@ -283,7 +286,7 @@
 
             <div class="services-grid services-grid--count-{{ min(3, $serviceItems->count()) }}">
                 @foreach ($serviceItems as $service)
-                    <a class="service-card" href="{{ $service['url'] }}" data-image-reveal style="--service-index: {{ $loop->index }}">
+                    <a class="service-card" href="{{ $service['url'] }}" data-service-key="{{ $service['key'] }}" data-image-reveal style="--service-index: {{ $loop->index }}">
                         <div class="service-card-media">
                             @if ($service['image_srcset'] !== '')
                                 <picture>

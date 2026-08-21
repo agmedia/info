@@ -31,6 +31,7 @@
 
         $cardDesign = collect([
             'audit' => [
+                'key' => 'audit',
                 'title' => 'Revizija',
                 'statement' => 'sigurnost i povjerenje u brojke',
                 'text' => 'Neovisna provjera financijskih izvještaja koja povećava povjerenje vlasnika, investitora i partnera.',
@@ -39,6 +40,7 @@
                 'url' => route('audit.show'),
             ],
             'accounting' => [
+                'key' => 'accounting',
                 'title' => 'Računovodstvo',
                 'statement' => 'kontrola i jasnoća poslovanja',
                 'text' => 'Precizno vođenje knjiga i pravovremeno izvještavanje koje oslobađa menadžment za strateške odluke.',
@@ -47,6 +49,7 @@
                 'url' => route('accounting.show'),
             ],
             'advisory' => [
+                'key' => 'advisory',
                 'title' => 'Savjetovanje',
                 'statement' => 'rast, optimizacija i bolji financijski izbor',
                 'text' => 'Financijsko i porezno savjetovanje te pribavljanje kapitala - sve na jednom mjestu.',
@@ -110,7 +113,7 @@
 
             <div class="services-grid services-grid--count-{{ min(3, $serviceItems->count()) }}">
                 @foreach ($serviceItems as $service)
-                    <a class="service-card" href="{{ $service['url'] }}" data-image-reveal>
+                    <a class="service-card" href="{{ $service['url'] }}" data-service-key="{{ $service['key'] }}" data-image-reveal>
                         <div class="service-card-media">
                             <img src="{{ $service['image'] }}" alt="{{ $service['image_alt'] }}" width="1080" height="1350" loading="{{ $loop->index < 3 ? 'eager' : 'lazy' }}" decoding="async">
                         </div>

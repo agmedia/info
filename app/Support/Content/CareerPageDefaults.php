@@ -84,18 +84,18 @@ class CareerPageDefaults
         return [
             'intro' => [
                 'section_title' => 'Karijera u ALPHA CAPITALISU',
-                'title' => 'Mjesto gdje karijera stvarno raste',
-                'highlight' => 'Ne tražimo samo zaposlenike.',
+                'title' => 'Mjesto gdje ljudi i karijere rastu',
+                'highlight' => 'Tražimo ljude, ne samo životopise.',
                 'kicker' => 'Rastemo zajedno',
                 'body' => [
-                    'Tražimo ljude koji žele učiti, razvijati se, preuzimati odgovornost i zajedno s nama graditi nešto dugoročno.',
-                    'ALPHA CAPITALIS danas okuplja više od 70 stručnjaka iz područja računovodstva, financija, revizije, EU fondova i savjetovanja. Ono što nas povezuje nisu samo znanje i iskustvo, već način na koji radimo - zajedno, odgovorno i s jasnim ciljem razvoja.',
-                    'Kod nas ćeš raditi na stvarnim poslovnim izazovima, surađivati s iskusnim stručnjacima i imati priliku razvijati se puno brže nego u klasičnom korporativnom okruženju.',
+                    'Tražimo znatiželjne ljude koji žele učiti, preuzimati odgovornost i zajedno s nama graditi nešto dugoročno.',
+                    'ALPHA CAPITALIS danas okuplja 75 stručnjaka iz područja računovodstva, financija, revizije, EU fondova i savjetovanja. U našem Sky Officeu znanje dijelimo otvoreno, pomažemo jedni drugima i ozbiljan posao gradimo u atmosferi u kojoj ljudi mogu biti svoji.',
+                    'Od prvog dana radit ćeš na stvarnim poslovnim izazovima, uz mentora, podršku iskusnih kolega i prostor da predložiš bolji način rada. Želimo da posao bude mjesto na kojem rasteš i kojem se rado vraćaš.',
                 ],
                 'values_label' => 'Što nudimo',
                 'button_label' => 'OTVORENE POZICIJE',
                 'image_alt' => '',
-                'stat_value' => '70+',
+                'stat_value' => '75',
                 'stat_label' => 'stručnjaka iz računovodstva, financija, revizije i savjetovanja',
             ],
             'process' => [
@@ -209,18 +209,18 @@ class CareerPageDefaults
         return [
             'intro' => [
                 'section_title' => 'A career at ALPHA CAPITALIS',
-                'title' => 'A place where careers really grow',
-                'highlight' => 'We are not just looking for employees.',
+                'title' => 'A place where people and careers grow',
+                'highlight' => 'We are looking for people, not just resumes.',
                 'kicker' => 'Growing together',
                 'body' => [
                     'We are looking for people who want to learn, develop, take responsibility and build something long-term with us.',
-                    'Today, ALPHA CAPITALIS brings together more than 70 experts in accounting, finance, audit, EU funds and advisory. What connects us is not only knowledge and experience, but the way we work - together, responsibly and with a clear development goal.',
+                    'Today, ALPHA CAPITALIS brings together 75 experts in accounting, finance, audit, EU funds and advisory. In our Sky Office, we share knowledge openly, help one another and build serious work in an atmosphere where people can be themselves.',
                     'With us, you will work on real business challenges, collaborate with experienced professionals and have the opportunity to grow faster than in a classic corporate environment.',
                 ],
                 'values_label' => 'What we offer',
                 'button_label' => 'OPEN POSITIONS',
                 'image_alt' => '',
-                'stat_value' => '70+',
+                'stat_value' => '75',
                 'stat_label' => 'experts in accounting, finance, audit and advisory',
             ],
             'process' => [

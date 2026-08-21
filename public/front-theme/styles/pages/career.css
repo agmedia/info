@@ -87,17 +87,17 @@ body:has(.ac-career-page) {
 .front-desktop-shell:not(.front-route-home) .front-content-shell .ac-career-display-title .values-word.is-accent,
 .front-desktop-shell:not(.front-route-home) .front-content-shell .ac-career-section-title .values-word.is-accent {
     color: var(--career-gold) !important;
-    font-family: "Bodoni Moda Variable", "Times New Roman", serif !important;
+    font-family: "Instrument Sans Variable", Arial, sans-serif !important;
     font-style: italic !important;
     font-weight: 400 !important;
     letter-spacing: -0.04em !important;
 }
 
 .front-desktop-shell:not(.front-route-home) .front-content-shell .ac-career-copy-heading {
-    max-width: 21ch;
+    max-width: none;
     margin: 0;
     color: var(--career-navy);
-    font-family: "Bodoni Moda Variable", "Times New Roman", serif !important;
+    font-family: "Instrument Sans Variable", Arial, sans-serif !important;
     font-size: clamp(1.55rem, 1.75vw, 2.1rem);
     font-weight: 600;
     letter-spacing: -0.024em !important;
@@ -186,7 +186,7 @@ body:has(.ac-career-page) {
     max-width: 24ch;
     margin: 0.85rem 0 0;
     color: #fff;
-    font-family: "Bodoni Moda Variable", "Times New Roman", serif !important;
+    font-family: "Instrument Sans Variable", Arial, sans-serif !important;
     font-size: clamp(1.75rem, 2vw, 2.45rem);
     font-weight: 600;
     letter-spacing: -0.025em !important;
@@ -203,7 +203,7 @@ body:has(.ac-career-page) {
 
 .front-desktop-shell:not(.front-route-home) .front-content-shell .ac-career-dark-title .service-title-word.is-accent {
     color: var(--career-gold-soft);
-    font-family: "Bodoni Moda Variable", "Times New Roman", serif !important;
+    font-family: "Instrument Sans Variable", Arial, sans-serif !important;
     font-style: italic;
     font-weight: inherit;
     letter-spacing: inherit;
@@ -306,7 +306,7 @@ body:has(.ac-career-page) {
     position: absolute;
     z-index: 1;
     inset: 0;
-    background: linear-gradient(180deg, transparent 54%, rgba(4, 21, 37, 0.38));
+    background: linear-gradient(180deg, transparent 62%, rgba(4, 21, 37, 0.2));
     content: '';
     pointer-events: none;
 }
@@ -317,6 +317,7 @@ body:has(.ac-career-page) {
     height: 100%;
     object-fit: cover;
     object-position: center 42%;
+    filter: saturate(0.72) contrast(0.98) brightness(0.97);
 }
 
 .front-desktop-shell .ac-career-hero-image .image-reveal-curtain {
@@ -348,7 +349,7 @@ body:has(.ac-career-page) {
 
 .front-desktop-shell .ac-career-stat-card strong {
     color: var(--career-gold-soft);
-    font-family: "Bodoni Moda Variable", "Times New Roman", serif;
+    font-family: "Instrument Sans Variable", Arial, sans-serif;
     font-size: clamp(3.5rem, 4vw, 5rem);
     font-weight: 400;
     line-height: 0.95;
@@ -429,7 +430,7 @@ body:has(.ac-career-page) {
 .front-desktop-shell .ac-career-development-card h3 {
     margin: 0;
     color: var(--career-navy);
-    font-family: "Bodoni Moda Variable", "Times New Roman", serif;
+    font-family: "Instrument Sans Variable", Arial, sans-serif;
     font-size: clamp(1.45rem, 1.55vw, 1.9rem);
     font-weight: 600;
     letter-spacing: -0.025em;
@@ -479,12 +480,60 @@ body:has(.ac-career-page) {
     max-width: none;
     margin: 0;
     color: #fff;
-    font-family: "Bodoni Moda Variable", "Times New Roman", serif !important;
+    font-family: "Instrument Sans Variable", Arial, sans-serif !important;
     font-size: clamp(1.55rem, 1.75vw, 2.1rem);
     font-weight: 600;
     letter-spacing: -0.024em !important;
     line-height: 1.28;
     text-wrap: balance;
+}
+
+.front-desktop-shell .ac-career-gallery {
+    display: grid;
+    grid-template-columns: minmax(0, 1.35fr) minmax(18rem, 0.65fr);
+    grid-template-rows: repeat(2, minmax(13rem, 17vw));
+    gap: clamp(0.85rem, 1.2vw, 1.25rem);
+    margin-top: clamp(3.5rem, 5vw, 5.5rem);
+}
+
+.front-desktop-shell .ac-career-gallery-item {
+    min-width: 0;
+    margin: 0;
+    overflow: hidden;
+    border: 1px solid var(--career-dark-border);
+    border-radius: 68px 8px 68px 8px;
+}
+
+.front-desktop-shell .ac-career-gallery-item:first-child {
+    grid-row: 1 / span 2;
+}
+
+.front-desktop-shell .ac-career-gallery-item:nth-child(even) {
+    border-radius: 8px 52px 8px 52px;
+}
+
+.front-desktop-shell .ac-career-gallery-image,
+.front-desktop-shell .ac-career-gallery-image img {
+    width: 100%;
+    height: 100%;
+}
+
+.front-desktop-shell .ac-career-gallery-image img {
+    display: block;
+    object-fit: cover;
+    filter: saturate(0.7) contrast(0.97) brightness(0.94);
+}
+
+.front-desktop-shell .ac-career-gallery-item:nth-child(2) img {
+    object-position: center 38%;
+}
+
+.front-desktop-shell .ac-career-gallery-item:nth-child(3) img {
+    object-position: center 48%;
+}
+
+.front-desktop-shell .ac-career-gallery-image .image-reveal-curtain {
+    --image-reveal-curtain-color: var(--career-navy);
 }
 
 .front-desktop-shell .ac-career-story-grid {
@@ -521,7 +570,7 @@ body:has(.ac-career-page) {
     max-width: 19ch;
     margin: 0.7rem 0 0;
     color: #fff;
-    font-family: "Bodoni Moda Variable", "Times New Roman", serif;
+    font-family: "Instrument Sans Variable", Arial, sans-serif;
     font-size: clamp(1.45rem, 1.75vw, 2.1rem);
     font-weight: 600;
     letter-spacing: -0.025em;
@@ -578,7 +627,7 @@ body:has(.ac-career-page) {
     max-width: 28ch;
     margin-top: 1.7rem !important;
     color: var(--career-navy);
-    font-family: "Bodoni Moda Variable", "Times New Roman", serif;
+    font-family: "Instrument Sans Variable", Arial, sans-serif;
     font-size: clamp(1.35rem, 1.65vw, 1.95rem);
     font-weight: 600;
     letter-spacing: -0.02em;
@@ -605,7 +654,7 @@ body:has(.ac-career-page) {
     max-width: 20ch;
     margin: 0;
     color: var(--career-navy);
-    font-family: "Bodoni Moda Variable", "Times New Roman", serif !important;
+    font-family: "Instrument Sans Variable", Arial, sans-serif !important;
     font-size: clamp(1.55rem, 1.75vw, 2.1rem);
     font-weight: 600;
     letter-spacing: -0.024em !important;
@@ -888,6 +937,16 @@ body:has(.ac-career-page) {
         padding-top: 2.75rem;
         border-top: 1px solid rgba(173, 132, 55, 0.52);
     }
+
+    .front-desktop-shell .ac-career-gallery {
+        grid-template-columns: 1fr 1fr;
+        grid-template-rows: 24rem 18rem;
+    }
+
+    .front-desktop-shell .ac-career-gallery-item:first-child {
+        grid-column: 1 / -1;
+        grid-row: auto;
+    }
 }
 
 @media (max-width: 720px) {
@@ -959,6 +1018,24 @@ body:has(.ac-career-page) {
     .front-desktop-shell .ac-career-development-grid,
     .front-desktop-shell .ac-career-story-grid {
         margin-top: 3.5rem;
+    }
+
+    .front-desktop-shell .ac-career-gallery {
+        grid-template-columns: 1fr;
+        grid-template-rows: none;
+        margin-top: 3.5rem;
+    }
+
+    .front-desktop-shell .ac-career-gallery-item,
+    .front-desktop-shell .ac-career-gallery-item:first-child {
+        grid-column: auto;
+        grid-row: auto;
+        min-height: 18rem;
+        border-radius: 44px 5px 44px 5px;
+    }
+
+    .front-desktop-shell .ac-career-gallery-item:nth-child(even) {
+        border-radius: 5px 44px 5px 44px;
     }
 
     .front-desktop-shell .ac-career-development-card {

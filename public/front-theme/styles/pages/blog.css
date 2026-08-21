@@ -617,7 +617,7 @@
     padding: 0;
     border: 0;
     color: var(--ac-blog-navy);
-    font-family: "Bodoni Moda Variable", "Times New Roman", serif;
+    font-family: "Instrument Sans Variable", Arial, sans-serif;
     font-size: clamp(2.65rem, 4vw, 4.65rem);
     font-weight: 550;
     letter-spacing: -0.035em;
@@ -735,7 +735,7 @@
     padding: 0.35rem 0 0.35rem clamp(1.4rem, 3vw, 2.4rem);
     border-left: 1px solid var(--ac-blog-gold);
     color: var(--ac-blog-navy);
-    font-family: "Bodoni Moda Variable", "Times New Roman", serif;
+    font-family: "Instrument Sans Variable", Arial, sans-serif;
     font-size: clamp(1.3rem, 1.7vw, 1.75rem);
     line-height: 1.5;
 }
@@ -820,7 +820,7 @@
 .ac-blog-share-copy h2 {
     margin-top: 0.35rem;
     color: var(--ac-blog-navy);
-    font-family: "Bodoni Moda Variable", "Times New Roman", serif;
+    font-family: "Instrument Sans Variable", Arial, sans-serif;
     font-size: clamp(1.65rem, 2vw, 2.1rem);
     font-weight: 600;
     letter-spacing: -0.024em;
@@ -916,7 +916,7 @@
 
 .front-desktop-shell .ac-blog-related-head > h2 > .is-accent {
     color: var(--ac-blog-gold);
-    font-family: "Bodoni Moda Variable", "Times New Roman", serif;
+    font-family: "Instrument Sans Variable", Arial, sans-serif;
     font-size: 1.08em;
     font-style: italic;
     font-weight: 500;

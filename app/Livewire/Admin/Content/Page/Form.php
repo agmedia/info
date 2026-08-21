@@ -1152,6 +1152,6 @@ class Form extends Component
 
     private function layoutSupportsMedia(string $layout): bool
     {
-        return in_array($layout, ['academy', 'references'], true);
+        return in_array($layout, ['academy', 'career', 'references'], true);
     }
 }

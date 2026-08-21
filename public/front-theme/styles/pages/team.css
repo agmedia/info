@@ -352,7 +352,7 @@
 .ac-team-member-name {
     margin: 0;
     color: var(--ac-team-navy) !important;
-    font-family: "Bodoni Moda Variable", "Times New Roman", serif;
+    font-family: "Instrument Sans Variable", Arial, sans-serif;
     font-size: clamp(1.35rem, 1.55vw, 1.7rem) !important;
     font-weight: 500 !important;
     line-height: 1.13 !important;

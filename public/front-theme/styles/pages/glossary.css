@@ -211,7 +211,7 @@
 .ac-glossary-result strong {
     display: block;
     color: var(--ac-glossary-navy);
-    font-family: "Bodoni Moda Variable", "Times New Roman", serif;
+    font-family: "Instrument Sans Variable", Arial, sans-serif;
     font-size: clamp(1.45rem, 2vw, 2rem);
     font-weight: 500;
     line-height: 1.15;
@@ -326,7 +326,7 @@
 .ac-glossary-group-heading h2 {
     margin: 0.22rem 0 0.55rem;
     color: var(--ac-glossary-gold);
-    font-family: "Bodoni Moda Variable", "Times New Roman", serif;
+    font-family: "Instrument Sans Variable", Arial, sans-serif;
     font-size: clamp(4.5rem, 7vw, 7.5rem);
     font-style: italic;
     font-weight: 500;

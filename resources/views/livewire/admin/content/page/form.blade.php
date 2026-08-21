@@ -537,10 +537,11 @@
             </div>
         @endif
 
-        @if ($activeTab === 'media' && in_array(($form['layout'] ?? ''), ['academy', 'references'], true))
+        @if ($activeTab === 'media' && in_array(($form['layout'] ?? ''), ['academy', 'career', 'references'], true))
             @php
                 $pageMediaCollections = match ($form['layout'] ?? '') {
                     'academy' => ['academy_gallery'],
+                    'career' => ['career_gallery_images'],
                     'references' => ['reference_logos'],
                     default => [],
                 };

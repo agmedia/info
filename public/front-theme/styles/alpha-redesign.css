@@ -140,7 +140,7 @@ button {
 
 .values-word.is-accent {
   color: #ad8437;
-  font-family: "Bodoni Moda Variable", "Times New Roman", serif;
+  font-family: "Instrument Sans Variable", Arial, sans-serif;
   font-size: 1.06em;
   font-style: italic;
   font-weight: 500;
@@ -206,7 +206,7 @@ button {
 .value-content h3 {
   margin: 0 0 12px;
   color: rgba(3, 18, 31, 0.96);
-  font-family: "Bodoni Moda Variable", "Times New Roman", serif;
+  font-family: "Instrument Sans Variable", Arial, sans-serif;
   font-size: clamp(1.62rem, 1.82vw, 2rem);
   font-weight: 600;
   letter-spacing: -0.014em;
@@ -339,7 +339,7 @@ button {
 
 .services-word.is-accent {
   color: var(--gold-light);
-  font-family: "Bodoni Moda Variable", "Times New Roman", serif;
+  font-family: "Instrument Sans Variable", Arial, sans-serif;
   font-size: 1.05em;
   font-style: italic;
   font-weight: 500;
@@ -448,6 +448,10 @@ button {
   transition: transform 900ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 
+.service-card[data-service-key="audit"] .service-card-media img {
+  filter: saturate(0.52) contrast(0.94) brightness(0.9);
+}
+
 .service-card.is-image-revealed .service-card-media.is-loaded::after {
   transform: translate3d(0, -101%, 0);
 }
@@ -481,8 +485,8 @@ button {
 .service-card-title {
   margin: 0 0 18px;
   color: var(--white);
-  font-family: "Bodoni Moda Variable", "Times New Roman", serif;
-  font-size: clamp(2rem, 2.25vw, 2.85rem);
+  font-family: "Instrument Sans Variable", Arial, sans-serif;
+  font-size: clamp(2.3rem, 2.65vw, 3.2rem);
   font-weight: 600;
   letter-spacing: -0.024em;
   line-height: 1;
@@ -573,7 +577,7 @@ button {
 }
 
 .front-desktop-shell:not(.front-route-home) .front-content-shell .services-index-intro-title .is-accent {
-  font-family: "Bodoni Moda Variable", "Times New Roman", serif !important;
+  font-family: "Instrument Sans Variable", Arial, sans-serif !important;
 }
 
 .values-copy.services-index-intro-copy {
@@ -629,7 +633,7 @@ button {
 }
 
 .front-desktop-shell:not(.front-route-home) .front-content-shell .services-section--index-page .service-card-title {
-  font-family: "Bodoni Moda Variable", "Times New Roman", serif !important;
+  font-family: "Instrument Sans Variable", Arial, sans-serif !important;
   letter-spacing: -0.024em !important;
 }
 
@@ -719,7 +723,7 @@ button {
 
 .process-title-word.is-accent {
   color: #ad8437;
-  font-family: "Bodoni Moda Variable", "Times New Roman", serif;
+  font-family: "Instrument Sans Variable", Arial, sans-serif;
   font-size: 1.06em;
   font-style: italic;
   font-weight: 500;
@@ -837,7 +841,7 @@ button {
 .process-copy h3 {
   margin: 0 0 13px;
   color: rgba(3, 18, 31, 0.96);
-  font-family: "Bodoni Moda Variable", "Times New Roman", serif;
+  font-family: "Instrument Sans Variable", Arial, sans-serif;
   font-size: clamp(1.34rem, 1.52vw, 1.68rem);
   font-weight: 600;
   letter-spacing: -0.018em;
@@ -905,7 +909,7 @@ button {
 
 .locations-title-word.is-accent {
   color: var(--gold-light);
-  font-family: "Bodoni Moda Variable", "Times New Roman", serif;
+  font-family: "Instrument Sans Variable", Arial, sans-serif;
   font-size: 1.06em;
   font-style: italic;
   font-weight: 500;
@@ -1693,7 +1697,7 @@ button {
 
 .news-title-word.is-accent {
   color: #ad8437;
-  font-family: "Bodoni Moda Variable", "Times New Roman", serif;
+  font-family: "Instrument Sans Variable", Arial, sans-serif;
   font-size: 1.04em;
   font-style: italic;
   font-weight: 500;
@@ -2018,7 +2022,7 @@ button {
 
 .contact-cta-title-word.is-accent {
   color: var(--gold-light);
-  font-family: "Bodoni Moda Variable", "Times New Roman", serif;
+  font-family: "Instrument Sans Variable", Arial, sans-serif;
   font-size: 1.03em;
   font-style: italic;
   font-weight: 500;
@@ -2053,7 +2057,7 @@ button {
   display: block;
   margin-bottom: clamp(24px, 2.6vw, 38px);
   color: rgba(247, 247, 245, 0.92);
-  font-family: "Bodoni Moda Variable", "Times New Roman", serif;
+  font-family: "Instrument Sans Variable", Arial, sans-serif;
   font-size: clamp(1.55rem, 1.8vw, 2rem);
   font-weight: 600;
   line-height: 1.15;
@@ -2229,7 +2233,7 @@ button {
 
 .footer-newsletter-accent {
   color: #ad8437;
-  font-family: "Bodoni Moda Variable", "Times New Roman", serif;
+  font-family: "Instrument Sans Variable", Arial, sans-serif;
   font-size: 1.06em;
   font-style: italic;
   font-weight: 500;
@@ -2353,7 +2357,7 @@ button {
 .footer-brand-block > p {
   margin: 30px 0 0;
   color: rgba(247, 247, 245, 0.62);
-  font-family: "Bodoni Moda Variable", "Times New Roman", serif;
+  font-family: "Instrument Sans Variable", Arial, sans-serif;
   font-size: clamp(1.25rem, 1.4vw, 1.55rem);
   line-height: 1.3;
 }
@@ -3039,7 +3043,7 @@ button {
 .hero h1 {
   margin: 0;
   color: var(--white);
-  font-family: "Bodoni Moda Variable", "Times New Roman", serif;
+  font-family: "Instrument Sans Variable", Arial, sans-serif;
   font-size: clamp(3.9rem, 4.85vw, 5.9rem);
   font-weight: 450;
   letter-spacing: 0.03em;
@@ -4319,7 +4323,7 @@ button {
   }
 
   .service-card-title {
-    font-size: 2.2rem;
+    font-size: 2.4rem;
   }
 
   .service-description {
@@ -4963,7 +4967,7 @@ button {
 
 .front-desktop-shell:not(.front-route-home) .front-content-shell h1,
 .front-desktop-shell:not(.front-route-home) .front-content-shell h1 * {
-  font-family: "Bodoni Moda Variable", "Times New Roman", serif !important;
+  font-family: "Instrument Sans Variable", Arial, sans-serif !important;
 }
 
 .services-intro {

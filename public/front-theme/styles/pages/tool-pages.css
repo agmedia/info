@@ -84,7 +84,7 @@ body:has(:is(.ac-assessment-page, .ac-lease-page)) {
 
 .front-desktop-shell:not(.front-route-home) .front-content-shell .ac-tool-display-title .values-word.is-accent {
     color: var(--tool-gold) !important;
-    font-family: "Bodoni Moda Variable", "Times New Roman", serif !important;
+    font-family: "Instrument Sans Variable", Arial, sans-serif !important;
     font-style: italic !important;
     font-weight: 400 !important;
     letter-spacing: -0.04em !important;
@@ -165,7 +165,7 @@ body:has(:is(.ac-assessment-page, .ac-lease-page)) {
 .front-desktop-shell .ac-lease-page :is(.ac-lease-card-head, .ac-lease-results-head) h2 {
     margin: 0;
     color: var(--tool-navy);
-    font-family: "Bodoni Moda Variable", "Times New Roman", serif;
+    font-family: "Instrument Sans Variable", Arial, sans-serif;
     font-size: clamp(2rem, 2.5vw, 3rem);
     font-weight: 600;
     letter-spacing: -0.025em;
@@ -188,7 +188,7 @@ body:has(:is(.ac-assessment-page, .ac-lease-page)) {
 .front-desktop-shell .ac-assessment-page .ac-assessment-section-head h3 {
     margin: 0;
     color: var(--tool-navy);
-    font-family: "Bodoni Moda Variable", "Times New Roman", serif;
+    font-family: "Instrument Sans Variable", Arial, sans-serif;
     font-size: clamp(1.45rem, 1.7vw, 1.8rem);
     font-weight: 600;
     letter-spacing: -0.018em;
@@ -465,7 +465,7 @@ body:has(:is(.ac-assessment-page, .ac-lease-page)) {
 .front-desktop-shell .ac-assessment-page .front-contact-help h3 {
     margin: 0 0 0.45rem;
     color: var(--tool-navy);
-    font-family: "Bodoni Moda Variable", "Times New Roman", serif;
+    font-family: "Instrument Sans Variable", Arial, sans-serif;
     font-size: 1.35rem;
     font-weight: 600;
     line-height: 1.25;
