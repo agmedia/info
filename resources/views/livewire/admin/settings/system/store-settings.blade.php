@@ -97,7 +97,7 @@
                         <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500" for="store-front-google-font">{{ __('Website font') }}</label>
                         <select id="store-front-google-font" wire:model="form.store_front_google_font" data-tom-select placeholder="{{ __('Search fonts...') }}" class="admin-select w-full rounded-xl border border-slate-300 px-3 py-2 text-sm">
                             @foreach ($fontOptions as $fontKey => $fontLabel)
-                                <option value="{{ $fontKey }}">{{ $fontLabel }}</option>
+                                <option value="{{ $fontKey }}" @selected(($form['store_front_google_font'] ?? null) === $fontKey)>{{ $fontLabel }}</option>
                             @endforeach
                         </select>
                         @error('form.store_front_google_font') <p class="mt-1 text-xs text-rose-600">{{ $message }}</p> @enderror

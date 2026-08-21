@@ -155,7 +155,7 @@
 }
 
 .front-route-advisory .ac-advisory-intro-heading h2 {
-    max-width: 18ch;
+    max-width: none;
     color: #101820;
     font-size: clamp(3rem, 3.5vw, 4.4rem);
 }
@@ -443,7 +443,7 @@
 }
 
 .front-route-advisory .ac-advisory-approach-heading h2 {
-    max-width: 8ch;
+    max-width: none;
     color: var(--white, #f7f7f5);
     font-size: clamp(3rem, 3.75vw, 4.75rem);
 }
@@ -560,7 +560,7 @@
 }
 
 .front-route-advisory .ac-advisory-subpage .ac-advisory-intro-heading h2 {
-    max-width: 13ch;
+    max-width: none;
 }
 
 @media (min-width: 761px) {
@@ -735,7 +735,7 @@
     .front-route-advisory .ac-advisory-network-heading h2,
     .front-route-advisory .ac-advisory-section-heading h2,
     .front-route-advisory .ac-advisory-approach-heading h2 {
-        max-width: 12ch;
+        max-width: none;
         font-size: clamp(3rem, 12vw, 3.75rem);
     }
 

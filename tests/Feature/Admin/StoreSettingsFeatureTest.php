@@ -48,6 +48,18 @@ class StoreSettingsFeatureTest extends TestCase
             ->assertHasErrors(['form.store_front_google_font']);
     }
 
+    public function test_saved_website_font_is_selected_when_the_appearance_tab_is_rendered(): void
+    {
+        $admin = $this->makeAdminUser();
+        app(SystemSettingsService::class)->put('store_front_google_font', 'general-sans');
+
+        Livewire::actingAs($admin)
+            ->test(StoreSettings::class)
+            ->assertSet('form.store_front_google_font', 'general-sans')
+            ->set('tab', 'appearance')
+            ->assertSeeHtml('<option value="general-sans" selected>General Sans · Fontshare</option>');
+    }
+
     public function test_every_registered_font_has_a_frontend_css_mapping(): void
     {
         $css = (string) file_get_contents(public_path('front-theme/styles/typography.css'));
