@@ -110,6 +110,7 @@ class ContentBlogPagesFeatureTest extends TestCase
             ->assertSee('Stranica Ljudski potencijali')
             ->assertSee('1. Uvod i hero')
             ->assertSee('Hero fotografija')
+            ->assertSee('Galerija')
             ->assertSee('5. Prijavna forma')
             ->assertSee('Tekst tamne hero sekcije')
             ->assertSee('Tekst poziva na prijavu')
@@ -122,7 +123,7 @@ class ContentBlogPagesFeatureTest extends TestCase
         $component
             ->call('setTab', 'media')
             ->assertSet('activeTab', 'media')
-            ->assertSee('Career Gallery');
+            ->assertSee('Galerija Karijere');
     }
 
     public function test_admin_can_save_academy_blog_source_settings_on_info_page(): void

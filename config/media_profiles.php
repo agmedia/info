@@ -133,7 +133,7 @@ return [
                     'preview_conversion' => 'card_360x240',
                 ],
                 'career_gallery_images' => [
-                    'label' => 'Career Gallery',
+                    'label' => 'Galerija Karijere',
                     'single_file' => false,
                     'only_keep_latest' => 12,
                     'max_upload_kb' => 8192,
