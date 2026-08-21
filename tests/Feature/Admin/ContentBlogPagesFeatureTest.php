@@ -35,6 +35,30 @@ class ContentBlogPagesFeatureTest extends TestCase
             ->assertOk();
     }
 
+    public function test_admin_can_open_existing_blog_post_edit_form(): void
+    {
+        $user = $this->makeAdminUser();
+        $post = BlogPost::query()->create([
+            'code' => 'blog-edit-regression',
+            'is_active' => true,
+            'is_featured' => false,
+            'sort_order' => 0,
+            'created_by' => $user->id,
+            'updated_by' => $user->id,
+        ]);
+        $post->translations()->create([
+            'locale' => 'hr',
+            'title' => 'Test uređivanja bloga',
+            'slug' => 'test-uredivanja-bloga',
+            'body_html' => '<p>Sadržaj za provjeru edit forme.</p>',
+        ]);
+
+        $this->actingAs($user)
+            ->get(route('admin.content.blog.edit', ['post' => $post, 'locale' => 'hr']))
+            ->assertOk()
+            ->assertSee('Uredi blog objavu');
+    }
+
     public function test_admin_can_create_blog_post(): void
     {
         app(SystemSettingsService::class)->put('catalog_use_blog', true);
