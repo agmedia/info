@@ -133,6 +133,7 @@ class AppServiceProvider extends ServiceProvider
                                 ],
                                 'social' => [],
                             ],
+                            'typography' => \App\Support\Front\FontRegistry::resolve(null),
                             'blog' => [
                                 'hero_eyebrow' => (string) __('ui.blog.eyebrow'),
                                 'hero_title' => (string) __('ui.blog.title'),

@@ -506,7 +506,7 @@
 
         .ac-academy-program-card h3 {
             margin: 0;
-            font-family: "Instrument Sans Variable", Arial, sans-serif;
+            font-family: var(--front-font-family, "Instrument Sans Variable", Arial, sans-serif);
             font-size: clamp(1.45rem, 2vw, 1.95rem);
             font-weight: 600;
             line-height: 1.08;
@@ -669,7 +669,7 @@
             z-index: 1;
             margin: 0;
             max-width: 14rem;
-            font-family: "Instrument Sans Variable", Arial, sans-serif;
+            font-family: var(--front-font-family, "Instrument Sans Variable", Arial, sans-serif);
             font-size: clamp(1.45rem, 2vw, 1.9rem);
             line-height: 1.06;
             text-wrap: balance;

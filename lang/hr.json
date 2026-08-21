@@ -1677,5 +1677,10 @@
     "WSPay settings (required)": "WSPay postavke (obavezno)",
     "WordPress Blog Import": "WordPress import bloga",
     "WordPress Calls Import": "WordPress import poziva",
-    "XML upload": "XML upload"
+    "XML upload": "XML upload",
+    "Appearance": "Izgled",
+    "Website font": "Font web-stranice",
+    "Search fonts...": "Pretraži fontove...",
+    "Font catalog": "Katalog fontova",
+    "Search the expanded Google Fonts catalog or choose General Sans from Fontshare. The selected font is used across the public website.": "Pretraži prošireni Google Fonts katalog ili odaberi General Sans iz Fontsharea. Odabrani font koristi se na cijeloj javnoj stranici."
 }

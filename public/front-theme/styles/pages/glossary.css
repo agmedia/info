@@ -211,7 +211,7 @@
 .ac-glossary-result strong {
     display: block;
     color: var(--ac-glossary-navy);
-    font-family: "Instrument Sans Variable", Arial, sans-serif;
+    font-family: var(--front-font-family, "Instrument Sans Variable", Arial, sans-serif);
     font-size: clamp(1.45rem, 2vw, 2rem);
     font-weight: 500;
     line-height: 1.15;
@@ -326,7 +326,7 @@
 .ac-glossary-group-heading h2 {
     margin: 0.22rem 0 0.55rem;
     color: var(--ac-glossary-gold);
-    font-family: "Instrument Sans Variable", Arial, sans-serif;
+    font-family: var(--front-font-family, "Instrument Sans Variable", Arial, sans-serif);
     font-size: clamp(4.5rem, 7vw, 7.5rem);
     font-style: italic;
     font-weight: 500;
@@ -357,7 +357,7 @@
 .ac-glossary-item h3 {
     max-width: 28rem;
     color: var(--ac-glossary-navy);
-    font-family: "Instrument Sans Variable", Arial, sans-serif;
+    font-family: var(--front-font-family, "Instrument Sans Variable", Arial, sans-serif);
     font-size: clamp(1.28rem, 1.45vw, 1.62rem);
     font-weight: 700;
     letter-spacing: -0.018em;
@@ -459,7 +459,7 @@
     max-width: 39rem;
     margin: 0;
     color: rgba(3, 18, 31, 0.7);
-    font-family: "Instrument Sans Variable", Arial, sans-serif;
+    font-family: var(--front-font-family, "Instrument Sans Variable", Arial, sans-serif);
     font-size: clamp(1rem, 1.05vw, 1.16rem);
     font-weight: 500;
     letter-spacing: 0;
@@ -539,7 +539,7 @@
 .front-desktop-shell .ac-glossary-term-body .content-richtext > blockquote {
     margin: 0 0 1.35rem;
     color: rgba(3, 18, 31, 0.74);
-    font-family: "Instrument Sans Variable", Arial, sans-serif;
+    font-family: var(--front-font-family, "Instrument Sans Variable", Arial, sans-serif);
     font-size: clamp(1.04rem, 1.08vw, 1.16rem);
     line-height: 1.82;
     text-wrap: pretty;
@@ -551,7 +551,7 @@
 .front-desktop-shell .ac-glossary-term-body .content-richtext h4 {
     margin: 2.5rem 0 1rem;
     color: var(--ac-glossary-navy);
-    font-family: "Instrument Sans Variable", Arial, sans-serif;
+    font-family: var(--front-font-family, "Instrument Sans Variable", Arial, sans-serif);
     font-weight: 700;
     letter-spacing: -0.02em;
     line-height: 1.2;

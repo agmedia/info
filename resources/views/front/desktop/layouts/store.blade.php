@@ -5,6 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     @include('front.partials.seo-meta')
     @include('front.partials.schema-markup')
+    @php
+        $frontTypography = (array) ($storeSettings['typography'] ?? \App\Support\Front\FontRegistry::resolve(null));
+    @endphp
+    @foreach (($frontTypography['preconnect_urls'] ?? []) as $preconnectUrl => $useCrossorigin)
+        <link rel="preconnect" href="{{ $preconnectUrl }}" @if ($useCrossorigin) crossorigin @endif>
+    @endforeach
+    <link rel="stylesheet" href="{{ $frontTypography['stylesheet_url'] }}">
     <script src="{{ asset('front-theme/scripts/cookie-consent-mode.js') }}?v={{ filemtime(public_path('front-theme/scripts/cookie-consent-mode.js')) }}"></script>
     @include('front.partials.analytics')
     @if (!empty($storeSettings['branding']['favicons']['ico_url'] ?? null))
@@ -70,6 +77,7 @@
         ]) }};
     </script>
     @vite(['resources/css/app.css', 'resources/js/cookie-consent.js'])
+    <link rel="stylesheet" href="{{ asset('front-theme/styles/typography.css') }}?v={{ filemtime(public_path('front-theme/styles/typography.css')) }}">
     <link rel="stylesheet" href="{{ asset('front-theme/styles/alpha-redesign.css') }}?v={{ filemtime(public_path('front-theme/styles/alpha-redesign.css')) }}">
     <link rel="stylesheet" href="{{ asset('front-theme/styles/cookie-consent.css') }}?v={{ filemtime(public_path('front-theme/styles/cookie-consent.css')) }}">
     @foreach (['fontawesome.min.css', 'duotone-thin.min.css', 'light.min.css', 'brands.min.css'] as $fontAwesomeStylesheet)
@@ -430,7 +438,7 @@
     }
 
 @endphp
-<body class="front-desktop-shell {{ request()->routeIs('home') ? 'front-route-home' : 'front-preload-pending' }} {{ request()->routeIs('audit.show') ? 'front-route-audit' : '' }} {{ request()->routeIs('accounting.show') ? 'front-route-accounting' : '' }} {{ request()->routeIs('advisory.*', 'eu-funds.show') ? 'front-route-advisory' : '' }} {{ request()->routeIs('eu-funds.show') ? 'front-route-eu-funds' : '' }} min-h-screen overflow-x-hidden antialiased" style="--front-header-hero-backdrop: url('{{ $headerHeroBackdropUrl }}');">
+<body class="front-desktop-shell {{ request()->routeIs('home') ? 'front-route-home' : 'front-preload-pending' }} {{ request()->routeIs('audit.show') ? 'front-route-audit' : '' }} {{ request()->routeIs('accounting.show') ? 'front-route-accounting' : '' }} {{ request()->routeIs('advisory.*', 'eu-funds.show') ? 'front-route-advisory' : '' }} {{ request()->routeIs('eu-funds.show') ? 'front-route-eu-funds' : '' }} min-h-screen overflow-x-hidden antialiased" data-front-font="{{ $frontTypography['key'] }}" style="--front-header-hero-backdrop: url('{{ $headerHeroBackdropUrl }}');">
     @unless (request()->routeIs('home'))
         <div id="front-initial-preloader" aria-hidden="true"></div>
     @endunless

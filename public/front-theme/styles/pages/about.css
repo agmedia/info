@@ -140,7 +140,7 @@
 .ac-about-reference-head h2 {
     margin: 0;
     color: #101820;
-    font-family: "Instrument Sans Variable", Arial, sans-serif;
+    font-family: var(--front-font-family, "Instrument Sans Variable", Arial, sans-serif);
     font-weight: 700;
     letter-spacing: 0;
     text-wrap: balance;
@@ -200,7 +200,7 @@
 .ac-about-pullquote::after {
     position: absolute;
     color: rgba(171, 141, 82, 0.42);
-    font-family: "Instrument Sans Variable", Arial, sans-serif;
+    font-family: var(--front-font-family, "Instrument Sans Variable", Arial, sans-serif);
     font-size: 4.45rem;
     font-weight: 400;
     line-height: 1;
@@ -221,7 +221,7 @@
 
 .ac-about-pullquote p {
     color: #24211c;
-    font-family: "Instrument Sans Variable", Arial, sans-serif;
+    font-family: var(--front-font-family, "Instrument Sans Variable", Arial, sans-serif);
     font-size: 1.04rem;
     font-weight: 500;
     line-height: 1.76;
@@ -345,7 +345,7 @@
 .ac-about-member-card h3 {
     margin: 0;
     color: #101820;
-    font-family: "Instrument Sans Variable", Arial, sans-serif;
+    font-family: var(--front-font-family, "Instrument Sans Variable", Arial, sans-serif);
     font-size: var(--ac-about-card-title-size);
     font-weight: 700;
     line-height: var(--ac-about-card-title-line-height);
@@ -494,7 +494,7 @@
     border-radius: 8px;
     background: #8a6d3b;
     color: #fff;
-    font-family: "Instrument Sans Variable", Arial, sans-serif;
+    font-family: var(--front-font-family, "Instrument Sans Variable", Arial, sans-serif);
     font-size: 0.76rem;
     font-weight: 700;
     letter-spacing: 0;
@@ -557,7 +557,7 @@
 .ac-about-wide-cta h3 {
     margin: 0;
     color: #101820;
-    font-family: "Instrument Sans Variable", Arial, sans-serif;
+    font-family: var(--front-font-family, "Instrument Sans Variable", Arial, sans-serif);
     font-size: 1.48rem;
     font-weight: 700;
     line-height: 1.24;
@@ -583,7 +583,7 @@
     border-radius: 8px;
     background: linear-gradient(180deg, #204d76 0%, #123250 100%);
     color: #ffffff;
-    font-family: "Instrument Sans Variable", Arial, sans-serif;
+    font-family: var(--front-font-family, "Instrument Sans Variable", Arial, sans-serif);
     font-size: 0.75rem;
     font-weight: 500;
     letter-spacing: 0.08em;
@@ -924,7 +924,7 @@
 
 .front-desktop-shell:not(.front-route-home) .front-content-shell .ac-about-heading,
 .front-desktop-shell:not(.front-route-home) .front-content-shell .ac-about-heading .values-word:not(.is-accent) {
-    font-family: "Instrument Sans Variable", Arial, sans-serif !important;
+    font-family: var(--front-font-family, "Instrument Sans Variable", Arial, sans-serif) !important;
     font-style: normal !important;
     font-weight: 400 !important;
     letter-spacing: -0.035em !important;
@@ -932,7 +932,7 @@
 
 .front-desktop-shell:not(.front-route-home) .front-content-shell .ac-about-heading .values-word.is-accent {
     color: var(--about-gold) !important;
-    font-family: "Instrument Sans Variable", Arial, sans-serif !important;
+    font-family: var(--front-font-family, "Instrument Sans Variable", Arial, sans-serif) !important;
     font-style: italic !important;
     font-weight: 400 !important;
     letter-spacing: -0.04em !important;
@@ -1045,7 +1045,7 @@
     max-width: 35rem;
     margin-top: clamp(1.7rem, 2.6vw, 2.4rem) !important;
     color: var(--about-gold-soft);
-    font-family: "Instrument Sans Variable", Arial, sans-serif;
+    font-family: var(--front-font-family, "Instrument Sans Variable", Arial, sans-serif);
     font-size: clamp(1.35rem, 1.6vw, 1.85rem);
     font-weight: 500;
     line-height: 1.45;
@@ -1067,7 +1067,7 @@
     max-width: 24ch;
     margin: 0 0 0.75rem;
     color: #f7f7f5;
-    font-family: "Instrument Sans Variable", Arial, sans-serif !important;
+    font-family: var(--front-font-family, "Instrument Sans Variable", Arial, sans-serif) !important;
     font-size: clamp(1.75rem, 2vw, 2.45rem);
     font-weight: 600;
     letter-spacing: -0.025em !important;
@@ -1178,7 +1178,7 @@
 
 .front-desktop-shell .ac-about-stat-card strong {
     color: var(--about-gold-soft);
-    font-family: "Instrument Sans Variable", Arial, sans-serif;
+    font-family: var(--front-font-family, "Instrument Sans Variable", Arial, sans-serif);
     font-size: clamp(3.5rem, 4vw, 5rem);
     font-weight: 400;
 }
@@ -1272,7 +1272,7 @@
 
 .front-desktop-shell:not(.front-route-home) .front-content-shell .ac-about-copy-heading {
     margin: 0;
-    font-family: "Instrument Sans Variable", Arial, sans-serif !important;
+    font-family: var(--front-font-family, "Instrument Sans Variable", Arial, sans-serif) !important;
     font-size: clamp(1.55rem, 1.75vw, 2.1rem);
     font-weight: 600;
     letter-spacing: -0.024em !important;
@@ -1371,7 +1371,7 @@
     padding: 0;
     border: 0;
     color: var(--about-navy);
-    font-family: "Instrument Sans Variable", Arial, sans-serif !important;
+    font-family: var(--front-font-family, "Instrument Sans Variable", Arial, sans-serif) !important;
     font-size: clamp(1.8rem, 2.1vw, 2.55rem);
     font-weight: 600;
     letter-spacing: -0.024em !important;
@@ -1536,7 +1536,7 @@
 
 .front-desktop-shell .ac-about-pullquote p {
     color: var(--about-navy);
-    font-family: "Instrument Sans Variable", Arial, sans-serif;
+    font-family: var(--front-font-family, "Instrument Sans Variable", Arial, sans-serif);
     font-size: clamp(1.25rem, 1.45vw, 1.65rem);
     font-weight: 500;
     line-height: 1.55;
@@ -1681,7 +1681,7 @@
 
 .front-desktop-shell .ac-about-stat-item strong {
     color: var(--about-navy);
-    font-family: "Instrument Sans Variable", Arial, sans-serif;
+    font-family: var(--front-font-family, "Instrument Sans Variable", Arial, sans-serif);
     font-size: clamp(2.35rem, 3vw, 3.7rem);
     font-weight: 400;
     letter-spacing: -0.035em;
@@ -1753,7 +1753,7 @@
 
 .front-desktop-shell .ac-about-member-card h3 {
     color: #fff;
-    font-family: "Instrument Sans Variable", Arial, sans-serif;
+    font-family: var(--front-font-family, "Instrument Sans Variable", Arial, sans-serif);
     font-size: clamp(1.05rem, 1.15vw, 1.35rem);
     font-weight: 500;
     line-height: 1.2;
@@ -1792,7 +1792,7 @@
     border: 0;
     background: transparent;
     color: #fff;
-    font-family: "Instrument Sans Variable", Arial, sans-serif;
+    font-family: var(--front-font-family, "Instrument Sans Variable", Arial, sans-serif);
     font-size: clamp(1.2rem, 1.4vw, 1.7rem);
     font-weight: 500;
     letter-spacing: -0.025em;
@@ -1878,7 +1878,7 @@
 
 .front-desktop-shell .ac-about-wide-cta h3 {
     color: var(--about-navy);
-    font-family: "Instrument Sans Variable", Arial, sans-serif;
+    font-family: var(--front-font-family, "Instrument Sans Variable", Arial, sans-serif);
     font-size: clamp(1.75rem, 2.3vw, 2.8rem);
     font-weight: 500;
     line-height: 1.25;
@@ -1947,7 +1947,7 @@
     border-radius: 22px 0;
     box-shadow: none;
     gap: 12px;
-    font-family: "Instrument Sans Variable", Arial, sans-serif;
+    font-family: var(--front-font-family, "Instrument Sans Variable", Arial, sans-serif);
     font-size: 0.69rem;
     font-weight: 800;
     letter-spacing: 0.1em;

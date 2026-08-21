@@ -4,6 +4,7 @@ namespace App\Services\Front;
 
 use App\Models\Content\Page\InfoPage;
 use App\Services\Settings\SystemSettingsService;
+use App\Support\Front\FontRegistry;
 use Illuminate\Support\Facades\Storage;
 
 class StoreSettingsService
@@ -20,6 +21,7 @@ class StoreSettingsService
         return [
             'announcement' => $this->announcement(),
             'branding' => $this->branding(),
+            'typography' => $this->typography(),
             'blog' => $this->blog(),
             'footer' => $this->footer(),
             'official_entities' => $this->officialEntities(),
@@ -90,6 +92,16 @@ class StoreSettingsService
                 ],
             ],
         ];
+    }
+
+    /**
+     * @return array{key: string, family: string, stylesheet_url: string}
+     */
+    public function typography(): array
+    {
+        return FontRegistry::resolve(
+            $this->settings->get('store_front_google_font', FontRegistry::DEFAULT)
+        );
     }
 
     /**

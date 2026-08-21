@@ -946,7 +946,7 @@
         .ac-finance-network-title h3 {
             margin: 0;
             max-width: none;
-            font-family: "Instrument Sans Variable", Arial, sans-serif;
+            font-family: var(--front-font-family, "Instrument Sans Variable", Arial, sans-serif);
             font-size: clamp(1.32rem, 1.7vw, 1.82rem);
             line-height: 1.06;
             font-weight: 600;
@@ -1173,7 +1173,7 @@
         }
 
         .ac-finance-editorial-title h2 {
-            font-family: "Instrument Sans Variable", Arial, sans-serif;
+            font-family: var(--front-font-family, "Instrument Sans Variable", Arial, sans-serif);
             font-size: clamp(1.6rem, 2.3vw, 2.3rem);
             line-height: 1.15;
             font-weight: 600;
@@ -1227,7 +1227,7 @@
             font-weight: 700;
             line-height: 1.5rem;
             color: #0f172a;
-            font-family: "Instrument Sans Variable", Arial, sans-serif;
+            font-family: var(--front-font-family, "Instrument Sans Variable", Arial, sans-serif);
             letter-spacing: -0.02em;
         }
 
@@ -1291,7 +1291,7 @@
             align-items: center;
             gap: 0.6rem;
             max-width: 100%;
-            font-family: "Instrument Sans Variable", Arial, sans-serif;
+            font-family: var(--front-font-family, "Instrument Sans Variable", Arial, sans-serif);
         }
 
         .ac-finance-kicker-label span:last-child {
@@ -1323,7 +1323,7 @@
             letter-spacing: 0.14em;
             text-transform: uppercase;
             color: #6b6258;
-            font-family: "Instrument Sans Variable", Arial, sans-serif;
+            font-family: var(--front-font-family, "Instrument Sans Variable", Arial, sans-serif);
         }
 
         .ac-finance-phase-table-shell {
@@ -1382,7 +1382,7 @@
             font-weight: 700;
             line-height: 1.5;
             color: #201c18;
-            font-family: "Instrument Sans Variable", Arial, sans-serif;
+            font-family: var(--front-font-family, "Instrument Sans Variable", Arial, sans-serif);
             letter-spacing: -0.02em;
         }
 

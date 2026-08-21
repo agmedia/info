@@ -8,6 +8,7 @@
         <div class="mb-4 flex flex-wrap gap-2">
             @foreach ([
                 'email' => 'Email',
+                'appearance' => 'Appearance',
                 'branding' => 'Branding & Footer',
                 'blog' => 'Blog',
                 'newsletter' => 'Newsletter',
@@ -86,6 +87,24 @@
                     <div class="md:col-span-2">
                         <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Sendmail Path') }}</label>
                         <input type="text" wire:model="form.store_email_sendmail_path" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+                    </div>
+                </div>
+            @endif
+
+            @if ($tab === 'appearance')
+                <div class="grid gap-4 md:grid-cols-2">
+                    <div>
+                        <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500" for="store-front-google-font">{{ __('Website font') }}</label>
+                        <select id="store-front-google-font" wire:model="form.store_front_google_font" data-tom-select placeholder="{{ __('Search fonts...') }}" class="admin-select w-full rounded-xl border border-slate-300 px-3 py-2 text-sm">
+                            @foreach ($fontOptions as $fontKey => $fontLabel)
+                                <option value="{{ $fontKey }}">{{ $fontLabel }}</option>
+                            @endforeach
+                        </select>
+                        @error('form.store_front_google_font') <p class="mt-1 text-xs text-rose-600">{{ $message }}</p> @enderror
+                    </div>
+                    <div class="rounded-xl border border-slate-200 bg-slate-50 p-4 text-sm text-slate-600">
+                        <p class="font-semibold text-slate-800">{{ __('Font catalog') }}</p>
+                        <p class="mt-1">{{ __('Search the expanded Google Fonts catalog or choose General Sans from Fontshare. The selected font is used across the public website.') }}</p>
                     </div>
                 </div>
             @endif

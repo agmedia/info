@@ -4,7 +4,9 @@ namespace App\Livewire\Admin\Settings\System;
 
 use App\Models\Content\Page\InfoPage;
 use App\Services\Settings\SystemSettingsService;
+use App\Support\Front\FontRegistry;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\Rule;
 use Livewire\Component;
 use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
 use Livewire\WithFileUploads;
@@ -32,6 +34,7 @@ class StoreSettings extends Component
         'store_email_contact_to' => '',
 
         'store_brand_name' => '',
+        'store_front_google_font' => FontRegistry::DEFAULT,
         'store_blog_header_eyebrow' => '',
         'store_blog_header_title' => '',
         'store_blog_header_intro' => '',
@@ -160,6 +163,7 @@ class StoreSettings extends Component
             $this->form[$pageKey] = $this->normalizeIdList($this->form[$pageKey] ?? []);
         }
         $this->form['store_footer_bottom_link_page_ids'] = $this->normalizeIdList($this->form['store_footer_bottom_link_page_ids'] ?? []);
+        $this->form['store_front_google_font'] = FontRegistry::normalize($this->form['store_front_google_font'] ?? null);
 
         if (trim((string) $this->form['store_announcement_text']) === '') {
             $this->form['store_announcement_text'] = (string) __('ui.front.desktop.promo_bar');
@@ -250,6 +254,7 @@ class StoreSettings extends Component
             'form.store_email_contact_to' => ['nullable', 'email', 'max:191'],
 
             'form.store_brand_name' => ['nullable', 'string', 'max:191'],
+            'form.store_front_google_font' => ['required', 'string', Rule::in(FontRegistry::keys())],
             'form.store_blog_header_eyebrow' => ['nullable', 'string', 'max:120'],
             'form.store_blog_header_title' => ['nullable', 'string', 'max:191'],
             'form.store_blog_header_intro' => ['nullable', 'string', 'max:500'],
@@ -374,6 +379,7 @@ class StoreSettings extends Component
 
         return view('livewire.admin.settings.system.store-settings', [
             'pageOptions' => $pageOptions,
+            'fontOptions' => FontRegistry::options(),
         ]);
     }
 

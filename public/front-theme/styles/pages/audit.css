@@ -90,7 +90,7 @@
 
 :is(.front-route-audit, .front-route-accounting) .ac-audit-hero-label {
     opacity: 0;
-    font-family: "Instrument Sans Variable", Arial, sans-serif !important;
+    font-family: var(--front-font-family, "Instrument Sans Variable", Arial, sans-serif) !important;
     font-size: clamp(5rem, 8vw, 9rem);
     font-weight: 450;
     letter-spacing: 0.015em;
@@ -104,7 +104,7 @@
     margin-inline: auto;
     opacity: 0;
     color: rgba(255, 255, 255, 0.86);
-    font-family: "Instrument Sans Variable", Arial, sans-serif;
+    font-family: var(--front-font-family, "Instrument Sans Variable", Arial, sans-serif);
     font-size: clamp(1.15rem, 1.45vw, 1.5rem);
     font-weight: 500;
     letter-spacing: -0.012em;
@@ -115,7 +115,7 @@
 }
 
 .front-desktop-shell:is(.front-route-audit, .front-route-accounting) .front-content-shell .ac-audit-hero-hook {
-    font-family: "Instrument Sans Variable", Arial, sans-serif !important;
+    font-family: var(--front-font-family, "Instrument Sans Variable", Arial, sans-serif) !important;
 }
 
 :is(.front-route-audit, .front-route-accounting).intro-ready .ac-audit-hero-label,
@@ -154,7 +154,7 @@
 :is(.front-route-audit, .front-route-accounting) .ac-audit-section-heading h2,
 :is(.front-route-audit, .front-route-accounting) .ac-audit-approach-heading h2 {
     margin: 0;
-    font-family: "Instrument Sans Variable", Arial, sans-serif;
+    font-family: var(--front-font-family, "Instrument Sans Variable", Arial, sans-serif);
     font-weight: 420;
     letter-spacing: -0.045em;
     line-height: 1.03;
@@ -172,7 +172,7 @@
 :is(.front-route-audit, .front-route-accounting) .ac-audit-section-heading .service-title-word.is-accent,
 :is(.front-route-audit, .front-route-accounting) .ac-audit-approach-heading .service-title-word.is-accent {
     color: #a48143;
-    font-family: "Instrument Sans Variable", Arial, sans-serif;
+    font-family: var(--front-font-family, "Instrument Sans Variable", Arial, sans-serif);
     font-style: italic;
     font-weight: 500;
 }
@@ -234,7 +234,7 @@
 .front-desktop-shell:is(.front-route-audit, .front-route-accounting) .front-content-shell .ac-audit-obligors-content > h3 {
     margin: 0 0 2rem;
     color: rgba(247, 247, 245, 0.96);
-    font-family: "Instrument Sans Variable", Arial, sans-serif !important;
+    font-family: var(--front-font-family, "Instrument Sans Variable", Arial, sans-serif) !important;
     font-size: clamp(1.75rem, 2.2vw, 2.25rem);
     font-weight: 600;
     letter-spacing: -0.02em;
@@ -473,7 +473,7 @@
 .front-desktop-shell:is(.front-route-audit, .front-route-accounting) .front-content-shell .ac-audit-service-card h3 {
     margin: 0;
     color: #101820;
-    font-family: "Instrument Sans Variable", Arial, sans-serif !important;
+    font-family: var(--front-font-family, "Instrument Sans Variable", Arial, sans-serif) !important;
     font-size: clamp(1.8rem, 2.1vw, 2.55rem);
     font-weight: 600;
     letter-spacing: -0.024em;
@@ -538,7 +538,7 @@
 :is(.front-route-audit, .front-route-accounting) .ac-audit-approach-quote p {
     margin: 0;
     color: rgba(247, 247, 245, 0.9);
-    font-family: "Instrument Sans Variable", Arial, sans-serif;
+    font-family: var(--front-font-family, "Instrument Sans Variable", Arial, sans-serif);
     font-size: clamp(1.3rem, 1.7vw, 1.9rem);
     font-weight: 500;
     letter-spacing: -0.025em;

@@ -97,7 +97,7 @@
     max-width: 12ch;
     margin-top: 0.7rem;
     color: var(--ac-faq-navy);
-    font-family: "Instrument Sans Variable", Arial, sans-serif;
+    font-family: var(--front-font-family, "Instrument Sans Variable", Arial, sans-serif);
     font-size: clamp(1.9rem, 2.4vw, 2.65rem);
     font-weight: 700;
     letter-spacing: -0.025em;
@@ -116,7 +116,7 @@
 
 .ac-faq-count strong {
     color: var(--ac-faq-gold-dark);
-    font-family: "Instrument Sans Variable", Arial, sans-serif;
+    font-family: var(--front-font-family, "Instrument Sans Variable", Arial, sans-serif);
     font-size: 1.3rem;
     font-weight: 500;
 }
@@ -147,7 +147,7 @@
 
 .ac-faq-number {
     color: var(--ac-faq-gold-dark);
-    font-family: "Instrument Sans Variable", Arial, sans-serif;
+    font-family: var(--front-font-family, "Instrument Sans Variable", Arial, sans-serif);
     font-size: 1rem;
     font-weight: 500;
     line-height: 1;
@@ -156,7 +156,7 @@
 .ac-faq-question {
     max-width: 48rem;
     color: var(--ac-faq-navy);
-    font-family: "Instrument Sans Variable", Arial, sans-serif;
+    font-family: var(--front-font-family, "Instrument Sans Variable", Arial, sans-serif);
     font-size: clamp(1.22rem, 1.45vw, 1.55rem);
     font-weight: 700;
     letter-spacing: -0.018em;
@@ -216,7 +216,7 @@
 .front-desktop-shell .ac-faq-answer .content-richtext > blockquote {
     margin: 0 0 1.1rem;
     color: var(--ac-faq-copy);
-    font-family: "Instrument Sans Variable", Arial, sans-serif;
+    font-family: var(--front-font-family, "Instrument Sans Variable", Arial, sans-serif);
     font-size: 1rem;
     line-height: 1.75;
 }
@@ -230,7 +230,7 @@
 .front-desktop-shell .ac-faq-answer .content-richtext h4 {
     margin: 2rem 0 0.8rem;
     color: var(--ac-faq-navy);
-    font-family: "Instrument Sans Variable", Arial, sans-serif;
+    font-family: var(--front-font-family, "Instrument Sans Variable", Arial, sans-serif);
     font-weight: 700;
     letter-spacing: -0.015em;
     line-height: 1.3;

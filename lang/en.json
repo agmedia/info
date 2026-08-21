@@ -6,6 +6,7 @@
     "results": "results",
     "Go to page :page": "Go to page :page",
     "Email": "Email",
+    "Appearance": "Appearance",
     "Branding & Footer": "Branding & Footer",
     "Newsletter": "Newsletter",
     "Integrations": "Integrations",
@@ -28,5 +29,9 @@
     "Product prices include VAT": "Product prices include VAT",
     "Content / Glossary": "Content / Glossary",
     "Content / Glossary / Create": "Content / Glossary / Create",
-    "Content / Glossary / Edit": "Content / Glossary / Edit"
+    "Content / Glossary / Edit": "Content / Glossary / Edit",
+    "Website font": "Website font",
+    "Search fonts...": "Search fonts...",
+    "Font catalog": "Font catalog",
+    "Search the expanded Google Fonts catalog or choose General Sans from Fontshare. The selected font is used across the public website.": "Search the expanded Google Fonts catalog or choose General Sans from Fontshare. The selected font is used across the public website."
 }

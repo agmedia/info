@@ -155,7 +155,7 @@
 
     #{{ $sectionId }} .ac-block-blog-grid-title {
         margin: 0;
-        font-family: 'Montserrat', sans-serif;
+        font-family: var(--front-font-family, "Instrument Sans Variable", Arial, sans-serif);
         font-size: clamp(2rem, 3vw, 3.35rem);
         font-weight: 600;
         line-height: 1.05;

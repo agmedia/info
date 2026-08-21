@@ -29,7 +29,7 @@
   --cc-overlay-bg: rgba(3, 18, 31, 0.72);
   --cc-modal-border-radius: 36px 5px 36px 5px;
   --cc-btn-border-radius: 18px 3px 18px 3px;
-  --cc-font-family: "Instrument Sans Variable", Arial, sans-serif;
+  --cc-font-family: var(--front-font-family, "Instrument Sans Variable", Arial, sans-serif);
 }
 
 #cc-main .cm,
@@ -64,7 +64,7 @@
 #cc-main .cm__title,
 #cc-main .pm__title {
   color: #03121f;
-  font-family: "Instrument Sans Variable", Arial, sans-serif;
+  font-family: var(--front-font-family, "Instrument Sans Variable", Arial, sans-serif);
   font-weight: 600;
   letter-spacing: -0.02em;
 }

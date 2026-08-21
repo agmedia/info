@@ -31,6 +31,37 @@ class StorefrontFrontFeatureTest extends TestCase
 {
     use RefreshDatabase;
 
+    public function test_public_site_uses_manrope_as_the_default_google_font(): void
+    {
+        $this->get('/')
+            ->assertOk()
+            ->assertSee('fonts.googleapis.com/css2?family=Manrope', false)
+            ->assertSee('data-front-font="manrope"', false)
+            ->assertSee('front-theme/styles/typography.css', false);
+    }
+
+    public function test_public_site_uses_the_google_font_selected_in_settings(): void
+    {
+        app(SystemSettingsService::class)->put('store_front_google_font', 'poppins');
+
+        $this->get('/')
+            ->assertOk()
+            ->assertSee('fonts.googleapis.com/css2?family=Poppins', false)
+            ->assertSee('data-front-font="poppins"', false);
+    }
+
+    public function test_public_site_supports_general_sans_from_fontshare(): void
+    {
+        app(SystemSettingsService::class)->put('store_front_google_font', 'general-sans');
+
+        $this->get('/')
+            ->assertOk()
+            ->assertSee('api.fontshare.com/v2/css', false)
+            ->assertSee('data-front-font="general-sans"', false)
+            ->assertSee('https://cdn.fontshare.com', false)
+            ->assertDontSee('fonts.googleapis.com/css2', false);
+    }
+
     public function test_bundled_cms_media_resolves_to_its_deployed_public_asset(): void
     {
         $media = new Media([

@@ -68,7 +68,7 @@ body:has(.ac-career-page) {
     max-width: 760px;
     margin: 0;
     color: var(--career-navy);
-    font-family: "Instrument Sans Variable", Arial, sans-serif !important;
+    font-family: var(--front-font-family, "Instrument Sans Variable", Arial, sans-serif) !important;
     font-size: clamp(3rem, 3.75vw, 4.75rem);
     font-style: normal !important;
     font-weight: 400 !important;
@@ -78,7 +78,7 @@ body:has(.ac-career-page) {
 }
 
 .front-desktop-shell:not(.front-route-home) .front-content-shell :is(.ac-career-display-title, .ac-career-section-title) .values-word:not(.is-accent) {
-    font-family: "Instrument Sans Variable", Arial, sans-serif !important;
+    font-family: var(--front-font-family, "Instrument Sans Variable", Arial, sans-serif) !important;
     font-style: normal !important;
     font-weight: 400 !important;
     letter-spacing: -0.018em !important;
@@ -87,7 +87,7 @@ body:has(.ac-career-page) {
 .front-desktop-shell:not(.front-route-home) .front-content-shell .ac-career-display-title .values-word.is-accent,
 .front-desktop-shell:not(.front-route-home) .front-content-shell .ac-career-section-title .values-word.is-accent {
     color: var(--career-gold) !important;
-    font-family: "Instrument Sans Variable", Arial, sans-serif !important;
+    font-family: var(--front-font-family, "Instrument Sans Variable", Arial, sans-serif) !important;
     font-style: italic !important;
     font-weight: 400 !important;
     letter-spacing: -0.04em !important;
@@ -97,7 +97,7 @@ body:has(.ac-career-page) {
     max-width: none;
     margin: 0;
     color: var(--career-navy);
-    font-family: "Instrument Sans Variable", Arial, sans-serif !important;
+    font-family: var(--front-font-family, "Instrument Sans Variable", Arial, sans-serif) !important;
     font-size: clamp(1.55rem, 1.75vw, 2.1rem);
     font-weight: 600;
     letter-spacing: -0.024em !important;
@@ -186,7 +186,7 @@ body:has(.ac-career-page) {
     max-width: 24ch;
     margin: 0.85rem 0 0;
     color: #fff;
-    font-family: "Instrument Sans Variable", Arial, sans-serif !important;
+    font-family: var(--front-font-family, "Instrument Sans Variable", Arial, sans-serif) !important;
     font-size: clamp(1.75rem, 2vw, 2.45rem);
     font-weight: 600;
     letter-spacing: -0.025em !important;
@@ -203,7 +203,7 @@ body:has(.ac-career-page) {
 
 .front-desktop-shell:not(.front-route-home) .front-content-shell .ac-career-dark-title .service-title-word.is-accent {
     color: var(--career-gold-soft);
-    font-family: "Instrument Sans Variable", Arial, sans-serif !important;
+    font-family: var(--front-font-family, "Instrument Sans Variable", Arial, sans-serif) !important;
     font-style: italic;
     font-weight: inherit;
     letter-spacing: inherit;
@@ -349,7 +349,7 @@ body:has(.ac-career-page) {
 
 .front-desktop-shell .ac-career-stat-card strong {
     color: var(--career-gold-soft);
-    font-family: "Instrument Sans Variable", Arial, sans-serif;
+    font-family: var(--front-font-family, "Instrument Sans Variable", Arial, sans-serif);
     font-size: clamp(3.5rem, 4vw, 5rem);
     font-weight: 400;
     line-height: 0.95;
@@ -430,7 +430,7 @@ body:has(.ac-career-page) {
 .front-desktop-shell .ac-career-development-card h3 {
     margin: 0;
     color: var(--career-navy);
-    font-family: "Instrument Sans Variable", Arial, sans-serif;
+    font-family: var(--front-font-family, "Instrument Sans Variable", Arial, sans-serif);
     font-size: clamp(1.45rem, 1.55vw, 1.9rem);
     font-weight: 600;
     letter-spacing: -0.025em;
@@ -480,7 +480,7 @@ body:has(.ac-career-page) {
     max-width: none;
     margin: 0;
     color: #fff;
-    font-family: "Instrument Sans Variable", Arial, sans-serif !important;
+    font-family: var(--front-font-family, "Instrument Sans Variable", Arial, sans-serif) !important;
     font-size: clamp(1.55rem, 1.75vw, 2.1rem);
     font-weight: 600;
     letter-spacing: -0.024em !important;
@@ -570,7 +570,7 @@ body:has(.ac-career-page) {
     max-width: 19ch;
     margin: 0.7rem 0 0;
     color: #fff;
-    font-family: "Instrument Sans Variable", Arial, sans-serif;
+    font-family: var(--front-font-family, "Instrument Sans Variable", Arial, sans-serif);
     font-size: clamp(1.45rem, 1.75vw, 2.1rem);
     font-weight: 600;
     letter-spacing: -0.025em;
@@ -627,7 +627,7 @@ body:has(.ac-career-page) {
     max-width: 28ch;
     margin-top: 1.7rem !important;
     color: var(--career-navy);
-    font-family: "Instrument Sans Variable", Arial, sans-serif;
+    font-family: var(--front-font-family, "Instrument Sans Variable", Arial, sans-serif);
     font-size: clamp(1.35rem, 1.65vw, 1.95rem);
     font-weight: 600;
     letter-spacing: -0.02em;
@@ -654,7 +654,7 @@ body:has(.ac-career-page) {
     max-width: 20ch;
     margin: 0;
     color: var(--career-navy);
-    font-family: "Instrument Sans Variable", Arial, sans-serif !important;
+    font-family: var(--front-font-family, "Instrument Sans Variable", Arial, sans-serif) !important;
     font-size: clamp(1.55rem, 1.75vw, 2.1rem);
     font-weight: 600;
     letter-spacing: -0.024em !important;
@@ -694,7 +694,7 @@ body:has(.ac-career-page) {
     outline: 0;
     background: rgba(255, 255, 255, 0.64);
     color: var(--career-navy);
-    font-family: "Instrument Sans Variable", Arial, sans-serif;
+    font-family: var(--front-font-family, "Instrument Sans Variable", Arial, sans-serif);
     font-size: 1rem;
     line-height: 1.45;
     transition: border-color 220ms ease, background-color 220ms ease, box-shadow 220ms ease;
