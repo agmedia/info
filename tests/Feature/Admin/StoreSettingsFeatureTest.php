@@ -4,6 +4,7 @@ namespace Tests\Feature\Admin;
 
 use App\Livewire\Admin\Settings\System\StoreSettings;
 use App\Models\User;
+use App\Services\Front\StoreSettingsService as FrontStoreSettingsService;
 use App\Services\Settings\SystemSettingsService;
 use App\Support\Front\FontRegistry;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -98,6 +99,62 @@ class StoreSettingsFeatureTest extends TestCase
         $settings = app(SystemSettingsService::class);
         $this->assertTrue((bool) $settings->get('store_analytics_enabled'));
         $this->assertSame('G-AB12CD34', $settings->get('store_analytics_ga4_measurement_id'));
+    }
+
+    public function test_tracking_integration_ids_are_normalized_saved_and_exposed_to_the_frontend(): void
+    {
+        $admin = $this->makeAdminUser();
+
+        Livewire::actingAs($admin)
+            ->test(StoreSettings::class)
+            ->set('tab', 'integrations')
+            ->assertSee('Google Tag Manager')
+            ->assertSee('Google Ads')
+            ->assertSee('Meta (Facebook) Pixel')
+            ->set('form.store_analytics_gtm_enabled', true)
+            ->set('form.store_analytics_gtm_container_id', '  gtm-ab12cd  ')
+            ->set('form.store_analytics_google_ads_enabled', true)
+            ->set('form.store_analytics_google_ads_conversion_id', '  aw-123456789  ')
+            ->set('form.store_analytics_meta_pixel_enabled', true)
+            ->set('form.store_analytics_meta_pixel_id', '  123456789012345  ')
+            ->call('save')
+            ->assertHasNoErrors();
+
+        $settings = app(SystemSettingsService::class);
+        $this->assertTrue((bool) $settings->get('store_analytics_gtm_enabled'));
+        $this->assertSame('GTM-AB12CD', $settings->get('store_analytics_gtm_container_id'));
+        $this->assertTrue((bool) $settings->get('store_analytics_google_ads_enabled'));
+        $this->assertSame('AW-123456789', $settings->get('store_analytics_google_ads_conversion_id'));
+        $this->assertTrue((bool) $settings->get('store_analytics_meta_pixel_enabled'));
+        $this->assertSame('123456789012345', $settings->get('store_analytics_meta_pixel_id'));
+
+        $frontendSettings = app(FrontStoreSettingsService::class)->analytics();
+        $this->assertTrue($frontendSettings['gtm_enabled']);
+        $this->assertSame('GTM-AB12CD', $frontendSettings['gtm_container_id']);
+        $this->assertTrue($frontendSettings['google_ads_enabled']);
+        $this->assertSame('AW-123456789', $frontendSettings['google_ads_conversion_id']);
+        $this->assertTrue($frontendSettings['meta_pixel_enabled']);
+        $this->assertSame('123456789012345', $frontendSettings['meta_pixel_id']);
+    }
+
+    public function test_tracking_integration_ids_are_validated_when_enabled(): void
+    {
+        $admin = $this->makeAdminUser();
+
+        Livewire::actingAs($admin)
+            ->test(StoreSettings::class)
+            ->set('form.store_analytics_gtm_enabled', true)
+            ->set('form.store_analytics_gtm_container_id', 'G-INVALID')
+            ->set('form.store_analytics_google_ads_enabled', true)
+            ->set('form.store_analytics_google_ads_conversion_id', 'GTM-INVALID')
+            ->set('form.store_analytics_meta_pixel_enabled', true)
+            ->set('form.store_analytics_meta_pixel_id', 'pixel-invalid')
+            ->call('save')
+            ->assertHasErrors([
+                'form.store_analytics_gtm_container_id',
+                'form.store_analytics_google_ads_conversion_id',
+                'form.store_analytics_meta_pixel_id',
+            ]);
     }
 
     private function makeAdminUser(): User

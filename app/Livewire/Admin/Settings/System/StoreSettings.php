@@ -91,6 +91,12 @@ class StoreSettings extends Component
 
         'store_analytics_enabled' => false,
         'store_analytics_ga4_measurement_id' => '',
+        'store_analytics_gtm_enabled' => false,
+        'store_analytics_gtm_container_id' => '',
+        'store_analytics_google_ads_enabled' => false,
+        'store_analytics_google_ads_conversion_id' => '',
+        'store_analytics_meta_pixel_enabled' => false,
+        'store_analytics_meta_pixel_id' => '',
 
         'store_seo_default_title' => '',
         'store_seo_default_description' => '',
@@ -190,9 +196,18 @@ class StoreSettings extends Component
     {
         $this->authorizeAccess();
 
-        $this->form['store_analytics_ga4_measurement_id'] = strtoupper(trim(
-            (string) ($this->form['store_analytics_ga4_measurement_id'] ?? '')
-        ));
+        foreach ([
+            'store_analytics_ga4_measurement_id',
+            'store_analytics_gtm_container_id',
+            'store_analytics_google_ads_conversion_id',
+        ] as $trackingIdKey) {
+            $this->form[$trackingIdKey] = strtoupper(trim(
+                (string) ($this->form[$trackingIdKey] ?? '')
+            ));
+        }
+        $this->form['store_analytics_meta_pixel_id'] = trim(
+            (string) ($this->form['store_analytics_meta_pixel_id'] ?? '')
+        );
 
         $validated = $this->validate($this->rules());
         $payload = $validated['form'];
@@ -317,6 +332,30 @@ class StoreSettings extends Component
                 'max:32',
                 'regex:/^G-[A-Z0-9]+$/',
             ],
+            'form.store_analytics_gtm_enabled' => ['required', 'boolean'],
+            'form.store_analytics_gtm_container_id' => [
+                Rule::requiredIf(fn (): bool => (bool) ($this->form['store_analytics_gtm_enabled'] ?? false)),
+                'nullable',
+                'string',
+                'max:32',
+                'regex:/^GTM-[A-Z0-9]+$/',
+            ],
+            'form.store_analytics_google_ads_enabled' => ['required', 'boolean'],
+            'form.store_analytics_google_ads_conversion_id' => [
+                Rule::requiredIf(fn (): bool => (bool) ($this->form['store_analytics_google_ads_enabled'] ?? false)),
+                'nullable',
+                'string',
+                'max:32',
+                'regex:/^AW-[0-9]+$/',
+            ],
+            'form.store_analytics_meta_pixel_enabled' => ['required', 'boolean'],
+            'form.store_analytics_meta_pixel_id' => [
+                Rule::requiredIf(fn (): bool => (bool) ($this->form['store_analytics_meta_pixel_enabled'] ?? false)),
+                'nullable',
+                'string',
+                'max:20',
+                'regex:/^[0-9]{5,20}$/',
+            ],
 
             'form.store_seo_default_title' => ['nullable', 'string', 'max:191'],
             'form.store_seo_default_description' => ['nullable', 'string', 'max:320'],
@@ -369,6 +408,12 @@ class StoreSettings extends Component
         return [
             'form.store_analytics_ga4_measurement_id.required' => __('Unesite GA4 Measurement ID ako je praćenje uključeno.'),
             'form.store_analytics_ga4_measurement_id.regex' => __('Measurement ID mora biti oblika G-XXXXXXXXXX. GTM- oznaka pripada Google Tag Manageru i ne radi u ovom polju.'),
+            'form.store_analytics_gtm_container_id.required' => __('Unesite Google Tag Manager Container ID ako je GTM uključen.'),
+            'form.store_analytics_gtm_container_id.regex' => __('Container ID mora biti oblika GTM-XXXXXXX.'),
+            'form.store_analytics_google_ads_conversion_id.required' => __('Unesite Google Ads Conversion ID ako je praćenje uključeno.'),
+            'form.store_analytics_google_ads_conversion_id.regex' => __('Google Ads Conversion ID mora biti oblika AW-123456789.'),
+            'form.store_analytics_meta_pixel_id.required' => __('Unesite Meta Pixel ID ako je praćenje uključeno.'),
+            'form.store_analytics_meta_pixel_id.regex' => __('Meta Pixel ID mora sadržavati samo 5 do 20 znamenki.'),
         ];
     }
 

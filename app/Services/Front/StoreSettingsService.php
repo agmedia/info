@@ -274,6 +274,12 @@ class StoreSettingsService
         return [
             'enabled' => (bool) $this->settings->get('store_analytics_enabled', false),
             'ga4_measurement_id' => trim((string) $this->settings->get('store_analytics_ga4_measurement_id', '')),
+            'gtm_enabled' => (bool) $this->settings->get('store_analytics_gtm_enabled', false),
+            'gtm_container_id' => trim((string) $this->settings->get('store_analytics_gtm_container_id', '')),
+            'google_ads_enabled' => (bool) $this->settings->get('store_analytics_google_ads_enabled', false),
+            'google_ads_conversion_id' => trim((string) $this->settings->get('store_analytics_google_ads_conversion_id', '')),
+            'meta_pixel_enabled' => (bool) $this->settings->get('store_analytics_meta_pixel_enabled', false),
+            'meta_pixel_id' => trim((string) $this->settings->get('store_analytics_meta_pixel_id', '')),
         ];
     }
 

@@ -47,7 +47,7 @@ if (consentConfig) {
                     },
                     {
                         title: 'Marketinški kolačići',
-                        description: 'Služe mjerenju uspješnosti kampanja i prikazu relevantnije komunikacije na digitalnim kanalima.',
+                        description: 'Google Ads i Meta Pixel služe mjerenju uspješnosti kampanja i prikazu relevantnije komunikacije na digitalnim kanalima.',
                         linkedCategory: 'marketing',
                     },
                 ],
@@ -80,7 +80,7 @@ if (consentConfig) {
                     },
                     {
                         title: 'Marketing cookies',
-                        description: 'These cookies measure campaign performance and help us provide more relevant communication across digital channels.',
+                        description: 'Google Ads and Meta Pixel measure campaign performance and help us provide more relevant communication across digital channels.',
                         linkedCategory: 'marketing',
                     },
                 ],

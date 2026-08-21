@@ -30,6 +30,13 @@
             ad_user_data: marketingGranted ? 'granted' : 'denied',
             ad_personalization: marketingGranted ? 'granted' : 'denied',
         });
+
+        window.dispatchEvent(new CustomEvent('store:cookie-consent-updated', {
+            detail: {
+                analytics: analyticsGranted === true,
+                marketing: marketingGranted === true,
+            },
+        }));
     };
 
     window.gtag('consent', 'default', {

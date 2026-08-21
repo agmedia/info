@@ -9,6 +9,7 @@
             @foreach ([
                 'email' => 'Email',
                 'appearance' => 'Appearance',
+                'hero' => 'Homepage Hero',
                 'branding' => 'Branding & Footer',
                 'blog' => 'Blog',
                 'newsletter' => 'Newsletter',
@@ -105,6 +106,88 @@
                     <div class="rounded-xl border border-slate-200 bg-slate-50 p-4 text-sm text-slate-600">
                         <p class="font-semibold text-slate-800">{{ __('Font catalog') }}</p>
                         <p class="mt-1">{{ __('Search the expanded Google Fonts catalog or choose General Sans from Fontshare. The selected font is used across the public website.') }}</p>
+                    </div>
+                </div>
+            @endif
+
+            @if ($tab === 'hero')
+                <div class="space-y-5">
+                    <div class="rounded-xl border border-slate-200 bg-slate-50 p-4 text-sm text-slate-600">
+                        <p class="font-semibold text-slate-800">{{ __('Homepage Hero') }}</p>
+                        <p class="mt-1">{{ __('Ove postavke vrijede samo za veliki hero na početnoj stranici. Font je odvojen od općeg fonta web-stranice, a desktop i mobilni video učitavaju se zasebno.') }}</p>
+                    </div>
+
+                    <div class="grid gap-4 md:grid-cols-2">
+                        <div class="md:col-span-2">
+                            <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500" for="store-home-hero-font">{{ __('Hero font') }}</label>
+                            <select id="store-home-hero-font" wire:model="form.store_home_hero_font" data-tom-select placeholder="{{ __('Pretraži fontove...') }}" class="admin-select w-full rounded-xl border border-slate-300 px-3 py-2 text-sm">
+                                @foreach ($heroFontOptions as $fontKey => $fontLabel)
+                                    <option value="{{ $fontKey }}" @selected(($form['store_home_hero_font'] ?? null) === $fontKey)>{{ $fontLabel }}</option>
+                                @endforeach
+                            </select>
+                            @error('form.store_home_hero_font') <p class="mt-1 text-xs text-rose-600">{{ $message }}</p> @enderror
+                        </div>
+
+                        <div class="md:col-span-2">
+                            <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500" for="store-home-hero-title">{{ __('Naslov') }}</label>
+                            <input id="store-home-hero-title" type="text" wire:model="form.store_home_hero_title" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+                            @error('form.store_home_hero_title') <p class="mt-1 text-xs text-rose-600">{{ $message }}</p> @enderror
+                        </div>
+
+                        <div class="md:col-span-2">
+                            <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500" for="store-home-hero-subtitle">{{ __('Podnaslov') }}</label>
+                            <textarea id="store-home-hero-subtitle" rows="3" wire:model="form.store_home_hero_subtitle" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm"></textarea>
+                            @error('form.store_home_hero_subtitle') <p class="mt-1 text-xs text-rose-600">{{ $message }}</p> @enderror
+                        </div>
+
+                        <div>
+                            <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500" for="store-home-hero-primary-label">{{ __('Tekst glavnog gumba') }}</label>
+                            <input id="store-home-hero-primary-label" type="text" wire:model="form.store_home_hero_primary_label" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+                            @error('form.store_home_hero_primary_label') <p class="mt-1 text-xs text-rose-600">{{ $message }}</p> @enderror
+                        </div>
+                        <div>
+                            <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500" for="store-home-hero-primary-url">{{ __('Link glavnog gumba') }}</label>
+                            <input id="store-home-hero-primary-url" type="text" wire:model="form.store_home_hero_primary_url" placeholder="/contact ili https://..." class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+                            @error('form.store_home_hero_primary_url') <p class="mt-1 text-xs text-rose-600">{{ $message }}</p> @enderror
+                        </div>
+                        <div>
+                            <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500" for="store-home-hero-secondary-label">{{ __('Tekst drugog gumba') }}</label>
+                            <input id="store-home-hero-secondary-label" type="text" wire:model="form.store_home_hero_secondary_label" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+                            @error('form.store_home_hero_secondary_label') <p class="mt-1 text-xs text-rose-600">{{ $message }}</p> @enderror
+                        </div>
+                        <div>
+                            <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500" for="store-home-hero-secondary-url">{{ __('Link drugog gumba') }}</label>
+                            <input id="store-home-hero-secondary-url" type="text" wire:model="form.store_home_hero_secondary_url" placeholder="/usluge ili https://..." class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+                            @error('form.store_home_hero_secondary_url') <p class="mt-1 text-xs text-rose-600">{{ $message }}</p> @enderror
+                        </div>
+                    </div>
+
+                    <div class="grid gap-4 lg:grid-cols-2">
+                        <div class="rounded-xl border border-slate-200 p-4">
+                            <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500" for="store-home-hero-desktop-video">{{ __('Desktop video') }}</label>
+                            <input id="store-home-hero-desktop-video" type="file" wire:model="homeHeroDesktopVideoUpload" accept="video/mp4,video/webm" class="block w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm" />
+                            <p class="mt-2 text-xs text-slate-500">{{ __('MP4 ili WebM, najviše 12 MB. Preporučen je široki 16:9 video.') }}</p>
+                            <p wire:loading wire:target="homeHeroDesktopVideoUpload" class="mt-2 text-xs font-semibold text-cyan-700">{{ __('Video se učitava...') }}</p>
+                            @error('homeHeroDesktopVideoUpload') <p class="mt-1 text-xs text-rose-600">{{ $message }}</p> @enderror
+                            @if ($homeHeroDesktopVideoUrl)
+                                <video controls preload="metadata" class="mt-4 aspect-video w-full rounded-xl bg-slate-950">
+                                    <source src="{{ $homeHeroDesktopVideoUrl }}">
+                                </video>
+                            @endif
+                        </div>
+
+                        <div class="rounded-xl border border-slate-200 p-4">
+                            <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500" for="store-home-hero-mobile-video">{{ __('Mobilni video') }}</label>
+                            <input id="store-home-hero-mobile-video" type="file" wire:model="homeHeroMobileVideoUpload" accept="video/mp4,video/webm" class="block w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm" />
+                            <p class="mt-2 text-xs text-slate-500">{{ __('MP4 ili WebM, najviše 12 MB. Koristi se samo na uskim ekranima.') }}</p>
+                            <p wire:loading wire:target="homeHeroMobileVideoUpload" class="mt-2 text-xs font-semibold text-cyan-700">{{ __('Video se učitava...') }}</p>
+                            @error('homeHeroMobileVideoUpload') <p class="mt-1 text-xs text-rose-600">{{ $message }}</p> @enderror
+                            @if ($homeHeroMobileVideoUrl)
+                                <video controls preload="metadata" class="mt-4 aspect-video w-full rounded-xl bg-slate-950">
+                                    <source src="{{ $homeHeroMobileVideoUrl }}">
+                                </video>
+                            @endif
+                        </div>
                     </div>
                 </div>
             @endif
@@ -372,6 +455,58 @@
                         @error('form.store_analytics_ga4_measurement_id') <p class="mt-1 text-xs font-medium text-rose-600">{{ $message }}</p> @enderror
                     </div>
                     <div></div>
+
+                    <div class="md:col-span-2 rounded-xl border border-slate-200 bg-slate-50 p-4 mt-2">
+                        <h3 class="text-sm font-bold text-slate-800">{{ __('Google Tag Manager') }}</h3>
+                        <p class="mt-1 text-xs text-slate-600">{{ __('GTM se učitava nakon analitičke ili marketinške privole i prima aktualno Google Consent Mode stanje.') }}</p>
+                    </div>
+                    <label class="inline-flex items-center gap-2 text-sm font-semibold text-slate-700 md:col-span-2">
+                        <input type="checkbox" wire:model="form.store_analytics_gtm_enabled" class="rounded border-slate-300 text-cyan-700 focus:ring-cyan-500" />
+                        {{ __('Uključi Google Tag Manager') }}
+                    </label>
+                    <div>
+                        <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('GTM Container ID') }}</label>
+                        <input type="text" wire:model="form.store_analytics_gtm_container_id" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" placeholder="GTM-XXXXXXX" autocomplete="off" spellcheck="false" />
+                        <p class="mt-1 text-xs text-slate-500">{{ __('Pronađite ga u zaglavlju Google Tag Manager radnog prostora.') }}</p>
+                        @error('form.store_analytics_gtm_container_id') <p class="mt-1 text-xs font-medium text-rose-600">{{ $message }}</p> @enderror
+                    </div>
+                    <div></div>
+
+                    <div class="md:col-span-2 rounded-xl border border-slate-200 bg-slate-50 p-4 mt-2">
+                        <h3 class="text-sm font-bold text-slate-800">{{ __('Google Ads') }}</h3>
+                        <p class="mt-1 text-xs text-slate-600">{{ __('Osnovna Google Ads oznaka učitava se samo uz marketinšku privolu.') }}</p>
+                    </div>
+                    <label class="inline-flex items-center gap-2 text-sm font-semibold text-slate-700 md:col-span-2">
+                        <input type="checkbox" wire:model="form.store_analytics_google_ads_enabled" class="rounded border-slate-300 text-cyan-700 focus:ring-cyan-500" />
+                        {{ __('Uključi Google Ads praćenje') }}
+                    </label>
+                    <div>
+                        <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Google Ads Conversion ID') }}</label>
+                        <input type="text" wire:model="form.store_analytics_google_ads_conversion_id" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" placeholder="AW-123456789" autocomplete="off" spellcheck="false" />
+                        <p class="mt-1 text-xs text-slate-500">{{ __('Unesite samo Conversion ID; oznake pojedinih konverzija podešavaju se zasebno.') }}</p>
+                        @error('form.store_analytics_google_ads_conversion_id') <p class="mt-1 text-xs font-medium text-rose-600">{{ $message }}</p> @enderror
+                    </div>
+                    <div></div>
+
+                    <div class="md:col-span-2 rounded-xl border border-slate-200 bg-slate-50 p-4 mt-2">
+                        <h3 class="text-sm font-bold text-slate-800">{{ __('Meta (Facebook) Pixel') }}</h3>
+                        <p class="mt-1 text-xs text-slate-600">{{ __('Meta Pixel i početni PageView događaj učitavaju se samo uz marketinšku privolu.') }}</p>
+                    </div>
+                    <label class="inline-flex items-center gap-2 text-sm font-semibold text-slate-700 md:col-span-2">
+                        <input type="checkbox" wire:model="form.store_analytics_meta_pixel_enabled" class="rounded border-slate-300 text-cyan-700 focus:ring-cyan-500" />
+                        {{ __('Uključi Meta Pixel') }}
+                    </label>
+                    <div>
+                        <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Meta Pixel ID') }}</label>
+                        <input type="text" inputmode="numeric" wire:model="form.store_analytics_meta_pixel_id" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" placeholder="123456789012345" autocomplete="off" spellcheck="false" />
+                        <p class="mt-1 text-xs text-slate-500">{{ __('Pronađite ga u Meta Events Manageru pod Data sources.') }}</p>
+                        @error('form.store_analytics_meta_pixel_id') <p class="mt-1 text-xs font-medium text-rose-600">{{ $message }}</p> @enderror
+                    </div>
+                    <div></div>
+
+                    <div class="md:col-span-2 rounded-xl border border-amber-200 bg-amber-50 p-4 text-xs text-amber-900">
+                        {{ __('Ako iste GA4, Google Ads ili Meta oznake postavite i unutar GTM-a i u ovim izravnim postavkama, događaji se mogu zabilježiti dvaput.') }}
+                    </div>
                 </div>
             @endif
 
