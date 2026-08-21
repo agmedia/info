@@ -124,12 +124,12 @@ class ServiceCardService
         ];
 
         if (! is_array($overrides) || $overrides === []) {
-            return $defaults;
+            return $this->withServicesIndexCardImages($defaults);
         }
 
         $defaultsByKey = collect($defaults)->keyBy('key');
 
-        return collect($overrides)
+        $pillars = collect($overrides)
             ->map(function ($override) use ($defaultsByKey): ?array {
                 if (! is_array($override)) {
                     return null;
@@ -167,6 +167,67 @@ class ServiceCardService
             ->filter()
             ->values()
             ->all();
+
+        return $this->withServicesIndexCardImages($pillars);
+    }
+
+    /**
+     * The homepage and the Services index must use the same CMS-managed card images.
+     *
+     * @param  array<int, array<string, mixed>>  $pillars
+     * @return array<int, array<string, mixed>>
+     */
+    private function withServicesIndexCardImages(array $pillars): array
+    {
+        $servicesIndexPage = $this->servicesIndexPage();
+        $fallbacks = [
+            'audit' => 'alpha/service-revizija.jpg',
+            'accounting' => 'alpha/service-racunovodstvo.jpg',
+            'advisory' => 'alpha/service-savjetovanje.jpg',
+        ];
+
+        return collect($pillars)
+            ->map(function (array $pillar) use ($servicesIndexPage, $fallbacks): array {
+                $cardKey = trim((string) ($pillar['key'] ?? ''));
+                $collection = ServicePageTemplateRegistry::SERVICES_INDEX_CARD_MEDIA_COLLECTIONS[$cardKey] ?? null;
+                $media = $collection ? $servicesIndexPage?->getFirstMedia($collection) : null;
+
+                if ($media?->hasGeneratedConversion('services_index_card_1080x1350')) {
+                    $pillar['image_url'] = $this->mediaAssetUrl($media, 'services_index_card_1080x1350')
+                        ?? $media->getUrl('services_index_card_1080x1350');
+                } elseif ($media) {
+                    $pillar['image_url'] = $this->mediaAssetUrl($media) ?? $media->getUrl();
+                } else {
+                    $fallback = (string) ($fallbacks[$cardKey] ?? '');
+                    $pillar['image_url'] = $fallback !== ''
+                        ? $this->versionedAsset($fallback)
+                        : trim((string) ($pillar['image_url'] ?? ''));
+                }
+
+                return $pillar;
+            })
+            ->values()
+            ->all();
+    }
+
+    private function servicesIndexPage(): ?ServicePage
+    {
+        if (! Schema::hasTable('content_service_pages')) {
+            return null;
+        }
+
+        return ServicePage::query()
+            ->where('template_key', ServicePageTemplateRegistry::SERVICES_INDEX)
+            ->where('is_active', true)
+            ->where(function (Builder $query): void {
+                $query->whereNull('published_at')
+                    ->orWhere('published_at', '<=', now());
+            })
+            ->with('media')
+            ->orderByRaw('case when code = ? then 0 else 1 end', [ServicePageTemplateRegistry::defaultCode(ServicePageTemplateRegistry::SERVICES_INDEX)])
+            ->orderBy('sort_order')
+            ->orderBy('id')
+            ->first();
     }
 
     private function normalizeCardUrl(string $url): string

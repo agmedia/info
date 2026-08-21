@@ -96,8 +96,9 @@
         ]);
 
         $cmsServiceItems = collect($homeServicesPayload['services'] ?? [])->filter(fn ($service) => is_array($service))->values();
-        $serviceSource = $cmsServiceItems->isNotEmpty() ? $cmsServiceItems : collect($primaryServicePillars ?? []);
-        $serviceItems = $serviceSource->map(function (array $service, int $index) use ($serviceDesign): array {
+        $primaryServiceItems = collect($primaryServicePillars ?? [])->keyBy(fn (array $service) => (string) ($service['key'] ?? ''));
+        $serviceSource = $cmsServiceItems->isNotEmpty() ? $cmsServiceItems : $primaryServiceItems->values();
+        $serviceItems = $serviceSource->map(function (array $service, int $index) use ($serviceDesign, $primaryServiceItems): array {
             $key = (string) ($service['key'] ?? '');
             if ($key === '') {
                 $key = ['audit', 'accounting', 'advisory'][$index] ?? '';
@@ -107,8 +108,9 @@
                 return [];
             }
 
-            $dynamicImage = trim((string) ($service['image_url'] ?? ''));
-            $useDynamicImage = $dynamicImage !== '' && !str_contains($dynamicImage, '/front-theme/images/services/');
+            $primaryService = (array) $primaryServiceItems->get($key, []);
+            $dynamicImage = trim((string) ($primaryService['image_url'] ?? $service['image_url'] ?? ''));
+            $useDynamicImage = $dynamicImage !== '';
 
             return array_merge($fallback, [
                 'title' => trim((string) ($service['title'] ?? '')) ?: $fallback['title'],

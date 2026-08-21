@@ -11,6 +11,7 @@ use App\Models\Content\Page\InfoPage;
 use App\Models\Content\Page\InfoPageTranslation;
 use App\Models\Content\Resource\ResourceDocument;
 use App\Models\Content\Resource\ResourceDocumentTranslation;
+use App\Models\Content\Service\ServicePage;
 use App\Models\Content\Support\CareerApplication;
 use App\Models\Content\Support\Comment;
 use App\Models\Content\Support\ContactMessage;
@@ -18,6 +19,7 @@ use App\Models\Content\Team\TeamMember;
 use App\Models\Content\Team\TeamMemberTranslation;
 use App\Services\Front\NavigationMenuService;
 use App\Services\Settings\SystemSettingsService;
+use App\Support\Content\ServicePageTemplateRegistry;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Cache;
@@ -1002,6 +1004,39 @@ class StorefrontFrontFeatureTest extends TestCase
             ->assertSee('data-deferred-stylesheet', false)
             ->assertDontSee('splide.min.css', false)
             ->assertDontSee('splide.min.js', false);
+    }
+
+    public function test_home_service_cards_use_images_from_the_services_cms_page(): void
+    {
+        Storage::fake('public');
+        config()->set('media-library.disk_name', 'public');
+        config()->set('media-library.queue_conversions_by_default', false);
+
+        $servicesIndex = ServicePage::query()
+            ->where('template_key', ServicePageTemplateRegistry::SERVICES_INDEX)
+            ->firstOrFail();
+        $auditPage = ServicePage::query()
+            ->where('template_key', ServicePageTemplateRegistry::AUDIT)
+            ->firstOrFail();
+
+        $servicesIndex->clearMediaCollection('services_index_audit_image');
+        $indexMedia = $servicesIndex
+            ->addMedia(UploadedFile::fake()->image('services-cms-audit.jpg', 1080, 1350))
+            ->toMediaCollection('services_index_audit_image');
+
+        $auditPage->clearMediaCollection('service_hero_image');
+        $auditHeroMedia = $auditPage
+            ->addMedia(UploadedFile::fake()->image('audit-page-hero.jpg', 1440, 480))
+            ->toMediaCollection('service_hero_image');
+
+        $expectedImageUrl = $indexMedia->hasGeneratedConversion('services_index_card_1080x1350')
+            ? $indexMedia->getUrl('services_index_card_1080x1350')
+            : $indexMedia->getUrl();
+
+        $this->get('/')
+            ->assertOk()
+            ->assertSee($expectedImageUrl, false)
+            ->assertDontSee($auditHeroMedia->getUrl(), false);
     }
 
     public function test_header_renders_only_navigation_links_configured_in_cms(): void
