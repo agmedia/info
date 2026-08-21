@@ -1,0 +1,128 @@
+/* EU funds questionnaire
+ * Page-specific option controls layered on the shared editorial tool-page system.
+ */
+
+.front-desktop-shell .ac-eu-questionnaire-page .ac-eu-questionnaire-form {
+    gap: clamp(2.25rem, 3.4vw, 3.2rem);
+}
+
+.front-desktop-shell .ac-eu-questionnaire-page .ac-eu-questionnaire-legend {
+    margin: 0 0 0.7rem;
+    padding: 0;
+    color: #6f6255;
+    font-size: 0.69rem;
+    font-weight: 750;
+    letter-spacing: 0.11em;
+    line-height: 1.45;
+    text-transform: uppercase;
+}
+
+.front-desktop-shell .ac-eu-questionnaire-page .ac-eu-questionnaire-option-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.7rem;
+}
+
+.front-desktop-shell .ac-eu-questionnaire-page .ac-eu-questionnaire-option-grid--compact {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.front-desktop-shell .ac-eu-questionnaire-page .ac-eu-questionnaire-option-grid--binary {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    max-width: 30rem;
+}
+
+.front-desktop-shell .ac-eu-questionnaire-page .ac-assessment-field .ac-eu-questionnaire-option {
+    display: flex;
+    min-width: 0;
+    min-height: 3.35rem;
+    align-items: center;
+    gap: 0.75rem;
+    margin: 0;
+    padding: 0.85rem 1rem;
+    border: 1px solid var(--tool-light-border);
+    border-radius: 18px 3px 18px 3px;
+    background: rgba(255, 255, 255, 0.52);
+    color: var(--tool-copy);
+    cursor: pointer;
+    font-size: 0.88rem;
+    font-weight: 600;
+    letter-spacing: 0;
+    line-height: 1.4;
+    text-transform: none;
+    transition: border-color 220ms ease, background-color 220ms ease, color 220ms ease;
+}
+
+.front-desktop-shell .ac-eu-questionnaire-page .ac-assessment-field .ac-eu-questionnaire-option:hover {
+    border-color: rgba(173, 132, 55, 0.44);
+    background: rgba(255, 255, 255, 0.78);
+    color: var(--tool-navy);
+}
+
+.front-desktop-shell .ac-eu-questionnaire-page .ac-assessment-field .ac-eu-questionnaire-option:has(input:checked) {
+    border-color: rgba(173, 132, 55, 0.72);
+    background: rgba(216, 185, 111, 0.14);
+    color: var(--tool-navy);
+}
+
+.front-desktop-shell .ac-eu-questionnaire-page .ac-assessment-field .ac-eu-questionnaire-option:focus-within {
+    outline: 2px solid rgba(173, 132, 55, 0.82);
+    outline-offset: 3px;
+}
+
+.front-desktop-shell .ac-eu-questionnaire-page .ac-eu-questionnaire-option input {
+    width: 1.05rem;
+    height: 1.05rem;
+    flex: 0 0 1.05rem;
+    margin: 0;
+    accent-color: var(--tool-navy);
+}
+
+.front-desktop-shell .ac-eu-questionnaire-page .ac-eu-questionnaire-option span {
+    min-width: 0;
+}
+
+.front-desktop-shell .ac-eu-questionnaire-page .ac-eu-questionnaire-conditional {
+    display: grid;
+    margin-top: 1rem;
+    padding-top: 1.25rem;
+    border-top: 1px solid var(--tool-light-border);
+}
+
+.front-desktop-shell .ac-eu-questionnaire-page .ac-eu-questionnaire-conditional.hidden {
+    display: none;
+}
+
+.front-desktop-shell .ac-eu-questionnaire-page .ac-eu-questionnaire-privacy {
+    max-width: 46rem;
+    margin-top: -1.15rem;
+    color: #756f67;
+    font-size: 0.78rem;
+    line-height: 1.65;
+}
+
+@media (max-width: 1200px) {
+    .front-desktop-shell .ac-eu-questionnaire-page .ac-eu-questionnaire-option-grid--compact {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 700px) {
+    .front-desktop-shell .ac-eu-questionnaire-page .ac-eu-questionnaire-option-grid,
+    .front-desktop-shell .ac-eu-questionnaire-page .ac-eu-questionnaire-option-grid--compact,
+    .front-desktop-shell .ac-eu-questionnaire-page .ac-eu-questionnaire-option-grid--binary {
+        grid-template-columns: minmax(0, 1fr);
+        max-width: none;
+    }
+
+    .front-desktop-shell .ac-eu-questionnaire-page .ac-assessment-field .ac-eu-questionnaire-option {
+        min-height: 3.2rem;
+        padding: 0.8rem 0.9rem;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .front-desktop-shell .ac-eu-questionnaire-page .ac-assessment-field .ac-eu-questionnaire-option {
+        transition: none;
+    }
+}
