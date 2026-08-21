@@ -2,7 +2,7 @@
 -- Import once through phpMyAdmin after deploying commit cb07285 or newer.
 -- This script does not alter the schema or touch content_team_members.
 
-SET NAMES utf8mb4;
+SET NAMES utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 START TRANSACTION;
 
@@ -11,7 +11,7 @@ SET @ac_team_migration_applied := (
     SELECT EXISTS(
         SELECT 1
         FROM migrations
-        WHERE migration = @ac_team_migration_name
+        WHERE BINARY migration = BINARY @ac_team_migration_name
     )
 );
 
