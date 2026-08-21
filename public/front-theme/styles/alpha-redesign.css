@@ -3051,6 +3051,16 @@ button {
   text-wrap: balance;
 }
 
+.hero[data-front-font-weight="200"] h1 { font-weight: 200; }
+.hero[data-front-font-weight="300"] h1 { font-weight: 300; }
+.hero[data-front-font-weight="400"] h1 { font-weight: 400; }
+.hero[data-front-font-weight="450"] h1 { font-weight: 450; }
+.hero[data-front-font-weight="500"] h1 { font-weight: 500; }
+.hero[data-front-font-weight="600"] h1 { font-weight: 600; }
+.hero[data-front-font-weight="700"] h1 { font-weight: 700; }
+.hero[data-front-font-weight="800"] h1 { font-weight: 800; }
+.hero[data-front-font-weight="900"] h1 { font-weight: 900; }
+
 .hero h1 > span {
   display: block;
 }

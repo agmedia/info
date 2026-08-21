@@ -136,6 +136,7 @@ class AppServiceProvider extends ServiceProvider
                             'typography' => \App\Support\Front\FontRegistry::resolve(null),
                             'home_hero' => [
                                 'is_configured' => false,
+                                'font_weight' => \App\Support\Front\HeroFontRegistry::DEFAULT_WEIGHT,
                                 'title' => 'Vaš kompas kroz svijet financija',
                                 'subtitle' => 'Računovodstvo, revizija i savjetovanje — sve na jednom mjestu.',
                                 'primary_label' => 'Dogovorite sastanak',

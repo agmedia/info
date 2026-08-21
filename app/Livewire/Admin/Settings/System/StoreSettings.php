@@ -37,6 +37,7 @@ class StoreSettings extends Component
         'store_brand_name' => '',
         'store_front_google_font' => FontRegistry::DEFAULT,
         'store_home_hero_font' => HeroFontRegistry::DEFAULT,
+        'store_home_hero_font_weight' => HeroFontRegistry::DEFAULT_WEIGHT,
         'store_home_hero_title' => 'Vaš kompas kroz svijet financija',
         'store_home_hero_subtitle' => 'Računovodstvo, revizija i savjetovanje — sve na jednom mjestu.',
         'store_home_hero_primary_label' => 'Dogovorite sastanak',
@@ -185,6 +186,11 @@ class StoreSettings extends Component
         $this->form['store_footer_bottom_link_page_ids'] = $this->normalizeIdList($this->form['store_footer_bottom_link_page_ids'] ?? []);
         $this->form['store_front_google_font'] = FontRegistry::normalize($this->form['store_front_google_font'] ?? null);
         $this->form['store_home_hero_font'] = HeroFontRegistry::normalize($this->form['store_home_hero_font'] ?? null);
+        $this->form['store_home_hero_font_weight'] = HeroFontRegistry::normalizeWeight(
+            $this->form['store_home_hero_font'],
+            $this->form['store_home_hero_font_weight'] ?? null,
+            $this->form['store_front_google_font'],
+        );
 
         if (trim((string) $this->form['store_announcement_text']) === '') {
             $this->form['store_announcement_text'] = (string) __('ui.front.desktop.promo_bar');
@@ -276,6 +282,34 @@ class StoreSettings extends Component
         $this->dispatch('notify', type: 'success', message: __('Settings saved.'));
     }
 
+    public function updatedFormStoreHomeHeroFont(mixed $value): void
+    {
+        if (! is_string($value) || ! in_array($value, HeroFontRegistry::keys(), true)) {
+            return;
+        }
+
+        $this->form['store_home_hero_font_weight'] = HeroFontRegistry::normalizeWeight(
+            $value,
+            $this->form['store_home_hero_font_weight'] ?? null,
+            $this->form['store_front_google_font'] ?? null,
+        );
+    }
+
+    public function updatedFormStoreFrontGoogleFont(mixed $value): void
+    {
+        if (! is_string($value) || ! in_array($value, FontRegistry::keys(), true)) {
+            return;
+        }
+
+        if (($this->form['store_home_hero_font'] ?? null) === 'website') {
+            $this->form['store_home_hero_font_weight'] = HeroFontRegistry::normalizeWeight(
+                'website',
+                $this->form['store_home_hero_font_weight'] ?? null,
+                $this->form['store_front_google_font'],
+            );
+        }
+    }
+
     /**
      * @return array<string, mixed>
      */
@@ -298,6 +332,14 @@ class StoreSettings extends Component
             'form.store_brand_name' => ['nullable', 'string', 'max:191'],
             'form.store_front_google_font' => ['required', 'string', Rule::in(FontRegistry::keys())],
             'form.store_home_hero_font' => ['required', 'string', Rule::in(HeroFontRegistry::keys())],
+            'form.store_home_hero_font_weight' => [
+                'required',
+                'integer',
+                Rule::in(HeroFontRegistry::weights(
+                    $this->form['store_home_hero_font'] ?? null,
+                    $this->form['store_front_google_font'] ?? null,
+                )),
+            ],
             'form.store_home_hero_title' => ['required', 'string', 'max:191'],
             'form.store_home_hero_subtitle' => ['nullable', 'string', 'max:500'],
             'form.store_home_hero_primary_label' => ['nullable', 'string', 'max:120'],
@@ -479,6 +521,10 @@ class StoreSettings extends Component
             'pageOptions' => $pageOptions,
             'fontOptions' => FontRegistry::options(),
             'heroFontOptions' => HeroFontRegistry::options(),
+            'heroFontWeightOptions' => HeroFontRegistry::weightOptions(
+                $this->form['store_home_hero_font'] ?? null,
+                $this->form['store_front_google_font'] ?? null,
+            ),
             'homeHeroDesktopVideoUrl' => $this->storedPublicUrl((string) ($this->form['store_home_hero_desktop_video_path'] ?? '')),
             'homeHeroMobileVideoUrl' => $this->storedPublicUrl((string) ($this->form['store_home_hero_mobile_video_path'] ?? '')),
         ]);

@@ -6,6 +6,8 @@ final class HeroFontRegistry
 {
     public const DEFAULT = 'bodoni-moda';
 
+    public const DEFAULT_WEIGHT = 450;
+
     /**
      * @return array<string, string>
      */
@@ -32,6 +34,49 @@ final class HeroFontRegistry
         $key = is_string($key) ? trim($key) : '';
 
         return in_array($key, self::keys(), true) ? $key : self::DEFAULT;
+    }
+
+    /**
+     * @return array<int, int>
+     */
+    public static function weights(mixed $key, mixed $websiteFontKey = null): array
+    {
+        $key = self::normalize($key);
+
+        return match ($key) {
+            'website' => FontRegistry::weights($websiteFontKey),
+            'bodoni-moda' => [400, 450, 500, 600, 700, 800, 900],
+            'instrument-sans' => [400, 500, 600, 700],
+            default => FontRegistry::weights($key),
+        };
+    }
+
+    /**
+     * @return array<int, string>
+     */
+    public static function weightOptions(mixed $key, mixed $websiteFontKey = null): array
+    {
+        $options = [];
+
+        foreach (self::weights($key, $websiteFontKey) as $weight) {
+            $options[$weight] = (string) $weight;
+        }
+
+        return $options;
+    }
+
+    public static function normalizeWeight(mixed $key, mixed $weight, mixed $websiteFontKey = null): int
+    {
+        $available = self::weights($key, $websiteFontKey);
+        $weight = is_numeric($weight) ? (int) $weight : self::DEFAULT_WEIGHT;
+
+        if (in_array($weight, $available, true)) {
+            return $weight;
+        }
+
+        usort($available, static fn (int $left, int $right): int => abs($left - $weight) <=> abs($right - $weight));
+
+        return $available[0] ?? 400;
     }
 
     /**

@@ -87,7 +87,11 @@ class StoreSettingsFeatureTest extends TestCase
             ->assertSee('Bodoni Moda')
             ->assertSee('Desktop video')
             ->assertSee('Mobilni video')
+            ->set('form.store_home_hero_font', 'manrope')
+            ->assertSet('form.store_home_hero_font_weight', 400)
+            ->assertSeeHtml('<option value="200">200</option>')
             ->set('form.store_home_hero_font', 'playfair-display')
+            ->set('form.store_home_hero_font_weight', 700)
             ->set('form.store_home_hero_title', 'Naslov iz postavki')
             ->set('form.store_home_hero_subtitle', 'Podnaslov iz postavki')
             ->set('form.store_home_hero_primary_label', 'Prvi gumb')
@@ -97,6 +101,8 @@ class StoreSettingsFeatureTest extends TestCase
             ->set('homeHeroDesktopVideoUpload', UploadedFile::fake()->create('desktop.mp4', 1024, 'video/mp4'))
             ->set('homeHeroMobileVideoUpload', UploadedFile::fake()->create('mobile.webm', 768, 'video/webm'))
             ->call('save')
+            ->assertSet('form.store_home_hero_font', 'playfair-display')
+            ->assertSet('form.store_home_hero_font_weight', 700)
             ->assertHasNoErrors();
 
         $settings = app(SystemSettingsService::class);
@@ -104,6 +110,7 @@ class StoreSettingsFeatureTest extends TestCase
         $mobilePath = (string) $settings->get('store_home_hero_mobile_video_path');
 
         $this->assertSame('playfair-display', $settings->get('store_home_hero_font'));
+        $this->assertSame(700, $settings->get('store_home_hero_font_weight'));
         $this->assertSame('Naslov iz postavki', $settings->get('store_home_hero_title'));
         $this->assertNotSame($desktopPath, $mobilePath);
         Storage::disk('public')->assertExists($desktopPath);
@@ -119,6 +126,19 @@ class StoreSettingsFeatureTest extends TestCase
             ->set('form.store_home_hero_font', 'unsupported-font')
             ->call('save')
             ->assertHasErrors(['form.store_home_hero_font']);
+    }
+
+    public function test_homepage_hero_only_accepts_weights_available_for_the_selected_font(): void
+    {
+        $admin = $this->makeAdminUser();
+
+        Livewire::actingAs($admin)
+            ->test(StoreSettings::class)
+            ->set('form.store_home_hero_font', 'dm-serif-display')
+            ->assertSet('form.store_home_hero_font_weight', 400)
+            ->set('form.store_home_hero_font_weight', 700)
+            ->call('save')
+            ->assertHasErrors(['form.store_home_hero_font_weight']);
     }
 
     public function test_ga4_field_rejects_a_google_tag_manager_container_id(): void

@@ -66,6 +66,7 @@ class StorefrontFrontFeatureTest extends TestCase
     {
         app(SystemSettingsService::class)->putMany([
             'store_home_hero_font' => 'playfair-display',
+            'store_home_hero_font_weight' => 700,
             'store_home_hero_title' => 'Hero naslov iz postavki',
             'store_home_hero_subtitle' => 'Hero podnaslov iz postavki.',
             'store_home_hero_primary_label' => 'Prvi hero gumb',
@@ -80,6 +81,7 @@ class StorefrontFrontFeatureTest extends TestCase
             ->assertOk()
             ->assertSee('fonts.googleapis.com/css2?family=Playfair+Display', false)
             ->assertSee('data-front-font="playfair-display"', false)
+            ->assertSee('data-front-font-weight="700"', false)
             ->assertSee('Hero naslov iz postavki')
             ->assertSee('Hero podnaslov iz postavki.')
             ->assertSee('href="/contact"', false)

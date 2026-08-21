@@ -114,6 +114,10 @@ class StoreSettingsService
         $allSettings = $this->settings->all();
         $desktopVideoPath = (string) $this->settings->get('store_home_hero_desktop_video_path', '');
         $mobileVideoPath = (string) $this->settings->get('store_home_hero_mobile_video_path', '');
+        $websiteTypography = $this->typography();
+        $fontKey = HeroFontRegistry::normalize(
+            $this->settings->get('store_home_hero_font', HeroFontRegistry::DEFAULT)
+        );
 
         return [
             'is_configured' => array_key_exists('store_home_hero_title', $allSettings),
@@ -127,9 +131,14 @@ class StoreSettingsService
             'desktop_video_url' => $this->assetUrl($desktopVideoPath),
             'mobile_video_path' => $mobileVideoPath,
             'mobile_video_url' => $this->assetUrl($mobileVideoPath),
+            'font_weight' => HeroFontRegistry::normalizeWeight(
+                $fontKey,
+                $this->settings->get('store_home_hero_font_weight', HeroFontRegistry::DEFAULT_WEIGHT),
+                $websiteTypography['key'] ?? null,
+            ),
             'typography' => HeroFontRegistry::resolve(
-                $this->settings->get('store_home_hero_font', HeroFontRegistry::DEFAULT),
-                $this->typography(),
+                $fontKey,
+                $websiteTypography,
             ),
         ];
     }

@@ -94,9 +94,9 @@
 
             @if ($tab === 'appearance')
                 <div class="grid gap-4 md:grid-cols-2">
-                    <div>
+                    <div wire:key="website-font-field-{{ $form['store_front_google_font'] ?? 'default' }}">
                         <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500" for="store-front-google-font">{{ __('Website font') }}</label>
-                        <select id="store-front-google-font" wire:model="form.store_front_google_font" data-tom-select placeholder="{{ __('Search fonts...') }}" class="admin-select w-full rounded-xl border border-slate-300 px-3 py-2 text-sm">
+                        <select id="store-front-google-font" wire:model.live="form.store_front_google_font" data-tom-select placeholder="{{ __('Search fonts...') }}" class="admin-select w-full rounded-xl border border-slate-300 px-3 py-2 text-sm">
                             @foreach ($fontOptions as $fontKey => $fontLabel)
                                 <option value="{{ $fontKey }}" @selected(($form['store_front_google_font'] ?? null) === $fontKey)>{{ $fontLabel }}</option>
                             @endforeach
@@ -118,14 +118,24 @@
                     </div>
 
                     <div class="grid gap-4 md:grid-cols-2">
-                        <div class="md:col-span-2">
+                        <div wire:key="hero-font-field-{{ $form['store_home_hero_font'] ?? 'default' }}">
                             <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500" for="store-home-hero-font">{{ __('Hero font') }}</label>
-                            <select id="store-home-hero-font" wire:model="form.store_home_hero_font" data-tom-select placeholder="{{ __('Pretraži fontove...') }}" class="admin-select w-full rounded-xl border border-slate-300 px-3 py-2 text-sm">
+                            <select id="store-home-hero-font" wire:model.live="form.store_home_hero_font" class="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm">
                                 @foreach ($heroFontOptions as $fontKey => $fontLabel)
                                     <option value="{{ $fontKey }}" @selected(($form['store_home_hero_font'] ?? null) === $fontKey)>{{ $fontLabel }}</option>
                                 @endforeach
                             </select>
                             @error('form.store_home_hero_font') <p class="mt-1 text-xs text-rose-600">{{ $message }}</p> @enderror
+                        </div>
+
+                        <div wire:key="hero-font-weight-field-{{ $form['store_home_hero_font'] ?? 'default' }}-{{ $form['store_home_hero_font_weight'] ?? 'default' }}">
+                            <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500" for="store-home-hero-font-weight">{{ __('Hero weight') }}</label>
+                            <select id="store-home-hero-font-weight" wire:model="form.store_home_hero_font_weight" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm">
+                                @foreach ($heroFontWeightOptions as $fontWeight => $fontWeightLabel)
+                                    <option value="{{ $fontWeight }}">{{ $fontWeightLabel }}</option>
+                                @endforeach
+                            </select>
+                            @error('form.store_home_hero_font_weight') <p class="mt-1 text-xs text-rose-600">{{ $message }}</p> @enderror
                         </div>
 
                         <div class="md:col-span-2">

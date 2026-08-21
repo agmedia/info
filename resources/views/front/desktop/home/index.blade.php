@@ -52,6 +52,7 @@
         }
         $heroTypography = (array) ($heroSettings['typography'] ?? []);
         $heroFontKey = (string) ($heroTypography['key'] ?? \App\Support\Front\HeroFontRegistry::DEFAULT);
+        $heroFontWeight = (int) ($heroSettings['font_weight'] ?? \App\Support\Front\HeroFontRegistry::DEFAULT_WEIGHT);
         $heroDesktopVideoUrl = trim((string) ($heroSettings['desktop_video_url'] ?? '')) ?: asset('alpha/alpha-zagreb-loop-hq.mp4');
         $heroMobileVideoUrl = trim((string) ($heroSettings['mobile_video_url'] ?? '')) ?: asset('alpha/alpha-zagreb-loop-mobile.mp4');
         $heroVideoType = static fn (string $url): string => str_ends_with(strtolower((string) parse_url($url, PHP_URL_PATH)), '.webm') ? 'video/webm' : 'video/mp4';
@@ -221,7 +222,7 @@
         }
     @endphp
 
-    <section class="hero" id="vrh" aria-labelledby="hero-title" data-front-font="{{ $heroFontKey }}">
+    <section class="hero" id="vrh" aria-labelledby="hero-title" data-front-font="{{ $heroFontKey }}" data-front-font-weight="{{ $heroFontWeight }}">
         <picture class="hero-poster" aria-hidden="true">
             <source
                 type="image/webp"

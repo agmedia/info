@@ -83,6 +83,20 @@ final class FontRegistry
     }
 
     /**
+     * @return array<int, int>
+     */
+    public static function weights(mixed $key): array
+    {
+        $key = self::normalize($key);
+        $weights = preg_split('/[;,]/', self::FONTS[$key]['weights']) ?: [];
+
+        return array_values(array_unique(array_map(
+            static fn (string $weight): int => (int) trim($weight),
+            $weights,
+        )));
+    }
+
+    /**
      * @return array{
      *     key: string,
      *     family: string,
