@@ -134,6 +134,18 @@ class AppServiceProvider extends ServiceProvider
                                 'social' => [],
                             ],
                             'typography' => \App\Support\Front\FontRegistry::resolve(null),
+                            'home_hero' => [
+                                'is_configured' => false,
+                                'title' => 'Vaš kompas kroz svijet financija',
+                                'subtitle' => 'Računovodstvo, revizija i savjetovanje — sve na jednom mjestu.',
+                                'primary_label' => 'Dogovorite sastanak',
+                                'primary_url' => '/contact',
+                                'secondary_label' => 'Naše usluge',
+                                'secondary_url' => '/usluge',
+                                'desktop_video_url' => null,
+                                'mobile_video_url' => null,
+                                'typography' => \App\Support\Front\HeroFontRegistry::resolve(null),
+                            ],
                             'blog' => [
                                 'hero_eyebrow' => (string) __('ui.blog.eyebrow'),
                                 'hero_title' => (string) __('ui.blog.title'),

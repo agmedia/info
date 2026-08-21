@@ -41,6 +41,20 @@
         $heroSecondaryUrl = $heroSecondaryLabel === 'Naše usluge'
             ? route('services.index')
             : (trim((string) ($homeHeroPayload['secondary_cta_url'] ?? '')) ?: route('services.index'));
+        $heroSettings = (array) ($storeSettings['home_hero'] ?? []);
+        if ((bool) ($heroSettings['is_configured'] ?? false)) {
+            $heroTitle = trim((string) ($heroSettings['title'] ?? '')) ?: $heroTitle;
+            $heroSubtitle = trim((string) ($heroSettings['subtitle'] ?? ''));
+            $heroPrimaryLabel = trim((string) ($heroSettings['primary_label'] ?? ''));
+            $heroPrimaryUrl = trim((string) ($heroSettings['primary_url'] ?? ''));
+            $heroSecondaryLabel = trim((string) ($heroSettings['secondary_label'] ?? ''));
+            $heroSecondaryUrl = trim((string) ($heroSettings['secondary_url'] ?? ''));
+        }
+        $heroTypography = (array) ($heroSettings['typography'] ?? []);
+        $heroFontKey = (string) ($heroTypography['key'] ?? \App\Support\Front\HeroFontRegistry::DEFAULT);
+        $heroDesktopVideoUrl = trim((string) ($heroSettings['desktop_video_url'] ?? '')) ?: asset('alpha/alpha-zagreb-loop-hq.mp4');
+        $heroMobileVideoUrl = trim((string) ($heroSettings['mobile_video_url'] ?? '')) ?: asset('alpha/alpha-zagreb-loop-mobile.mp4');
+        $heroVideoType = static fn (string $url): string => str_ends_with(strtolower((string) parse_url($url, PHP_URL_PATH)), '.webm') ? 'video/webm' : 'video/mp4';
         $heroTitleWords = preg_split('/\s+/u', $heroTitle, -1, PREG_SPLIT_NO_EMPTY) ?: ['Vaš', 'kompas', 'kroz', 'svijet', 'financija'];
         $heroTitleLines = $heroTitle === 'Vaš kompas kroz svijet financija'
             ? [['Vaš', 'kompas', 'kroz'], ['svijet', 'financija']]
@@ -207,7 +221,7 @@
         }
     @endphp
 
-    <section class="hero" id="vrh" aria-labelledby="hero-title">
+    <section class="hero" id="vrh" aria-labelledby="hero-title" data-front-font="{{ $heroFontKey }}">
         <picture class="hero-poster" aria-hidden="true">
             <source
                 type="image/webp"
@@ -224,21 +238,31 @@
             preload="none"
             aria-hidden="true"
             data-alpha-hero-video
-            data-alpha-hero-video-mobile-src="{{ asset('alpha/alpha-zagreb-loop-mobile.mp4') }}"
-            data-alpha-hero-video-desktop-src="{{ asset('alpha/alpha-zagreb-loop-hq.mp4') }}"
+            data-alpha-hero-video-mobile-src="{{ $heroMobileVideoUrl }}"
+            data-alpha-hero-video-mobile-type="{{ $heroVideoType($heroMobileVideoUrl) }}"
+            data-alpha-hero-video-desktop-src="{{ $heroDesktopVideoUrl }}"
+            data-alpha-hero-video-desktop-type="{{ $heroVideoType($heroDesktopVideoUrl) }}"
         ></video>
         <div class="hero-overlay" aria-hidden="true"></div>
 
         <div class="hero-content">
             <h1 id="hero-title" aria-label="{{ $heroTitle }}">
-                @php $heroCharacterIndex = 0; @endphp
-                @foreach ($heroTitleLines as $line)<span class="hero-line">@foreach ($line as $word)@php $upperWord = Illuminate\Support\Str::upper($word); @endphp<span class="hero-word {{ $loop->parent->last && $loop->last ? 'is-accent' : '' }}" aria-hidden="true">@foreach (mb_str_split($upperWord) as $character)<span class="hero-char" style="--char-index: {{ $heroCharacterIndex++ }}">{{ $character }}</span>@endforeach</span>@endforeach</span>@endforeach
+                @php $heroWordIndex = 0; @endphp
+                @foreach ($heroTitleLines as $line)<span class="hero-line">@foreach ($line as $word)@php $upperWord = Illuminate\Support\Str::upper($word); @endphp<span class="hero-word animation-index-{{ min($heroWordIndex++, 12) }} {{ $loop->parent->last && $loop->last ? 'is-accent' : '' }}" aria-hidden="true">@foreach (mb_str_split($upperWord) as $character)<span class="hero-char">{{ $character }}</span>@endforeach</span>@endforeach</span>@endforeach
             </h1>
-            <p>@if ($heroSubtitle === 'Računovodstvo, revizija i savjetovanje — sve na jednom mjestu.')Računovodstvo, revizija i savjetovanje —<br> sve na jednom mjestu.@else{{ $heroSubtitle }}@endif</p>
-            <div class="hero-actions">
-                <a class="button button-gold" href="{{ $heroPrimaryUrl }}"><span>{{ $heroPrimaryLabel }}</span></a>
-                <a class="button button-outline" href="{{ $heroSecondaryUrl }}"><span>{{ $heroSecondaryLabel }}</span></a>
-            </div>
+            @if ($heroSubtitle !== '')
+                <p>@if ($heroSubtitle === 'Računovodstvo, revizija i savjetovanje — sve na jednom mjestu.')Računovodstvo, revizija i savjetovanje —<br> sve na jednom mjestu.@else{{ $heroSubtitle }}@endif</p>
+            @endif
+            @if (($heroPrimaryLabel !== '' && $heroPrimaryUrl !== '') || ($heroSecondaryLabel !== '' && $heroSecondaryUrl !== ''))
+                <div class="hero-actions">
+                    @if ($heroPrimaryLabel !== '' && $heroPrimaryUrl !== '')
+                        <a class="button button-gold" href="{{ $heroPrimaryUrl }}"><span>{{ $heroPrimaryLabel }}</span></a>
+                    @endif
+                    @if ($heroSecondaryLabel !== '' && $heroSecondaryUrl !== '')
+                        <a class="button button-outline" href="{{ $heroSecondaryUrl }}"><span>{{ $heroSecondaryLabel }}</span></a>
+                    @endif
+                </div>
+            @endif
             <div class="scroll-cue" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span></div>
         </div>
 

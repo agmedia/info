@@ -7,11 +7,19 @@
     @include('front.partials.schema-markup')
     @php
         $frontTypography = (array) ($storeSettings['typography'] ?? \App\Support\Front\FontRegistry::resolve(null));
+        $homeHeroTypography = (array) ($storeSettings['home_hero']['typography'] ?? \App\Support\Front\HeroFontRegistry::resolve(null, $frontTypography));
+        $homeHeroStylesheetUrl = request()->routeIs('home') ? (string) ($homeHeroTypography['stylesheet_url'] ?? '') : '';
     @endphp
     @foreach (($frontTypography['preconnect_urls'] ?? []) as $preconnectUrl => $useCrossorigin)
         <link rel="preconnect" href="{{ $preconnectUrl }}" @if ($useCrossorigin) crossorigin @endif>
     @endforeach
     <link rel="stylesheet" href="{{ $frontTypography['stylesheet_url'] }}">
+    @if ($homeHeroStylesheetUrl !== '' && $homeHeroStylesheetUrl !== ($frontTypography['stylesheet_url'] ?? ''))
+        @foreach (($homeHeroTypography['preconnect_urls'] ?? []) as $preconnectUrl => $useCrossorigin)
+            <link rel="preconnect" href="{{ $preconnectUrl }}" @if ($useCrossorigin) crossorigin @endif>
+        @endforeach
+        <link rel="stylesheet" href="{{ $homeHeroStylesheetUrl }}">
+    @endif
     <script src="{{ asset('front-theme/scripts/cookie-consent-mode.js') }}?v={{ filemtime(public_path('front-theme/scripts/cookie-consent-mode.js')) }}"></script>
     @include('front.partials.analytics')
     @if (!empty($storeSettings['branding']['favicons']['ico_url'] ?? null))

@@ -414,11 +414,22 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     };
 
-    const fontReady = document.fonts?.load('450 96px "Bodoni Moda Variable"').catch(function () { return []; }) ?? Promise.resolve();
+    const heroTitle = homeHero?.querySelector('h1');
+    const heroTitleText = heroTitle?.textContent?.trim() || 'VAŠ KOMPAS KROZ SVIJET FINANCIJA';
+    const heroTitleStyle = heroTitle instanceof HTMLElement ? window.getComputedStyle(heroTitle) : null;
+    const heroFontDescriptor = heroTitleStyle
+        ? heroTitleStyle.fontWeight + ' ' + heroTitleStyle.fontSize + ' ' + heroTitleStyle.fontFamily
+        : '450 96px "Bodoni Moda Variable"';
+    const globalFontFamily = window.getComputedStyle(body).getPropertyValue('--front-font-family').trim();
+    const fontReady = document.fonts?.load(heroFontDescriptor, heroTitleText).catch(function () { return []; }) ?? Promise.resolve();
+    const globalFontReady = homeHero instanceof HTMLElement && document.fonts && globalFontFamily !== ''
+        ? document.fonts.load('500 20px ' + globalFontFamily, 'POČETNA USLUGE O NAMA KARIJERA OBJAVE KONTAKT').catch(function () { return []; })
+        : Promise.resolve();
+    const layoutFontsReady = document.fonts?.ready ?? Promise.resolve();
     const heroFontReady = homeHero instanceof HTMLElement && document.fonts
         ? Promise.race([
-            fontReady,
-            new Promise(function (resolve) { window.setTimeout(resolve, 1200); }),
+            Promise.all([fontReady, globalFontReady, layoutFontsReady]),
+            new Promise(function (resolve) { window.setTimeout(resolve, 1800); }),
         ])
         : Promise.resolve();
     const shouldLoadHeroVideo = video instanceof HTMLVideoElement
@@ -429,9 +440,13 @@ document.addEventListener('DOMContentLoaded', function () {
             return;
         }
 
-        const videoSourceUrl = window.matchMedia('(max-width: 767px)').matches
+        const isMobileHero = window.matchMedia('(max-width: 767px)').matches;
+        const videoSourceUrl = isMobileHero
             ? video.dataset.alphaHeroVideoMobileSrc || ''
             : video.dataset.alphaHeroVideoDesktopSrc || '';
+        const videoSourceType = isMobileHero
+            ? video.dataset.alphaHeroVideoMobileType || 'video/mp4'
+            : video.dataset.alphaHeroVideoDesktopType || 'video/mp4';
 
         if (videoSourceUrl === '') {
             return;
@@ -444,7 +459,7 @@ document.addEventListener('DOMContentLoaded', function () {
         };
 
         source.src = videoSourceUrl;
-        source.type = 'video/mp4';
+        source.type = videoSourceType;
         video.append(source);
         video.addEventListener('loadeddata', markVideoReady, { once: true });
         video.load();

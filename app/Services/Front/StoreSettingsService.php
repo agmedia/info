@@ -5,6 +5,7 @@ namespace App\Services\Front;
 use App\Models\Content\Page\InfoPage;
 use App\Services\Settings\SystemSettingsService;
 use App\Support\Front\FontRegistry;
+use App\Support\Front\HeroFontRegistry;
 use Illuminate\Support\Facades\Storage;
 
 class StoreSettingsService
@@ -22,6 +23,7 @@ class StoreSettingsService
             'announcement' => $this->announcement(),
             'branding' => $this->branding(),
             'typography' => $this->typography(),
+            'home_hero' => $this->homeHero(),
             'blog' => $this->blog(),
             'footer' => $this->footer(),
             'official_entities' => $this->officialEntities(),
@@ -102,6 +104,34 @@ class StoreSettingsService
         return FontRegistry::resolve(
             $this->settings->get('store_front_google_font', FontRegistry::DEFAULT)
         );
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function homeHero(): array
+    {
+        $allSettings = $this->settings->all();
+        $desktopVideoPath = (string) $this->settings->get('store_home_hero_desktop_video_path', '');
+        $mobileVideoPath = (string) $this->settings->get('store_home_hero_mobile_video_path', '');
+
+        return [
+            'is_configured' => array_key_exists('store_home_hero_title', $allSettings),
+            'title' => trim((string) $this->settings->get('store_home_hero_title', 'Vaš kompas kroz svijet financija')),
+            'subtitle' => trim((string) $this->settings->get('store_home_hero_subtitle', 'Računovodstvo, revizija i savjetovanje — sve na jednom mjestu.')),
+            'primary_label' => trim((string) $this->settings->get('store_home_hero_primary_label', 'Dogovorite sastanak')),
+            'primary_url' => trim((string) $this->settings->get('store_home_hero_primary_url', '/contact')),
+            'secondary_label' => trim((string) $this->settings->get('store_home_hero_secondary_label', 'Naše usluge')),
+            'secondary_url' => trim((string) $this->settings->get('store_home_hero_secondary_url', '/usluge')),
+            'desktop_video_path' => $desktopVideoPath,
+            'desktop_video_url' => $this->assetUrl($desktopVideoPath),
+            'mobile_video_path' => $mobileVideoPath,
+            'mobile_video_url' => $this->assetUrl($mobileVideoPath),
+            'typography' => HeroFontRegistry::resolve(
+                $this->settings->get('store_home_hero_font', HeroFontRegistry::DEFAULT),
+                $this->typography(),
+            ),
+        ];
     }
 
     /**

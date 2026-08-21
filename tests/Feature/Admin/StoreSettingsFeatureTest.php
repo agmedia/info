@@ -7,7 +7,10 @@ use App\Models\User;
 use App\Services\Front\StoreSettingsService as FrontStoreSettingsService;
 use App\Services\Settings\SystemSettingsService;
 use App\Support\Front\FontRegistry;
+use App\Support\Front\HeroFontRegistry;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 use Livewire\Livewire;
 use Silber\Bouncer\BouncerFacade as Bouncer;
 use Tests\TestCase;
@@ -70,6 +73,52 @@ class StoreSettingsFeatureTest extends TestCase
         foreach (FontRegistry::keys() as $key) {
             $this->assertStringContainsString('data-front-font="'.$key.'"', $css);
         }
+    }
+
+    public function test_homepage_hero_settings_and_separate_videos_can_be_saved(): void
+    {
+        Storage::fake('public');
+        $admin = $this->makeAdminUser();
+
+        Livewire::actingAs($admin)
+            ->test(StoreSettings::class)
+            ->assertSet('form.store_home_hero_font', HeroFontRegistry::DEFAULT)
+            ->set('tab', 'hero')
+            ->assertSee('Bodoni Moda')
+            ->assertSee('Desktop video')
+            ->assertSee('Mobilni video')
+            ->set('form.store_home_hero_font', 'playfair-display')
+            ->set('form.store_home_hero_title', 'Naslov iz postavki')
+            ->set('form.store_home_hero_subtitle', 'Podnaslov iz postavki')
+            ->set('form.store_home_hero_primary_label', 'Prvi gumb')
+            ->set('form.store_home_hero_primary_url', '/contact')
+            ->set('form.store_home_hero_secondary_label', 'Drugi gumb')
+            ->set('form.store_home_hero_secondary_url', '/usluge')
+            ->set('homeHeroDesktopVideoUpload', UploadedFile::fake()->create('desktop.mp4', 1024, 'video/mp4'))
+            ->set('homeHeroMobileVideoUpload', UploadedFile::fake()->create('mobile.webm', 768, 'video/webm'))
+            ->call('save')
+            ->assertHasNoErrors();
+
+        $settings = app(SystemSettingsService::class);
+        $desktopPath = (string) $settings->get('store_home_hero_desktop_video_path');
+        $mobilePath = (string) $settings->get('store_home_hero_mobile_video_path');
+
+        $this->assertSame('playfair-display', $settings->get('store_home_hero_font'));
+        $this->assertSame('Naslov iz postavki', $settings->get('store_home_hero_title'));
+        $this->assertNotSame($desktopPath, $mobilePath);
+        Storage::disk('public')->assertExists($desktopPath);
+        Storage::disk('public')->assertExists($mobilePath);
+    }
+
+    public function test_homepage_hero_rejects_an_unsupported_font(): void
+    {
+        $admin = $this->makeAdminUser();
+
+        Livewire::actingAs($admin)
+            ->test(StoreSettings::class)
+            ->set('form.store_home_hero_font', 'unsupported-font')
+            ->call('save')
+            ->assertHasErrors(['form.store_home_hero_font']);
     }
 
     public function test_ga4_field_rejects_a_google_tag_manager_container_id(): void

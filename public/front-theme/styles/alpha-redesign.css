@@ -9,19 +9,19 @@
 }
 
 /* Shared stagger indexes keep reveal timing out of template style attributes. */
-.animation-index-0 { --value-word-index: 0; --services-word-index: 0; --reveal-index: 0; }
-.animation-index-1 { --value-word-index: 1; --services-word-index: 1; --reveal-index: 1; }
-.animation-index-2 { --value-word-index: 2; --services-word-index: 2; --reveal-index: 2; }
-.animation-index-3 { --value-word-index: 3; --services-word-index: 3; --reveal-index: 3; }
-.animation-index-4 { --value-word-index: 4; --services-word-index: 4; --reveal-index: 4; }
-.animation-index-5 { --value-word-index: 5; --services-word-index: 5; --reveal-index: 5; }
-.animation-index-6 { --value-word-index: 6; --services-word-index: 6; --reveal-index: 6; }
-.animation-index-7 { --value-word-index: 7; --services-word-index: 7; --reveal-index: 7; }
-.animation-index-8 { --value-word-index: 8; --services-word-index: 8; --reveal-index: 8; }
-.animation-index-9 { --value-word-index: 9; --services-word-index: 9; --reveal-index: 9; }
-.animation-index-10 { --value-word-index: 10; --services-word-index: 10; --reveal-index: 10; }
-.animation-index-11 { --value-word-index: 11; --services-word-index: 11; --reveal-index: 11; }
-.animation-index-12 { --value-word-index: 12; --services-word-index: 12; --reveal-index: 12; }
+.animation-index-0 { --hero-word-index: 0; --value-word-index: 0; --services-word-index: 0; --reveal-index: 0; }
+.animation-index-1 { --hero-word-index: 1; --value-word-index: 1; --services-word-index: 1; --reveal-index: 1; }
+.animation-index-2 { --hero-word-index: 2; --value-word-index: 2; --services-word-index: 2; --reveal-index: 2; }
+.animation-index-3 { --hero-word-index: 3; --value-word-index: 3; --services-word-index: 3; --reveal-index: 3; }
+.animation-index-4 { --hero-word-index: 4; --value-word-index: 4; --services-word-index: 4; --reveal-index: 4; }
+.animation-index-5 { --hero-word-index: 5; --value-word-index: 5; --services-word-index: 5; --reveal-index: 5; }
+.animation-index-6 { --hero-word-index: 6; --value-word-index: 6; --services-word-index: 6; --reveal-index: 6; }
+.animation-index-7 { --hero-word-index: 7; --value-word-index: 7; --services-word-index: 7; --reveal-index: 7; }
+.animation-index-8 { --hero-word-index: 8; --value-word-index: 8; --services-word-index: 8; --reveal-index: 8; }
+.animation-index-9 { --hero-word-index: 9; --value-word-index: 9; --services-word-index: 9; --reveal-index: 9; }
+.animation-index-10 { --hero-word-index: 10; --value-word-index: 10; --services-word-index: 10; --reveal-index: 10; }
+.animation-index-11 { --hero-word-index: 11; --value-word-index: 11; --services-word-index: 11; --reveal-index: 11; }
+.animation-index-12 { --hero-word-index: 12; --value-word-index: 12; --services-word-index: 12; --reveal-index: 12; }
 
 * {
   box-sizing: border-box;
@@ -3043,7 +3043,7 @@ button {
 .hero h1 {
   margin: 0;
   color: var(--white);
-  font-family: "Bodoni Moda Variable", "Times New Roman", serif;
+  font-family: var(--front-font-family, "Bodoni Moda Variable", "Times New Roman", serif);
   font-size: clamp(3.9rem, 4.85vw, 5.9rem);
   font-weight: 450;
   letter-spacing: 0.03em;
@@ -3076,12 +3076,19 @@ button {
 
 .hero-char {
   display: inline-block;
-  transform: translate3d(0, -120%, 0);
+  opacity: 0;
+  backface-visibility: hidden;
+  transform: translate3d(0, -0.72em, 0);
+  transition:
+    opacity 720ms cubic-bezier(0.16, 1, 0.3, 1),
+    transform 840ms cubic-bezier(0.16, 1, 0.3, 1);
+  transition-delay: calc(80ms + var(--hero-word-index, 0) * 88ms);
+  will-change: opacity, transform;
 }
 
 .intro-ready .hero-char {
-  animation: char-reveal 560ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
-  animation-delay: calc(20ms + var(--char-index) * 18ms);
+  opacity: 1;
+  transform: translate3d(0, 0, 0);
 }
 
 .hero-word.is-accent {
@@ -3348,10 +3355,6 @@ button {
 
 .intro-ready .scroll-cue span:nth-child(5) {
   animation-delay: 2.69s;
-}
-
-@keyframes char-reveal {
-  to { transform: translate3d(0, 0, 0); }
 }
 
 @keyframes intro-up {
@@ -3997,7 +4000,7 @@ button {
   }
 
   .hero h1 {
-    font-size: clamp(2.7rem, 10vw, 4.8rem);
+    font-size: clamp(2.7rem, 8.8vw, 4.8rem);
     letter-spacing: 0.01em;
   }
 
@@ -4226,8 +4229,12 @@ button {
   }
 
   .hero h1 {
-    font-size: clamp(2.25rem, 11vw, 3.7rem);
+    font-size: clamp(1.55rem, 9.1vw, 3.55rem);
     line-height: 1.12;
+  }
+
+  .hero-line {
+    white-space: normal;
   }
 
   .hero-content > p {

@@ -62,6 +62,36 @@ class StorefrontFrontFeatureTest extends TestCase
             ->assertDontSee('fonts.googleapis.com/css2', false);
     }
 
+    public function test_homepage_hero_uses_its_own_content_font_links_and_responsive_videos(): void
+    {
+        app(SystemSettingsService::class)->putMany([
+            'store_home_hero_font' => 'playfair-display',
+            'store_home_hero_title' => 'Hero naslov iz postavki',
+            'store_home_hero_subtitle' => 'Hero podnaslov iz postavki.',
+            'store_home_hero_primary_label' => 'Prvi hero gumb',
+            'store_home_hero_primary_url' => '/contact',
+            'store_home_hero_secondary_label' => 'Drugi hero gumb',
+            'store_home_hero_secondary_url' => '/usluge',
+            'store_home_hero_desktop_video_path' => 'store-settings/home-hero/desktop.mp4',
+            'store_home_hero_mobile_video_path' => 'store-settings/home-hero/mobile.webm',
+        ]);
+
+        $this->get('/')
+            ->assertOk()
+            ->assertSee('fonts.googleapis.com/css2?family=Playfair+Display', false)
+            ->assertSee('data-front-font="playfair-display"', false)
+            ->assertSee('Hero naslov iz postavki')
+            ->assertSee('Hero podnaslov iz postavki.')
+            ->assertSee('href="/contact"', false)
+            ->assertSee('Prvi hero gumb')
+            ->assertSee('href="/usluge"', false)
+            ->assertSee('Drugi hero gumb')
+            ->assertSee('data-alpha-hero-video-desktop-src="'.Storage::disk('public')->url('store-settings/home-hero/desktop.mp4').'"', false)
+            ->assertSee('data-alpha-hero-video-desktop-type="video/mp4"', false)
+            ->assertSee('data-alpha-hero-video-mobile-src="'.Storage::disk('public')->url('store-settings/home-hero/mobile.webm').'"', false)
+            ->assertSee('data-alpha-hero-video-mobile-type="video/webm"', false);
+    }
+
     public function test_bundled_cms_media_resolves_to_its_deployed_public_asset(): void
     {
         $media = new Media([
