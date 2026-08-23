@@ -225,7 +225,6 @@
                         data-header-search-input
                     >
                 </div>
-                <button type="submit" class="alpha-search-submit">{{ __('ui.search.submit') }}</button>
                 <div
                     id="alpha-header-search-suggestions"
                     class="front-search-suggestions hidden"
