@@ -1,6 +1,11 @@
 @php
     $alphaFooterPhone = trim((string) ($storeSettings['footer']['phone'] ?? '')) ?: '+385 (1) 580 6656';
     $alphaFooterEmail = trim((string) ($storeSettings['footer']['email_support'] ?? '')) ?: 'info@alphacapitalis.com';
+    $alphaFooterSalesEmail = trim((string) ($storeSettings['footer']['email_sales'] ?? ''));
+    $alphaFooterHours = trim((string) ($storeSettings['footer']['hours'] ?? ''));
+    $alphaFooterCopyright = trim((string) ($storeSettings['footer']['bottom_copyright_text'] ?? '')) ?: 'Alpha Capitalis d.o.o. Sva prava pridržana.';
+    $alphaFooterBrandName = trim((string) ($storeSettings['branding']['store_name'] ?? '')) ?: 'Alpha Capitalis';
+    $alphaFooterBrandLogoUrl = trim((string) ($storeSettings['branding']['logo_url'] ?? '')) ?: asset('alpha/logo.svg');
     $alphaFooterAddress = 'Ulica R. F. Mihanovića 9, 10110 Zagreb';
     $alphaFooterMap = 'https://www.google.com/maps/search/?api=1&query='.rawurlencode($alphaFooterAddress);
     $alphaFooterHome = route('home');
@@ -20,11 +25,9 @@
         ['label' => 'Facebook', 'icon' => 'fa-facebook-f', 'url' => trim((string) ($storeSettings['branding']['social']['facebook']['url'] ?? '')), 'enabled' => (bool) ($storeSettings['branding']['social']['facebook']['enabled'] ?? true)],
         ['label' => 'LinkedIn', 'icon' => 'fa-linkedin-in', 'url' => trim((string) ($storeSettings['branding']['social']['linkedin']['url'] ?? '')), 'enabled' => (bool) ($storeSettings['branding']['social']['linkedin']['enabled'] ?? true)],
         ['label' => 'Instagram', 'icon' => 'fa-instagram', 'url' => trim((string) ($storeSettings['branding']['social']['instagram']['url'] ?? '')), 'enabled' => (bool) ($storeSettings['branding']['social']['instagram']['enabled'] ?? true)],
-    ])->filter(fn (array $social): bool => $social['enabled'])->map(function (array $social) use ($alphaFooterHome): array {
-        $social['url'] = $social['url'] !== '' ? $social['url'] : $alphaFooterHome;
-
-        return $social;
-    })->values();
+        ['label' => 'TikTok', 'icon' => 'fa-tiktok', 'url' => trim((string) ($storeSettings['branding']['social']['tiktok']['url'] ?? '')), 'enabled' => (bool) ($storeSettings['branding']['social']['tiktok']['enabled'] ?? true)],
+        ['label' => 'YouTube', 'icon' => 'fa-youtube', 'url' => trim((string) ($storeSettings['branding']['social']['youtube']['url'] ?? '')), 'enabled' => (bool) ($storeSettings['branding']['social']['youtube']['enabled'] ?? true)],
+    ])->filter(fn (array $social): bool => $social['enabled'] && $social['url'] !== '')->values();
     $alphaFooterLegalLinks = collect($storeSettings['footer']['bottom_links'] ?? [])->filter(
         static fn ($item): bool => is_array($item) && trim((string) ($item['label'] ?? '')) !== '' && trim((string) ($item['url'] ?? '')) !== ''
     )->values();
@@ -71,7 +74,7 @@
         <div class="footer-main" data-image-reveal>
             <div class="footer-brand-block content-reveal animation-index-0" data-image-reveal>
                 <a class="footer-brand" href="{{ $alphaFooterHome }}" aria-label="Alpha Capitalis — početna">
-                    <img src="{{ asset('alpha/logo.svg') }}" alt="Alpha Capitalis" width="300" height="80">
+                    <img src="{{ $alphaFooterBrandLogoUrl }}" alt="{{ $alphaFooterBrandName }}" width="300" height="80">
                 </a>
                 <p>Vaš kompas kroz svijet financija.</p>
                 @if ($alphaFooterSocials->isNotEmpty())
@@ -109,6 +112,12 @@
                     <a href="{{ $alphaFooterMap }}" target="_blank" rel="noopener noreferrer">{{ $alphaFooterAddress }}</a>
                     <a href="tel:{{ preg_replace('/[^+0-9]/', '', $alphaFooterPhone) }}">{{ $alphaFooterPhone }}</a>
                     <a href="mailto:{{ $alphaFooterEmail }}">{{ $alphaFooterEmail }}</a>
+                    @if ($alphaFooterSalesEmail !== '' && $alphaFooterSalesEmail !== $alphaFooterEmail)
+                        <a href="mailto:{{ $alphaFooterSalesEmail }}">{{ $alphaFooterSalesEmail }}</a>
+                    @endif
+                    @if ($alphaFooterHours !== '')
+                        <p>{{ $alphaFooterHours }}</p>
+                    @endif
                 </address>
             </div>
 
@@ -136,12 +145,18 @@
                     <a href="{{ $alphaFooterMap }}" target="_blank" rel="noopener noreferrer"><span>{{ $alphaFooterAddress }}</span></a>
                     <a href="tel:{{ preg_replace('/[^+0-9]/', '', $alphaFooterPhone) }}"><span>{{ $alphaFooterPhone }}</span></a>
                     <a href="mailto:{{ $alphaFooterEmail }}"><span>{{ $alphaFooterEmail }}</span></a>
+                    @if ($alphaFooterSalesEmail !== '' && $alphaFooterSalesEmail !== $alphaFooterEmail)
+                        <a href="mailto:{{ $alphaFooterSalesEmail }}"><span>{{ $alphaFooterSalesEmail }}</span></a>
+                    @endif
+                    @if ($alphaFooterHours !== '')
+                        <p>{{ $alphaFooterHours }}</p>
+                    @endif
                 </address>
             </details>
         </div>
 
         <div class="footer-bottom content-reveal" data-image-reveal>
-            <p>© {{ now()->year }} Alpha Capitalis d.o.o. Sva prava pridržana.</p>
+            <p>© {{ now()->year }} {{ $alphaFooterCopyright }}</p>
             <div>
                 @foreach ($alphaFooterLegalLinks as $link)
                     <a href="{{ $link['url'] }}">{{ $link['label'] }}</a>

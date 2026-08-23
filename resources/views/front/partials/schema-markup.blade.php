@@ -8,7 +8,6 @@
             'breadcrumbs_enabled' => false,
             'itemlist_enabled' => false,
             'home_enabled' => false,
-            'category_enabled' => false,
             'blog_enabled' => false,
             'page_enabled' => false,
             'faq_enabled' => false,
@@ -58,6 +57,7 @@
 
     if ($sameAs === []) {
         $sameAs = collect($brand['social'] ?? [])
+            ->filter(static fn ($social): bool => is_array($social) && (bool) ($social['enabled'] ?? true))
             ->pluck('url')
             ->map(static fn ($url): string => trim((string) $url))
             ->filter(static fn (string $url): bool => filter_var($url, FILTER_VALIDATE_URL) !== false)
@@ -95,6 +95,18 @@
                 $contactPoint['email'] = $email;
             }
             $organization['contactPoint'] = [$contactPoint];
+        }
+
+        $addressValues = [
+            'streetAddress' => trim((string) ($schemaSettings['address_street'] ?? '')),
+            'addressLocality' => trim((string) ($schemaSettings['address_city'] ?? '')),
+            'addressRegion' => trim((string) ($schemaSettings['address_region'] ?? '')),
+            'postalCode' => trim((string) ($schemaSettings['address_postal_code'] ?? '')),
+            'addressCountry' => trim((string) ($schemaSettings['address_country'] ?? '')),
+        ];
+        $addressValues = array_filter($addressValues, static fn (string $value): bool => $value !== '');
+        if ($addressValues !== []) {
+            $organization['address'] = array_merge(['@type' => 'PostalAddress'], $addressValues);
         }
 
         $schemas[] = $organization;
@@ -231,26 +243,6 @@
         }
 
         $schemas[] = $homeSchema;
-    }
-
-    if (request()->routeIs('pages.category') && isset($category) && (bool) ($schemaSettings['category_enabled'] ?? true)) {
-        $translation = $category->translations->firstWhere('locale', $locale)
-            ?? $category->translations->firstWhere('locale', $fallbackLocale);
-
-        $categorySchema = [
-            '@context' => 'https://schema.org',
-            '@type' => 'CollectionPage',
-            'name' => $text($translation?->meta_title ?: $translation?->name ?: $category->code, 191),
-            'url' => $currentUrl,
-            'description' => $text($translation?->meta_description ?: $translation?->description ?: $defaultDescription, 320),
-        ];
-
-        $categoryImage = (string) ($og['category_image_url'] ?? $defaultImage);
-        if ($categoryImage !== '') {
-            $categorySchema['image'] = $absolute($categoryImage);
-        }
-
-        $schemas[] = $categorySchema;
     }
 
     if (request()->routeIs('blog.show') && isset($post) && (bool) ($schemaSettings['blog_enabled'] ?? true)) {

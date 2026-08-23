@@ -141,6 +141,134 @@ class StoreSettingsFeatureTest extends TestCase
             ->assertHasErrors(['form.store_home_hero_font_weight']);
     }
 
+    public function test_admin_form_omits_settings_that_have_no_public_site_consumer(): void
+    {
+        $admin = $this->makeAdminUser();
+
+        $component = Livewire::actingAs($admin)->test(StoreSettings::class)
+            ->assertDontSee('Newsletter')
+            ->assertDontSee('Announcement bar')
+            ->set('tab', 'branding')
+            ->assertDontSee('Footer Link Columns');
+
+        $form = $component->get('form');
+        $this->assertIsArray($form);
+
+        foreach ([
+            'store_footer_col_1_title',
+            'store_footer_col_1_page_ids',
+            'store_footer_col_1_custom_links',
+            'store_footer_col_2_title',
+            'store_footer_col_2_page_ids',
+            'store_footer_col_2_custom_links',
+            'store_footer_col_3_title',
+            'store_footer_col_3_page_ids',
+            'store_footer_col_3_custom_links',
+            'store_newsletter_provider',
+            'store_newsletter_mailchimp_api_key',
+            'store_newsletter_mailchimp_list_id',
+            'store_newsletter_klaviyo_api_key',
+            'store_newsletter_klaviyo_list_id',
+            'store_announcement_enabled',
+            'store_announcement_text',
+            'store_announcement_url',
+            'store_announcement_new_tab',
+        ] as $unusedKey) {
+            $this->assertArrayNotHasKey($unusedKey, $form);
+        }
+    }
+
+    public function test_saved_public_settings_have_an_exact_frontend_shape_without_secrets_or_legacy_fields(): void
+    {
+        app(SystemSettingsService::class)->putMany([
+            'store_brand_name' => 'Alpha public test',
+            'store_footer_phone' => '+385 1 555 0101',
+            'store_captcha_recaptcha_v3_enabled' => true,
+            'store_captcha_recaptcha_v3_site_key' => 'public-site-key',
+            'store_captcha_recaptcha_v3_secret_key' => 'must-not-reach-views',
+            'store_email_smtp_password' => 'smtp-secret',
+            'store_newsletter_mailchimp_api_key' => 'legacy-newsletter-secret',
+            'store_schema_category_enabled' => true,
+        ]);
+
+        $frontendSettings = app(FrontStoreSettingsService::class)->all();
+
+        $this->assertSame([
+            'branding',
+            'typography',
+            'home_hero',
+            'blog',
+            'footer',
+            'official_entities',
+            'captcha',
+            'analytics',
+            'seo',
+            'og',
+            'schema',
+        ], array_keys($frontendSettings));
+        $this->assertSame([
+            'recaptcha_v3_enabled' => true,
+            'recaptcha_v3_site_key' => 'public-site-key',
+        ], $frontendSettings['captcha']);
+        $this->assertSame('Alpha public test', $frontendSettings['branding']['store_name']);
+        $this->assertSame('+385 1 555 0101', $frontendSettings['footer']['phone']);
+        $this->assertArrayNotHasKey('email', $frontendSettings);
+        $this->assertArrayNotHasKey('newsletter', $frontendSettings);
+        $this->assertArrayNotHasKey('announcement', $frontendSettings);
+        $this->assertArrayNotHasKey('category_enabled', $frontendSettings['schema']);
+    }
+
+    public function test_branding_footer_and_schema_fields_are_saved_and_exposed_to_the_frontend(): void
+    {
+        $admin = $this->makeAdminUser();
+
+        Livewire::actingAs($admin)
+            ->test(StoreSettings::class)
+            ->set('form.store_brand_name', 'Alpha frontend contract')
+            ->set('form.store_footer_phone', '+385 1 555 0102')
+            ->set('form.store_footer_email_sales', 'sales@example.test')
+            ->set('form.store_footer_email_support', 'support@example.test')
+            ->set('form.store_footer_hours', 'Pon–Pet 08:00–16:00')
+            ->set('form.store_footer_bottom_copyright_text', 'Testna prava pridržana.')
+            ->set('form.store_social_x_url', 'https://x.com/alpha-contract')
+            ->set('form.store_social_facebook_url', 'https://facebook.com/alpha-contract')
+            ->set('form.store_social_linkedin_url', 'https://linkedin.com/company/alpha-contract')
+            ->set('form.store_social_instagram_url', 'https://instagram.com/alpha-contract')
+            ->set('form.store_social_tiktok_url', 'https://tiktok.com/@alpha-contract')
+            ->set('form.store_social_youtube_url', 'https://youtube.com/@alpha-contract')
+            ->set('form.store_schema_org_type', 'LocalBusiness')
+            ->set('form.store_schema_business_name', 'Alpha schema contract')
+            ->set('form.store_schema_business_phone', '+385 1 555 0103')
+            ->set('form.store_schema_business_email', 'schema@example.test')
+            ->set('form.store_schema_address_street', 'Testna 10')
+            ->set('form.store_schema_address_city', 'Zagreb')
+            ->set('form.store_schema_address_region', 'Grad Zagreb')
+            ->set('form.store_schema_address_postal_code', '10000')
+            ->set('form.store_schema_address_country', 'hr')
+            ->call('save')
+            ->assertHasNoErrors();
+
+        $frontendSettings = app(FrontStoreSettingsService::class)->all();
+
+        $this->assertSame([
+            'phone' => '+385 1 555 0102',
+            'email_sales' => 'sales@example.test',
+            'email_support' => 'support@example.test',
+            'hours' => 'Pon–Pet 08:00–16:00',
+            'bottom_links' => [],
+            'bottom_copyright_text' => 'Testna prava pridržana.',
+        ], $frontendSettings['footer']);
+        $this->assertSame('https://tiktok.com/@alpha-contract', $frontendSettings['branding']['social']['tiktok']['url']);
+        $this->assertSame('https://youtube.com/@alpha-contract', $frontendSettings['branding']['social']['youtube']['url']);
+        $this->assertSame('LocalBusiness', $frontendSettings['schema']['org_type']);
+        $this->assertSame('Alpha schema contract', $frontendSettings['schema']['business_name']);
+        $this->assertSame('Testna 10', $frontendSettings['schema']['address_street']);
+        $this->assertSame('Zagreb', $frontendSettings['schema']['address_city']);
+        $this->assertSame('Grad Zagreb', $frontendSettings['schema']['address_region']);
+        $this->assertSame('10000', $frontendSettings['schema']['address_postal_code']);
+        $this->assertSame('HR', $frontendSettings['schema']['address_country']);
+    }
+
     public function test_ga4_field_rejects_a_google_tag_manager_container_id(): void
     {
         $admin = $this->makeAdminUser();

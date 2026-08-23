@@ -113,12 +113,6 @@ class AppServiceProvider extends ServiceProvider
                 } catch (\Throwable) {
                     $shared = [
                         'storeSettings' => [
-                            'announcement' => [
-                                'enabled' => true,
-                                'text' => (string) __('ui.front.desktop.promo_bar'),
-                                'url' => '',
-                                'new_tab' => false,
-                            ],
                             'branding' => [
                                 'store_name' => (string) config('app.name', 'AG Info'),
                                 'logo_url' => null,
@@ -161,13 +155,14 @@ class AppServiceProvider extends ServiceProvider
                                 'email_sales' => '',
                                 'email_support' => '',
                                 'hours' => '',
-                                'link_columns' => [],
                                 'bottom_links' => [],
                                 'bottom_copyright_text' => '',
                             ],
-                            'newsletter' => ['provider' => 'none'],
+                            'captcha' => [
+                                'recaptcha_v3_enabled' => false,
+                                'recaptcha_v3_site_key' => '',
+                            ],
                             'analytics' => ['enabled' => false],
-                            'email' => ['enabled' => false],
                             'seo' => [
                                 'default_title' => (string) config('app.name', 'AG Info'),
                                 'default_description' => '',
@@ -188,7 +183,6 @@ class AppServiceProvider extends ServiceProvider
                                 'breadcrumbs_enabled' => true,
                                 'itemlist_enabled' => true,
                                 'home_enabled' => true,
-                                'category_enabled' => false,
                                 'blog_enabled' => true,
                                 'page_enabled' => true,
                                 'faq_enabled' => true,

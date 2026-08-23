@@ -37,15 +37,7 @@ document.addEventListener('DOMContentLoaded', function () {
             return;
         }
 
-        const configuredHeaderHeight = Number.parseFloat(
-            window.getComputedStyle(document.documentElement).getPropertyValue('--header-height')
-        );
-        const headerHeight = Number.isFinite(configuredHeaderHeight)
-            ? configuredHeaderHeight
-            : stickyHeader.offsetHeight;
-        const shouldUseStickyBar = homeHero instanceof HTMLElement
-            ? homeHero.getBoundingClientRect().bottom <= headerHeight
-            : window.scrollY > 8;
+        const shouldUseStickyBar = window.scrollY > 0;
 
         stickyHeader.classList.toggle('is-scrolled', shouldUseStickyBar);
     };

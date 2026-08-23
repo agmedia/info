@@ -20,33 +20,17 @@ class StoreSettingsService
     public function all(): array
     {
         return [
-            'announcement' => $this->announcement(),
             'branding' => $this->branding(),
             'typography' => $this->typography(),
             'home_hero' => $this->homeHero(),
             'blog' => $this->blog(),
             'footer' => $this->footer(),
             'official_entities' => $this->officialEntities(),
-            'newsletter' => $this->newsletter(),
-            'captcha' => $this->captcha(),
+            'captcha' => $this->publicCaptcha(),
             'analytics' => $this->analytics(),
-            'email' => $this->email(),
             'seo' => $this->seo(),
             'og' => $this->og(),
             'schema' => $this->schema(),
-        ];
-    }
-
-    /**
-     * @return array<string, mixed>
-     */
-    public function announcement(): array
-    {
-        return [
-            'enabled' => (bool) $this->settings->get('store_announcement_enabled', true),
-            'text' => (string) $this->settings->get('store_announcement_text', __('ui.front.desktop.promo_bar')),
-            'url' => trim((string) $this->settings->get('store_announcement_url', '')),
-            'new_tab' => (bool) $this->settings->get('store_announcement_new_tab', false),
         ];
     }
 
@@ -166,7 +150,6 @@ class StoreSettingsService
     {
         $locale = app()->getLocale();
         $fallbackLocale = (string) config('app.locale');
-        $linkColumns = $this->resolveFooterLinkColumns($locale, $fallbackLocale);
         $bottomLinks = $this->resolveFooterPageLinks(
             $locale,
             $fallbackLocale,
@@ -178,7 +161,6 @@ class StoreSettingsService
             'email_sales' => trim((string) $this->settings->get('store_footer_email_sales', '')),
             'email_support' => trim((string) $this->settings->get('store_footer_email_support', '')),
             'hours' => trim((string) $this->settings->get('store_footer_hours', '')),
-            'link_columns' => $linkColumns,
             'bottom_links' => $bottomLinks,
             'bottom_copyright_text' => trim((string) $this->settings->get('store_footer_bottom_copyright_text', '')),
         ];
@@ -281,20 +263,6 @@ class StoreSettingsService
     /**
      * @return array<string, mixed>
      */
-    public function newsletter(): array
-    {
-        return [
-            'provider' => (string) $this->settings->get('store_newsletter_provider', 'none'),
-            'mailchimp_api_key' => (string) $this->settings->get('store_newsletter_mailchimp_api_key', ''),
-            'mailchimp_list_id' => (string) $this->settings->get('store_newsletter_mailchimp_list_id', ''),
-            'klaviyo_api_key' => (string) $this->settings->get('store_newsletter_klaviyo_api_key', ''),
-            'klaviyo_list_id' => (string) $this->settings->get('store_newsletter_klaviyo_list_id', ''),
-        ];
-    }
-
-    /**
-     * @return array<string, mixed>
-     */
     public function captcha(): array
     {
         return [
@@ -302,6 +270,19 @@ class StoreSettingsService
             'recaptcha_v3_site_key' => trim((string) $this->settings->get('store_captcha_recaptcha_v3_site_key', '')),
             'recaptcha_v3_secret_key' => trim((string) $this->settings->get('store_captcha_recaptcha_v3_secret_key', '')),
             'recaptcha_v3_min_score' => (float) $this->settings->get('store_captcha_recaptcha_v3_min_score', 0.5),
+        ];
+    }
+
+    /**
+     * @return array{recaptcha_v3_enabled: bool, recaptcha_v3_site_key: string}
+     */
+    public function publicCaptcha(): array
+    {
+        $captcha = $this->captcha();
+
+        return [
+            'recaptcha_v3_enabled' => $captcha['recaptcha_v3_enabled'],
+            'recaptcha_v3_site_key' => $captcha['recaptcha_v3_site_key'],
         ];
     }
 
@@ -382,7 +363,6 @@ class StoreSettingsService
             'breadcrumbs_enabled' => (bool) $this->settings->get('store_schema_breadcrumbs_enabled', true),
             'itemlist_enabled' => (bool) $this->settings->get('store_schema_itemlist_enabled', true),
             'home_enabled' => (bool) $this->settings->get('store_schema_home_enabled', true),
-            'category_enabled' => (bool) $this->settings->get('store_schema_category_enabled', false),
             'blog_enabled' => (bool) $this->settings->get('store_schema_blog_enabled', true),
             'page_enabled' => (bool) $this->settings->get('store_schema_page_enabled', true),
             'faq_enabled' => (bool) $this->settings->get('store_schema_faq_enabled', true),
@@ -412,50 +392,6 @@ class StoreSettingsService
         }
 
         return Storage::disk('public')->url($path);
-    }
-
-    /**
-     * @return array<int, array{title:string, links:array<int, array{label:string,url:string,type:string}>}>
-     */
-    private function resolveFooterLinkColumns(string $locale, string $fallbackLocale): array
-    {
-        $pageIds = [];
-        foreach ([1, 2, 3] as $col) {
-            $pageIds = array_merge($pageIds, $this->normalizeIdList($this->settings->get('store_footer_col_'.$col.'_page_ids', [])));
-        }
-        $pageIds = array_values(array_unique($pageIds));
-
-        $pageMap = $this->resolveFooterPageLinksMap($locale, $fallbackLocale, $pageIds);
-
-        $defaults = [
-            1 => (string) __('ui.front.desktop.footer.info'),
-            2 => (string) __('ui.front.desktop.footer.help'),
-            3 => (string) __('ui.front.desktop.footer.support'),
-        ];
-
-        $result = [];
-        foreach ([1, 2, 3] as $col) {
-            $title = trim((string) $this->settings->get('store_footer_col_'.$col.'_title', $defaults[$col]));
-            if ($title === '') {
-                $title = $defaults[$col];
-            }
-
-            $links = [];
-            foreach ($this->normalizeIdList($this->settings->get('store_footer_col_'.$col.'_page_ids', [])) as $pageId) {
-                $entry = $pageMap[(int) $pageId] ?? null;
-                if (is_array($entry)) {
-                    $links[] = $entry;
-                }
-            }
-            $links = array_merge($links, $this->parseCustomFooterLinks((string) $this->settings->get('store_footer_col_'.$col.'_custom_links', '')));
-
-            $result[] = [
-                'title' => $title,
-                'links' => $links,
-            ];
-        }
-
-        return $result;
     }
 
     /**
@@ -573,44 +509,4 @@ class StoreSettingsService
             ?? $translations->first();
     }
 
-    /**
-     * @return array<int, array{label:string,url:string,type:string}>
-     */
-    private function parseCustomFooterLinks(string $raw): array
-    {
-        $result = [];
-        $lines = preg_split('/\r\n|\r|\n/', trim($raw)) ?: [];
-        foreach ($lines as $line) {
-            $line = trim((string) $line);
-            if ($line === '' || ! str_contains($line, '|')) {
-                continue;
-            }
-
-            [$label, $url] = array_pad(explode('|', $line, 2), 2, '');
-            $label = trim($label);
-            $url = trim($url);
-            if ($label === '' || $url === '') {
-                continue;
-            }
-
-            if (
-                ! str_starts_with($url, '/')
-                && ! str_starts_with($url, '#')
-                && ! str_starts_with($url, 'http://')
-                && ! str_starts_with($url, 'https://')
-                && ! str_starts_with($url, 'mailto:')
-                && ! str_starts_with($url, 'tel:')
-            ) {
-                $url = '/'.$url;
-            }
-
-            $result[] = [
-                'label' => $label,
-                'url' => $url,
-                'type' => 'custom',
-            ];
-        }
-
-        return $result;
-    }
 }

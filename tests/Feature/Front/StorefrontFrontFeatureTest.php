@@ -62,6 +62,19 @@ class StorefrontFrontFeatureTest extends TestCase
             ->assertDontSee('fonts.googleapis.com/css2', false);
     }
 
+    public function test_homepage_header_switches_to_the_solid_navigation_state_on_the_first_scroll(): void
+    {
+        $script = (string) file_get_contents(public_path('front-theme/scripts/alpha-redesign.js'));
+        $styles = (string) file_get_contents(public_path('front-theme/styles/alpha-redesign.css'));
+
+        $this->assertStringContainsString('const shouldUseStickyBar = window.scrollY > 0;', $script);
+        $this->assertStringNotContainsString('homeHero.getBoundingClientRect().bottom <= headerHeight', $script);
+        $this->assertMatchesRegularExpression(
+            '/\.site-header\.is-scrolled\s*\{[^}]*background:\s*var\(--navy-deep\)/s',
+            $styles,
+        );
+    }
+
     public function test_homepage_hero_uses_its_own_content_font_links_and_responsive_videos(): void
     {
         app(SystemSettingsService::class)->putMany([
@@ -1215,7 +1228,11 @@ class StorefrontFrontFeatureTest extends TestCase
     {
         app(SystemSettingsService::class)->putMany([
             'store_social_x_url' => 'https://x.com/alpha-capitalis-test',
+            'store_social_facebook_url' => 'https://www.facebook.com/alpha-capitalis-test',
             'store_social_linkedin_url' => 'https://www.linkedin.com/company/alpha-capitalis-test',
+            'store_social_instagram_url' => 'https://www.instagram.com/alpha-capitalis-test',
+            'store_social_tiktok_url' => 'https://www.tiktok.com/@alpha-capitalis-test',
+            'store_social_youtube_url' => 'https://www.youtube.com/@alpha-capitalis-test',
         ]);
 
         foreach (['/', '/usluge'] as $path) {
@@ -1228,11 +1245,85 @@ class StorefrontFrontFeatureTest extends TestCase
                 ->assertSee('fa-facebook-f', false)
                 ->assertSee('fa-linkedin-in', false)
                 ->assertSee('fa-instagram', false)
+                ->assertSee('fa-tiktok', false)
+                ->assertSee('fa-youtube', false)
                 ->assertSee('https://x.com/alpha-capitalis-test', false)
+                ->assertSee('https://www.facebook.com/alpha-capitalis-test', false)
                 ->assertSee('https://www.linkedin.com/company/alpha-capitalis-test', false)
+                ->assertSee('https://www.instagram.com/alpha-capitalis-test', false)
+                ->assertSee('https://www.tiktok.com/@alpha-capitalis-test', false)
+                ->assertSee('https://www.youtube.com/@alpha-capitalis-test', false)
                 ->assertSee('Politika privatnosti')
                 ->assertSee('Uvjeti korištenja');
         }
+    }
+
+    public function test_saved_global_settings_render_on_the_public_site_without_unused_or_secret_values(): void
+    {
+        app(SystemSettingsService::class)->putMany([
+            'store_brand_name' => 'Alpha javni test',
+            'store_brand_logo_path' => 'store-settings/public-logo.svg',
+            'store_brand_favicon_32_path' => 'store-settings/favicon/public-32.png',
+            'store_footer_phone' => '+385 1 555 0110',
+            'store_footer_email_sales' => 'prodaja@example.test',
+            'store_footer_email_support' => 'podrska@example.test',
+            'store_footer_hours' => 'Pon–Pet 08:00–16:00',
+            'store_footer_bottom_copyright_text' => 'Testna prava pridržana.',
+            'store_social_x_url' => 'https://x.com/alpha-public-test',
+            'store_footer_social_x_enabled' => true,
+            'store_social_facebook_url' => 'https://facebook.com/alpha-disabled-test',
+            'store_footer_social_facebook_enabled' => false,
+            'store_seo_default_title' => 'Naslov iz spremljenih postavki',
+            'store_seo_default_description' => 'Opis iz spremljenih postavki.',
+            'store_seo_robots' => 'index,follow,max-image-preview:large',
+            'store_seo_canonical_policy' => 'self',
+            'store_og_home_image_path' => 'store-settings/og/home-public.png',
+            'store_schema_enabled' => true,
+            'store_schema_org_enabled' => true,
+            'store_schema_org_type' => 'LocalBusiness',
+            'store_schema_business_name' => 'Alpha schema javni test',
+            'store_schema_business_phone' => '+385 1 555 0111',
+            'store_schema_business_email' => 'schema@example.test',
+            'store_schema_address_street' => 'Testna 11',
+            'store_schema_address_city' => 'Zagreb',
+            'store_schema_address_region' => 'Grad Zagreb',
+            'store_schema_address_postal_code' => '10000',
+            'store_schema_address_country' => 'HR',
+            'store_captcha_recaptcha_v3_secret_key' => 'recaptcha-secret-must-not-render',
+            'store_email_smtp_password' => 'smtp-secret-must-not-render',
+            'store_newsletter_mailchimp_api_key' => 'newsletter-secret-must-not-render',
+        ]);
+
+        $response = $this->get('/');
+        $logoUrl = Storage::disk('public')->url('store-settings/public-logo.svg');
+        $faviconUrl = Storage::disk('public')->url('store-settings/favicon/public-32.png');
+        $ogImageUrl = Storage::disk('public')->url('store-settings/og/home-public.png');
+
+        $response->assertOk()
+            ->assertSee('<title>Naslov iz spremljenih postavki</title>', false)
+            ->assertSee('content="Opis iz spremljenih postavki."', false)
+            ->assertSee('content="index,follow,max-image-preview:large"', false)
+            ->assertSee('rel="canonical" href="'.url('/').'"', false)
+            ->assertSee('property="og:site_name" content="Alpha javni test"', false)
+            ->assertSee('property="og:image" content="'.$ogImageUrl.'"', false)
+            ->assertSee('rel="icon" type="image/png" sizes="32x32" href="'.$faviconUrl.'"', false)
+            ->assertSee('src="'.$logoUrl.'" alt="Alpha javni test"', false)
+            ->assertSee('+385 1 555 0110')
+            ->assertSee('prodaja@example.test')
+            ->assertSee('podrska@example.test')
+            ->assertSee('Pon–Pet 08:00–16:00')
+            ->assertSee('Testna prava pridržana.')
+            ->assertSee('https://x.com/alpha-public-test', false)
+            ->assertDontSee('https://facebook.com/alpha-disabled-test', false)
+            ->assertSee('"@type":"LocalBusiness"', false)
+            ->assertSee('"streetAddress":"Testna 11"', false)
+            ->assertSee('"addressLocality":"Zagreb"', false)
+            ->assertSee('"addressRegion":"Grad Zagreb"', false)
+            ->assertSee('"postalCode":"10000"', false)
+            ->assertSee('"addressCountry":"HR"', false)
+            ->assertDontSee('recaptcha-secret-must-not-render', false)
+            ->assertDontSee('smtp-secret-must-not-render', false)
+            ->assertDontSee('newsletter-secret-must-not-render', false);
     }
 
     public function test_services_index_renders_primary_pillars_from_brief(): void

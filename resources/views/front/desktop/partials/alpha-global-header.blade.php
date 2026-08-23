@@ -45,12 +45,14 @@
     $alphaShowLeaseCalculator = request()->routeIs('accounting.show');
     $alphaPrimaryCtaUrl = $alphaShowLeaseCalculator ? route('lease-calculator.show') : $alphaOfferUrl;
     $alphaPrimaryCtaLabel = $alphaShowLeaseCalculator ? 'MSFI 16 Kalkulator' : 'ZATRAŽI PONUDU';
+    $alphaBrandName = trim((string) ($storeSettings['branding']['store_name'] ?? '')) ?: 'Alpha Capitalis';
+    $alphaBrandLogoUrl = trim((string) ($storeSettings['branding']['logo_url'] ?? '')) ?: asset('alpha/logo.svg');
 @endphp
 
 <header class="site-header" data-front-sticky-header data-alpha-header>
     <div class="header-inner">
         <a class="brand" href="{{ route('home') }}" aria-label="Alpha Capitalis — početna">
-            <img src="{{ asset('alpha/logo.svg') }}" alt="Alpha Capitalis" width="300" height="80">
+            <img src="{{ $alphaBrandLogoUrl }}" alt="{{ $alphaBrandName }}" width="300" height="80">
         </a>
 
         <nav class="desktop-nav" aria-label="Glavna navigacija">

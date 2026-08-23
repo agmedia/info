@@ -57,15 +57,6 @@ class StoreSettings extends Component
         'store_footer_email_sales' => '',
         'store_footer_email_support' => '',
         'store_footer_hours' => '',
-        'store_footer_col_1_title' => '',
-        'store_footer_col_1_page_ids' => [],
-        'store_footer_col_1_custom_links' => '',
-        'store_footer_col_2_title' => '',
-        'store_footer_col_2_page_ids' => [],
-        'store_footer_col_2_custom_links' => '',
-        'store_footer_col_3_title' => '',
-        'store_footer_col_3_page_ids' => [],
-        'store_footer_col_3_custom_links' => '',
         'store_footer_bottom_link_page_ids' => [],
         'store_footer_bottom_copyright_text' => '',
         'store_social_x_url' => '',
@@ -88,12 +79,6 @@ class StoreSettings extends Component
         'store_brand_favicon_192_path' => '',
         'store_brand_favicon_512_path' => '',
         'store_brand_favicon_ico_path' => '',
-
-        'store_newsletter_provider' => 'none',
-        'store_newsletter_mailchimp_api_key' => '',
-        'store_newsletter_mailchimp_list_id' => '',
-        'store_newsletter_klaviyo_api_key' => '',
-        'store_newsletter_klaviyo_list_id' => '',
 
         'store_captcha_recaptcha_v3_enabled' => false,
         'store_captcha_recaptcha_v3_site_key' => '',
@@ -145,10 +130,6 @@ class StoreSettings extends Component
         'store_schema_faq_limit' => 8,
         'store_schema_itemlist_limit' => 12,
 
-        'store_announcement_enabled' => true,
-        'store_announcement_text' => '',
-        'store_announcement_url' => '',
-        'store_announcement_new_tab' => false,
     ];
 
     public ?TemporaryUploadedFile $logoUpload = null;
@@ -179,10 +160,6 @@ class StoreSettings extends Component
             $this->form[$key] = $settings->get($key, $default);
         }
 
-        foreach ([1, 2, 3] as $col) {
-            $pageKey = 'store_footer_col_'.$col.'_page_ids';
-            $this->form[$pageKey] = $this->normalizeIdList($this->form[$pageKey] ?? []);
-        }
         $this->form['store_footer_bottom_link_page_ids'] = $this->normalizeIdList($this->form['store_footer_bottom_link_page_ids'] ?? []);
         $this->form['store_front_google_font'] = FontRegistry::normalize($this->form['store_front_google_font'] ?? null);
         $this->form['store_home_hero_font'] = HeroFontRegistry::normalize($this->form['store_home_hero_font'] ?? null);
@@ -191,10 +168,6 @@ class StoreSettings extends Component
             $this->form['store_home_hero_font_weight'] ?? null,
             $this->form['store_front_google_font'],
         );
-
-        if (trim((string) $this->form['store_announcement_text']) === '') {
-            $this->form['store_announcement_text'] = (string) __('ui.front.desktop.promo_bar');
-        }
 
         if (! array_key_exists('store_blog_header_eyebrow', $allSettings)) {
             $this->form['store_blog_header_eyebrow'] = (string) __('ui.blog.eyebrow');
@@ -233,9 +206,6 @@ class StoreSettings extends Component
         $validated = $this->validate($this->rules());
         $payload = $validated['form'];
         $payload['store_schema_address_country'] = strtoupper((string) ($payload['store_schema_address_country'] ?? 'HR'));
-        foreach ([1, 2, 3] as $col) {
-            $payload['store_footer_col_'.$col.'_page_ids'] = $this->normalizeIdList($payload['store_footer_col_'.$col.'_page_ids'] ?? []);
-        }
         $payload['store_footer_bottom_link_page_ids'] = $this->normalizeIdList($payload['store_footer_bottom_link_page_ids'] ?? []);
 
         if ($this->logoUpload) {
@@ -359,18 +329,6 @@ class StoreSettings extends Component
             'form.store_footer_email_sales' => ['nullable', 'email', 'max:191'],
             'form.store_footer_email_support' => ['nullable', 'email', 'max:191'],
             'form.store_footer_hours' => ['nullable', 'string', 'max:255'],
-            'form.store_footer_col_1_title' => ['nullable', 'string', 'max:120'],
-            'form.store_footer_col_1_page_ids' => ['nullable', 'array'],
-            'form.store_footer_col_1_page_ids.*' => ['integer', 'exists:content_info_pages,id'],
-            'form.store_footer_col_1_custom_links' => ['nullable', 'string', 'max:5000'],
-            'form.store_footer_col_2_title' => ['nullable', 'string', 'max:120'],
-            'form.store_footer_col_2_page_ids' => ['nullable', 'array'],
-            'form.store_footer_col_2_page_ids.*' => ['integer', 'exists:content_info_pages,id'],
-            'form.store_footer_col_2_custom_links' => ['nullable', 'string', 'max:5000'],
-            'form.store_footer_col_3_title' => ['nullable', 'string', 'max:120'],
-            'form.store_footer_col_3_page_ids' => ['nullable', 'array'],
-            'form.store_footer_col_3_page_ids.*' => ['integer', 'exists:content_info_pages,id'],
-            'form.store_footer_col_3_custom_links' => ['nullable', 'string', 'max:5000'],
             'form.store_footer_bottom_link_page_ids' => ['nullable', 'array'],
             'form.store_footer_bottom_link_page_ids.*' => ['integer', 'exists:content_info_pages,id'],
             'form.store_footer_bottom_copyright_text' => ['nullable', 'string', 'max:255'],
@@ -386,12 +344,6 @@ class StoreSettings extends Component
             'form.store_footer_social_instagram_enabled' => ['required', 'boolean'],
             'form.store_footer_social_tiktok_enabled' => ['required', 'boolean'],
             'form.store_footer_social_youtube_enabled' => ['required', 'boolean'],
-
-            'form.store_newsletter_provider' => ['required', 'string', 'in:none,mailchimp,klaviyo'],
-            'form.store_newsletter_mailchimp_api_key' => ['nullable', 'string', 'max:255'],
-            'form.store_newsletter_mailchimp_list_id' => ['nullable', 'string', 'max:255'],
-            'form.store_newsletter_klaviyo_api_key' => ['nullable', 'string', 'max:255'],
-            'form.store_newsletter_klaviyo_list_id' => ['nullable', 'string', 'max:255'],
 
             'form.store_captcha_recaptcha_v3_enabled' => ['required', 'boolean'],
             'form.store_captcha_recaptcha_v3_site_key' => ['nullable', 'string', 'max:255'],
@@ -460,11 +412,6 @@ class StoreSettings extends Component
             'form.store_schema_faq_group' => ['nullable', 'string', 'max:120'],
             'form.store_schema_faq_limit' => ['required', 'integer', 'min:1', 'max:20'],
             'form.store_schema_itemlist_limit' => ['required', 'integer', 'min:1', 'max:48'],
-
-            'form.store_announcement_enabled' => ['required', 'boolean'],
-            'form.store_announcement_text' => ['nullable', 'string', 'max:191'],
-            'form.store_announcement_url' => ['nullable', 'url', 'max:2048'],
-            'form.store_announcement_new_tab' => ['required', 'boolean'],
 
             'logoUpload' => ['nullable', 'file', 'max:4096', 'mimes:jpg,jpeg,png,webp,avif,svg'],
             'faviconUpload' => ['nullable', 'image', 'max:2048'],
