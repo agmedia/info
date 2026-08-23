@@ -10,8 +10,6 @@ use App\Models\Content\Page\InfoPage;
 use App\Models\Content\Page\InfoPageTranslation;
 use App\Services\Content\GlossaryImportService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Http\UploadedFile;
-use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
 class SiteSearchFeatureTest extends TestCase
@@ -36,18 +34,11 @@ class SiteSearchFeatureTest extends TestCase
             ->assertSee('ac-site-search-list', false);
     }
 
-    public function test_search_suggest_returns_grouped_sections_and_blog_thumbnail(): void
+    public function test_search_suggest_returns_grouped_text_only_sections(): void
     {
-        Storage::fake('public');
-        config()->set('media-library.disk_name', 'public');
-        config()->set('media-library.queue_conversions_by_default', false);
-
         $this->seedGlossaryPage();
         $this->seedGlossaryTerm('Porezna osnovica', 'porezna-osnovica');
-        $post = $this->seedBlogPost('Porezni vodič za vlasnike', 'porezni-vodic');
-
-        $post->addMedia(UploadedFile::fake()->image('search-cover.jpg', 1200, 800))
-            ->toMediaCollection('blog_cover');
+        $this->seedBlogPost('Porezni vodič za vlasnike', 'porezni-vodic');
 
         $response = $this->getJson('/search/suggest?q=porez');
 
@@ -60,7 +51,17 @@ class SiteSearchFeatureTest extends TestCase
             ->assertJsonFragment(['title' => 'Porezna osnovica'])
             ->assertJsonFragment(['title' => 'Porezni vodič za vlasnike']);
 
-        $this->assertNotEmpty($response->json('sections.0.items.0.image_url'));
+        $this->assertNull($response->json('sections.0.items.0.image_url'));
+    }
+
+    public function test_search_suggest_matches_croatian_diacritics_from_plain_query(): void
+    {
+        $this->seedGlossaryPage();
+        $this->seedGlossaryTerm('Računovodstveni pokazatelj', 'financijski-pokazatelj');
+
+        $this->getJson('/search/suggest?q=racunovodstveni')
+            ->assertOk()
+            ->assertJsonFragment(['title' => 'Računovodstveni pokazatelj']);
     }
 
     private function seedGlossaryPage(): InfoPage

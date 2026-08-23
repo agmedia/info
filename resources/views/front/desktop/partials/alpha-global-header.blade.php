@@ -71,21 +71,26 @@
             <a @class(['header-cta', 'header-cta--calculator' => $alphaShowLeaseCalculator]) href="{{ $alphaPrimaryCtaUrl }}">
                 <span>{{ $alphaPrimaryCtaLabel }}</span>
             </a>
-            <button class="search-link" type="button" aria-label="Pretraga" aria-expanded="false" data-header-search-toggle>
+            <button class="search-link" type="button" aria-label="Pretraga" aria-controls="alpha-header-search-panel" aria-expanded="false" data-header-search-toggle>
                 <i class="fa-light fa-magnifying-glass" aria-hidden="true"></i>
             </button>
         </div>
 
-        <button
-            class="menu-toggle"
-            type="button"
-            aria-label="Otvori izbornik"
-            aria-expanded="false"
-            data-alpha-menu-toggle
-        >
-            <i class="fa-light fa-bars menu-toggle-open-icon" aria-hidden="true"></i>
-            <i class="fa-light fa-xmark menu-toggle-close-icon" aria-hidden="true"></i>
-        </button>
+        <div class="header-mobile-actions">
+            <button class="search-link search-link--mobile" type="button" aria-label="Pretraga" aria-controls="alpha-header-search-panel" aria-expanded="false" data-header-search-toggle>
+                <i class="fa-light fa-magnifying-glass" aria-hidden="true"></i>
+            </button>
+            <button
+                class="menu-toggle"
+                type="button"
+                aria-label="Otvori izbornik"
+                aria-expanded="false"
+                data-alpha-menu-toggle
+            >
+                <i class="fa-light fa-bars menu-toggle-open-icon" aria-hidden="true"></i>
+                <i class="fa-light fa-xmark menu-toggle-close-icon" aria-hidden="true"></i>
+            </button>
+        </div>
     </div>
 
     <div
@@ -180,32 +185,54 @@
         </div>
     </div>
 
-    <div class="alpha-search-panel" data-header-search-panel>
-        <form
-            action="{{ route('search.index') }}"
-            method="get"
-            class="alpha-search-form"
-            role="search"
-            data-header-search-form
-            data-search-suggest-endpoint="{{ route('search.suggest') }}"
-            data-search-results-endpoint="{{ route('search.index') }}"
-        >
-            <div class="alpha-search-field">
-                <label for="alpha-header-search-input" class="visually-hidden">Pretraga sadržaja</label>
-                <i class="fa-light fa-magnifying-glass" aria-hidden="true"></i>
-                <input
-                    id="alpha-header-search-input"
-                    type="search"
-                    name="q"
-                    value="{{ request('q') }}"
-                    placeholder="{{ __('ui.search.input_placeholder') }}"
-                    autocomplete="off"
-                    spellcheck="false"
-                    data-header-search-input
-                >
-                <div class="front-search-suggestions hidden" data-header-search-suggestions></div>
-            </div>
-            <button type="submit" class="alpha-search-submit">{{ __('ui.search.submit') }}</button>
-        </form>
+    <div
+        id="alpha-header-search-panel"
+        class="alpha-search-panel"
+        role="dialog"
+        aria-modal="true"
+        aria-label="{{ __('ui.search.title') }}"
+        aria-hidden="true"
+        data-header-search-panel
+    >
+        <button class="alpha-search-close" type="button" aria-label="{{ $alphaIsCroatian ? 'Zatvori pretragu' : 'Close search' }}" data-header-search-close>
+            <i class="fa-light fa-xmark" aria-hidden="true"></i>
+        </button>
+
+        <div class="alpha-search-dialog">
+            <p class="alpha-search-eyebrow">{{ __('ui.search.title') }}</p>
+            <form
+                action="{{ route('search.index') }}"
+                method="get"
+                class="alpha-search-form"
+                role="search"
+                data-header-search-form
+                data-search-suggest-endpoint="{{ route('search.suggest') }}"
+                data-search-results-endpoint="{{ route('search.index') }}"
+            >
+                <div class="alpha-search-field">
+                    <label for="alpha-header-search-input" class="visually-hidden">Pretraga sadržaja</label>
+                    <i class="fa-light fa-magnifying-glass" aria-hidden="true"></i>
+                    <input
+                        id="alpha-header-search-input"
+                        type="search"
+                        name="q"
+                        value="{{ request('q') }}"
+                        placeholder="{{ __('ui.search.input_placeholder') }}"
+                        autocomplete="off"
+                        spellcheck="false"
+                        aria-controls="alpha-header-search-suggestions"
+                        aria-expanded="false"
+                        data-header-search-input
+                    >
+                </div>
+                <button type="submit" class="alpha-search-submit">{{ __('ui.search.submit') }}</button>
+                <div
+                    id="alpha-header-search-suggestions"
+                    class="front-search-suggestions hidden"
+                    aria-live="polite"
+                    data-header-search-suggestions
+                ></div>
+            </form>
+        </div>
     </div>
 </header>

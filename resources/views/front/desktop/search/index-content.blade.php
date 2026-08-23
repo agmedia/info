@@ -26,16 +26,13 @@
         </div>
     </x-front.page-title-band>
 
-    <div class="mx-auto w-full max-w-[1320px] px-4 py-6 sm:px-6 lg:px-8">
+    <div class="ac-site-search-shell">
         <div class="ac-site-search-hero">
             <form action="{{ route('search.index') }}" method="get" class="ac-site-search-form" role="search">
                 <label for="search-page-query" class="sr-only">{{ __('ui.search.title') }}</label>
                 <div class="ac-site-search-input-wrap">
                     <span class="ac-site-search-input-icon" aria-hidden="true">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.9">
-                            <circle cx="11" cy="11" r="7"></circle>
-                            <path d="M20 20l-3.2-3.2"></path>
-                        </svg>
+                        <i class="fa-light fa-magnifying-glass"></i>
                     </span>
                     <input
                         id="search-page-query"
@@ -71,14 +68,8 @@
 
                         <div class="ac-site-search-list">
                             @foreach ($section['items'] as $item)
-                                <article class="ac-site-search-card{{ !empty($item['image_url']) ? ' has-media' : '' }}{{ $section['key'] === 'blog' ? ' is-blog' : '' }}">
+                                <article class="ac-site-search-card">
                                     <a href="{{ $item['url'] }}" class="ac-site-search-card-link">
-                                        @if (!empty($item['image_url']))
-                                            <div class="ac-site-search-media{{ $section['key'] === 'blog' ? ' is-blog' : '' }}">
-                                                <img src="{{ $item['image_url'] }}" alt="{{ $item['title'] }}" loading="lazy" decoding="async">
-                                            </div>
-                                        @endif
-
                                         <div class="ac-site-search-card-body">
                                             @if (!empty($item['eyebrow']) || !empty($item['meta']))
                                                 <div class="ac-site-search-card-meta">
@@ -97,6 +88,10 @@
                                                 <p>{{ $item['excerpt'] }}</p>
                                             @endif
                                         </div>
+
+                                        <span class="ac-site-search-card-arrow" aria-hidden="true">
+                                            <i class="fa-light fa-arrow-right-long"></i>
+                                        </span>
                                     </a>
                                 </article>
                             @endforeach
@@ -107,3 +102,7 @@
         @endif
     </div>
 </section>
+
+@push('styles')
+    <link rel="stylesheet" href="{{ asset('front-theme/styles/pages/search.css') }}?v={{ filemtime(public_path('front-theme/styles/pages/search.css')) }}">
+@endpush

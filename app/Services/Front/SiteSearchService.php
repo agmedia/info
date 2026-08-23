@@ -9,6 +9,7 @@ use App\Models\Content\Glossary\GlossaryTerm;
 use App\Models\Content\Glossary\GlossaryTermTranslation;
 use App\Models\Content\Page\InfoPage;
 use App\Services\Content\GlossaryImportService;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 
@@ -17,7 +18,7 @@ class SiteSearchService
     /**
      * @return array{services: Collection<int, array<string, mixed>>, glossary: Collection<int, array<string, mixed>>, blog: Collection<int, array<string, mixed>>}
      */
-    public function search(string $query, string $locale, string $fallbackLocale): array
+    public function search(string $query, string $locale, string $fallbackLocale, ?int $limitPerSection = null): array
     {
         $query = trim($query);
         $normalizedQuery = $this->normalize($query);
@@ -31,16 +32,16 @@ class SiteSearchService
         }
 
         return [
-            'services' => $this->searchServices($normalizedQuery, $locale),
-            'glossary' => $this->searchGlossary($normalizedQuery, $locale, $fallbackLocale),
-            'blog' => $this->searchBlog($normalizedQuery, $locale, $fallbackLocale),
+            'services' => $this->searchServices($normalizedQuery, $locale, $limitPerSection),
+            'glossary' => $this->searchGlossary($normalizedQuery, $locale, $fallbackLocale, $limitPerSection),
+            'blog' => $this->searchBlog($normalizedQuery, $locale, $fallbackLocale, $limitPerSection),
         ];
     }
 
     /**
      * @return Collection<int, array<string, mixed>>
      */
-    private function searchServices(string $normalizedQuery, string $locale): Collection
+    private function searchServices(string $normalizedQuery, string $locale, ?int $limit = null): Collection
     {
         $isCroatian = Str::startsWith(Str::lower($locale), 'hr');
         $catalog = collect([
@@ -112,7 +113,7 @@ class SiteSearchService
             ],
         ]);
 
-        return $catalog
+        $results = $catalog
             ->filter(fn (array $item): bool => str_contains($this->normalize(implode(' ', [
                 $item['title'],
                 $item['eyebrow'],
@@ -120,28 +121,49 @@ class SiteSearchService
                 $item['search'],
             ])), $normalizedQuery))
             ->values();
+
+        return $limit ? $results->take($limit)->values() : $results;
     }
 
     /**
      * @return Collection<int, array<string, mixed>>
      */
-    private function searchGlossary(string $normalizedQuery, string $locale, string $fallbackLocale): Collection
-    {
+    private function searchGlossary(
+        string $normalizedQuery,
+        string $locale,
+        string $fallbackLocale,
+        ?int $limit = null,
+    ): Collection {
         $collectionCode = $this->resolveGlossaryCollectionCode();
 
         if ($collectionCode === null) {
             return collect();
         }
 
-        return GlossaryTerm::query()
+        $query = GlossaryTerm::query()
             ->where('is_active', true)
             ->where('collection_code', $collectionCode)
+            ->whereHas('translations', function (Builder $query) use ($locale, $fallbackLocale, $normalizedQuery): void {
+                $query->whereIn('locale', [$locale, $fallbackLocale]);
+                $this->whereNormalizedContains($query, [
+                    'title',
+                    'slug',
+                    'excerpt',
+                    'body_html',
+                    'payload',
+                ], $normalizedQuery);
+            })
             ->with([
                 'translations' => fn ($query) => $query->whereIn('locale', [$locale, $fallbackLocale]),
             ])
             ->orderBy('sort_order')
-            ->orderBy('id')
-            ->get()
+            ->orderBy('id');
+
+        if ($limit) {
+            $query->limit($limit);
+        }
+
+        return $query->get()
             ->map(function (GlossaryTerm $term) use ($locale, $fallbackLocale): ?array {
                 $translation = $this->pickGlossaryTranslation($term, $locale, $fallbackLocale);
 
@@ -190,13 +212,39 @@ class SiteSearchService
     /**
      * @return Collection<int, array<string, mixed>>
      */
-    private function searchBlog(string $normalizedQuery, string $locale, string $fallbackLocale): Collection
-    {
-        return BlogPost::query()
+    private function searchBlog(
+        string $normalizedQuery,
+        string $locale,
+        string $fallbackLocale,
+        ?int $limit = null,
+    ): Collection {
+        $query = BlogPost::query()
             ->where('is_active', true)
             ->where(function ($query): void {
                 $query->whereNull('published_at')
                     ->orWhere('published_at', '<=', now());
+            })
+            ->where(function (Builder $query) use ($locale, $fallbackLocale, $normalizedQuery): void {
+                $query
+                    ->whereHas('translations', function (Builder $translationQuery) use ($locale, $fallbackLocale, $normalizedQuery): void {
+                        $translationQuery->whereIn('locale', [$locale, $fallbackLocale]);
+                        $this->whereNormalizedContains($translationQuery, [
+                            'title',
+                            'slug',
+                            'excerpt',
+                            'body_html',
+                        ], $normalizedQuery);
+                    })
+                    ->orWhereHas('categories', function (Builder $categoryQuery) use ($locale, $fallbackLocale, $normalizedQuery): void {
+                        $categoryQuery
+                            ->where('scope', Category::SCOPE_BLOG)
+                            ->whereHas('translations', function (Builder $translationQuery) use ($locale, $fallbackLocale, $normalizedQuery): void {
+                                $translationQuery
+                                    ->where('scope', Category::SCOPE_BLOG)
+                                    ->whereIn('locale', [$locale, $fallbackLocale]);
+                                $this->whereNormalizedContains($translationQuery, ['name', 'slug'], $normalizedQuery);
+                            });
+                    });
             })
             ->with([
                 'translations' => fn ($query) => $query->whereIn('locale', [$locale, $fallbackLocale]),
@@ -207,11 +255,15 @@ class SiteSearchService
                             ->where('scope', Category::SCOPE_BLOG)
                             ->whereIn('locale', [$locale, $fallbackLocale]),
                     ]),
-                'media',
             ])
             ->orderByDesc('published_at')
-            ->orderByDesc('id')
-            ->get()
+            ->orderByDesc('id');
+
+        if ($limit) {
+            $query->limit($limit);
+        }
+
+        return $query->get()
             ->map(function (BlogPost $post) use ($locale, $fallbackLocale): ?array {
                 $translation = $this->pickBlogTranslation($post, $locale, $fallbackLocale);
 
@@ -223,12 +275,6 @@ class SiteSearchService
                 $excerpt = trim((string) ($translation->excerpt ?? ''));
                 $bodyText = $this->plainText((string) ($translation->body_html ?? ''));
                 $excerpt = $excerpt !== '' ? $excerpt : Str::limit($bodyText, 180, '...');
-                $media = $post->getFirstMedia('blog_cover');
-                $imageUrl = $media
-                    ? ($media->hasGeneratedConversion('card_360x240')
-                        ? $media->getUrl('card_360x240')
-                        : $media->getUrl())
-                    : null;
                 $category = $post->categories
                     ->sortByDesc(fn (Category $blogCategory): int => (int) ($blogCategory->pivot->is_primary ?? false))
                     ->first();
@@ -243,7 +289,7 @@ class SiteSearchService
                     'eyebrow' => $categoryLabel,
                     'excerpt' => $excerpt,
                     'url' => route('blog.show', ['slug' => (string) $translation->slug]),
-                    'image_url' => $imageUrl,
+                    'image_url' => null,
                     'meta' => ($post->published_at ?? $post->created_at)?->translatedFormat($dateFormat),
                     'search_text' => $this->normalize(implode(' ', [
                         $title,
@@ -309,5 +355,35 @@ class SiteSearchService
         $value = $this->plainText($value);
 
         return Str::lower(Str::squish(Str::transliterate($value)));
+    }
+
+    /**
+     * @param  array<int, string>  $columns
+     */
+    private function whereNormalizedContains(Builder $query, array $columns, string $normalizedQuery): void
+    {
+        $query->where(function (Builder $query) use ($columns, $normalizedQuery): void {
+            foreach ($columns as $index => $column) {
+                $expression = sprintf('COALESCE(%s, \'\')', $query->qualifyColumn($column));
+
+                foreach ([
+                    'Č' => 'c',
+                    'Ć' => 'c',
+                    'Ž' => 'z',
+                    'Š' => 's',
+                    'Đ' => 'd',
+                    'č' => 'c',
+                    'ć' => 'c',
+                    'ž' => 'z',
+                    'š' => 's',
+                    'đ' => 'd',
+                ] as $source => $replacement) {
+                    $expression = sprintf("REPLACE(%s, '%s', '%s')", $expression, $source, $replacement);
+                }
+
+                $method = $index === 0 ? 'whereRaw' : 'orWhereRaw';
+                $query->{$method}('LOWER('.$expression.') LIKE ?', ['%'.$normalizedQuery.'%']);
+            }
+        });
     }
 }

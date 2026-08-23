@@ -11,14 +11,17 @@ document.addEventListener('DOMContentLoaded', function () {
     const submenuClose = mobileMenu?.querySelector('[data-alpha-submenu-close]');
     const rootMenuPanel = mobileMenu?.querySelector('[data-alpha-menu-panel="root"]');
     const servicesMenuPanel = mobileMenu?.querySelector('[data-alpha-menu-panel="services"]');
-    const searchToggle = document.querySelector('[data-header-search-toggle]');
+    const searchToggles = document.querySelectorAll('[data-header-search-toggle]');
     const searchPanel = document.querySelector('[data-header-search-panel]');
+    const searchClose = searchPanel?.querySelector('[data-header-search-close]');
     const searchForm = searchPanel?.querySelector('[data-header-search-form]');
     const searchInput = searchPanel?.querySelector('[data-header-search-input]');
     const searchSuggestions = searchPanel?.querySelector('[data-header-search-suggestions]');
+    const searchSuggestionCache = new Map();
     let searchDebounceTimer = 0;
     let searchRequestId = 0;
     let searchAbortController = null;
+    let previousSearchFocus = null;
 
     const activateDeferredStylesheets = function () {
         document.querySelectorAll('link[data-deferred-stylesheet]').forEach(function (stylesheet) {
@@ -178,6 +181,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         searchSuggestions.classList.add('hidden');
         searchSuggestions.replaceChildren();
+        searchInput?.setAttribute('aria-expanded', 'false');
     };
 
     const createSearchSuggestion = function (item) {
@@ -190,18 +194,6 @@ document.addEventListener('DOMContentLoaded', function () {
         body.className = 'front-search-suggestion-body';
         title.className = 'front-search-suggestion-title';
         title.textContent = item.title || '';
-
-        if (item.image_url) {
-            const media = document.createElement('span');
-            const image = document.createElement('img');
-            media.className = 'front-search-suggestion-media';
-            image.src = item.image_url;
-            image.alt = item.title || '';
-            image.loading = 'lazy';
-            image.decoding = 'async';
-            media.append(image);
-            link.append(media);
-        }
 
         if (item.eyebrow || item.meta) {
             const meta = document.createElement('span');
@@ -217,13 +209,6 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
         body.append(title);
-
-        if (item.excerpt) {
-            const excerpt = document.createElement('span');
-            excerpt.className = 'front-search-suggestion-excerpt';
-            excerpt.textContent = item.excerpt;
-            body.append(excerpt);
-        }
 
         link.append(body);
         return link;
@@ -243,6 +228,7 @@ document.addEventListener('DOMContentLoaded', function () {
             empty.textContent = window.CodexSearchLabels?.autosuggestEmpty || 'Nema rezultata.';
             searchSuggestions.append(empty);
             searchSuggestions.classList.remove('hidden');
+            searchInput?.setAttribute('aria-expanded', 'true');
             return;
         }
 
@@ -257,12 +243,6 @@ document.addEventListener('DOMContentLoaded', function () {
             headingTitle.textContent = section.label || '';
             list.className = 'front-search-suggestion-list';
             heading.append(headingTitle);
-
-            if (typeof section.total_count === 'number') {
-                const count = document.createElement('span');
-                count.textContent = String(section.total_count);
-                heading.append(count);
-            }
 
             (Array.isArray(section.items) ? section.items : []).forEach(function (item) {
                 list.append(createSearchSuggestion(item));
@@ -284,10 +264,12 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
         searchSuggestions.classList.remove('hidden');
+        searchInput?.setAttribute('aria-expanded', 'true');
     };
 
     const fetchSearchSuggestions = function (rawQuery) {
         const query = typeof rawQuery === 'string' ? rawQuery.trim() : '';
+        const cacheKey = query.toLocaleLowerCase();
         const endpoint = searchForm instanceof HTMLFormElement ? searchForm.dataset.searchSuggestEndpoint || '' : '';
 
         window.clearTimeout(searchDebounceTimer);
@@ -296,6 +278,13 @@ document.addEventListener('DOMContentLoaded', function () {
             searchAbortController?.abort();
             searchAbortController = null;
             hideSearchSuggestions();
+            return;
+        }
+
+        if (searchSuggestionCache.has(cacheKey)) {
+            searchAbortController?.abort();
+            searchAbortController = null;
+            renderSearchSuggestions(searchSuggestionCache.get(cacheKey));
             return;
         }
 
@@ -318,6 +307,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
                 const payload = await response.json();
                 if (currentRequestId === searchRequestId && searchInput.value.trim() === query) {
+                    if (searchSuggestionCache.size >= 12) {
+                        searchSuggestionCache.delete(searchSuggestionCache.keys().next().value);
+                    }
+                    searchSuggestionCache.set(cacheKey, payload);
                     renderSearchSuggestions(payload);
                 }
             } catch (error) {
@@ -325,31 +318,57 @@ document.addEventListener('DOMContentLoaded', function () {
                     hideSearchSuggestions();
                 }
             }
-        }, 180);
+        }, 90);
     };
 
-    const setSearchOpen = function (open) {
+    const setSearchOpen = function (open, restoreFocus = true) {
         if (!(searchPanel instanceof HTMLElement)) {
             return;
         }
 
+        if (open && document.activeElement instanceof HTMLElement) {
+            previousSearchFocus = document.activeElement;
+        }
+
         searchPanel.classList.toggle('is-open', open);
         stickyHeader?.classList.toggle('is-search-open', open);
-        searchToggle?.setAttribute('aria-expanded', open ? 'true' : 'false');
+        searchPanel.setAttribute('aria-hidden', open ? 'false' : 'true');
+        body.classList.toggle('alpha-search-is-open', open);
+        searchToggles.forEach(function (toggle) {
+            toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+        });
 
         if (!open) {
+            window.clearTimeout(searchDebounceTimer);
+            searchAbortController?.abort();
+            searchAbortController = null;
             hideSearchSuggestions();
+
+            if (restoreFocus && previousSearchFocus instanceof HTMLElement) {
+                previousSearchFocus.focus();
+            }
+
+            previousSearchFocus = null;
             return;
         }
 
         setMenuOpen(false);
-        window.requestAnimationFrame(function () {
-            searchInput?.focus();
-        });
+        window.setTimeout(function () {
+            if (searchInput instanceof HTMLInputElement) {
+                searchInput.focus();
+                fetchSearchSuggestions(searchInput.value);
+            }
+        }, 40);
     };
 
-    searchToggle?.addEventListener('click', function () {
-        setSearchOpen(!searchPanel?.classList.contains('is-open'));
+    searchToggles.forEach(function (toggle) {
+        toggle.addEventListener('click', function () {
+            setSearchOpen(!searchPanel?.classList.contains('is-open'));
+        });
+    });
+
+    searchClose?.addEventListener('click', function () {
+        setSearchOpen(false);
     });
 
     searchInput?.addEventListener('input', function (event) {
@@ -367,21 +386,33 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     });
 
-    document.addEventListener('click', function (event) {
-        if (!(event.target instanceof Node) || !(searchPanel instanceof HTMLElement)) {
-            return;
-        }
-
-        if (!searchPanel.contains(event.target) && !searchToggle?.contains(event.target)) {
-            hideSearchSuggestions();
+    searchPanel?.addEventListener('click', function (event) {
+        if (event.target === searchPanel) {
+            setSearchOpen(false);
         }
     });
 
     document.addEventListener('keydown', function (event) {
+        if (searchPanel?.classList.contains('is-open') && event.key === 'Tab') {
+            const focusable = Array.from(searchPanel.querySelectorAll('button:not([disabled]), input:not([disabled]), a[href]'))
+                .filter(function (element) {
+                    return element instanceof HTMLElement && element.offsetParent !== null;
+                });
+            const first = focusable[0];
+            const last = focusable[focusable.length - 1];
+
+            if (event.shiftKey && document.activeElement === first) {
+                event.preventDefault();
+                last?.focus();
+            } else if (!event.shiftKey && document.activeElement === last) {
+                event.preventDefault();
+                first?.focus();
+            }
+        }
+
         if (event.key === 'Escape') {
             if (searchPanel?.classList.contains('is-open')) {
                 setSearchOpen(false);
-                searchToggle?.focus();
                 return;
             }
 

@@ -45,8 +45,8 @@ class SearchController extends Controller
             ]);
         }
 
-        $results = $siteSearch->search($query, $locale, $fallbackLocale);
-        $sections = $this->presentSections($results, 4);
+        $results = $siteSearch->search($query, $locale, $fallbackLocale, 4);
+        $sections = $this->presentSections($results);
 
         return response()->json([
             'query' => $query,
