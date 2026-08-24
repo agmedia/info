@@ -5,6 +5,9 @@ namespace App\Livewire\Admin\Content\Blog;
 use App\Models\Catalog\Category\Category;
 use App\Models\Content\Blog\BlogPost;
 use App\Models\Content\Blog\BlogPostTranslation;
+use Carbon\CarbonImmutable;
+use Closure;
+use DateTimeZone;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -13,10 +16,19 @@ use Livewire\Component;
 
 class Form extends Component
 {
+    private const SEO_AUTOMATION_PAYLOAD_KEY = '_seo_automation';
+
     public ?int $postId = null;
+
     public string $activeTab = 'content';
+
     public string $categorySearch = '';
+
     public string $newCategoryName = '';
+
+    public bool $metaTitleIsAutomatic = true;
+
+    public bool $metaDescriptionIsAutomatic = true;
 
     public array $form = [
         'code' => '',
@@ -61,7 +73,7 @@ class Form extends Component
 
     public function setTab(string $tab): void
     {
-        if (!in_array($tab, ['content', 'categories', 'seo', 'media'], true)) {
+        if (! in_array($tab, ['content', 'categories', 'seo', 'media'], true)) {
             return;
         }
 
@@ -71,6 +83,8 @@ class Form extends Component
     public function updatedFormTitle($value): void
     {
         $title = trim((string) $value);
+        $this->syncMetaTitleFromTitle($title);
+
         if ($title === '') {
             return;
         }
@@ -80,19 +94,34 @@ class Form extends Component
             $this->form['slug'] = $slug;
             $this->form['code'] = $this->uniqueCodeFromBase($slug);
         }
+    }
 
-        if (trim((string) ($this->form['meta_title'] ?? '')) === '') {
-            $this->form['meta_title'] = Str::limit($title, 255, '');
+    public function updatedFormExcerpt(): void
+    {
+        $this->syncMetaDescriptionFromContent();
+    }
+
+    public function updatedFormBodyHtml(): void
+    {
+        $this->syncMetaDescriptionFromContent();
+    }
+
+    public function updatedFormMetaTitle($value): void
+    {
+        $this->metaTitleIsAutomatic = trim((string) $value) === '';
+
+        if ($this->metaTitleIsAutomatic) {
+            $this->syncMetaTitleFromTitle((string) ($this->form['title'] ?? ''));
         }
     }
 
-    public function updatedFormBodyHtml($value): void
+    public function updatedFormMetaDescription($value): void
     {
-        if (trim((string) ($this->form['meta_description'] ?? '')) !== '') {
-            return;
-        }
+        $this->metaDescriptionIsAutomatic = trim((string) $value) === '';
 
-        $this->form['meta_description'] = $this->metaDescriptionFromBody((string) $value);
+        if ($this->metaDescriptionIsAutomatic) {
+            $this->syncMetaDescriptionFromContent();
+        }
     }
 
     public function addCategory(int $categoryId): void
@@ -136,6 +165,7 @@ class Form extends Component
 
         if ($slug === '') {
             $this->addError('newCategoryName', __('Naziv mora sadržavati barem jedno slovo ili broj.'));
+
             return;
         }
 
@@ -147,6 +177,7 @@ class Form extends Component
 
         if ($slugExists) {
             $this->addError('newCategoryName', __('Kategorija s ovim nazivom već postoji.'));
+
             return;
         }
 
@@ -207,12 +238,21 @@ class Form extends Component
 
         DB::transaction(function () use ($validated, $payload, $translationPayload, $userId, $wasEditing): void {
             $payload = is_array($payload) ? $payload : [];
+            $translationPayload = is_array($translationPayload) ? $translationPayload : [];
+            $translationPayload[self::SEO_AUTOMATION_PAYLOAD_KEY] = [
+                'meta_title' => $this->metaTitleIsAutomatic,
+                'meta_description' => $this->metaDescriptionIsAutomatic,
+            ];
+            $isActive = (bool) $validated['form']['is_active'];
 
             $postData = [
                 'code' => trim((string) $validated['form']['code']),
-                'is_active' => (bool) $validated['form']['is_active'],
+                'is_active' => $isActive,
                 'is_featured' => (bool) $validated['form']['is_featured'],
-                'published_at' => $validated['form']['published_at'] ?: null,
+                'published_at' => $this->publishedAtForStorage(
+                    $validated['form']['published_at'] ?? null,
+                    $isActive
+                ),
                 'sort_order' => (int) $validated['form']['sort_order'],
                 'payload' => $payload,
                 'updated_by' => $userId,
@@ -234,7 +274,11 @@ class Form extends Component
                     'excerpt' => $validated['form']['excerpt'] ?: null,
                     'body_html' => $validated['form']['body_html'] ?: null,
                     'meta_title' => $this->resolvedMetaTitle((string) $validated['form']['title'], $validated['form']['meta_title'] ?? null),
-                    'meta_description' => $this->resolvedMetaDescription((string) ($validated['form']['body_html'] ?? ''), $validated['form']['meta_description'] ?? null),
+                    'meta_description' => $this->resolvedMetaDescription(
+                        (string) ($validated['form']['excerpt'] ?? ''),
+                        (string) ($validated['form']['body_html'] ?? ''),
+                        $validated['form']['meta_description'] ?? null
+                    ),
                     'payload' => $translationPayload,
                 ]
             );
@@ -385,7 +429,18 @@ class Form extends Component
             'form.code' => ['required', 'string', 'max:120', Rule::unique('content_blog_posts', 'code')->ignore($this->postId)],
             'form.is_active' => ['boolean'],
             'form.is_featured' => ['boolean'],
-            'form.published_at' => ['nullable', 'date'],
+            'form.published_at' => [
+                'bail',
+                'nullable',
+                'date_format:Y-m-d\TH:i',
+                function (string $attribute, mixed $value, Closure $fail): void {
+                    $publishedAt = trim((string) $value);
+
+                    if (! $this->publicationDateTimeIsUnambiguous($publishedAt)) {
+                        $fail(__('The publication date and time is not valid in the configured timezone.'));
+                    }
+                },
+            ],
             'form.sort_order' => ['nullable', 'integer', 'min:0'],
             'form.payload_text' => ['nullable', 'string'],
 
@@ -415,7 +470,7 @@ class Form extends Component
 
     private function loadPost(): void
     {
-        if (!$this->postId) {
+        if (! $this->postId) {
             return;
         }
 
@@ -432,7 +487,10 @@ class Form extends Component
         $this->form['code'] = $post->code;
         $this->form['is_active'] = (bool) $post->is_active;
         $this->form['is_featured'] = (bool) $post->is_featured;
-        $this->form['published_at'] = $post->published_at?->format('Y-m-d') ?? '';
+        $this->form['published_at'] = $post->published_at
+            ?->copy()
+            ->setTimezone($this->publicationTimezone())
+            ->format('Y-m-d\TH:i') ?? '';
         $this->form['sort_order'] = (int) $post->sort_order;
         $this->form['payload_text'] = $post->payload
             ? json_encode($post->payload, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES)
@@ -450,13 +508,15 @@ class Form extends Component
             $this->form['translation_payload_text'] = $translation->payload
                 ? json_encode($translation->payload, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES)
                 : '';
+            $this->loadSeoAutomationState($translation);
         }
     }
 
     private function loadTranslationForLocale(): void
     {
-        if (!$this->postId) {
+        if (! $this->postId) {
             $this->clearTranslationFields();
+
             return;
         }
 
@@ -465,8 +525,9 @@ class Form extends Component
             ->where('locale', $this->form['locale'])
             ->first();
 
-        if (!$translation) {
+        if (! $translation) {
             $this->clearTranslationFields();
+
             return;
         }
 
@@ -479,6 +540,7 @@ class Form extends Component
         $this->form['translation_payload_text'] = $translation->payload
             ? json_encode($translation->payload, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES)
             : '';
+        $this->loadSeoAutomationState($translation);
     }
 
     private function clearTranslationFields(): void
@@ -490,6 +552,8 @@ class Form extends Component
         $this->form['meta_title'] = '';
         $this->form['meta_description'] = '';
         $this->form['translation_payload_text'] = '';
+        $this->metaTitleIsAutomatic = true;
+        $this->metaDescriptionIsAutomatic = true;
     }
 
     /**
@@ -507,12 +571,14 @@ class Form extends Component
         if (json_last_error() !== JSON_ERROR_NONE) {
             $this->addError($field, __('Invalid JSON payload.'));
             $this->dispatch('notify', type: 'danger', message: __('Invalid JSON payload.'));
+
             return false;
         }
 
-        if (!is_array($decoded)) {
+        if (! is_array($decoded)) {
             $this->addError($field, __('JSON payload must decode to object/array.'));
             $this->dispatch('notify', type: 'danger', message: __('JSON payload must decode to object/array.'));
+
             return false;
         }
 
@@ -553,9 +619,110 @@ class Form extends Component
 
     private function metaDescriptionFromBody(string $bodyHtml): string
     {
-        $plain = preg_replace('/\s+/u', ' ', trim(strip_tags($bodyHtml)));
+        return $this->metaDescriptionFromText($bodyHtml);
+    }
+
+    private function publishedAtForStorage(?string $value, bool $isActive): ?CarbonImmutable
+    {
+        $publishedAt = trim((string) $value);
+        if ($publishedAt === '') {
+            return $isActive ? CarbonImmutable::now('UTC')->startOfMinute() : null;
+        }
+
+        return CarbonImmutable::createFromFormat(
+            '!Y-m-d\TH:i',
+            $publishedAt,
+            $this->publicationTimezone()
+        )->utc();
+    }
+
+    private function publicationTimezone(): string
+    {
+        return (string) config('admin_ui.timezone', 'Europe/Zagreb');
+    }
+
+    private function publicationDateTimeIsUnambiguous(string $value): bool
+    {
+        $wallClock = CarbonImmutable::createFromFormat('!Y-m-d\TH:i', $value, 'UTC');
+        $timezone = new DateTimeZone($this->publicationTimezone());
+        $wallTimestamp = $wallClock->getTimestamp();
+        $transitions = $timezone->getTransitions($wallTimestamp - 172800, $wallTimestamp + 172800);
+
+        if (! is_array($transitions)) {
+            return false;
+        }
+
+        $matchingOffsets = collect($transitions)
+            ->pluck('offset')
+            ->unique()
+            ->filter(function (mixed $offset) use ($timezone, $value, $wallTimestamp): bool {
+                return CarbonImmutable::createFromTimestampUTC($wallTimestamp - (int) $offset)
+                    ->setTimezone($timezone)
+                    ->format('Y-m-d\TH:i') === $value;
+            });
+
+        return $matchingOffsets->count() === 1;
+    }
+
+    private function metaDescriptionFromContent(string $excerpt, string $bodyHtml): string
+    {
+        $fromExcerpt = $this->metaDescriptionFromText($excerpt);
+
+        return $fromExcerpt !== '' ? $fromExcerpt : $this->metaDescriptionFromBody($bodyHtml);
+    }
+
+    private function metaDescriptionFromText(string $value): string
+    {
+        $plain = preg_replace('/\s+/u', ' ', trim(strip_tags($value)));
         $plain = html_entity_decode((string) $plain, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+
         return Str::limit(trim($plain), 160, '...');
+    }
+
+    private function syncMetaTitleFromTitle(string $title): void
+    {
+        $current = trim((string) ($this->form['meta_title'] ?? ''));
+        $nextAuto = $title === '' ? '' : Str::limit($title, 255, '');
+
+        if ($this->metaTitleIsAutomatic || $current === '') {
+            $this->form['meta_title'] = $nextAuto;
+            $this->metaTitleIsAutomatic = true;
+        }
+    }
+
+    private function syncMetaDescriptionFromContent(): void
+    {
+        $current = trim((string) ($this->form['meta_description'] ?? ''));
+        $nextAuto = $this->metaDescriptionFromContent(
+            (string) ($this->form['excerpt'] ?? ''),
+            (string) ($this->form['body_html'] ?? '')
+        );
+
+        if ($this->metaDescriptionIsAutomatic || $current === '') {
+            $this->form['meta_description'] = $nextAuto;
+            $this->metaDescriptionIsAutomatic = true;
+        }
+    }
+
+    private function loadSeoAutomationState(BlogPostTranslation $translation): void
+    {
+        $payload = is_array($translation->payload) ? $translation->payload : [];
+        $storedTitleState = data_get($payload, self::SEO_AUTOMATION_PAYLOAD_KEY.'.meta_title');
+        $storedDescriptionState = data_get($payload, self::SEO_AUTOMATION_PAYLOAD_KEY.'.meta_description');
+        $generatedTitle = Str::limit(trim((string) ($this->form['title'] ?? '')), 255, '');
+        $generatedDescription = $this->metaDescriptionFromContent(
+            (string) ($this->form['excerpt'] ?? ''),
+            (string) ($this->form['body_html'] ?? '')
+        );
+        $currentTitle = trim((string) ($this->form['meta_title'] ?? ''));
+        $currentDescription = trim((string) ($this->form['meta_description'] ?? ''));
+
+        $this->metaTitleIsAutomatic = is_bool($storedTitleState)
+            ? $storedTitleState
+            : $currentTitle === '' || $currentTitle === $generatedTitle;
+        $this->metaDescriptionIsAutomatic = is_bool($storedDescriptionState)
+            ? $storedDescriptionState
+            : $currentDescription === '' || $currentDescription === $generatedDescription;
     }
 
     private function resolvedMetaTitle(string $title, ?string $metaTitle): ?string
@@ -566,18 +733,19 @@ class Form extends Component
         }
 
         $fallback = trim($title);
+
         return $fallback === '' ? null : Str::limit($fallback, 255, '');
     }
 
-    private function resolvedMetaDescription(string $bodyHtml, ?string $metaDescription): ?string
+    private function resolvedMetaDescription(string $excerpt, string $bodyHtml, ?string $metaDescription): ?string
     {
         $value = trim((string) $metaDescription);
         if ($value !== '') {
             return $value;
         }
 
-        $auto = $this->metaDescriptionFromBody($bodyHtml);
+        $auto = $this->metaDescriptionFromContent($excerpt, $bodyHtml);
+
         return $auto !== '' ? $auto : null;
     }
-
 }

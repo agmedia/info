@@ -805,7 +805,10 @@
                                             $categoryTranslation = $primaryCategory?->translations->firstWhere('locale', $locale)
                                                 ?? $primaryCategory?->translations->firstWhere('locale', $fallbackLocale);
                                             $categoryLabel = trim((string) ($categoryTranslation?->name ?? 'Novosti'));
-                                            $publishedLabel = ($post->published_at ?? $post->created_at)?->translatedFormat('j. F Y.');
+                                            $publishedLabel = ($post->published_at ?? $post->created_at)
+                                                ?->copy()
+                                                ->setTimezone(config('admin_ui.timezone'))
+                                                ->translatedFormat('j. F Y.');
                                         @endphp
                                         <li class="splide__slide ac-home-blog-slide">
                                             <article class="ac-home-blog-card">

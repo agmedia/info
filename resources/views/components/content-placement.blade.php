@@ -40,6 +40,7 @@
         if ($blogIds !== []) {
             $blogs = \App\Models\Content\Blog\BlogPost::query()
                 ->whereIn('id', $blogIds)
+                ->published()
                 ->with(['translations' => fn ($q) => $q->whereIn('locale', [$locale, $fallbackLocale])])
                 ->get()
                 ->sortBy(fn ($row) => array_search((int) $row->id, $blogIds, true))

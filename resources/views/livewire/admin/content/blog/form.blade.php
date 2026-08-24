@@ -69,8 +69,9 @@
 
                 <div class="mt-3 grid gap-3 md:grid-cols-12">
                     <div class="md:col-span-3">
-                        <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Published At') }}</label>
-                        <input type="date" wire:model="form.published_at" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+                        <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Publication date and time') }} ({{ config('admin_ui.timezone') }})</label>
+                        <input type="datetime-local" step="60" wire:model="form.published_at" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+                        <p class="mt-1 text-xs text-slate-500">{{ __('Leave empty for immediate publication when active. A future date schedules the article.') }}</p>
                         @error('form.published_at') <p class="mt-1 text-xs text-rose-600">{{ $message }}</p> @enderror
                     </div>
                     <div class="flex items-end gap-3 md:col-span-9">
@@ -104,7 +105,7 @@
 
                 <div class="mt-4">
                     <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Excerpt') }}</label>
-                    <textarea rows="3" wire:model="form.excerpt" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm"></textarea>
+                    <textarea rows="3" wire:model.live.debounce.250ms="form.excerpt" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm"></textarea>
                 </div>
 
                 <div class="mt-4" wire:key="blog-post-body-{{ $postId ?? 'new' }}-{{ $form['locale'] }}">
@@ -198,11 +199,13 @@
                 <div class="mt-4">
                     <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Meta Title') }}</label>
                     <input type="text" wire:model.live.debounce.250ms="form.meta_title" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+                    <p class="mt-1 text-xs text-slate-500">{{ __('Automatically follows the article title until you enter a custom value.') }}</p>
                     @error('form.meta_title') <p class="mt-1 text-xs text-rose-600">{{ $message }}</p> @enderror
                 </div>
                 <div class="mt-3">
                     <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Meta Description') }}</label>
                     <textarea rows="4" wire:model.live.debounce.250ms="form.meta_description" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm"></textarea>
+                    <p class="mt-1 text-xs text-slate-500">{{ __('Automatically follows the excerpt until you enter a custom value.') }}</p>
                 </div>
             </div>
         @endif

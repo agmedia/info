@@ -22,7 +22,7 @@
     $categoryTranslation = $primaryCategory?->translations->firstWhere('locale', $locale)
         ?? $primaryCategory?->translations->firstWhere('locale', $fallbackLocale);
     $categoryLabel = trim((string) ($categoryTranslation?->name ?? __('ui.blog.default_category')));
-    $publishedAt = $post->published_at ?? $post->created_at;
+    $publishedAt = ($post->published_at ?? $post->created_at)?->copy()->setTimezone(config('admin_ui.timezone'));
     $publishedLabel = $publishedAt?->translatedFormat('j. F Y.');
     $animationIndex = max(0, min(3, (int) ($revealIndex ?? 0)));
     $cardHeadingLevel = (int) ($headingLevel ?? 2);

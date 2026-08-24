@@ -78,7 +78,7 @@
         ->sortByDesc(fn ($category) => (int) ($category->pivot->is_primary ?? false))
         ->values();
     $articleTitle = trim((string) ($translation?->title ?? $post->code));
-    $publishedAt = $post->published_at ?? $post->created_at;
+    $publishedAt = ($post->published_at ?? $post->created_at)?->copy()->setTimezone(config('admin_ui.timezone'));
     $publishedLabel = $publishedAt?->translatedFormat('j. F Y.');
     $primaryCategory = $postCategories->first();
     $primaryCategoryTranslation = $primaryCategory

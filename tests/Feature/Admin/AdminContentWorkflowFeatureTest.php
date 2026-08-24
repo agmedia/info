@@ -62,7 +62,7 @@ class AdminContentWorkflowFeatureTest extends TestCase
             ->set('form.code', '')
             ->set('form.slug', '')
             ->set('form.is_active', true)
-            ->set('form.published_at', now()->subDay()->format('Y-m-d'))
+            ->set('form.published_at', now(config('admin_ui.timezone'))->subDay()->format('Y-m-d\TH:i'))
             ->set('form.excerpt', 'Sažetak spremljen kroz pojednostavljeni admin obrazac.')
             ->set('form.body_html', '<p>Tekst članka spremljen u backendu i prikazan na frontu.</p>')
             ->set('form.category_ids', [$category->id])

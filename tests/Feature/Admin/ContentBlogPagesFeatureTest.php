@@ -92,6 +92,15 @@ class ContentBlogPagesFeatureTest extends TestCase
             ->assertSee(__('Admin preview'))
             ->assertSee('Neobjavljeni članak za pregled')
             ->assertSee('Sadržaj neobjavljenog članka.');
+
+        $this->travelTo($post->published_at->copy()->addMinute());
+
+        try {
+            $this->get(route('blog.show', ['slug' => 'neobjavljeni-clanak-za-pregled']))
+                ->assertNotFound();
+        } finally {
+            $this->travelBack();
+        }
     }
 
     public function test_blog_list_and_edit_form_link_to_the_admin_preview_route(): void
@@ -137,6 +146,7 @@ class ContentBlogPagesFeatureTest extends TestCase
             ->set('form.is_featured', true)
             ->set('form.locale', 'en')
             ->set('form.title', 'First Blog Post')
+            ->set('form.excerpt', 'Short summary used for the meta description.')
             ->set('form.code', 'blog-post-1')
             ->set('form.slug', 'first-blog-post')
             ->call('save')
@@ -146,7 +156,137 @@ class ContentBlogPagesFeatureTest extends TestCase
 
         $this->assertNotNull($post);
         $this->assertTrue((bool) $post->is_featured);
-        $this->assertSame('First Blog Post', (string) $post->translation('en')->first()?->title);
+        $this->assertNotNull($post->published_at);
+        $this->assertTrue($post->published_at->betweenIncluded(now()->subMinute(), now()));
+        $translation = $post->translation('en')->first();
+        $this->assertSame('First Blog Post', (string) $translation?->title);
+        $this->assertSame('First Blog Post', (string) $translation?->meta_title);
+        $this->assertSame('Short summary used for the meta description.', (string) $translation?->meta_description);
+    }
+
+    public function test_blog_seo_fields_follow_title_and_excerpt_until_customized(): void
+    {
+        $user = $this->makeAdminUser();
+
+        Livewire::actingAs($user)
+            ->test(BlogForm::class)
+            ->set('form.locale', 'hr')
+            ->set('form.title', 'Prvi naslov članka')
+            ->assertSet('form.meta_title', 'Prvi naslov članka')
+            ->set('form.title', 'Ažurirani naslov članka')
+            ->assertSet('form.meta_title', 'Ažurirani naslov članka')
+            ->set('form.excerpt', 'Prvi sažetak članka za tražilice.')
+            ->assertSet('form.meta_description', 'Prvi sažetak članka za tražilice.')
+            ->set('form.excerpt', 'Ažurirani sažetak članka za tražilice.')
+            ->assertSet('form.meta_description', 'Ažurirani sažetak članka za tražilice.')
+            ->set('form.meta_title', 'Ručni SEO naslov')
+            ->set('form.meta_description', 'Ručni SEO opis koji se ne smije prepisati.')
+            ->assertSet('metaTitleIsAutomatic', false)
+            ->assertSet('metaDescriptionIsAutomatic', false)
+            ->set('form.title', 'Ručni SEO naslov')
+            ->set('form.excerpt', 'Ručni SEO opis koji se ne smije prepisati.')
+            ->set('form.title', 'Naslov nakon ručne SEO izmjene')
+            ->set('form.excerpt', 'Sažetak nakon ručne SEO izmjene.')
+            ->assertSet('form.meta_title', 'Ručni SEO naslov')
+            ->assertSet('form.meta_description', 'Ručni SEO opis koji se ne smije prepisati.')
+            ->call('save')
+            ->assertHasNoErrors();
+
+        $post = BlogPost::query()->where('code', 'naslov-nakon-rucne-seo-izmjene')->firstOrFail();
+        $translation = $post->translation('hr')->firstOrFail();
+        $this->assertFalse((bool) data_get($translation->payload, '_seo_automation.meta_title'));
+        $this->assertFalse((bool) data_get($translation->payload, '_seo_automation.meta_description'));
+
+        Livewire::actingAs($user)
+            ->test(BlogForm::class, ['postId' => $post->id])
+            ->assertSet('metaTitleIsAutomatic', false)
+            ->assertSet('metaDescriptionIsAutomatic', false)
+            ->set('form.title', 'Još jedna promjena naslova')
+            ->set('form.excerpt', 'Još jedna promjena sažetka.')
+            ->assertSet('form.meta_title', 'Ručni SEO naslov')
+            ->assertSet('form.meta_description', 'Ručni SEO opis koji se ne smije prepisati.');
+    }
+
+    public function test_active_blog_post_can_be_scheduled_for_a_future_publication_date(): void
+    {
+        $user = $this->makeAdminUser();
+        $futureLocal = now(config('admin_ui.timezone'))->setDate(2040, 6, 15)->setTime(15, 30);
+        $futureInput = $futureLocal->format('Y-m-d\TH:i');
+        $expectedUtc = $futureLocal->copy()->utc()->setSecond(0);
+
+        Livewire::actingAs($user)
+            ->test(BlogForm::class)
+            ->set('form.is_active', true)
+            ->set('form.locale', 'hr')
+            ->set('form.title', 'Zakazani članak')
+            ->set('form.excerpt', 'Sažetak zakazanog članka.')
+            ->set('form.published_at', $futureInput)
+            ->call('save')
+            ->assertHasNoErrors()
+            ->assertRedirect(route('admin.content.blog.index', ['locale' => 'hr']));
+
+        $post = BlogPost::query()->where('code', 'zakazani-clanak')->firstOrFail();
+        $this->assertTrue((bool) $post->is_active);
+        $this->assertSame($expectedUtc->toDateTimeString(), $post->published_at?->utc()->toDateTimeString());
+        $this->assertTrue((bool) $post->published_at?->isFuture());
+
+        Livewire::actingAs($user)
+            ->test(BlogForm::class, ['postId' => $post->id])
+            ->assertSet('form.published_at', $futureInput);
+
+        $publicUrl = route('blog.show', ['slug' => 'zakazani-clanak']);
+        $previewUrl = route('admin.content.blog.preview', ['post' => $post, 'locale' => 'hr']);
+
+        $this->get($publicUrl)->assertNotFound();
+        $this->get(route('blog.index'))
+            ->assertOk()
+            ->assertDontSee('Zakazani članak');
+        $this->actingAs($user)
+            ->get($previewUrl)
+            ->assertOk()
+            ->assertSee('Zakazani članak');
+
+        $this->travelTo($post->published_at->copy()->addMinute());
+
+        try {
+            $this->get($publicUrl)
+                ->assertOk()
+                ->assertSee('Zakazani članak');
+            $this->get(route('blog.index'))
+                ->assertOk()
+                ->assertSee('Zakazani članak');
+        } finally {
+            $this->travelBack();
+        }
+    }
+
+    public function test_blog_publication_rejects_nonexistent_and_ambiguous_zagreb_dst_times(): void
+    {
+        $user = $this->makeAdminUser();
+
+        Livewire::actingAs($user)
+            ->test(BlogForm::class)
+            ->set('form.locale', 'hr')
+            ->set('form.title', 'Članak u DST prijelazu')
+            ->set('form.published_at', '2027-03-28T02:30')
+            ->call('save')
+            ->assertHasErrors(['form.published_at']);
+
+        $this->assertDatabaseMissing('content_blog_posts', [
+            'code' => 'clanak-u-dst-prijelazu',
+        ]);
+
+        Livewire::actingAs($user)
+            ->test(BlogForm::class)
+            ->set('form.locale', 'hr')
+            ->set('form.title', 'Članak u jesenskom DST prijelazu')
+            ->set('form.published_at', '2026-10-25T02:30')
+            ->call('save')
+            ->assertHasErrors(['form.published_at']);
+
+        $this->assertDatabaseMissing('content_blog_posts', [
+            'code' => 'clanak-u-jesenskom-dst-prijelazu',
+        ]);
     }
 
     public function test_admin_can_create_info_page(): void

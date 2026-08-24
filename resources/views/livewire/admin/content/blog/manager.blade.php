@@ -75,7 +75,7 @@
                                 <div class="text-xs text-slate-500">{{ $row->code }}</div>
                             </td>
                             <td class="px-3 py-2 font-mono text-xs text-slate-700">{{ $tr?->slug ?? '-' }}</td>
-                            <td class="px-3 py-2 text-center text-slate-700">{{ $row->published_at?->format('Y-m-d H:i') ?? '-' }}</td>
+                            <td class="px-3 py-2 text-center text-slate-700">{{ $row->published_at?->copy()->setTimezone(config('admin_ui.timezone'))->format('Y-m-d H:i') ?? '-' }}</td>
                             <td class="px-3 py-2 text-center text-slate-700">{{ $row->categories_count }}</td>
                             <td class="px-3 py-2 text-center">
                                 <span class="rounded-full px-2.5 py-1 text-xs font-semibold {{ $row->is_featured ? 'bg-cyan-100 text-cyan-800' : 'bg-slate-200 text-slate-700' }}">
