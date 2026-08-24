@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Admin;
 
+use App\Livewire\Admin\User\CreateEditorForm;
 use App\Livewire\Admin\User\Form as UserForm;
 use App\Models\User;
 use App\Models\User\UserAddress;
@@ -29,15 +30,57 @@ class AdminUsersFeatureTest extends TestCase
             ->get('/admin/users/'.$target->id.'/edit')
             ->assertOk()
             ->assertSee('Edit Admin User');
+
+        $this->actingAs($admin)
+            ->get('/admin/users/create')
+            ->assertOk()
+            ->assertSee('Add Editor');
     }
 
-    public function test_editor_cannot_open_admin_users_index_or_edit_page(): void
+    public function test_editor_can_open_admin_users_index_and_create_page_but_cannot_edit_existing_users(): void
     {
         $editor = $this->makeUserWithRole('editor');
         $target = $this->makeUserWithRole('admin');
 
-        $this->actingAs($editor)->get('/admin/users')->assertForbidden();
+        $this->actingAs($editor)
+            ->get('/admin/users')
+            ->assertOk()
+            ->assertSee(__('Add Editor'))
+            ->assertDontSee(route('admin.users.edit', ['user' => $target->id]), false);
+        $this->actingAs($editor)->get('/admin/users/create')->assertOk();
         $this->actingAs($editor)->get('/admin/users/'.$target->id.'/edit')->assertForbidden();
+    }
+
+    public function test_editor_can_create_only_an_editor_account(): void
+    {
+        $editor = $this->makeUserWithRole('editor');
+
+        Livewire::actingAs($editor)
+            ->test(CreateEditorForm::class)
+            ->set('form.name', 'Novi Editor')
+            ->set('form.email', 'novi.editor@example.test')
+            ->set('form.email_verified', true)
+            ->set('form.password', 'secure-password-123')
+            ->set('form.password_confirmation', 'secure-password-123')
+            ->set('form.profile.first_name', 'Novi')
+            ->set('form.profile.last_name', 'Editor')
+            ->set('form.profile.phone', '+385911234567')
+            ->call('save')
+            ->assertHasNoErrors()
+            ->assertRedirect(route('admin.users'));
+
+        $created = User::query()->where('email', 'novi.editor@example.test')->first();
+
+        $this->assertNotNull($created);
+        $this->assertTrue((bool) $created?->isA('editor'));
+        $this->assertFalse((bool) $created?->isA('admin'));
+        $this->assertNotNull($created?->email_verified_at);
+        $this->assertDatabaseHas('user_profiles', [
+            'user_id' => $created?->id,
+            'first_name' => 'Novi',
+            'last_name' => 'Editor',
+            'phone' => '+385911234567',
+        ]);
     }
 
     public function test_removed_customer_only_pages_are_not_available(): void

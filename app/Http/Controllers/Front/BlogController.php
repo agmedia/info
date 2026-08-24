@@ -104,6 +104,42 @@ class BlogController extends Controller
             'related' => $related,
             'locale' => $locale,
             'fallbackLocale' => $fallbackLocale,
+            'isAdminPreview' => false,
+        ]);
+    }
+
+    public function preview(Request $request, BlogPost $post): View
+    {
+        $requestedLocale = strtolower(trim((string) $request->query('locale', '')));
+        $locale = preg_match('/^[a-z]{2}(?:[-_][a-z]{2})?$/', $requestedLocale) === 1
+            ? $requestedLocale
+            : (string) app()->getLocale();
+        $fallbackLocale = (string) config('app.fallback_locale', config('app.locale'));
+        $locales = array_values(array_unique([$locale, $fallbackLocale]));
+
+        app()->setLocale($locale);
+
+        $post->load([
+            'translations' => fn ($query) => $query->whereIn('locale', $locales),
+            'categories' => fn ($query) => $query
+                ->where('scope', Category::SCOPE_BLOG)
+                ->with([
+                    'translations' => fn ($translationQuery) => $translationQuery
+                        ->where('scope', Category::SCOPE_BLOG)
+                        ->whereIn('locale', $locales),
+                ]),
+            'creator:id,name',
+            'media',
+        ]);
+
+        abort_unless($post->translations->isNotEmpty(), 404);
+
+        return view($this->frontendView($request, 'blog.show'), [
+            'post' => $post,
+            'related' => $this->resolveRelatedPosts($post, $locale, $fallbackLocale),
+            'locale' => $locale,
+            'fallbackLocale' => $fallbackLocale,
+            'isAdminPreview' => true,
         ]);
     }
 
@@ -264,8 +300,8 @@ class BlogController extends Controller
             ->first()
             ?? BlogPostTranslation::query()
                 ->where('payload->legacy_path', $legacyPath)
-            ->orderByDesc('id')
-            ->first();
+                ->orderByDesc('id')
+                ->first();
     }
 
     /**

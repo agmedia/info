@@ -17,8 +17,11 @@ class Manager extends Component
     private const PAGE_NAME = 'adminUsersPage';
 
     public string $search = '';
+
     public string $role = '';
+
     public string $sortBy = 'created_at';
+
     public string $sortDir = 'desc';
 
     public function mount(): void
@@ -90,6 +93,8 @@ class Manager extends Component
             'rows' => $rows,
             'roles' => $roles,
             'perPage' => $perPage,
+            'canCreateEditor' => $this->canCreateEditor(),
+            'canEditUsers' => $this->canEditUsers(),
         ]);
     }
 
@@ -107,5 +112,19 @@ class Manager extends Component
         $current = auth()->user();
 
         return $current && Bouncer::is($current)->an('superadmin');
+    }
+
+    private function canCreateEditor(): bool
+    {
+        $current = auth()->user();
+
+        return $current && (Bouncer::is($current)->an('superadmin') || $current->can('users.editor.create'));
+    }
+
+    private function canEditUsers(): bool
+    {
+        $current = auth()->user();
+
+        return $current && (Bouncer::is($current)->an('superadmin') || $current->can('users.profile.update'));
     }
 }

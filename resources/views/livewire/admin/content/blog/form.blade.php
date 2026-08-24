@@ -1,6 +1,6 @@
 @php
     $blogPreviewUrl = $isEdit && trim((string) ($form['slug'] ?? '')) !== ''
-        ? route('blog.show', ['slug' => $form['slug']])
+        ? route('admin.content.blog.preview', ['post' => $postId, 'locale' => $form['locale']])
         : null;
 @endphp
 

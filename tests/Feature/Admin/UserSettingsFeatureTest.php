@@ -24,12 +24,28 @@ class UserSettingsFeatureTest extends TestCase
             ->assertSee('User Settings');
     }
 
-    public function test_editor_cannot_open_user_settings_page(): void
+    public function test_editor_can_open_requested_settings_pages(): void
     {
         $editor = $this->makeUserWithRole('editor');
 
         $this->actingAs($editor)
             ->get('/admin/settings/user')
+            ->assertOk()
+            ->assertSee('User Settings');
+
+        $this->actingAs($editor)
+            ->get('/admin/settings/system/admin-appearance-controls')
+            ->assertOk()
+            ->assertSee('Admin Appearance');
+
+        $this->actingAs($editor)
+            ->get('/admin/settings/system/store-settings')
+            ->assertOk()
+            ->assertSee('Site Settings')
+            ->assertDontSee(route('admin.settings.system.imports'), false);
+
+        $this->actingAs($editor)
+            ->get('/admin/settings/system/imports')
             ->assertForbidden();
     }
 

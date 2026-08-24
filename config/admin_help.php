@@ -118,6 +118,10 @@ return [
             'title' => 'Edit Admin User',
             'summary' => 'Update core admin account data and access flags.',
         ],
+        'admin.users.create' => [
+            'title' => 'Add Editor',
+            'summary' => 'Create a new verified or unverified admin account with the Editor role.',
+        ],
         'admin.users.access' => [
             'title' => 'Roles & Abilities',
             'summary' => 'Manage access control matrix for admin users.',

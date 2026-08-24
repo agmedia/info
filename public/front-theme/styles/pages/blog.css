@@ -1145,3 +1145,38 @@
         transition: none;
     }
 }
+
+.ac-blog-admin-preview {
+    position: relative;
+    z-index: 8;
+    background: var(--ac-blog-navy);
+    color: #fff;
+}
+
+.ac-blog-admin-preview__inner {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.65rem;
+    min-height: 3rem;
+    padding-block: 0.65rem;
+    font-family: "Instrument Sans Variable", sans-serif;
+    font-size: 0.875rem;
+    line-height: 1.4;
+    text-align: center;
+}
+
+.ac-blog-admin-preview__inner i {
+    color: var(--ac-blog-gold);
+}
+
+@media (max-width: 47.99rem) {
+    .ac-blog-admin-preview__inner {
+        flex-wrap: wrap;
+        gap: 0.35rem 0.55rem;
+    }
+
+    .ac-blog-admin-preview__inner span {
+        flex-basis: 100%;
+    }
+}

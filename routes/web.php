@@ -20,11 +20,11 @@ use App\Http\Controllers\Front\GlossaryController;
 use App\Http\Controllers\Front\LeaseCalculatorController;
 use App\Http\Controllers\Front\PageController;
 use App\Http\Controllers\Front\PublicStorageController;
+use App\Http\Controllers\Front\ResourceController;
 use App\Http\Controllers\Front\SearchController;
 use App\Http\Controllers\Front\ServicesController;
-use App\Http\Controllers\Front\ResourceController;
-use App\Http\Controllers\Front\TeamController;
 use App\Http\Controllers\Front\StorefrontController;
+use App\Http\Controllers\Front\TeamController;
 use App\Models\Catalog\Category\Category;
 use App\Models\Content\Blog\BlogPost;
 use App\Models\Content\Call\CallPost;
@@ -182,6 +182,7 @@ Route::middleware(['admin.locale', 'auth', 'verified', 'admin.access', 'admin.ma
 
         Route::view('users', 'admin.users.index')->name('users');
         Route::view('users/access', 'admin.users.access')->name('users.access');
+        Route::view('users/create', 'admin.users.create')->name('users.create');
         Route::get('users/{user}/edit', function (User $user) {
             return view('admin.users.edit', compact('user'));
         })->name('users.edit');
@@ -194,6 +195,9 @@ Route::middleware(['admin.locale', 'auth', 'verified', 'admin.access', 'admin.ma
             Route::view('blog', 'admin.content.blog.index')->name('blog.index');
             Route::view('blog/create', 'admin.content.blog.create')->name('blog.create');
             Route::post('blog/editor-images', BlogEditorImageController::class)->name('blog.editor-image.upload');
+            Route::get('blog/{post}/preview', [BlogController::class, 'preview'])
+                ->middleware(['front.locale', 'front.device'])
+                ->name('blog.preview');
             Route::get('blog/{post}/edit', function (BlogPost $post) {
                 return view('admin.content.blog.edit', compact('post'));
             })->name('blog.edit');

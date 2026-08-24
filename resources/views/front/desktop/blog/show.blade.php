@@ -146,6 +146,15 @@
 
 @section('content')
     <div class="ac-blog-page ac-blog-article-page">
+        @if ($isAdminPreview ?? false)
+            <div class="ac-blog-admin-preview" role="status">
+                <div class="ac-blog-container ac-blog-admin-preview__inner">
+                    <i class="fa-light fa-eye" aria-hidden="true"></i>
+                    <strong>{{ __('Admin preview') }}</strong>
+                    <span>{{ __('This is the saved version. The article may still be inactive or unpublished for public visitors.') }}</span>
+                </div>
+            </div>
+        @endif
         <x-front.page-title-band
             :breadcrumbs="$pageTitleBreadcrumbs"
             section-class="ac-blog-article-intro"

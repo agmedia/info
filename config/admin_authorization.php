@@ -33,6 +33,9 @@ return [
         'admin.content.blog.editor-image.upload' => [
             'mutate' => ['content.blog.create', 'content.blog.update'],
         ],
+        'admin.content.blog.preview' => [
+            'view' => ['content.blog.view'],
+        ],
         'admin.content.blog.*' => [
             'view' => ['content.blog.view'],
         ],
@@ -193,8 +196,8 @@ return [
             'mutate' => ['settings.system.store.manage'],
         ],
         'admin.settings.system.imports' => [
-            'view' => ['settings.system.store.manage'],
-            'mutate' => ['settings.system.store.manage'],
+            'view' => ['settings.system.imports.manage'],
+            'mutate' => ['settings.system.imports.manage'],
         ],
         'admin.settings.local.languages' => [
             'view' => ['settings.local.languages.manage'],
@@ -205,6 +208,10 @@ return [
             'mutate' => ['settings.user.manage'],
         ],
 
+        'admin.users.create' => [
+            'view' => ['users.editor.create'],
+            'mutate' => ['users.editor.create'],
+        ],
         'admin.users.edit' => [
             'view' => ['users.profile.update'],
             'mutate' => ['users.profile.update'],

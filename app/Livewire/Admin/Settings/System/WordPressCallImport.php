@@ -17,6 +17,7 @@ class WordPressCallImport extends Component
     use WithFileUploads;
 
     private const SETTING_LAST_XML_PATH = 'content_call_import_last_xml_path';
+
     private const SETTING_LAST_XML_NAME = 'content_call_import_last_xml_name';
 
     public ?TemporaryUploadedFile $xmlUpload = null;
@@ -244,7 +245,7 @@ class WordPressCallImport extends Component
         $user = auth()->user();
 
         abort_unless(
-            $user && (Bouncer::is($user)->an('superadmin') || $user->can('settings.system.store.manage')),
+            $user && (Bouncer::is($user)->an('superadmin') || $user->can('settings.system.imports.manage')),
             403
         );
     }

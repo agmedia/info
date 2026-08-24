@@ -59,6 +59,72 @@ class ContentBlogPagesFeatureTest extends TestCase
             ->assertSee('Uredi blog objavu');
     }
 
+    public function test_admin_can_preview_an_inactive_future_blog_post_while_public_visitors_cannot(): void
+    {
+        $user = $this->makeAdminUser();
+        $post = BlogPost::query()->create([
+            'code' => 'inactive-preview-post',
+            'is_active' => false,
+            'is_featured' => false,
+            'published_at' => now()->addWeek(),
+            'sort_order' => 0,
+            'created_by' => $user->id,
+            'updated_by' => $user->id,
+        ]);
+        $post->translations()->create([
+            'locale' => 'hr',
+            'title' => 'Neobjavljeni članak za pregled',
+            'slug' => 'neobjavljeni-clanak-za-pregled',
+            'body_html' => '<p>Sadržaj neobjavljenog članka.</p>',
+        ]);
+
+        $this->get(route('blog.show', ['slug' => 'neobjavljeni-clanak-za-pregled']))
+            ->assertNotFound();
+
+        $previewUrl = route('admin.content.blog.preview', ['post' => $post, 'locale' => 'hr']);
+
+        $this->get($previewUrl)
+            ->assertRedirect(route('login'));
+
+        $this->actingAs($user)
+            ->get($previewUrl)
+            ->assertOk()
+            ->assertSee(__('Admin preview'))
+            ->assertSee('Neobjavljeni članak za pregled')
+            ->assertSee('Sadržaj neobjavljenog članka.');
+    }
+
+    public function test_blog_list_and_edit_form_link_to_the_admin_preview_route(): void
+    {
+        $user = $this->makeAdminUser();
+        $post = BlogPost::query()->create([
+            'code' => 'preview-links-post',
+            'is_active' => false,
+            'is_featured' => false,
+            'sort_order' => 0,
+            'created_by' => $user->id,
+            'updated_by' => $user->id,
+        ]);
+        $post->translations()->create([
+            'locale' => 'hr',
+            'title' => 'Članak s preview poveznicama',
+            'slug' => 'clanak-s-preview-poveznicama',
+            'body_html' => '<p>Preview.</p>',
+        ]);
+        $previewUrl = route('admin.content.blog.preview', ['post' => $post, 'locale' => 'hr']);
+
+        $this->actingAs($user)
+            ->get(route('admin.content.blog.index', ['locale' => 'hr']))
+            ->assertOk()
+            ->assertSee(__('Front preview'))
+            ->assertSee($previewUrl, false);
+
+        $this->actingAs($user)
+            ->get(route('admin.content.blog.edit', ['post' => $post, 'locale' => 'hr']))
+            ->assertOk()
+            ->assertSee($previewUrl, false);
+    }
+
     public function test_admin_can_create_blog_post(): void
     {
         app(SystemSettingsService::class)->put('catalog_use_blog', true);

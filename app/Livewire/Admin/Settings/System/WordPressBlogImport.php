@@ -404,7 +404,7 @@ class WordPressBlogImport extends Component
         $user = auth()->user();
 
         abort_unless(
-            $user && (Bouncer::is($user)->an('superadmin') || $user->can('settings.system.store.manage')),
+            $user && (Bouncer::is($user)->an('superadmin') || $user->can('settings.system.imports.manage')),
             403
         );
     }

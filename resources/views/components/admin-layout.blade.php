@@ -1105,11 +1105,15 @@
                         auth()->user()->isA('superadmin')
                         || auth()->user()->can('settings.system.store.manage')
                     );
+                    $canManageImports = auth()->user() && (
+                        auth()->user()->isA('superadmin')
+                        || auth()->user()->can('settings.system.imports.manage')
+                    );
                     $canManageLocalLanguages = auth()->user() && (
                         auth()->user()->isA('superadmin')
                         || auth()->user()->can('settings.local.languages.manage')
                     );
-                    $usersListActive = request()->routeIs('admin.users') || request()->routeIs('admin.users.edit') || request()->routeIs('admin.users.show');
+                    $usersListActive = request()->routeIs('admin.users') || request()->routeIs('admin.users.create') || request()->routeIs('admin.users.edit') || request()->routeIs('admin.users.show');
                     $usersAccessActive = $canManageUsersAccess && request()->routeIs('admin.users.access');
                     $canViewUsersList = auth()->user() && (auth()->user()->isA('superadmin') || auth()->user()->can('users.list.view'));
                     $usersOpen = $usersListActive || $usersAccessActive;
@@ -1552,6 +1556,8 @@
                                                 <span>{{ __('admin.layout.menu.store_settings') }}</span>
                                             </span>
                                         </a>
+                                    @endif
+                                    @if ($canManageImports)
                                         <a
                                             href="{{ route('admin.settings.system.imports') }}"
                                             class="sidebar-dropdown-link block rounded-lg font-medium {{ request()->routeIs('admin.settings.system.imports') ? 'is-active-leaf' : 'text-slate-700 hover:bg-slate-100' }}"
