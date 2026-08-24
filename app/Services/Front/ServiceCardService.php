@@ -329,7 +329,7 @@ class ServiceCardService
             ],
             ServicePageTemplateRegistry::FINANCE => [
                 'title' => 'Financije',
-                'url' => route('finance.show'),
+                'url' => route('advisory.finance.show'),
                 'fallback_image' => 'front-theme/images/services/finance-editorial-3d.svg',
             ],
             ServicePageTemplateRegistry::ACCOUNTING => [
@@ -344,7 +344,7 @@ class ServiceCardService
             ],
             ServicePageTemplateRegistry::TAX => [
                 'title' => 'Porezi',
-                'url' => route('tax.show'),
+                'url' => route('advisory.tax.show'),
                 'fallback_image' => 'front-theme/images/services/tax-editorial-3d.svg',
             ],
             ServicePageTemplateRegistry::EU_FUNDS => [

@@ -54,7 +54,7 @@ class SiteSearchService
                 'search' => $isCroatian
                     ? 'financije finacije kapital poslovno savjetovanje kontroling financijske odluke'
                     : 'finance capital business advisory controlling financial decisions',
-                'url' => route('finance.show'),
+                'url' => route('advisory.finance.show'),
             ],
             [
                 'title' => $isCroatian ? 'Računovodstvo' : 'Accounting',
@@ -87,7 +87,7 @@ class SiteSearchService
                 'search' => $isCroatian
                     ? 'porezi porezno planiranje usklađenost porezna pitanja'
                     : 'tax tax planning compliance tax matters',
-                'url' => route('tax.show'),
+                'url' => route('advisory.tax.show'),
             ],
             [
                 'title' => $isCroatian ? 'EU fondovi' : 'EU Funds',

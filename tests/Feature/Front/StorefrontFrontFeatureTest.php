@@ -273,6 +273,13 @@ class StorefrontFrontFeatureTest extends TestCase
             ->assertRedirect(route('pages.show', ['slug' => $pageSlug]));
     }
 
+    public function test_legacy_about_category_url_redirects_to_about_page(): void
+    {
+        $this->get('/pages/category/o-nama?utm_source=legacy')
+            ->assertStatus(301)
+            ->assertRedirect(route('pages.show', ['slug' => 'o-nama']).'?utm_source=legacy');
+    }
+
     public function test_career_page_renders_curated_cms_layout(): void
     {
         $this->get('/karijera')

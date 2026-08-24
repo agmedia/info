@@ -168,7 +168,7 @@ class ContactController extends Controller
         $score = (float) ($json['score'] ?? 0.0);
         $action = (string) ($json['action'] ?? '');
 
-        if (! $success || $score < $minScore || ($action !== '' && $action !== $expectedAction)) {
+        if (! $success || $score < $minScore || $action !== $expectedAction) {
             throw ValidationException::withMessages([
                 'recaptcha_token' => __('contact.captcha_failed'),
             ]);

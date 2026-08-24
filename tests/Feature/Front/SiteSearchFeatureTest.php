@@ -31,6 +31,8 @@ class SiteSearchFeatureTest extends TestCase
             ->assertSee('Porezi')
             ->assertSee('Porezna osnovica')
             ->assertSee('Porezni vodič za vlasnike')
+            ->assertSee(route('advisory.tax.show'), false)
+            ->assertDontSee(route('tax.show'), false)
             ->assertSee('ac-site-search-list', false);
     }
 

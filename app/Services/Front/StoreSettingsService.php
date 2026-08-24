@@ -279,9 +279,12 @@ class StoreSettingsService
     public function publicCaptcha(): array
     {
         $captcha = $this->captcha();
+        $isConfigured = (bool) $captcha['recaptcha_v3_enabled']
+            && $captcha['recaptcha_v3_site_key'] !== ''
+            && $captcha['recaptcha_v3_secret_key'] !== '';
 
         return [
-            'recaptcha_v3_enabled' => $captcha['recaptcha_v3_enabled'],
+            'recaptcha_v3_enabled' => $isConfigured,
             'recaptcha_v3_site_key' => $captcha['recaptcha_v3_site_key'],
         ];
     }

@@ -26,8 +26,30 @@
         ->values();
     $articleTitle = trim((string) ($translation?->title ?? $callPost->code));
     $publishedLabel = ($callPost->published_at ?? $callPost->created_at)?->translatedFormat('j. F Y.');
-    $euFundsLabel = str_starts_with(strtolower($locale), 'hr') ? 'EU fondovi' : 'EU Funds';
-    $callsLabel = str_starts_with(strtolower($locale), 'hr') ? 'Pozivi' : 'Calls';
+    $publishedAt = $callPost->published_at ?? $callPost->created_at;
+    $isCroatian = str_starts_with(strtolower($locale), 'hr');
+    $euFundsLabel = $isCroatian ? 'EU fondovi' : 'EU Funds';
+    $callsLabel = $isCroatian ? 'Pozivi' : 'Calls';
+    $galleryCount = $galleryItems->count();
+    $galleryColumnsClass = match (true) {
+        $galleryCount <= 1 => 'grid-cols-1',
+        $galleryCount === 2 || $galleryCount === 4 => 'grid-cols-1 md:grid-cols-2',
+        default => 'grid-cols-1 md:grid-cols-3',
+    };
+    $headingWords = static fn (string $title): array => preg_split('/\s+/u', trim($title), -1, PREG_SPLIT_NO_EMPTY) ?: [];
+    $callCtaTitle = $isCroatian
+        ? 'Pretvorimo priliku u uspješan EU projekt.'
+        : 'Let’s turn an opportunity into a successful EU project.';
+    $callCtaCardTitle = $isCroatian
+        ? 'Provjerimo odgovara li poziv vašem projektu.'
+        : 'Let’s assess whether this call fits your project.';
+    $callCtaCardCopy = $isCroatian
+        ? 'Naš tim pomaže od provjere prihvatljivosti do prijave i provedbe projekta.'
+        : 'Our team supports you from eligibility checks through application and implementation.';
+    $callCtaButton = $isCroatian ? 'Dogovorite razgovor' : 'Book a meeting';
+    $callCtaStatus = $isCroatian
+        ? 'Odgovaramo brzo i konkretno.'
+        : 'We respond quickly and with clarity.';
     $pageTitleBreadcrumbs = [
         ['label' => __('ui.front.desktop.footer.home'), 'url' => route('home')],
         ['label' => $euFundsLabel, 'url' => route('eu-funds.show')],
@@ -45,49 +67,51 @@
 @section('main_class', 'w-full px-0 py-0')
 
 @section('content')
-    <div class="ac-blog-page ac-blog-article-page">
+    <div class="ac-blog-page ac-blog-article-page ac-call-article-page">
         <x-front.page-title-band
             :breadcrumbs="$pageTitleBreadcrumbs"
-            section-class="ac-blog-title-band ac-blog-article-title-band"
-            hero-class="ac-blog-article-hero"
-            panel-class="ac-blog-article-panel"
-            breadcrumb-class="ac-blog-hero-breadcrumb ac-blog-article-breadcrumb"
+            section-class="ac-blog-article-intro"
+            container-class="ac-blog-container"
+            hero-class="ac-blog-article-intro-hero"
+            panel-class="ac-blog-article-intro-grid"
+            breadcrumb-class="ac-blog-article-breadcrumb"
         >
-            <div class="ac-blog-article-head">
-                <h1 class="ac-blog-article-title">{{ $articleTitle }}</h1>
+            <h1 class="ac-blog-article-title content-reveal animation-index-1" id="ac-call-article-title" data-image-reveal>{{ $articleTitle }}</h1>
 
-                <div class="ac-blog-article-meta">
-                    @if ($publishedLabel)
-                        <span class="ac-blog-article-chip is-date">{{ $publishedLabel }}</span>
-                    @endif
+            <div class="ac-blog-article-meta content-reveal animation-index-2" data-image-reveal>
+                @if ($publishedLabel)
+                    <time datetime="{{ $publishedAt?->toDateString() }}">{{ $publishedLabel }}</time>
+                @endif
 
-                    @foreach ($callCategories as $category)
-                        @php
-                            $categoryTranslation = $category->translations->firstWhere('locale', $locale)
-                                ?? $category->translations->firstWhere('locale', $fallbackLocale)
-                                ?? $category->translations->first();
-                        @endphp
-                        <span class="ac-blog-article-chip">{{ $categoryTranslation?->name ?? $category->code }}</span>
-                    @endforeach
-                </div>
+                @foreach ($callCategories as $category)
+                    @php
+                        $categoryTranslation = $category->translations->firstWhere('locale', $locale)
+                            ?? $category->translations->firstWhere('locale', $fallbackLocale)
+                            ?? $category->translations->first();
+                    @endphp
+                    <a href="{{ route('eu-funds.show') }}#eu-funds-calls">{{ $categoryTranslation?->name ?? $category->code }}</a>
+                @endforeach
             </div>
         </x-front.page-title-band>
 
-        <div class="mx-auto w-full max-w-[1320px] px-4 sm:px-6 lg:px-8">
-            <article class="ac-blog-article-body">
-                <div class="ac-blog-article-body-inner">
-                    @if ($coverImageUrl)
-                        <figure class="ac-blog-article-cover">
+        <article class="ac-blog-article-body">
+            <div class="ac-blog-container ac-blog-article-shell ac-blog-post-article-shell">
+                @if ($coverImageUrl)
+                    <figure class="ac-blog-article-cover content-reveal" data-image-reveal>
+                        <div class="image-reveal-media">
                             <img
                                 src="{{ $coverImageUrl }}"
                                 alt="{{ $articleTitle }}"
-                                class="h-auto w-full object-cover"
                                 loading="eager"
                                 decoding="async"
+                                fetchpriority="high"
                             >
-                        </figure>
-                    @endif
+                            <span class="image-reveal-curtain" aria-hidden="true"></span>
+                        </div>
+                    </figure>
+                @endif
 
+                <div class="ac-blog-article-body-inner content-reveal animation-index-1" data-image-reveal>
                     <div class="content-richtext">
                         @if ($bodyHtml !== '')
                             {!! $bodyHtml !!}
@@ -98,77 +122,64 @@
                         @endif
                     </div>
                 </div>
-            </article>
 
-            @if ($galleryItems->isNotEmpty())
-                <section class="ac-blog-article-gallery">
-                    <div class="grid gap-5 grid-cols-1 md:grid-cols-3" data-blog-gallery>
+                @if ($galleryItems->isNotEmpty())
+                    <section class="ac-blog-article-gallery" aria-label="{{ $articleTitle }}">
+                        <div class="ac-blog-gallery-grid {{ $galleryColumnsClass }}" data-blog-gallery>
                         @foreach ($galleryItems as $mediaItem)
                             @php
                                 $galleryImageUrl = $mediaItem->getUrl();
                             @endphp
                             <a
                                 href="{{ $galleryImageUrl }}"
-                                class="block aspect-[3/4] overflow-hidden rounded-[18px] bg-slate-100"
+                                class="ac-blog-gallery-item"
                                 data-blog-gallery-item
                                 data-sub-html="{{ $articleTitle }}"
                             >
                                 <img
                                     src="{{ $galleryImageUrl }}"
                                     alt="{{ $articleTitle }}"
-                                    class="h-full w-full object-cover"
                                     loading="lazy"
                                     decoding="async"
                                 >
                             </a>
                         @endforeach
                     </div>
-                </section>
-            @endif
+                    </section>
+                @endif
+            </div>
+        </article>
 
-            <section class="ac-inline-cta ac-inline-cta--blog" aria-labelledby="ac-call-inline-cta-title">
-                <div class="ac-inline-cta-card ac-inline-cta-card--blog">
-                    <div class="mx-auto grid w-full max-w-[860px] gap-4 py-5 md:grid-cols-[minmax(0,1fr)_auto] md:items-center">
-                        <div class="ac-inline-cta-copy">
-                            <h2 id="ac-call-inline-cta-title" class="ac-inline-cta-title">
-                                <span>{{ str_starts_with(strtolower($locale), 'hr') ? 'Povratak na pregled poziva' : 'Back to calls overview' }}</span>
-                            </h2>
-                        </div>
-
-                        <div class="ac-inline-cta-action">
-                            <a href="{{ route('eu-funds.show') }}#eu-funds-calls" class="front-action-cta">
-                                <span>{{ str_starts_with(strtolower($locale), 'hr') ? 'Pogledaj sve pozive' : 'View all calls' }}</span>
-                                <svg class="h-3.5 w-3.5" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                                    <path d="M4 12L12 4"></path>
-                                    <path d="M6 4h6v6"></path>
-                                </svg>
-                            </a>
-                        </div>
-                    </div>
+        <section class="contact-cta ac-blog-contact-cta" aria-labelledby="ac-call-contact-cta-title">
+            <div class="contact-cta-shell">
+                <div class="contact-cta-copy">
+                    <h2 class="contact-cta-title" id="ac-call-contact-cta-title" data-words-slide-from-right aria-label="{{ $callCtaTitle }}">
+                        @foreach ($headingWords($callCtaTitle) as $word)
+                            <span class="contact-cta-title-word animation-index-{{ $loop->index }} {{ $loop->remaining < 2 ? 'is-accent' : '' }}" aria-hidden="true">{{ $word }}</span>
+                        @endforeach
+                    </h2>
                 </div>
-            </section>
-        </div>
+
+                <div class="contact-cta-card" data-image-reveal>
+                    <div class="contact-cta-card-heading"><span>{{ $callCtaCardTitle }}</span></div>
+                    <p>{{ $callCtaCardCopy }}</p>
+                    <a class="contact-cta-button" href="{{ route('contact.create') }}">
+                        <span>{{ $callCtaButton }}</span>
+                        <i class="fa-duotone fa-thin fa-arrow-right" aria-hidden="true"></i>
+                    </a>
+                    <small><span class="contact-cta-status-dot" aria-hidden="true"></span>{{ $callCtaStatus }}</small>
+                </div>
+            </div>
+        </section>
     </div>
 @endsection
 
 @push('styles')
+    <link rel="stylesheet" href="{{ asset('front-theme/styles/pages/blog.css') }}?v={{ filemtime(public_path('front-theme/styles/pages/blog.css')) }}">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lightgallery@2.7.2/css/lightgallery-bundle.min.css">
 @endpush
 
 @push('scripts')
     <script defer src="https://cdn.jsdelivr.net/npm/lightgallery@2.7.2/lightgallery.min.js"></script>
-    <script defer>
-        document.addEventListener('DOMContentLoaded', function () {
-            const galleryRoot = document.querySelector('[data-blog-gallery]');
-            if (!galleryRoot || typeof window.lightGallery !== 'function') {
-                return;
-            }
-
-            window.lightGallery(galleryRoot, {
-                selector: '[data-blog-gallery-item]',
-                download: false,
-                counter: true,
-            });
-        });
-    </script>
+    <script defer src="{{ asset('front-theme/scripts/blog.js') }}?v={{ filemtime(public_path('front-theme/scripts/blog.js')) }}"></script>
 @endpush

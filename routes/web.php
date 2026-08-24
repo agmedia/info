@@ -15,7 +15,6 @@ use App\Http\Controllers\Front\CollaborationAssessmentController;
 use App\Http\Controllers\Front\ContactController;
 use App\Http\Controllers\Front\EuFundsController;
 use App\Http\Controllers\Front\EuFundsQuestionnaireController;
-use App\Http\Controllers\Front\FinanceController;
 use App\Http\Controllers\Front\FaqController;
 use App\Http\Controllers\Front\GlossaryController;
 use App\Http\Controllers\Front\LeaseCalculatorController;
@@ -24,7 +23,6 @@ use App\Http\Controllers\Front\PublicStorageController;
 use App\Http\Controllers\Front\SearchController;
 use App\Http\Controllers\Front\ServicesController;
 use App\Http\Controllers\Front\ResourceController;
-use App\Http\Controllers\Front\TaxController;
 use App\Http\Controllers\Front\TeamController;
 use App\Http\Controllers\Front\StorefrontController;
 use App\Models\Catalog\Category\Category;
@@ -97,10 +95,28 @@ Route::middleware(['front.locale', 'front.device'])
         Route::get('savjetovanje/pribavljanje-financiranja', [AdvisoryController::class, 'funding'])->name('advisory.funding.show');
         Route::get('savjetovanje/pribavljanje-financiranja/bankovni-krediti', [AdvisoryController::class, 'bankLoans'])->name('advisory.bank-loans.show');
         Route::get('savjetovanje/pribavljanje-financiranja/zakon-o-poticanju-ulaganja', [AdvisoryController::class, 'investmentIncentives'])->name('advisory.investment-incentives.show');
-        Route::get('financije', [FinanceController::class, 'show'])->name('finance.show');
+        Route::get('financije', function (Request $request) {
+            $targetUrl = route('advisory.finance.show');
+            $queryString = $request->getQueryString();
+
+            if ($queryString) {
+                $targetUrl .= '?'.$queryString;
+            }
+
+            return redirect()->to($targetUrl, 301);
+        })->name('finance.show');
         Route::get('racunovodstvo', [AccountingController::class, 'show'])->name('accounting.show');
         Route::get('revizija', [AuditController::class, 'show'])->name('audit.show');
-        Route::get('porezi', [TaxController::class, 'show'])->name('tax.show');
+        Route::get('porezi', function (Request $request) {
+            $targetUrl = route('advisory.tax.show');
+            $queryString = $request->getQueryString();
+
+            if ($queryString) {
+                $targetUrl .= '?'.$queryString;
+            }
+
+            return redirect()->to($targetUrl, 301);
+        })->name('tax.show');
         Route::get('eu-fondovi', [EuFundsController::class, 'show'])->name('eu-funds.show');
         Route::get('eu-fondovi/upitnik', [EuFundsQuestionnaireController::class, 'create'])->name('eu-funds.questionnaire.create');
         Route::post('eu-fondovi/upitnik', [EuFundsQuestionnaireController::class, 'store'])->name('eu-funds.questionnaire.store');
@@ -110,6 +126,16 @@ Route::middleware(['front.locale', 'front.device'])
         Route::get('search/suggest', [SearchController::class, 'suggest'])->name('search.suggest');
         Route::get('search', [SearchController::class, 'index'])->name('search.index');
 
+        Route::get('pages/category/o-nama', function (Request $request) {
+            $targetUrl = route('pages.show', ['slug' => 'o-nama']);
+            $queryString = $request->getQueryString();
+
+            if ($queryString) {
+                $targetUrl .= '?'.$queryString;
+            }
+
+            return redirect()->to($targetUrl, 301);
+        })->name('pages.category.about-legacy');
         Route::get('pages/category/{slug}', [PageController::class, 'category'])->name('pages.category');
         Route::get('page/{slug}', function (string $slug, Request $request) {
             $targetUrl = route('pages.show', ['slug' => $slug]);

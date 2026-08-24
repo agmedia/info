@@ -1,93 +1,75 @@
 @extends('front.desktop.layouts.store')
 
-@section('title', __('resources.page_title'))
-@section('main_class', 'w-full bg-white px-0 py-0 pb-0')
+@php
+    $pageTitle = trim((string) __('resources.page_title'));
+    $headingWords = preg_split('/\s+/u', $pageTitle, -1, PREG_SPLIT_NO_EMPTY) ?: [];
+    $isCroatian = str_starts_with(strtolower((string) app()->getLocale()), 'hr');
+    $sectionKicker = $isCroatian ? 'Stručni materijali' : 'Expert resources';
+    $countLabel = $isCroatian ? 'dokumenata' : 'documents';
+@endphp
+
+@section('title', $pageTitle)
+@section('main_class', 'w-full px-0 py-0')
 
 @section('content')
-    @php
-        $pageTitleBreadcrumbs = [
-            ['label' => __('ui.front.desktop.footer.home'), 'url' => route('home')],
-            ['label' => __('resources.page_title'), 'current' => true],
-        ];
-    @endphp
-
-    <x-front.page-title-band :breadcrumbs="$pageTitleBreadcrumbs">
-        <div class="ac-page-title-copy">
-            <h1>{{ __('resources.page_title') }}</h1>
-            <p>{{ __('resources.index.intro') }}</p>
-        </div>
-    </x-front.page-title-band>
-
-    <section class="bg-white">
-        <div class="mx-auto w-full max-w-[1320px] px-4 py-10 sm:px-6 lg:px-8 lg:py-14">
-            @forelse ($groups as $group)
-                <section class="{{ $loop->first ? '' : 'mt-14' }}">
-                    <div class="flex flex-col gap-4 border-b border-slate-200 pb-5 lg:flex-row lg:items-end lg:justify-between">
-                        <div>
-                            <p class="text-xs font-semibold uppercase tracking-[0.24em] text-slate-500">{{ $group['label'] }}</p>
-                            <h2 class="mt-2 text-3xl font-semibold tracking-tight text-slate-950">{{ $group['label'] }}</h2>
-                            <p class="mt-3 max-w-3xl text-sm leading-7 text-slate-600 sm:text-base">{{ $group['description'] }}</p>
-                        </div>
-                        <div class="ac-resource-index-count inline-flex items-center border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700">
-                            {{ number_format($group['items']->count()) }}
-                        </div>
-                    </div>
-
-                    <div class="mt-6 grid gap-5 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-                        @foreach ($group['items'] as $item)
-                            @php
-                                $accentClasses = match ($item['group_code']) {
-                                    'sector-analysis' => 'from-[#0f172a] via-[#1d4ed8] to-[#f59e0b]',
-                                    'transaction-analysis' => 'from-[#102542] via-[#0f766e] to-[#fbbf24]',
-                                    default => 'from-[#111827] via-[#334155] to-[#f8b84e]',
-                                };
-                            @endphp
-                            <article class="ac-resource-index-card group flex h-full flex-col overflow-hidden border border-slate-200 bg-white shadow-[0_18px_60px_-42px_rgba(15,23,42,0.35)] transition duration-300 hover:-translate-y-1 hover:shadow-[0_30px_80px_-40px_rgba(15,23,42,0.42)]">
-                                <a href="{{ route('resources.show', ['slug' => $item['slug']]) }}" class="block">
-                                    @if ($item['cover_image_url'])
-                                        <div class="flex aspect-[3/4] items-center justify-center overflow-hidden bg-slate-100">
-                                            <img src="{{ $item['cover_image_url'] }}" alt="{{ $item['title'] }}" class="h-full w-full object-cover object-top transition duration-500 group-hover:scale-[1.02]">
-                                        </div>
-                                    @else
-                                        <div class="relative aspect-[3/4] overflow-hidden bg-gradient-to-br {{ $accentClasses }} p-6 text-white">
-                                            <div class="absolute -right-12 top-5 h-28 w-28 rounded-full bg-white/12 blur-2xl"></div>
-                                            <div class="absolute -bottom-10 left-5 h-24 w-24 rounded-full bg-amber-200/25 blur-2xl"></div>
-                                            <div class="relative flex h-full flex-col justify-between">
-                                                <span class="inline-flex w-fit rounded-full border border-white/20 bg-white/10 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.26em] text-white/80">
-                                                    {{ $item['group_label'] }}
-                                                </span>
-                                                <h3 class="max-w-[16rem] text-2xl font-semibold tracking-tight">{{ $item['title'] }}</h3>
-                                            </div>
-                                        </div>
-                                    @endif
-                                </a>
-
-                                <div class="flex flex-1 flex-col justify-between p-5">
-                                    <h3 class="text-lg font-semibold leading-snug tracking-tight text-slate-950">
-                                        <a href="{{ route('resources.show', ['slug' => $item['slug']]) }}" class="transition-colors hover:text-[#173b5d]">
-                                            {{ $item['title'] }}
-                                        </a>
-                                    </h3>
-
-                                    <div class="mt-6 flex items-center justify-start gap-4">
-                                        <a href="{{ route('resources.show', ['slug' => $item['slug']]) }}" class="ac-resource-card-cta inline-flex items-center gap-2 border px-4 py-2 text-sm font-semibold transition">
-                                            <span>{{ __('resources.index.cta') }}</span>
-                                            <svg class="h-4 w-4" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                                                <path d="M4 12L12 4"></path>
-                                                <path d="M6 4h6v6"></path>
-                                            </svg>
-                                        </a>
-                                    </div>
-                                </div>
-                            </article>
+    <div class="ac-resources-page ac-resources-index-page">
+        <section class="values-section services-index-intro ac-resources-intro" aria-labelledby="ac-resources-title">
+            <div class="values-inner services-index-intro-layout ac-resources-intro-layout">
+                <div class="values-intro">
+                    <h1 class="values-title services-index-intro-title ac-resources-intro-title" id="ac-resources-title" data-words-slide-from-right aria-label="{{ $pageTitle }}">
+                        @foreach ($headingWords as $word)
+                            <span class="values-word animation-index-{{ $loop->index }} {{ $loop->last ? 'is-accent' : '' }}" aria-hidden="true">{{ $word }}</span>
                         @endforeach
+                    </h1>
+                </div>
+
+                <div class="values-copy services-index-intro-copy ac-resources-intro-copy content-reveal" data-image-reveal>
+                    <p class="ac-resources-kicker">{{ $sectionKicker }}</p>
+                    <p>{{ __('resources.index.intro') }}</p>
+                </div>
+            </div>
+        </section>
+
+        <div class="ac-resources-groups">
+            @forelse ($groups as $group)
+                <section class="ac-resources-group" aria-labelledby="ac-resources-group-{{ $group['code'] }}">
+                    <div class="ac-resources-container">
+                        <header class="ac-resources-group-head">
+                            <div class="ac-resources-group-title content-reveal" data-image-reveal>
+                                <p class="ac-resources-kicker">{{ $sectionKicker }}</p>
+                                <h2 id="ac-resources-group-{{ $group['code'] }}">{{ $group['label'] }}</h2>
+                                <p class="ac-resources-count"><strong>{{ number_format($group['items']->count()) }}</strong> {{ $countLabel }}</p>
+                            </div>
+
+                            <div class="ac-resources-group-copy content-reveal animation-index-1" data-image-reveal>
+                                <p>{{ $group['description'] }}</p>
+                            </div>
+                        </header>
+
+                        <div class="ac-resources-grid">
+                            @foreach ($group['items'] as $item)
+                                @include('front.desktop.resources.partials.card', [
+                                    'item' => $item,
+                                    'revealIndex' => $loop->index,
+                                ])
+                            @endforeach
+                        </div>
                     </div>
                 </section>
             @empty
-                <div class="ac-resource-index-empty border border-dashed border-slate-300 bg-white px-6 py-14 text-center text-slate-600">
-                    {{ __('resources.index.empty') }}
-                </div>
+                <section class="ac-resources-empty-section">
+                    <div class="ac-resources-container">
+                        <div class="ac-resources-empty">
+                            <i class="fa-duotone fa-thin fa-folder-open" aria-hidden="true"></i>
+                            <p>{{ __('resources.index.empty') }}</p>
+                        </div>
+                    </div>
+                </section>
             @endforelse
         </div>
-    </section>
+    </div>
 @endsection
+
+@push('styles')
+    <link rel="stylesheet" href="{{ asset('front-theme/styles/pages/resources.css') }}?v={{ filemtime(public_path('front-theme/styles/pages/resources.css')) }}">
+@endpush

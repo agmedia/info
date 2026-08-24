@@ -96,7 +96,8 @@ class CallPostFrontFeatureTest extends TestCase
             'published_at' => now()->subDay(),
         ]);
 
-        $post->addMedia(public_path('front-theme/images/demo_img.png'))
+        $post->addMedia(public_path('front-theme/images/bck-logo.png'))
+            ->preservingOriginal()
             ->usingFileName('hero-1024x576.png')
             ->usingName('Hero')
             ->toMediaCollection('call_cover');
@@ -125,7 +126,7 @@ class CallPostFrontFeatureTest extends TestCase
             ->assertSeeText('Potpora MSP-ovima za internacionalizaciju')
             ->assertSee('Uvodni tekst.', false)
             ->assertSee('Nastavak sadržaja.', false)
-            ->assertSee('class="ac-blog-article-cover"', false);
+            ->assertSee('ac-blog-article-cover', false);
 
         $this->assertStringNotContainsString(
             '<figure><img src="'.$coverUrl.'" alt=""></figure>',
