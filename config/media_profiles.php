@@ -189,7 +189,7 @@ return [
                     'preview_conversion' => 'thumb_100x100',
                 ],
                 'services_index_accounting_image' => [
-                    'label' => 'Usluge: slika kartice Računovodstvo',
+                    'label' => 'Usluge: slika kartice Računovodstvo i porezi',
                     'single_file' => true,
                     'max_upload_kb' => 8192,
                     'accept_mime_types' => ['image/jpeg', 'image/png', 'image/webp', 'image/avif'],

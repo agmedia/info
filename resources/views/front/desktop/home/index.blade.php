@@ -437,7 +437,7 @@
     @elseif ($locationStats->isNotEmpty())
         <section class="locations-section" id="lokacije" @if ($locationsStatsAriaLabel !== '') aria-label="{{ $locationsStatsAriaLabel }}" @endif data-locations-reveal>
             <div class="locations-shell">
-                <div class="locations-stats">
+                <div class="locations-stats locations-stats--{{ $locationStats->count() }}">
                     @foreach ($locationStats as $stat)
                         <article class="location-stat animation-index-{{ min($loop->index, 12) }}">
                             <div class="location-stat-icon" aria-hidden="true"><i class="fa-duotone fa-thin fa-fw {{ $locationStatIcons[$loop->index] ?? $locationStatIcons[0] }}"></i></div>

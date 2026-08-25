@@ -22,15 +22,15 @@ class AccountingServicePageDefaults
         return [
             'hero' => [
                 'brand_title' => 'ALPHA CAPITALIS',
-                'subtitle_lead' => 'Računovodstvo',
+                'subtitle_lead' => 'Računovodstvo i porezi',
                 'subtitle_accent' => '',
                 'intro' => 'Vi vodite poslovanje. Mi brinemo da Vaše brojke budu točne, pravovremene i spremne za svaku odluku.',
-                'image_alt' => 'Računovodstvene i financijske usluge',
+                'image_alt' => 'Usluge računovodstva i poreznog savjetovanja',
                 'cta_label' => '',
                 'cta_url' => '',
             ],
             'overview' => [
-                'kicker' => 'RAČUNOVODSTVO',
+                'kicker' => 'RAČUNOVODSTVO I POREZI',
                 'title' => 'Zašto Vam je računovodstvo bitno?',
                 'intro' => '',
                 'body' => [
@@ -40,12 +40,16 @@ class AccountingServicePageDefaults
             ],
             'services' => [
                 'kicker' => 'USLUGE',
-                'title' => 'Naše računovodstvene usluge',
+                'title' => 'Naše usluge računovodstva i poreza',
                 'intro' => '',
                 'items' => [
                     [
                         'title' => 'Financijsko računovodstvo',
                         'text' => 'Vođenje poslovnih knjiga, financijski izvještaji i godišnji obračuni prema hrvatskim propisima i MSFI.',
+                    ],
+                    [
+                        'title' => 'Porezno savjetovanje',
+                        'text' => 'Podrška u poreznom planiranju, usklađenosti, poreznim pregledima, transfernim cijenama, poreznim nadzorima i transakcijama.',
                     ],
                     [
                         'title' => 'Obračun plaća',
@@ -63,10 +67,6 @@ class AccountingServicePageDefaults
                         'title' => 'Osnivanje i registracija',
                         'text' => 'Podrška pri osnivanju društva, izboru pravnog oblika i uspostavi računovodstvenog sustava od prvog dana.',
                     ],
-                    [
-                        'title' => 'Konsolidacija',
-                        'text' => 'Izrada konsolidiranih financijskih izvještaja za grupe društava. Usklađivanje internih transakcija i eliminacija.',
-                    ],
                 ],
             ],
             'approach' => [
@@ -78,11 +78,11 @@ class AccountingServicePageDefaults
                 ],
             ],
             'intro_section' => [
-                'kicker' => 'RAČUNOVODSTVO',
-                'title' => 'Usluge Računovodstva',
+                'kicker' => 'RAČUNOVODSTVO I POREZI',
+                'title' => 'Usluge računovodstva i poreza',
                 'body' => [
                     'Isplata i obračun plaća stvaraju Vam administrativne probleme? Sumnjate u ispravnost financijskih izvještaja ili pak smatrate da ste bili podložni nekom obliku računovodstvene prijevare? Potrebna Vam je kvalitetna priprema i kontrola financijskih izvještaja? Tim ALPHA CAPITALIS ima rješenje za Vaše probleme.',
-                    'Usluge Računovodstva:',
+                    'Usluge računovodstva i poreznog savjetovanja:',
                 ],
                 'items' => [
                     'Vođenje poslovnih knjiga',
@@ -324,15 +324,15 @@ class AccountingServicePageDefaults
         return [
             'hero' => [
                 'brand_title' => 'ALPHA CAPITALIS',
-                'subtitle_lead' => 'Accounting',
+                'subtitle_lead' => 'Accounting and Tax Advisory',
                 'subtitle_accent' => '',
                 'intro' => 'You run the business. We make sure your numbers are accurate, timely, and ready for every decision.',
-                'image_alt' => 'Accounting and financial services',
+                'image_alt' => 'Accounting and tax advisory services',
                 'cta_label' => '',
                 'cta_url' => '',
             ],
             'overview' => [
-                'kicker' => 'ACCOUNTING',
+                'kicker' => 'ACCOUNTING AND TAX ADVISORY',
                 'title' => 'Why does accounting matter to you?',
                 'intro' => '',
                 'body' => [
@@ -342,32 +342,32 @@ class AccountingServicePageDefaults
             ],
             'services' => [
                 'kicker' => 'SERVICES',
-                'title' => 'Our accounting services',
+                'title' => 'Our Accounting and Tax Advisory Services',
                 'intro' => '',
                 'items' => [
                     [
-                        'title' => 'Financial accounting',
+                        'title' => 'Financial Accounting',
                         'text' => 'Bookkeeping, financial statements, and annual accounts prepared under Croatian regulations and IFRS.',
                     ],
                     [
-                        'title' => 'Payroll processing',
+                        'title' => 'Tax Advisory',
+                        'text' => 'Support with tax planning, compliance, tax reviews, transfer pricing, tax audits, and transactions.',
+                    ],
+                    [
+                        'title' => 'Payroll',
                         'text' => 'Complete payroll, compensation, and travel expense processing, including tax and contribution filings and JOPPD forms.',
                     ],
                     [
-                        'title' => 'Tax filings',
+                        'title' => 'Tax Returns',
                         'text' => 'Preparation and submission of VAT, corporate income tax, and annual tax filings on time and without omissions.',
                     ],
                     [
-                        'title' => 'Management reporting',
+                        'title' => 'Management Reporting',
                         'text' => 'Tailored financial reports for management - clear, visual, and focused on the key performance indicators that matter.',
                     ],
                     [
-                        'title' => 'Company formation and registration',
+                        'title' => 'Company Formation & Registration',
                         'text' => 'Support with company formation, legal form selection, and accounting system setup from day one.',
-                    ],
-                    [
-                        'title' => 'Consolidation',
-                        'text' => 'Preparation of consolidated financial statements for groups, including intercompany alignment and eliminations.',
                     ],
                 ],
             ],
@@ -380,11 +380,11 @@ class AccountingServicePageDefaults
                 ],
             ],
             'intro_section' => [
-                'kicker' => 'ACCOUNTING',
-                'title' => 'Accounting services',
+                'kicker' => 'ACCOUNTING AND TAX ADVISORY',
+                'title' => 'Accounting and Tax Advisory Services',
                 'body' => [
                     'Are payroll processing and salary calculations creating administrative pressure? Do you question the accuracy of your financial statements, or suspect exposure to some form of accounting irregularity or fraud? Do you need reliable preparation and control of your financial reports? The ALPHA CAPITALIS team has a solution.',
-                    'Accounting services:',
+                    'Accounting and Tax Advisory services:',
                 ],
                 'items' => [
                     'Bookkeeping',

@@ -38,9 +38,9 @@
                 'action_label' => 'Detaljnije',
             ],
             [
-                'title' => 'Računovodstvo',
-                'subtitle' => 'kontrola i jasnoća poslovanja',
-                'text' => 'Precizno vođenje knjiga i pravovremeno izvještavanje koje oslobađa menadžment za strateške odluke.',
+                'title' => 'Računovodstvo i porezi',
+                'subtitle' => 'kontrola, jasnoća i porezna sigurnost',
+                'text' => 'Precizno vođenje knjiga, pravovremeno izvještavanje i porezno savjetovanje za sigurnije poslovne odluke.',
                 'bullets' => [
                     'Omogućujemo da vaše poslovanje bude financijski uredno, pregledno i uvijek spremno za odluke.',
                     'To znači da u svakom trenutku imate točne podatke o prihodima, troškovima i rezultatu, bez kašnjenja i nejasnoća.',
@@ -52,7 +52,7 @@
             [
                 'title' => 'Savjetovanje',
                 'subtitle' => 'rast, optimizacija i bolji financijski izbor',
-                'text' => 'Financijsko i porezno savjetovanje te pribavljanje kapitala - sve na jednom mjestu.',
+                'text' => 'Financijsko i strateško savjetovanje te pribavljanje kapitala - sve na jednom mjestu.',
                 'bullets' => [
                     'Pomažemo društvima, investitorima i poduzetnicima u donošenju kvalitetnih odluka, upravljanju rizicima i stvaranju dugoročne vrijednosti.',
                     'Pružamo podršku u procjenama vrijednosti, due diligence postupcima, M&A procesima i strukturiranju financiranja.',

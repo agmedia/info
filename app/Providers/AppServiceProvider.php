@@ -160,7 +160,7 @@ class AppServiceProvider extends ServiceProvider
                                 'is_configured' => false,
                                 'font_weight' => \App\Support\Front\HeroFontRegistry::DEFAULT_WEIGHT,
                                 'title' => 'Vaš kompas kroz svijet financija',
-                                'subtitle' => 'Računovodstvo, revizija i savjetovanje — sve na jednom mjestu.',
+                                'subtitle' => 'Računovodstvo i porezi, revizija i savjetovanje — sve na jednom mjestu.',
                                 'primary_label' => 'Dogovorite sastanak',
                                 'primary_url' => '/contact',
                                 'secondary_label' => 'Naše usluge',

@@ -25,6 +25,10 @@ class LegalPagesFeatureTest extends TestCase
             ->assertSeeText('Vaša prava')
             ->assertSeeText('Agenciji za zaštitu osobnih podataka')
             ->assertSee('data-cookie-consent-trigger', false)
+            ->assertSee('class="floating-whatsapp-contact"', false)
+            ->assertSee('href="https://wa.me/385995318350"', false)
+            ->assertSee('fa-brands fa-whatsapp', false)
+            ->assertSee('Kontaktirajte Kristinu putem WhatsAppa')
             ->assertSee('front-theme/styles/pages/legal.css', false)
             ->assertDontSeeText('DPD Croatia')
             ->assertDontSeeText('Overseas Express');

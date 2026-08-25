@@ -441,8 +441,8 @@
     if ($homeStats->isEmpty()) {
         $homeStats = collect([
             ['value' => '300', 'suffix' => '+', 'label' => 'Odrađenih projekata'],
-            ['value' => '600', 'suffix' => '+', 'label' => 'Redovnih klijenata'],
-            ['value' => '60', 'suffix' => '+', 'label' => 'Kvalificiranih stručnjaka'],
+            ['value' => '700', 'suffix' => '', 'label' => 'Redovnih klijenata'],
+            ['value' => '75', 'suffix' => '', 'label' => 'Kvalificiranih stručnjaka'],
         ]);
     }
 

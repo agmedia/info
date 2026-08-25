@@ -172,11 +172,11 @@
   stroke: #061a2b;
 }
 
-.cookie-consent-trigger {
+.cookie-consent-trigger,
+.floating-whatsapp-contact {
   position: fixed;
   z-index: 1027;
   bottom: 1.25rem;
-  left: 1.25rem;
   display: inline-grid;
   width: 3.25rem;
   height: 3.25rem;
@@ -188,21 +188,33 @@
   color: #f7f7f5;
   cursor: pointer;
   place-items: center;
+  text-decoration: none;
   transition: border-color 220ms ease, background-color 220ms ease, transform 220ms ease;
 }
 
-.cookie-consent-trigger i {
+.cookie-consent-trigger {
+  left: 1.25rem;
+}
+
+.floating-whatsapp-contact {
+  right: 1.25rem;
+}
+
+.cookie-consent-trigger i,
+.floating-whatsapp-contact i {
   color: #d8b96f;
   font-size: 1.25rem;
 }
 
-.cookie-consent-trigger:hover {
+.cookie-consent-trigger:hover,
+.floating-whatsapp-contact:hover {
   border-color: #d8b96f;
   background: #0b2b45;
   transform: translateY(-2px);
 }
 
 .cookie-consent-trigger:focus-visible,
+.floating-whatsapp-contact:focus-visible,
 .footer-cookie-consent-link:focus-visible {
   outline: 2px solid #d8b96f;
   outline-offset: 3px;
@@ -260,6 +272,7 @@
   #cc-main .cm__btn,
   #cc-main .pm__btn,
   .cookie-consent-trigger,
+  .floating-whatsapp-contact,
   .footer-bottom .footer-cookie-consent-link,
   .footer-bottom .footer-cookie-consent-link::after {
     transition: none;

@@ -37,7 +37,7 @@ class ServicePageTemplateRegistry
             self::SERVICES_INDEX => 'Usluge',
             self::ADVISORY => 'Savjetovanje',
             self::FINANCE => 'Financije',
-            self::ACCOUNTING => 'Računovodstvo',
+            self::ACCOUNTING => 'Računovodstvo i porezi',
             self::AUDIT => 'Revizija',
             self::TAX => 'Porezi',
             self::EU_FUNDS => 'EU fondovi',
@@ -503,7 +503,7 @@ class ServicePageTemplateRegistry
                 'children' => [],
             ],
             self::ACCOUNTING => [
-                'title' => 'Računovodstvo',
+                'title' => 'Računovodstvo i porezi',
                 'route' => 'accounting.show',
                 'admin_anchor' => '#accounting-hero-admin',
                 'children' => [],
@@ -1135,9 +1135,9 @@ class ServicePageTemplateRegistry
                     ],
                     [
                         'key' => 'accounting',
-                        'title' => 'Računovodstvo',
-                        'subtitle' => 'kontrola i jasnoća poslovanja',
-                        'text' => 'Precizno vođenje knjiga i pravovremeno izvještavanje koje oslobađa menadžment za strateške odluke.',
+                        'title' => 'Računovodstvo i porezi',
+                        'subtitle' => 'kontrola, jasnoća i porezna sigurnost',
+                        'text' => 'Precizno vođenje knjiga, pravovremeno izvještavanje i porezno savjetovanje za sigurnije poslovne odluke.',
                         'image_alt' => 'Rad na financijskim podacima na prijenosnom računalu',
                         'bullets' => [
                             'Omogućujemo da vaše poslovanje bude financijski uredno, pregledno i uvijek spremno za odluke.',
@@ -1151,7 +1151,7 @@ class ServicePageTemplateRegistry
                         'key' => 'advisory',
                         'title' => 'Savjetovanje',
                         'subtitle' => 'rast, optimizacija i bolji financijski izbor',
-                        'text' => 'Financijsko i porezno savjetovanje te pribavljanje kapitala - sve na jednom mjestu.',
+                        'text' => 'Financijsko i strateško savjetovanje te pribavljanje kapitala - sve na jednom mjestu.',
                         'image_alt' => 'Poslovni razgovor tijekom savjetovanja',
                         'bullets' => [
                             'Pomažemo društvima, investitorima i poduzetnicima u donošenju kvalitetnih odluka, upravljanju rizicima i stvaranju dugoročne vrijednosti.',
@@ -1191,9 +1191,9 @@ class ServicePageTemplateRegistry
                 ],
                 [
                     'key' => 'accounting',
-                    'title' => 'Accounting',
-                    'subtitle' => 'control and clarity of operations',
-                    'text' => 'Precise bookkeeping and timely reporting that frees management for strategic decisions.',
+                    'title' => 'Accounting and Tax Advisory',
+                    'subtitle' => 'control, clarity and tax confidence',
+                    'text' => 'Accurate bookkeeping, timely reporting, and tax advisory for more confident business decisions.',
                     'image_alt' => 'Working with financial data on a laptop',
                     'bullets' => [
                         'We help keep your business financially organized, transparent, and ready for decisions.',
@@ -1207,7 +1207,7 @@ class ServicePageTemplateRegistry
                     'key' => 'advisory',
                     'title' => 'Advisory',
                     'subtitle' => 'growth, optimization and better financial choices',
-                    'text' => 'Financial and tax advisory plus capital raising - all in one place.',
+                    'text' => 'Financial and strategic advisory plus capital raising - all in one place.',
                     'image_alt' => 'Business conversation during an advisory meeting',
                     'bullets' => [
                         'We help companies, investors, and entrepreneurs make better decisions, manage risk, and create long-term value.',

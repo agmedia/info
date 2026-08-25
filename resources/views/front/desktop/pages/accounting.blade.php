@@ -11,11 +11,11 @@
     ));
     $serviceIcons = [
         'fa-book-copy',
+        'fa-badge-percent',
         'fa-user-tie-hair',
         'fa-file-certificate',
         'fa-chart-waterfall',
         'fa-building-shield',
-        'fa-diagram-project',
     ];
     $legacyApproachBody = array_values(array_filter(
         (array) ($approachSection['body'] ?? []),

@@ -33,7 +33,7 @@ Specifični moduli, primjerice obveznici revizije ili Pandea Global M&A, smiju s
 - Header je apsolutno položen preko hero sekcije i koristi postojeću globalnu navigaciju.
 - Jedini `h1` sadrži dva semantička reda: naziv usluge i hook.
 - Naziv usluge koristi `Bodoni Moda Variable`; hook koristi `Instrument Sans Variable`.
-- Hook je sadržajni fokus. Kod duljih naziva, posebno „Računovodstvo”, naziv se smije razmjerno smanjiti kako ne bi potisnuo hook ili se loše prelomio.
+- Hook je sadržajni fokus. Kod duljih naziva, posebno „Računovodstvo i porezi”, naziv se smije razmjerno smanjiti kako ne bi potisnuo hook ili se loše prelomio.
 - Fotografija koristi `object-fit: cover`, namjerno odabran `object-position` za desktop i mobilni prikaz te lagani ulazni zoom kao na `/revizija`.
 - Slika mora imati smislen alt tekst. Overlay i ukrasni elementi su skriveni od čitača ekrana.
 
@@ -105,11 +105,11 @@ Uvodni tekst:
 
 Revizija je već odobreni referentni prikaz. Ostali njezini tekstovi i sadržaji ostaju kakvi jesu, osim ako stigne novi brief.
 
-### Računovodstvo
+### Računovodstvo i porezi
 
 Naziv usluge:
 
-> Računovodstvo
+> Računovodstvo i porezi
 
 Hero hook:
 
@@ -125,7 +125,7 @@ Uvodni tekst:
 >
 > Uz ALPHA CAPITALIS ne dobivate samo računovodstvenu uslugu, već pouzdanog partnera koji razumije Vaše poslovanje i prati Vas kroz svakodnevne izazove i planove rasta.
 
-U briefu je prva rečenica prvog odlomka posebno naglašena, a drugi odlomak u cijelosti. Hero mora vizualno dati prednost hooku, a naziv „Računovodstvo” ne smije biti prevelik u odnosu na njega. Ispod uvoda zadržati postojeće računovodstvene usluge i ostali aktualni sadržaj.
+U briefu je prva rečenica prvog odlomka posebno naglašena, a drugi odlomak u cijelosti. Hero mora vizualno dati prednost hooku, a naziv „Računovodstvo i porezi” ne smije biti prevelik u odnosu na njega. U popisu usluga nakon financijskog računovodstva slijedi porezno savjetovanje; konsolidacija se ne prikazuje. Ispod uvoda zadržati ostale aktualne računovodstvene usluge i sadržaj.
 
 ### Savjetovanje
 

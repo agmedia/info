@@ -105,7 +105,7 @@ class StoreSettingsService
         return [
             'is_configured' => array_key_exists('store_home_hero_title', $allSettings),
             'title' => trim((string) $this->settings->get('store_home_hero_title', 'Vaš kompas kroz svijet financija')),
-            'subtitle' => trim((string) $this->settings->get('store_home_hero_subtitle', 'Računovodstvo, revizija i savjetovanje — sve na jednom mjestu.')),
+            'subtitle' => trim((string) $this->settings->get('store_home_hero_subtitle', 'Računovodstvo i porezi, revizija i savjetovanje — sve na jednom mjestu.')),
             'primary_label' => trim((string) $this->settings->get('store_home_hero_primary_label', 'Dogovorite sastanak')),
             'primary_url' => trim((string) $this->settings->get('store_home_hero_primary_url', '/contact')),
             'secondary_label' => trim((string) $this->settings->get('store_home_hero_secondary_label', 'Naše usluge')),

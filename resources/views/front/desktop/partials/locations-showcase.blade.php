@@ -57,6 +57,11 @@
     $locationsPhoneLabel = trim((string) ($locationsContent['phone_label'] ?? ''));
     $locationsStatsAriaLabel = trim((string) ($locationsContent['stats_aria_label'] ?? ''));
     $locationsRegionLabel = trim((string) ($locationsContent['region_label'] ?? ''));
+    $dialablePhone = static fn (string $phone): string => (string) preg_replace(
+        '/[^+0-9]/',
+        '',
+        str_replace('(0)', '', $phone),
+    );
     $locationTitleWords = preg_split('/\s+/u', $locationsTitle, -1, PREG_SPLIT_NO_EMPTY) ?: [];
     $mapSortOrder = ['is-rijeka' => 0, 'is-zagreb' => 1, 'is-vinkovci' => 2];
     $mapCornerClasses = ['is-rijeka' => 'is-top-left', 'is-zagreb' => 'is-top-right', 'is-vinkovci' => 'is-bottom-right'];
@@ -115,7 +120,7 @@
                                             </a>
                                             @endif
                                             @if ($location['phone'] !== '')
-                                            <a href="tel:{{ preg_replace('/[^+0-9]/', '', $location['phone']) }}" tabindex="-1">
+                                            <a href="tel:{{ $dialablePhone($location['phone']) }}" tabindex="-1">
                                                 <i class="fa-light fa-phone" aria-hidden="true"></i>
                                                 <span><small>{{ $locationsPhoneLabel }}</small><strong>{{ $location['phone'] }}</strong></span>
                                             </a>

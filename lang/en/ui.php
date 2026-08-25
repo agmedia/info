@@ -67,7 +67,7 @@ return [
                 'tools' => 'Tools',
                 'insights' => 'Insights',
                 'finance' => 'Finance',
-                'accounting' => 'Accounting',
+                'accounting' => 'Accounting and Tax Advisory',
                 'tax' => 'Tax',
                 'audit' => 'Audit',
                 'eu_funds' => 'EU Funds',

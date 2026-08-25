@@ -1,5 +1,6 @@
 .front-route-accounting .ac-audit-hero-label {
-    font-size: clamp(4.25rem, 6.3vw, 7.4rem);
+    max-width: 18ch;
+    font-size: clamp(3.2rem, 5.2vw, 6.1rem);
     letter-spacing: 0.005em;
 }
 
@@ -85,7 +86,8 @@
     }
 
     .front-route-accounting .ac-audit-hero-label {
-        font-size: clamp(2.85rem, 12.6vw, 4.3rem);
+        max-width: 17ch;
+        font-size: clamp(2.1rem, 9vw, 3.2rem);
     }
 
     .front-route-accounting .ac-audit-hero-hook {

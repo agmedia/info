@@ -184,7 +184,7 @@
                     @endif
                 </header>
 
-                <div class="ac-advisory-services-grid">
+                <div class="ac-advisory-services-grid ac-advisory-services-grid--main">
                     @foreach ($serviceCards as $card)
                         @php $cardUrl = $resolveContentUrl($card['url'] ?? ''); @endphp
 

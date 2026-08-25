@@ -13,7 +13,27 @@
         $contactCopy = static fn (string $key): string => trim((string) data_get($contactPageContent, $key, ''));
         $contactEmail = $contactCopy('direct_email');
         $contactPhone = $contactCopy('direct_phone');
-        $contactPhoneHref = preg_replace('/[^+0-9]/', '', $contactPhone);
+        $contactPhoneHref = preg_replace('/[^+0-9]/', '', str_replace('(0)', '', $contactPhone));
+        $contactOfficeOrder = [
+            'alpha-capitalis' => 0,
+            'alpha-capitalis-east' => 1,
+            'alpha-capitalis-timia' => 2,
+        ];
+        $contactOfficePhones = collect((array) data_get($contactLocationsContent ?? [], 'items', []))
+            ->filter(static fn ($item): bool => is_array($item) && trim((string) ($item['phone'] ?? '')) !== '')
+            ->map(static function (array $item) use ($contactOfficeOrder): array {
+                $entityKey = trim((string) ($item['entity_key'] ?? ''));
+                $phone = trim((string) ($item['phone'] ?? ''));
+
+                return [
+                    'label' => trim((string) ($item['office_label'] ?? '')),
+                    'phone' => $phone,
+                    'phone_href' => preg_replace('/[^+0-9]/', '', str_replace('(0)', '', $phone)),
+                    'sort_order' => $contactOfficeOrder[$entityKey] ?? 99,
+                ];
+            })
+            ->sortBy('sort_order')
+            ->values();
         $contactHours = trim((string) ($storeSettings['footer']['hours'] ?? '')) ?: $contactCopy('direct_response_fallback');
         $headingWords = static fn (string $title): array => preg_split('/\s+/u', trim($title), -1, PREG_SPLIT_NO_EMPTY) ?: [];
         $contactPageTitle = $contactCopy('page_title');
@@ -155,15 +175,25 @@
                                 </span>
                             </li>
                             @endif
-                            @if ($contactPhone !== '')
-                            <li>
-                                <i class="fa-light fa-phone" aria-hidden="true"></i>
-                                <span>
-                                    <small>{{ $contactDirectPhoneLabel }}</small>
-                                    <a href="tel:{{ $contactPhoneHref }}">{{ $contactPhone }}</a>
-                                </span>
-                            </li>
-                            @endif
+                            @forelse ($contactOfficePhones as $officePhone)
+                                <li>
+                                    <i class="fa-light fa-phone" aria-hidden="true"></i>
+                                    <span>
+                                        <small>{{ $officePhone['label'] !== '' ? $officePhone['label'] : $contactDirectPhoneLabel }}</small>
+                                        <a href="tel:{{ $officePhone['phone_href'] }}">{{ $officePhone['phone'] }}</a>
+                                    </span>
+                                </li>
+                            @empty
+                                @if ($contactPhone !== '')
+                                    <li>
+                                        <i class="fa-light fa-phone" aria-hidden="true"></i>
+                                        <span>
+                                            <small>{{ $contactDirectPhoneLabel }}</small>
+                                            <a href="tel:{{ $contactPhoneHref }}">{{ $contactPhone }}</a>
+                                        </span>
+                                    </li>
+                                @endif
+                            @endforelse
                             <li>
                                 <i class="fa-light fa-clock" aria-hidden="true"></i>
                                 <span>

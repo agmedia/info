@@ -490,7 +490,7 @@ class Form extends Component
         $servicePage->clearMediaCollection('service_hero_image');
         $this->accountingHeroImageUpload = null;
 
-        $this->dispatch('notify', type: 'success', message: 'Vraćena je zadana hero slika za Računovodstvo.');
+        $this->dispatch('notify', type: 'success', message: 'Vraćena je zadana hero slika za Računovodstvo i poreze.');
     }
 
     public function removeAdvisoryHeroImage(): void

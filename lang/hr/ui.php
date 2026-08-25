@@ -67,7 +67,7 @@ return [
                 'tools' => 'Alati',
                 'insights' => 'Sadržaj',
                 'finance' => 'Financije',
-                'accounting' => 'Računovodstvo',
+                'accounting' => 'Računovodstvo i porezi',
                 'tax' => 'Porezi',
                 'audit' => 'Revizija',
                 'eu_funds' => 'EU fondovi',

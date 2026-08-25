@@ -65,9 +65,9 @@
     <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
         <div>
             <p class="admin-section-title">Sadržaj s fronta</p>
-            <h2 class="mt-2 text-xl font-semibold tracking-tight text-slate-900">Stranica Računovodstvo</h2>
+            <h2 class="mt-2 text-xl font-semibold tracking-tight text-slate-900">Stranica Računovodstvo i porezi</h2>
             <p class="mt-2 max-w-3xl text-sm leading-6 text-slate-600">
-                Sekcije su složene istim redom kao na frontu. Ovdje su samo tekstovi i slika koji se stvarno prikazuju na stranici Računovodstvo.
+                Sekcije su složene istim redom kao na frontu. Ovdje su samo tekstovi i slika koji se stvarno prikazuju na stranici Računovodstvo i porezi.
             </p>
         </div>
 
@@ -84,9 +84,9 @@
 
     <div class="mt-5 flex flex-wrap gap-2" aria-label="Navigacija po sekcijama stranice">
         <a href="#accounting-hero-admin" class="admin-chip">1. Hero i slika</a>
-        <a href="#accounting-overview-admin" class="admin-chip">2. Zašto je računovodstvo bitno</a>
+        <a href="#accounting-overview-admin" class="admin-chip">2. Zašto su računovodstvo i porezi bitni</a>
         <a href="#accounting-partner-admin" class="admin-chip">3. Partnerska poruka</a>
-        <a href="#accounting-services-admin" class="admin-chip">4. Računovodstvene usluge</a>
+        <a href="#accounting-services-admin" class="admin-chip">4. Računovodstvo i porezi</a>
         <a href="#accounting-approach-admin" class="admin-chip">5. Naš pristup</a>
         <a href="#accounting-blog-admin" class="admin-chip">6. Stručne objave</a>
         <a href="#accounting-meeting-admin" class="admin-chip">7. Kontaktni poziv</a>
@@ -97,7 +97,7 @@
 <div id="accounting-hero-admin" class="admin-panel admin-form-panel scroll-mt-24 p-6">
     <div class="border-b border-slate-200 pb-4">
         <p class="text-xs font-semibold uppercase tracking-[0.16em] text-cyan-700">1. Hero i slika</p>
-        <h2 class="mt-1 text-lg font-semibold text-slate-900">Vrh stranice Računovodstvo</h2>
+        <h2 class="mt-1 text-lg font-semibold text-slate-900">Vrh stranice Računovodstvo i porezi</h2>
         <p class="mt-1 text-sm text-slate-600">Uredite naziv usluge, glavnu poruku, pozadinsku sliku i opis slike.</p>
     </div>
 
@@ -166,7 +166,7 @@
 
 <div id="accounting-overview-admin" class="admin-panel admin-form-panel scroll-mt-24 p-6">
     <div class="border-b border-slate-200 pb-4">
-        <p class="text-xs font-semibold uppercase tracking-[0.16em] text-cyan-700">2. Zašto je računovodstvo bitno</p>
+        <p class="text-xs font-semibold uppercase tracking-[0.16em] text-cyan-700">2. Zašto su računovodstvo i porezi bitni</p>
         <h2 class="mt-1 text-lg font-semibold text-slate-900">Uvodna 50/50 sekcija</h2>
     </div>
 
@@ -214,7 +214,7 @@
 
 <div id="accounting-services-admin" class="admin-panel admin-form-panel scroll-mt-24 p-6">
     <div class="border-b border-slate-200 pb-4">
-        <p class="text-xs font-semibold uppercase tracking-[0.16em] text-cyan-700">4. Računovodstvene usluge</p>
+        <p class="text-xs font-semibold uppercase tracking-[0.16em] text-cyan-700">4. Računovodstvo i porezi</p>
         <h2 class="mt-1 text-lg font-semibold text-slate-900">Kartice usluga prikazane na stranici</h2>
     </div>
 

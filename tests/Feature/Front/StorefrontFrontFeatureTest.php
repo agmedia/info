@@ -1270,7 +1270,7 @@ class StorefrontFrontFeatureTest extends TestCase
             ->assertSee('class="services-grid services-grid--count-3"', false)
             ->assertSee('class="news-section ac-home-news"', false)
             ->assertSee('sigurnost i povjerenje u brojke')
-            ->assertSee('kontrola i jasnoća poslovanja')
+            ->assertSee('kontrola, jasnoća i porezna sigurnost')
             ->assertSee('rast, optimizacija i bolji financijski izbor')
             ->assertDontSee('Globalna partnerstva i stručna članstva')
             ->assertDontSee('Zadnje objave i novosti')
@@ -1281,7 +1281,7 @@ class StorefrontFrontFeatureTest extends TestCase
 
         $serviceTitles = [
             'Revizija',
-            'Računovodstvo',
+            'Računovodstvo i porezi',
             'Savjetovanje',
         ];
 
@@ -2100,11 +2100,11 @@ class StorefrontFrontFeatureTest extends TestCase
             ->assertSee('services-grid services-grid--count-3', false)
             ->assertSee('class="service-card"', false)
             ->assertSee('Revizija')
-            ->assertSee('Računovodstvo')
+            ->assertSee('Računovodstvo i porezi')
             ->assertSee('Savjetovanje')
             ->assertSee('Neovisna provjera financijskih izvještaja koja povećava povjerenje vlasnika, investitora i partnera.')
-            ->assertSee('Precizno vođenje knjiga i pravovremeno izvještavanje koje oslobađa menadžment za strateške odluke.')
-            ->assertSee('Financijsko i porezno savjetovanje te pribavljanje kapitala - sve na jednom mjestu.')
+            ->assertSee('Precizno vođenje knjiga, pravovremeno izvještavanje i porezno savjetovanje za sigurnije poslovne odluke.')
+            ->assertSee('Financijsko i strateško savjetovanje te pribavljanje kapitala - sve na jednom mjestu.')
             ->assertSeeText('Kroz integrirani pristup reviziji, računovodstvu i financijskom savjetovanju stvaramo dodatnu vrijednost')
             ->assertDontSee('Naša podrška omogućuje bolje upravljanje financijama, kvalitetnije strateško planiranje')
             ->assertDontSee('Tri područja poslovne podrške')
@@ -2152,17 +2152,19 @@ class StorefrontFrontFeatureTest extends TestCase
         $response = $this->get('/racunovodstvo');
 
         $response->assertOk()
+            ->assertSee('Računovodstvo i porezi')
             ->assertSee('Vi vodite poslovanje. Mi brinemo da Vaše brojke budu točne, pravovremene i spremne za svaku odluku.')
             ->assertSee('Zašto Vam je računovodstvo bitno?')
             ->assertSee('Mirnije poslovanje počinje jasnim i pouzdanim brojkama.')
             ->assertSee('Uz ALPHA CAPITALIS ne dobivate samo računovodstvenu uslugu')
-            ->assertSee('Naše računovodstvene usluge')
+            ->assertSee('Naše usluge računovodstva i poreza')
             ->assertSee('Financijsko računovodstvo')
+            ->assertSee('Porezno savjetovanje')
             ->assertSee('Obračun plaća')
             ->assertSee('Porezne prijave')
             ->assertSee('Upravljačko izvještavanje')
             ->assertSee('Osnivanje i registracija')
-            ->assertSee('Konsolidacija')
+            ->assertDontSee('Konsolidacija')
             ->assertSee('Naš pristup')
             ->assertSee('Nismo samo servis za vođenje knjiga')
             ->assertSee('Razgovarajmo o vašem računovodstvu')
@@ -2173,11 +2175,12 @@ class StorefrontFrontFeatureTest extends TestCase
             ->assertSee('ac-accounting-partner-note-quote', false)
             ->assertSee('ac-accounting-partner-note-text', false)
             ->assertSee('fa-duotone fa-thin fa-fw fa-book-copy', false)
+            ->assertSee('fa-duotone fa-thin fa-fw fa-badge-percent', false)
             ->assertSee('fa-duotone fa-thin fa-fw fa-user-tie-hair', false)
             ->assertSee('fa-duotone fa-thin fa-fw fa-file-certificate', false)
             ->assertSee('fa-duotone fa-thin fa-fw fa-chart-waterfall', false)
             ->assertSee('fa-duotone fa-thin fa-fw fa-building-shield', false)
-            ->assertSee('fa-duotone fa-thin fa-fw fa-diagram-project', false)
+            ->assertDontSee('fa-duotone fa-thin fa-fw fa-diagram-project', false)
             ->assertSee('contact-cta ac-audit-contact-cta', false)
             ->assertDontSee('Pogledajte usluge')
             ->assertDontSee('Rent-a-računovođa')
@@ -2208,23 +2211,23 @@ class StorefrontFrontFeatureTest extends TestCase
             ->assertSee('M&amp;A savjetovanje', false)
             ->assertSee('Dubinska snimanja (Due Diligence)')
             ->assertSee('Procjena vrijednosti društva')
-            ->assertSee('Porezno savjetovanje')
+            ->assertDontSee('Porezno savjetovanje')
             ->assertSee('ALPHA CAPITALIS je član Pandea Global M&amp;A', false)
             ->assertSee('Naš pristup')
             ->assertSee('Razgovarajmo o vašim poslovnim odlukama')
             ->assertSee('/savjetovanje/prodaja-i-kupnja-poduzeca', false)
             ->assertSee('/savjetovanje/dubinska-snimanja', false)
             ->assertSee('/savjetovanje/procjena-vrijednosti-drustva', false)
-            ->assertSee('/savjetovanje/porezno-savjetovanje', false)
+            ->assertDontSee('/savjetovanje/porezno-savjetovanje', false)
             ->assertSee('front-theme/styles/pages/advisory.css', false)
             ->assertSee('ac-advisory-hero-image', false)
             ->assertSee('ac-advisory-network-grid', false)
-            ->assertSee('ac-advisory-services-grid', false)
+            ->assertSee('ac-advisory-services-grid ac-advisory-services-grid--main', false)
             ->assertSee('fa-duotone fa-thin fa-fw fa-hand-holding-circle-dollar', false)
             ->assertSee('fa-duotone fa-thin fa-fw fa-people-arrows-left-right', false)
             ->assertSee('fa-duotone fa-thin fa-fw fa-magnifying-glass-dollar', false)
             ->assertSee('fa-duotone fa-thin fa-fw fa-chart-user', false)
-            ->assertSee('fa-duotone fa-thin fa-fw fa-badge-percent', false)
+            ->assertDontSee('fa-duotone fa-thin fa-fw fa-badge-percent', false)
             ->assertSee('contact-cta ac-advisory-contact-cta', false)
             ->assertDontSee('EU fondovi i poticaji')
             ->assertDontSee('Dostupni izvori financiranja')
@@ -2241,6 +2244,11 @@ class StorefrontFrontFeatureTest extends TestCase
             ->assertDontSee('splide.min', false)
             ->assertDontSee('--audit-hero-image', false)
             ->assertDontSee('Što je savjetovanje?');
+
+        $this->assertSame(
+            4,
+            substr_count((string) $response->getContent(), 'class="ac-advisory-service-card '),
+        );
     }
 
     public function test_advisory_subpage_seo_uses_only_exact_locale_cms_values(): void
@@ -2948,9 +2956,9 @@ class StorefrontFrontFeatureTest extends TestCase
             ],
             [
                 'key' => 'accounting',
-                'title' => 'Računovodstvo',
-                'subtitle' => 'kontrola i jasnoća poslovanja',
-                'text' => 'Precizno vođenje poslovnih knjiga.',
+                'title' => 'Računovodstvo i porezi',
+                'subtitle' => 'kontrola, jasnoća i porezna sigurnost',
+                'text' => 'Precizno vođenje poslovnih knjiga i porezno savjetovanje.',
                 'image_alt' => 'Računovodstvo i financijsko izvještavanje',
                 'url' => '/racunovodstvo',
                 'action_label' => 'Saznajte više',
@@ -2959,7 +2967,7 @@ class StorefrontFrontFeatureTest extends TestCase
                 'key' => 'advisory',
                 'title' => 'Savjetovanje',
                 'subtitle' => 'rast, optimizacija i bolji financijski izbor',
-                'text' => 'Financijsko i porezno savjetovanje.',
+                'text' => 'Financijsko i strateško savjetovanje.',
                 'image_alt' => 'Poslovno i financijsko savjetovanje',
                 'url' => '/savjetovanje',
                 'action_label' => 'Saznajte više',

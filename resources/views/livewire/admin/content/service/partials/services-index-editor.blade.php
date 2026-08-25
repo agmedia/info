@@ -78,7 +78,7 @@
                     : (string) ($cardImage['url'] ?? '');
                 $cardTypeLabel = match ($cardKey) {
                     'audit' => __('Audit'),
-                    'accounting' => __('Accounting'),
+                    'accounting' => __('Accounting and Tax Advisory'),
                     'advisory' => __('Advisory'),
                     default => __('Card') . ' ' . ($cardIndex + 1),
                 };

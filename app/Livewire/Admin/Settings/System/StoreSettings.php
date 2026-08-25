@@ -41,7 +41,7 @@ class StoreSettings extends Component
         'store_home_hero_font' => HeroFontRegistry::DEFAULT,
         'store_home_hero_font_weight' => HeroFontRegistry::DEFAULT_WEIGHT,
         'store_home_hero_title' => 'Vaš kompas kroz svijet financija',
-        'store_home_hero_subtitle' => 'Računovodstvo, revizija i savjetovanje — sve na jednom mjestu.',
+        'store_home_hero_subtitle' => 'Računovodstvo i porezi, revizija i savjetovanje — sve na jednom mjestu.',
         'store_home_hero_primary_label' => 'Dogovorite sastanak',
         'store_home_hero_primary_url' => '/contact',
         'store_home_hero_secondary_label' => 'Naše usluge',

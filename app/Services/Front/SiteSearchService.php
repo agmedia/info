@@ -67,14 +67,14 @@ class SiteSearchService
                 'url' => route('advisory.finance.show'),
             ],
             [
-                'title' => $isCroatian ? 'Računovodstvo' : 'Accounting',
+                'title' => $isCroatian ? 'Računovodstvo i porezi' : 'Accounting and Tax Advisory',
                 'eyebrow' => $isCroatian ? 'Preciznost' : 'Precision',
                 'excerpt' => $isCroatian
-                    ? 'Pouzdano vođenje poslovnih knjiga i jasni izvještaji za svakodnevno upravljanje.'
-                    : 'Reliable bookkeeping and clear reporting for day-to-day management.',
+                    ? 'Pouzdano vođenje poslovnih knjiga, jasni izvještaji i porezno savjetovanje za svakodnevno upravljanje.'
+                    : 'Reliable bookkeeping, clear reporting, and tax advisory for day-to-day management.',
                 'search' => $isCroatian
-                    ? 'računovodstvo racunovodstvo poslovne knjige izvještaji izvjestaji upravljanje'
-                    : 'accounting bookkeeping reporting management',
+                    ? 'računovodstvo racunovodstvo porezi porezno savjetovanje poslovne knjige izvještaji izvjestaji upravljanje'
+                    : 'accounting tax advisory bookkeeping reporting management',
                 'url' => route('accounting.show'),
             ],
             [
@@ -114,11 +114,11 @@ class SiteSearchService
                 'title' => $isCroatian ? 'Savjetovanje' : 'Advisory',
                 'eyebrow' => $isCroatian ? 'Advisory' : 'Advisory',
                 'excerpt' => $isCroatian
-                    ? 'Financijsko i porezno savjetovanje te pribavljanje kapitala - sve na jednom mjestu.'
-                    : 'Financial and tax advisory, capital raising, and transaction support in one place.',
+                    ? 'Financijsko i strateško savjetovanje te pribavljanje kapitala - sve na jednom mjestu.'
+                    : 'Financial and strategic advisory, capital raising, and transaction support in one place.',
                 'search' => $isCroatian
-                    ? 'savjetovanje advisory poslovno financijsko porezno porezi eu fondovi pribavljanje financiranja due diligence procjene vrijednosti m&a spajanja preuzimanja'
-                    : 'advisory business financial tax eu funds financing due diligence valuations m&a mergers acquisitions',
+                    ? 'savjetovanje advisory poslovno financijsko strateško eu fondovi pribavljanje financiranja due diligence procjene vrijednosti m&a spajanja preuzimanja'
+                    : 'advisory business financial strategic eu funds financing due diligence valuations m&a mergers acquisitions',
                 'url' => route('advisory.show'),
             ],
         ]);

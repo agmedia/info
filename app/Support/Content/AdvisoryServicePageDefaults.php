@@ -77,7 +77,7 @@ class AdvisoryServicePageDefaults
                 'kicker' => 'SAVJETOVANJE',
                 'title' => 'Zašto Vam je savjetovanje bitno?',
                 'body' => [
-                    'Važne poslovne odluke rijetko imaju jednostavne odgovore. Financijske, porezne i strateške odluke mogu imati dugoročan utjecaj na poslovanje, zbog čega je važno imati stručnu perspektivu na koju se možete osloniti.',
+                    'Važne poslovne odluke rijetko imaju jednostavne odgovore. Financijske i strateške odluke mogu imati dugoročan utjecaj na poslovanje, zbog čega je važno imati stručnu perspektivu na koju se možete osloniti.',
                     'Naše savjetovanje povezuje stručnost iz različitih područja kako bismo Vam pomogli sagledati širu sliku, prepoznati prilike, upravljati rizicima i donositi odluke s većom sigurnošću.',
                 ],
             ],
@@ -107,11 +107,6 @@ class AdvisoryServicePageDefaults
                     'title' => 'Procjena vrijednosti društva',
                     'text' => 'Procjena ekonomske vrijednosti društva kao podloga za prodaju, kupnju, dokapitalizaciju i druge strateške aktivnosti.',
                     'url' => '/savjetovanje/procjena-vrijednosti-drustva',
-                ],
-                [
-                    'title' => 'Porezno savjetovanje',
-                    'text' => 'Podrška u poreznom planiranju, usklađenosti, poreznim pregledima, transfernim cijenama, poreznim nadzorima i transakcijama.',
-                    'url' => '/savjetovanje/porezno-savjetovanje',
                 ],
             ],
             'pandea' => [
@@ -429,7 +424,7 @@ class AdvisoryServicePageDefaults
                 'brand_title' => 'ALPHA CAPITALIS',
                 'subtitle_lead' => 'Business',
                 'subtitle_accent' => 'advisory',
-                'intro' => 'Advisory includes expert support in financial, tax, and investment matters, helping companies, investors, and entrepreneurs make quality decisions, manage risk, and create long-term value.',
+                'intro' => 'Advisory provides expert support in financial, strategic, and investment matters, helping companies, investors, and entrepreneurs make quality decisions, manage risk, and create long-term value.',
                 'image_alt' => 'Expert financial and strategic advisory',
                 'cta_label' => '',
                 'cta_url' => '',
