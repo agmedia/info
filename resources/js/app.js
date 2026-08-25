@@ -2222,6 +2222,73 @@ const initFrontVisualEffects = () => {
     return;
 };
 
+const initAdminMessageNotifications = () => {
+    const selector = '[data-admin-message-notifications]';
+    const syncExpandedState = (dropdown) => {
+        if (!(dropdown instanceof HTMLDetailsElement)) {
+            return;
+        }
+
+        const trigger = dropdown.querySelector('summary');
+        if (trigger instanceof HTMLElement) {
+            trigger.setAttribute('aria-expanded', dropdown.open ? 'true' : 'false');
+        }
+    };
+
+    document.querySelectorAll(selector).forEach(syncExpandedState);
+
+    if (document.documentElement.dataset.adminMessageNotificationsReady === '1') {
+        return;
+    }
+    document.documentElement.dataset.adminMessageNotificationsReady = '1';
+
+    document.addEventListener('toggle', (event) => {
+        const dropdown = event.target;
+        if (!(dropdown instanceof HTMLDetailsElement) || !dropdown.matches(selector)) {
+            return;
+        }
+
+        syncExpandedState(dropdown);
+
+        if (dropdown.open) {
+            dropdown.parentElement?.querySelectorAll('details[open]').forEach((otherDropdown) => {
+                if (otherDropdown !== dropdown && otherDropdown instanceof HTMLDetailsElement) {
+                    otherDropdown.open = false;
+                }
+            });
+        }
+    }, true);
+
+    document.addEventListener('click', (event) => {
+        if (!(event.target instanceof Node)) {
+            return;
+        }
+
+        document.querySelectorAll(`${selector}[open]`).forEach((dropdown) => {
+            if (dropdown instanceof HTMLDetailsElement && !dropdown.contains(event.target)) {
+                dropdown.open = false;
+            }
+        });
+    });
+
+    document.addEventListener('keydown', (event) => {
+        if (event.key !== 'Escape') {
+            return;
+        }
+
+        const dropdown = document.querySelector(`${selector}[open]`);
+        if (!(dropdown instanceof HTMLDetailsElement)) {
+            return;
+        }
+
+        dropdown.open = false;
+        const trigger = dropdown.querySelector('summary');
+        if (trigger instanceof HTMLElement) {
+            trigger.focus();
+        }
+    });
+};
+
 const initAdminDirtyForms = () => {
     const body = document.body;
     if (!body || body.dataset.adminDirtyFormsReady === '1') {
@@ -2358,6 +2425,7 @@ if (document.readyState === 'loading') {
         initFrontVisualEffects();
         initFrontDesktopHeader();
         initHeroStatCounters();
+        initAdminMessageNotifications();
         initAdminDirtyForms();
         disableLegacyPwaRuntime();
     }, { once: true });
@@ -2372,6 +2440,7 @@ if (document.readyState === 'loading') {
     initFrontVisualEffects();
     initFrontDesktopHeader();
     initHeroStatCounters();
+    initAdminMessageNotifications();
     initAdminDirtyForms();
     disableLegacyPwaRuntime();
 }
@@ -2382,6 +2451,7 @@ document.addEventListener('livewire:navigated', () => {
     initFrontVisualEffects();
     initFrontDesktopHeader();
     initHeroStatCounters();
+    initAdminMessageNotifications();
     initAdminDirtyForms();
     disableLegacyPwaRuntime();
 });

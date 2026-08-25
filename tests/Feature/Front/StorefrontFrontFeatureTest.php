@@ -987,6 +987,59 @@ class StorefrontFrontFeatureTest extends TestCase
         $this->assertSame('/kontakt', $message->payload['source_page'] ?? null);
     }
 
+    public function test_contact_form_returns_ajax_success_without_redirecting(): void
+    {
+        $this->postJson('/kontakt', [
+            'name' => 'Ajax Tester',
+            'email' => 'ajax@example.test',
+            'subject' => 'Ajax kontakt upit',
+            'message' => 'Ova poruka potvrđuje slanje kontakt forme bez reloada stranice.',
+            'accept_terms' => '1',
+        ])
+            ->assertOk()
+            ->assertJson([
+                'ok' => true,
+                'message' => __('contact.sent_status'),
+            ]);
+
+        $this->assertDatabaseHas('contact_messages', [
+            'email' => 'ajax@example.test',
+            'subject' => 'Ajax kontakt upit',
+            'status' => ContactMessage::STATUS_NEW,
+        ]);
+    }
+
+    public function test_contact_form_returns_ajax_validation_errors(): void
+    {
+        $this->postJson('/kontakt', [])
+            ->assertUnprocessable()
+            ->assertJsonValidationErrors(['email', 'message', 'accept_terms']);
+    }
+
+    public function test_finance_contact_form_returns_ajax_success_without_redirecting(): void
+    {
+        $this->postJson('/kontakt', [
+            'first_name' => 'Iva',
+            'last_name' => 'Ivić',
+            'email' => 'finance-ajax@example.test',
+            'message' => 'Želim dogovoriti sastanak za financijsko savjetovanje putem Ajax forme.',
+            'accept_terms' => '1',
+            'redirect_to' => '/financije#finance-sastanak',
+        ])
+            ->assertOk()
+            ->assertJson([
+                'ok' => true,
+                'message' => __('contact.sent_status'),
+            ]);
+
+        $message = ContactMessage::query()
+            ->where('email', 'finance-ajax@example.test')
+            ->firstOrFail();
+
+        $this->assertSame(ContactMessage::FORM_TYPE_SERVICE_CONTACT, $message->payload['form_type'] ?? null);
+        $this->assertSame('/financije', $message->payload['source_page'] ?? null);
+    }
+
     public function test_finance_contact_form_can_redirect_back_to_section(): void
     {
         $this->post('/kontakt', [
@@ -1996,6 +2049,7 @@ class StorefrontFrontFeatureTest extends TestCase
         foreach (['/', '/usluge'] as $path) {
             $this->get($path)
                 ->assertOk()
+                ->assertSee('<body id="page-top"', false)
                 ->assertSee('class="site-footer"', false)
                 ->assertSee('Primajte važne novosti na')
                 ->assertSee('class="footer-socials"', false)
@@ -2011,6 +2065,7 @@ class StorefrontFrontFeatureTest extends TestCase
                 ->assertSee('https://www.instagram.com/alpha-capitalis-test', false)
                 ->assertSee('https://www.tiktok.com/@alpha-capitalis-test', false)
                 ->assertSee('https://www.youtube.com/@alpha-capitalis-test', false)
+                ->assertSee('class="footer-back-to-top" href="#page-top"', false)
                 ->assertSee('Politika privatnosti')
                 ->assertSee('Uvjeti korištenja');
         }

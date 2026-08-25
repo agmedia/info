@@ -98,6 +98,8 @@
                     data-msg-message-required="{{ __('contact.validation.inline.message_required') }}"
                     data-msg-message-min="{{ __('contact.validation.inline.message_min') }}"
                     data-msg-accept-terms="{{ __('contact.validation.inline.accept_terms') }}"
+                    data-msg-submitting="{{ __('contact.submitting') }}"
+                    data-msg-submit-failed="{{ __('contact.submit_failed') }}"
                     @if($captchaEnabled) data-recaptcha-form data-recaptcha-site-key="{{ $captchaSiteKey }}" data-recaptcha-action="contact_form" @endif
                 >
                     @csrf
@@ -107,13 +109,6 @@
                         <h2 id="ac-contact-form-title">{{ $contactFormTitle }}</h2>
                         <p>{{ $contactFormIntro }}</p>
                     </div>
-
-                    @if (session('status'))
-                        <div class="front-contact-status" role="status">
-                            <i class="fa-light fa-circle-check" aria-hidden="true"></i>
-                            <span>{{ session('status') }}</span>
-                        </div>
-                    @endif
 
                     <div class="ac-contact-field-grid">
                         <div class="ac-contact-field">
@@ -153,10 +148,20 @@
 
                     <div class="front-contact-form-actions">
                         <button type="submit" class="editorial-dark-button ac-contact-submit">
-                            <span>{{ $contactSubmitLabel }}</span>
+                            <span data-contact-submit-label>{{ $contactSubmitLabel }}</span>
                             <i class="fa-light fa-arrow-up-right" aria-hidden="true"></i>
                         </button>
                         <p class="front-contact-field-error" data-field-error="recaptcha_token" @if (! $errors->has('recaptcha_token')) hidden @endif>@error('recaptcha_token'){{ $message }}@enderror</p>
+                        <div
+                            class="front-contact-status"
+                            data-contact-feedback
+                            role="status"
+                            aria-live="polite"
+                            @if (! session('status')) hidden @endif
+                        >
+                            <i class="fa-light fa-circle-check" data-contact-feedback-icon aria-hidden="true"></i>
+                            <span data-contact-feedback-text>{{ session('status') }}</span>
+                        </div>
                     </div>
                 </form>
 

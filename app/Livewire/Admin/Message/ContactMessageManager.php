@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Admin\Message;
 
+use App\Livewire\Admin\MessageNotifications;
 use App\Models\Content\Support\ContactMessage;
 use App\Services\Settings\SystemSettingsService;
 use Livewire\Component;
@@ -12,6 +13,7 @@ class ContactMessageManager extends Component
     use WithPagination;
 
     public string $search = '';
+
     public string $status = 'all';
 
     public function updatedSearch(): void
@@ -104,6 +106,7 @@ class ContactMessageManager extends Component
 
         $message->update($payload);
 
+        $this->dispatch(MessageNotifications::REFRESH_EVENT);
         $this->dispatch('notify', type: 'success', message: __('admin.messages.contact.manager.notify_status_updated'));
     }
 

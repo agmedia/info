@@ -249,7 +249,7 @@
                 @endif
             </div>
             @if ($alphaFooterBackToTopLabel !== '')
-                <a class="footer-back-to-top" href="{{ request()->routeIs('home') ? '#vrh' : $alphaFooterHome.'#vrh' }}">
+                <a class="footer-back-to-top" href="#page-top">
                     <span>{{ $alphaFooterBackToTopLabel }}</span>
                     <i class="fa-duotone fa-thin fa-arrow-up" aria-hidden="true"></i>
                 </a>

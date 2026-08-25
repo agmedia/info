@@ -689,17 +689,13 @@
                         data-msg-message-required="{{ __('contact.validation.inline.message_required') }}"
                         data-msg-message-min="{{ __('contact.validation.inline.message_min') }}"
                         data-msg-accept-terms="{{ __('contact.validation.inline.accept_terms') }}"
+                        data-msg-submitting="{{ __('contact.submitting') }}"
+                        data-msg-submit-failed="{{ __('contact.submit_failed') }}"
                         @if($captchaEnabled) data-recaptcha-form data-recaptcha-site-key="{{ $captchaSiteKey }}" data-recaptcha-action="contact_form" @endif
                     >
                         @csrf
                         <input type="hidden" name="recaptcha_token" value="" data-recaptcha-token>
                         <input type="hidden" name="redirect_to" value="{{ route('finance.show') }}#finance-sastanak">
-
-                        @if (session('status'))
-                            <div class="front-contact-status" role="status">
-                                {{ session('status') }}
-                            </div>
-                        @endif
 
                         <div class="grid gap-4 md:grid-cols-2">
                             <div>
@@ -755,9 +751,19 @@
 
                         <div class="front-contact-form-actions">
                             <button type="submit" class="front-contact-submit inline-flex h-11 items-center justify-center px-6 text-sm font-semibold text-white transition">
-                                {{ $meetingSection['submit'] ?? 'Pošalji' }}
+                                <span data-contact-submit-label>{{ $meetingSection['submit'] ?? 'Pošalji' }}</span>
                             </button>
                             <p class="text-xs font-semibold text-rose-600 {{ $errors->has('recaptcha_token') ? '' : 'hidden' }}" data-field-error="recaptcha_token">@error('recaptcha_token'){{ $message }}@enderror</p>
+                            <div
+                                class="front-contact-status"
+                                data-contact-feedback
+                                role="status"
+                                aria-live="polite"
+                                @if (! session('status')) hidden @endif
+                            >
+                                <i class="fa-light fa-circle-check" data-contact-feedback-icon aria-hidden="true"></i>
+                                <span data-contact-feedback-text>{{ session('status') }}</span>
+                            </div>
                         </div>
                     </form>
                 </div>

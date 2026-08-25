@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Admin\Message;
 
+use App\Livewire\Admin\MessageNotifications;
 use App\Models\Content\Support\ContactMessage;
 use App\Services\Settings\SystemSettingsService;
 use Livewire\Component;
@@ -12,6 +13,7 @@ class CollaborationAssessmentMessageManager extends Component
     use WithPagination;
 
     public string $search = '';
+
     public string $status = 'all';
 
     public function updatedSearch(): void
@@ -103,6 +105,7 @@ class CollaborationAssessmentMessageManager extends Component
 
         $message->update($payload);
 
+        $this->dispatch(MessageNotifications::REFRESH_EVENT);
         $this->dispatch('notify', type: 'success', message: __('admin.messages.collaboration_assessment.manager.notify_status_updated'));
     }
 

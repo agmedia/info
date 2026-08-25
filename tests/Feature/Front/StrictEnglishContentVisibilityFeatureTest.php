@@ -462,6 +462,19 @@ class StrictEnglishContentVisibilityFeatureTest extends TestCase
             ->assertRedirect('/contact')
             ->assertSessionHas('status', 'English CMS sent status.');
 
+        $this->withSession(['front_locale' => 'en'])
+            ->postJson('/contact', [
+                'name' => 'English Ajax Contact Tester',
+                'email' => 'english-ajax-contact@example.test',
+                'message' => 'This message verifies the CMS Ajax success status.',
+                'accept_terms' => '1',
+            ])
+            ->assertOk()
+            ->assertJson([
+                'ok' => true,
+                'message' => 'English CMS sent status.',
+            ]);
+
         $this->withSession(['front_locale' => 'hr'])
             ->get('/kontakt')
             ->assertOk()

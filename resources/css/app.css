@@ -96,6 +96,259 @@ body.admin-shell {
     backdrop-filter: blur(12px);
 }
 
+.admin-message-notifications {
+    position: relative;
+}
+
+.admin-message-notifications > summary::-webkit-details-marker {
+    display: none;
+}
+
+.admin-message-notifications > summary::marker {
+    content: "";
+}
+
+.admin-message-notifications__trigger {
+    position: relative;
+    display: inline-flex;
+    width: 2.5rem;
+    height: 2.5rem;
+    cursor: pointer;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid #d7e0e8;
+    border-radius: 999px;
+    background: #ffffff;
+    color: var(--admin-brand-navy, #10263c);
+    font-size: 1.08rem;
+    transition: border-color 140ms ease, background-color 140ms ease, color 140ms ease, box-shadow 140ms ease;
+}
+
+.admin-message-notifications__trigger:hover,
+.admin-message-notifications[open] .admin-message-notifications__trigger {
+    border-color: rgba(171, 141, 82, 0.62);
+    background: #fffdf8;
+    color: #725a2e;
+}
+
+.admin-message-notifications__trigger:focus-visible {
+    outline: 2px solid #0e7490;
+    outline-offset: 2px;
+}
+
+.admin-message-notifications__badge {
+    position: absolute;
+    top: -0.32rem;
+    right: -0.38rem;
+    display: inline-flex;
+    min-width: 1.25rem;
+    height: 1.25rem;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid #ffffff;
+    border-radius: 999px;
+    padding: 0 0.25rem;
+    background: #b45309;
+    color: #ffffff;
+    font-size: 0.62rem;
+    font-weight: 800;
+    line-height: 1;
+    box-shadow: 0 5px 12px -7px rgba(120, 53, 15, 0.85);
+}
+
+.admin-message-notifications__panel {
+    position: absolute;
+    z-index: 40;
+    top: calc(100% + 0.65rem);
+    right: 0;
+    width: min(23rem, calc(100vw - 2rem));
+    overflow: hidden;
+    border: 1px solid #d9e1e8;
+    border-top: 2px solid var(--admin-brand-gold, #ab8d52);
+    border-radius: 1rem;
+    background: #ffffff;
+    box-shadow: 0 24px 48px -28px rgba(9, 26, 43, 0.72);
+}
+
+.admin-message-notifications__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 1rem 1rem 0.9rem;
+    border-bottom: 1px solid #e2e8f0;
+    background:
+        radial-gradient(circle at top right, rgba(245, 239, 227, 0.9), rgba(255, 255, 255, 0) 58%),
+        #ffffff;
+}
+
+.admin-message-notifications__eyebrow {
+    margin: 0;
+    color: #8a6b36;
+    font-size: 0.62rem;
+    font-weight: 800;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+}
+
+.admin-message-notifications__title {
+    margin: 0.15rem 0 0;
+    color: #0f172a;
+    font-size: 0.98rem;
+    font-weight: 750;
+    letter-spacing: -0.015em;
+}
+
+.admin-message-notifications__total {
+    display: inline-flex;
+    min-width: 2rem;
+    height: 2rem;
+    align-items: center;
+    justify-content: center;
+    border-radius: 999px;
+    padding: 0 0.5rem;
+    background: var(--admin-brand-navy, #10263c);
+    color: #ffffff;
+    font-size: 0.78rem;
+    font-weight: 800;
+}
+
+.admin-message-notifications__empty {
+    display: flex;
+    align-items: center;
+    gap: 0.55rem;
+    margin: 0;
+    padding: 0.7rem 1rem;
+    border-bottom: 1px solid #eef2f6;
+    background: #f7fbf9;
+    color: #047857;
+    font-size: 0.75rem;
+    font-weight: 650;
+}
+
+.admin-message-notifications__groups {
+    display: grid;
+    max-height: min(26rem, calc(100vh - 8rem));
+    margin: 0;
+    padding: 0.45rem;
+    overflow-y: auto;
+    list-style: none;
+}
+
+.admin-message-notifications__group {
+    display: grid;
+    grid-template-columns: 2.1rem minmax(0, 1fr) auto auto;
+    align-items: center;
+    gap: 0.65rem;
+    min-height: 3.65rem;
+    border-radius: 0.75rem;
+    padding: 0.55rem 0.65rem;
+    color: #475569;
+    text-decoration: none;
+    transition: background-color 140ms ease, color 140ms ease;
+}
+
+.admin-message-notifications__group:hover,
+.admin-message-notifications__group:focus-visible {
+    background: #f4f7fa;
+    color: #0f172a;
+    outline: none;
+}
+
+.admin-message-notifications__group:focus-visible {
+    box-shadow: inset 0 0 0 2px rgba(14, 116, 144, 0.32);
+}
+
+.admin-message-notifications__group.has-new {
+    background: #fffdf8;
+}
+
+.admin-message-notifications__group.has-new:hover,
+.admin-message-notifications__group.has-new:focus-visible {
+    background: #faf4e9;
+}
+
+.admin-message-notifications__group-icon {
+    display: inline-flex;
+    width: 2.1rem;
+    height: 2.1rem;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid #dce4eb;
+    border-radius: 0.7rem;
+    background: #f8fafc;
+    color: #526579;
+    font-size: 0.92rem;
+}
+
+.admin-message-notifications__group.has-new .admin-message-notifications__group-icon {
+    border-color: #e7d8b8;
+    background: #f8f0df;
+    color: #85672f;
+}
+
+.admin-message-notifications__group-copy {
+    display: grid;
+    min-width: 0;
+    gap: 0.12rem;
+}
+
+.admin-message-notifications__group-label {
+    overflow: hidden;
+    color: #1e293b;
+    font-size: 0.78rem;
+    font-weight: 700;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.admin-message-notifications__group-status {
+    color: #758396;
+    font-size: 0.68rem;
+    font-weight: 550;
+}
+
+.admin-message-notifications__group.has-new .admin-message-notifications__group-status {
+    color: #9a6700;
+}
+
+.admin-message-notifications__group-count {
+    display: inline-flex;
+    min-width: 1.65rem;
+    height: 1.65rem;
+    align-items: center;
+    justify-content: center;
+    border-radius: 999px;
+    padding: 0 0.38rem;
+    background: #edf2f6;
+    color: #64748b;
+    font-size: 0.68rem;
+    font-weight: 800;
+}
+
+.admin-message-notifications__group.has-new .admin-message-notifications__group-count {
+    background: #b45309;
+    color: #ffffff;
+}
+
+.admin-message-notifications__group-arrow {
+    color: #94a3b8;
+    font-size: 0.68rem;
+}
+
+@media (max-width: 639px) {
+    .admin-message-notifications {
+        position: static;
+    }
+
+    .admin-message-notifications__panel {
+        top: calc(100% + 0.5rem);
+        right: 1rem;
+        left: 1rem;
+        width: auto;
+    }
+}
+
 .admin-shell .admin-search-panel {
     border-top-color: rgba(171, 141, 82, 0.4);
     background:

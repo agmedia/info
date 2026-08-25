@@ -1682,6 +1682,8 @@
                             $userInitial = \Illuminate\Support\Str::upper(\Illuminate\Support\Str::substr((string) auth()->user()->name, 0, 1));
                         @endphp
 
+                        <livewire:admin.message-notifications />
+
                         <details class="group relative">
                             <summary class="flex list-none cursor-pointer items-center gap-2 rounded-full px-2.5 py-1.5 text-sm font-medium text-slate-700 transition hover:bg-slate-100 group-open:bg-slate-100 [&::-webkit-details-marker]:hidden [&::marker]:content-['']">
                                 <span class="inline-flex h-7 w-7 items-center justify-center rounded-full bg-slate-900 text-xs font-semibold text-white">

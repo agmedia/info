@@ -85,6 +85,25 @@ class ContactMessagesFeatureTest extends TestCase
         $this->assertNotNull($message->reviewed_at);
     }
 
+    public function test_admin_can_expand_the_complete_text_of_a_long_contact_message(): void
+    {
+        $user = $this->makeAdminUser();
+        $uniqueTail = 'KRAJ-CIJELOG-DUGOG-UPITA';
+        $longMessage = str_repeat('Detaljan opis poslovnog upita i potrebnog opsega usluge. ', 12).$uniqueTail;
+
+        ContactMessage::query()->create($this->messagePayload([
+            'subject' => 'Dugi kontakt upit',
+            'message' => $longMessage,
+        ]));
+
+        $this->actingAs($user)
+            ->get(route('admin.messages.contact.index'))
+            ->assertOk()
+            ->assertSee(__('admin.common.show_full_text'))
+            ->assertSee($uniqueTail)
+            ->assertSee('<details', false);
+    }
+
     private function makeAdminUser(): User
     {
         $user = User::factory()->create();

@@ -10,6 +10,7 @@ use App\Services\Front\StoreNotificationService;
 use App\Services\Front\StoreSettingsService;
 use App\Support\Localization\FrontendLocalePolicy;
 use App\Support\Localization\FrontendRoute;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
@@ -38,7 +39,7 @@ class ContactController extends Controller
         ]);
     }
 
-    public function store(Request $request): RedirectResponse
+    public function store(Request $request): JsonResponse|RedirectResponse
     {
         $contactPayload = $this->resolveContactPayload($request);
         $this->abortIfStrictContactTranslationIsMissing($contactPayload);
@@ -144,7 +145,14 @@ class ContactController extends Controller
             $contactPayload,
             'contact_page.sent_status',
             '',
-        ));
+        )) ?: __('contact.sent_status');
+
+        if ($request->expectsJson()) {
+            return response()->json([
+                'ok' => true,
+                'message' => $sentStatus,
+            ]);
+        }
 
         if ($redirectTo !== null) {
             $response = redirect($redirectTo);

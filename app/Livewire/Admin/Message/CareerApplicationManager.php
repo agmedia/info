@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Admin\Message;
 
+use App\Livewire\Admin\MessageNotifications;
 use App\Models\Content\Support\CareerApplication;
 use App\Services\Settings\SystemSettingsService;
 use Livewire\Component;
@@ -12,6 +13,7 @@ class CareerApplicationManager extends Component
     use WithPagination;
 
     public string $search = '';
+
     public string $status = 'all';
 
     public function updatedSearch(): void
@@ -101,6 +103,7 @@ class CareerApplicationManager extends Component
 
         $application->update($payload);
 
+        $this->dispatch(MessageNotifications::REFRESH_EVENT);
         $this->dispatch('notify', type: 'success', message: __('admin.messages.career.manager.notify_status_updated'));
     }
 

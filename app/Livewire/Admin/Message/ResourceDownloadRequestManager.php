@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Admin\Message;
 
+use App\Livewire\Admin\MessageNotifications;
 use App\Models\Content\Resource\ResourceDownloadRequest;
 use App\Services\Settings\SystemSettingsService;
 use Livewire\Component;
@@ -12,6 +13,7 @@ class ResourceDownloadRequestManager extends Component
     use WithPagination;
 
     public string $search = '';
+
     public string $status = 'all';
 
     public function updatedSearch(): void
@@ -102,6 +104,7 @@ class ResourceDownloadRequestManager extends Component
 
         $downloadRequest->update($payload);
 
+        $this->dispatch(MessageNotifications::REFRESH_EVENT);
         $this->dispatch('notify', type: 'success', message: __('admin.messages.download_requests.manager.notify_status_updated'));
     }
 

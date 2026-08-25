@@ -33,7 +33,7 @@ html {
   overflow-x: hidden;
   background: var(--navy-deep);
   overscroll-behavior-x: none;
-  scroll-behavior: smooth;
+  scroll-behavior: auto;
 }
 
 body {
@@ -69,6 +69,29 @@ video {
 
 button {
   font: inherit;
+}
+
+.front-desktop-shell .front-contact-status[hidden] {
+  display: none;
+}
+
+.front-desktop-shell .front-contact-form-actions .front-contact-status {
+  margin-bottom: 0;
+}
+
+.front-desktop-shell .front-contact-status.is-error {
+  border-color: rgba(190, 54, 54, 0.28);
+  background: rgba(190, 54, 54, 0.09);
+  color: #9a2f2f;
+}
+
+.front-desktop-shell .front-contact-status.is-error i {
+  color: #b53a3a;
+}
+
+.front-desktop-shell .front-contact-form[aria-busy="true"] button[type="submit"] {
+  cursor: wait;
+  opacity: 0.68;
 }
 
 .hero-page {

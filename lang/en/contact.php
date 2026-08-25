@@ -6,6 +6,8 @@ return [
     'heading' => 'Contact',
     'subheading' => 'We are available for finance, accounting, audit, tax, and business advisory matters. Reach out through the form or contact our Zagreb, Vinkovci, and Rijeka offices directly.',
     'sent_status' => 'Thanks. Your message has been sent successfully.',
+    'submitting' => 'Sending message…',
+    'submit_failed' => 'The message could not be sent right now. Please try again.',
     'captcha_failed' => 'Security verification failed. Please try again.',
     'validation' => [
         'required' => 'The :attribute field is required.',
