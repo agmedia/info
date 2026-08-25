@@ -19,7 +19,9 @@ DROP TEMPORARY TABLE IF EXISTS
 
 CREATE TEMPORARY TABLE urgent_20260825_numbers (
     item_index TINYINT UNSIGNED NOT NULL PRIMARY KEY
-) ENGINE = MEMORY;
+) ENGINE = MEMORY
+  DEFAULT CHARACTER SET utf8mb4
+  COLLATE utf8mb4_unicode_ci;
 
 INSERT INTO urgent_20260825_numbers (item_index) VALUES
     (0), (1), (2), (3), (4), (5), (6), (7),
@@ -44,7 +46,9 @@ CREATE TEMPORARY TABLE urgent_20260825_accounting_targets (
     extracted_count SMALLINT UNSIGNED NOT NULL DEFAULT 0,
     removed_count SMALLINT UNSIGNED NOT NULL DEFAULT 0,
     tax_item JSON NULL
-) ENGINE = InnoDB;
+) ENGINE = InnoDB
+  DEFAULT CHARACTER SET utf8mb4
+  COLLATE utf8mb4_unicode_ci;
 
 CREATE TEMPORARY TABLE urgent_20260825_accounting_items (
     translation_id BIGINT UNSIGNED NOT NULL,
@@ -61,7 +65,9 @@ CREATE TEMPORARY TABLE urgent_20260825_accounting_items (
         is_tax,
         original_position
     )
-) ENGINE = InnoDB;
+) ENGINE = InnoDB
+  DEFAULT CHARACTER SET utf8mb4
+  COLLATE utf8mb4_unicode_ci;
 
 CREATE TEMPORARY TABLE urgent_20260825_accounting_stats (
     translation_id BIGINT UNSIGNED NOT NULL PRIMARY KEY,
@@ -70,27 +76,35 @@ CREATE TEMPORARY TABLE urgent_20260825_accounting_stats (
     first_tax_position TINYINT UNSIGNED NULL,
     first_financial_position TINYINT UNSIGNED NULL,
     first_kept_position TINYINT UNSIGNED NULL
-) ENGINE = InnoDB;
+) ENGINE = InnoDB
+  DEFAULT CHARACTER SET utf8mb4
+  COLLATE utf8mb4_unicode_ci;
 
 CREATE TEMPORARY TABLE urgent_20260825_accounting_ordered (
     translation_id BIGINT UNSIGNED NOT NULL,
     sort_position SMALLINT UNSIGNED NOT NULL,
     item_json JSON NOT NULL,
     PRIMARY KEY (translation_id, sort_position)
-) ENGINE = InnoDB;
+) ENGINE = InnoDB
+  DEFAULT CHARACTER SET utf8mb4
+  COLLATE utf8mb4_unicode_ci;
 
 CREATE TEMPORARY TABLE urgent_20260825_accounting_rebuilt (
     translation_id BIGINT UNSIGNED NOT NULL PRIMARY KEY,
     ordered_count SMALLINT UNSIGNED NOT NULL,
     rebuilt_json LONGTEXT NOT NULL
-) ENGINE = InnoDB;
+) ENGINE = InnoDB
+  DEFAULT CHARACTER SET utf8mb4
+  COLLATE utf8mb4_unicode_ci;
 
 CREATE TEMPORARY TABLE urgent_20260825_advisory_targets (
     translation_id BIGINT UNSIGNED NOT NULL PRIMARY KEY,
     source_length SMALLINT UNSIGNED NOT NULL,
     extracted_count SMALLINT UNSIGNED NOT NULL DEFAULT 0,
     removed_count SMALLINT UNSIGNED NOT NULL DEFAULT 0
-) ENGINE = InnoDB;
+) ENGINE = InnoDB
+  DEFAULT CHARACTER SET utf8mb4
+  COLLATE utf8mb4_unicode_ci;
 
 CREATE TEMPORARY TABLE urgent_20260825_advisory_items (
     translation_id BIGINT UNSIGNED NOT NULL,
@@ -100,19 +114,25 @@ CREATE TEMPORARY TABLE urgent_20260825_advisory_items (
     item_url TEXT NULL,
     is_tax TINYINT(1) UNSIGNED NOT NULL DEFAULT 0,
     PRIMARY KEY (translation_id, original_position)
-) ENGINE = InnoDB;
+) ENGINE = InnoDB
+  DEFAULT CHARACTER SET utf8mb4
+  COLLATE utf8mb4_unicode_ci;
 
 CREATE TEMPORARY TABLE urgent_20260825_advisory_stats (
     translation_id BIGINT UNSIGNED NOT NULL PRIMARY KEY,
     extracted_count SMALLINT UNSIGNED NOT NULL,
     removed_count SMALLINT UNSIGNED NOT NULL
-) ENGINE = InnoDB;
+) ENGINE = InnoDB
+  DEFAULT CHARACTER SET utf8mb4
+  COLLATE utf8mb4_unicode_ci;
 
 CREATE TEMPORARY TABLE urgent_20260825_advisory_rebuilt (
     translation_id BIGINT UNSIGNED NOT NULL PRIMARY KEY,
     ordered_count SMALLINT UNSIGNED NOT NULL,
     rebuilt_json LONGTEXT NOT NULL
-) ENGINE = InnoDB;
+) ENGINE = InnoDB
+  DEFAULT CHARACTER SET utf8mb4
+  COLLATE utf8mb4_unicode_ci;
 
 START TRANSACTION;
 
