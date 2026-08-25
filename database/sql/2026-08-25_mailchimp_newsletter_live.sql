@@ -127,10 +127,12 @@ WHERE NOT EXISTS (
 COMMIT;
 
 -- Verification report. Expected values: table=1, settings=4, consent=2, migration=1.
-SELECT 'newsletter_table' AS `check_name`, COUNT(*) AS `actual`, 1 AS `expected`
-FROM `information_schema`.`TABLES`
-WHERE `TABLE_SCHEMA` = DATABASE()
-  AND `TABLE_NAME` = 'newsletter_subscriptions'
+-- Query the application table directly so phpMyAdmin cannot switch the UNION
+-- context to information_schema before resolving the remaining table names.
+SELECT 'newsletter_table' AS `check_name`,
+       IF(COUNT(*) >= 0, 1, 0) AS `actual`,
+       1 AS `expected`
+FROM `newsletter_subscriptions`
 UNION ALL
 SELECT 'newsletter_settings', COUNT(*), 4
 FROM `system_settings`
