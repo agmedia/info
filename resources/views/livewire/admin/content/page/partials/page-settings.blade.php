@@ -10,7 +10,7 @@
             <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Jezik sadržaja</label>
             <select wire:model.live="form.locale" data-tom-select data-tom-no-search="1" class="admin-select w-full rounded-xl border border-slate-300 px-3 py-2 text-sm lowercase">
                 @foreach ($adminLocaleOptions as $localeOption)
-                    <option value="{{ $localeOption }}">{{ $localeOption }}</option>
+                    <option value="{{ $localeOption }}" @selected(($form['locale'] ?? '') === $localeOption)>{{ $localeOption }}</option>
                 @endforeach
             </select>
             @error('form.locale') <p class="mt-1 text-xs text-rose-600">{{ $message }}</p> @enderror
@@ -33,8 +33,8 @@
     <div class="mt-4 grid gap-4 md:grid-cols-[minmax(0,1fr)_auto] md:items-end">
         <div>
             <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Adresa stranice (slug)</label>
-            <input type="text" wire:model="form.slug" class="w-full rounded-xl border border-slate-300 bg-slate-100 px-3 py-2 font-mono text-sm lowercase" readonly />
-            <p class="mt-1 text-xs text-slate-500">Adresa je zaključana jer je povezana s navigacijom i obrascima na stranici.</p>
+            <input type="text" wire:model="form.slug" class="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 font-mono text-sm lowercase" />
+            <p class="mt-1 text-xs text-slate-500">Adresa se sprema zasebno za svaki jezik. Nakon promjene provjerite lokaliziranu navigaciju.</p>
             @error('form.slug') <p class="mt-1 text-xs text-rose-600">{{ $message }}</p> @enderror
         </div>
 
@@ -50,6 +50,13 @@
             <span class="admin-switch-track"><span class="admin-switch-thumb"></span></span>
             <span class="admin-switch-label">{{ $form['is_active'] ? 'Aktivno' : 'Neaktivno' }}</span>
         </button>
+    </div>
+
+    <div class="mt-4">
+        <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Sažetak stranice</label>
+        <textarea rows="3" wire:model="form.excerpt" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm"></textarea>
+        <p class="mt-1 text-xs text-slate-500">Kratki opis sprema se zasebno za odabrani jezik.</p>
+        @error('form.excerpt') <p class="mt-1 text-xs text-rose-600">{{ $message }}</p> @enderror
     </div>
 
     <details class="mt-5 rounded-2xl border border-slate-200 bg-slate-50 p-4">

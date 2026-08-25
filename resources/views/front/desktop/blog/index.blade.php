@@ -5,7 +5,9 @@
     $defaultHeroTitle = trim((string) ($blogSettings['hero_title'] ?? '')) ?: __('ui.blog.title');
     $heroIntro = trim((string) ($blogSettings['hero_intro'] ?? '')) ?: __('ui.blog.subtitle');
     $heroCtaLabel = trim((string) ($blogSettings['hero_cta_label'] ?? ''));
-    $heroCtaUrl = trim((string) ($blogSettings['hero_cta_url'] ?? ''));
+    $heroCtaUrl = \App\Support\Localization\FrontendRoute::localizeUrl(
+        trim((string) ($blogSettings['hero_cta_url'] ?? ''))
+    );
     $categoryPreviewLimit = max(1, (int) ($blogSettings['category_preview_limit'] ?? 8));
     $activeCategoryIds = collect($selectedCategoryIds ?? [])->map(fn ($id) => (int) $id)->all();
     $fallbackActiveCategory = count($activeCategoryIds) === 1

@@ -14,6 +14,12 @@ return [
         'min_string' => 'Polje :attribute mora imati najmanje :min znakova.',
         'max_string' => 'Polje :attribute ne smije imati više od :max znakova.',
         'security_check' => 'sigurnosna provjera',
+        'attributes' => [
+            'first_name' => 'ime',
+            'last_name' => 'prezime',
+            'company' => 'tvrtka',
+            'redirect_to' => 'odredište preusmjeravanja',
+        ],
         'inline' => [
             'name_required' => 'Unesite ime i prezime.',
             'email_required' => 'Unesite email adresu.',

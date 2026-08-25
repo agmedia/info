@@ -34,8 +34,59 @@
     $academyExperienceLayoutClass = $academyTestimonials->isNotEmpty() && $academyGalleryItems->isNotEmpty()
         ? 'ac-academy-experience-layout--split'
         : 'ac-academy-experience-layout--single';
-    $academyPrograms = $academyPrograms
-        ?? \App\Support\Content\AcademyPageDefaults::mergePrograms(data_get($translation?->payload, 'academy_programs'));
+    $academyRequiresExactTranslation = \App\Support\Localization\FrontendLocalePolicy::requiresExactTranslation((string) $locale);
+    if (!isset($academyPrograms)) {
+        $persistedAcademyPrograms = data_get($translation?->payload, 'academy_programs');
+
+        if ($academyRequiresExactTranslation) {
+            $academyProgramStructure = \App\Support\Content\AcademyPageDefaults::programs();
+            $academyPrograms = collect(is_array($persistedAcademyPrograms) ? array_values($persistedAcademyPrograms) : [])
+                ->map(static function ($program, int $programIndex) use ($academyProgramStructure): ?array {
+                    if (!is_array($program)) {
+                        return null;
+                    }
+
+                    $structure = is_array($academyProgramStructure[$programIndex] ?? null)
+                        ? $academyProgramStructure[$programIndex]
+                        : [];
+                    $items = collect(is_array($program['items'] ?? null) ? array_values($program['items']) : [])
+                        ->map(static function ($item): ?array {
+                            if (!is_array($item)) {
+                                return null;
+                            }
+
+                            $title = array_key_exists('title', $item) ? trim((string) $item['title']) : '';
+                            $text = array_key_exists('text', $item) ? trim((string) $item['text']) : '';
+
+                            return $title !== '' || $text !== ''
+                                ? ['title' => $title, 'text' => $text]
+                                : null;
+                        })
+                        ->filter()
+                        ->values()
+                        ->all();
+                    $title = array_key_exists('title', $program) ? trim((string) $program['title']) : '';
+                    $intro = array_key_exists('intro', $program) ? trim((string) $program['intro']) : '';
+
+                    if ($title === '' && $intro === '' && $items === []) {
+                        return null;
+                    }
+
+                    return [
+                        'title' => $title,
+                        'icon' => trim((string) ($structure['icon'] ?? 'compliance')),
+                        'accent' => trim((string) ($structure['accent'] ?? 'slate')),
+                        'intro' => $intro,
+                        'items' => $items,
+                    ];
+                })
+                ->filter()
+                ->values()
+                ->all();
+        } else {
+            $academyPrograms = \App\Support\Content\AcademyPageDefaults::mergePrograms($persistedAcademyPrograms);
+        }
+    }
 @endphp
 
 @section('title', $translation?->title ?? 'Akademija')
@@ -57,7 +108,7 @@
 
     <section id="academy-programs" class="ac-academy-programs" aria-labelledby="academy-programs-title">
         <div class="mx-auto w-full max-w-[1240px] px-5 lg:px-8">
-            <h2 id="academy-programs-title" class="sr-only">Programi Akademije</h2>
+            <h2 id="academy-programs-title" class="sr-only">{{ $locale === 'hr' ? 'Programi Akademije' : 'Academy programmes' }}</h2>
 
             <div class="ac-academy-program-grid ac-academy-program-grid--tight">
                 @foreach ($academyPrograms as $program)
@@ -87,21 +138,31 @@
                                 @endswitch
                             </span>
 
-                            <div>
-                                <h3>{{ $program['title'] }}</h3>
-                            </div>
+                            @if (($program['title'] ?? '') !== '')
+                                <div>
+                                    <h3>{{ $program['title'] }}</h3>
+                                </div>
+                            @endif
                         </div>
 
-                        <p class="ac-academy-program-intro">{{ $program['intro'] }}</p>
+                        @if (($program['intro'] ?? '') !== '')
+                            <p class="ac-academy-program-intro">{{ $program['intro'] }}</p>
+                        @endif
 
-                        <div class="ac-academy-topic-list">
+                        @if (!empty($program['items']))
+                            <div class="ac-academy-topic-list">
                             @foreach ($program['items'] as $item)
                                 <article class="ac-academy-topic">
-                                    <h4>{{ $item['title'] }}</h4>
-                                    <p>{{ $item['text'] }}</p>
+                                    @if (($item['title'] ?? '') !== '')
+                                        <h4>{{ $item['title'] }}</h4>
+                                    @endif
+                                    @if (($item['text'] ?? '') !== '')
+                                        <p>{{ $item['text'] }}</p>
+                                    @endif
                                 </article>
                             @endforeach
-                        </div>
+                            </div>
+                        @endif
                     </article>
                 @endforeach
             </div>

@@ -25,6 +25,8 @@ use App\Http\Controllers\Front\SearchController;
 use App\Http\Controllers\Front\ServicesController;
 use App\Http\Controllers\Front\StorefrontController;
 use App\Http\Controllers\Front\TeamController;
+use App\Http\Middleware\EnsureFrontendRouteLocale;
+use App\Http\Middleware\InferFrontendLocaleFromInfoPageSlug;
 use App\Models\Catalog\Category\Category;
 use App\Models\Content\Blog\BlogPost;
 use App\Models\Content\Call\CallPost;
@@ -71,7 +73,28 @@ Route::middleware(['front.locale', 'front.device'])
 
             $request->session()->put('front_locale', $target);
 
-            return redirect()->back();
+            $redirectTarget = trim((string) $request->query('redirect', ''));
+            if ($redirectTarget !== '') {
+                $parts = parse_url($redirectTarget);
+                $requestHost = strtolower($request->getHost());
+                $applicationHost = strtolower((string) parse_url((string) config('app.url'), PHP_URL_HOST));
+                $redirectHost = is_array($parts) ? strtolower(trim((string) ($parts['host'] ?? ''))) : '';
+                $redirectScheme = is_array($parts) ? strtolower(trim((string) ($parts['scheme'] ?? ''))) : '';
+                $isSafeRelativeTarget = str_starts_with($redirectTarget, '/')
+                    && ! str_starts_with($redirectTarget, '//')
+                    && ! str_contains($redirectTarget, '\\');
+                $isSafeAbsoluteTarget = in_array($redirectScheme, ['http', 'https'], true)
+                    && $redirectHost !== ''
+                    && in_array($redirectHost, array_filter([$requestHost, $applicationHost]), true)
+                    && ! isset($parts['user'])
+                    && ! isset($parts['pass']);
+
+                if ($isSafeRelativeTarget || $isSafeAbsoluteTarget) {
+                    return redirect()->to($redirectTarget);
+                }
+            }
+
+            return redirect()->to(route('home'));
         })->name('front.locale.switch');
 
         Route::get('/', [StorefrontController::class, 'home'])->name('home');
@@ -84,17 +107,72 @@ Route::middleware(['front.locale', 'front.device'])
             ->whereNumber('day')
             ->name('blog.legacy');
         Route::get('faq', [FaqController::class, 'index'])->name('faq.index');
-        Route::get('alpha-capitalis-tim', [TeamController::class, 'index'])->name('team.index');
-        Route::get('usluge', [ServicesController::class, 'index'])->name('services.index');
-        Route::get('savjetovanje', [AdvisoryController::class, 'show'])->name('advisory.show');
-        Route::get('savjetovanje/financijsko-savjetovanje', [AdvisoryController::class, 'financial'])->name('advisory.finance.show');
-        Route::get('savjetovanje/prodaja-i-kupnja-poduzeca', [AdvisoryController::class, 'ma'])->name('advisory.ma.show');
-        Route::get('savjetovanje/dubinska-snimanja', [AdvisoryController::class, 'dueDiligence'])->name('advisory.due-diligence.show');
-        Route::get('savjetovanje/procjena-vrijednosti-drustva', [AdvisoryController::class, 'valuations'])->name('advisory.valuations.show');
-        Route::get('savjetovanje/porezno-savjetovanje', [AdvisoryController::class, 'tax'])->name('advisory.tax.show');
-        Route::get('savjetovanje/pribavljanje-financiranja', [AdvisoryController::class, 'funding'])->name('advisory.funding.show');
-        Route::get('savjetovanje/pribavljanje-financiranja/bankovni-krediti', [AdvisoryController::class, 'bankLoans'])->name('advisory.bank-loans.show');
-        Route::get('savjetovanje/pribavljanje-financiranja/zakon-o-poticanju-ulaganja', [AdvisoryController::class, 'investmentIncentives'])->name('advisory.investment-incentives.show');
+        Route::get('alpha-capitalis-tim', [TeamController::class, 'index'])
+            ->middleware(EnsureFrontendRouteLocale::class.':hr')
+            ->name('team.index');
+        Route::get('alpha-capitalis-team', [TeamController::class, 'index'])
+            ->middleware(EnsureFrontendRouteLocale::class.':en')
+            ->name('team.index.en');
+        Route::get('usluge', [ServicesController::class, 'index'])
+            ->middleware(EnsureFrontendRouteLocale::class.':hr')
+            ->name('services.index');
+        Route::get('services', [ServicesController::class, 'index'])
+            ->middleware(EnsureFrontendRouteLocale::class.':en')
+            ->name('services.index.en');
+        Route::get('savjetovanje', [AdvisoryController::class, 'show'])
+            ->middleware(EnsureFrontendRouteLocale::class.':hr')
+            ->name('advisory.show');
+        Route::get('advisory', [AdvisoryController::class, 'show'])
+            ->middleware(EnsureFrontendRouteLocale::class.':en')
+            ->name('advisory.show.en');
+        Route::get('savjetovanje/financijsko-savjetovanje', [AdvisoryController::class, 'financial'])
+            ->middleware(EnsureFrontendRouteLocale::class.':hr')
+            ->name('advisory.finance.show');
+        Route::get('advisory/financial-advisory', [AdvisoryController::class, 'financial'])
+            ->middleware(EnsureFrontendRouteLocale::class.':en')
+            ->name('advisory.finance.show.en');
+        Route::get('savjetovanje/prodaja-i-kupnja-poduzeca', [AdvisoryController::class, 'ma'])
+            ->middleware(EnsureFrontendRouteLocale::class.':hr')
+            ->name('advisory.ma.show');
+        Route::get('advisory/sale-and-purchase-of-companies', [AdvisoryController::class, 'ma'])
+            ->middleware(EnsureFrontendRouteLocale::class.':en')
+            ->name('advisory.ma.show.en');
+        Route::get('savjetovanje/dubinska-snimanja', [AdvisoryController::class, 'dueDiligence'])
+            ->middleware(EnsureFrontendRouteLocale::class.':hr')
+            ->name('advisory.due-diligence.show');
+        Route::get('advisory/due-diligence', [AdvisoryController::class, 'dueDiligence'])
+            ->middleware(EnsureFrontendRouteLocale::class.':en')
+            ->name('advisory.due-diligence.show.en');
+        Route::get('savjetovanje/procjena-vrijednosti-drustva', [AdvisoryController::class, 'valuations'])
+            ->middleware(EnsureFrontendRouteLocale::class.':hr')
+            ->name('advisory.valuations.show');
+        Route::get('advisory/company-valuation', [AdvisoryController::class, 'valuations'])
+            ->middleware(EnsureFrontendRouteLocale::class.':en')
+            ->name('advisory.valuations.show.en');
+        Route::get('savjetovanje/porezno-savjetovanje', [AdvisoryController::class, 'tax'])
+            ->middleware(EnsureFrontendRouteLocale::class.':hr')
+            ->name('advisory.tax.show');
+        Route::get('advisory/tax-advisory', [AdvisoryController::class, 'tax'])
+            ->middleware(EnsureFrontendRouteLocale::class.':en')
+            ->name('advisory.tax.show.en');
+        Route::get('savjetovanje/pribavljanje-financiranja', [AdvisoryController::class, 'funding'])
+            ->middleware(EnsureFrontendRouteLocale::class.':hr')
+            ->name('advisory.funding.show');
+        Route::get('advisory/raising-finance', [AdvisoryController::class, 'funding'])
+            ->middleware(EnsureFrontendRouteLocale::class.':en')
+            ->name('advisory.funding.show.en');
+        Route::get('savjetovanje/pribavljanje-financiranja/bankovni-krediti', [AdvisoryController::class, 'bankLoans'])
+            ->middleware(EnsureFrontendRouteLocale::class.':hr')
+            ->name('advisory.bank-loans.show');
+        Route::get('advisory/raising-finance/bank-loans', [AdvisoryController::class, 'bankLoans'])
+            ->middleware(EnsureFrontendRouteLocale::class.':en')
+            ->name('advisory.bank-loans.show.en');
+        Route::get('savjetovanje/pribavljanje-financiranja/zakon-o-poticanju-ulaganja', [AdvisoryController::class, 'investmentIncentives'])
+            ->middleware(EnsureFrontendRouteLocale::class.':hr')
+            ->name('advisory.investment-incentives.show');
+        Route::get('advisory/raising-finance/investment-incentives', [AdvisoryController::class, 'investmentIncentives'])
+            ->middleware(EnsureFrontendRouteLocale::class.':en')
+            ->name('advisory.investment-incentives.show.en');
         Route::get('financije', function (Request $request) {
             $targetUrl = route('advisory.finance.show');
             $queryString = $request->getQueryString();
@@ -104,9 +182,19 @@ Route::middleware(['front.locale', 'front.device'])
             }
 
             return redirect()->to($targetUrl, 301);
-        })->name('finance.show');
-        Route::get('racunovodstvo', [AccountingController::class, 'show'])->name('accounting.show');
-        Route::get('revizija', [AuditController::class, 'show'])->name('audit.show');
+        })->middleware(EnsureFrontendRouteLocale::class.':hr')->name('finance.show');
+        Route::get('racunovodstvo', [AccountingController::class, 'show'])
+            ->middleware(EnsureFrontendRouteLocale::class.':hr')
+            ->name('accounting.show');
+        Route::get('accounting', [AccountingController::class, 'show'])
+            ->middleware(EnsureFrontendRouteLocale::class.':en')
+            ->name('accounting.show.en');
+        Route::get('revizija', [AuditController::class, 'show'])
+            ->middleware(EnsureFrontendRouteLocale::class.':hr')
+            ->name('audit.show');
+        Route::get('audit', [AuditController::class, 'show'])
+            ->middleware(EnsureFrontendRouteLocale::class.':en')
+            ->name('audit.show.en');
         Route::get('porezi', function (Request $request) {
             $targetUrl = route('advisory.tax.show');
             $queryString = $request->getQueryString();
@@ -116,15 +204,40 @@ Route::middleware(['front.locale', 'front.device'])
             }
 
             return redirect()->to($targetUrl, 301);
-        })->name('tax.show');
-        Route::get('eu-fondovi', [EuFundsController::class, 'show'])->name('eu-funds.show');
-        Route::get('eu-fondovi/upitnik', [EuFundsQuestionnaireController::class, 'create'])->name('eu-funds.questionnaire.create');
-        Route::post('eu-fondovi/upitnik', [EuFundsQuestionnaireController::class, 'store'])->name('eu-funds.questionnaire.store');
-        Route::get('eu-fondovi/pozivi/{slug}', [CallPostController::class, 'show'])->name('eu-funds.calls.show');
+        })->middleware(EnsureFrontendRouteLocale::class.':hr')->name('tax.show');
+        Route::get('eu-fondovi', [EuFundsController::class, 'show'])
+            ->middleware(EnsureFrontendRouteLocale::class.':hr')
+            ->name('eu-funds.show');
+        Route::get('eu-funds', [EuFundsController::class, 'show'])
+            ->middleware(EnsureFrontendRouteLocale::class.':en')
+            ->name('eu-funds.show.en');
+        Route::get('eu-fondovi/upitnik', [EuFundsQuestionnaireController::class, 'create'])
+            ->middleware(EnsureFrontendRouteLocale::class.':hr')
+            ->name('eu-funds.questionnaire.create');
+        Route::post('eu-fondovi/upitnik', [EuFundsQuestionnaireController::class, 'store'])
+            ->middleware(EnsureFrontendRouteLocale::class.':hr')
+            ->name('eu-funds.questionnaire.store');
+        Route::get('eu-funds/questionnaire', [EuFundsQuestionnaireController::class, 'create'])
+            ->middleware(EnsureFrontendRouteLocale::class.':en')
+            ->name('eu-funds.questionnaire.create.en');
+        Route::post('eu-funds/questionnaire', [EuFundsQuestionnaireController::class, 'store'])
+            ->middleware(EnsureFrontendRouteLocale::class.':en')
+            ->name('eu-funds.questionnaire.store.en');
+        Route::get('eu-fondovi/pozivi/{slug}', [CallPostController::class, 'show'])
+            ->middleware(EnsureFrontendRouteLocale::class.':hr')
+            ->name('eu-funds.calls.show');
+        Route::get('eu-funds/calls/{slug}', [CallPostController::class, 'show'])
+            ->middleware(EnsureFrontendRouteLocale::class.':en')
+            ->name('eu-funds.calls.show.en');
         Route::get('glossary', [GlossaryController::class, 'index'])->name('glossary.index');
         Route::get('glossary/{slug}', [GlossaryController::class, 'show'])->name('glossary.show');
         Route::get('search/suggest', [SearchController::class, 'suggest'])->name('search.suggest');
-        Route::get('search', [SearchController::class, 'index'])->name('search.index');
+        Route::get('pretraga', [SearchController::class, 'index'])
+            ->middleware(EnsureFrontendRouteLocale::class.':hr')
+            ->name('search.index');
+        Route::get('search', [SearchController::class, 'index'])
+            ->middleware(EnsureFrontendRouteLocale::class.':en')
+            ->name('search.index.en');
 
         Route::get('pages/category/o-nama', function (Request $request) {
             $targetUrl = route('pages.show', ['slug' => 'o-nama']);
@@ -148,15 +261,30 @@ Route::middleware(['front.locale', 'front.device'])
             return redirect()->to($targetUrl, 301);
         })->where('slug', '[a-z0-9-]+')->name('pages.legacy');
 
-        Route::get('contact', [ContactController::class, 'create'])->name('contact.create');
-        Route::post('contact', [ContactController::class, 'store'])->name('contact.store');
+        Route::get('kontakt', [ContactController::class, 'create'])
+            ->middleware(EnsureFrontendRouteLocale::class.':hr')
+            ->name('contact.create');
+        Route::post('kontakt', [ContactController::class, 'store'])
+            ->middleware(EnsureFrontendRouteLocale::class.':hr')
+            ->name('contact.store');
+        Route::get('contact', [ContactController::class, 'create'])
+            ->middleware(EnsureFrontendRouteLocale::class.':en')
+            ->name('contact.create.en');
+        Route::post('contact', [ContactController::class, 'store'])
+            ->middleware(EnsureFrontendRouteLocale::class.':en')
+            ->name('contact.store.en');
         Route::get('resources', [ResourceController::class, 'index'])->name('resources.index');
         Route::get('resources/{slug}', [ResourceController::class, 'show'])->name('resources.show');
         Route::post('resources/{slug}/request', [ResourceController::class, 'store'])->name('resources.request');
         Route::get('ac-forma-robot', [CollaborationAssessmentController::class, 'create'])->name('assessment.create');
         Route::post('ac-forma-robot', [CollaborationAssessmentController::class, 'store'])->name('assessment.store');
         Route::get('leasing-kalkulator', [LeaseCalculatorController::class, 'show'])->name('lease-calculator.show');
-        Route::post('karijera/prijava', [CareerApplicationController::class, 'store'])->name('career.applications.store');
+        Route::post('karijera/prijava', [CareerApplicationController::class, 'store'])
+            ->middleware(EnsureFrontendRouteLocale::class.':hr')
+            ->name('career.applications.store');
+        Route::post('careers/apply', [CareerApplicationController::class, 'store'])
+            ->middleware(EnsureFrontendRouteLocale::class.':en')
+            ->name('career.applications.store.en');
 
     });
 
@@ -296,6 +424,21 @@ Route::middleware(['admin.locale', 'auth', 'verified', 'admin.access', 'admin.ma
                 ->name('system.catalog-features');
             Route::view('system/store-settings', 'admin.settings.system.store-settings')->name('system.store-settings');
             Route::view('system/imports', 'admin.settings.system.imports')->name('system.imports');
+            Route::get('api', function () {
+                $current = auth()->user();
+                abort_unless(
+                    $current && (
+                        $current->isA('superadmin')
+                        || $current->isA('admin')
+                        || $current->can('settings.api.manage')
+                    ),
+                    403
+                );
+
+                return view('admin.settings.api.index');
+            })
+                ->middleware('catalog.feature:catalog_use_api')
+                ->name('api.index');
             Route::view('local/languages', 'admin.settings.local.resource', ['resource' => 'languages'])->name('local.languages');
             Route::view('user', 'admin.settings.user.index')->name('user.index');
         });
@@ -332,5 +475,6 @@ Route::middleware(['front.locale', 'front.device'])
         // Keep CMS page slugs last so fixed top-level routes win first.
         Route::get('{slug}', [PageController::class, 'show'])
             ->where('slug', '[a-z0-9-]+')
+            ->middleware(InferFrontendLocaleFromInfoPageSlug::class)
             ->name('pages.show');
     });

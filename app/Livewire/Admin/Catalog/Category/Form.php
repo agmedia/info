@@ -30,6 +30,7 @@ class Form extends Component
         'description' => '',
         'meta_title' => '',
         'meta_description' => '',
+        'status_label' => '',
         'translation_payload_text' => '',
     ];
 
@@ -55,7 +56,7 @@ class Form extends Component
 
     public function updatedFormLocale(): void
     {
-        if (!in_array($this->form['locale'], $this->localeOptions, true)) {
+        if (! in_array($this->form['locale'], $this->localeOptions, true)) {
             $this->form['locale'] = $this->resolveDefaultLocale();
         }
 
@@ -64,7 +65,7 @@ class Form extends Component
 
     public function updatedFormScope(): void
     {
-        if (!in_array($this->form['scope'], $this->scopeOptions, true)) {
+        if (! in_array($this->form['scope'], $this->scopeOptions, true)) {
             $this->form['scope'] = Category::SCOPE_BLOG;
         }
 
@@ -74,7 +75,7 @@ class Form extends Component
                 ->where('scope', $this->form['scope'])
                 ->exists();
 
-            if (!$validParent) {
+            if (! $validParent) {
                 $this->form['parent_id'] = null;
             }
         }
@@ -107,6 +108,21 @@ class Form extends Component
         $translationPayload = $this->decodeJsonField('form.translation_payload_text');
         if ($translationPayload === false) {
             return null;
+        }
+
+        if ((string) $validated['form']['scope'] === Category::SCOPE_CALL) {
+            $translationPayload = is_array($translationPayload) ? $translationPayload : [];
+            $statusLabel = trim((string) ($validated['form']['status_label'] ?? ''));
+
+            if ($statusLabel === '') {
+                unset($translationPayload['status_label']);
+            } else {
+                $translationPayload['status_label'] = $statusLabel;
+            }
+
+            if ($translationPayload === []) {
+                $translationPayload = null;
+            }
         }
 
         $userId = auth()->id();
@@ -156,10 +172,14 @@ class Form extends Component
                         $category->appendToNode($parent)->save();
                     }
                 } else {
-                    $category->save();
+                    if ($category->isDirty()) {
+                        $category->save();
+                    }
                 }
 
-                $category->translations()->update(['scope' => $scope]);
+                if ($scopeChanged) {
+                    $category->translations()->update(['scope' => $scope]);
+                }
             } else {
                 $category = new Category($categoryData + ['created_by' => $userId]);
 
@@ -323,13 +343,14 @@ class Form extends Component
             'form.description' => ['nullable', 'string'],
             'form.meta_title' => ['nullable', 'string', 'max:255'],
             'form.meta_description' => ['nullable', 'string'],
+            'form.status_label' => ['nullable', 'string', 'max:80'],
             'form.translation_payload_text' => ['nullable', 'string'],
         ];
     }
 
     private function loadCategory(): void
     {
-        if (!$this->categoryId) {
+        if (! $this->categoryId) {
             return;
         }
 
@@ -337,10 +358,8 @@ class Form extends Component
             ->with('translations')
             ->findOrFail($this->categoryId);
 
-        $preferredLocale = $this->form['locale'] ?: config('app.locale', 'en');
-        $translation = $category->translations->firstWhere('locale', $preferredLocale)
-            ?? $category->translations->firstWhere('locale', config('app.locale', 'en'))
-            ?? $category->translations->first();
+        $preferredLocale = $this->form['locale'] ?: $this->resolveDefaultLocale();
+        $translation = $category->translations->firstWhere('locale', $preferredLocale);
 
         $loadedScope = (string) ($category->scope ?: Category::SCOPE_BLOG);
         $this->form['scope'] = in_array($loadedScope, $this->scopeOptions, true)
@@ -356,22 +375,25 @@ class Form extends Component
             : '';
 
         if ($translation) {
-            $this->form['locale'] = $translation->locale;
             $this->form['name'] = $translation->name;
             $this->form['slug'] = $translation->slug;
             $this->form['description'] = $translation->description ?? '';
             $this->form['meta_title'] = $translation->meta_title ?? '';
             $this->form['meta_description'] = $translation->meta_description ?? '';
+            $this->form['status_label'] = trim((string) data_get($translation->payload, 'status_label', ''));
             $this->form['translation_payload_text'] = $translation->payload
                 ? json_encode($translation->payload, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES)
                 : '';
+        } else {
+            $this->clearTranslationFields();
         }
     }
 
     private function loadTranslationForLocale(): void
     {
-        if (!$this->categoryId) {
+        if (! $this->categoryId) {
             $this->clearTranslationFields();
+
             return;
         }
 
@@ -381,8 +403,9 @@ class Form extends Component
             ->where('locale', $this->form['locale'])
             ->first();
 
-        if (!$translation) {
+        if (! $translation) {
             $this->clearTranslationFields();
+
             return;
         }
 
@@ -391,6 +414,7 @@ class Form extends Component
         $this->form['description'] = $translation->description ?? '';
         $this->form['meta_title'] = $translation->meta_title ?? '';
         $this->form['meta_description'] = $translation->meta_description ?? '';
+        $this->form['status_label'] = trim((string) data_get($translation->payload, 'status_label', ''));
         $this->form['translation_payload_text'] = $translation->payload
             ? json_encode($translation->payload, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES)
             : '';
@@ -403,6 +427,7 @@ class Form extends Component
         $this->form['description'] = '';
         $this->form['meta_title'] = '';
         $this->form['meta_description'] = '';
+        $this->form['status_label'] = '';
         $this->form['translation_payload_text'] = '';
     }
 
@@ -421,12 +446,14 @@ class Form extends Component
         if (json_last_error() !== JSON_ERROR_NONE) {
             $this->addError($field, __('Invalid JSON payload.'));
             $this->dispatch('notify', type: 'danger', message: __('Invalid JSON payload.'));
+
             return false;
         }
 
-        if (!is_array($decoded)) {
+        if (! is_array($decoded)) {
             $this->addError($field, __('JSON payload must decode to object/array.'));
             $this->dispatch('notify', type: 'danger', message: __('JSON payload must decode to object/array.'));
+
             return false;
         }
 

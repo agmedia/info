@@ -10,15 +10,18 @@ class AboutPageDefaults
     public static function merge(mixed $payload, string $locale): array
     {
         $source = is_array($payload) ? $payload : [];
+        $usesCroatianDefaults = self::isCroatian($locale);
         $merged = self::mergeValues(self::forLocale($locale), $source);
 
         $storySource = is_array($source['story'] ?? null) ? $source['story'] : [];
-        $merged['story']['body_html'] = array_key_exists('body_html', $storySource)
-            || array_key_exists('paragraphs', $storySource)
-                ? self::bodyHtml($storySource, (array) data_get($merged, 'story.paragraphs', []))
-                : (self::isCroatian($locale)
-                    ? self::croatianStoryBodyHtml()
-                    : StructuredRichText::fromParagraphs((array) data_get($merged, 'story.paragraphs', [])));
+        if ($usesCroatianDefaults || $storySource !== []) {
+            $merged['story']['body_html'] = array_key_exists('body_html', $storySource)
+                || array_key_exists('paragraphs', $storySource)
+                    ? self::bodyHtml($storySource, (array) data_get($merged, 'story.paragraphs', []))
+                    : ($usesCroatianDefaults ? self::croatianStoryBodyHtml() : '');
+        } else {
+            unset($merged['story']);
+        }
 
         foreach ((array) data_get($merged, 'values.items', []) as $itemIndex => $item) {
             $sourceItem = is_array(data_get($source, 'values.items.'.$itemIndex))
@@ -35,16 +38,28 @@ class AboutPageDefaults
         }
 
         foreach (['why', 'culture', 'responsibility', 'references'] as $section) {
+            $sectionSource = is_array($source[$section] ?? null) ? $source[$section] : [];
+            if (! $usesCroatianDefaults && $sectionSource === []) {
+                unset($merged[$section]);
+
+                continue;
+            }
+
             $merged[$section]['body_html'] = self::bodyHtml(
-                is_array($source[$section] ?? null) ? $source[$section] : [],
+                $sectionSource,
                 (array) data_get($merged, $section.'.paragraphs', []),
             );
         }
 
-        $merged['team']['body_html'] = self::bodyHtml(
-            is_array($source['team'] ?? null) ? $source['team'] : [],
-            [data_get($merged, 'team.intro', ''), data_get($merged, 'team.body', '')],
-        );
+        $teamSource = is_array($source['team'] ?? null) ? $source['team'] : [];
+        if ($usesCroatianDefaults || $teamSource !== []) {
+            $merged['team']['body_html'] = self::bodyHtml(
+                $teamSource,
+                [data_get($merged, 'team.intro', ''), data_get($merged, 'team.body', '')],
+            );
+        } else {
+            unset($merged['team']);
+        }
 
         return $merged;
     }
@@ -56,7 +71,7 @@ class AboutPageDefaults
     {
         return self::isCroatian($locale)
             ? self::croatianDefaults()
-            : self::englishDefaults();
+            : [];
     }
 
     /**
@@ -183,129 +198,6 @@ class AboutPageDefaults
                     'Uspjeh naših klijenata ujedno je i najveća potvrda našeg rada.',
                 ],
                 'button_label' => 'Sve reference',
-            ],
-        ];
-    }
-
-    /**
-     * @return array<string, mixed>
-     */
-    private static function englishDefaults(): array
-    {
-        return [
-            'hero' => [
-                'eyebrow' => 'About us',
-                'title' => 'Our story',
-                'lead' => 'From expertise and experience to long-term client relationships.',
-                'image_alt' => '',
-                'stat_value' => '700',
-                'stat_label' => 'clients supported by our team',
-            ],
-            'story' => [
-                'kicker' => 'Our story',
-                'title' => 'A partner for confident business decisions',
-                'paragraphs' => [
-                    'ALPHA CAPITALIS was created from the desire to give entrepreneurs more than standard business support. From the beginning, we have built a company that combines expertise, experience and an understanding of the real challenges faced by entrepreneurs, family businesses and growing organisations.',
-                    'Over the years, we have developed a multidisciplinary team of specialists in accounting, finance, tax, audit and EU funds, focused on providing complete and long-term solutions for our clients.',
-                    'Today, ALPHA CAPITALIS works as a partner that gives clients confidence in decision-making, stability in operations and support across all stages of development - from daily operations to strategic decisions and business succession.',
-                    'Our story is built on trust, expertise and long-term relationships with clients. That is why many of them have been growing with us for years.',
-                ],
-            ],
-            'values' => [
-                'kicker' => 'Our values',
-                'label' => 'Our values',
-                'title' => 'Simple principles that guide our work',
-                'intro' => 'At ALPHA CAPITALIS, values are not only words. They define how we think, work and build relationships with each other and with our clients.',
-                'items' => [
-                    [
-                        'title' => 'Learn fast',
-                        'lead' => 'We value people who want to learn, ask, explore and develop quickly.',
-                        'paragraphs' => [
-                            'We work in an environment that keeps changing - markets, laws, technology and client needs. The ability to learn quickly is one of the most important strengths we can have as a team.',
-                            'Not knowing is not the problem. Not wanting to learn is.',
-                            'That is why we share knowledge, learn from one another, grow through practice and take responsibility without waiting for a perfect moment.',
-                        ],
-                    ],
-                    [
-                        'title' => 'Work smart, not hard',
-                        'lead' => 'We do not believe in a culture where staying late is the measure of work.',
-                        'paragraphs' => [
-                            'We believe in thoughtful work. That means planning ahead, setting priorities, looking for better solutions and avoiding habits that exist only because they have always been done that way.',
-                            'We value people who recognise problems, and even more those who propose solutions. Productivity is not chaos, but focus.',
-                            'We want to create results without unnecessary complexity - responsibly, clearly and with quality.',
-                        ],
-                    ],
-                    [
-                        'title' => 'Relationship over transaction',
-                        'lead' => 'People are always more important than process.',
-                        'paragraphs' => [
-                            'We do not build relationships that last one project or one email. We build partnerships.',
-                            'That applies to clients and to our team. Trust is built through availability, honesty, quality communication and being present when it matters.',
-                            'Numbers matter, but people are the reason work has meaning.',
-                        ],
-                    ],
-                ],
-            ],
-            'why' => [
-                'kicker' => 'Why we exist',
-                'title' => 'Support for secure, quality and sustainable business',
-                'quote' => 'We believe successful business is not built only on numbers, but also on quality relationships, clear strategy and timely decisions.',
-                'paragraphs' => [
-                    'We exist to help entrepreneurs build more secure, higher-quality and more sustainable businesses.',
-                    'Our mission is to be a reliable partner that provides expert support in key business areas - from finance and accounting to strategic development, audit and EU funds.',
-                    'Our goal is not only to follow our clients business, but to actively contribute to their growth and long-term stability.',
-                ],
-            ],
-            'team' => [
-                'kicker' => 'TEAM',
-                'label' => 'Our team',
-                'title' => 'The people behind ALPHA CAPITALIS',
-                'intro' => 'ALPHA CAPITALIS is a strong multidisciplinary team of experts supporting clients from different industries and business sectors every day.',
-                'body' => 'Our team brings together specialists in accounting, audit and business advisory who work together to provide quality, timely and tailored solutions.',
-                'stats' => [
-                    ['value' => '75', 'label' => 'experts'],
-                    ['value' => '9', 'label' => 'management board members'],
-                    ['value' => '700', 'label' => 'clients'],
-                    ['value' => '3', 'label' => 'offices in Zagreb, Vinkovci and Rijeka'],
-                ],
-                'button_label' => 'Meet the full team',
-            ],
-            'culture' => [
-                'kicker' => 'Our culture',
-                'title' => 'Quality business starts with quality relationships',
-                'quote' => 'At ALPHA CAPITALIS, we believe quality business starts with quality relationships.',
-                'paragraphs' => [
-                    'We build a culture that encourages collaboration, professional development, open communication and mutual respect.',
-                    'We encourage continuous learning, knowledge sharing and the development of new ideas because we believe people make the biggest difference.',
-                    'Alongside professionalism, a positive working atmosphere, belonging and shared growth are equally important to us.',
-                ],
-            ],
-            'responsibility' => [
-                'kicker' => 'Social responsibility',
-                'title' => 'AUXILIUM CAPITALIS - investing in the future',
-                'quote' => 'We believe success has the greatest value when it creates opportunities for others.',
-                'paragraphs' => [
-                    'That is why we launched AUXILIUM CAPITALIS - an initiative focused on scholarships and supporting young people through education, development and financial literacy.',
-                    'Our goal is to help talented and promising young people reach their potential, regardless of their circumstances.',
-                    'AUXILIUM CAPITALIS is not only a project. It is the way we want to give back to the community and create concrete, long-term impact.',
-                ],
-                'cta_intro' => 'Would you like to be part of this story?',
-                'cta_text' => 'We invite individuals, partners and companies to join us in creating new opportunities for young people and helping build a better future.',
-                'cta_button_label' => 'Contact us',
-                'cta_card_title' => 'Together, we can do more.',
-                'cta_status' => 'We are open to conversations and new partnerships.',
-            ],
-            'references' => [
-                'kicker' => 'References',
-                'label' => 'Our references',
-                'title' => 'Client trust confirms the quality of our work',
-                'paragraphs' => [
-                    'The trust of 700 clients across different industries and sectors confirms the quality and expertise we provide every day.',
-                    'We work with small, medium-sized and large companies, supporting them in accounting, audit and business advisory.',
-                    'Our long-term client relationships are based on trust, availability, expertise and an understanding of their business goals.',
-                    'The success of our clients is also the strongest confirmation of our work.',
-                ],
-                'button_label' => 'All references',
             ],
         ];
     }

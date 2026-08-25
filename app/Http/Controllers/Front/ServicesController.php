@@ -8,6 +8,7 @@ use App\Models\Content\Service\ServicePage;
 use App\Models\Content\Service\ServicePageTranslation;
 use App\Services\Front\ServiceCardService;
 use App\Support\Content\ServicePageTemplateRegistry;
+use App\Support\Localization\FrontendLocalePolicy;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Schema;
@@ -19,33 +20,33 @@ class ServicesController extends Controller
 
     public function __construct(
         private readonly ServiceCardService $serviceCardService
-    ) {
-    }
+    ) {}
 
     public function index(Request $request): View
     {
         $locale = app()->getLocale();
-        $fallbackLocale = (string) config('app.fallback_locale', config('app.locale', 'en'));
-        [$servicePage, $servicePageTranslation] = $this->resolveServicePage((string) $locale, $fallbackLocale);
-        $translationPayload = ServicePageTemplateRegistry::mergeTranslationPayload(
-            ServicePageTemplateRegistry::SERVICES_INDEX,
-            $servicePageTranslation?->payload,
-            (string) ($servicePageTranslation?->locale ?: $locale)
+        $fallbackLocale = FrontendLocalePolicy::fallbackLocale(
+            (string) $locale,
+            (string) config('app.fallback_locale', config('app.locale', 'en'))
         );
+        [$servicePage, $servicePageTranslation] = $this->resolveServicePage((string) $locale, $fallbackLocale);
+        abort_if(! $servicePageTranslation, 404);
+        $translationPayload = (array) ($servicePageTranslation->payload ?? []);
         $showcase = (array) ($translationPayload['showcase'] ?? []);
         $primaryPillars = $this->serviceCardService->primaryPillars(
             (string) $locale,
             $fallbackLocale,
-            (array) ($translationPayload['primary_pillars'] ?? [])
+            (array) ($translationPayload['primary_pillars'] ?? []),
+            useDefaultRoutes: false,
         );
 
         return view($this->frontendView($request, 'pages.services'), [
             'serviceCards' => $this->serviceCardService->cards((string) $locale, $fallbackLocale),
             'primaryServicePillars' => $primaryPillars,
             'servicesShowcase' => $showcase,
-            'servicePageTitle' => trim((string) ($servicePageTranslation?->title ?? '')) ?: 'Usluge',
-            'servicePageMetaTitle' => trim((string) ($servicePageTranslation?->meta_title ?? '')) ?: 'Usluge | ALPHA CAPITALIS',
-            'servicePageMetaDescription' => trim((string) ($servicePageTranslation?->meta_description ?? '')) ?: 'Pregled usluga ALPHA CAPITALISA: revizija, racunovodstvo i poslovno savjetovanje.',
+            'servicePageTitle' => $servicePageTitle = trim((string) ($servicePageTranslation?->title ?? '')),
+            'servicePageMetaTitle' => trim((string) ($servicePageTranslation?->meta_title ?? '')),
+            'servicePageMetaDescription' => trim((string) ($servicePageTranslation?->meta_description ?? '')),
             'locale' => $locale,
             'fallbackLocale' => $fallbackLocale,
         ]);
@@ -79,11 +80,8 @@ class ServicesController extends Controller
             return [null, null];
         }
 
-        $translation = $servicePage->translations->firstWhere('locale', $locale)
-            ?? $servicePage->translations->firstWhere('locale', $fallbackLocale)
-            ?? $servicePage->translations->first();
+        $translation = $servicePage->translations->firstWhere('locale', $locale);
 
         return [$servicePage, $translation];
     }
-
 }

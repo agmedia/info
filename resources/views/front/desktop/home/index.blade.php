@@ -1,228 +1,254 @@
 @extends('front.desktop.layouts.store')
 
-@section('title', 'Alpha Capitalis | Vaš kompas kroz svijet financija')
-@section('main_class', 'hero-page')
+@php
+    $locale = strtolower(trim((string) ($locale ?? app()->getLocale())));
+    $requiresExactTranslation = $locale === 'en' || (bool) ($frontRequiresExactTranslation ?? false);
+    $exactBlockItem = static function ($items, string $type) use ($locale): ?array {
+        $item = collect($items ?? [])->first(static function ($candidate) use ($locale, $type): bool {
+            $block = is_array($candidate) ? ($candidate['block'] ?? null) : null;
+            $translation = is_array($candidate) ? ($candidate['translation'] ?? null) : null;
 
-@section('content')
-    {{-- CMS content is projected into the redesigned homepage components below using the shared Alpha typography. --}}
-    @php
-        $valueItems = [
-            ['icon' => 'fa-badge-check', 'title' => 'Stručnost i iskustvo', 'text' => 'Višegodišnje iskustvo u širokom spektru industrija i najviši standardi profesionalne izvrsnosti.'],
-            ['icon' => 'fa-scale-balanced', 'title' => 'Neovisnost i povjerenje', 'text' => 'Neovisni smo, objektivni i posvećeni najvišim profesionalnim i etičkim načelima.'],
-            ['icon' => 'fa-chart-line', 'title' => 'Partner u rastu', 'text' => 'Ulažemo u vaše ciljeve i pružamo konkretne smjernice koje donose mjerljive rezultate.'],
-        ];
+            return (string) ($block?->type ?? '') === $type
+                && strtolower(trim((string) ($translation?->locale ?? ''))) === $locale;
+        });
 
-        $homeHeroItem = collect($homeHeroBlocks ?? [])->first(fn ($item) => (string) (($item['block'] ?? null)?->type ?? '') === 'home_hero')
-            ?? collect($homeHeroBlocks ?? [])->first();
-        $homeHeroTranslation = $homeHeroItem['translation'] ?? null;
-        $homeHeroPayload = array_merge(
-            is_array(($homeHeroItem['block'] ?? null)?->payload ?? null) ? $homeHeroItem['block']->payload : [],
-            is_array($homeHeroTranslation?->payload ?? null) ? $homeHeroTranslation->payload : [],
-        );
-        $cmsHeroTitle = trim((string) ($homeHeroTranslation?->title ?? ''));
-        $cmsHeroSubtitle = trim((string) ($homeHeroTranslation?->subtitle ?? ''));
-        $heroTitle = $cmsHeroTitle !== '' && mb_strtoupper($cmsHeroTitle) !== 'ALPHA CAPITALIS'
-            ? $cmsHeroTitle
-            : 'Vaš kompas kroz svijet financija';
-        $heroSubtitle = $cmsHeroSubtitle !== '' && mb_strtoupper($cmsHeroSubtitle) !== 'VAŠ KOMPAS KROZ SVIJET FINANCIJA'
-            ? $cmsHeroSubtitle
-            : 'Računovodstvo, revizija i savjetovanje — sve na jednom mjestu.';
-        $cmsHeroPrimaryLabel = trim((string) ($homeHeroTranslation?->cta_label ?? ''));
-        $heroPrimaryLabel = $cmsHeroPrimaryLabel !== '' && mb_strtoupper($cmsHeroPrimaryLabel) !== 'NAŠE USLUGE'
-            ? $cmsHeroPrimaryLabel
-            : 'Dogovorite sastanak';
-        $heroPrimaryUrl = $heroPrimaryLabel === 'Dogovorite sastanak'
-            ? route('contact.create')
-            : (trim((string) ($homeHeroTranslation?->cta_url ?? '')) ?: route('contact.create'));
-        $cmsHeroSecondaryLabel = trim((string) ($homeHeroPayload['secondary_cta_label'] ?? ''));
-        $heroSecondaryLabel = $cmsHeroSecondaryLabel !== '' && mb_strtoupper($cmsHeroSecondaryLabel) !== 'UGOVORI SASTANAK'
-            ? $cmsHeroSecondaryLabel
-            : 'Naše usluge';
-        $heroSecondaryUrl = $heroSecondaryLabel === 'Naše usluge'
-            ? route('services.index')
-            : (trim((string) ($homeHeroPayload['secondary_cta_url'] ?? '')) ?: route('services.index'));
-        $heroSettings = (array) ($storeSettings['home_hero'] ?? []);
-        if ((bool) ($heroSettings['is_configured'] ?? false)) {
-            $heroTitle = trim((string) ($heroSettings['title'] ?? '')) ?: $heroTitle;
-            $heroSubtitle = trim((string) ($heroSettings['subtitle'] ?? ''));
-            $heroPrimaryLabel = trim((string) ($heroSettings['primary_label'] ?? ''));
-            $heroPrimaryUrl = trim((string) ($heroSettings['primary_url'] ?? ''));
-            $heroSecondaryLabel = trim((string) ($heroSettings['secondary_label'] ?? ''));
-            $heroSecondaryUrl = trim((string) ($heroSettings['secondary_url'] ?? ''));
+        return is_array($item) ? $item : null;
+    };
+    $translationPayload = static function (?array $item): array {
+        $payload = $item['translation']?->payload ?? null;
+
+        return is_array($payload) ? $payload : [];
+    };
+    $headingLines = static function (string $heading): array {
+        $words = preg_split('/\s+/u', trim($heading), -1, PREG_SPLIT_NO_EMPTY) ?: [];
+
+        return collect($words)
+            ->chunk(max(1, (int) ceil(count($words) / 2)))
+            ->map(static fn ($line): array => $line->values()->all())
+            ->values()
+            ->all();
+    };
+    $balancedHeadingLines = static function (string $heading): array {
+        $words = preg_split('/\s+/u', trim($heading), -1, PREG_SPLIT_NO_EMPTY) ?: [];
+        if (count($words) < 2) {
+            return $words === [] ? [] : [$words];
         }
-        $heroTypography = (array) ($heroSettings['typography'] ?? []);
-        $heroFontKey = (string) ($heroTypography['key'] ?? \App\Support\Front\HeroFontRegistry::DEFAULT);
-        $heroFontWeight = (int) ($heroSettings['font_weight'] ?? \App\Support\Front\HeroFontRegistry::DEFAULT_WEIGHT);
-        $heroDesktopVideoUrl = trim((string) ($heroSettings['desktop_video_url'] ?? '')) ?: asset('alpha/alpha-zagreb-loop-hq.mp4');
-        $heroMobileVideoUrl = trim((string) ($heroSettings['mobile_video_url'] ?? '')) ?: asset('alpha/alpha-zagreb-loop-mobile.mp4');
-        $heroVideoType = static fn (string $url): string => str_ends_with(strtolower((string) parse_url($url, PHP_URL_PATH)), '.webm') ? 'video/webm' : 'video/mp4';
-        $heroTitleWords = preg_split('/\s+/u', $heroTitle, -1, PREG_SPLIT_NO_EMPTY) ?: ['Vaš', 'kompas', 'kroz', 'svijet', 'financija'];
-        $heroTitleLines = $heroTitle === 'Vaš kompas kroz svijet financija'
-            ? [['Vaš', 'kompas', 'kroz'], ['svijet', 'financija']]
-            : collect($heroTitleWords)->chunk(max(1, (int) ceil(count($heroTitleWords) / 2)))->map(fn ($line) => $line->values()->all())->values()->all();
 
-        $homeServicesItem = collect($homeServicesBlocks ?? [])->first(fn ($item) => (string) (($item['block'] ?? null)?->type ?? '') === 'home_services')
-            ?? collect($homeServicesBlocks ?? [])->first();
-        $homeServicesTranslation = $homeServicesItem['translation'] ?? null;
-        $homeServicesPayload = array_merge(
-            is_array(($homeServicesItem['block'] ?? null)?->payload ?? null) ? $homeServicesItem['block']->payload : [],
-            is_array($homeServicesTranslation?->payload ?? null) ? $homeServicesTranslation->payload : [],
-        );
-        $cmsServicesTitle = trim((string) ($homeServicesTranslation?->title ?? ''));
-        $useCmsServicesHeading = $cmsServicesTitle !== '' && !str_starts_with($cmsServicesTitle, 'Stvaramo vrijednost za naše klijente');
-        $servicesHeading = $useCmsServicesHeading ? $cmsServicesTitle : 'Vi vodite poslovanje. Mi brinemo da brojke prate vaš rast.';
-        $servicesIntro = $useCmsServicesHeading ? trim((string) ($homeServicesTranslation?->subtitle ?? '')) : '';
-        $servicesHeadingWords = preg_split('/\s+/u', $servicesHeading, -1, PREG_SPLIT_NO_EMPTY) ?: [];
-        $servicesHeadingLines = $servicesHeading === 'Vi vodite poslovanje. Mi brinemo da brojke prate vaš rast.'
-            ? [['Vi', 'vodite', 'poslovanje.'], ['Mi', 'brinemo', 'da', 'brojke', 'prate', 'vaš', 'rast.']]
-            : collect($servicesHeadingWords)->chunk(max(1, (int) ceil(count($servicesHeadingWords) / 2)))->map(fn ($line) => $line->values()->all())->values()->all();
-
-        $serviceDesign = collect([
-            'audit' => [
-                'key' => 'audit',
-                'title' => 'Revizija',
-                'statement' => 'Sigurnost i povjerenje u svakoj odluci.',
-                'text' => 'Pouzdani financijski izvještaji jačaju povjerenje vlasnika, banaka, investitora i partnera te smanjuju rizik u važnim poslovnim odlukama.',
-                'image' => asset('alpha/service-revizija.jpg'),
-                'image_srcset' => asset('alpha/service-revizija-480.webp').' 480w, '.asset('alpha/service-revizija-768.webp').' 768w, '.asset('alpha/service-revizija-1080.webp').' 1080w',
-                'image_alt' => 'Potpisivanje poslovnog dokumenta za stolom',
-                'url' => route('audit.show'),
-            ],
-            'accounting' => [
-                'key' => 'accounting',
-                'title' => 'Računovodstvo',
-                'statement' => 'Red u brojkama, mir u poslovanju.',
-                'text' => 'Ažurni podaci, uredna administracija i kontrola nad financijama oslobađaju vam vrijeme za ono što je najvažnije — razvoj poslovanja.',
-                'image' => asset('alpha/service-racunovodstvo.jpg'),
-                'image_srcset' => asset('alpha/service-racunovodstvo-480.webp').' 480w, '.asset('alpha/service-racunovodstvo-768.webp').' 768w, '.asset('alpha/service-racunovodstvo-1080.webp').' 1080w',
-                'image_alt' => 'Rad na financijskim podacima na prijenosnom računalu',
-                'url' => route('accounting.show'),
-            ],
-            'advisory' => [
-                'key' => 'advisory',
-                'title' => 'Savjetovanje',
-                'statement' => 'Prave odluke stvaraju najveću vrijednost.',
-                'text' => 'Stručna podrška pomaže prepoznati prilike, smanjiti rizike i donijeti sigurnije odluke za rast, financiranje i budućnost poslovanja.',
-                'image' => asset('alpha/service-savjetovanje.jpg'),
-                'image_srcset' => asset('alpha/service-savjetovanje-480.webp').' 480w, '.asset('alpha/service-savjetovanje-768.webp').' 768w, '.asset('alpha/service-savjetovanje-1080.webp').' 1080w',
-                'image_alt' => 'Poslovni razgovor tijekom savjetovanja',
-                'url' => route('advisory.show'),
-            ],
-        ]);
-
-        $cmsServiceItems = collect($homeServicesPayload['services'] ?? [])->filter(fn ($service) => is_array($service))->values();
-        $primaryServiceItems = collect($primaryServicePillars ?? [])->keyBy(fn (array $service) => (string) ($service['key'] ?? ''));
-        $serviceSource = $cmsServiceItems->isNotEmpty() ? $cmsServiceItems : $primaryServiceItems->values();
-        $serviceItems = $serviceSource->map(function (array $service, int $index) use ($serviceDesign, $primaryServiceItems): array {
-            $key = (string) ($service['key'] ?? '');
-            if ($key === '') {
-                $key = ['audit', 'accounting', 'advisory'][$index] ?? '';
+        $bestSplit = 1;
+        $bestDifference = PHP_INT_MAX;
+        for ($split = 1; $split < count($words); $split++) {
+            $firstLength = mb_strlen(implode(' ', array_slice($words, 0, $split)));
+            $secondLength = mb_strlen(implode(' ', array_slice($words, $split)));
+            $difference = abs($firstLength - $secondLength);
+            if ($difference < $bestDifference) {
+                $bestDifference = $difference;
+                $bestSplit = $split;
             }
-            $fallback = (array) $serviceDesign->get($key, []);
-            if ($fallback === []) {
+        }
+
+        return [array_slice($words, 0, $bestSplit), array_slice($words, $bestSplit)];
+    };
+
+    $homeHeroItem = $exactBlockItem($homeHeroBlocks ?? [], 'home_hero');
+    $homeHeroTranslation = $homeHeroItem['translation'] ?? null;
+    $homeHeroPayload = $translationPayload($homeHeroItem);
+    $heroTitle = trim((string) ($homeHeroTranslation?->title ?? ''));
+    $heroSubtitle = trim((string) ($homeHeroTranslation?->subtitle ?? ''));
+    $heroPrimaryLabel = trim((string) ($homeHeroTranslation?->cta_label ?? ''));
+    $heroPrimaryUrl = trim((string) ($homeHeroTranslation?->cta_url ?? ''));
+    $heroSecondaryLabel = trim((string) ($homeHeroPayload['secondary_cta_label'] ?? ''));
+    $heroSecondaryUrl = trim((string) ($homeHeroPayload['secondary_cta_url'] ?? ''));
+    $homePageTitle = trim((string) ($homeHeroPayload['page_title'] ?? '')) ?: $heroTitle;
+    $heroTitleLines = $balancedHeadingLines($heroTitle);
+    $heroTitleLengthClass = mb_strlen($heroTitle) > 36 ? 'hero-title--long' : '';
+
+    // Locale-neutral settings are intentionally limited to presentation and media.
+    $heroSettings = (array) ($storeSettings['home_hero'] ?? []);
+    $heroTypography = (array) ($heroSettings['typography'] ?? []);
+    $heroFontKey = (string) ($heroTypography['key'] ?? \App\Support\Front\HeroFontRegistry::DEFAULT);
+    $heroFontWeight = (int) ($heroSettings['font_weight'] ?? \App\Support\Front\HeroFontRegistry::DEFAULT_WEIGHT);
+    $heroDesktopVideoUrl = trim((string) ($heroSettings['desktop_video_url'] ?? '')) ?: asset('alpha/alpha-zagreb-loop-hq.mp4');
+    $heroMobileVideoUrl = trim((string) ($heroSettings['mobile_video_url'] ?? '')) ?: asset('alpha/alpha-zagreb-loop-mobile.mp4');
+    $heroVideoType = static fn (string $url): string => str_ends_with(strtolower((string) parse_url($url, PHP_URL_PATH)), '.webm')
+        ? 'video/webm'
+        : 'video/mp4';
+
+    $homeServicesItem = $exactBlockItem($homeServicesBlocks ?? [], 'home_services');
+    $homeServicesTranslation = $homeServicesItem['translation'] ?? null;
+    $homeServicesPayload = $translationPayload($homeServicesItem);
+    $servicesHeadingBase = trim((string) ($homeServicesTranslation?->title ?? ''));
+    $servicesHeadingAccent = trim((string) ($homeServicesPayload['title_accent'] ?? ''));
+    $servicesHeading = $servicesHeadingBase;
+    if ($servicesHeadingAccent !== '' && !preg_match('/[.!?]$/u', $servicesHeadingBase)) {
+        $servicesHeading = trim($servicesHeadingBase.' '.$servicesHeadingAccent);
+    }
+    $servicesIntro = trim((string) ($homeServicesTranslation?->subtitle ?? ''));
+    $servicesHeadingLines = $headingLines($servicesHeading);
+
+    $valuesContent = is_array($homeServicesPayload['values'] ?? null) ? $homeServicesPayload['values'] : [];
+    $valuesTitle = trim((string) ($valuesContent['title'] ?? ''));
+    $valuesIntro = trim((string) ($valuesContent['intro'] ?? ''));
+    $homePageDescription = $valuesIntro !== '' ? $valuesIntro : $heroSubtitle;
+    $valueIcons = ['fa-badge-check', 'fa-scale-balanced', 'fa-chart-line'];
+    $valueItems = collect((array) ($valuesContent['items'] ?? []))
+        ->filter(static fn ($item): bool => is_array($item) && trim((string) ($item['title'] ?? '')) !== '')
+        ->map(static function (array $item, int $index) use ($valueIcons): array {
+            return [
+                'icon' => $valueIcons[$index] ?? 'fa-badge-check',
+                'title' => trim((string) ($item['title'] ?? '')),
+                'text' => trim((string) ($item['text'] ?? '')),
+            ];
+        })
+        ->values();
+    $valuesTitleWords = preg_split('/\s+/u', $valuesTitle, -1, PREG_SPLIT_NO_EMPTY) ?: [];
+
+    $serviceVisuals = collect([
+        'audit' => [
+            'image' => asset('alpha/service-revizija.jpg'),
+            'image_srcset' => asset('alpha/service-revizija-480.webp').' 480w, '.asset('alpha/service-revizija-768.webp').' 768w, '.asset('alpha/service-revizija-1080.webp').' 1080w',
+            'url' => \App\Support\Localization\FrontendRoute::url('audit.show', locale: $locale),
+        ],
+        'accounting' => [
+            'image' => asset('alpha/service-racunovodstvo.jpg'),
+            'image_srcset' => asset('alpha/service-racunovodstvo-480.webp').' 480w, '.asset('alpha/service-racunovodstvo-768.webp').' 768w, '.asset('alpha/service-racunovodstvo-1080.webp').' 1080w',
+            'url' => \App\Support\Localization\FrontendRoute::url('accounting.show', locale: $locale),
+        ],
+        'advisory' => [
+            'image' => asset('alpha/service-savjetovanje.jpg'),
+            'image_srcset' => asset('alpha/service-savjetovanje-480.webp').' 480w, '.asset('alpha/service-savjetovanje-768.webp').' 768w, '.asset('alpha/service-savjetovanje-1080.webp').' 1080w',
+            'url' => \App\Support\Localization\FrontendRoute::url('advisory.show', locale: $locale),
+        ],
+    ]);
+    $primaryServiceImages = collect($primaryServicePillars ?? [])
+        ->mapWithKeys(static fn (array $service): array => [
+            (string) ($service['key'] ?? '') => trim((string) ($service['image_url'] ?? '')),
+        ]);
+    $serviceItems = collect((array) ($homeServicesPayload['services'] ?? []))
+        ->filter(static fn ($service): bool => is_array($service))
+        ->map(function (array $service, int $index) use ($serviceVisuals, $primaryServiceImages): array {
+            $key = trim((string) ($service['key'] ?? '')) ?: (['audit', 'accounting', 'advisory'][$index] ?? '');
+            $visual = (array) $serviceVisuals->get($key, []);
+            if ($visual === []) {
                 return [];
             }
 
-            $primaryService = (array) $primaryServiceItems->get($key, []);
-            $dynamicImage = trim((string) ($primaryService['image_url'] ?? $service['image_url'] ?? ''));
-            $useDynamicImage = $dynamicImage !== '';
+            $dynamicImage = trim((string) $primaryServiceImages->get($key, ''));
 
-            return array_merge($fallback, [
-                'title' => trim((string) ($service['title'] ?? '')) ?: $fallback['title'],
-                'statement' => trim((string) ($service['subtitle'] ?? '')) ?: $fallback['statement'],
-                'text' => trim((string) ($service['text'] ?? '')) ?: $fallback['text'],
-                'image' => $useDynamicImage ? $dynamicImage : $fallback['image'],
-                'image_srcset' => $useDynamicImage ? '' : $fallback['image_srcset'],
-                'url' => trim((string) ($service['url'] ?? '')) ?: $fallback['url'],
-            ]);
-        })->filter()->values();
+            return [
+                'key' => $key,
+                'title' => trim((string) ($service['title'] ?? '')),
+                'statement' => trim((string) ($service['subtitle'] ?? '')),
+                'text' => trim((string) ($service['text'] ?? '')),
+                'image_alt' => trim((string) ($service['image_alt'] ?? '')),
+                'action_label' => trim((string) ($service['action_label'] ?? '')),
+                'image' => $dynamicImage !== '' ? $dynamicImage : (string) ($visual['image'] ?? ''),
+                'image_srcset' => $dynamicImage !== '' ? '' : (string) ($visual['image_srcset'] ?? ''),
+                'url' => trim((string) ($service['url'] ?? '')) ?: (string) ($visual['url'] ?? ''),
+            ];
+        })
+        ->filter(static fn (array $service): bool => ($service['title'] ?? '') !== '' && ($service['url'] ?? '') !== '')
+        ->values();
 
-        if ($serviceItems->isEmpty()) {
-            $serviceItems = $serviceDesign->values();
-        }
+    $processContent = is_array($homeServicesPayload['process'] ?? null) ? $homeServicesPayload['process'] : [];
+    $processHeading = trim((string) ($processContent['title'] ?? ''));
+    $processHeadingWords = preg_split('/\s+/u', $processHeading, -1, PREG_SPLIT_NO_EMPTY) ?: [];
+    $processIcons = ['fa-magnifying-glass-chart', 'fa-chart-line', 'fa-clipboard-check', 'fa-bullseye'];
+    $processItems = collect((array) ($processContent['items'] ?? []))
+        ->filter(static fn ($item): bool => is_array($item) && trim((string) ($item['title'] ?? '')) !== '')
+        ->map(static function (array $item, int $index) use ($processIcons): array {
+            return [
+                'icon' => $processIcons[$index] ?? 'fa-bullseye',
+                'title' => trim((string) ($item['title'] ?? '')),
+                'text' => trim((string) ($item['text'] ?? '')),
+            ];
+        })
+        ->values();
 
-        $processItems = [
-            ['icon' => 'fa-magnifying-glass-chart', 'title' => 'Upoznajemo vaš posao', 'text' => 'Razumijemo vaše ciljeve, izazove i okruženje kako bismo identificirali ključne prilike.'],
-            ['icon' => 'fa-chart-line', 'title' => 'Analiziramo i planiramo', 'text' => 'Analiziramo podatke i procese te kreiramo strategiju i konkretne korake prema ciljevima.'],
-            ['icon' => 'fa-clipboard-check', 'title' => 'Provodimo i pratimo', 'text' => 'Provodimo dogovorene aktivnosti uz kontinuirano praćenje i pravovremene prilagodbe.'],
-            ['icon' => 'fa-bullseye', 'title' => 'Donosimo vrijednost', 'text' => 'Ostvarujemo mjerljive rezultate koji jačaju vašu poziciju i donose dugoročnu vrijednost.'],
-        ];
+    $homeStatsItem = $exactBlockItem($homeStatsBlocks ?? [], 'home_stats');
+    $homeStatsPayload = $translationPayload($homeStatsItem);
+    $locationsContent = is_array($homeStatsPayload['locations'] ?? null) ? $homeStatsPayload['locations'] : [];
+    $locationsContent['items'] = collect((array) ($locationsContent['items'] ?? []))
+        ->filter(static fn ($item): bool => is_array($item)
+            && trim((string) ($item['entity_key'] ?? '')) !== ''
+            && trim((string) ($item['address'] ?? '')) !== '')
+        ->values()
+        ->all();
+    $locationStats = collect((array) ($homeStatsPayload['stats'] ?? []))
+        ->filter(static fn ($stat): bool => is_array($stat))
+        ->map(static function (array $stat): array {
+            $rawValue = trim((string) ($stat['value'] ?? ''));
 
-        $entities = collect($storeSettings['official_entities'] ?? [])->keyBy('key');
-        $locationDefinitions = [
-            ['key' => 'alpha-capitalis', 'city' => 'Zagreb – HQ ured', 'short_city' => 'Zagreb', 'css' => 'is-zagreb', 'number' => '01 · HQ'],
-            ['key' => 'alpha-capitalis-timia', 'city' => 'Rijeka', 'short_city' => 'Rijeka', 'css' => 'is-rijeka', 'number' => '02'],
-            ['key' => 'alpha-capitalis-east', 'city' => 'Vinkovci', 'short_city' => 'Vinkovci', 'css' => 'is-vinkovci', 'number' => '03'],
-        ];
-        $locationItems = collect($locationDefinitions)->map(function (array $definition) use ($entities): array {
-            $entity = (array) $entities->get($definition['key'], []);
-            $addressParts = collect($entity['contact_address'] ?? $entity['address'] ?? [])->map(fn ($part) => trim((string) $part))->filter();
-            $address = $addressParts->implode(', ');
-            $mapQuery = trim((string) ($entity['map_query'] ?? '')) ?: $address;
-
-            return array_merge($definition, [
-                'office_label' => trim((string) ($entity['office_label'] ?? '')) ?: 'Ured '.$definition['short_city'],
-                'company' => trim((string) ($entity['company'] ?? $entity['name'] ?? '')) ?: 'ALPHA CAPITALIS d.o.o.',
-                'address' => $address ?: $definition['short_city'],
-                'email' => trim((string) ($entity['email'] ?? '')) ?: 'info@alphacapitalis.com',
-                'phone' => trim((string) ($entity['phone'] ?? '')) ?: '+385 (1) 580 6656',
-                'map_url' => 'https://www.google.com/maps/search/?api=1&query='.rawurlencode($mapQuery),
-            ]);
-        })->values();
-
-        $homeStatsItem = collect($homeStatsBlocks ?? [])->first(fn ($item) => (string) (($item['block'] ?? null)?->type ?? '') === 'home_stats')
-            ?? collect($homeStatsBlocks ?? [])->first();
-        $homeStatsPayload = array_merge(
-            is_array(($homeStatsItem['block'] ?? null)?->payload ?? null) ? $homeStatsItem['block']->payload : [],
-            is_array(($homeStatsItem['translation'] ?? null)?->payload ?? null) ? $homeStatsItem['translation']->payload : [],
-        );
-        $dynamicStats = collect($homeStatsPayload['stats'] ?? [])->map(function ($stat): array {
-            $stat = is_array($stat) ? $stat : [];
-            $rawValue = trim((string) ($stat['value'] ?? '0'));
             return [
                 'value' => (int) (preg_replace('/\D+/', '', $rawValue) ?: 0),
-                'suffix' => array_key_exists('suffix', $stat) ? trim((string) $stat['suffix']) : '+',
+                'suffix' => trim((string) ($stat['suffix'] ?? '')),
                 'label' => trim((string) ($stat['label'] ?? '')),
             ];
-        })->filter(fn (array $stat) => $stat['value'] > 0 && $stat['label'] !== '')->values();
-        $statFallbacks = collect([
-            ['value' => 300, 'suffix' => '+', 'label' => 'Zadovoljnih klijenata'],
-            ['value' => 700, 'suffix' => '', 'label' => 'Poslovnih klijenata'],
-            ['value' => 75, 'suffix' => '', 'label' => 'Kvalificiranih stručnjaka'],
-            ['value' => 20, 'suffix' => '+', 'label' => 'Godina iskustva'],
-        ]);
-        $locationStats = $statFallbacks->map(fn (array $fallback, int $index) => array_merge($fallback, (array) $dynamicStats->get($index, [])));
-        $statIcons = ['fa-chart-column', 'fa-users', 'fa-user-tie', 'fa-shield-heart'];
+        })
+        ->filter(static fn (array $stat): bool => $stat['value'] > 0 && $stat['label'] !== '')
+        ->values();
+    $locationStatIcons = ['fa-chart-column', 'fa-users', 'fa-user-tie', 'fa-shield-heart'];
+    $heroLocationItems = collect((array) ($locationsContent['items'] ?? []));
+    $heroLocationsAriaLabel = trim((string) ($locationsContent['hero_aria_label'] ?? ''));
+    $locationsStatsAriaLabel = trim((string) ($locationsContent['stats_aria_label'] ?? ''));
 
-        $newsItems = collect($latestBlogPosts ?? [])->take(3)->map(function ($post) use ($locale, $fallbackLocale): array {
-            $translation = $post->translations->firstWhere('locale', $locale)
-                ?? $post->translations->firstWhere('locale', $fallbackLocale)
-                ?? $post->translations->first();
-            $category = $post->categories->sortByDesc(fn ($item) => (int) ($item->pivot->is_primary ?? false))->first();
-            $categoryTranslation = $category?->translations->firstWhere('locale', $locale)
-                ?? $category?->translations->firstWhere('locale', $fallbackLocale)
-                ?? $category?->translations->first();
-            $slug = trim((string) ($translation?->slug ?? ''));
-            $excerpt = trim(strip_tags((string) ($translation?->excerpt ?? '')));
+    $newsContent = is_array($homeServicesPayload['news'] ?? null) ? $homeServicesPayload['news'] : [];
+    $newsHeading = trim((string) ($newsContent['title'] ?? ''));
+    $newsHeadingWords = preg_split('/\s+/u', $newsHeading, -1, PREG_SPLIT_NO_EMPTY) ?: [];
+    $newsAllPostsLabel = trim((string) ($newsContent['all_posts_label'] ?? ''));
+    $newsAllPostsUrl = trim((string) ($newsContent['all_posts_url'] ?? ''));
+    $newsPostActionLabel = trim((string) ($newsContent['post_action_label'] ?? ''));
+    $newsCategoryFallback = trim((string) ($newsContent['category_fallback'] ?? ''));
+    $newsExcerptFallback = trim((string) ($newsContent['excerpt_fallback'] ?? ''));
+    $newsItems = collect($latestBlogPosts ?? [])
+        ->map(function ($post) use ($locale, $requiresExactTranslation, $newsCategoryFallback, $newsExcerptFallback): array {
+            $translation = $post->translations->firstWhere('locale', $locale);
+            if ($translation === null) {
+                return [];
+            }
+
+            $title = trim((string) ($translation->title ?? ''));
+            $slug = trim((string) ($translation->slug ?? ''));
+            if ($title === '' || $slug === '') {
+                return [];
+            }
+
+            $category = $post->categories
+                ->sortByDesc(static fn ($item): int => (int) ($item->pivot->is_primary ?? false))
+                ->first();
+            $categoryTranslation = $category?->translations->firstWhere('locale', $locale);
+            $categoryName = trim((string) ($categoryTranslation?->name ?? ''));
+            $excerpt = trim(strip_tags((string) ($translation->excerpt ?? '')));
 
             return [
-                'category' => trim((string) ($categoryTranslation?->name ?? '')) ?: 'Novosti',
-                'title' => trim((string) ($translation?->title ?? $post->code)) ?: 'Alpha Capitalis',
-                'text' => Illuminate\Support\Str::limit($excerpt ?: 'Saznajte aktualne informacije, rokove i stručne savjete za sigurnije poslovne odluke.', 210),
-                'url' => $slug !== '' ? route('blog.show', ['slug' => $slug]) : route('blog.index'),
+                'category' => $categoryName !== '' || $requiresExactTranslation ? $categoryName : $newsCategoryFallback,
+                'title' => $title,
+                'text' => Illuminate\Support\Str::limit(
+                    $excerpt !== '' || $requiresExactTranslation ? $excerpt : $newsExcerptFallback,
+                    210
+                ),
+                'url' => route('blog.show', ['slug' => $slug]),
             ];
-        })->values();
+        })
+        ->filter()
+        ->take(3)
+        ->values();
 
-        if ($newsItems->isEmpty()) {
-            $newsItems = collect([
-                ['category' => 'Financije', 'title' => 'Dubinsko snimanje – zašto je ključno?', 'text' => 'Točna i vjerodostojna financijska izvješća temelj su sigurnijih transakcija i kvalitetnijih poslovnih odluka.', 'url' => route('blog.index')],
-                ['category' => 'EU fondovi', 'title' => 'Jesu li inovacije nužne za EU financiranje?', 'text' => 'Europska unija sve više ulaže u projekte koji donose dodanu vrijednost, održivost i mjerljiv razvoj.', 'url' => route('blog.index')],
-                ['category' => 'EU fondovi', 'title' => 'EU fondovi za male i srednje poduzetnike', 'text' => 'Pregled mogućnosti financijske podrške za razvoj, ulaganja i digitalizaciju malih i srednjih poduzeća.', 'url' => route('blog.index')],
-            ]);
-        }
-    @endphp
+    $contactCta = is_array($homeServicesPayload['contact_cta'] ?? null) ? $homeServicesPayload['contact_cta'] : [];
+    $contactCtaTitle = trim((string) ($contactCta['title'] ?? ''));
+    $contactCtaTitleWords = preg_split('/\s+/u', $contactCtaTitle, -1, PREG_SPLIT_NO_EMPTY) ?: [];
+    $contactCtaCardTitle = trim((string) ($contactCta['card_title'] ?? ''));
+    $contactCtaText = trim((string) ($contactCta['text'] ?? ''));
+    $contactCtaButtonLabel = trim((string) ($contactCta['button_label'] ?? ''));
+    $contactCtaButtonUrl = trim((string) ($contactCta['button_url'] ?? ''));
+    $contactCtaStatus = trim((string) ($contactCta['status'] ?? ''));
+@endphp
 
-    <section class="hero" id="vrh" aria-labelledby="hero-title" data-front-font="{{ $heroFontKey }}" data-front-font-weight="{{ $heroFontWeight }}">
+@section('title', $homePageTitle)
+@section('description', $homePageDescription)
+@section('main_class', 'hero-page')
+
+@section('content')
+    <section class="hero" id="vrh" @if ($heroTitle !== '') aria-labelledby="hero-title" @endif data-front-font="{{ $heroFontKey }}" data-front-font-weight="{{ $heroFontWeight }}">
         <picture class="hero-poster" aria-hidden="true">
             <source
                 type="image/webp"
@@ -247,12 +273,22 @@
         <div class="hero-overlay" aria-hidden="true"></div>
 
         <div class="hero-content">
-            <h1 id="hero-title" aria-label="{{ $heroTitle }}">
-                @php $heroWordIndex = 0; @endphp
-                @foreach ($heroTitleLines as $line)<span class="hero-line">@foreach ($line as $word)@php $upperWord = Illuminate\Support\Str::upper($word); @endphp<span class="hero-word animation-index-{{ min($heroWordIndex++, 12) }} {{ $loop->parent->last && $loop->last ? 'is-accent' : '' }}" aria-hidden="true">@foreach (mb_str_split($upperWord) as $character)<span class="hero-char">{{ $character }}</span>@endforeach</span>@endforeach</span>@endforeach
-            </h1>
+            @if ($heroTitle !== '')
+                <h1 class="{{ $heroTitleLengthClass }}" id="hero-title" aria-label="{{ $heroTitle }}">
+                    @php $heroWordIndex = 0; @endphp
+                    @foreach ($heroTitleLines as $line)
+                        <span class="hero-line">
+                            @foreach ($line as $word)
+                                <span class="hero-word animation-index-{{ min($heroWordIndex++, 12) }} {{ $loop->parent->last && $loop->last ? 'is-accent' : '' }}" aria-hidden="true">
+                                    @foreach (mb_str_split(Illuminate\Support\Str::upper($word)) as $character)<span class="hero-char">{{ $character }}</span>@endforeach
+                                </span>
+                            @endforeach
+                        </span>
+                    @endforeach
+                </h1>
+            @endif
             @if ($heroSubtitle !== '')
-                <p>@if ($heroSubtitle === 'Računovodstvo, revizija i savjetovanje — sve na jednom mjestu.')Računovodstvo, revizija i savjetovanje —<br> sve na jednom mjestu.@else{{ $heroSubtitle }}@endif</p>
+                <p>{{ $heroSubtitle }}</p>
             @endif
             @if (($heroPrimaryLabel !== '' && $heroPrimaryUrl !== '') || ($heroSecondaryLabel !== '' && $heroSecondaryUrl !== ''))
                 <div class="hero-actions">
@@ -267,199 +303,204 @@
             <div class="scroll-cue" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span></div>
         </div>
 
-        <aside class="hero-locations" aria-label="Naše lokacije">
-            <span class="location-number" aria-hidden="true"><i class="fa-duotone fa-thin fa-bullseye-pointer"></i></span>
-            <div>@foreach ($locationItems as $location)<p>{{ Illuminate\Support\Str::upper($location['short_city']) }}</p>@endforeach</div>
-        </aside>
+        @if ($heroLocationItems->isNotEmpty() && $heroLocationsAriaLabel !== '')
+            <aside class="hero-locations" aria-label="{{ $heroLocationsAriaLabel }}">
+                <span class="location-number" aria-hidden="true"><i class="fa-duotone fa-thin fa-bullseye-pointer"></i></span>
+                <div>
+                    @foreach ($heroLocationItems as $location)
+                        @if (trim((string) ($location['short_city'] ?? '')) !== '')
+                            <p>{{ Illuminate\Support\Str::upper((string) $location['short_city']) }}</p>
+                        @endif
+                    @endforeach
+                </div>
+            </aside>
+        @endif
     </section>
 
-    <section class="values-section" id="vrijednosti" aria-labelledby="values-title">
-        <div class="values-inner">
-            <div class="values-intro">
-                @php $valuesWords = explode(' ', 'Stvaramo vrijednost za naše klijente u svim fazama razvoja poslovanja.'); @endphp
-                <h2 class="values-title" id="values-title" data-words-slide-from-right aria-label="Stvaramo vrijednost za naše klijente u svim fazama razvoja poslovanja.">
-                    @foreach ($valuesWords as $word)<span class="values-word {{ $word === 'vrijednost' ? 'is-accent' : '' }}" style="--value-word-index: {{ $loop->index }}" aria-hidden="true">{{ $word }}</span>@endforeach
-                </h2>
-                <p class="values-copy content-reveal" data-image-reveal><strong>ALPHA CAPITALIS</strong> pruža vam sigurnost u poslovanju, jasnoću u financijama i partnera koji vam pomaže donositi bolje odluke, smanjiti rizike i ostvariti održiv rast.</p>
-            </div>
-
-            <div class="values-list">
-                @foreach ($valueItems as $item)
-                    <article class="value-item content-reveal" data-image-reveal style="--reveal-index: {{ $loop->index }}">
-                        <div class="value-icon" aria-hidden="true"><i class="fa-duotone fa-thin fa-fw {{ $item['icon'] }}"></i></div>
-                        <div class="value-content">
-                            <h3 data-words-slide-from-right aria-label="{{ $item['title'] }}">
-                                @foreach (explode(' ', $item['title']) as $word)<span class="value-title-word" style="--services-word-index: {{ $loop->index }}" aria-hidden="true">{{ $word }}</span>@endforeach
-                            </h3>
-                            <p>{{ $item['text'] }}</p>
-                        </div>
-                    </article>
-                @endforeach
-            </div>
-        </div>
-    </section>
-
-    <section class="services-section" id="usluge" aria-labelledby="services-title">
-        <div class="services-shell">
-            <header class="services-header">
-                <h2 class="services-title" id="services-title" data-words-slide-from-right aria-label="{{ $servicesHeading }}">
-                    @php $servicesWordIndex = 0; @endphp
-                    @foreach ($servicesHeadingLines as $line)<span class="services-title-line" aria-hidden="true">@foreach ($line as $word)<span class="services-word {{ mb_strtolower(trim($word, '.,!?')) === 'brojke' || ($useCmsServicesHeading && $loop->parent->last && $loop->last) ? 'is-accent' : '' }}" style="--services-word-index: {{ $servicesWordIndex++ }}">{{ $word }}</span>@endforeach</span>@endforeach
-                </h2>
-                @if ($servicesIntro !== '')
-                    <p class="services-intro content-reveal" data-image-reveal>{{ $servicesIntro }}</p>
-                @endif
-            </header>
-
-            <div class="services-grid services-grid--count-{{ min(3, $serviceItems->count()) }}">
-                @foreach ($serviceItems as $service)
-                    <a class="service-card" href="{{ $service['url'] }}" data-service-key="{{ $service['key'] }}" data-image-reveal style="--service-index: {{ $loop->index }}">
-                        <div class="service-card-media">
-                            @if ($service['image_srcset'] !== '')
-                                <picture>
-                                    <source type="image/webp" srcset="{{ $service['image_srcset'] }}" sizes="(max-width: 700px) calc(100vw - 48px), (max-width: 1100px) calc(50vw - 48px), 470px">
-                                    <img src="{{ $service['image'] }}" alt="{{ $service['image_alt'] }}" width="1080" height="1350" loading="lazy" decoding="async">
-                                </picture>
-                            @else
-                                <img src="{{ $service['image'] }}" alt="{{ $service['image_alt'] }}" width="1080" height="1350" loading="lazy" decoding="async">
-                            @endif
-                        </div>
-                        <div class="service-card-copy">
-                            <h3 class="service-card-title" data-words-slide-from-right aria-label="{{ $service['title'] }}">
-                                <span class="service-title-word" style="--services-word-index: 0" aria-hidden="true">{{ $service['title'] }}</span>
-                            </h3>
-                            <p class="service-statement">{{ $service['statement'] }}</p>
-                            <p class="service-description">{{ $service['text'] }}</p>
-                            <span class="service-link" aria-hidden="true">SAZNAJTE VIŠE <i class="fa-duotone fa-thin fa-arrow-right fa-fw"></i></span>
-                        </div>
-                    </a>
-                @endforeach
-            </div>
-        </div>
-    </section>
-
-    <section class="process-section" id="proces" aria-labelledby="process-title" data-process-reveal>
-        <div class="process-shell">
-            <header class="process-header">
-                @php $processTitle = ['Jednostavan', 'proces.', 'Jasni', 'koraci.']; @endphp
-                <h2 class="process-title" id="process-title" data-words-slide-from-right aria-label="Jednostavan proces. Jasni koraci.">
-                    @foreach ($processTitle as $word)<span class="process-title-word {{ $word === 'koraci.' ? 'is-accent' : '' }}" style="--services-word-index: {{ $loop->index }}" aria-hidden="true">{{ $word }}</span>@endforeach
-                </h2>
-            </header>
-            <div class="process-track">
-                @foreach ($processItems as $item)
-                    <article class="process-item" style="--process-index: {{ $loop->index }}">
-                        <div class="process-marker" aria-hidden="true"><span>{{ str_pad((string) $loop->iteration, 2, '0', STR_PAD_LEFT) }}</span></div>
-                        <i class="process-icon fa-duotone fa-thin fa-fw {{ $item['icon'] }}" aria-hidden="true"></i>
-                        <div class="process-copy"><h3>{{ $item['title'] }}</h3><p>{{ $item['text'] }}</p></div>
-                    </article>
-                @endforeach
-            </div>
-        </div>
-    </section>
-
-    <section class="locations-section" id="lokacije" aria-labelledby="locations-title" data-locations-reveal>
-        <div class="locations-shell">
-            <div class="locations-layout">
-                <div class="locations-copy">
-                    <h2 class="locations-title" id="locations-title" data-words-slide-from-right aria-label="Prisutni na 3 lokacije">
-                        @foreach (['Prisutni', 'na', '3', 'lokacije'] as $word)<span class="locations-title-word {{ $word === 'lokacije' ? 'is-accent' : '' }}" style="--services-word-index: {{ $loop->index }}" aria-hidden="true">{{ $word }}</span>@endforeach
+    @if ($valuesTitle !== '' && ($valuesIntro !== '' || $valueItems->isNotEmpty()))
+        <section class="values-section" id="vrijednosti" aria-labelledby="values-title">
+            <div class="values-inner">
+                <div class="values-intro">
+                    <h2 class="values-title" id="values-title" data-words-slide-from-right aria-label="{{ $valuesTitle }}">
+                        @foreach ($valuesTitleWords as $word)
+                            <span class="values-word animation-index-{{ min($loop->index, 12) }} {{ $loop->last ? 'is-accent' : '' }}" aria-hidden="true">{{ $word }}</span>
+                        @endforeach
                     </h2>
-                    <p class="locations-intro"><strong>Zagreb, Rijeka i Vinkovci</strong> — podrška klijentima diljem Hrvatske.</p>
+                    @if ($valuesIntro !== '')
+                        <p class="values-copy content-reveal" data-image-reveal>{{ $valuesIntro }}</p>
+                    @endif
+                </div>
 
-                    <div class="locations-addresses">
-                        @foreach ($locationItems as $location)
-                            <article class="location-address" style="--location-index: {{ $loop->index }}">
-                                <button class="location-address-trigger" type="button" aria-expanded="false" aria-controls="location-details-{{ $loop->index }}" data-location-index="{{ $loop->index }}">
-                                    <span class="location-address-marker" aria-hidden="true">{{ str_pad((string) $loop->iteration, 2, '0', STR_PAD_LEFT) }}</span>
-                                    <span class="location-address-summary"><span class="location-address-title">{{ $location['city'] }}</span><span class="location-address-short">{{ $location['address'] }}</span></span>
-                                    <span class="location-address-toggle" aria-hidden="true"><span></span><span></span></span>
-                                </button>
-                                <div class="location-details" id="location-details-{{ $loop->index }}" aria-hidden="true" inert>
-                                    <div class="location-details-inner">
-                                        <div class="location-details-card">
-                                            <span class="location-office-label">{{ $location['office_label'] }}</span>
-                                            <h3>{{ $location['company'] }}</h3>
-                                            <a class="location-map-link" href="{{ $location['map_url'] }}" target="_blank" rel="noopener noreferrer" tabindex="-1"><i class="fa-light fa-location-dot" aria-hidden="true"></i><span>Pogledaj na karti</span><i class="fa-light fa-arrow-up-right" aria-hidden="true"></i></a>
-                                            <div class="location-contacts">
-                                                <a href="mailto:{{ $location['email'] }}" tabindex="-1"><i class="fa-light fa-envelope" aria-hidden="true"></i><span><small>Email</small><strong>{{ $location['email'] }}</strong></span></a>
-                                                <a href="tel:{{ preg_replace('/[^+0-9]/', '', $location['phone']) }}" tabindex="-1"><i class="fa-light fa-phone" aria-hidden="true"></i><span><small>Telefon</small><strong>{{ $location['phone'] }}</strong></span></a>
-                                            </div>
-                                        </div>
-                                    </div>
+                @if ($valueItems->isNotEmpty())
+                    <div class="values-list">
+                        @foreach ($valueItems as $item)
+                            <article class="value-item content-reveal animation-index-{{ min($loop->index, 12) }}" data-image-reveal>
+                                <div class="value-icon" aria-hidden="true"><i class="fa-duotone fa-thin fa-fw {{ $item['icon'] }}"></i></div>
+                                <div class="value-content">
+                                    <h3 data-words-slide-from-right aria-label="{{ $item['title'] }}">
+                                        @foreach (preg_split('/\s+/u', $item['title'], -1, PREG_SPLIT_NO_EMPTY) ?: [] as $word)
+                                            <span class="value-title-word animation-index-{{ min($loop->index, 12) }}" aria-hidden="true">{{ $word }}</span>
+                                        @endforeach
+                                    </h3>
+                                    @if ($item['text'] !== '')<p>{{ $item['text'] }}</p>@endif
                                 </div>
                             </article>
                         @endforeach
                     </div>
-                </div>
+                @endif
+            </div>
+        </section>
+    @endif
 
-                <div class="locations-map" aria-label="Karta lokacija u Hrvatskoj">
-                    <div class="locations-map-corners" aria-hidden="true">
-                        <span class="locations-map-corner is-top-left">RIJEKA · 45.33° N · 14.44° E</span>
-                        <span class="locations-map-corner is-top-right">ZAGREB · 45.80° N · 15.91° E</span>
-                        <span class="locations-map-corner is-bottom-right">VINKOVCI · 45.29° N · 18.80° E</span>
-                        <span class="locations-map-corner is-bottom-left">HR / 3 UREDA</span>
-                    </div>
-                    <div class="locations-map-stage">
-                        <div class="locations-map-glow" aria-hidden="true"></div>
-                        <img class="croatia-map" src="{{ asset('alpha/croatia-map.svg') }}" alt="Karta Hrvatske s uredima u Zagrebu, Rijeci i Vinkovcima" width="800" height="800" loading="lazy" decoding="async">
-                        <svg class="map-routes" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><path class="map-route" d="M 15.8 28.7 C 24 20, 33 18, 42.5 18.8"></path><path class="map-route" d="M 42.5 18.8 C 57 15, 71 18, 86.7 23.8"></path></svg>
-                        @foreach ([1, 0, 2] as $locationIndex)
-                            @php $location = $locationItems[$locationIndex]; @endphp
-                            <button class="map-location {{ $location['css'] }}" type="button" aria-label="Prikaži kontaktne podatke za ured {{ $location['short_city'] }}" aria-expanded="false" aria-controls="location-details-{{ $locationIndex }}" style="--map-index: {{ $loop->index }}" data-location-index="{{ $locationIndex }}">
-                                <span class="map-beacon" aria-hidden="true"><i class="fa-duotone fa-thin fa-bullseye-pointer"></i></span>
-                                <span class="map-location-label"><small>{{ $location['number'] }}</small><strong>{{ $location['short_city'] }}</strong></span>
-                            </button>
+    @if ($servicesHeading !== '' && $serviceItems->isNotEmpty())
+        <section class="services-section" id="usluge" aria-labelledby="services-title">
+            <div class="services-shell">
+                <header class="services-header">
+                    <h2 class="services-title" id="services-title" data-words-slide-from-right aria-label="{{ $servicesHeading }}">
+                        @php $servicesWordIndex = 0; @endphp
+                        @foreach ($servicesHeadingLines as $line)
+                            <span class="services-title-line" aria-hidden="true">
+                                @foreach ($line as $word)
+                                    <span class="services-word animation-index-{{ min($servicesWordIndex++, 12) }} {{ $loop->parent->last && $loop->last ? 'is-accent' : '' }}">{{ $word }}</span>
+                                @endforeach
+                            </span>
                         @endforeach
-                    </div>
+                    </h2>
+                    @if ($servicesIntro !== '')
+                        <p class="services-intro content-reveal" data-image-reveal>{{ $servicesIntro }}</p>
+                    @endif
+                </header>
+
+                <div class="services-grid services-grid--count-{{ min(3, $serviceItems->count()) }}">
+                    @foreach ($serviceItems as $service)
+                        <a class="service-card" href="{{ $service['url'] }}" data-service-key="{{ $service['key'] }}" data-image-reveal>
+                            <div class="service-card-media">
+                                @if ($service['image_srcset'] !== '')
+                                    <picture>
+                                        <source type="image/webp" srcset="{{ $service['image_srcset'] }}" sizes="(max-width: 700px) calc(100vw - 48px), (max-width: 1100px) calc(50vw - 48px), 470px">
+                                        <img src="{{ $service['image'] }}" alt="{{ $service['image_alt'] }}" width="1080" height="1350" loading="lazy" decoding="async">
+                                    </picture>
+                                @else
+                                    <img src="{{ $service['image'] }}" alt="{{ $service['image_alt'] }}" width="1080" height="1350" loading="lazy" decoding="async">
+                                @endif
+                            </div>
+                            <div class="service-card-copy">
+                                <h3 class="service-card-title" data-words-slide-from-right aria-label="{{ $service['title'] }}">
+                                    <span class="service-title-word animation-index-0" aria-hidden="true">{{ $service['title'] }}</span>
+                                </h3>
+                                @if ($service['statement'] !== '')<p class="service-statement">{{ $service['statement'] }}</p>@endif
+                                @if ($service['text'] !== '')<p class="service-description">{{ $service['text'] }}</p>@endif
+                                @if ($service['action_label'] !== '')
+                                    <span class="service-link" aria-hidden="true">{{ $service['action_label'] }} <i class="fa-duotone fa-thin fa-arrow-right fa-fw"></i></span>
+                                @endif
+                            </div>
+                        </a>
+                    @endforeach
                 </div>
             </div>
+        </section>
+    @endif
 
-            <div class="locations-stats" aria-label="Alpha Capitalis u brojkama">
-                @foreach ($locationStats as $stat)
-                    <article class="location-stat" style="--stat-index: {{ $loop->index }}">
-                        <div class="location-stat-icon" aria-hidden="true"><i class="fa-duotone fa-thin fa-fw {{ $statIcons[$loop->index] }}"></i></div>
-                        <div><strong><span data-count-target="{{ $stat['value'] }}">0</span><span class="location-stat-suffix">{{ $stat['suffix'] }}</span></strong><p>{{ $stat['label'] }}</p></div>
-                    </article>
-                @endforeach
+    @if ($processHeading !== '' && $processItems->isNotEmpty())
+        <section class="process-section" id="proces" aria-labelledby="process-title" data-process-reveal>
+            <div class="process-shell">
+                <header class="process-header">
+                    <h2 class="process-title" id="process-title" data-words-slide-from-right aria-label="{{ $processHeading }}">
+                        @foreach ($processHeadingWords as $word)
+                            <span class="process-title-word animation-index-{{ min($loop->index, 12) }} {{ $loop->last ? 'is-accent' : '' }}" aria-hidden="true">{{ $word }}</span>
+                        @endforeach
+                    </h2>
+                </header>
+                <div class="process-track">
+                    @foreach ($processItems as $item)
+                        <article class="process-item animation-index-{{ min($loop->index, 12) }}">
+                            <div class="process-marker" aria-hidden="true"><span>{{ str_pad((string) $loop->iteration, 2, '0', STR_PAD_LEFT) }}</span></div>
+                            <i class="process-icon fa-duotone fa-thin fa-fw {{ $item['icon'] }}" aria-hidden="true"></i>
+                            <div class="process-copy"><h3>{{ $item['title'] }}</h3>@if ($item['text'] !== '')<p>{{ $item['text'] }}</p>@endif</div>
+                        </article>
+                    @endforeach
+                </div>
             </div>
-        </div>
-    </section>
+        </section>
+    @endif
 
-    <section class="news-section ac-home-news" id="novosti" aria-labelledby="news-title">
-        <div class="news-shell">
-            <header class="news-header">
-                @php $newsHeading = explode(' ', 'Rokovi, novosti i savjeti za sigurnije poslovanje.'); @endphp
-                <h2 class="news-title" id="news-title" data-words-slide-from-right aria-label="Rokovi, novosti i savjeti za sigurnije poslovanje.">
-                    @foreach ($newsHeading as $word)<span class="news-title-word {{ $word === 'poslovanje.' ? 'is-accent' : '' }}" style="--services-word-index: {{ $loop->index }}" aria-hidden="true">{{ $word }}</span>@endforeach
-                </h2>
-                <a class="news-all-link content-reveal" data-image-reveal href="{{ route('blog.index') }}"><span>Pogledaj sve objave</span><i class="fa-duotone fa-thin fa-arrow-right fa-fw" aria-hidden="true"></i></a>
-            </header>
-            <div class="news-grid">
-                @foreach ($newsItems as $item)
-                    <a class="news-card" data-image-reveal href="{{ $item['url'] }}" style="--news-index: {{ $loop->index }}">
-                        <span class="news-card-category">{{ $item['category'] }}</span><h3>{{ $item['title'] }}</h3><p>{{ $item['text'] }}</p>
-                        <span class="news-card-link" aria-hidden="true">{{ __('ui.blog.read_more') }} <i class="fa-duotone fa-thin fa-arrow-right fa-fw"></i></span>
-                    </a>
-                @endforeach
+    @if (trim((string) ($locationsContent['title'] ?? '')) !== '' && !empty($locationsContent['items']))
+        @include('front.desktop.partials.locations-showcase', [
+            'locationsSectionId' => 'lokacije',
+            'locationsTitleId' => 'locations-title',
+            'locationDetailsPrefix' => 'location-details',
+            'locationsContent' => $locationsContent,
+            'locationStats' => $locationStats,
+            'statIcons' => $locationStatIcons,
+            'showLocationStats' => true,
+        ])
+    @elseif ($locationStats->isNotEmpty())
+        <section class="locations-section" id="lokacije" @if ($locationsStatsAriaLabel !== '') aria-label="{{ $locationsStatsAriaLabel }}" @endif data-locations-reveal>
+            <div class="locations-shell">
+                <div class="locations-stats">
+                    @foreach ($locationStats as $stat)
+                        <article class="location-stat animation-index-{{ min($loop->index, 12) }}">
+                            <div class="location-stat-icon" aria-hidden="true"><i class="fa-duotone fa-thin fa-fw {{ $locationStatIcons[$loop->index] ?? $locationStatIcons[0] }}"></i></div>
+                            <div><strong><span data-count-target="{{ $stat['value'] }}">0</span><span class="location-stat-suffix">{{ $stat['suffix'] }}</span></strong><p>{{ $stat['label'] }}</p></div>
+                        </article>
+                    @endforeach
+                </div>
             </div>
-        </div>
-    </section>
+        </section>
+    @endif
 
-    <section class="contact-cta" id="kontakt-cta" aria-labelledby="contact-cta-title">
-        <div class="contact-cta-shell">
-            <div class="contact-cta-copy">
-                @php $contactHeading = explode(' ', 'Razgovarajmo o sljedećoj fazi vašeg poslovanja.'); @endphp
-                <h2 class="contact-cta-title" id="contact-cta-title" data-words-slide-from-right aria-label="Razgovarajmo o sljedećoj fazi vašeg poslovanja.">
-                    @foreach ($contactHeading as $word)<span class="contact-cta-title-word {{ in_array($word, ['sljedećoj', 'fazi'], true) ? 'is-accent' : '' }}" style="--services-word-index: {{ $loop->index }}" aria-hidden="true">{{ $word }}</span>@endforeach
-                </h2>
+    @if ($newsItems->isNotEmpty())
+        <section class="news-section ac-home-news" id="novosti" @if ($newsHeading !== '') aria-labelledby="news-title" @endif>
+            <div class="news-shell">
+                @if ($newsHeading !== '' || ($newsAllPostsLabel !== '' && $newsAllPostsUrl !== ''))
+                    <header class="news-header">
+                        @if ($newsHeading !== '')
+                            <h2 class="news-title" id="news-title" data-words-slide-from-right aria-label="{{ $newsHeading }}">
+                                @foreach ($newsHeadingWords as $word)
+                                    <span class="news-title-word animation-index-{{ min($loop->index, 12) }} {{ $loop->last ? 'is-accent' : '' }}" aria-hidden="true">{{ $word }}</span>
+                                @endforeach
+                            </h2>
+                        @endif
+                        @if ($newsAllPostsLabel !== '' && $newsAllPostsUrl !== '')
+                            <a class="news-all-link content-reveal" data-image-reveal href="{{ $newsAllPostsUrl }}"><span>{{ $newsAllPostsLabel }}</span><i class="fa-duotone fa-thin fa-arrow-right fa-fw" aria-hidden="true"></i></a>
+                        @endif
+                    </header>
+                @endif
+                <div class="news-grid">
+                    @foreach ($newsItems as $item)
+                        <a class="news-card animation-index-{{ min($loop->index, 12) }}" data-image-reveal href="{{ $item['url'] }}">
+                            @if ($item['category'] !== '')<span class="news-card-category">{{ $item['category'] }}</span>@endif
+                            <h3>{{ $item['title'] }}</h3>
+                            @if ($item['text'] !== '')<p>{{ $item['text'] }}</p>@endif
+                            @if ($newsPostActionLabel !== '')
+                                <span class="news-card-link" aria-hidden="true">{{ $newsPostActionLabel }} <i class="fa-duotone fa-thin fa-arrow-right fa-fw"></i></span>
+                            @endif
+                        </a>
+                    @endforeach
+                </div>
             </div>
-            <div class="contact-cta-card" data-image-reveal>
-                <div class="contact-cta-card-heading"><span>Vrijeme je za pravi korak.</span></div>
-                <p>Dogovorite uvodni sastanak s našim stručnjacima i pretvorite izazove u jasne, izvedive korake.</p>
-                <a class="contact-cta-button" href="{{ route('contact.create') }}"><span>Dogovorite sastanak</span><i class="fa-duotone fa-thin fa-arrow-right" aria-hidden="true"></i></a>
-                <small><span class="contact-cta-status-dot" aria-hidden="true"></span>Termin razgovora prilagođavamo vama.</small>
+        </section>
+    @endif
+
+    @if ($contactCtaTitle !== '' && ($contactCtaCardTitle !== '' || $contactCtaText !== ''))
+        <section class="contact-cta" id="kontakt-cta" aria-labelledby="contact-cta-title">
+            <div class="contact-cta-shell">
+                <div class="contact-cta-copy">
+                    <h2 class="contact-cta-title" id="contact-cta-title" data-words-slide-from-right aria-label="{{ $contactCtaTitle }}">
+                        @foreach ($contactCtaTitleWords as $word)
+                            <span class="contact-cta-title-word animation-index-{{ min($loop->index, 12) }} {{ $loop->last ? 'is-accent' : '' }}" aria-hidden="true">{{ $word }}</span>
+                        @endforeach
+                    </h2>
+                </div>
+                <div class="contact-cta-card" data-image-reveal>
+                    @if ($contactCtaCardTitle !== '')<div class="contact-cta-card-heading"><span>{{ $contactCtaCardTitle }}</span></div>@endif
+                    @if ($contactCtaText !== '')<p>{{ $contactCtaText }}</p>@endif
+                    @if ($contactCtaButtonLabel !== '' && $contactCtaButtonUrl !== '')
+                        <a class="contact-cta-button" href="{{ $contactCtaButtonUrl }}"><span>{{ $contactCtaButtonLabel }}</span><i class="fa-duotone fa-thin fa-arrow-right" aria-hidden="true"></i></a>
+                    @endif
+                    @if ($contactCtaStatus !== '')<small><span class="contact-cta-status-dot" aria-hidden="true"></span>{{ $contactCtaStatus }}</small>@endif
+                </div>
             </div>
-        </div>
-    </section>
+        </section>
+    @endif
 @endsection

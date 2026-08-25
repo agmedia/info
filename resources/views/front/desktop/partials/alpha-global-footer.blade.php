@@ -1,25 +1,39 @@
 @php
-    $alphaFooterPhone = trim((string) ($storeSettings['footer']['phone'] ?? '')) ?: '+385 (1) 580 6656';
-    $alphaFooterEmail = trim((string) ($storeSettings['footer']['email_support'] ?? '')) ?: 'info@alphacapitalis.com';
+    $alphaFooterLocale = strtolower((string) app()->getLocale());
+    $alphaFooterDefaultLocale = strtolower((string) ($frontDefaultLocale ?? config('app.fallback_locale', 'hr')));
+    $alphaFooterIsDefaultLocale = $alphaFooterLocale === $alphaFooterDefaultLocale;
+    $alphaFooterNavigationService = app(\App\Services\Front\NavigationMenuService::class);
+    $alphaFooterChrome = $alphaFooterNavigationService->chromeForLocale($alphaFooterLocale);
+    $alphaFooterLocation = $alphaFooterNavigationService->exactFooterLocationForLocale(
+        $alphaFooterLocale,
+        'alpha-capitalis',
+    );
+    $alphaFooterPhone = trim((string) ($storeSettings['footer']['phone'] ?? ''));
+    $alphaFooterEmail = trim((string) ($storeSettings['footer']['email_support'] ?? ''));
     $alphaFooterSalesEmail = trim((string) ($storeSettings['footer']['email_sales'] ?? ''));
-    $alphaFooterHours = trim((string) ($storeSettings['footer']['hours'] ?? ''));
-    $alphaFooterCopyright = trim((string) ($storeSettings['footer']['bottom_copyright_text'] ?? '')) ?: 'Alpha Capitalis d.o.o. Sva prava pridržana.';
+    $alphaFooterHours = trim((string) ($alphaFooterChrome['footer_hours'] ?? ''))
+        ?: ($alphaFooterIsDefaultLocale ? trim((string) ($storeSettings['footer']['hours'] ?? '')) : '');
+    $alphaFooterCopyright = trim((string) ($alphaFooterChrome['footer_copyright_text'] ?? ''))
+        ?: ($alphaFooterIsDefaultLocale ? trim((string) ($storeSettings['footer']['bottom_copyright_text'] ?? '')) : '');
     $alphaFooterBrandName = trim((string) ($storeSettings['branding']['store_name'] ?? '')) ?: 'Alpha Capitalis';
     $alphaFooterBrandLogoUrl = trim((string) ($storeSettings['branding']['logo_url'] ?? '')) ?: asset('alpha/logo.svg');
-    $alphaFooterAddress = 'Ulica R. F. Mihanovića 9, 10110 Zagreb';
-    $alphaFooterMap = 'https://www.google.com/maps/search/?api=1&query='.rawurlencode($alphaFooterAddress);
+    $alphaFooterAddress = trim((string) ($alphaFooterLocation['address'] ?? ''));
+    $alphaFooterMapQuery = trim((string) ($alphaFooterLocation['map_query'] ?? '')) ?: $alphaFooterAddress;
+    $alphaFooterMap = $alphaFooterMapQuery !== ''
+        ? 'https://www.google.com/maps/search/?api=1&query='.rawurlencode($alphaFooterMapQuery)
+        : '';
     $alphaFooterHome = route('home');
-    $alphaFooterNavigation = [
-        ['label' => 'O nama', 'url' => route('pages.show', ['slug' => 'o-nama'])],
-        ['label' => 'Karijera', 'url' => route('pages.show', ['slug' => 'karijera'])],
-        ['label' => 'Objave', 'url' => route('blog.index')],
-        ['label' => 'Kontakt', 'url' => route('contact.create')],
-    ];
-    $alphaFooterServices = [
-        ['label' => 'Revizija', 'url' => route('audit.show')],
-        ['label' => 'Računovodstvo', 'url' => route('accounting.show')],
-        ['label' => 'Savjetovanje', 'url' => route('advisory.show')],
-    ];
+    $alphaFooterServicesUrl = $alphaFooterNavigationService->servicePageUrlForLocale('services', $alphaFooterLocale);
+    $alphaFooterExcludedUrls = collect([$alphaFooterHome, $alphaFooterServicesUrl])
+        ->filter()
+        ->map(static fn (string $url): string => rtrim($url, '/'));
+    $alphaFooterNavigation = collect($mainNavigation ?? [])
+        ->filter(static fn ($item): bool => is_array($item)
+            && trim((string) ($item['label'] ?? '')) !== ''
+            && trim((string) ($item['url'] ?? '')) !== '')
+        ->reject(static fn (array $item): bool => $alphaFooterExcludedUrls->contains(rtrim(url((string) $item['url']), '/')))
+        ->values();
+    $alphaFooterServices = collect($alphaFooterNavigationService->serviceNavigationForLocale($alphaFooterLocale));
     $alphaFooterSocials = collect([
         ['label' => 'X', 'icon' => 'fa-x-twitter', 'url' => trim((string) ($storeSettings['branding']['social']['x']['url'] ?? '')), 'enabled' => (bool) ($storeSettings['branding']['social']['x']['enabled'] ?? true)],
         ['label' => 'Facebook', 'icon' => 'fa-facebook-f', 'url' => trim((string) ($storeSettings['branding']['social']['facebook']['url'] ?? '')), 'enabled' => (bool) ($storeSettings['branding']['social']['facebook']['enabled'] ?? true)],
@@ -33,52 +47,67 @@
     )->values();
 
     if ($alphaFooterLegalLinks->isEmpty()) {
-        $alphaFooterLegalLinks = collect([
-            ['label' => 'Politika privatnosti', 'url' => route('pages.show', ['slug' => 'politika-privatnosti'])],
-            ['label' => 'Uvjeti korištenja', 'url' => route('pages.show', ['slug' => 'uvjeti-koristenja'])],
-        ]);
+        $alphaFooterLegalLinks = collect($alphaFooterNavigationService->defaultFooterLegalNavigationForLocale($alphaFooterLocale));
     }
+
+    $alphaFooterNewsletterLabel = trim((string) ($alphaFooterChrome['footer_newsletter_label'] ?? ''));
+    $alphaFooterNewsletterTitle = trim((string) ($alphaFooterChrome['footer_newsletter_title'] ?? ''));
+    $alphaFooterNewsletterAccent = trim((string) ($alphaFooterChrome['footer_newsletter_accent'] ?? ''));
+    $alphaFooterEmailPlaceholder = trim((string) ($alphaFooterChrome['footer_newsletter_email_placeholder'] ?? ''));
+    $alphaFooterNewsletterSubmitLabel = trim((string) ($alphaFooterChrome['footer_newsletter_submit_label'] ?? ''));
+    $alphaFooterTagline = trim((string) ($alphaFooterChrome['footer_tagline'] ?? ''));
+    $alphaFooterServicesLabel = trim((string) ($alphaFooterChrome['footer_services_label'] ?? ''));
+    $alphaFooterContactLabel = trim((string) ($alphaFooterChrome['footer_contact_label'] ?? ''));
+    $alphaFooterCookieSettingsLabel = trim((string) ($alphaFooterChrome['footer_cookie_settings_label'] ?? ''));
+    $alphaFooterBackToTopLabel = trim((string) ($alphaFooterChrome['footer_back_to_top_label'] ?? ''));
+    $alphaShowFooterNewsletter = $alphaFooterNewsletterTitle !== ''
+        && $alphaFooterEmailPlaceholder !== ''
+        && $alphaFooterNewsletterSubmitLabel !== '';
 @endphp
 
 <footer class="site-footer" data-image-reveal>
     <div class="footer-shell">
-        @unless ($__env->hasSection('hide_footer_newsletter'))
+        @if (! $__env->hasSection('hide_footer_newsletter') && $alphaShowFooterNewsletter)
         <section class="footer-newsletter" id="newsletter" aria-labelledby="footer-newsletter-title" data-image-reveal>
             <div class="footer-newsletter-copy">
-                <span class="footer-label">Newsletter</span>
+                @if ($alphaFooterNewsletterLabel !== '')
+                    <span class="footer-label">{{ $alphaFooterNewsletterLabel }}</span>
+                @endif
                 <h2 id="footer-newsletter-title">
-                    Primajte važne novosti na <span class="footer-newsletter-accent">vrijeme.</span>
+                    {{ $alphaFooterNewsletterTitle }} @if ($alphaFooterNewsletterAccent !== '')<span class="footer-newsletter-accent">{{ $alphaFooterNewsletterAccent }}</span>@endif
                 </h2>
             </div>
             <form
-                action="{{ route('contact.create') }}"
+                action="{{ \App\Support\Localization\FrontendRoute::url('contact.create') }}"
                 method="get"
                 novalidate
                 data-newsletter-form
                 data-msg-email-required="{{ __('contact.validation.inline.email_required') }}"
                 data-msg-email-invalid="{{ __('contact.validation.inline.email_invalid') }}"
             >
-                <label class="visually-hidden" for="newsletter-email">Vaša email adresa</label>
+                <label class="visually-hidden" for="newsletter-email">{{ $alphaFooterEmailPlaceholder }}</label>
                 <div class="footer-newsletter-field">
                     <i class="fa-light fa-envelope" aria-hidden="true"></i>
-                    <input id="newsletter-email" name="newsletter_email" type="email" autocomplete="email" placeholder="Vaša email adresa" required aria-describedby="newsletter-email-error" aria-invalid="false">
-                    <button type="submit" aria-label="Nastavite na prijavu za newsletter">
+                    <input id="newsletter-email" name="newsletter_email" type="email" autocomplete="email" placeholder="{{ $alphaFooterEmailPlaceholder }}" required aria-describedby="newsletter-email-error" aria-invalid="false">
+                    <button type="submit" aria-label="{{ $alphaFooterNewsletterSubmitLabel }}">
                         <i class="fa-duotone fa-thin fa-arrow-right" aria-hidden="true"></i>
                     </button>
                 </div>
                 <p id="newsletter-email-error" class="footer-newsletter-error" data-newsletter-error role="alert" aria-live="polite" hidden></p>
             </form>
         </section>
-        @endunless
+        @endif
 
         <div class="footer-main" data-image-reveal>
             <div class="footer-brand-block content-reveal animation-index-0" data-image-reveal>
-                <a class="footer-brand" href="{{ $alphaFooterHome }}" aria-label="Alpha Capitalis — početna">
+                <a class="footer-brand" href="{{ $alphaFooterHome }}" aria-label="{{ __('ui.alpha_chrome.footer.home_aria') }}">
                     <img src="{{ $alphaFooterBrandLogoUrl }}" alt="{{ $alphaFooterBrandName }}" width="300" height="80">
                 </a>
-                <p>Vaš kompas kroz svijet financija.</p>
+                @if ($alphaFooterTagline !== '')
+                    <p>{{ $alphaFooterTagline }}</p>
+                @endif
                 @if ($alphaFooterSocials->isNotEmpty())
-                    <div class="footer-socials" aria-label="Društvene mreže">
+                    <div class="footer-socials" aria-label="{{ __('ui.alpha_chrome.footer.socials_aria') }}">
                         @foreach ($alphaFooterSocials as $social)
                             <a href="{{ $social['url'] }}" aria-label="{{ $social['label'] }}" title="{{ $social['label'] }}" target="_blank" rel="noopener noreferrer">
                                 <i class="fa-brands {{ $social['icon'] }}" aria-hidden="true"></i>
@@ -89,29 +118,38 @@
             </div>
 
             <div class="footer-desktop-only footer-nav-block content-reveal animation-index-1" data-image-reveal>
-                <span class="footer-label">Alpha Capitalis</span>
-                <nav aria-label="Alpha Capitalis poveznice u podnožju">
+                <span class="footer-label">{{ $alphaFooterBrandName }}</span>
+                <nav aria-label="{{ __('ui.alpha_chrome.footer.navigation_aria') }}">
                     @foreach ($alphaFooterNavigation as $item)
-                        <a href="{{ $item['url'] }}">{{ $item['label'] }}</a>
+                        <a href="{{ $item['url'] }}" @if (! empty($item['open_in_new_tab'])) target="_blank" rel="noopener noreferrer" @endif>{{ $item['label'] }}</a>
                     @endforeach
                 </nav>
             </div>
 
+            @if ($alphaFooterServicesLabel !== '' && $alphaFooterServices->isNotEmpty())
             <div class="footer-desktop-only footer-services-block content-reveal animation-index-2" data-image-reveal>
-                <span class="footer-label">Usluge</span>
-                <nav aria-label="Usluge u podnožju">
+                <span class="footer-label">{{ $alphaFooterServicesLabel }}</span>
+                <nav aria-label="{{ __('ui.alpha_chrome.footer.services_aria') }}">
                     @foreach ($alphaFooterServices as $item)
                         <a href="{{ $item['url'] }}">{{ $item['label'] }}</a>
                     @endforeach
                 </nav>
             </div>
+            @endif
 
+            @if ($alphaFooterContactLabel !== '')
             <div class="footer-desktop-only footer-contact-block content-reveal animation-index-3" data-image-reveal>
-                <span class="footer-label">Kontakt</span>
+                <span class="footer-label">{{ $alphaFooterContactLabel }}</span>
                 <address class="footer-contact">
-                    <a href="{{ $alphaFooterMap }}" target="_blank" rel="noopener noreferrer">{{ $alphaFooterAddress }}</a>
-                    <a href="tel:{{ preg_replace('/[^+0-9]/', '', $alphaFooterPhone) }}">{{ $alphaFooterPhone }}</a>
-                    <a href="mailto:{{ $alphaFooterEmail }}">{{ $alphaFooterEmail }}</a>
+                    @if ($alphaFooterAddress !== '' && $alphaFooterMap !== '')
+                        <a href="{{ $alphaFooterMap }}" target="_blank" rel="noopener noreferrer">{{ $alphaFooterAddress }}</a>
+                    @endif
+                    @if ($alphaFooterPhone !== '')
+                        <a href="tel:{{ preg_replace('/[^+0-9]/', '', $alphaFooterPhone) }}">{{ $alphaFooterPhone }}</a>
+                    @endif
+                    @if ($alphaFooterEmail !== '')
+                        <a href="mailto:{{ $alphaFooterEmail }}">{{ $alphaFooterEmail }}</a>
+                    @endif
                     @if ($alphaFooterSalesEmail !== '' && $alphaFooterSalesEmail !== $alphaFooterEmail)
                         <a href="mailto:{{ $alphaFooterSalesEmail }}">{{ $alphaFooterSalesEmail }}</a>
                     @endif
@@ -120,31 +158,41 @@
                     @endif
                 </address>
             </div>
+            @endif
 
             <details class="footer-mobile-only footer-accordion footer-nav-block content-reveal animation-index-1" data-image-reveal>
-                <summary class="footer-label"><span>Alpha Capitalis</span><i class="fa-light fa-plus" aria-hidden="true"></i></summary>
-                <nav class="footer-accordion-content" aria-label="Alpha Capitalis poveznice u podnožju">
+                <summary class="footer-label"><span>{{ $alphaFooterBrandName }}</span><i class="fa-light fa-plus" aria-hidden="true"></i></summary>
+                <nav class="footer-accordion-content" aria-label="{{ __('ui.alpha_chrome.footer.navigation_aria') }}">
                     @foreach ($alphaFooterNavigation as $item)
-                        <a href="{{ $item['url'] }}">{{ $item['label'] }}</a>
+                        <a href="{{ $item['url'] }}" @if (! empty($item['open_in_new_tab'])) target="_blank" rel="noopener noreferrer" @endif>{{ $item['label'] }}</a>
                     @endforeach
                 </nav>
             </details>
 
+            @if ($alphaFooterServicesLabel !== '' && $alphaFooterServices->isNotEmpty())
             <details class="footer-mobile-only footer-accordion footer-services-block content-reveal animation-index-2" data-image-reveal>
-                <summary class="footer-label"><span>Usluge</span><i class="fa-light fa-plus" aria-hidden="true"></i></summary>
-                <nav class="footer-accordion-content" aria-label="Usluge u podnožju">
+                <summary class="footer-label"><span>{{ $alphaFooterServicesLabel }}</span><i class="fa-light fa-plus" aria-hidden="true"></i></summary>
+                <nav class="footer-accordion-content" aria-label="{{ __('ui.alpha_chrome.footer.services_aria') }}">
                     @foreach ($alphaFooterServices as $item)
                         <a href="{{ $item['url'] }}">{{ $item['label'] }}</a>
                     @endforeach
                 </nav>
             </details>
+            @endif
 
+            @if ($alphaFooterContactLabel !== '')
             <details class="footer-mobile-only footer-accordion footer-contact-block content-reveal animation-index-3" data-image-reveal>
-                <summary class="footer-label"><span>Kontakt</span><i class="fa-light fa-plus" aria-hidden="true"></i></summary>
+                <summary class="footer-label"><span>{{ $alphaFooterContactLabel }}</span><i class="fa-light fa-plus" aria-hidden="true"></i></summary>
                 <address class="footer-contact footer-accordion-content">
-                    <a href="{{ $alphaFooterMap }}" target="_blank" rel="noopener noreferrer"><span>{{ $alphaFooterAddress }}</span></a>
-                    <a href="tel:{{ preg_replace('/[^+0-9]/', '', $alphaFooterPhone) }}"><span>{{ $alphaFooterPhone }}</span></a>
-                    <a href="mailto:{{ $alphaFooterEmail }}"><span>{{ $alphaFooterEmail }}</span></a>
+                    @if ($alphaFooterAddress !== '' && $alphaFooterMap !== '')
+                        <a href="{{ $alphaFooterMap }}" target="_blank" rel="noopener noreferrer"><span>{{ $alphaFooterAddress }}</span></a>
+                    @endif
+                    @if ($alphaFooterPhone !== '')
+                        <a href="tel:{{ preg_replace('/[^+0-9]/', '', $alphaFooterPhone) }}"><span>{{ $alphaFooterPhone }}</span></a>
+                    @endif
+                    @if ($alphaFooterEmail !== '')
+                        <a href="mailto:{{ $alphaFooterEmail }}"><span>{{ $alphaFooterEmail }}</span></a>
+                    @endif
                     @if ($alphaFooterSalesEmail !== '' && $alphaFooterSalesEmail !== $alphaFooterEmail)
                         <a href="mailto:{{ $alphaFooterSalesEmail }}"><span>{{ $alphaFooterSalesEmail }}</span></a>
                     @endif
@@ -153,22 +201,29 @@
                     @endif
                 </address>
             </details>
+            @endif
         </div>
 
         <div class="footer-bottom content-reveal" data-image-reveal>
-            <p>© {{ now()->year }} {{ $alphaFooterCopyright }}</p>
+            @if ($alphaFooterCopyright !== '')
+                <p>© {{ now()->year }} {{ $alphaFooterCopyright }}</p>
+            @endif
             <div>
                 @foreach ($alphaFooterLegalLinks as $link)
                     <a href="{{ $link['url'] }}">{{ $link['label'] }}</a>
                 @endforeach
-                <button type="button" class="footer-cookie-consent-link" data-cookie-consent-trigger>
-                    {{ str_starts_with(strtolower((string) app()->getLocale()), 'en') ? 'Cookie settings' : 'Postavke kolačića' }}
-                </button>
+                @if ($alphaFooterCookieSettingsLabel !== '')
+                    <button type="button" class="footer-cookie-consent-link" data-cookie-consent-trigger>
+                        {{ $alphaFooterCookieSettingsLabel }}
+                    </button>
+                @endif
             </div>
-            <a class="footer-back-to-top" href="{{ request()->routeIs('home') ? '#vrh' : $alphaFooterHome.'#vrh' }}">
-                <span>Na vrh</span>
-                <i class="fa-duotone fa-thin fa-arrow-up" aria-hidden="true"></i>
-            </a>
+            @if ($alphaFooterBackToTopLabel !== '')
+                <a class="footer-back-to-top" href="{{ request()->routeIs('home') ? '#vrh' : $alphaFooterHome.'#vrh' }}">
+                    <span>{{ $alphaFooterBackToTopLabel }}</span>
+                    <i class="fa-duotone fa-thin fa-arrow-up" aria-hidden="true"></i>
+                </a>
+            @endif
         </div>
     </div>
 </footer>

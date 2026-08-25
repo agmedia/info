@@ -7,6 +7,7 @@ use App\Models\Catalog\Category\CategoryTranslation;
 use App\Models\Content\Blog\BlogPost;
 use App\Models\Content\Blog\BlogPostTranslation;
 use App\Models\Content\ContentBlock;
+use App\Models\Content\ContentBlockSlot;
 use App\Models\Content\Page\InfoPage;
 use App\Models\Content\Page\InfoPageTranslation;
 use App\Models\Content\Resource\ResourceDocument;
@@ -17,8 +18,11 @@ use App\Models\Content\Support\Comment;
 use App\Models\Content\Support\ContactMessage;
 use App\Models\Content\Team\TeamMember;
 use App\Models\Content\Team\TeamMemberTranslation;
+use App\Models\Settings\Local\Language;
 use App\Services\Front\NavigationMenuService;
 use App\Services\Settings\SystemSettingsService;
+use App\Support\Content\AboutPageDefaults;
+use App\Support\Content\CareerPageDefaults;
 use App\Support\Content\ServicePageTemplateRegistry;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
@@ -30,6 +34,44 @@ use Tests\TestCase;
 class StorefrontFrontFeatureTest extends TestCase
 {
     use RefreshDatabase;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        app(SystemSettingsService::class)->put(NavigationMenuService::CHROME_SETTINGS_KEY, [
+            'hr' => [
+                'header_primary_cta_label' => 'Zatraži ponudu',
+                'header_calculator_cta_label' => 'MSFI 16 Kalkulator',
+                'footer_newsletter_label' => 'Newsletter',
+                'footer_newsletter_title' => 'Primajte važne novosti na',
+                'footer_newsletter_accent' => 'vrijeme.',
+                'footer_newsletter_email_placeholder' => 'Vaša email adresa',
+                'footer_newsletter_submit_label' => 'Nastavite na prijavu za newsletter',
+                'footer_tagline' => 'Vaš kompas kroz svijet financija.',
+                'footer_services_label' => 'Usluge',
+                'footer_contact_label' => 'Kontakt',
+                'footer_copyright_text' => 'Alpha Capitalis d.o.o. Sva prava pridržana.',
+                'footer_cookie_settings_label' => 'Postavke kolačića',
+                'footer_back_to_top_label' => 'Na vrh',
+            ],
+            'en' => [
+                'header_primary_cta_label' => 'Request an offer',
+                'header_calculator_cta_label' => 'IFRS 16 Calculator',
+                'footer_newsletter_label' => 'Newsletter',
+                'footer_newsletter_title' => 'Receive important updates',
+                'footer_newsletter_accent' => 'on time.',
+                'footer_newsletter_email_placeholder' => 'Your email address',
+                'footer_newsletter_submit_label' => 'Continue to newsletter signup',
+                'footer_tagline' => 'Your compass through the world of finance.',
+                'footer_services_label' => 'Services',
+                'footer_contact_label' => 'Contact',
+                'footer_copyright_text' => 'Alpha Capitalis d.o.o. All rights reserved.',
+                'footer_cookie_settings_label' => 'Cookie settings',
+                'footer_back_to_top_label' => 'Back to top',
+            ],
+        ]);
+    }
 
     public function test_public_site_uses_manrope_as_the_default_google_font(): void
     {
@@ -77,6 +119,18 @@ class StorefrontFrontFeatureTest extends TestCase
 
     public function test_homepage_hero_uses_its_own_content_font_links_and_responsive_videos(): void
     {
+        $this->seedHomeBlock('home_hero', 'home.hero', [
+            'title' => 'CMS HERO TITLE',
+            'subtitle' => 'CMS hero subtitle.',
+            'cta_label' => 'CMS primary button',
+            'cta_url' => '/contact',
+            'payload' => [
+                'page_title' => 'CMS homepage title',
+                'secondary_cta_label' => 'CMS secondary button',
+                'secondary_cta_url' => '/usluge',
+            ],
+        ]);
+
         app(SystemSettingsService::class)->putMany([
             'store_home_hero_font' => 'playfair-display',
             'store_home_hero_font_weight' => 700,
@@ -95,12 +149,19 @@ class StorefrontFrontFeatureTest extends TestCase
             ->assertSee('fonts.googleapis.com/css2?family=Playfair+Display', false)
             ->assertSee('data-front-font="playfair-display"', false)
             ->assertSee('data-front-font-weight="700"', false)
-            ->assertSee('Hero naslov iz postavki')
-            ->assertSee('Hero podnaslov iz postavki.')
+            ->assertSee('<title>CMS homepage title</title>', false)
+            ->assertSee('<meta name="description" content="CMS hero subtitle.">', false)
+            ->assertSee('"description":"CMS hero subtitle."', false)
+            ->assertSee('CMS HERO TITLE')
+            ->assertSee('CMS hero subtitle.')
             ->assertSee('href="/contact"', false)
-            ->assertSee('Prvi hero gumb')
+            ->assertSee('CMS primary button')
             ->assertSee('href="/usluge"', false)
-            ->assertSee('Drugi hero gumb')
+            ->assertSee('CMS secondary button')
+            ->assertDontSee('Hero naslov iz postavki')
+            ->assertDontSee('Hero podnaslov iz postavki.')
+            ->assertDontSee('Prvi hero gumb')
+            ->assertDontSee('Drugi hero gumb')
             ->assertSee('data-alpha-hero-video-desktop-src="'.Storage::disk('public')->url('store-settings/home-hero/desktop.mp4').'"', false)
             ->assertSee('data-alpha-hero-video-desktop-type="video/mp4"', false)
             ->assertSee('data-alpha-hero-video-mobile-src="'.Storage::disk('public')->url('store-settings/home-hero/mobile.webm').'"', false)
@@ -147,7 +208,7 @@ class StorefrontFrontFeatureTest extends TestCase
             ->assertRedirect(route('pages.show', ['slug' => $pageSlug]));
         $this->get('/alpha-capitalis-tim')->assertOk();
         $this->get('/obiteljski-biznis')->assertNotFound();
-        $this->get('/contact')->assertOk();
+        $this->get('/kontakt')->assertOk();
         $this->get('/reference')->assertOk();
         $this->get('/ac-forma-robot')->assertOk();
         $this->get('/leasing-kalkulator')->assertOk();
@@ -282,6 +343,8 @@ class StorefrontFrontFeatureTest extends TestCase
 
     public function test_career_page_renders_curated_cms_layout(): void
     {
+        $this->seedCroatianCareerCmsPayload();
+
         $this->get('/karijera')
             ->assertOk()
             ->assertSee('Mjesto gdje ljudi i karijere rastu')
@@ -416,6 +479,7 @@ class StorefrontFrontFeatureTest extends TestCase
                     ],
                     'stories' => [
                         [
+                            'title' => 'Priča iz jedinstvenog editora',
                             'body_html' => '<p>Jedan editor za priču.</p>',
                             'list_text' => "prva uređena stavka\ndruga uređena stavka",
                         ],
@@ -445,6 +509,7 @@ class StorefrontFrontFeatureTest extends TestCase
         config()->set('media-library.disk_name', 'public');
         config()->set('media-library.queue_conversions_by_default', false);
 
+        $this->seedCroatianCareerCmsPayload();
         $careerPage = InfoPage::query()->where('code', 'career')->firstOrFail();
         $careerPage->clearMediaCollection('career_hero_image');
         $media = $careerPage
@@ -831,16 +896,78 @@ class StorefrontFrontFeatureTest extends TestCase
         Storage::disk('local')->assertExists((string) $application->cv_path);
     }
 
+    public function test_english_career_form_uses_localized_action_and_redirect(): void
+    {
+        Storage::fake('local');
+
+        Language::query()->updateOrCreate(['code' => 'hr'], [
+            'locale' => 'hr_HR',
+            'name' => 'Croatian',
+            'native_name' => 'Hrvatski',
+            'direction' => 'ltr',
+            'is_default' => true,
+            'is_active' => true,
+            'sort_order' => 1,
+        ]);
+        Language::query()->updateOrCreate(['code' => 'en'], [
+            'locale' => 'en_US',
+            'name' => 'English',
+            'native_name' => 'English',
+            'direction' => 'ltr',
+            'is_default' => false,
+            'is_active' => true,
+            'sort_order' => 2,
+        ]);
+
+        $careerPage = InfoPage::query()->where('code', 'career')->firstOrFail();
+        $englishCareer = $careerPage->translation('en')->firstOrFail();
+        $englishCareerPayload = (array) $englishCareer->payload;
+        data_set($englishCareerPayload, 'career_page.application.title', 'Open positions');
+        data_set($englishCareerPayload, 'career_page.form.title', 'Send us your CV');
+        data_set($englishCareerPayload, 'career_page.form.intro', 'Submit your details and CV.');
+        $englishCareer->update([
+            'slug' => 'careers',
+            'payload' => $englishCareerPayload,
+        ]);
+
+        $this->withSession(['front_locale' => 'en'])
+            ->get('/careers')
+            ->assertOk()
+            ->assertSee('action="'.route('career.applications.store.en').'"', false)
+            ->assertDontSee('action="'.route('career.applications.store').'"', false);
+
+        $this->withSession(['front_locale' => 'en'])
+            ->post(route('career.applications.store.en'), [
+                'first_name' => 'Jane',
+                'last_name' => 'Smith',
+                'email' => 'jane@example.test',
+                'message' => 'English career application.',
+                'cv' => UploadedFile::fake()->create('jane-smith-cv.pdf', 200, 'application/pdf'),
+                'accept_terms' => '1',
+            ])
+            ->assertRedirect('/careers#career-cta');
+
+        $this->withSession(['front_locale' => 'en'])
+            ->post(route('career.applications.store'))
+            ->assertRedirect()
+            ->assertSessionHas('front_locale', 'hr');
+
+        $this->withSession(['front_locale' => 'hr'])
+            ->post(route('career.applications.store.en'))
+            ->assertRedirect()
+            ->assertSessionHas('front_locale', 'en');
+    }
+
     public function test_contact_form_stores_message(): void
     {
-        $this->post('/contact', [
+        $this->post('/kontakt', [
             'name' => 'Front Tester',
             'email' => 'front@example.test',
             'phone' => '+38591000000',
             'subject' => 'Wholesale inquiry',
             'message' => 'Please contact me with available B2B pricing details.',
             'accept_terms' => '1',
-        ])->assertRedirect('/contact');
+        ])->assertRedirect('/kontakt');
 
         $this->assertDatabaseHas('contact_messages', [
             'email' => 'front@example.test',
@@ -855,12 +982,12 @@ class StorefrontFrontFeatureTest extends TestCase
 
         $this->assertNotNull($message);
         $this->assertSame(ContactMessage::FORM_TYPE_CONTACT, $message->payload['form_type'] ?? null);
-        $this->assertSame('/contact', $message->payload['source_page'] ?? null);
+        $this->assertSame('/kontakt', $message->payload['source_page'] ?? null);
     }
 
     public function test_finance_contact_form_can_redirect_back_to_section(): void
     {
-        $this->post('/contact', [
+        $this->post('/kontakt', [
             'first_name' => 'Ana',
             'last_name' => 'Horvat',
             'company' => 'Horvat Finance d.o.o.',
@@ -891,13 +1018,13 @@ class StorefrontFrontFeatureTest extends TestCase
 
     public function test_contact_form_rejects_protocol_relative_redirect_target(): void
     {
-        $this->post('/contact', [
+        $this->post('/kontakt', [
             'name' => 'Sigurnosni test',
             'email' => 'redirect@example.test',
             'message' => 'Provjera da kontakt forma ne dopušta vanjsko preusmjeravanje.',
             'accept_terms' => '1',
             'redirect_to' => '//evil.example/collect',
-        ])->assertRedirect('/contact');
+        ])->assertRedirect('/kontakt');
 
         $message = ContactMessage::query()
             ->where('email', 'redirect@example.test')
@@ -906,12 +1033,79 @@ class StorefrontFrontFeatureTest extends TestCase
 
         $this->assertNotNull($message);
         $this->assertSame(ContactMessage::FORM_TYPE_CONTACT, $message->payload['form_type'] ?? null);
-        $this->assertSame('/contact', $message->payload['source_page'] ?? null);
+        $this->assertSame('/kontakt', $message->payload['source_page'] ?? null);
     }
 
     public function test_contact_page_renders_official_office_data(): void
     {
-        $this->get('/contact')
+        $this->seedHomeBlock('home_stats', 'home.stats', [
+            'title' => 'Kontakt sadržaj iz CMS-a',
+            'payload' => [
+                'contact_page' => [
+                    'page_title' => 'Kontaktirajte nas',
+                    'intro' => 'Kontakt uvod iz CMS-a.',
+                    'form_title' => 'Pošaljite nam poruku',
+                    'form_intro' => 'Kontakt obrazac iz CMS-a.',
+                    'name_label' => 'Ime i prezime',
+                    'email_label' => 'Email',
+                    'phone_label' => 'Telefon (opcionalno)',
+                    'subject_label' => 'Naslov',
+                    'message_label' => 'Poruka',
+                    'consent_label' => 'Slažem se s obradom osobnih podataka.',
+                    'submit_label' => 'Pošalji poruku',
+                    'direct_title' => 'Direktan kontakt',
+                    'direct_body' => 'Kontaktirajte nas izravno.',
+                    'direct_email' => 'info@alphacapitalis.com',
+                    'direct_phone' => '+385 (0) 51 301 503',
+                    'direct_email_label' => 'Email',
+                    'direct_phone_label' => 'Telefon',
+                    'direct_response_time_label' => 'Vrijeme odgovora',
+                    'direct_response_fallback' => 'Unutar radnog vremena',
+                    'help_title' => 'Prije slanja upita',
+                    'help_body' => 'Navedite temu upita.',
+                ],
+                'locations' => [
+                    'title' => 'Prisutni na 3 lokacije',
+                    'map_link_label' => 'Pogledaj na karti',
+                    'email_label' => 'Email',
+                    'phone_label' => 'Telefon',
+                    'items' => [
+                        [
+                            'entity_key' => 'alpha-capitalis',
+                            'city' => 'Zagreb',
+                            'short_city' => 'Zagreb',
+                            'company' => 'ALPHA CAPITALIS d.o.o.',
+                            'address' => 'Ulica R. F. Mihanovića 9, 10110 Zagreb, Sky Office / XIX. kat',
+                            'map_query' => 'Ulica R. F. Mihanovića 9, 10110 Zagreb, Sky Office',
+                            'email' => 'info@alphacapitalis.com',
+                            'phone' => '+385 (1) 580 6656',
+                        ],
+                        [
+                            'entity_key' => 'alpha-capitalis-east',
+                            'city' => 'Vinkovci',
+                            'short_city' => 'Vinkovci',
+                            'company' => 'ALPHA CAPITALIS EAST d.o.o.',
+                            'address' => 'Duga ulica 67, 32100 Vinkovci',
+                            'map_query' => 'Duga ulica 67, 32100 Vinkovci',
+                            'email' => 'info@alphacapitalis.com',
+                            'phone' => '+385 (1) 580 6656',
+                        ],
+                        [
+                            'entity_key' => 'alpha-capitalis-timia',
+                            'city' => 'Rijeka',
+                            'short_city' => 'Rijeka',
+                            'company' => 'ALPHA CAPITALIS TIMIA d.o.o.',
+                            'address' => 'Korzo 30, 51 000 Rijeka',
+                            'map_query' => 'Korzo 30, 51000 Rijeka',
+                            'email' => 'info@alphacapitalis.com',
+                            'phone' => '+385 (0) 51 301 503',
+                        ],
+                    ],
+                ],
+            ],
+        ]);
+
+        $this->get('/kontakt')
             ->assertOk()
             ->assertSee('ALPHA CAPITALIS d.o.o.')
             ->assertSee('Ulica R. F. Mihanovića 9')
@@ -1053,6 +1247,20 @@ class StorefrontFrontFeatureTest extends TestCase
 
     public function test_home_services_section_renders_requested_service_order(): void
     {
+        $this->seedBlogPost([], 'CMS naslov objave', 'cms-naslov-objave', 'CMS sažetak objave.');
+        $this->seedHomeBlock('home_services', 'home.services', [
+            'title' => 'Vi vodite poslovanje. Mi brinemo da brojke prate vaš rast.',
+            'payload' => [
+                'services' => $this->homeServicePayloadRows(),
+                'news' => [
+                    'title' => 'Rokovi, novosti i savjeti za sigurnije poslovanje.',
+                    'all_posts_label' => 'Pogledaj sve objave',
+                    'all_posts_url' => '/blog',
+                    'post_action_label' => 'Opširnije',
+                ],
+            ],
+        ]);
+
         $response = $this->get('/');
 
         $response->assertOk()
@@ -1097,13 +1305,21 @@ class StorefrontFrontFeatureTest extends TestCase
 
     public function test_home_page_uses_optimized_media_without_loading_unused_slider_assets(): void
     {
+        $this->seedHomeBlock('home_services', 'home.services', [
+            'title' => 'CMS usluge',
+            'payload' => [
+                'services' => [$this->homeServicePayloadRows()[0]],
+            ],
+        ]);
+
         $this->get('/')
             ->assertOk()
             ->assertSee('alpha-zagreb-poster-640.webp', false)
             ->assertSee('fetchpriority="high"', false)
             ->assertSee('data-alpha-hero-video-mobile-src=', false)
             ->assertSee('alpha-zagreb-loop-mobile.mp4', false)
-            ->assertSee('audit-client-meeting', false)
+            ->assertSee('class="service-card-media"', false)
+            ->assertSee('loading="lazy" decoding="async"', false)
             ->assertSee('data-deferred-stylesheet', false)
             ->assertDontSee('splide.min.css', false)
             ->assertDontSee('splide.min.js', false);
@@ -1114,6 +1330,13 @@ class StorefrontFrontFeatureTest extends TestCase
         Storage::fake('public');
         config()->set('media-library.disk_name', 'public');
         config()->set('media-library.queue_conversions_by_default', false);
+
+        $this->seedHomeBlock('home_services', 'home.services', [
+            'title' => 'CMS usluge',
+            'payload' => [
+                'services' => [$this->homeServicePayloadRows()[0]],
+            ],
+        ]);
 
         $servicesIndex = ServicePage::query()
             ->where('template_key', ServicePageTemplateRegistry::SERVICES_INDEX)
@@ -1215,6 +1438,16 @@ class StorefrontFrontFeatureTest extends TestCase
 
     public function test_mobile_header_reopens_the_services_panel_on_service_pages(): void
     {
+        app(SystemSettingsService::class)->put(NavigationMenuService::SETTINGS_KEY, [[
+            'type' => 'custom',
+            'label' => 'Usluge',
+            'url' => '/usluge',
+            'open_in_new_tab' => false,
+            'show_dropdown' => true,
+            'is_active' => true,
+            'sort_order' => 0,
+        ]]);
+
         $this->get('/revizija')
             ->assertOk()
             ->assertSee('data-alpha-initial-panel="services"', false)
@@ -1229,6 +1462,521 @@ class StorefrontFrontFeatureTest extends TestCase
             ->assertDontSee('data-label="Početna"', false)
             ->assertDontSee('data-label="Usluge"', false)
             ->assertDontSee('data-label="Objave"', false);
+    }
+
+    public function test_blank_navigation_chrome_hides_editorial_header_and_footer_copy_without_language_fallbacks(): void
+    {
+        app(SystemSettingsService::class)->putMany([
+            NavigationMenuService::CHROME_SETTINGS_KEY => ['hr' => []],
+            'store_footer_hours' => '',
+            'store_footer_bottom_copyright_text' => '',
+        ]);
+
+        $this->get('/usluge')
+            ->assertOk()
+            ->assertSee('class="site-header"', false)
+            ->assertSee('class="search-link"', false)
+            ->assertSee('class="site-footer"', false)
+            ->assertDontSee('class="header-cta', false)
+            ->assertDontSee('mobile-menu-link--offer', false)
+            ->assertDontSee('class="footer-newsletter"', false)
+            ->assertDontSee('footer-services-block', false)
+            ->assertDontSee('footer-contact-block', false)
+            ->assertDontSee('footer-cookie-consent-link', false)
+            ->assertDontSee('footer-back-to-top', false)
+            ->assertDontSee('Zatraži ponudu')
+            ->assertDontSee('MSFI 16 Kalkulator')
+            ->assertDontSee('Primajte važne novosti na')
+            ->assertDontSee('Vaš kompas kroz svijet financija.')
+            ->assertDontSee('Na vrh');
+    }
+
+    public function test_english_header_and_footer_only_render_links_with_english_content(): void
+    {
+        Language::query()->updateOrCreate(['code' => 'hr'], [
+            'locale' => 'hr_HR',
+            'name' => 'Croatian',
+            'native_name' => 'Hrvatski',
+            'direction' => 'ltr',
+            'is_default' => true,
+            'is_active' => true,
+            'sort_order' => 1,
+        ]);
+        Language::query()->updateOrCreate(['code' => 'en'], [
+            'locale' => 'en_US',
+            'name' => 'English',
+            'native_name' => 'English',
+            'direction' => 'ltr',
+            'is_default' => false,
+            'is_active' => true,
+            'sort_order' => 2,
+        ]);
+
+        $translatedPage = InfoPage::query()->create([
+            'code' => 'navigation-translated-test',
+            'layout' => 'default',
+            'is_active' => true,
+            'show_in_footer' => false,
+            'sort_order' => 901,
+        ]);
+        $translatedPage->translations()->create([
+            'locale' => 'hr',
+            'title' => 'Prevedena testna stranica',
+            'slug' => 'prevedena-testna-stranica',
+        ]);
+        $translatedPage->translations()->create([
+            'locale' => 'en',
+            'title' => 'Translated test page',
+            'slug' => 'translated-test-page',
+        ]);
+
+        $croatianOnlyPage = InfoPage::query()->create([
+            'code' => 'navigation-croatian-only-test',
+            'layout' => 'default',
+            'is_active' => true,
+            'show_in_footer' => false,
+            'sort_order' => 902,
+        ]);
+        $croatianOnlyPage->translations()->create([
+            'locale' => 'hr',
+            'title' => 'Samo hrvatska stranica',
+            'slug' => 'samo-hrvatska-stranica',
+        ]);
+
+        foreach ([
+            'services' => ['template' => 'services_index', 'title' => 'English Services', 'slug' => 'services'],
+            'audit' => ['template' => 'audit', 'title' => 'English Audit Service', 'slug' => 'audit'],
+            'racunovodstvo' => ['template' => 'accounting', 'title' => 'English Accounting Service', 'slug' => 'accounting'],
+            'advisory' => ['template' => 'advisory', 'title' => 'English Advisory Service', 'slug' => 'advisory'],
+        ] as $code => $serviceData) {
+            $servicePage = ServicePage::query()->updateOrCreate(
+                ['code' => $code],
+                [
+                    'template_key' => $serviceData['template'],
+                    'is_active' => true,
+                    'published_at' => null,
+                    'sort_order' => 0,
+                ]
+            );
+            $servicePage->translations()->updateOrCreate(
+                ['locale' => 'en'],
+                [
+                    'title' => $serviceData['title'],
+                    'slug' => $serviceData['slug'],
+                ]
+            );
+        }
+
+        $croatianBlogPost = BlogPost::query()->create([
+            'code' => 'strict-navigation-blog-test',
+            'is_active' => true,
+            'published_at' => now()->subMinute(),
+            'sort_order' => 0,
+        ]);
+        BlogPostTranslation::query()->where('locale', 'en')->delete();
+        $croatianBlogPost->translations()->create([
+            'locale' => 'hr',
+            'title' => 'Samo hrvatska objava',
+            'slug' => 'samo-hrvatska-objava',
+            'body_html' => '<p>Hrvatski sadržaj.</p>',
+        ]);
+
+        app(SystemSettingsService::class)->putMany([
+            NavigationMenuService::SETTINGS_KEY => [
+                [
+                    'type' => 'page',
+                    'page_id' => $translatedPage->id,
+                    'label_translations' => [],
+                    'url_translations' => [],
+                    'is_active' => true,
+                    'sort_order' => 0,
+                ],
+                [
+                    'type' => 'page',
+                    'page_id' => $croatianOnlyPage->id,
+                    'label_translations' => [],
+                    'url_translations' => [],
+                    'is_active' => true,
+                    'sort_order' => 1,
+                ],
+                [
+                    'type' => 'blog',
+                    'label_translations' => ['hr' => 'Objave', 'en' => 'English Blog Navigation'],
+                    'url_translations' => [],
+                    'is_active' => true,
+                    'sort_order' => 2,
+                ],
+                [
+                    'type' => 'custom',
+                    'label_translations' => ['hr' => 'Samo HR custom'],
+                    'url_translations' => ['hr' => '/samo-hr-custom'],
+                    'is_active' => true,
+                    'sort_order' => 3,
+                ],
+                [
+                    'type' => 'custom',
+                    'label_translations' => ['hr' => 'Prevedeni custom', 'en' => 'Localized custom page'],
+                    'url_translations' => ['hr' => '/prevedena-testna-stranica', 'en' => '/prevedena-testna-stranica'],
+                    'is_active' => true,
+                    'sort_order' => 4,
+                ],
+                [
+                    'type' => 'custom',
+                    'label_translations' => ['hr' => 'HR only target', 'en' => 'Missing English target'],
+                    'url_translations' => ['hr' => '/samo-hrvatska-stranica', 'en' => '/samo-hrvatska-stranica'],
+                    'is_active' => true,
+                    'sort_order' => 5,
+                ],
+                [
+                    'type' => 'custom',
+                    'label_translations' => ['hr' => 'Usluge', 'en' => 'English Services Navigation'],
+                    'url_translations' => ['hr' => '/usluge', 'en' => '/usluge'],
+                    'is_active' => true,
+                    'sort_order' => 6,
+                ],
+            ],
+            NavigationMenuService::CHROME_SETTINGS_KEY => [
+                'en' => [
+                    'header_primary_cta_label' => 'English CMS Proposal',
+                    'footer_newsletter_label' => 'English CMS Newsletter Label',
+                    'footer_newsletter_title' => 'English CMS Newsletter',
+                    'footer_newsletter_accent' => 'Today.',
+                    'footer_newsletter_email_placeholder' => 'English CMS Email',
+                    'footer_newsletter_submit_label' => 'English CMS Newsletter Submit',
+                    'footer_tagline' => 'English CMS Footer Tagline',
+                    'footer_services_label' => 'English CMS Services',
+                    'footer_contact_label' => 'English CMS Contact',
+                    'footer_copyright_text' => 'English CMS Copyright',
+                    'footer_cookie_settings_label' => 'English CMS Cookies',
+                    'footer_back_to_top_label' => 'English CMS Top',
+                ],
+            ],
+        ]);
+
+        $response = $this->withSession(['front_locale' => 'en'])->get('/');
+        $homeUrl = route('home');
+
+        $response->assertOk()
+            ->assertSee('class="header-language-switch"', false)
+            ->assertSee('class="mobile-menu-language-switch"', false)
+            ->assertSee('href="'.route('front.locale.switch', ['code' => 'hr', 'redirect' => $homeUrl]).'"', false)
+            ->assertSee('href="'.route('front.locale.switch', ['code' => 'en', 'redirect' => $homeUrl]).'"', false)
+            ->assertSee('data-label="Translated test page"', false)
+            ->assertDontSee('Samo hrvatska stranica')
+            ->assertDontSee('English Blog Navigation')
+            ->assertDontSee('Samo HR custom')
+            ->assertSee('data-label="Localized custom page"', false)
+            ->assertSee('href="'.route('pages.show', ['slug' => 'translated-test-page']).'"', false)
+            ->assertDontSee('Missing English target')
+            ->assertSee('data-label="English Services Navigation"', false)
+            ->assertSee('href="'.url('/services').'"', false)
+            ->assertSee('English Audit Service')
+            ->assertSee('href="'.url('/audit').'"', false)
+            ->assertSee('English Accounting Service')
+            ->assertSee('href="'.url('/accounting').'"', false)
+            ->assertSee('English Advisory Service')
+            ->assertSee('href="'.url('/advisory').'"', false)
+            ->assertSee('English CMS Proposal')
+            ->assertSee('English CMS Newsletter')
+            ->assertSee('English CMS Footer Tagline')
+            ->assertSee('English CMS Services')
+            ->assertSee('English CMS Contact')
+            ->assertSee('English CMS Copyright')
+            ->assertSee('English CMS Cookies')
+            ->assertSee('English CMS Top')
+            ->assertDontSee('Politika privatnosti')
+            ->assertDontSee('Uvjeti korištenja');
+
+        $translatedPageResponse = $this->withSession(['front_locale' => 'en'])
+            ->get('/translated-test-page');
+        $croatianPageUrl = route('pages.show', ['slug' => 'prevedena-testna-stranica']);
+        $croatianSwitchUrl = route('front.locale.switch', [
+            'code' => 'hr',
+            'redirect' => $croatianPageUrl,
+        ]);
+
+        $translatedPageResponse->assertOk()
+            ->assertSee('href="'.$croatianSwitchUrl.'"', false);
+
+        $this->withSession(['front_locale' => 'hr'])
+            ->get('/translated-test-page?source=language-test')
+            ->assertOk()
+            ->assertSessionHas('front_locale', 'en');
+
+        $this->withSession(['front_locale' => 'en'])
+            ->get($croatianSwitchUrl)
+            ->assertRedirect($croatianPageUrl)
+            ->assertSessionHas('front_locale', 'hr');
+
+        $englishServicesUrl = url('/services');
+        $englishServicesSwitchUrl = route('front.locale.switch', [
+            'code' => 'en',
+            'redirect' => $englishServicesUrl,
+        ]);
+
+        $this->withSession(['front_locale' => 'hr'])
+            ->get('/usluge')
+            ->assertOk()
+            ->assertSee('href="'.$englishServicesSwitchUrl.'"', false);
+
+        $this->withSession(['front_locale' => 'hr'])
+            ->get($englishServicesSwitchUrl)
+            ->assertRedirect($englishServicesUrl)
+            ->assertSessionHas('front_locale', 'en');
+
+        $this->from('/')
+            ->get(route('front.locale.switch', [
+                'code' => 'en',
+                'redirect' => 'https://malicious.example/redirect',
+            ]))
+            ->assertRedirect('/');
+
+        $croatianBlogPost->translations()->create([
+            'locale' => 'en',
+            'title' => 'English translated post',
+            'slug' => 'english-translated-post',
+            'body_html' => '<p>English content.</p>',
+        ]);
+        app()->forgetInstance(NavigationMenuService::class);
+
+        $englishBlogUrl = route('blog.show', ['slug' => 'english-translated-post']);
+        $englishBlogSwitchUrl = route('front.locale.switch', [
+            'code' => 'en',
+            'redirect' => $englishBlogUrl,
+        ]);
+
+        $this->withSession(['front_locale' => 'hr'])
+            ->get(route('blog.show', ['slug' => 'samo-hrvatska-objava']))
+            ->assertOk()
+            ->assertSee('href="'.$englishBlogSwitchUrl.'"', false);
+
+        $this->withSession(['front_locale' => 'en'])
+            ->get('/')
+            ->assertOk()
+            ->assertSee('data-label="English Blog Navigation"', false);
+    }
+
+    public function test_english_footer_uses_only_the_exact_cms_location_address(): void
+    {
+        Language::query()->updateOrCreate(['code' => 'hr'], [
+            'locale' => 'hr_HR',
+            'name' => 'Croatian',
+            'native_name' => 'Hrvatski',
+            'direction' => 'ltr',
+            'is_default' => true,
+            'is_active' => true,
+            'sort_order' => 1,
+        ]);
+        Language::query()->updateOrCreate(['code' => 'en'], [
+            'locale' => 'en_US',
+            'name' => 'English',
+            'native_name' => 'English',
+            'direction' => 'ltr',
+            'is_default' => false,
+            'is_active' => true,
+            'sort_order' => 2,
+        ]);
+
+        $block = ContentBlock::query()->updateOrCreate(['code' => 'home-alpha-stats'], [
+            'name' => 'Homepage statistics and locations',
+            'type' => 'home_stats',
+            'is_active' => true,
+        ]);
+        $englishTranslation = $block->translations()->updateOrCreate(['locale' => 'en'], [
+            'title' => 'English statistics and locations',
+            'payload' => [],
+        ]);
+        $englishPayload = (array) $englishTranslation->payload;
+        $englishLocations = (array) data_get($englishPayload, 'locations.items', []);
+        $englishLocations[0]['entity_key'] = 'alpha-capitalis';
+        $englishLocations[0]['address'] = 'English CMS footer address, 19th floor';
+        data_set($englishPayload, 'locations.items', $englishLocations);
+        $englishTranslation->update(['payload' => $englishPayload]);
+
+        $response = $this->withSession(['front_locale' => 'en'])->get('/services');
+
+        $response->assertOk()
+            ->assertSee('English CMS footer address, 19th floor')
+            ->assertDontSee('XIX. kat');
+        $this->assertSame(2, substr_count((string) $response->getContent(), 'English CMS footer address, 19th floor'));
+
+        $englishLocations[0]['address'] = '';
+        data_set($englishPayload, 'locations.items', $englishLocations);
+        $englishTranslation->update(['payload' => $englishPayload]);
+
+        $this->withSession(['front_locale' => 'en'])
+            ->get('/services')
+            ->assertOk()
+            ->assertDontSee('XIX. kat')
+            ->assertDontSee('English CMS footer address, 19th floor');
+    }
+
+    public function test_footer_uses_exact_locale_cms_address_and_managed_phone_and_email_settings(): void
+    {
+        Language::query()->updateOrCreate(['code' => 'hr'], [
+            'locale' => 'hr_HR',
+            'name' => 'Croatian',
+            'native_name' => 'Hrvatski',
+            'direction' => 'ltr',
+            'is_default' => true,
+            'is_active' => true,
+            'sort_order' => 1,
+        ]);
+        Language::query()->updateOrCreate(['code' => 'en'], [
+            'locale' => 'en_US',
+            'name' => 'English',
+            'native_name' => 'English',
+            'direction' => 'ltr',
+            'is_default' => false,
+            'is_active' => true,
+            'sort_order' => 2,
+        ]);
+        app(SystemSettingsService::class)->putMany([
+            'store_footer_phone' => '+385 1 555 0199',
+            'store_footer_email_support' => 'footer-cms@example.test',
+        ]);
+
+        $block = ContentBlock::query()->create([
+            'code' => 'home-alpha-stats',
+            'name' => 'Homepage statistics and locations',
+            'type' => 'home_stats',
+            'is_active' => true,
+        ]);
+        $block->translations()->create([
+            'locale' => 'hr',
+            'title' => 'Hrvatske lokacije',
+            'payload' => ['locations' => ['items' => [[
+                'entity_key' => 'alpha-capitalis',
+                'address' => 'Točna hrvatska CMS adresa',
+                'map_query' => 'Hrvatska CMS karta',
+            ]]]],
+        ]);
+        $block->translations()->create([
+            'locale' => 'en',
+            'title' => 'English locations',
+            'payload' => ['locations' => ['items' => [[
+                'entity_key' => 'alpha-capitalis',
+                'address' => 'Exact English CMS address',
+                'map_query' => 'English CMS map query',
+            ]]]],
+        ]);
+
+        $this->get('/usluge')
+            ->assertOk()
+            ->assertSee('Točna hrvatska CMS adresa')
+            ->assertDontSee('Exact English CMS address')
+            ->assertSee('+385 1 555 0199')
+            ->assertSee('footer-cms@example.test');
+
+        $this->get('/services')
+            ->assertOk()
+            ->assertSee('Exact English CMS address')
+            ->assertDontSee('Točna hrvatska CMS adresa')
+            ->assertSee('+385 1 555 0199')
+            ->assertSee('footer-cms@example.test');
+    }
+
+    public function test_public_contact_surfaces_use_managed_phone_and_support_email_settings(): void
+    {
+        app(SystemSettingsService::class)->putMany([
+            'store_footer_phone' => '+385 1 555 0123',
+            'store_footer_email_support' => 'office-cms@example.test',
+            'store_footer_email_sales' => '',
+        ]);
+
+        foreach (['/eu-fondovi/upitnik', '/ac-forma-robot'] as $path) {
+            $content = (string) $this->withSession(['front_locale' => 'hr'])
+                ->get($path)
+                ->assertOk()
+                ->getContent();
+
+            $this->assertSame(3, substr_count($content, 'href="mailto:office-cms@example.test"'));
+            $this->assertSame(3, substr_count($content, 'href="tel:+38515550123"'));
+        }
+
+        foreach (['/leasing-kalkulator', '/alpha-capitalis-tim'] as $path) {
+            $content = (string) $this->withSession(['front_locale' => 'hr'])
+                ->get($path)
+                ->assertOk()
+                ->getContent();
+
+            $this->assertSame(3, substr_count($content, 'href="mailto:office-cms@example.test'));
+        }
+    }
+
+    public function test_blank_cms_office_fields_never_render_legacy_operational_fallbacks(): void
+    {
+        Language::query()->updateOrCreate(['code' => 'hr'], [
+            'locale' => 'hr_HR',
+            'name' => 'Croatian',
+            'native_name' => 'Hrvatski',
+            'direction' => 'ltr',
+            'is_default' => true,
+            'is_active' => true,
+            'sort_order' => 1,
+        ]);
+        Language::query()->updateOrCreate(['code' => 'en'], [
+            'locale' => 'en_US',
+            'name' => 'English',
+            'native_name' => 'English',
+            'direction' => 'ltr',
+            'is_default' => false,
+            'is_active' => true,
+            'sort_order' => 2,
+        ]);
+        app(SystemSettingsService::class)->putMany([
+            'store_footer_phone' => '',
+            'store_footer_email_support' => '',
+            'store_footer_email_sales' => '',
+        ]);
+
+        $block = ContentBlock::query()->create([
+            'code' => 'home-alpha-stats',
+            'name' => 'Homepage statistics and locations',
+            'type' => 'home_stats',
+            'is_active' => true,
+        ]);
+        $block->translations()->create([
+            'locale' => 'en',
+            'title' => 'English locations',
+            'payload' => [
+                'contact_page' => ['page_title' => 'Contact without operational fallbacks'],
+                'locations' => [
+                    'title' => 'CMS offices',
+                    'map_link_label' => 'Map',
+                    'items' => [[
+                        'entity_key' => 'alpha-capitalis',
+                        'city' => 'CMS City',
+                        'short_city' => 'CMS City',
+                        'address' => 'CMS-only address',
+                    ]],
+                ],
+            ],
+        ]);
+        $block->slots()->create([
+            'placement' => 'home.stats',
+            'frontend_variant' => 'all',
+            'sort_order' => 0,
+            'is_active' => true,
+        ]);
+
+        $this->get('/contact')
+            ->assertOk()
+            ->assertSee('CMS-only address')
+            ->assertDontSee('ALPHA CAPITALIS d.o.o.')
+            ->assertDontSee('info@alphacapitalis.com')
+            ->assertDontSee('+385 (1) 580 6656')
+            ->assertDontSee('+385 (0) 51 301 503')
+            ->assertDontSee('XIX. kat');
+
+        foreach (['/eu-fondovi/upitnik', '/ac-forma-robot', '/leasing-kalkulator', '/alpha-capitalis-tim'] as $path) {
+            $this->withSession(['front_locale' => 'hr'])
+                ->get($path)
+                ->assertOk()
+                ->assertDontSee('info@alphacapitalis.com')
+                ->assertDontSee('+385 (1) 580 6656')
+                ->assertDontSee('+385 (0) 51 301 503');
+        }
     }
 
     public function test_redesigned_global_footer_renders_on_home_and_internal_pages(): void
@@ -1275,7 +2023,7 @@ class StorefrontFrontFeatureTest extends TestCase
             'store_footer_email_sales' => 'prodaja@example.test',
             'store_footer_email_support' => 'podrska@example.test',
             'store_footer_hours' => 'Pon–Pet 08:00–16:00',
-            'store_footer_bottom_copyright_text' => 'Testna prava pridržana.',
+            'store_footer_bottom_copyright_text' => 'Legacy copyright must not render.',
             'store_social_x_url' => 'https://x.com/alpha-public-test',
             'store_footer_social_x_enabled' => true,
             'store_social_facebook_url' => 'https://facebook.com/alpha-disabled-test',
@@ -1301,6 +2049,10 @@ class StorefrontFrontFeatureTest extends TestCase
             'store_newsletter_mailchimp_api_key' => 'newsletter-secret-must-not-render',
         ]);
 
+        $chrome = (array) app(SystemSettingsService::class)->get(NavigationMenuService::CHROME_SETTINGS_KEY, []);
+        data_set($chrome, 'hr.footer_copyright_text', 'Testna prava pridržana.');
+        app(SystemSettingsService::class)->put(NavigationMenuService::CHROME_SETTINGS_KEY, $chrome);
+
         $response = $this->get('/');
         $logoUrl = Storage::disk('public')->url('store-settings/public-logo.svg');
         $faviconUrl = Storage::disk('public')->url('store-settings/favicon/public-32.png');
@@ -1320,6 +2072,7 @@ class StorefrontFrontFeatureTest extends TestCase
             ->assertSee('podrska@example.test')
             ->assertSee('Pon–Pet 08:00–16:00')
             ->assertSee('Testna prava pridržana.')
+            ->assertDontSee('Legacy copyright must not render.')
             ->assertSee('https://x.com/alpha-public-test', false)
             ->assertDontSee('https://facebook.com/alpha-disabled-test', false)
             ->assertSee('"@type":"LocalBusiness"', false)
@@ -1487,6 +2240,72 @@ class StorefrontFrontFeatureTest extends TestCase
             ->assertDontSee('Što je savjetovanje?');
     }
 
+    public function test_advisory_subpage_seo_uses_only_exact_locale_cms_values(): void
+    {
+        Language::query()->updateOrCreate(['code' => 'hr'], [
+            'locale' => 'hr_HR',
+            'name' => 'Croatian',
+            'native_name' => 'Hrvatski',
+            'direction' => 'ltr',
+            'is_default' => true,
+            'is_active' => true,
+            'sort_order' => 1,
+        ]);
+        Language::query()->updateOrCreate(['code' => 'en'], [
+            'locale' => 'en_US',
+            'name' => 'English',
+            'native_name' => 'English',
+            'direction' => 'ltr',
+            'is_default' => false,
+            'is_active' => true,
+            'sort_order' => 2,
+        ]);
+
+        $page = ServicePage::query()
+            ->where('template_key', ServicePageTemplateRegistry::ADVISORY)
+            ->firstOrFail();
+        $croatianTranslation = $page->translations()->where('locale', 'hr')->firstOrFail();
+        $croatianPayload = (array) $croatianTranslation->payload;
+        data_set($croatianPayload, 'financial.meta_title', 'HR SEO NE SMIJE PROCURITI');
+        data_set($croatianPayload, 'financial.meta_description', 'HR opis ne smije procuriti u EN stranicu.');
+        $croatianTranslation->forceFill(['payload' => $croatianPayload])->save();
+
+        $englishTranslation = $page->translations()->where('locale', 'en')->firstOrFail();
+        $englishPayload = (array) $englishTranslation->payload;
+        data_set($englishPayload, 'financial.title', 'English localized financial title');
+        data_set($englishPayload, 'financial.hero_intro', 'English localized hero description.');
+        data_set($englishPayload, 'financial.meta_title', 'English CMS financial SEO title');
+        data_set($englishPayload, 'financial.meta_description', 'English CMS financial SEO description.');
+        $englishTranslation->forceFill(['payload' => $englishPayload])->save();
+
+        $this->withSession(['front_locale' => 'en'])
+            ->get('/advisory/financial-advisory')
+            ->assertOk()
+            ->assertSee('<title>English CMS financial SEO title</title>', false)
+            ->assertSee('<meta name="description" content="English CMS financial SEO description.">', false)
+            ->assertDontSee('HR SEO NE SMIJE PROCURITI')
+            ->assertDontSee('HR opis ne smije procuriti u EN stranicu.');
+
+        data_set($englishPayload, 'financial.meta_title', '');
+        data_set($englishPayload, 'financial.meta_description', '');
+        $englishTranslation->forceFill(['payload' => $englishPayload])->save();
+
+        $response = $this->withSession(['front_locale' => 'en'])
+            ->get('/advisory/financial-advisory');
+
+        $response
+            ->assertOk()
+            ->assertDontSee('<meta name="description" content="English localized hero description.">', false)
+            ->assertDontSee('HR SEO NE SMIJE PROCURITI')
+            ->assertDontSee('HR opis ne smije procuriti u EN stranicu.');
+
+        preg_match('/<title>(.*?)<\/title>/su', $response->getContent(), $titleMatch);
+        $this->assertNotSame(
+            'English localized financial title',
+            html_entity_decode(trim((string) ($titleMatch[1] ?? '')), ENT_QUOTES | ENT_HTML5, 'UTF-8')
+        );
+    }
+
     public function test_advisory_subpages_share_revizija_style_without_decorative_numbers(): void
     {
         foreach ([
@@ -1527,8 +2346,10 @@ class StorefrontFrontFeatureTest extends TestCase
         }
     }
 
-    public function test_about_page_exists_empty_for_admin_managed_content(): void
+    public function test_about_page_renders_cms_managed_content(): void
     {
+        $this->seedCroatianAboutCmsPayload();
+
         $aboutPage = InfoPage::query()
             ->where('code', 'about-us')
             ->with('translations')
@@ -1536,6 +2357,12 @@ class StorefrontFrontFeatureTest extends TestCase
 
         $this->assertSame('O nama', (string) $aboutPage->translations->firstWhere('locale', 'hr')?->title);
         $this->assertNull($aboutPage->translations->firstWhere('locale', 'hr')?->body_html);
+
+        $croatianTranslation = $aboutPage->translations->firstWhere('locale', 'hr');
+        $croatianPayload = (array) $croatianTranslation?->payload;
+        data_set($croatianPayload, 'about_page.hero.image_alt', '');
+        $croatianTranslation?->forceFill(['payload' => $croatianPayload])->save();
+        $aboutPage->clearMediaCollection('about_hero_image');
 
         $this->get('/o-nama')
             ->assertOk()
@@ -1562,8 +2389,45 @@ class StorefrontFrontFeatureTest extends TestCase
             ->assertSee('Uz vas prije, tijekom i nakon svake važne odluke')
             ->assertSee('data-count-target="75"', false)
             ->assertSee('data-count-target="700"', false)
+            ->assertDontSee('alt="ALPHA CAPITALIS tim"', false)
             ->assertDontSee('class="footer-newsletter"', false)
             ->assertDontSee('This page has no body content.');
+    }
+
+    public function test_about_and_career_pages_do_not_expand_blank_croatian_cms_payloads(): void
+    {
+        $aboutPage = InfoPage::query()->where('code', 'about-us')->firstOrFail();
+        $aboutPage->translation('hr')->firstOrFail()->update([
+            'payload' => ['about_page' => []],
+        ]);
+
+        $this->get('/o-nama')
+            ->assertOk()
+            ->assertSee('class="ac-about-page"', false)
+            ->assertDontSee('class="values-section services-index-intro ac-about-intro"', false)
+            ->assertDontSee('class="ac-about-values"', false)
+            ->assertDontSee('class="ac-about-team"', false)
+            ->assertDontSee('class="ac-about-culture"', false)
+            ->assertDontSee('class="ac-about-responsibility"', false)
+            ->assertDontSee('class="ac-about-references"', false)
+            ->assertDontSee('Kontaktirajte nas');
+
+        $careerPage = InfoPage::query()->where('code', 'career')->firstOrFail();
+        $careerPage->translation('hr')->firstOrFail()->update([
+            'payload' => ['career_page' => []],
+        ]);
+
+        $this->get('/karijera')
+            ->assertOk()
+            ->assertSee('class="ac-career-page"', false)
+            ->assertDontSee('class="ac-career-intro"', false)
+            ->assertDontSee('class="ac-career-hero"', false)
+            ->assertDontSee('class="ac-career-development"', false)
+            ->assertDontSee('class="ac-career-stories"', false)
+            ->assertDontSee('class="ac-career-openings"', false)
+            ->assertDontSee('Karijera u ALPHA CAPITALISU')
+            ->assertDontSee('Razvoj koji nije samo fraza')
+            ->assertDontSee('Otvorene pozicije');
     }
 
     public function test_about_page_renders_custom_copy_from_translation_payload(): void
@@ -1590,6 +2454,8 @@ class StorefrontFrontFeatureTest extends TestCase
                         'button_label' => 'Upoznaj sve kolege',
                     ],
                     'responsibility' => [
+                        'cta_intro' => 'Poziv iz CMS-a.',
+                        'cta_text' => 'CMS tekst poziva na suradnju.',
                         'cta_card_title' => 'Zajedno stvaramo prilike.',
                         'cta_status' => 'Javite nam se za suradnju.',
                     ],
@@ -1625,6 +2491,7 @@ class StorefrontFrontFeatureTest extends TestCase
                     'values' => [
                         'items' => [
                             [
+                                'title' => 'Vrijednost iz CMS-a',
                                 'body_html' => '<p>Jedinstveni editor prve kartice vrijednosti.</p><p><em>Formatirani tekst kartice.</em></p>',
                             ],
                         ],
@@ -1652,6 +2519,7 @@ class StorefrontFrontFeatureTest extends TestCase
         config()->set('media-library.disk_name', 'public');
         config()->set('media-library.queue_conversions_by_default', false);
 
+        $this->seedCroatianAboutCmsPayload();
         $aboutPage = InfoPage::query()->where('code', 'about-us')->firstOrFail();
         $aboutPage->clearMediaCollection('about_hero_image');
         $media = $aboutPage
@@ -1679,7 +2547,7 @@ class StorefrontFrontFeatureTest extends TestCase
         app(SystemSettingsService::class)->put(NavigationMenuService::SETTINGS_KEY, [
             [
                 'type' => 'page',
-                'label' => 'Savjeti',
+                'label_translations' => ['hr' => 'Savjeti', 'en' => 'Advice'],
                 'page_id' => $page->id,
                 'url' => '',
                 'open_in_new_tab' => false,
@@ -1689,9 +2557,9 @@ class StorefrontFrontFeatureTest extends TestCase
             ],
             [
                 'type' => 'custom',
-                'label' => 'Kontakt',
+                'label_translations' => ['hr' => 'Kontakt', 'en' => 'Contact'],
                 'page_id' => 0,
-                'url' => '/contact',
+                'url_translations' => ['hr' => '/kontakt', 'en' => '/contact'],
                 'open_in_new_tab' => false,
                 'show_dropdown' => false,
                 'is_active' => true,
@@ -1702,10 +2570,107 @@ class StorefrontFrontFeatureTest extends TestCase
         $items = app(NavigationMenuService::class)->forLocale('en');
 
         $this->assertCount(2, $items);
-        $this->assertSame('Savjeti', $items[0]['label'] ?? null);
+        $this->assertSame('Advice', $items[0]['label'] ?? null);
         $this->assertSame(route('pages.show', ['slug' => $pageSlug]), $items[0]['url'] ?? null);
-        $this->assertSame('Kontakt', $items[1]['label'] ?? null);
+        $this->assertFalse((bool) ($items[0]['open_in_new_tab'] ?? true));
+        $this->assertFalse((bool) ($items[0]['show_dropdown'] ?? true));
+        $this->assertSame('Contact', $items[1]['label'] ?? null);
         $this->assertSame('/contact', $items[1]['url'] ?? null);
+        $this->assertFalse((bool) ($items[1]['open_in_new_tab'] ?? true));
+        $this->assertFalse((bool) ($items[1]['show_dropdown'] ?? true));
+    }
+
+    public function test_blank_default_navigation_labels_use_managed_content_titles_or_remain_hidden(): void
+    {
+        [$page] = $this->seedInfoPage();
+        $page->translations()->create([
+            'locale' => 'hr',
+            'title' => 'CMS naslov stranice',
+            'slug' => 'cms-naslov-stranice',
+        ]);
+        $this->seedBlogPost();
+
+        $contactBlock = ContentBlock::query()->updateOrCreate(
+            ['code' => 'home-alpha-stats'],
+            [
+                'name' => 'Homepage statistics and locations',
+                'type' => 'home_stats',
+                'is_active' => true,
+            ],
+        );
+        $contactBlock->translations()->updateOrCreate(
+            ['locale' => 'hr'],
+            [
+                'title' => 'Kontakt',
+                'payload' => ['contact_page' => ['page_title' => 'CMS naslov kontakta']],
+            ],
+        );
+
+        app(SystemSettingsService::class)->putMany([
+            'store_blog_header_title' => 'CMS naslov bloga',
+            NavigationMenuService::SETTINGS_KEY => [
+                ['type' => 'page', 'page_id' => $page->id, 'label_translations' => [], 'is_active' => true, 'sort_order' => 0],
+                ['type' => 'blog', 'label_translations' => [], 'is_active' => true, 'sort_order' => 1],
+                ['type' => 'contact', 'label_translations' => [], 'is_active' => true, 'sort_order' => 2],
+                ['type' => 'faq', 'label_translations' => [], 'is_active' => true, 'sort_order' => 3],
+            ],
+        ]);
+
+        $items = app(NavigationMenuService::class)->forLocale('hr');
+
+        $this->assertSame(['page', 'blog', 'contact'], array_column($items, 'type'));
+        $this->assertSame(
+            ['CMS naslov stranice', 'CMS naslov bloga', 'CMS naslov kontakta'],
+            array_column($items, 'label'),
+        );
+        $this->assertNotContains('FAQ', array_column($items, 'label'));
+        $this->assertNotContains('Kontakt', array_column($items, 'label'));
+    }
+
+    public function test_navigation_menu_service_preserves_managed_flags_for_route_backed_items(): void
+    {
+        [$page] = $this->seedInfoPage();
+        $page->translations()->create([
+            'locale' => 'hr',
+            'title' => 'Stranica zastavica',
+            'slug' => 'stranica-zastavica',
+        ]);
+
+        app(SystemSettingsService::class)->put(NavigationMenuService::SETTINGS_KEY, [
+            ['type' => 'page', 'label' => 'Page flag', 'page_id' => $page->id, 'open_in_new_tab' => true, 'show_dropdown' => false, 'is_active' => true, 'sort_order' => 0],
+            ['type' => 'blog', 'label' => 'Blog flag', 'open_in_new_tab' => true, 'show_dropdown' => false, 'is_active' => true, 'sort_order' => 1],
+            ['type' => 'contact', 'label' => 'Contact flag', 'open_in_new_tab' => true, 'show_dropdown' => false, 'is_active' => true, 'sort_order' => 2],
+            ['type' => 'faq', 'label' => 'FAQ flag', 'open_in_new_tab' => true, 'show_dropdown' => false, 'is_active' => true, 'sort_order' => 3],
+        ]);
+
+        $items = app(NavigationMenuService::class)->forLocale('hr');
+
+        $this->assertSame(['page', 'blog', 'contact', 'faq'], array_column($items, 'type'));
+        foreach ($items as $item) {
+            $this->assertTrue((bool) ($item['open_in_new_tab'] ?? false));
+            $this->assertFalse((bool) ($item['show_dropdown'] ?? true));
+        }
+    }
+
+    public function test_services_navigation_dropdown_obeys_the_cms_flag(): void
+    {
+        app(SystemSettingsService::class)->put(NavigationMenuService::SETTINGS_KEY, [[
+            'type' => 'custom',
+            'label' => 'Services without submenu',
+            'url' => '/usluge',
+            'open_in_new_tab' => true,
+            'show_dropdown' => false,
+            'is_active' => true,
+            'sort_order' => 0,
+        ]]);
+
+        $response = $this->get('/');
+
+        $response->assertOk()
+            ->assertSee('data-label="Services without submenu"', false)
+            ->assertSee('target="_blank" rel="noopener noreferrer"', false)
+            ->assertDontSee('data-alpha-submenu-open', false)
+            ->assertDontSee('id="alpha-mobile-services-panel"', false);
     }
 
     public function test_home_hides_client_testimonials_section_for_now(): void
@@ -1926,6 +2891,80 @@ class StorefrontFrontFeatureTest extends TestCase
     }
 
     /**
+     * @param  array<string, mixed>  $translation
+     */
+    private function seedHomeBlock(string $type, string $placement, array $translation): ContentBlock
+    {
+        ContentBlockSlot::query()
+            ->where('placement', $placement)
+            ->update(['is_active' => false]);
+
+        $block = ContentBlock::query()->create([
+            'code' => 'test-'.$type.'-'.strtolower((string) str()->random(8)),
+            'name' => 'Test '.$type,
+            'type' => $type,
+            'is_active' => true,
+            'payload' => null,
+        ]);
+        $block->translations()->create(array_merge([
+            'locale' => 'hr',
+            'title' => '',
+            'subtitle' => null,
+            'cta_label' => null,
+            'cta_url' => null,
+            'payload' => null,
+        ], $translation));
+        $block->slots()->create([
+            'placement' => $placement,
+            'frontend_variant' => 'desktop',
+            'target_type' => null,
+            'target_ref' => null,
+            'sort_order' => 0,
+            'is_active' => true,
+        ]);
+
+        Cache::flush();
+
+        return $block;
+    }
+
+    /**
+     * @return array<int, array<string, string>>
+     */
+    private function homeServicePayloadRows(): array
+    {
+        return [
+            [
+                'key' => 'audit',
+                'title' => 'Revizija',
+                'subtitle' => 'sigurnost i povjerenje u brojke',
+                'text' => 'Neovisna provjera financijskih izvještaja.',
+                'image_alt' => 'Revizija financijskih izvještaja',
+                'url' => '/revizija',
+                'action_label' => 'Saznajte više',
+            ],
+            [
+                'key' => 'accounting',
+                'title' => 'Računovodstvo',
+                'subtitle' => 'kontrola i jasnoća poslovanja',
+                'text' => 'Precizno vođenje poslovnih knjiga.',
+                'image_alt' => 'Računovodstvo i financijsko izvještavanje',
+                'url' => '/racunovodstvo',
+                'action_label' => 'Saznajte više',
+            ],
+            [
+                'key' => 'advisory',
+                'title' => 'Savjetovanje',
+                'subtitle' => 'rast, optimizacija i bolji financijski izbor',
+                'text' => 'Financijsko i porezno savjetovanje.',
+                'image_alt' => 'Poslovno i financijsko savjetovanje',
+                'url' => '/savjetovanje',
+                'action_label' => 'Saznajte više',
+            ],
+        ];
+    }
+
+    /**
      * @return array{BlogPost,string}
      */
     private function seedBlogPost(
@@ -2065,5 +3104,25 @@ class StorefrontFrontFeatureTest extends TestCase
         ]);
 
         return [$page, $slug];
+    }
+
+    private function seedCroatianAboutCmsPayload(): void
+    {
+        InfoPage::query()
+            ->where('code', 'about-us')
+            ->firstOrFail()
+            ->translation('hr')
+            ->firstOrFail()
+            ->update(['payload' => ['about_page' => AboutPageDefaults::merge([], 'hr')]]);
+    }
+
+    private function seedCroatianCareerCmsPayload(): void
+    {
+        InfoPage::query()
+            ->where('code', 'career')
+            ->firstOrFail()
+            ->translation('hr')
+            ->firstOrFail()
+            ->update(['payload' => ['career_page' => CareerPageDefaults::merge([], 'hr')]]);
     }
 }

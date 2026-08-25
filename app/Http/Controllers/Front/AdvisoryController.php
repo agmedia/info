@@ -10,6 +10,7 @@ use App\Models\Content\Blog\BlogPost;
 use App\Models\Content\Service\ServicePage;
 use App\Models\Content\Service\ServicePageTranslation;
 use App\Support\Content\ServicePageTemplateRegistry;
+use App\Support\Localization\FrontendLocalePolicy;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
@@ -24,9 +25,10 @@ class AdvisoryController extends Controller
     public function show(Request $request): View
     {
         $locale = app()->getLocale();
-        $fallbackLocale = (string) config('app.fallback_locale', config('app.locale', 'en'));
+        $fallbackLocale = $this->fallbackLocale((string) $locale);
 
         [$servicePage, $servicePageTranslation, $pagePayload, $translationPayload] = $this->resolveAdvisoryPayload($locale, $fallbackLocale);
+        abort_if(! $servicePageTranslation, 404);
         $serviceVideoPayload = $this->resolveServiceVideoPayload($pagePayload, $translationPayload);
         $content = $translationPayload;
 
@@ -39,7 +41,8 @@ class AdvisoryController extends Controller
             ?? $advisoryCategory?->translations->firstWhere('locale', $fallbackLocale)
             ?? $advisoryCategory?->translations->first();
         $categorySlug = trim((string) ($categoryTranslation?->slug ?? ''));
-        $categoryName = trim((string) ($categoryTranslation?->name ?? '')) ?: 'Savjetovanje';
+        $servicePageTitle = trim((string) ($servicePageTranslation?->title ?? ''));
+        $categoryName = trim((string) ($categoryTranslation?->name ?? '')) ?: $servicePageTitle;
         $advisoryPosts = $this->resolveAdvisoryPosts(
             (array) ($pagePayload['blog_source'] ?? []),
             $advisoryCategory,
@@ -58,9 +61,9 @@ class AdvisoryController extends Controller
             'serviceVideoSection' => $serviceVideoPayload['section'],
             'serviceVideos' => $serviceVideoPayload['items'],
             'heroBackgroundUrl' => $this->resolveServiceHeroBackgroundUrl($servicePage),
-            'servicePageTitle' => trim((string) ($servicePageTranslation?->title ?? '')) ?: 'Savjetovanje',
-            'servicePageMetaTitle' => trim((string) ($servicePageTranslation?->meta_title ?? '')) ?: 'Savjetovanje | ALPHA CAPITALIS',
-            'servicePageMetaDescription' => trim((string) ($servicePageTranslation?->meta_description ?? '')) ?: 'Financijsko i porezno savjetovanje, pribavljanje financiranja, due diligence, procjene vrijednosti i M&A savjetovanje.',
+            'servicePageTitle' => $servicePageTitle,
+            'servicePageMetaTitle' => trim((string) ($servicePageTranslation?->meta_title ?? '')),
+            'servicePageMetaDescription' => trim((string) ($servicePageTranslation?->meta_description ?? '')),
             'servicePageOgImage' => $this->resolveServiceHeroBackgroundUrl($servicePage),
             'pandeaLogoUrl' => $this->resolvePandeaLogoUrl($servicePage),
             'locale' => $locale,
@@ -111,8 +114,9 @@ class AdvisoryController extends Controller
     private function subpage(Request $request, string $type): View
     {
         $locale = app()->getLocale();
-        $fallbackLocale = (string) config('app.fallback_locale', config('app.locale', 'en'));
+        $fallbackLocale = $this->fallbackLocale((string) $locale);
         [$servicePage, $servicePageTranslation, $pagePayload, $translationPayload] = $this->resolveAdvisoryPayload($locale, $fallbackLocale);
+        abort_if(! $servicePageTranslation, 404);
 
         $advisoryCategory = $this->resolveConfiguredBlogCategory(
             (array) ($pagePayload['blog_source'] ?? []),
@@ -123,7 +127,8 @@ class AdvisoryController extends Controller
             ?? $advisoryCategory?->translations->firstWhere('locale', $fallbackLocale)
             ?? $advisoryCategory?->translations->first();
         $categorySlug = trim((string) ($categoryTranslation?->slug ?? ''));
-        $categoryName = trim((string) ($categoryTranslation?->name ?? '')) ?: 'Savjetovanje';
+        $categoryName = trim((string) ($categoryTranslation?->name ?? ''))
+            ?: trim((string) ($servicePageTranslation?->title ?? ''));
         $advisoryPosts = $this->resolveAdvisoryPosts(
             (array) ($pagePayload['blog_source'] ?? []),
             $advisoryCategory,
@@ -131,68 +136,36 @@ class AdvisoryController extends Controller
             $fallbackLocale
         );
 
-        $detailPages = [
-            'financial' => [
-                'title' => trim((string) data_get($translationPayload, 'financial.title')) ?: 'Financijsko savjetovanje',
-                'intro' => (string) data_get($translationPayload, 'financial.overview_body.0', ''),
-                'meta_title' => 'Financijsko savjetovanje | ALPHA CAPITALIS',
-                'meta_description' => 'Financijska analiza, modeliranje, planiranje kapitala i stručna podrška pri važnim poslovnim odlukama.',
-            ],
-            'ma' => [
-                'title' => trim((string) data_get($translationPayload, 'ma.title')) ?: 'Prodaja i kupnja poduzeća (M&A)',
-                'intro' => (string) data_get($translationPayload, 'ma.overview_body.0', ''),
-                'meta_title' => 'Prodaja i kupnja poduzeća (M&A) | ALPHA CAPITALIS',
-                'meta_description' => 'Savjetovanje u prodaji i kupnji poduzeća, pripremi transakcije, procjeni vrijednosti i pregovorima.',
-            ],
-            'due_diligence' => [
-                'title' => trim((string) data_get($translationPayload, 'due_diligence.title')) ?: 'Dubinska snimanja (Due Diligence)',
-                'intro' => (string) data_get($translationPayload, 'due_diligence.overview_body.0', ''),
-                'meta_title' => 'Dubinska snimanja (Due Diligence) | ALPHA CAPITALIS',
-                'meta_description' => 'Dubinska analiza poslovanja, financijskih rezultata, rizika i prilika prije transakcija i strateških odluka.',
-            ],
-            'valuations' => [
-                'title' => trim((string) data_get($translationPayload, 'valuations.title')) ?: 'Procjena vrijednosti društva',
-                'intro' => (string) data_get($translationPayload, 'valuations.overview_body.0', ''),
-                'meta_title' => 'Procjena vrijednosti društva | ALPHA CAPITALIS',
-                'meta_description' => 'Procjena vrijednosti društva, financijsko modeliranje i stručna podloga za transakcije i strateške odluke.',
-            ],
-            'tax' => [
-                'title' => trim((string) data_get($translationPayload, 'tax.title')) ?: 'Porezno savjetovanje',
-                'intro' => (string) data_get($translationPayload, 'tax.overview_body.0', ''),
-                'meta_title' => 'Porezno savjetovanje | ALPHA CAPITALIS',
-                'meta_description' => 'Porezno planiranje, analiza poreznih rizika, porezna mišljenja, PDV savjetovanje i porezna podrška transakcijama.',
-            ],
-            'bank_loans' => [
-                'title' => trim((string) data_get($translationPayload, 'bank_loans.title')) ?: 'Bankovni krediti',
-                'intro' => (string) data_get($translationPayload, 'bank_loans.overview_body.0', ''),
-                'meta_title' => 'Bankovni krediti | ALPHA CAPITALIS',
-                'meta_description' => 'Podrška pri pribavljanju bankovnog financiranja, pripremi dokumentacije, projekcija i pregovorima s bankama.',
-            ],
-            'zopu' => [
-                'title' => trim((string) data_get($translationPayload, 'zopu.title')) ?: 'Zakon o poticanju ulaganja',
-                'intro' => (string) data_get($translationPayload, 'zopu.overview_body.0', ''),
-                'meta_title' => 'Zakon o poticanju ulaganja | ALPHA CAPITALIS',
-                'meta_description' => 'Podrška pri korištenju potpora prema Zakonu o poticanju ulaganja i provedbi investicijskih projekata.',
-            ],
+        abort_unless(in_array($type, [
+            'financial',
+            'funding',
+            'ma',
+            'due_diligence',
+            'valuations',
+            'tax',
+            'bank_loans',
+            'zopu',
+        ], true), 404);
+
+        $localizedPagePayload = data_get($translationPayload, $type);
+        abort_if(! $this->hasLocalizedSectionPayload($localizedPagePayload), 404);
+        $localizedPage = is_array($localizedPagePayload) ? $localizedPagePayload : [];
+        $title = trim((string) ($localizedPage['title'] ?? ''));
+        $intro = trim((string) ($localizedPage['intro'] ?? ''));
+
+        $subpage = [
+            'type' => $type === 'funding' ? 'funding' : 'detail',
+            'title' => $title,
+            'intro' => $intro,
+            'meta_title' => trim((string) ($localizedPage['meta_title'] ?? '')),
+            'meta_description' => trim((string) ($localizedPage['meta_description'] ?? '')),
         ];
 
-        $subpage = match ($type) {
-            'funding' => [
-                'type' => 'funding',
-                'title' => trim((string) data_get($translationPayload, 'funding.title')) ?: 'Pribavljanje financiranja',
-                'intro' => (string) data_get($translationPayload, 'funding.intro', ''),
-                'meta_title' => 'Pribavljanje financiranja | ALPHA CAPITALIS',
-                'meta_description' => 'EU fondovi, bankovni krediti, Zakon o poticanju ulaganja i strukturiranje financiranja.',
-            ],
-            'financial', 'ma', 'due_diligence', 'valuations', 'tax', 'bank_loans', 'zopu' => [
-                'type' => 'detail',
-                'detail_key' => $type,
-                ...$detailPages[$type],
-            ],
-            default => abort(404),
-        };
+        if ($type !== 'funding') {
+            $subpage['detail_key'] = $type;
+        }
 
-        $subpage['hook'] = $this->resolveSubpageHook($translationPayload, $type, $subpage);
+        $subpage['hook'] = trim((string) ($localizedPage['hero_intro'] ?? ''));
         $subpage['hero_image_alt'] = $type === 'funding'
             ? trim((string) data_get($translationPayload, 'funding.hero_image_alt'))
             : trim((string) data_get($translationPayload, $type.'.hero_image_alt'));
@@ -220,47 +193,79 @@ class AdvisoryController extends Controller
         ]);
     }
 
-    /**
-     * @param array<string, mixed> $translationPayload
-     * @param array<string, mixed> $subpage
-     */
-    private function resolveSubpageHook(array $translationPayload, string $type, array $subpage): string
+    private function firstLocalizedPlainText(mixed ...$candidates): string
     {
-        $configuredHook = trim((string) data_get($translationPayload, $type.'.hero_intro'));
-        if ($configuredHook !== '') {
-            return $configuredHook;
-        }
+        foreach ($candidates as $candidate) {
+            if (is_array($candidate)) {
+                $text = $this->firstLocalizedPlainText(...array_values($candidate));
+                if ($text !== '') {
+                    return $text;
+                }
 
-        $routeFragments = [
-            'financial' => '/savjetovanje/financijsko-savjetovanje',
-            'funding' => '/savjetovanje/pribavljanje-financiranja',
-            'ma' => '/savjetovanje/prodaja-i-kupnja-poduzeca',
-            'due_diligence' => '/savjetovanje/dubinska-snimanja',
-            'valuations' => '/savjetovanje/procjena-vrijednosti-drustva',
-            'tax' => '/savjetovanje/porezno-savjetovanje',
-            'bank_loans' => '/savjetovanje/pribavljanje-financiranja/bankovni-krediti',
-            'zopu' => '/savjetovanje/pribavljanje-financiranja/zakon-o-poticanju-ulaganja',
-        ];
-
-        $cards = in_array($type, ['bank_loans', 'zopu'], true)
-            ? (array) data_get($translationPayload, 'funding.cards', [])
-            : (array) ($translationPayload['service_cards'] ?? []);
-        $routeFragment = $routeFragments[$type] ?? '';
-
-        foreach ($cards as $card) {
-            if (! is_array($card)) {
                 continue;
             }
 
-            $url = trim((string) ($card['url'] ?? ''));
-            $text = trim((string) ($card['text'] ?? ''));
+            if (! is_scalar($candidate) && ! $candidate instanceof \Stringable) {
+                continue;
+            }
 
-            if ($routeFragment !== '' && $text !== '' && str_ends_with($url, $routeFragment)) {
+            $text = html_entity_decode(strip_tags((string) $candidate), ENT_QUOTES | ENT_HTML5, 'UTF-8');
+            $text = trim((string) preg_replace('/\s+/u', ' ', $text));
+
+            if ($text !== '') {
                 return $text;
             }
         }
 
-        return trim((string) ($subpage['intro'] ?? ''));
+        return '';
+    }
+
+    private function hasLocalizedSectionPayload(mixed $payload): bool
+    {
+        if (! is_array($payload) || $payload === []) {
+            return false;
+        }
+
+        foreach ($payload as $childKey => $value) {
+            $normalizedKey = strtolower(trim((string) $childKey));
+            if ($this->isAdvisoryPayloadMetadataKey($normalizedKey)) {
+                continue;
+            }
+
+            if (is_array($value)) {
+                if ($this->hasLocalizedSectionPayload($value)) {
+                    return true;
+                }
+
+                continue;
+            }
+
+            if (is_bool($value)) {
+                continue;
+            }
+
+            if ((is_scalar($value) || $value instanceof \Stringable)
+                && $this->firstLocalizedPlainText($value) !== '') {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private function isAdvisoryPayloadMetadataKey(string $key): bool
+    {
+        if ($key === '') {
+            return false;
+        }
+
+        if (in_array($key, ['pandea', 'meeting', 'blog_section'], true)
+            || str_starts_with($key, 'show_')
+            || str_starts_with($key, 'is_')) {
+            return true;
+        }
+
+        return preg_match('/(^|_)(meta|seo|url|uri|slug|route|media|image|icon|alt|canonical|target)(_|$)/', $key) === 1;
     }
 
     /**
@@ -269,15 +274,8 @@ class AdvisoryController extends Controller
     private function resolveAdvisoryPayload(string $locale, string $fallbackLocale): array
     {
         [$servicePage, $servicePageTranslation] = $this->resolveServicePage($locale, $fallbackLocale);
-        $pagePayload = ServicePageTemplateRegistry::mergePagePayload(
-            ServicePageTemplateRegistry::ADVISORY,
-            $servicePage?->payload
-        );
-        $translationPayload = ServicePageTemplateRegistry::mergeTranslationPayload(
-            ServicePageTemplateRegistry::ADVISORY,
-            $servicePageTranslation?->payload,
-            (string) ($servicePageTranslation?->locale ?: $locale)
-        );
+        $pagePayload = (array) ($servicePage?->payload ?? []);
+        $translationPayload = (array) ($servicePageTranslation?->payload ?? []);
 
         return [$servicePage, $servicePageTranslation, $pagePayload, $translationPayload];
     }
@@ -311,9 +309,7 @@ class AdvisoryController extends Controller
             return [null, null];
         }
 
-        $translation = $servicePage->translations->firstWhere('locale', $locale)
-            ?? $servicePage->translations->firstWhere('locale', $fallbackLocale)
-            ?? $servicePage->translations->first();
+        $translation = $servicePage->translations->firstWhere('locale', $locale);
 
         return [$servicePage, $translation];
     }
@@ -327,6 +323,12 @@ class AdvisoryController extends Controller
             $category = Category::query()
                 ->where('scope', Category::SCOPE_BLOG)
                 ->where('id', $configuredCategoryId)
+                ->when(
+                    FrontendLocalePolicy::requiresExactTranslation($locale),
+                    fn ($query) => $query->whereHas('translations', fn ($translationQuery) => $translationQuery
+                        ->where('scope', Category::SCOPE_BLOG)
+                        ->where('locale', $locale))
+                )
                 ->with([
                     'translations' => fn ($query) => $query
                         ->where('scope', Category::SCOPE_BLOG)
@@ -356,6 +358,11 @@ class AdvisoryController extends Controller
 
         $baseQuery = BlogPost::query()
             ->where('is_active', true)
+            ->when(
+                FrontendLocalePolicy::requiresExactTranslation($locale),
+                fn (Builder $query) => $query->whereHas('translations', fn (Builder $translationQuery) => $translationQuery
+                    ->where('locale', $locale))
+            )
             ->where(function (Builder $query): void {
                 $query->whereNull('published_at')
                     ->orWhere('published_at', '<=', now());
@@ -364,6 +371,12 @@ class AdvisoryController extends Controller
                 'translations' => fn ($query) => $query->whereIn('locale', [$locale, $fallbackLocale]),
                 'categories' => fn ($query) => $query
                     ->where('scope', Category::SCOPE_BLOG)
+                    ->when(
+                        FrontendLocalePolicy::requiresExactTranslation($locale),
+                        fn ($categoryQuery) => $categoryQuery->whereHas('translations', fn ($translationQuery) => $translationQuery
+                            ->where('scope', Category::SCOPE_BLOG)
+                            ->where('locale', $locale))
+                    )
                     ->with([
                         'translations' => fn ($translationQuery) => $translationQuery
                             ->where('scope', Category::SCOPE_BLOG)
@@ -425,6 +438,12 @@ class AdvisoryController extends Controller
         return Category::query()
             ->where('scope', Category::SCOPE_BLOG)
             ->where('is_active', true)
+            ->when(
+                FrontendLocalePolicy::requiresExactTranslation($locale),
+                fn ($query) => $query->whereHas('translations', fn ($translationQuery) => $translationQuery
+                    ->where('scope', Category::SCOPE_BLOG)
+                    ->where('locale', $locale))
+            )
             ->with([
                 'translations' => fn ($query) => $query
                     ->where('scope', Category::SCOPE_BLOG)
@@ -445,6 +464,14 @@ class AdvisoryController extends Controller
             ])
             ->pluck('category')
             ->first();
+    }
+
+    private function fallbackLocale(string $locale): string
+    {
+        return FrontendLocalePolicy::fallbackLocale(
+            $locale,
+            (string) config('app.fallback_locale', config('app.locale', 'en'))
+        );
     }
 
     /**

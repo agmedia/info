@@ -27,9 +27,10 @@
     $articleTitle = trim((string) ($translation?->title ?? $callPost->code));
     $publishedLabel = ($callPost->published_at ?? $callPost->created_at)?->translatedFormat('j. F Y.');
     $publishedAt = $callPost->published_at ?? $callPost->created_at;
-    $isCroatian = str_starts_with(strtolower($locale), 'hr');
-    $euFundsLabel = $isCroatian ? 'EU fondovi' : 'EU Funds';
-    $callsLabel = $isCroatian ? 'Pozivi' : 'Calls';
+    $callDetailUi = (array) ($callDetailUi ?? []);
+    $euFundsLabel = trim((string) ($callDetailUi['eu_funds_label'] ?? ''));
+    $callsLabel = trim((string) ($callDetailUi['calls_label'] ?? ''));
+    $emptyBodyCopy = trim((string) ($callDetailUi['empty_body_copy'] ?? ''));
     $galleryCount = $galleryItems->count();
     $galleryColumnsClass = match (true) {
         $galleryCount <= 1 => 'grid-cols-1',
@@ -37,30 +38,25 @@
         default => 'grid-cols-1 md:grid-cols-3',
     };
     $headingWords = static fn (string $title): array => preg_split('/\s+/u', trim($title), -1, PREG_SPLIT_NO_EMPTY) ?: [];
-    $callCtaTitle = $isCroatian
-        ? 'Pretvorimo priliku u uspješan EU projekt.'
-        : 'Let’s turn an opportunity into a successful EU project.';
-    $callCtaCardTitle = $isCroatian
-        ? 'Provjerimo odgovara li poziv vašem projektu.'
-        : 'Let’s assess whether this call fits your project.';
-    $callCtaCardCopy = $isCroatian
-        ? 'Naš tim pomaže od provjere prihvatljivosti do prijave i provedbe projekta.'
-        : 'Our team supports you from eligibility checks through application and implementation.';
-    $callCtaButton = $isCroatian ? 'Dogovorite razgovor' : 'Book a meeting';
-    $callCtaStatus = $isCroatian
-        ? 'Odgovaramo brzo i konkretno.'
-        : 'We respond quickly and with clarity.';
-    $pageTitleBreadcrumbs = [
+    $meetingUi = (array) ($callDetailUi['meeting'] ?? []);
+    $callCtaTitle = trim((string) ($meetingUi['title'] ?? ''));
+    $callCtaCardTitle = trim((string) ($meetingUi['contact_title'] ?? ''));
+    $callCtaCardCopy = trim((string) ($meetingUi['intro'] ?? ''));
+    $callCtaButton = trim((string) ($meetingUi['button_label'] ?? ''));
+    $callCtaStatus = trim((string) ($meetingUi['status'] ?? ''));
+    $showCallCtaCard = $callCtaCardTitle !== '' || $callCtaCardCopy !== '' || $callCtaButton !== '' || $callCtaStatus !== '';
+    $showCallCta = $callCtaTitle !== '' || $showCallCtaCard;
+    $pageTitleBreadcrumbs = collect([
         ['label' => __('ui.front.desktop.footer.home'), 'url' => route('home')],
-        ['label' => $euFundsLabel, 'url' => route('eu-funds.show')],
-        ['label' => $callsLabel, 'url' => route('eu-funds.show').'#eu-funds-calls'],
+        $euFundsLabel !== '' ? ['label' => $euFundsLabel, 'url' => \App\Support\Localization\FrontendRoute::url('eu-funds.show')] : null,
+        $callsLabel !== '' ? ['label' => $callsLabel, 'url' => \App\Support\Localization\FrontendRoute::url('eu-funds.show').'#eu-funds-calls'] : null,
         [
             'label' => Str::limit($articleTitle, 72, '...'),
             'current' => true,
             'current_class' => 'ac-blog-breadcrumb-current',
             'title' => $articleTitle,
         ],
-    ];
+    ])->filter()->values()->all();
 @endphp
 
 @section('title', $translation?->meta_title ?: $articleTitle)
@@ -89,7 +85,7 @@
                             ?? $category->translations->firstWhere('locale', $fallbackLocale)
                             ?? $category->translations->first();
                     @endphp
-                    <a href="{{ route('eu-funds.show') }}#eu-funds-calls">{{ $categoryTranslation?->name ?? $category->code }}</a>
+                    <a href="{{ \App\Support\Localization\FrontendRoute::url('eu-funds.show') }}#eu-funds-calls">{{ $categoryTranslation?->name ?? $category->code }}</a>
                 @endforeach
             </div>
         </x-front.page-title-band>
@@ -117,8 +113,8 @@
                             {!! $bodyHtml !!}
                         @elseif ($excerpt !== '')
                             <p>{{ $excerpt }}</p>
-                        @else
-                            <p>{{ str_starts_with(strtolower($locale), 'hr') ? 'Sadržaj ove stavke još nije dopunjen.' : 'Content for this call has not been added yet.' }}</p>
+                        @elseif ($emptyBodyCopy !== '')
+                            <p>{{ $emptyBodyCopy }}</p>
                         @endif
                     </div>
                 </div>
@@ -150,8 +146,10 @@
             </div>
         </article>
 
-        <section class="contact-cta ac-blog-contact-cta" aria-labelledby="ac-call-contact-cta-title">
+        @if ($showCallCta)
+        <section class="contact-cta ac-blog-contact-cta" @if ($callCtaTitle !== '') aria-labelledby="ac-call-contact-cta-title" @endif>
             <div class="contact-cta-shell">
+                @if ($callCtaTitle !== '')
                 <div class="contact-cta-copy">
                     <h2 class="contact-cta-title" id="ac-call-contact-cta-title" data-words-slide-from-right aria-label="{{ $callCtaTitle }}">
                         @foreach ($headingWords($callCtaTitle) as $word)
@@ -159,18 +157,30 @@
                         @endforeach
                     </h2>
                 </div>
+                @endif
 
+                @if ($showCallCtaCard)
                 <div class="contact-cta-card" data-image-reveal>
-                    <div class="contact-cta-card-heading"><span>{{ $callCtaCardTitle }}</span></div>
-                    <p>{{ $callCtaCardCopy }}</p>
-                    <a class="contact-cta-button" href="{{ route('contact.create') }}">
+                    @if ($callCtaCardTitle !== '')
+                        <div class="contact-cta-card-heading"><span>{{ $callCtaCardTitle }}</span></div>
+                    @endif
+                    @if ($callCtaCardCopy !== '')
+                        <p>{{ $callCtaCardCopy }}</p>
+                    @endif
+                    @if ($callCtaButton !== '')
+                    <a class="contact-cta-button" href="{{ \App\Support\Localization\FrontendRoute::url('contact.create') }}">
                         <span>{{ $callCtaButton }}</span>
                         <i class="fa-duotone fa-thin fa-arrow-right" aria-hidden="true"></i>
                     </a>
-                    <small><span class="contact-cta-status-dot" aria-hidden="true"></span>{{ $callCtaStatus }}</small>
+                    @endif
+                    @if ($callCtaStatus !== '')
+                        <small><span class="contact-cta-status-dot" aria-hidden="true"></span>{{ $callCtaStatus }}</small>
+                    @endif
                 </div>
+                @endif
             </div>
         </section>
+        @endif
     </div>
 @endsection
 

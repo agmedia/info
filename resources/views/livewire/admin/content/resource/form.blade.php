@@ -61,7 +61,7 @@
                         <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('admin.common.locale') }}</label>
                         <select wire:model.live="form.locale" data-tom-select data-tom-no-search="1" class="admin-select w-full rounded-xl border border-slate-300 px-3 py-2 text-sm lowercase">
                             @foreach ($adminLocaleOptions as $localeOption)
-                                <option value="{{ $localeOption }}">{{ $localeOption }}</option>
+                                <option value="{{ $localeOption }}" @selected(($form['locale'] ?? '') === $localeOption)>{{ $localeOption }}</option>
                             @endforeach
                         </select>
                         @error('form.locale') <p class="mt-1 text-xs text-rose-600">{{ $message }}</p> @enderror

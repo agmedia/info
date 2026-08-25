@@ -424,7 +424,7 @@
     $homeHeroPrimaryLabel = trim((string) ($homeHeroTranslation?->cta_label ?? '')) ?: 'Naše usluge';
     $homeHeroPrimaryUrl = trim((string) ($homeHeroTranslation?->cta_url ?? '')) ?: route('services.index');
     $homeHeroSecondaryLabel = trim((string) ($homeHeroPayload['secondary_cta_label'] ?? '')) ?: 'Ugovori sastanak';
-    $homeHeroSecondaryUrl = trim((string) ($homeHeroPayload['secondary_cta_url'] ?? '')) ?: route('contact.create');
+    $homeHeroSecondaryUrl = trim((string) ($homeHeroPayload['secondary_cta_url'] ?? '')) ?: \App\Support\Localization\FrontendRoute::url('contact.create');
     $homeHeroKicker = trim((string) ($homeHeroPayload['kicker'] ?? ''));
     $homeStats = collect((array) ($homeStatsPayload['stats'] ?? []))
         ->map(static function ($stat): array {
@@ -447,7 +447,7 @@
     }
 
 @endphp
-<body class="front-desktop-shell {{ request()->routeIs('home') ? 'front-route-home' : 'front-preload-pending' }} {{ request()->routeIs('audit.show') ? 'front-route-audit' : '' }} {{ request()->routeIs('accounting.show') ? 'front-route-accounting' : '' }} {{ request()->routeIs('tax.show') ? 'front-route-tax' : '' }} {{ request()->routeIs('advisory.*', 'eu-funds.show') ? 'front-route-advisory' : '' }} {{ request()->routeIs('eu-funds.show') ? 'front-route-eu-funds' : '' }} min-h-screen overflow-x-hidden antialiased" data-front-font="{{ $frontTypography['key'] }}" style="--front-header-hero-backdrop: url('{{ $headerHeroBackdropUrl }}');">
+<body class="front-desktop-shell {{ request()->routeIs('home') ? 'front-route-home' : 'front-preload-pending' }} {{ request()->routeIs('audit.show', 'audit.show.en') ? 'front-route-audit' : '' }} {{ request()->routeIs('accounting.show', 'accounting.show.en') ? 'front-route-accounting' : '' }} {{ request()->routeIs('tax.show', 'advisory.tax.show', 'advisory.tax.show.en') ? 'front-route-tax' : '' }} {{ request()->routeIs('advisory.*', 'eu-funds.show', 'eu-funds.show.en') ? 'front-route-advisory' : '' }} {{ request()->routeIs('eu-funds.show', 'eu-funds.show.en') ? 'front-route-eu-funds' : '' }} min-h-screen overflow-x-hidden antialiased" data-front-font="{{ $frontTypography['key'] }}" style="--front-header-hero-backdrop: url('{{ $headerHeroBackdropUrl }}');">
     @unless (request()->routeIs('home'))
         <div id="front-initial-preloader" aria-hidden="true"></div>
     @endunless
@@ -456,11 +456,9 @@
         $availableLanguages = collect($frontLanguages ?? [])->filter(
             static fn (array $language): bool => (string) ($language['code'] ?? '') !== ''
         )->values();
-        $showLeaseCalculatorLink = request()->routeIs('accounting.show');
-        $headerPhoneRaw = trim((string) ($storeSettings['footer']['phone'] ?? ''));
-        $headerEmailRaw = trim((string) ($storeSettings['footer']['email_support'] ?? ''));
-        $headerPhone = $headerPhoneRaw !== '' ? $headerPhoneRaw : '+385 (1) 580 6656';
-        $headerEmail = $headerEmailRaw !== '' ? $headerEmailRaw : 'info@alphacapitalis.com';
+        $showLeaseCalculatorLink = request()->routeIs('accounting.show', 'accounting.show.en');
+        $headerPhone = trim((string) ($storeSettings['footer']['phone'] ?? ''));
+        $headerEmail = trim((string) ($storeSettings['footer']['email_support'] ?? ''));
 
     @endphp
 
@@ -468,14 +466,18 @@
     <div class="front-header-meta hidden lg:block">
         <div class="front-header-meta-inner flex w-full items-center justify-between gap-4 px-5 sm:px-8 xl:px-10">
             <div class="flex min-w-0 items-center gap-5">
-                <a href="tel:{{ preg_replace('/\s+/', '', $headerPhone) }}" class="front-meta-link inline-flex items-center gap-2 text-xs">
-                    <svg class="front-meta-icon h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" aria-hidden="true"><path d="M22 16.9v3a2 2 0 0 1-2.2 2A19.8 19.8 0 0 1 11.2 19a19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.4 1.9.8 2.7a2 2 0 0 1-.5 2.1L8.1 9.8a16 16 0 0 0 6.1 6.1l1.3-1.3a2 2 0 0 1 2.1-.5c.9.4 1.8.6 2.8.8a2 2 0 0 1 1.6 2z"/></svg>
-                    <span>{{ $headerPhone }}</span>
-                </a>
-                <a href="mailto:{{ $headerEmail }}" class="front-meta-link inline-flex items-center gap-2 text-xs">
-                    <svg class="front-meta-icon h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 8l9 6 9-6"/></svg>
-                    <span>{{ $headerEmail }}</span>
-                </a>
+                @if ($headerPhone !== '')
+                    <a href="tel:{{ preg_replace('/\s+/', '', $headerPhone) }}" class="front-meta-link inline-flex items-center gap-2 text-xs">
+                        <svg class="front-meta-icon h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" aria-hidden="true"><path d="M22 16.9v3a2 2 0 0 1-2.2 2A19.8 19.8 0 0 1 11.2 19a19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.4 1.9.8 2.7a2 2 0 0 1-.5 2.1L8.1 9.8a16 16 0 0 0 6.1 6.1l1.3-1.3a2 2 0 0 1 2.1-.5c.9.4 1.8.6 2.8.8a2 2 0 0 1 1.6 2z"/></svg>
+                        <span>{{ $headerPhone }}</span>
+                    </a>
+                @endif
+                @if ($headerEmail !== '')
+                    <a href="mailto:{{ $headerEmail }}" class="front-meta-link inline-flex items-center gap-2 text-xs">
+                        <svg class="front-meta-icon h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 8l9 6 9-6"/></svg>
+                        <span>{{ $headerEmail }}</span>
+                    </a>
+                @endif
             </div>
             <div class="front-lang-switch inline-flex items-center p-0.5 text-xs font-semibold uppercase tracking-[0.08em]">
                 <a href="{{ route('front.locale.switch', ['code' => 'hr']) }}" class="front-meta-lang {{ $activeLocale === 'hr' ? 'is-active' : '' }}" hreflang="hr">HR</a>
@@ -544,13 +546,13 @@
     <div class="front-header-search-panel pointer-events-none max-h-0 overflow-hidden opacity-0 transition-all duration-300" data-header-search-panel>
         <div class="w-full px-5 py-3 sm:px-8 xl:px-10">
             <form
-                action="{{ route('search.index') }}"
+                action="{{ \App\Support\Localization\FrontendRoute::url('search.index') }}"
                 method="get"
                 class="front-header-search-form"
                 role="search"
                 data-header-search-form
                 data-search-suggest-endpoint="{{ route('search.suggest') }}"
-                data-search-results-endpoint="{{ route('search.index') }}"
+                data-search-results-endpoint="{{ \App\Support\Localization\FrontendRoute::url('search.index') }}"
             >
                 <label for="front-header-search-input" class="sr-only">Pretraga sadržaja</label>
                 <div class="front-search-field-stack">
@@ -714,7 +716,7 @@
 </main>
 
 @if (false)
-@unless (request()->routeIs('audit.show') || request()->routeIs('accounting.show'))
+@unless (request()->routeIs('audit.show', 'audit.show.en') || request()->routeIs('accounting.show', 'accounting.show.en'))
     <button type="button" class="front-footer-compass front-scroll-compass" data-scroll-top data-scroll-top-floating aria-label="Povratak na vrh">
         <img src="{{ asset('front-theme/images/icons/znak-zlatni.svg') }}" alt="" aria-hidden="true" class="front-footer-compass-mark">
     </button>
@@ -722,10 +724,7 @@
 
 <footer class="front-footer mt-0">
     @php
-        $footerCompanies = collect((array) ($storeSettings['official_entities'] ?? []))
-            ->filter(static fn ($company): bool => is_array($company) && trim((string) ($company['name'] ?? '')) !== '')
-            ->values()
-            ->all();
+        $footerCompanies = [];
 
         $footerIsoCertificates = collect([
             ['code' => 'ISO 9001:2015', 'title' => 'Sustav upravljanja kvalitetom', 'icon' => 'front-theme/images/certificates/iso-9001-sgs.png'],
@@ -746,7 +745,7 @@
                 <h2 class="front-footer-newsletter-title">Prijava na newsletter</h2>
                 <p class="front-footer-muted mt-2 text-sm">Primajte novosti i praktične savjete iz financija, računovodstva i revizije.</p>
             </div>
-            <form action="{{ route('contact.create') }}" method="get" class="front-footer-newsletter-form" aria-label="Prijava na newsletter">
+            <form action="{{ \App\Support\Localization\FrontendRoute::url('contact.create') }}" method="get" class="front-footer-newsletter-form" aria-label="Prijava na newsletter">
                 <div class="front-footer-newsletter-row">
                     <label for="footer-newsletter-email" class="sr-only">Email adresa</label>
                     <input id="footer-newsletter-email" type="email" name="newsletter_email" placeholder="Upišite email adresu" class="front-footer-newsletter-input" required>

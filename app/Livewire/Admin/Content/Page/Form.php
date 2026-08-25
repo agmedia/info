@@ -6,11 +6,14 @@ use App\Models\Catalog\Category\Category;
 use App\Models\Content\Page\InfoPage;
 use App\Models\Content\Page\InfoPageTranslation;
 use App\Models\Content\Resource\ResourceDocument;
+use App\Models\Settings\Local\Language;
+use App\Support\Admin\AdminLocale;
 use App\Support\Content\AboutPageDefaults;
 use App\Support\Content\AcademyPageDefaults;
 use App\Support\Content\CareerPageDefaults;
 use App\Support\Content\ResourceDocumentGroupRegistry;
 use App\Support\Content\YouTubeUrl;
+use App\Support\Media\MediaProfileRegistry;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -32,6 +35,12 @@ class Form extends Component
     public ?int $academyDocumentPickerId = null;
 
     public ?TemporaryUploadedFile $pageHeroImageUpload = null;
+
+    /** @var array<string, mixed> */
+    public array $loadedStructuredContent = [];
+
+    /** @var array<string, mixed> */
+    public array $structuredContentBaseline = [];
 
     public array $form = [
         'code' => '',
@@ -66,7 +75,13 @@ class Form extends Component
 
     public function mount(?int $pageId = null): void
     {
-        $this->form['locale'] = (string) (request()->query('locale') ?: app()->getLocale() ?: config('admin_ui.locale.default', 'hr'));
+        $requestedLocale = AdminLocale::normalize((string) (
+            request()->query('locale') ?: app()->getLocale() ?: AdminLocale::default()
+        ));
+        $localeOptions = $this->activeContentLocaleOptions();
+        $this->form['locale'] = in_array($requestedLocale, $localeOptions, true)
+            ? $requestedLocale
+            : ($localeOptions[0] ?? AdminLocale::default());
 
         if ($pageId) {
             $this->pageId = $pageId;
@@ -95,7 +110,9 @@ class Form extends Component
             $this->form['career_content'] = $this->defaultCareerContent();
         }
 
+        $this->loadedStructuredContent = [];
         $this->hydratePageHeroImageAlt();
+        $this->captureStructuredContentBaseline();
 
         if (
             ($this->activeTab === 'sources' && ! $this->layoutSupportsSources($layout))
@@ -239,21 +256,31 @@ class Form extends Component
         $academyVideoTitle = trim((string) ($validated['form']['academy_video_title'] ?? ''));
         $academyVideoIntro = trim((string) ($validated['form']['academy_video_intro'] ?? ''));
         $academyVideoItems = $this->normalizeAcademyVideoItems((array) ($validated['form']['academy_video_items'] ?? []));
-        $academyPrograms = $this->normalizeAcademyPrograms((array) ($validated['form']['academy_programs'] ?? []));
-        $aboutContent = AboutPageDefaults::merge(
+        $locale = (string) $validated['form']['locale'];
+        $layout = (string) ($validated['form']['layout'] ?? '');
+        $academyEditorPrograms = $this->normalizeAcademyPrograms(
+            (array) ($validated['form']['academy_programs'] ?? []),
+            $locale,
+        );
+        $academyPrograms = $layout === 'academy' && ! $this->isCroatianLocale($locale)
+            ? $this->applyStructuredEditorChanges($academyEditorPrograms)
+            : $academyEditorPrograms;
+        $aboutEditorContent = AboutPageDefaults::merge(
             $validated['form']['about_content'] ?? [],
-            (string) $validated['form']['locale'],
+            $locale,
         );
-        $careerContent = CareerPageDefaults::merge(
+        $careerEditorContent = CareerPageDefaults::merge(
             $validated['form']['career_content'] ?? [],
-            (string) $validated['form']['locale'],
+            $locale,
         );
+        $aboutContent = $this->applyStructuredEditorChanges($aboutEditorContent);
+        $careerContent = $this->applyStructuredEditorChanges($careerEditorContent);
 
         if ($academyVideoItems === false) {
             return null;
         }
 
-        if ((string) ($validated['form']['layout'] ?? '') === 'academy' && $academyCategoryId > 0) {
+        if ($layout === 'academy' && $academyCategoryId > 0) {
             $payload['blog_source'] = [
                 'mode' => 'category',
                 'category_id' => $academyCategoryId,
@@ -263,7 +290,7 @@ class Form extends Component
             unset($payload['blog_source']);
         }
 
-        if ((string) ($validated['form']['layout'] ?? '') === 'academy' && $academyResourceDocumentIds !== []) {
+        if ($layout === 'academy' && $academyResourceDocumentIds !== []) {
             $payload['resource_source'] = [
                 'mode' => 'manual',
                 'document_ids' => $academyResourceDocumentIds,
@@ -272,7 +299,7 @@ class Form extends Component
             unset($payload['resource_source']);
         }
 
-        if ((string) ($validated['form']['layout'] ?? '') === 'academy' && $academyVideoItems !== []) {
+        if ($layout === 'academy' && $academyVideoItems !== []) {
             $payload['video_source'] = [
                 'mode' => 'manual',
                 'items' => $academyVideoItems,
@@ -281,7 +308,7 @@ class Form extends Component
             unset($payload['video_source']);
         }
 
-        if ((string) ($validated['form']['layout'] ?? '') === 'academy') {
+        if ($layout === 'academy') {
             $academyBlogSection = array_filter([
                 'title' => $academyBlogTitle !== '' ? $academyBlogTitle : null,
                 'intro' => $academyBlogIntro !== '' ? $academyBlogIntro : null,
@@ -323,13 +350,13 @@ class Form extends Component
             unset($translationPayload['academy_programs']);
         }
 
-        if ((string) ($validated['form']['layout'] ?? '') === 'about') {
+        if ($layout === 'about') {
             $translationPayload['about_page'] = $aboutContent;
         } else {
             unset($translationPayload['about_page']);
         }
 
-        if ((string) ($validated['form']['layout'] ?? '') === 'career') {
+        if ($layout === 'career') {
             $translationPayload['career_page'] = $careerContent;
         } else {
             unset($translationPayload['career_page']);
@@ -642,7 +669,7 @@ class Form extends Component
             $rules['pageHeroImageUpload'] = [
                 'nullable',
                 'file',
-                'mimes:jpg,jpeg,png,webp,avif',
+                'mimes:'.implode(',', MediaProfileRegistry::supportedImageExtensions(['jpg', 'jpeg', 'png', 'webp', 'avif'])),
                 'max:8192',
             ];
         }
@@ -688,10 +715,8 @@ class Form extends Component
             ->with(['categories' => fn ($q) => $q->orderBy('content_info_page_category.sort_order')])
             ->findOrFail($this->pageId);
 
-        $preferredLocale = $this->form['locale'] ?: config('app.locale', 'en');
-        $translation = $page->translations->firstWhere('locale', $preferredLocale)
-            ?? $page->translations->firstWhere('locale', config('app.locale', 'en'))
-            ?? $page->translations->first();
+        $preferredLocale = (string) ($this->form['locale'] ?: AdminLocale::default());
+        $translation = $page->translations->firstWhere('locale', $preferredLocale);
 
         $this->form['code'] = $page->code;
         $this->form['layout'] = $page->layout;
@@ -726,16 +751,15 @@ class Form extends Component
                 ? $translationPayload['academy_video_section']
                 : [];
             $academyPrograms = $page->layout === 'academy'
-                ? AcademyPageDefaults::mergePrograms($translationPayload['academy_programs'] ?? null)
+                ? $this->academyProgramsForEditor($translationPayload['academy_programs'] ?? null, $preferredLocale)
                 : [];
             $aboutContent = $page->layout === 'about'
-                ? AboutPageDefaults::merge($translationPayload['about_page'] ?? null, (string) $translation->locale)
+                ? AboutPageDefaults::merge($translationPayload['about_page'] ?? null, $preferredLocale)
                 : [];
             $careerContent = $page->layout === 'career'
-                ? CareerPageDefaults::merge($translationPayload['career_page'] ?? null, (string) $translation->locale)
+                ? CareerPageDefaults::merge($translationPayload['career_page'] ?? null, $preferredLocale)
                 : [];
 
-            $this->form['locale'] = $translation->locale;
             $this->form['title'] = $translation->title;
             $this->form['slug'] = $translation->slug;
             $this->form['excerpt'] = $translation->excerpt ?? '';
@@ -751,22 +775,27 @@ class Form extends Component
             $this->form['academy_programs'] = $academyPrograms;
             $this->form['about_content'] = $aboutContent;
             $this->form['career_content'] = $careerContent;
+            $this->loadedStructuredContent = match ($page->layout) {
+                'academy' => is_array($translationPayload['academy_programs'] ?? null)
+                    ? $translationPayload['academy_programs']
+                    : [],
+                'about' => is_array($translationPayload['about_page'] ?? null)
+                    ? $translationPayload['about_page']
+                    : [],
+                'career' => is_array($translationPayload['career_page'] ?? null)
+                    ? $translationPayload['career_page']
+                    : [],
+                default => [],
+            };
             $this->form['translation_payload_text'] = $translation->payload
                 ? json_encode($translation->payload, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES)
                 : '';
         } else {
-            $this->form['academy_blog_title'] = '';
-            $this->form['academy_blog_intro'] = '';
-            $this->form['academy_resource_title'] = '';
-            $this->form['academy_resource_intro'] = '';
-            $this->form['academy_video_title'] = '';
-            $this->form['academy_video_intro'] = '';
-            $this->form['academy_programs'] = $page->layout === 'academy' ? $this->defaultAcademyPrograms() : [];
-            $this->form['about_content'] = $page->layout === 'about' ? $this->defaultAboutContent() : [];
-            $this->form['career_content'] = $page->layout === 'career' ? $this->defaultCareerContent() : [];
+            $this->clearTranslationFields();
         }
 
         $this->hydratePageHeroImageAlt();
+        $this->captureStructuredContentBaseline();
     }
 
     private function loadTranslationForLocale(): void
@@ -811,7 +840,7 @@ class Form extends Component
             ? CareerPageDefaults::merge($translationPayload['career_page'] ?? null, (string) $translation->locale)
             : [];
         $this->form['academy_programs'] = (string) ($this->form['layout'] ?? '') === 'academy'
-            ? AcademyPageDefaults::mergePrograms($translationPayload['academy_programs'] ?? null)
+            ? $this->academyProgramsForEditor($translationPayload['academy_programs'] ?? null, (string) $translation->locale)
             : [];
         $this->form['academy_blog_title'] = (string) ($academyBlogSection['title'] ?? '');
         $this->form['academy_blog_intro'] = (string) ($academyBlogSection['intro'] ?? '');
@@ -821,10 +850,23 @@ class Form extends Component
         $this->form['academy_video_intro'] = (string) ($academyVideoSection['intro'] ?? '');
         $this->form['about_content'] = $aboutContent;
         $this->form['career_content'] = $careerContent;
+        $this->loadedStructuredContent = match ((string) ($this->form['layout'] ?? '')) {
+            'academy' => is_array($translationPayload['academy_programs'] ?? null)
+                ? $translationPayload['academy_programs']
+                : [],
+            'about' => is_array($translationPayload['about_page'] ?? null)
+                ? $translationPayload['about_page']
+                : [],
+            'career' => is_array($translationPayload['career_page'] ?? null)
+                ? $translationPayload['career_page']
+                : [],
+            default => [],
+        };
         $this->form['translation_payload_text'] = $translation->payload
             ? json_encode($translation->payload, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES)
             : '';
         $this->hydratePageHeroImageAlt();
+        $this->captureStructuredContentBaseline();
     }
 
     private function clearTranslationFields(): void
@@ -850,8 +892,10 @@ class Form extends Component
         $this->form['career_content'] = (string) ($this->form['layout'] ?? '') === 'career'
             ? $this->defaultCareerContent()
             : [];
+        $this->loadedStructuredContent = [];
         $this->form['translation_payload_text'] = '';
         $this->hydratePageHeroImageAlt();
+        $this->captureStructuredContentBaseline();
     }
 
     /**
@@ -1023,12 +1067,193 @@ class Form extends Component
             ->all();
     }
 
+    private function captureStructuredContentBaseline(): void
+    {
+        $locale = (string) ($this->form['locale'] ?? AdminLocale::default());
+        $this->structuredContentBaseline = match ((string) ($this->form['layout'] ?? '')) {
+            'academy' => $this->normalizeAcademyPrograms((array) ($this->form['academy_programs'] ?? []), $locale),
+            'about' => AboutPageDefaults::merge((array) ($this->form['about_content'] ?? []), $locale),
+            'career' => CareerPageDefaults::merge((array) ($this->form['career_content'] ?? []), $locale),
+            default => [],
+        };
+    }
+
+    /**
+     * Apply only fields changed in the editor to the exact locale payload.
+     * Structural blank fields remain available in Livewire without being
+     * persisted, and an untouched incomplete payload stays byte-for-byte
+     * equivalent after JSON casting.
+     *
+     * @param  array<string, mixed>  $current
+     * @return array<string, mixed>
+     */
+    private function applyStructuredEditorChanges(array $current): array
+    {
+        return $this->applyArrayChanges(
+            $current,
+            $this->structuredContentBaseline,
+            $this->loadedStructuredContent,
+        );
+    }
+
+    /**
+     * @param  array<string|int, mixed>  $current
+     * @param  array<string|int, mixed>  $baseline
+     * @param  array<string|int, mixed>  $original
+     * @return array<string|int, mixed>
+     */
+    private function applyArrayChanges(array $current, array $baseline, array $original): array
+    {
+        $result = $original;
+        $keys = array_unique([...array_keys($baseline), ...array_keys($current)]);
+
+        foreach ($keys as $key) {
+            $hasCurrent = array_key_exists($key, $current);
+            $hasBaseline = array_key_exists($key, $baseline);
+            $hasOriginal = array_key_exists($key, $original);
+
+            if (! $hasCurrent) {
+                unset($result[$key]);
+
+                continue;
+            }
+
+            if (! $hasBaseline) {
+                $result[$key] = $current[$key];
+
+                continue;
+            }
+
+            if (is_array($current[$key]) && is_array($baseline[$key])) {
+                if ($hasOriginal || $current[$key] !== $baseline[$key]) {
+                    $result[$key] = $this->applyArrayChanges(
+                        $current[$key],
+                        $baseline[$key],
+                        $hasOriginal && is_array($original[$key]) ? $original[$key] : [],
+                    );
+                } else {
+                    unset($result[$key]);
+                }
+
+                continue;
+            }
+
+            if ($current[$key] !== $baseline[$key]) {
+                $result[$key] = $current[$key];
+            }
+        }
+
+        if (array_is_list($current) && $result !== []) {
+            $numericKeys = array_filter(array_keys($result), 'is_int');
+            if ($numericKeys !== []) {
+                for ($index = 0, $lastIndex = max($numericKeys); $index <= $lastIndex; $index++) {
+                    $result[$index] ??= [];
+                }
+                ksort($result);
+                $result = array_values($result);
+            }
+        }
+
+        return $result;
+    }
+
+    private function isCroatianLocale(string $locale): bool
+    {
+        return str_starts_with(AdminLocale::normalize($locale), 'hr');
+    }
+
+    /**
+     * @return array<int, string>
+     */
+    private function activeContentLocaleOptions(): array
+    {
+        $fallbackOptions = AdminLocale::fallbackOptions();
+
+        try {
+            $activeOptions = Language::query()
+                ->where('is_active', true)
+                ->orderByDesc('is_default')
+                ->orderBy('sort_order')
+                ->orderBy('code')
+                ->pluck('code')
+                ->map(fn ($code): string => AdminLocale::normalize((string) $code))
+                ->filter()
+                ->unique()
+                ->values()
+                ->all();
+        } catch (\Throwable) {
+            $activeOptions = [];
+        }
+
+        if ($activeOptions === []) {
+            return $fallbackOptions;
+        }
+
+        $preferred = array_values(array_filter(
+            $fallbackOptions,
+            static fn (string $locale): bool => in_array($locale, $activeOptions, true)
+        ));
+        $remaining = array_values(array_filter(
+            $activeOptions,
+            static fn (string $locale): bool => ! in_array($locale, $preferred, true)
+        ));
+
+        return array_values(array_unique([...$preferred, ...$remaining]));
+    }
+
     /**
      * @return array<int, array<string, mixed>>
      */
     private function defaultAcademyPrograms(): array
     {
-        return AcademyPageDefaults::mergePrograms([]);
+        return $this->academyProgramsForEditor(
+            [],
+            (string) ($this->form['locale'] ?? AdminLocale::default()),
+        );
+    }
+
+    /**
+     * @return array<int, array<string, mixed>>
+     */
+    private function academyProgramsForEditor(mixed $payload, string $locale): array
+    {
+        if ($this->isCroatianLocale($locale)) {
+            return AcademyPageDefaults::mergePrograms($payload);
+        }
+
+        $sourcePrograms = is_array($payload) ? array_values($payload) : [];
+
+        return collect(AcademyPageDefaults::programs())
+            ->map(function (array $structure, int $programIndex) use ($sourcePrograms): array {
+                $source = is_array($sourcePrograms[$programIndex] ?? null)
+                    ? $sourcePrograms[$programIndex]
+                    : [];
+                $sourceItems = is_array($source['items'] ?? null)
+                    ? array_values($source['items'])
+                    : [];
+
+                return [
+                    'title' => array_key_exists('title', $source) ? trim((string) $source['title']) : '',
+                    'icon' => (string) ($structure['icon'] ?? ''),
+                    'accent' => (string) ($structure['accent'] ?? ''),
+                    'intro' => array_key_exists('intro', $source) ? trim((string) $source['intro']) : '',
+                    'items' => collect((array) ($structure['items'] ?? []))
+                        ->map(function ($item, int $itemIndex) use ($sourceItems): array {
+                            $sourceItem = is_array($sourceItems[$itemIndex] ?? null)
+                                ? $sourceItems[$itemIndex]
+                                : [];
+
+                            return [
+                                'title' => array_key_exists('title', $sourceItem) ? trim((string) $sourceItem['title']) : '',
+                                'text' => array_key_exists('text', $sourceItem) ? trim((string) $sourceItem['text']) : '',
+                            ];
+                        })
+                        ->values()
+                        ->all(),
+                ];
+            })
+            ->values()
+            ->all();
     }
 
     /**
@@ -1051,18 +1276,29 @@ class Form extends Component
      * @param  array<int, mixed>  $programs
      * @return array<int, array<string, mixed>>
      */
-    private function normalizeAcademyPrograms(array $programs): array
+    private function normalizeAcademyPrograms(array $programs, ?string $locale = null): array
     {
-        return collect(AcademyPageDefaults::mergePrograms($programs))
-            ->map(function (array $program): array {
+        $effectiveLocale = (string) ($locale ?: $this->form['locale'] ?: AdminLocale::default());
+        $source = $this->isCroatianLocale($effectiveLocale)
+            ? AcademyPageDefaults::mergePrograms($programs)
+            : $programs;
+
+        return collect($source)
+            ->map(function ($program): array {
+                $program = is_array($program) ? $program : [];
+
                 return [
                     'title' => (string) ($program['title'] ?? ''),
                     'intro' => (string) ($program['intro'] ?? ''),
                     'items' => collect((array) ($program['items'] ?? []))
-                        ->map(fn (array $item): array => [
-                            'title' => (string) ($item['title'] ?? ''),
-                            'text' => (string) ($item['text'] ?? ''),
-                        ])
+                        ->map(function ($item): array {
+                            $item = is_array($item) ? $item : [];
+
+                            return [
+                                'title' => (string) ($item['title'] ?? ''),
+                                'text' => (string) ($item['text'] ?? ''),
+                            ];
+                        })
                         ->values()
                         ->all(),
                 ];
@@ -1119,15 +1355,19 @@ class Form extends Component
         $media = ($collection && $this->pageId)
             ? InfoPage::query()->find($this->pageId)?->getFirstMedia($collection)
             : null;
-        $alt = trim((string) (
-            data_get($media?->custom_properties, 'alt.'.$locale)
-            ?: data_get($media?->custom_properties, 'alt.'.$fallbackLocale)
-        ));
+        $alt = trim((string) data_get($media?->custom_properties, 'alt.'.$locale));
 
-        if ($alt === '') {
-            $isCroatian = str_starts_with(strtolower($locale), 'hr');
-            $alt = $isCroatian ? 'ALPHA CAPITALIS tim' : 'ALPHA CAPITALIS team';
+        if (! $this->isCroatianLocale($locale)) {
+            if ($alt !== '') {
+                data_set($this->form, $path, $alt);
+            }
+
+            return;
         }
+
+        $alt = $alt !== ''
+            ? $alt
+            : trim((string) data_get($media?->custom_properties, 'alt.'.$fallbackLocale));
 
         data_set($this->form, $path, $alt);
     }

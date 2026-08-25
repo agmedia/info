@@ -292,7 +292,7 @@
                         <span>{{ $meetingPhoneLabel }}:</span>
                         <a href="tel:{{ $contactPhoneHref }}">{{ $contactPhone }}</a>
                     </p>
-                    <a class="contact-cta-button" href="{{ route('contact.create') }}">
+                    <a class="contact-cta-button" href="{{ \App\Support\Localization\FrontendRoute::url('contact.create') }}">
                         <span>{{ $meetingButtonLabel }}</span>
                         <i class="fa-duotone fa-thin fa-arrow-right" aria-hidden="true"></i>
                     </a>

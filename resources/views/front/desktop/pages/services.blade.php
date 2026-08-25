@@ -1,61 +1,28 @@
 @extends('front.desktop.layouts.store')
 
-@section('title', $servicePageMetaTitle ?? $servicePageTitle ?? 'Usluge')
+@section('title', $servicePageMetaTitle)
 @section('main_class', 'w-full px-0 py-0')
 
 @section('content')
     @php
         $showcase = (array) ($servicesShowcase ?? []);
-        $titleLead = trim((string) ($showcase['title_lead'] ?? '')) ?: 'Naše usluge';
-        $intro = trim((string) ($showcase['intro'] ?? ''))
-            ?: 'Kroz integrirani pristup reviziji, računovodstvu i financijskom savjetovanju stvaramo dodatnu vrijednost pomažući klijentima da posluju sigurnije, transparentnije i učinkovitije.';
-        $cardActionLabel = trim((string) ($showcase['card_action_label'] ?? '')) ?: 'SAZNAJTE VIŠE';
-        $introWithServiceLinks = e($intro);
-        $introServiceLinks = [
-            route('advisory.show') => ['financijskom savjetovanju', 'financial advisory'],
-            route('accounting.show') => ['računovodstvu', 'accounting'],
-            route('audit.show') => ['reviziji', 'audit'],
-        ];
-
-        foreach ($introServiceLinks as $url => $labels) {
-            foreach ($labels as $label) {
-                $escapedLabel = e($label);
-                $introWithServiceLinks = str_replace(
-                    $escapedLabel,
-                    '<a class="services-index-inline-link" href="'.e($url).'">'.$escapedLabel.'</a>',
-                    $introWithServiceLinks,
-                );
-            }
-        }
+        $titleLead = trim((string) ($showcase['title_lead'] ?? ''));
+        $intro = trim((string) ($showcase['intro'] ?? ''));
+        $cardActionLabel = trim((string) ($showcase['card_action_label'] ?? ''));
         $introTitleWords = preg_split('/\s+/u', $titleLead, -1, PREG_SPLIT_NO_EMPTY) ?: [];
 
         $cardDesign = collect([
             'audit' => [
                 'key' => 'audit',
-                'title' => 'Revizija',
-                'statement' => 'sigurnost i povjerenje u brojke',
-                'text' => 'Neovisna provjera financijskih izvještaja koja povećava povjerenje vlasnika, investitora i partnera.',
                 'image' => asset('alpha/service-revizija.jpg'),
-                'image_alt' => 'Potpisivanje poslovnog dokumenta za stolom',
-                'url' => route('audit.show'),
             ],
             'accounting' => [
                 'key' => 'accounting',
-                'title' => 'Računovodstvo',
-                'statement' => 'kontrola i jasnoća poslovanja',
-                'text' => 'Precizno vođenje knjiga i pravovremeno izvještavanje koje oslobađa menadžment za strateške odluke.',
                 'image' => asset('alpha/service-racunovodstvo.jpg'),
-                'image_alt' => 'Rad na financijskim podacima na prijenosnom računalu',
-                'url' => route('accounting.show'),
             ],
             'advisory' => [
                 'key' => 'advisory',
-                'title' => 'Savjetovanje',
-                'statement' => 'rast, optimizacija i bolji financijski izbor',
-                'text' => 'Financijsko i porezno savjetovanje te pribavljanje kapitala - sve na jednom mjestu.',
                 'image' => asset('alpha/service-savjetovanje.jpg'),
-                'image_alt' => 'Poslovni razgovor tijekom savjetovanja',
-                'url' => route('advisory.show'),
             ],
         ]);
 
@@ -75,19 +42,34 @@
                 }
 
                 return array_merge($fallback, [
-                    'title' => trim((string) ($service['title'] ?? '')) ?: $fallback['title'],
-                    'statement' => trim((string) ($service['subtitle'] ?? '')) ?: $fallback['statement'],
-                    'text' => trim((string) ($service['text'] ?? '')) ?: $fallback['text'],
+                    'title' => trim((string) ($service['title'] ?? '')),
+                    'statement' => trim((string) ($service['subtitle'] ?? '')),
+                    'text' => trim((string) ($service['text'] ?? '')),
                     'image' => trim((string) ($service['image_url'] ?? '')) ?: $fallback['image'],
-                    'image_alt' => trim((string) ($service['image_alt'] ?? '')) ?: $fallback['image_alt'],
-                    'url' => trim((string) ($service['url'] ?? '')) ?: $fallback['url'],
+                    'image_alt' => trim((string) ($service['image_alt'] ?? '')),
+                    'url' => trim((string) ($service['url'] ?? '')),
                 ]);
             })
-            ->filter()
+            ->filter(fn (array $service): bool => $service !== [] && $service['title'] !== '' && $service['url'] !== '')
             ->values();
 
-        if ($serviceItems->isEmpty()) {
-            $serviceItems = $cardDesign->values();
+        $introWithServiceLinks = e($intro);
+        foreach ($serviceItems as $service) {
+            $serviceTitle = trim((string) ($service['title'] ?? ''));
+            $serviceUrl = trim((string) ($service['url'] ?? ''));
+            $stemLength = max(4, mb_strlen($serviceTitle) - 1);
+            $serviceStem = mb_substr($serviceTitle, 0, $stemLength);
+
+            if (mb_strlen($serviceStem) < 4 || $serviceUrl === '') {
+                continue;
+            }
+
+            $introWithServiceLinks = preg_replace_callback(
+                '/\b(\p{L}*'.preg_quote(e($serviceStem), '/').'\p{L}*)\b/ui',
+                static fn (array $match): string => '<a class="services-index-inline-link" href="'.e($serviceUrl).'">'.$match[0].'</a>',
+                $introWithServiceLinks,
+                1,
+            ) ?? $introWithServiceLinks;
         }
     @endphp
 
@@ -96,7 +78,7 @@
             <div class="values-intro">
                 <h1 class="values-title services-index-intro-title" id="ac-services-index-title" data-words-slide-from-right aria-label="{{ $titleLead }}">
                     @foreach ($introTitleWords as $word)
-                        <span class="values-word animation-index-{{ $loop->index }} {{ mb_strtolower(trim($word, '.,!?')) === 'usluge' || $loop->last ? 'is-accent' : '' }}" aria-hidden="true">{{ $word }}</span>
+                        <span class="values-word animation-index-{{ $loop->index }} {{ $loop->last ? 'is-accent' : '' }}" aria-hidden="true">{{ $word }}</span>
                     @endforeach
                 </h1>
 
@@ -123,7 +105,9 @@
                             </h2>
                             <p class="service-statement">{{ $service['statement'] }}</p>
                             <p class="service-description">{{ $service['text'] }}</p>
-                            <span class="service-link" aria-hidden="true">{{ $cardActionLabel }} <i class="fa-duotone fa-thin fa-arrow-right fa-fw"></i></span>
+                            @if ($cardActionLabel !== '')
+                                <span class="service-link" aria-hidden="true">{{ $cardActionLabel }} <i class="fa-duotone fa-thin fa-arrow-right fa-fw"></i></span>
+                            @endif
                         </div>
                     </a>
                 @endforeach

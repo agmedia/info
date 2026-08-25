@@ -11,6 +11,7 @@ use App\Models\Content\Service\ServicePage;
 use App\Models\Content\Service\ServicePageTranslation;
 use App\Support\Content\ServicePageTemplateRegistry;
 use App\Support\Content\YouTubeUrl;
+use App\Support\Localization\FrontendLocalePolicy;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
@@ -26,18 +27,15 @@ class AccountingController extends Controller
     public function show(Request $request): View
     {
         $locale = app()->getLocale();
-        $fallbackLocale = (string) config('app.fallback_locale', config('app.locale', 'en'));
+        $fallbackLocale = FrontendLocalePolicy::fallbackLocale(
+            (string) $locale,
+            (string) config('app.fallback_locale', config('app.locale', 'en'))
+        );
 
         [$servicePage, $servicePageTranslation] = $this->resolveServicePage($locale, $fallbackLocale);
-        $pagePayload = ServicePageTemplateRegistry::mergePagePayload(
-            ServicePageTemplateRegistry::ACCOUNTING,
-            $servicePage?->payload
-        );
-        $translationPayload = ServicePageTemplateRegistry::mergeTranslationPayload(
-            ServicePageTemplateRegistry::ACCOUNTING,
-            $servicePageTranslation?->payload,
-            (string) ($servicePageTranslation?->locale ?: $locale)
-        );
+        abort_if(! $servicePageTranslation, 404);
+        $pagePayload = (array) ($servicePage?->payload ?? []);
+        $translationPayload = (array) ($servicePageTranslation->payload ?? []);
         $serviceVideoPayload = $this->resolveServiceVideoPayload($pagePayload, $translationPayload);
 
         $accountingCategory = $this->resolveConfiguredBlogCategory(
@@ -49,8 +47,8 @@ class AccountingController extends Controller
             ?? $accountingCategory?->translations->firstWhere('locale', $fallbackLocale)
             ?? $accountingCategory?->translations->first();
         $categorySlug = trim((string) ($categoryTranslation?->slug ?? ''));
-        $defaultCategoryName = str_starts_with(strtolower($locale), 'hr') ? 'Računovodstvo' : 'Accounting';
-        $categoryName = trim((string) ($categoryTranslation?->name ?? '')) ?: $defaultCategoryName;
+        $servicePageTitle = trim((string) ($servicePageTranslation?->title ?? ''));
+        $categoryName = trim((string) ($categoryTranslation?->name ?? '')) ?: $servicePageTitle;
         $accountingPosts = $this->resolveAccountingPosts(
             (array) ($pagePayload['blog_source'] ?? []),
             $accountingCategory,
@@ -85,7 +83,7 @@ class AccountingController extends Controller
             'meetingSection' => (array) ($translationPayload['meeting'] ?? []),
             'blogSection' => $blogSection,
             'heroBackgroundUrl' => $this->resolveServiceHeroBackgroundUrl($servicePage),
-            'servicePageTitle' => trim((string) ($servicePageTranslation?->title ?? '')) ?: $defaultCategoryName,
+            'servicePageTitle' => $servicePageTitle,
             'servicePageMetaTitle' => trim((string) ($servicePageTranslation?->meta_title ?? '')),
             'servicePageMetaDescription' => trim((string) ($servicePageTranslation?->meta_description ?? '')),
             'servicePageOgImage' => $this->resolveServiceHeroBackgroundUrl($servicePage),
@@ -123,9 +121,7 @@ class AccountingController extends Controller
             return [null, null];
         }
 
-        $translation = $servicePage->translations->firstWhere('locale', $locale)
-            ?? $servicePage->translations->firstWhere('locale', $fallbackLocale)
-            ?? $servicePage->translations->first();
+        $translation = $servicePage->translations->firstWhere('locale', $locale);
 
         return [$servicePage, $translation];
     }
@@ -139,10 +135,16 @@ class AccountingController extends Controller
             $category = Category::query()
                 ->where('scope', Category::SCOPE_BLOG)
                 ->where('id', $configuredCategoryId)
+                ->when(
+                    FrontendLocalePolicy::requiresExactTranslation($locale),
+                    fn ($query) => $query->whereHas('translations', fn ($translationQuery) => $translationQuery
+                        ->where('scope', Category::SCOPE_BLOG)
+                        ->where('locale', $locale))
+                )
                 ->with([
                     'translations' => fn ($query) => $query
                         ->where('scope', Category::SCOPE_BLOG)
-                        ->whereIn('locale', [$locale, $fallbackLocale, 'hr', 'en']),
+                        ->whereIn('locale', [$locale, $fallbackLocale]),
                 ])
                 ->first();
 
@@ -168,6 +170,11 @@ class AccountingController extends Controller
 
         $baseQuery = BlogPost::query()
             ->where('is_active', true)
+            ->when(
+                FrontendLocalePolicy::requiresExactTranslation($locale),
+                fn (Builder $query) => $query->whereHas('translations', fn (Builder $translationQuery) => $translationQuery
+                    ->where('locale', $locale))
+            )
             ->where(function (Builder $query): void {
                 $query->whereNull('published_at')
                     ->orWhere('published_at', '<=', now());
@@ -176,6 +183,12 @@ class AccountingController extends Controller
                 'translations' => fn ($query) => $query->whereIn('locale', [$locale, $fallbackLocale]),
                 'categories' => fn ($query) => $query
                     ->where('scope', Category::SCOPE_BLOG)
+                    ->when(
+                        FrontendLocalePolicy::requiresExactTranslation($locale),
+                        fn ($categoryQuery) => $categoryQuery->whereHas('translations', fn ($translationQuery) => $translationQuery
+                            ->where('scope', Category::SCOPE_BLOG)
+                            ->where('locale', $locale))
+                    )
                     ->with([
                         'translations' => fn ($translationQuery) => $translationQuery
                             ->where('scope', Category::SCOPE_BLOG)
@@ -227,10 +240,16 @@ class AccountingController extends Controller
         $match = Category::query()
             ->where('scope', Category::SCOPE_BLOG)
             ->where('is_active', true)
+            ->when(
+                FrontendLocalePolicy::requiresExactTranslation($locale),
+                fn ($query) => $query->whereHas('translations', fn ($translationQuery) => $translationQuery
+                    ->where('scope', Category::SCOPE_BLOG)
+                    ->where('locale', $locale))
+            )
             ->with([
                 'translations' => fn ($query) => $query
                     ->where('scope', Category::SCOPE_BLOG)
-                    ->whereIn('locale', [$locale, $fallbackLocale, 'hr', 'en']),
+                    ->whereIn('locale', [$locale, $fallbackLocale]),
             ])
             ->get()
             ->map(fn (Category $category): array => [

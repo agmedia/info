@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="hr">
+<html lang="{{ app()->getLocale() }}">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Stranica nije pronađena</title>
+    <title>{{ __('ui.errors.not_found.title') }}</title>
     <style>
         :root {
             --bg: #f5f6f8;
@@ -94,11 +94,11 @@
         <div class="top"></div>
         <div class="inner">
             <p class="kicker">Error 404</p>
-            <h1 id="not-found-title">Stranica nije pronađena</h1>
-            <p>Link koji ste otvorili ne postoji ili je premješten. Vratite se na početnu ili otvorite neku od javnih stranica.</p>
+            <h1 id="not-found-title">{{ __('ui.errors.not_found.title') }}</h1>
+            <p>{{ __('ui.errors.not_found.body') }}</p>
             <div class="actions">
-                <a class="btn" href="/">Početna</a>
-                <a class="btn btn-ghost" href="/contact">Kontakt</a>
+                <a class="btn" href="/">{{ __('ui.errors.not_found.home') }}</a>
+                <a class="btn btn-ghost" href="{{ \App\Support\Localization\FrontendRoute::url('contact.create') }}">{{ __('ui.errors.not_found.contact') }}</a>
             </div>
         </div>
     </section>

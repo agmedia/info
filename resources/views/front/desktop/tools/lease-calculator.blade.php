@@ -6,7 +6,7 @@
 
 @section('content')
     @php
-        $contactEmail = trim((string) ($storeSettings['footer']['email_support'] ?? '')) ?: 'info@alphacapitalis.com';
+        $contactEmail = trim((string) ($storeSettings['footer']['email_support'] ?? ''));
         $headingWords = static fn (string $title): array => preg_split('/\s+/u', trim($title), -1, PREG_SPLIT_NO_EMPTY) ?: [];
     @endphp
 
@@ -241,7 +241,9 @@
                     <p class="ac-lease-disclaimer">
                         <strong>{{ __('lease_calculator.disclaimer_label') }}:</strong>
                         {{ __('lease_calculator.disclaimer') }}
-                        <a href="mailto:{{ $contactEmail }}">{{ $contactEmail }}</a>.
+                        @if ($contactEmail !== '')
+                            <a href="mailto:{{ $contactEmail }}">{{ $contactEmail }}</a>.
+                        @endif
                     </p>
                 </section>
             </div>

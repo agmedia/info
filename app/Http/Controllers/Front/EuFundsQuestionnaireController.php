@@ -7,6 +7,7 @@ use App\Http\Controllers\Front\Concerns\ResolvesFrontendView;
 use App\Models\Content\Support\ContactMessage;
 use App\Services\Front\StoreNotificationService;
 use App\Services\Front\StoreSettingsService;
+use App\Support\Localization\FrontendRoute;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
@@ -21,8 +22,7 @@ class EuFundsQuestionnaireController extends Controller
     public function __construct(
         private readonly StoreNotificationService $notifications,
         private readonly StoreSettingsService $storeSettings
-    ) {
-    }
+    ) {}
 
     public function create(Request $request): View
     {
@@ -168,7 +168,7 @@ class EuFundsQuestionnaireController extends Controller
         $this->notifications->sendContactNotification($message);
 
         return redirect()
-            ->route('eu-funds.questionnaire.create')
+            ->to(FrontendRoute::url('eu-funds.questionnaire.create'))
             ->with('status', __('eu_funds_questionnaire.sent_status'));
     }
 
@@ -258,7 +258,7 @@ class EuFundsQuestionnaireController extends Controller
     }
 
     /**
-     * @param array<string, mixed> $answers
+     * @param  array<string, mixed>  $answers
      */
     private function buildSummary(array $answers): string
     {

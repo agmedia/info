@@ -8,6 +8,9 @@ use App\Models\Content\Blog\BlogPost;
 use App\Models\Content\Blog\BlogPostTranslation;
 use App\Models\Content\Call\CallPost;
 use App\Models\Content\Call\CallPostTranslation;
+use App\Models\Content\Service\ServicePage;
+use App\Models\Settings\Local\Language;
+use App\Support\Content\ServicePageTemplateRegistry;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -137,6 +140,7 @@ class EuFundsServicePageFeatureTest extends TestCase
             'name' => 'Otvoreni pozivi',
             'slug' => 'otvoreni-pozivi',
             'description' => 'Otvoreni pozivi',
+            'payload' => ['status_label' => 'CMS status otvoreno'],
         ]);
 
         $call = CallPost::query()->create([
@@ -152,6 +156,11 @@ class EuFundsServicePageFeatureTest extends TestCase
             'slug' => 'integrator',
             'excerpt' => 'Opis poziva Integrator.',
             'body_html' => '<p>Detalji poziva Integrator.</p>',
+            'payload' => [
+                'date_labels' => [
+                    'published' => 'Objavljeno',
+                ],
+            ],
         ]);
 
         $call->categories()->sync([
@@ -165,7 +174,7 @@ class EuFundsServicePageFeatureTest extends TestCase
 
         $response->assertOk()
             ->assertSeeText('Otvoreni pozivi')
-            ->assertSeeText('Otvoreno')
+            ->assertSeeText('CMS status otvoreno')
             ->assertSeeText('Integrator')
             ->assertSeeText('Objavljeno:')
             ->assertSee('/eu-fondovi/pozivi/integrator', false);
@@ -201,5 +210,101 @@ class EuFundsServicePageFeatureTest extends TestCase
             ->assertDontSeeText('poveznice su postavljene samo tamo gdje već postoji lokalni blog zapis ili lokalni dokument')
             ->assertDontSee('ac-eu-process-index', false)
             ->assertDontSee('>01<', false);
+    }
+
+    public function test_english_eu_funds_links_require_exact_translations_and_use_localized_questionnaire_url(): void
+    {
+        Language::query()->updateOrCreate(['code' => 'hr'], [
+            'locale' => 'hr_HR',
+            'name' => 'Croatian',
+            'native_name' => 'Hrvatski',
+            'direction' => 'ltr',
+            'is_default' => true,
+            'is_active' => true,
+            'sort_order' => 1,
+        ]);
+        Language::query()->updateOrCreate(['code' => 'en'], [
+            'locale' => 'en_US',
+            'name' => 'English',
+            'native_name' => 'English',
+            'direction' => 'ltr',
+            'is_default' => false,
+            'is_active' => true,
+            'sort_order' => 2,
+        ]);
+
+        $post = BlogPost::query()->create([
+            'code' => 'croatian-only-resource',
+            'is_active' => true,
+            'published_at' => now()->subDay(),
+        ]);
+        BlogPostTranslation::query()->create([
+            'post_id' => $post->id,
+            'locale' => 'hr',
+            'title' => 'Samo hrvatski resurs',
+            'slug' => 'samo-hrvatski-resurs',
+            'body_html' => '<p>Hrvatski sadržaj.</p>',
+        ]);
+
+        $page = ServicePage::query()
+            ->where('template_key', ServicePageTemplateRegistry::EU_FUNDS)
+            ->firstOrFail();
+        $translation = $page->translations()->where('locale', 'en')->firstOrFail();
+        $payload = (array) $translation->payload;
+        $payload['resources'] = [
+            'title' => 'English resources',
+            'intro' => '',
+            'cards' => [[
+                'title' => 'Project questionnaire',
+                'body_html' => '',
+                'primary_link' => [
+                    'type' => 'external',
+                    'label' => 'Complete the questionnaire',
+                    'url' => '/eu-fondovi/upitnik',
+                ],
+                'secondary_link' => [
+                    'type' => 'pdf',
+                    'label' => 'Brochure',
+                    'path' => 'front-theme/documents/eu-fondovi/zakon-o-poticanju-ulaganja-brosura.pdf',
+                ],
+                'groups' => [[
+                    'label' => 'Further reading',
+                    'items' => [[
+                        'title' => 'More information',
+                        'link' => [
+                            'type' => 'blog',
+                            'slug' => 'samo-hrvatski-resurs',
+                        ],
+                    ]],
+                ]],
+            ]],
+        ];
+        $translation->update(['payload' => $payload]);
+
+        $response = $this->withSession(['front_locale' => 'en'])->get('/eu-funds');
+
+        $response->assertOk()
+            ->assertSee('href="'.route('eu-funds.questionnaire.create.en').'"', false)
+            ->assertSeeText('More information')
+            ->assertDontSee('href="'.route('blog.show', ['slug' => 'samo-hrvatski-resurs']).'"', false)
+            ->assertDontSee('front-theme/documents/eu-fondovi/zakon-o-poticanju-ulaganja-brosura.pdf', false)
+            ->assertDontSee('/eu-fondovi/upitnik', false);
+
+        BlogPostTranslation::query()->create([
+            'post_id' => $post->id,
+            'locale' => 'en',
+            'title' => 'English resource',
+            'slug' => 'english-resource',
+            'body_html' => '<p>English content.</p>',
+        ]);
+        $payload['resources']['cards'][0]['secondary_link']['locale'] = 'en';
+        $translation->update(['payload' => $payload]);
+
+        $this->withSession(['front_locale' => 'en'])
+            ->get('/eu-funds')
+            ->assertOk()
+            ->assertSee('href="'.route('blog.show', ['slug' => 'english-resource']).'"', false)
+            ->assertSee('front-theme/documents/eu-fondovi/zakon-o-poticanju-ulaganja-brosura.pdf', false)
+            ->assertDontSee('/blog/samo-hrvatski-resurs', false);
     }
 }

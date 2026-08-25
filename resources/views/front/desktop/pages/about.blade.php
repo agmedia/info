@@ -1,9 +1,11 @@
 @extends('front.desktop.layouts.store')
 
 @php
+    $aboutRequiresExactTranslation = (bool) ($aboutRequiresExactTranslation
+        ?? \App\Support\Localization\FrontendLocalePolicy::requiresExactTranslation((string) $locale));
     $translation = $selectedTranslation
         ?? $page->translations->firstWhere('locale', $locale)
-        ?? $page->translations->firstWhere('locale', $fallbackLocale);
+        ?? ($aboutRequiresExactTranslation ? null : $page->translations->firstWhere('locale', $fallbackLocale));
 
     $content = is_array($aboutContent ?? null) ? $aboutContent : [];
     $hero = is_array($content['hero'] ?? null) ? $content['hero'] : [];
@@ -18,11 +20,13 @@
     $aboutPreviewTeamMembers = $aboutTeamMembers->take(3)->values();
     $aboutReferenceItems = collect($aboutReferenceItems ?? [])->values();
     $aboutHeroMedia = $page->getFirstMedia('about_hero_image');
-    $aboutHeroMediaAlt = trim((string) (
-        data_get($aboutHeroMedia?->custom_properties, 'alt.'.$locale)
-        ?: data_get($aboutHeroMedia?->custom_properties, 'alt.'.$fallbackLocale)
-        ?: $aboutHeroMedia?->name
-    ));
+    $aboutHeroMediaAlt = trim((string) data_get($aboutHeroMedia?->custom_properties, 'alt.'.$locale));
+    if (! $aboutRequiresExactTranslation && $aboutHeroMediaAlt === '') {
+        $aboutHeroMediaAlt = trim((string) (
+            data_get($aboutHeroMedia?->custom_properties, 'alt.'.$fallbackLocale)
+            ?: $aboutHeroMedia?->name
+        ));
+    }
     $aboutHeroContentAlt = trim((string) ($hero['image_alt'] ?? ''));
     $aboutHeroPhoto = [
         'class' => 'ac-about-image--hero',
@@ -31,11 +35,7 @@
             : ($aboutHeroMedia?->getUrl() ?: asset('front-theme/images/about/o-nama.jpg')),
         'alt' => $aboutHeroContentAlt !== ''
             ? $aboutHeroContentAlt
-            : ($aboutHeroMediaAlt !== ''
-                ? $aboutHeroMediaAlt
-            : (str_starts_with(strtolower((string) $locale), 'hr')
-                ? 'ALPHA CAPITALIS tim'
-                : 'ALPHA CAPITALIS team')),
+            : $aboutHeroMediaAlt,
     ];
     $referencePageUrl = route('pages.show', ['slug' => 'reference']);
     $teamButtonLabel = trim((string) ($team['button_label'] ?? ''));
@@ -47,13 +47,11 @@
     $responsibilityQuote = trim((string) ($responsibility['quote'] ?? ''));
     $responsibilityCtaIntro = trim((string) ($responsibility['cta_intro'] ?? ''));
     $responsibilityCtaText = trim((string) ($responsibility['cta_text'] ?? ''));
-    $responsibilityCtaLabel = trim((string) ($responsibility['cta_button_label'] ?? '')) ?: (
-        str_starts_with(strtolower((string) $locale), 'hr') ? 'Kontaktirajte nas' : 'Contact us'
-    );
+    $responsibilityCtaLabel = trim((string) ($responsibility['cta_button_label'] ?? ''));
     $responsibilityCtaCardTitle = trim((string) ($responsibility['cta_card_title'] ?? ''));
     $responsibilityCtaStatus = trim((string) ($responsibility['cta_status'] ?? ''));
 
-    $pageTitle = trim((string) ($translation?->title ?? '')) ?: 'O nama';
+    $pageTitle = trim((string) ($translation?->title ?? ''));
     $heroTitle = trim((string) ($hero['title'] ?? '')) ?: $pageTitle;
     $heroLead = trim((string) ($hero['lead'] ?? ''));
     $richTextBlocks = static function (array $section, array $legacyParagraphs): \Illuminate\Support\Collection {
@@ -89,38 +87,38 @@
         return is_string($linkedHtml) ? $linkedHtml : $html;
     };
     $storyBlocks = $richTextBlocks($story, (array) ($story['paragraphs'] ?? []));
-    $storyContactLinks = ['ALPHA CAPITALIS' => route('contact.create')];
+    $storyContactLinks = ['ALPHA CAPITALIS' => \App\Support\Localization\FrontendRoute::url('contact.create')];
     $introStoryHtml = $storyBlocks->isNotEmpty()
         ? $linkTermsInHtml((string) $storyBlocks->first(), $storyContactLinks, 'services-index-inline-link')
         : '';
     $headingWords = static fn (string $title): array => preg_split('/\s+/u', trim($title), -1, PREG_SPLIT_NO_EMPTY) ?: [];
     $valuesLabel = trim((string) ($values['label'] ?? ''));
-    $valuesTitle = trim((string) ($values['title'] ?? '')) ?: 'Jednostavni principi koji vode svaki dan';
+    $valuesTitle = trim((string) ($values['title'] ?? ''));
     $valuesIntro = trim((string) ($values['intro'] ?? ''));
     $valuesIntroLinkText = str_contains($valuesIntro, 'ALPHA CAPITALISU')
         ? 'ALPHA CAPITALISU'
         : 'ALPHA CAPITALIS';
     $valuesIntroHtml = str_replace(
         $valuesIntroLinkText,
-        '<a class="services-index-inline-link" href="'.e(route('contact.create')).'">'.e($valuesIntroLinkText).'</a>',
+        '<a class="services-index-inline-link" href="'.e(\App\Support\Localization\FrontendRoute::url('contact.create')).'">'.e($valuesIntroLinkText).'</a>',
         e($valuesIntro),
     );
-    $whyLabel = trim((string) ($why['kicker'] ?? '')) ?: 'Zašto postojimo';
-    $whyTitle = trim((string) ($why['title'] ?? '')) ?: 'Podrška za sigurno, kvalitetno i održivo poslovanje';
+    $whyLabel = trim((string) ($why['kicker'] ?? ''));
+    $whyTitle = trim((string) ($why['title'] ?? ''));
     $whyBlocks = $richTextBlocks($why, (array) ($why['paragraphs'] ?? []));
     $whyServiceTermLinks = [
-        'strateškog razvoja' => route('advisory.show'),
-        'računovodstva' => route('accounting.show'),
-        'EU fondova' => route('eu-funds.show'),
-        'financija' => route('advisory.finance.show'),
-        'revizije' => route('audit.show'),
-        'strategic development' => route('advisory.show'),
-        'accounting' => route('accounting.show'),
-        'EU funds' => route('eu-funds.show'),
-        'finance' => route('advisory.finance.show'),
-        'audit' => route('audit.show'),
+        'strateškog razvoja' => \App\Support\Localization\FrontendRoute::url('advisory.show'),
+        'računovodstva' => \App\Support\Localization\FrontendRoute::url('accounting.show'),
+        'EU fondova' => \App\Support\Localization\FrontendRoute::url('eu-funds.show'),
+        'financija' => \App\Support\Localization\FrontendRoute::url('advisory.finance.show'),
+        'revizije' => \App\Support\Localization\FrontendRoute::url('audit.show'),
+        'strategic development' => \App\Support\Localization\FrontendRoute::url('advisory.show'),
+        'accounting' => \App\Support\Localization\FrontendRoute::url('accounting.show'),
+        'EU funds' => \App\Support\Localization\FrontendRoute::url('eu-funds.show'),
+        'finance' => \App\Support\Localization\FrontendRoute::url('advisory.finance.show'),
+        'audit' => \App\Support\Localization\FrontendRoute::url('audit.show'),
     ];
-    $teamTitle = trim((string) ($team['title'] ?? '')) ?: 'Tim';
+    $teamTitle = trim((string) ($team['title'] ?? ''));
     $teamLabel = trim((string) ($team['label'] ?? ''));
     $teamBlocks = $richTextBlocks(
         $team,
@@ -130,19 +128,15 @@
         ->map(static fn ($stat): array => is_array($stat) ? $stat : [])
         ->filter(static fn (array $stat): bool => trim((string) ($stat['value'] ?? '')) !== '')
         ->values();
-    $cultureLabel = trim((string) ($culture['kicker'] ?? '')) ?: (
-        str_starts_with(strtolower((string) $locale), 'hr') ? 'Naša kultura' : 'Our culture'
-    );
-    $cultureTitle = trim((string) ($culture['title'] ?? '')) ?: 'Kvalitetno poslovanje počinje kvalitetnim odnosima';
+    $cultureLabel = trim((string) ($culture['kicker'] ?? ''));
+    $cultureTitle = trim((string) ($culture['title'] ?? ''));
     $cultureBlocks = $richTextBlocks($culture, (array) ($culture['paragraphs'] ?? []));
     $cultureColumnSplit = $cultureBlocks->count() >= 4 ? 2 : 1;
-    $responsibilityLabel = trim((string) ($responsibility['kicker'] ?? '')) ?: (
-        str_starts_with(strtolower((string) $locale), 'hr') ? 'Društveno odgovorno poslovanje' : 'Social responsibility'
-    );
+    $responsibilityLabel = trim((string) ($responsibility['kicker'] ?? ''));
     $responsibilityTitle = trim((string) ($responsibility['title'] ?? ''));
     $responsibilityBlocks = $richTextBlocks($responsibility, (array) ($responsibility['paragraphs'] ?? []));
     $referencesLabel = trim((string) ($references['label'] ?? ''));
-    $referencesTitle = trim((string) ($references['title'] ?? '')) ?: 'Reference';
+    $referencesTitle = trim((string) ($references['title'] ?? ''));
     $referenceBlocks = $richTextBlocks($references, (array) ($references['paragraphs'] ?? []));
     $valueIconClasses = [
         'fa-brain-circuit',
@@ -155,6 +149,26 @@
         'fa-handshake',
         'fa-buildings',
     ];
+    $sectionHasContent = static function (mixed $value) use (&$sectionHasContent): bool {
+        if (is_array($value)) {
+            foreach ($value as $child) {
+                if ($sectionHasContent($child)) {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        return is_scalar($value) && trim((string) $value) !== '';
+    };
+    $showStory = $sectionHasContent($hero) || $storyBlocks->isNotEmpty();
+    $showValues = $sectionHasContent($values);
+    $showWhy = $sectionHasContent($why);
+    $showTeam = $sectionHasContent($team);
+    $showCulture = $sectionHasContent($culture);
+    $showResponsibility = $sectionHasContent($responsibility);
+    $showReferences = $sectionHasContent($references);
 @endphp
 
 @section('title', $pageTitle)
@@ -167,6 +181,7 @@
             <section class="ac-about-blocks ac-about-blocks--top">@include('components.content-placement', ['items' => $topBlocks])</section>
         @endif
 
+        @if ($showStory)
         <section class="values-section services-index-intro ac-about-intro" aria-labelledby="ac-about-hero-title">
             <div class="values-inner services-index-intro-layout ac-about-intro-layout">
                 <div class="values-intro">
@@ -234,7 +249,9 @@
                 </div>
             </div>
         </section>
+        @endif
 
+        @if ($showValues)
         <section class="ac-about-values" aria-labelledby="ac-about-values-title">
             <div class="ac-about-container">
                 <div class="ac-about-section-intro ac-about-values-intro">
@@ -291,7 +308,9 @@
                 </div>
             </div>
         </section>
+        @endif
 
+        @if ($showWhy)
         <section class="ac-about-why" aria-labelledby="ac-about-why-title">
             <div class="ac-about-container">
                 <div class="ac-about-section-intro ac-about-why-intro">
@@ -333,7 +352,9 @@
                 @endif
             </div>
         </section>
+        @endif
 
+        @if ($showTeam)
         <section class="ac-about-team" aria-labelledby="ac-about-team-intro-title">
             <div class="ac-about-team-intro">
                 <div class="ac-about-container">
@@ -428,22 +449,26 @@
                             </article>
                         @endforeach
 
-                        <article
-                            class="ac-about-member-card ac-about-member-cta-card content-reveal animation-index-{{ $aboutPreviewTeamMembers->count() }}"
-                            data-image-reveal
-                        >
-                            <a href="{{ route('team.index') }}" class="ac-about-member-cta-link">
-                                <span class="ac-about-member-cta-button">
-                                    <span>{{ $teamButtonLabel }}</span>
-                                </span>
-                            </a>
-                        </article>
+                        @if ($teamButtonLabel !== '')
+                            <article
+                                class="ac-about-member-card ac-about-member-cta-card content-reveal animation-index-{{ $aboutPreviewTeamMembers->count() }}"
+                                data-image-reveal
+                            >
+                                <a href="{{ \App\Support\Localization\FrontendRoute::url('team.index') }}" class="ac-about-member-cta-link">
+                                    <span class="ac-about-member-cta-button">
+                                        <span>{{ $teamButtonLabel }}</span>
+                                    </span>
+                                </a>
+                            </article>
+                        @endif
                         </div>
                     @endif
                 </div>
             </div>
         </section>
+        @endif
 
+        @if ($showCulture)
         <section class="ac-about-culture" aria-labelledby="ac-about-culture-title">
             <div class="ac-about-container">
                 <div class="ac-about-section-intro ac-about-culture-intro">
@@ -485,7 +510,9 @@
                 @endif
             </div>
         </section>
+        @endif
 
+        @if ($showResponsibility)
         <section class="ac-about-responsibility" aria-labelledby="ac-about-responsibility-title">
             <div class="ac-about-container">
                 <div class="ac-about-section-intro ac-about-responsibility-intro">
@@ -528,8 +555,9 @@
 
             </div>
         </section>
+        @endif
 
-        @if ($responsibilityCtaIntro !== '' || $responsibilityCtaText !== '')
+        @if ($showResponsibility && ($responsibilityCtaIntro !== '' || $responsibilityCtaText !== ''))
             <section class="contact-cta ac-about-contact-cta" aria-labelledby="ac-about-contact-cta-title">
                 <div class="contact-cta-shell">
                     <div class="contact-cta-copy">
@@ -549,10 +577,11 @@
                             <p>{{ $responsibilityCtaText }}</p>
                         @endif
 
-                        <a class="contact-cta-button" href="{{ route('contact.create') }}">
+                        @if ($responsibilityCtaLabel !== '')<a class="contact-cta-button" href="{{ \App\Support\Localization\FrontendRoute::url('contact.create') }}">
                             <span>{{ $responsibilityCtaLabel }}</span>
                             <i class="fa-duotone fa-thin fa-arrow-right" aria-hidden="true"></i>
-                        </a>
+                        </a>@endif
+
 
                         @if ($responsibilityCtaStatus !== '')
                             <small><span class="contact-cta-status-dot" aria-hidden="true"></span>{{ $responsibilityCtaStatus }}</small>
@@ -562,6 +591,7 @@
             </section>
         @endif
 
+        @if ($showReferences)
         <section class="ac-about-references" aria-labelledby="ac-about-references-title">
             <div class="ac-about-container">
                 <div class="ac-about-section-intro ac-about-reference-head">
@@ -617,6 +647,7 @@
                 </div>
             </div>
         </section>
+        @endif
 
         @if ($bottomBlocks->isNotEmpty())
             <section class="ac-about-blocks ac-about-blocks--bottom">@include('components.content-placement', ['items' => $bottomBlocks])</section>

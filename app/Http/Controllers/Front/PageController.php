@@ -13,10 +13,9 @@ use App\Models\Content\Support\Comment;
 use App\Models\Content\Team\TeamMember;
 use App\Services\Content\ContentBlockResolver;
 use App\Services\Content\GlossaryImportService;
-use App\Support\Content\AboutPageDefaults;
-use App\Support\Content\CareerPageDefaults;
 use App\Support\Content\ResourceDocumentGroupRegistry;
 use App\Support\Content\YouTubeUrl;
+use App\Support\Localization\FrontendLocalePolicy;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -31,7 +30,7 @@ class PageController extends Controller
     public function category(Request $request, string $slug): View
     {
         $locale = app()->getLocale();
-        $fallbackLocale = (string) config('app.locale');
+        $fallbackLocale = FrontendLocalePolicy::fallbackLocale((string) $locale, (string) config('app.locale'));
         $variant = $this->frontendVariant($request);
 
         $category = Category::query()
@@ -49,6 +48,10 @@ class PageController extends Controller
 
         $pages = InfoPage::query()
             ->where('is_active', true)
+            ->when(
+                FrontendLocalePolicy::requiresExactTranslation((string) $locale),
+                fn ($q) => $q->whereHas('translations', fn ($translationQuery) => $translationQuery->where('locale', $locale))
+            )
             ->where(function ($q): void {
                 $q->whereNull('published_at')
                     ->orWhere('published_at', '<=', now());
@@ -88,7 +91,13 @@ class PageController extends Controller
 
     private function pickTranslation(InfoPage $page, string $slug, string $locale, string $fallbackLocale)
     {
-        return $page->translations
+        $locales = FrontendLocalePolicy::queryLocales($locale, $fallbackLocale);
+
+        $translations = FrontendLocalePolicy::requiresExactTranslation($locale)
+            ? $page->translations->filter(fn ($translation): bool => in_array((string) ($translation->locale ?? ''), $locales, true))
+            : $page->translations;
+
+        return $translations
             ->sortBy(function ($translation) use ($slug, $locale, $fallbackLocale): int {
                 $tLocale = (string) ($translation->locale ?? '');
                 $tSlug = (string) ($translation->slug ?? '');
@@ -96,10 +105,9 @@ class PageController extends Controller
                 return match (true) {
                     $tLocale === $locale && $tSlug === $slug => 0,
                     $tLocale === $fallbackLocale && $tSlug === $slug => 1,
-                    $tSlug === $slug => 2,
-                    $tLocale === $locale => 3,
-                    $tLocale === $fallbackLocale => 4,
-                    default => 5,
+                    $tLocale === $locale => 2,
+                    $tLocale === $fallbackLocale => 3,
+                    default => 10,
                 };
             })
             ->first();
@@ -126,7 +134,7 @@ class PageController extends Controller
     public function show(Request $request, string $slug): View|RedirectResponse
     {
         $locale = app()->getLocale();
-        $fallbackLocale = (string) config('app.locale');
+        $fallbackLocale = FrontendLocalePolicy::fallbackLocale((string) $locale, (string) config('app.locale'));
         $variant = $this->frontendVariant($request);
 
         $pages = InfoPage::query()
@@ -135,12 +143,25 @@ class PageController extends Controller
                 $q->whereNull('published_at')
                     ->orWhere('published_at', '<=', now());
             })
-            ->whereHas('translations', function ($q) use ($slug): void {
-                $q->where('slug', $slug);
+            ->whereHas('translations', function ($q) use ($slug, $locale): void {
+                $q->where('slug', $slug)
+                    ->when(
+                        FrontendLocalePolicy::requiresExactTranslation((string) $locale),
+                        fn ($translationQuery) => $translationQuery->where('locale', $locale)
+                    );
             })
             ->with([
-                'translations',
+                'translations' => fn ($query) => $query->when(
+                    FrontendLocalePolicy::requiresExactTranslation((string) $locale),
+                    fn ($translationQuery) => $translationQuery->whereIn('locale', [$locale, $fallbackLocale])
+                ),
                 'categories' => fn ($query) => $query
+                    ->when(
+                        FrontendLocalePolicy::requiresExactTranslation((string) $locale),
+                        fn ($categoryQuery) => $categoryQuery->whereHas('translations', fn ($translationQuery) => $translationQuery
+                            ->where('scope', Category::SCOPE_PAGE)
+                            ->where('locale', $locale))
+                    )
                     ->orderBy('content_info_page_category.sort_order')
                     ->with([
                         'translations' => fn ($translationQuery) => $translationQuery
@@ -157,6 +178,22 @@ class PageController extends Controller
         abort_if(! $page, 404);
 
         $selectedTranslation = $this->pickTranslation($page, $slug, (string) $locale, $fallbackLocale);
+        abort_if(! $selectedTranslation, 404);
+
+        $canonicalSlug = trim((string) ($selectedTranslation->slug ?? ''));
+        if ($canonicalSlug !== '' && $canonicalSlug !== $slug) {
+            $canonicalUrl = route('pages.show', ['slug' => $canonicalSlug]);
+            $queryString = $request->getQueryString();
+
+            if ($queryString) {
+                $canonicalUrl .= '?'.$queryString;
+            }
+
+            // The canonical slug depends on the visitor's selected language.
+            // Keep this redirect temporary so browsers do not cache an HR target
+            // and reuse it after the visitor switches to English (or vice versa).
+            return redirect()->to($canonicalUrl);
+        }
 
         $topBlocks = app(ContentBlockResolver::class)->forPlacement(
             placement: 'page.top',
@@ -186,10 +223,7 @@ class PageController extends Controller
         }
 
         if ($page->layout === 'career') {
-            $careerContent = $this->resolveCareerContent(
-                $selectedTranslation?->payload,
-                (string) ($selectedTranslation?->locale ?: $locale)
-            );
+            $careerContent = $this->resolveCareerContent($selectedTranslation?->payload);
 
             return view($this->frontendView($request, 'pages.career'), [
                 'page' => $page,
@@ -203,6 +237,14 @@ class PageController extends Controller
         }
 
         if ($page->layout === 'about') {
+            $aboutRequiresExactTranslation = FrontendLocalePolicy::requiresExactTranslation((string) $locale);
+            if ($aboutRequiresExactTranslation) {
+                $exactLocaleBlock = static fn ($item): bool => strtolower(trim((string) data_get($item, 'translation.locale', '')))
+                    === strtolower(trim((string) $locale));
+                $topBlocks = $topBlocks->filter($exactLocaleBlock)->values();
+                $bottomBlocks = $bottomBlocks->filter($exactLocaleBlock)->values();
+            }
+
             $aboutTeamMembers = $this->resolveAboutTeamMembers(
                 (string) $locale,
                 $fallbackLocale
@@ -215,20 +257,23 @@ class PageController extends Controller
             return view($this->frontendView($request, 'pages.about'), [
                 'page' => $page,
                 'selectedTranslation' => $selectedTranslation,
-                'aboutContent' => $this->resolveAboutContent(
-                    $selectedTranslation?->payload,
-                    (string) ($selectedTranslation?->locale ?: $locale)
-                ),
+                'aboutContent' => $this->resolveAboutContent($selectedTranslation?->payload),
                 'aboutTeamMembers' => $aboutTeamMembers,
                 'aboutReferenceItems' => $aboutReferenceItems,
                 'topBlocks' => $topBlocks,
                 'bottomBlocks' => $bottomBlocks,
                 'locale' => $locale,
                 'fallbackLocale' => $fallbackLocale,
+                'aboutRequiresExactTranslation' => $aboutRequiresExactTranslation,
             ]);
         }
 
         if ($page->layout === 'academy') {
+            if (FrontendLocalePolicy::requiresExactTranslation((string) $locale)) {
+                $academyPrograms = data_get($selectedTranslation?->payload, 'academy_programs');
+                abort_unless(is_array($academyPrograms) && $academyPrograms !== [], 404);
+            }
+
             [$academyBlogCategory, $academyBlogPosts] = $this->resolveAcademyBlogFeed(
                 $page,
                 (string) $locale,
@@ -315,21 +360,23 @@ class PageController extends Controller
     /**
      * @return array<string, mixed>
      */
-    private function resolveCareerContent(mixed $translationPayload, string $locale): array
+    private function resolveCareerContent(mixed $translationPayload): array
     {
         $payload = is_array($translationPayload) ? $translationPayload : [];
+        $content = $payload['career_page'] ?? null;
 
-        return CareerPageDefaults::merge($payload['career_page'] ?? null, $locale);
+        return is_array($content) ? $content : [];
     }
 
     /**
      * @return array<string, mixed>
      */
-    private function resolveAboutContent(mixed $translationPayload, string $locale): array
+    private function resolveAboutContent(mixed $translationPayload): array
     {
         $payload = is_array($translationPayload) ? $translationPayload : [];
+        $content = $payload['about_page'] ?? null;
 
-        return AboutPageDefaults::merge($payload['about_page'] ?? null, $locale);
+        return is_array($content) ? $content : [];
     }
 
     /**
@@ -339,7 +386,17 @@ class PageController extends Controller
     {
         return TeamMember::query()
             ->where('is_active', true)
-            ->with(['translations', 'media'])
+            ->when(
+                FrontendLocalePolicy::requiresExactTranslation($locale),
+                fn ($query) => $query->whereHas('translations', fn ($translationQuery) => $translationQuery->where('locale', $locale))
+            )
+            ->with([
+                'translations' => fn ($query) => $query->when(
+                    FrontendLocalePolicy::requiresExactTranslation($locale),
+                    fn ($translationQuery) => $translationQuery->whereIn('locale', [$locale, $fallbackLocale])
+                ),
+                'media',
+            ])
             ->orderBy('sort_order')
             ->orderBy('id')
             ->limit(4)
@@ -357,11 +414,21 @@ class PageController extends Controller
         $referencePage = InfoPage::query()
             ->where('code', 'references')
             ->where('is_active', true)
+            ->when(
+                FrontendLocalePolicy::requiresExactTranslation($locale),
+                fn ($query) => $query->whereHas('translations', fn ($translationQuery) => $translationQuery->where('locale', $locale))
+            )
             ->where(function ($query): void {
                 $query->whereNull('published_at')
                     ->orWhere('published_at', '<=', now());
             })
-            ->with(['translations', 'media'])
+            ->with([
+                'translations' => fn ($query) => $query->when(
+                    FrontendLocalePolicy::requiresExactTranslation($locale),
+                    fn ($translationQuery) => $translationQuery->whereIn('locale', [$locale, $fallbackLocale])
+                ),
+                'media',
+            ])
             ->first();
 
         if (! $referencePage) {
@@ -469,6 +536,12 @@ class PageController extends Controller
         $category = Category::query()
             ->where('scope', Category::SCOPE_BLOG)
             ->whereKey($categoryId)
+            ->when(
+                FrontendLocalePolicy::requiresExactTranslation($locale),
+                fn ($query) => $query->whereHas('translations', fn ($translationQuery) => $translationQuery
+                    ->where('scope', Category::SCOPE_BLOG)
+                    ->where('locale', $locale))
+            )
             ->with([
                 'translations' => fn ($query) => $query
                     ->where('scope', Category::SCOPE_BLOG)
@@ -482,6 +555,11 @@ class PageController extends Controller
 
         $posts = BlogPost::query()
             ->where('is_active', true)
+            ->when(
+                FrontendLocalePolicy::requiresExactTranslation($locale),
+                fn (Builder $query) => $query->whereHas('translations', fn (Builder $translationQuery) => $translationQuery
+                    ->where('locale', $locale))
+            )
             ->where(function (Builder $query): void {
                 $query->whereNull('published_at')
                     ->orWhere('published_at', '<=', now());
@@ -493,6 +571,12 @@ class PageController extends Controller
                 'translations' => fn ($query) => $query->whereIn('locale', [$locale, $fallbackLocale]),
                 'categories' => fn ($query) => $query
                     ->where('scope', Category::SCOPE_BLOG)
+                    ->when(
+                        FrontendLocalePolicy::requiresExactTranslation($locale),
+                        fn ($categoryQuery) => $categoryQuery->whereHas('translations', fn ($translationQuery) => $translationQuery
+                            ->where('scope', Category::SCOPE_BLOG)
+                            ->where('locale', $locale))
+                    )
                     ->with([
                         'translations' => fn ($translationQuery) => $translationQuery
                             ->where('scope', Category::SCOPE_BLOG)
@@ -570,6 +654,11 @@ class PageController extends Controller
 
         $documentsById = ResourceDocument::query()
             ->where('is_active', true)
+            ->when(
+                FrontendLocalePolicy::requiresExactTranslation($locale),
+                fn (Builder $query) => $query->whereHas('translations', fn (Builder $translationQuery) => $translationQuery
+                    ->where('locale', $locale))
+            )
             ->where(function (Builder $query): void {
                 $query->whereNull('published_at')
                     ->orWhere('published_at', '<=', now());
@@ -805,6 +894,11 @@ class PageController extends Controller
         $terms = GlossaryTerm::query()
             ->where('is_active', true)
             ->where('collection_code', $collectionCode)
+            ->when(
+                FrontendLocalePolicy::requiresExactTranslation($locale),
+                fn (Builder $query) => $query->whereHas('translations', fn (Builder $translationQuery) => $translationQuery
+                    ->where('locale', $locale))
+            )
             ->with([
                 'translations' => fn ($query) => $query->whereIn('locale', [$locale, $fallbackLocale]),
             ])

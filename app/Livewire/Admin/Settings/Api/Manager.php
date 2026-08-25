@@ -18,6 +18,7 @@ class Manager extends Component
     use WithPagination;
 
     private const USERS_PAGE_NAME = 'adminApiUsersPage';
+
     private const TOKENS_PAGE_NAME = 'adminApiTokensPage';
 
     public string $search = '';
@@ -104,6 +105,7 @@ class Manager extends Component
             }
 
             $this->dispatch('notify', type: 'warning', message: __('API disabled for :email. Revoked :count token(s).', ['email' => $user->email, 'count' => $revoked]));
+
             return;
         }
 
@@ -118,6 +120,7 @@ class Manager extends Component
 
         if (! (bool) $user->api_access_enabled) {
             $this->dispatch('notify', type: 'warning', message: __('Enable API access for this user before issuing token.'));
+
             return;
         }
 
@@ -161,6 +164,7 @@ class Manager extends Component
 
         if (! (bool) $user->api_access_enabled) {
             $this->addError('issueUserId', __('Selected user has API access disabled.'));
+
             return;
         }
 
@@ -284,7 +288,11 @@ class Manager extends Component
         $user = auth()->user();
 
         abort_unless(
-            $user && (Bouncer::is($user)->an('superadmin') || $user->can('settings.api.manage')),
+            $user && (
+                Bouncer::is($user)->an('superadmin')
+                || Bouncer::is($user)->an('admin')
+                || $user->can('settings.api.manage')
+            ),
             403
         );
     }

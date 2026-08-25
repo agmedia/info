@@ -28,7 +28,7 @@
 
     <div class="ac-site-search-shell">
         <div class="ac-site-search-hero">
-            <form action="{{ route('search.index') }}" method="get" class="ac-site-search-form" role="search">
+            <form action="{{ \App\Support\Localization\FrontendRoute::url('search.index') }}" method="get" class="ac-site-search-form" role="search">
                 <label for="search-page-query" class="sr-only">{{ __('ui.search.title') }}</label>
                 <div class="ac-site-search-input-wrap">
                     <span class="ac-site-search-input-icon" aria-hidden="true">

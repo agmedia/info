@@ -8,7 +8,7 @@ if (consentConfig) {
         .toLowerCase()
         .split(/[-_]/)[0];
     const language = locale === 'en' ? 'en' : 'hr';
-    const privacyUrl = consentConfig.dataset.privacyUrl || '/politika-privatnosti';
+    const privacyUrl = consentConfig.dataset.privacyUrl || '';
     const policyLabel = consentConfig.dataset.policyLabel
         || (language === 'en' ? 'Read the privacy policy' : 'Pročitajte politiku privatnosti');
     const escapedPrivacyUrl = privacyUrl.replace(/[&<>"']/g, (character) => ({
@@ -18,12 +18,15 @@ if (consentConfig) {
         '"': '&quot;',
         "'": '&#039;',
     })[character]);
+    const policyLink = escapedPrivacyUrl
+        ? ` <a href="${escapedPrivacyUrl}">${policyLabel}</a>.`
+        : '';
 
     const translations = {
         hr: {
             consentModal: {
                 title: 'Kolačići i privatnost',
-                description: `Alpha Capitalis koristi nužne kolačiće za ispravan i siguran rad stranice. Uz vašu privolu analitički i marketinški kolačići pomažu nam poboljšati sadržaj i komunikaciju. <a href="${escapedPrivacyUrl}">${policyLabel}</a>.`,
+                description: `Alpha Capitalis koristi nužne kolačiće za ispravan i siguran rad stranice. Uz vašu privolu analitički i marketinški kolačići pomažu nam poboljšati sadržaj i komunikaciju.${policyLink}`,
                 acceptAllBtn: 'Prihvati sve',
                 acceptNecessaryBtn: 'Samo nužni',
                 showPreferencesBtn: 'Postavke',
@@ -56,7 +59,7 @@ if (consentConfig) {
         en: {
             consentModal: {
                 title: 'Cookies and privacy',
-                description: `Alpha Capitalis uses necessary cookies to keep this website secure and working correctly. With your consent, analytics and marketing cookies help us improve our content and communication. <a href="${escapedPrivacyUrl}">${policyLabel}</a>.`,
+                description: `Alpha Capitalis uses necessary cookies to keep this website secure and working correctly. With your consent, analytics and marketing cookies help us improve our content and communication.${policyLink}`,
                 acceptAllBtn: 'Accept all',
                 acceptNecessaryBtn: 'Necessary only',
                 showPreferencesBtn: 'Settings',

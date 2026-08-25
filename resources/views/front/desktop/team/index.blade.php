@@ -1,8 +1,10 @@
 @extends('front.desktop.layouts.store')
 
 @php
-    $careerEmail = 'info@alphacapitalis.com';
-    $careerUrl = 'mailto:'.$careerEmail.'?subject='.rawurlencode((string) __('ui.team.career_email_subject'));
+    $careerEmail = trim((string) ($storeSettings['footer']['email_support'] ?? ''));
+    $careerUrl = $careerEmail !== ''
+        ? 'mailto:'.$careerEmail.'?subject='.rawurlencode((string) __('ui.team.career_email_subject'))
+        : '';
     $isCroatian = str_starts_with(strtolower((string) $locale), 'hr');
     $teamTitleLead = 'ALPHA CAPITALIS';
     $teamTitleAccent = $isCroatian ? 'Tim' : 'Team';
@@ -232,10 +234,12 @@
                                 </label>
                             @endif
                         </div>
-                        <a class="contact-cta-button" href="{{ $careerUrl }}">
-                            <span>{{ __('ui.team.career_button') }}</span>
-                            <i class="fa-duotone fa-thin fa-arrow-right" aria-hidden="true"></i>
-                        </a>
+                        @if ($careerUrl !== '')
+                            <a class="contact-cta-button" href="{{ $careerUrl }}">
+                                <span>{{ __('ui.team.career_button') }}</span>
+                                <i class="fa-duotone fa-thin fa-arrow-right" aria-hidden="true"></i>
+                            </a>
+                        @endif
                     </div>
                 </div>
             </section>

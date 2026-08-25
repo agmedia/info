@@ -3,6 +3,7 @@
 namespace App\Services\Content;
 
 use App\Models\Content\ContentBlockSlot;
+use App\Support\Localization\FrontendLocalePolicy;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Schema;
@@ -42,11 +43,12 @@ class ContentBlockResolver
             $cacheKey,
             (int) config('content_blocks.cache.ttl_seconds', 3600),
             function () use ($placement, $locale, $targetType, $targetRef, $frontendVariant, $strictVariant): Collection {
+                $fallbackLocale = FrontendLocalePolicy::fallbackLocale((string) $locale, (string) config('app.locale'));
                 $baseQuery = ContentBlockSlot::query()
                     ->with([
                         'block',
                         'block.items',
-                        'block.translations' => fn ($q) => $q->whereIn('locale', [$locale, config('app.locale')]),
+                        'block.translations' => fn ($q) => $q->whereIn('locale', [$locale, $fallbackLocale]),
                     ])
                     ->where('placement', $placement)
                     ->currentlyActive()
@@ -98,18 +100,24 @@ class ContentBlockResolver
                         ->get();
                 }
 
-                return $slots->map(function (ContentBlockSlot $slot) use ($locale) {
+                return $slots->map(function (ContentBlockSlot $slot) use ($locale, $fallbackLocale) {
                     $block = $slot->block;
-                    $translation = $block->translations->firstWhere('locale', $locale)
-                        ?? $block->translations->firstWhere('locale', config('app.locale'))
-                        ?? null;
+                    $translation = $block->translations->firstWhere('locale', $locale);
+
+                    if (! $translation) {
+                        if (FrontendLocalePolicy::requiresExactTranslation((string) $locale)) {
+                            return null;
+                        }
+
+                        $translation = $block->translations->firstWhere('locale', $fallbackLocale);
+                    }
 
                     return [
                         'slot' => $slot,
                         'block' => $block,
                         'translation' => $translation,
                     ];
-                });
+                })->filter()->values();
             }
         );
     }

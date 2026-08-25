@@ -9,6 +9,7 @@ use App\Models\Content\Blog\BlogPost;
 use App\Models\Content\Blog\BlogPostTranslation;
 use App\Services\Content\ContentBlockResolver;
 use App\Services\Front\StoreSettingsService;
+use App\Support\Localization\FrontendLocalePolicy;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Http\RedirectResponse;
@@ -68,7 +69,7 @@ class BlogController extends Controller
     public function show(Request $request, string $slug): View
     {
         $locale = app()->getLocale();
-        $fallbackLocale = (string) config('app.fallback_locale', config('app.locale'));
+        $fallbackLocale = $this->fallbackLocale((string) $locale);
         $resolvedCategory = $this->resolveBlogCategoryBySlug($slug, $locale, $fallbackLocale);
 
         if ($resolvedCategory) {
@@ -87,6 +88,12 @@ class BlogController extends Controller
                 'translations' => fn ($query) => $query->whereIn('locale', [$locale, $fallbackLocale]),
                 'categories' => fn ($query) => $query
                     ->where('scope', Category::SCOPE_BLOG)
+                    ->when(
+                        FrontendLocalePolicy::requiresExactTranslation((string) $locale),
+                        fn ($categoryQuery) => $categoryQuery->whereHas('translations', fn ($translationQuery) => $translationQuery
+                            ->where('scope', Category::SCOPE_BLOG)
+                            ->where('locale', $locale))
+                    )
                     ->with([
                         'translations' => fn ($translationQuery) => $translationQuery
                             ->where('scope', Category::SCOPE_BLOG)
@@ -114,7 +121,7 @@ class BlogController extends Controller
         $locale = preg_match('/^[a-z]{2}(?:[-_][a-z]{2})?$/', $requestedLocale) === 1
             ? $requestedLocale
             : (string) app()->getLocale();
-        $fallbackLocale = (string) config('app.fallback_locale', config('app.locale'));
+        $fallbackLocale = $this->fallbackLocale($locale);
         $locales = array_values(array_unique([$locale, $fallbackLocale]));
 
         app()->setLocale($locale);
@@ -132,7 +139,7 @@ class BlogController extends Controller
             'media',
         ]);
 
-        abort_unless($post->translations->isNotEmpty(), 404);
+        abort_unless($post->translations->firstWhere('locale', $locale), 404);
 
         return view($this->frontendView($request, 'blog.show'), [
             'post' => $post,
@@ -146,7 +153,7 @@ class BlogController extends Controller
     public function legacy(Request $request, string $year, string $month, string $day, string $slug): RedirectResponse
     {
         $locale = app()->getLocale();
-        $fallbackLocale = (string) config('app.fallback_locale', config('app.locale'));
+        $fallbackLocale = $this->fallbackLocale((string) $locale);
         $legacyPath = sprintf('/%s/%s/%s/%s', $year, $month, $day, $slug);
         $translation = $this->resolveLegacyTranslation($legacyPath, $slug, $locale, $fallbackLocale);
 
@@ -175,7 +182,19 @@ class BlogController extends Controller
     private function renderIndex(Request $request, ?Category $currentCategory = null): View
     {
         $locale = app()->getLocale();
-        $fallbackLocale = (string) config('app.fallback_locale', config('app.locale'));
+        $fallbackLocale = $this->fallbackLocale((string) $locale);
+
+        if (FrontendLocalePolicy::requiresExactTranslation((string) $locale)) {
+            $hasLocalizedPosts = BlogPost::query()
+                ->tap(function (Builder $query): void {
+                    $this->applyFrontPublishedConstraints($query);
+                })
+                ->whereHas('translations', fn (Builder $query) => $query->where('locale', $locale))
+                ->exists();
+
+            abort_unless($hasLocalizedPosts, 404);
+        }
+
         $variant = $this->frontendVariant($request);
         $searchTerm = trim((string) $request->query('q', ''));
         $selectedCategoryIds = $currentCategory
@@ -187,9 +206,20 @@ class BlogController extends Controller
         $categories = Category::query()
             ->where('scope', Category::SCOPE_BLOG)
             ->where('is_active', true)
+            ->when(
+                FrontendLocalePolicy::requiresExactTranslation((string) $locale),
+                fn (Builder $query) => $query->whereHas('translations', fn (Builder $translationQuery) => $translationQuery
+                    ->where('scope', Category::SCOPE_BLOG)
+                    ->where('locale', $locale))
+            )
             ->withCount([
-                'blogPosts as published_posts_count' => function ($query): void {
+                'blogPosts as published_posts_count' => function ($query) use ($locale): void {
                     $this->applyFrontPublishedConstraints($query);
+                    $query->when(
+                        FrontendLocalePolicy::requiresExactTranslation((string) $locale),
+                        fn ($postQuery) => $postQuery->whereHas('translations', fn (Builder $translationQuery) => $translationQuery
+                            ->where('locale', $locale))
+                    );
                 },
             ])
             ->with([
@@ -213,10 +243,21 @@ class BlogController extends Controller
             ->tap(function (Builder $query): void {
                 $this->applyFrontPublishedConstraints($query);
             })
+            ->when(
+                FrontendLocalePolicy::requiresExactTranslation((string) $locale),
+                fn (Builder $query) => $query->whereHas('translations', fn (Builder $translationQuery) => $translationQuery
+                    ->where('locale', $locale))
+            )
             ->with([
                 'translations' => fn ($query) => $query->whereIn('locale', [$locale, $fallbackLocale]),
                 'categories' => fn ($query) => $query
                     ->where('scope', Category::SCOPE_BLOG)
+                    ->when(
+                        FrontendLocalePolicy::requiresExactTranslation((string) $locale),
+                        fn ($categoryQuery) => $categoryQuery->whereHas('translations', fn ($translationQuery) => $translationQuery
+                            ->where('scope', Category::SCOPE_BLOG)
+                            ->where('locale', $locale))
+                    )
                     ->with([
                         'translations' => fn ($translationQuery) => $translationQuery
                             ->where('scope', Category::SCOPE_BLOG)
@@ -272,10 +313,10 @@ class BlogController extends Controller
         return Category::query()
             ->where('scope', Category::SCOPE_BLOG)
             ->where('is_active', true)
-            ->whereHas('translations', function (Builder $query) use ($slug, $locale, $fallbackLocale): void {
+            ->whereHas('translations', function (Builder $query) use ($slug, $locale): void {
                 $query
                     ->where('scope', Category::SCOPE_BLOG)
-                    ->whereIn('locale', [$locale, $fallbackLocale])
+                    ->where('locale', $locale)
                     ->where('slug', $slug);
             })
             ->first();
@@ -285,7 +326,7 @@ class BlogController extends Controller
     {
         $locales = array_values(array_unique(array_filter([$locale, $fallbackLocale])));
 
-        return BlogPostTranslation::query()
+        $translation = BlogPostTranslation::query()
             ->when($locales !== [], fn (Builder $query) => $query->whereIn('locale', $locales))
             ->where(function (Builder $query) use ($legacyPath, $slug): void {
                 $query
@@ -297,11 +338,16 @@ class BlogController extends Controller
                     });
             })
             ->orderByDesc('id')
-            ->first()
-            ?? BlogPostTranslation::query()
-                ->where('payload->legacy_path', $legacyPath)
-                ->orderByDesc('id')
-                ->first();
+            ->first();
+
+        if ($translation || FrontendLocalePolicy::requiresExactTranslation($locale)) {
+            return $translation;
+        }
+
+        return BlogPostTranslation::query()
+            ->where('payload->legacy_path', $legacyPath)
+            ->orderByDesc('id')
+            ->first();
     }
 
     /**
@@ -326,10 +372,21 @@ class BlogController extends Controller
             ->tap(function (Builder $query): void {
                 $this->applyFrontPublishedConstraints($query);
             })
+            ->when(
+                FrontendLocalePolicy::requiresExactTranslation($locale),
+                fn (Builder $query) => $query->whereHas('translations', fn (Builder $translationQuery) => $translationQuery
+                    ->where('locale', $locale))
+            )
             ->with([
                 'translations' => fn ($query) => $query->whereIn('locale', [$locale, $fallbackLocale]),
                 'categories' => fn ($query) => $query
                     ->where('scope', Category::SCOPE_BLOG)
+                    ->when(
+                        FrontendLocalePolicy::requiresExactTranslation($locale),
+                        fn ($categoryQuery) => $categoryQuery->whereHas('translations', fn ($translationQuery) => $translationQuery
+                            ->where('scope', Category::SCOPE_BLOG)
+                            ->where('locale', $locale))
+                    )
                     ->with([
                         'translations' => fn ($translationQuery) => $translationQuery
                             ->where('scope', Category::SCOPE_BLOG)
@@ -377,6 +434,12 @@ class BlogController extends Controller
                 'translations' => fn ($query) => $query->whereIn('locale', [$locale, $fallbackLocale]),
                 'categories' => fn ($query) => $query
                     ->where('scope', Category::SCOPE_BLOG)
+                    ->when(
+                        FrontendLocalePolicy::requiresExactTranslation($locale),
+                        fn ($categoryQuery) => $categoryQuery->whereHas('translations', fn ($translationQuery) => $translationQuery
+                            ->where('scope', Category::SCOPE_BLOG)
+                            ->where('locale', $locale))
+                    )
                     ->with([
                         'translations' => fn ($translationQuery) => $translationQuery
                             ->where('scope', Category::SCOPE_BLOG)
@@ -551,6 +614,14 @@ class BlogController extends Controller
                     ->whereNull('published_at')
                     ->orWhere('published_at', '<=', now());
             });
+    }
+
+    private function fallbackLocale(string $locale): string
+    {
+        return FrontendLocalePolicy::fallbackLocale(
+            $locale,
+            (string) config('app.fallback_locale', config('app.locale'))
+        );
     }
 
     /**

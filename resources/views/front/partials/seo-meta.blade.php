@@ -5,6 +5,17 @@
 
     $locale = (string) ($locale ?? app()->getLocale());
     $fallbackLocale = (string) ($fallbackLocale ?? config('app.locale'));
+    $requiresExactTranslation = \App\Support\Localization\FrontendLocalePolicy::requiresExactTranslation($locale);
+    $isServicesIndexRoute = request()->routeIs('services.index', 'services.index.en');
+    $isAccountingRoute = request()->routeIs('accounting.show', 'accounting.show.en');
+    $isAuditRoute = request()->routeIs('audit.show', 'audit.show.en');
+    $isEuFundsRoute = request()->routeIs('eu-funds.show', 'eu-funds.show.en');
+    $isCallRoute = request()->routeIs('eu-funds.calls.show', 'eu-funds.calls.show.en');
+    $isServiceContentRoute = $isServicesIndexRoute
+        || $isAccountingRoute
+        || $isAuditRoute
+        || $isEuFundsRoute
+        || request()->routeIs('advisory.*', 'finance.show', 'tax.show');
 
     $cleanupText = static function (mixed $value, int $limit = 320): string {
         $plain = trim((string) strip_tags((string) $value));
@@ -20,11 +31,14 @@
     $defaultTitle = trim((string) ($seoSettings['default_title'] ?? ''));
     $defaultDescription = $cleanupText($seoSettings['default_description'] ?? '', 320);
     $sectionTitle = trim((string) \Illuminate\Support\Facades\View::yieldContent('title'));
+    $sectionDescription = $cleanupText(\Illuminate\Support\Facades\View::yieldContent('description'), 320);
 
     $title = $sectionTitle !== ''
         ? $sectionTitle
         : ($defaultTitle !== '' ? $defaultTitle : (string) config('app.name', 'AG Shop'));
-    $description = $defaultDescription;
+    $description = $sectionDescription !== ''
+        ? $sectionDescription
+        : ($requiresExactTranslation ? '' : $defaultDescription);
     $robots = trim((string) ($seoSettings['robots'] ?? 'index,follow'));
     $canonicalPolicy = (string) ($seoSettings['canonical_policy'] ?? 'self');
     $canonicalUrl = $canonicalPolicy === 'self' ? url()->current() : '';
@@ -38,8 +52,8 @@
     $ogImage = (string) ($ogSettings['default_image_url'] ?? '');
 
     if (request()->routeIs('home')) {
-        $title = $defaultTitle !== '' ? $defaultTitle : $title;
-        $description = $defaultDescription;
+        $title = $sectionTitle !== '' ? $sectionTitle : ($defaultTitle !== '' ? $defaultTitle : $title);
+        $description = $sectionDescription !== '' ? $sectionDescription : $defaultDescription;
         $ogImage = (string) ($ogSettings['home_image_url'] ?? $ogImage);
     }
 
@@ -125,7 +139,7 @@
         $description = $cleanupText((string) __('ui.faq.subtitle'), 320);
     }
 
-    if (request()->routeIs('team.index')) {
+    if (request()->routeIs('team.index', 'team.index.en')) {
         $translation = $teamPageTranslation
             ?? ($teamPage?->translations->firstWhere('locale', $locale) ?? null)
             ?? ($teamPage?->translations->firstWhere('locale', $fallbackLocale) ?? null)
@@ -134,72 +148,80 @@
         $description = $cleanupText($translation?->meta_description ?: $translation?->excerpt ?: (string) __('ui.team.subtitle'), 320);
     }
 
-    if (request()->routeIs('services.index')) {
+    if ($isServicesIndexRoute) {
         $title = $cleanupText((string) ($servicePageMetaTitle ?? $servicePageTitle ?? $title), 191);
-        $description = $cleanupText((string) ($servicePageMetaDescription ?? $description), 320);
+        $localizedDescription = $cleanupText((string) ($servicePageMetaDescription ?? ''), 320);
+        $description = $localizedDescription !== '' || $requiresExactTranslation ? $localizedDescription : $description;
     }
 
     if (request()->routeIs('advisory.*')) {
         $title = $cleanupText((string) ($servicePageMetaTitle ?? $servicePageTitle ?? $title), 191);
-        $description = $cleanupText((string) ($servicePageMetaDescription ?? $description), 320);
+        $localizedDescription = $cleanupText((string) ($servicePageMetaDescription ?? ''), 320);
+        $description = $localizedDescription !== '' || $requiresExactTranslation ? $localizedDescription : $description;
 
         if (trim((string) ($servicePageOgImage ?? '')) !== '') {
             $ogImage = (string) $servicePageOgImage;
         }
     }
 
-    if (request()->routeIs('finance.show') || request()->routeIs('advisory.finance.show')) {
+    if (request()->routeIs('finance.show', 'advisory.finance.show', 'advisory.finance.show.en')) {
         $title = $cleanupText((string) ($servicePageMetaTitle ?? $servicePageTitle ?? $title), 191);
-        $description = $cleanupText((string) ($servicePageMetaDescription ?? $description), 320);
+        $localizedDescription = $cleanupText((string) ($servicePageMetaDescription ?? ''), 320);
+        $description = $localizedDescription !== '' || $requiresExactTranslation ? $localizedDescription : $description;
 
         if (trim((string) ($servicePageOgImage ?? '')) !== '') {
             $ogImage = (string) $servicePageOgImage;
         }
     }
 
-    if (request()->routeIs('accounting.show')) {
+    if ($isAccountingRoute) {
         $title = $cleanupText((string) ($servicePageMetaTitle ?? $servicePageTitle ?? $title), 191);
-        $description = $cleanupText((string) ($servicePageMetaDescription ?? $description), 320);
+        $localizedDescription = $cleanupText((string) ($servicePageMetaDescription ?? ''), 320);
+        $description = $localizedDescription !== '' || $requiresExactTranslation ? $localizedDescription : $description;
 
         if (trim((string) ($servicePageOgImage ?? '')) !== '') {
             $ogImage = (string) $servicePageOgImage;
         }
     }
 
-    if (request()->routeIs('audit.show')) {
+    if ($isAuditRoute) {
         $title = $cleanupText((string) ($servicePageMetaTitle ?? $servicePageTitle ?? $title), 191);
-        $description = $cleanupText((string) ($servicePageMetaDescription ?? $description), 320);
+        $localizedDescription = $cleanupText((string) ($servicePageMetaDescription ?? ''), 320);
+        $description = $localizedDescription !== '' || $requiresExactTranslation ? $localizedDescription : $description;
 
         if (trim((string) ($servicePageOgImage ?? '')) !== '') {
             $ogImage = (string) $servicePageOgImage;
         }
     }
 
-    if (request()->routeIs('tax.show') || request()->routeIs('advisory.tax.show')) {
+    if (request()->routeIs('tax.show', 'advisory.tax.show', 'advisory.tax.show.en')) {
         $title = $cleanupText((string) ($servicePageMetaTitle ?? $servicePageTitle ?? $title), 191);
-        $description = $cleanupText((string) ($servicePageMetaDescription ?? $description), 320);
+        $localizedDescription = $cleanupText((string) ($servicePageMetaDescription ?? ''), 320);
+        $description = $localizedDescription !== '' || $requiresExactTranslation ? $localizedDescription : $description;
 
         if (trim((string) ($servicePageOgImage ?? '')) !== '') {
             $ogImage = (string) $servicePageOgImage;
         }
     }
 
-    if (request()->routeIs('eu-funds.show') || request()->routeIs('advisory.funding.show')) {
+    if ($isEuFundsRoute || request()->routeIs('advisory.funding.show', 'advisory.funding.show.en')) {
         $title = $cleanupText((string) ($servicePageMetaTitle ?? $servicePageTitle ?? $title), 191);
-        $description = $cleanupText((string) ($servicePageMetaDescription ?? $description), 320);
+        $localizedDescription = $cleanupText((string) ($servicePageMetaDescription ?? ''), 320);
+        $description = $localizedDescription !== '' || $requiresExactTranslation ? $localizedDescription : $description;
 
         if (trim((string) ($servicePageOgImage ?? '')) !== '') {
             $ogImage = (string) $servicePageOgImage;
         }
     }
 
-    if (request()->routeIs('eu-funds.calls.show') && isset($callPost)) {
+    if ($isCallRoute && isset($callPost)) {
         $ogType = 'article';
         $translation = $callPost->translations->firstWhere('locale', $locale)
-            ?? $callPost->translations->firstWhere('locale', $fallbackLocale)
-            ?? $callPost->translations->first();
+            ?? ($requiresExactTranslation ? null : $callPost->translations->firstWhere('locale', $fallbackLocale))
+            ?? ($requiresExactTranslation ? null : $callPost->translations->first());
         $title = $cleanupText($translation?->meta_title ?: $translation?->title ?: $title, 191);
-        $description = $cleanupText($translation?->meta_description ?: $translation?->excerpt ?: $translation?->body_html ?: $description, 320);
+        $localizedDescription = $cleanupText($translation?->meta_description ?: $translation?->excerpt ?: $translation?->body_html, 320);
+        $description = $localizedDescription !== '' || $requiresExactTranslation ? $localizedDescription : $description;
 
         if (method_exists($callPost, 'getFirstMediaUrl')) {
             $postImage = (string) ($callPost->getFirstMediaUrl('call_cover') ?: $callPost->getFirstMediaUrl());
@@ -209,7 +231,7 @@
         }
     }
 
-    if ($description === '') {
+    if ($description === '' && ! $requiresExactTranslation) {
         $description = $defaultDescription;
     }
 

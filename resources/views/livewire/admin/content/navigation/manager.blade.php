@@ -26,6 +26,56 @@
     </div>
 
     <div class="admin-panel admin-panel-soft p-5">
+        <h2 class="admin-section-title">{{ __('admin.content.navigation.chrome_title') }}</h2>
+        <p class="mt-1 text-sm text-slate-600">{{ __('admin.content.navigation.chrome_help', ['locale' => strtoupper($locale)]) }}</p>
+
+        <div class="mt-5 grid gap-5 xl:grid-cols-2">
+            <section class="rounded-xl border border-slate-200 bg-white p-4">
+                <h3 class="text-sm font-semibold text-slate-900">{{ __('admin.content.navigation.chrome_header') }}</h3>
+                <div class="mt-4 grid gap-4 sm:grid-cols-2">
+                    @foreach (['header_primary_cta_label', 'header_calculator_cta_label'] as $field)
+                        <div>
+                            <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
+                                {{ __('admin.content.navigation.chrome_fields.'.$field) }}
+                            </label>
+                            <input type="text" wire:model.blur="form.chrome.{{ $field }}" class="admin-search-input w-full rounded-xl border px-3 py-2 text-sm" />
+                            @error('form.chrome.'.$field) <p class="mt-1 text-xs text-rose-600">{{ $message }}</p> @enderror
+                        </div>
+                    @endforeach
+                </div>
+            </section>
+
+            <section class="rounded-xl border border-slate-200 bg-white p-4">
+                <h3 class="text-sm font-semibold text-slate-900">{{ __('admin.content.navigation.chrome_footer') }}</h3>
+                <div class="mt-4 grid gap-4 sm:grid-cols-2">
+                    @foreach ([
+                        'footer_newsletter_label',
+                        'footer_newsletter_title',
+                        'footer_newsletter_accent',
+                        'footer_newsletter_email_placeholder',
+                        'footer_newsletter_submit_label',
+                        'footer_tagline',
+                        'footer_services_label',
+                        'footer_contact_label',
+                        'footer_hours',
+                        'footer_copyright_text',
+                        'footer_cookie_settings_label',
+                        'footer_back_to_top_label',
+                    ] as $field)
+                        <div @class(['sm:col-span-2' => in_array($field, ['footer_newsletter_title', 'footer_tagline', 'footer_copyright_text'], true)])>
+                            <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
+                                {{ __('admin.content.navigation.chrome_fields.'.$field) }}
+                            </label>
+                            <input type="text" wire:model.blur="form.chrome.{{ $field }}" class="admin-search-input w-full rounded-xl border px-3 py-2 text-sm" />
+                            @error('form.chrome.'.$field) <p class="mt-1 text-xs text-rose-600">{{ $message }}</p> @enderror
+                        </div>
+                    @endforeach
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <div class="admin-panel admin-panel-soft p-5">
         <h2 class="admin-section-title">{{ __('admin.common.items') }}</h2>
 
         @if (empty($form['items']))

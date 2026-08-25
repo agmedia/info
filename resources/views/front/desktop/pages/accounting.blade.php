@@ -1,7 +1,6 @@
 @extends('front.desktop.layouts.store')
 
 @php
-    $isCroatian = str_starts_with(strtolower((string) ($locale ?? app()->getLocale())), 'hr');
     $legacyOverviewBody = array_values(array_filter(
         (array) ($overviewSection['body'] ?? []),
         static fn ($paragraph): bool => trim((string) $paragraph) !== '',
@@ -23,33 +22,17 @@
         static fn ($paragraph): bool => trim((string) $paragraph) !== '',
     ));
     $approachIntro = trim((string) ($approachSection['intro'] ?? ''));
-    $meetingTitle = trim((string) ($meetingSection['title'] ?? ''))
-        ?: ($isCroatian ? 'Razgovarajmo o vašem računovodstvu' : 'Let’s discuss your accounting');
-    $meetingIntro = trim((string) ($meetingSection['intro'] ?? ''))
-        ?: ($isCroatian
-            ? 'Javite nam se - procijenit ćemo vaše potrebe i predložiti model računovodstvene podrške.'
-            : 'Contact us and we will assess your needs and propose a suitable accounting support model.');
-    $meetingCardTitle = trim((string) ($meetingSection['contact_title'] ?? ''))
-        ?: ($isCroatian ? 'Kontaktirajte nas' : 'Contact us');
-    $meetingButtonLabel = trim((string) ($meetingSection['button_label'] ?? ''))
-        ?: ($isCroatian ? 'Dogovorite sastanak' : 'Schedule a meeting');
-    $meetingStatus = trim((string) ($meetingSection['status'] ?? ''))
-        ?: ($isCroatian ? 'Termin razgovora prilagođavamo vama.' : 'We arrange the meeting around your schedule.');
-    $heroLabel = trim((string) ($heroSection['subtitle_lead'] ?? '')) ?: ($isCroatian ? 'Računovodstvo' : 'Accounting');
-    $heroHook = trim((string) ($heroSection['intro'] ?? ''))
-        ?: ($isCroatian
-            ? 'Vi vodite poslovanje. Mi brinemo da Vaše brojke budu točne, pravovremene i spremne za svaku odluku.'
-            : 'You run the business. We make sure your numbers are accurate, timely, and ready for every decision.');
-    $heroImageAlt = trim((string) ($heroSection['image_alt'] ?? ''))
-        ?: ($isCroatian ? 'Računovodstvene i financijske usluge' : 'Accounting and financial services');
-    $blogHeadingTitle = trim((string) ($blogSection['title'] ?? ''))
-        ?: ($isCroatian
-            ? 'Stručni uvidi u računovodstvo, izvještavanje i poslovne brojke'
-            : 'Expert insights into accounting, reporting and business figures');
-    $allPostsLabel = trim((string) ($blogSection['all_posts_label'] ?? ''))
-        ?: ($isCroatian ? 'Pogledaj sve objave' : 'View all posts');
-    $postActionLabel = trim((string) ($blogSection['post_action_label'] ?? ''))
-        ?: ($isCroatian ? 'Opširnije' : 'Read more');
+    $meetingTitle = trim((string) ($meetingSection['title'] ?? ''));
+    $meetingIntro = trim((string) ($meetingSection['intro'] ?? ''));
+    $meetingCardTitle = trim((string) ($meetingSection['contact_title'] ?? ''));
+    $meetingButtonLabel = trim((string) ($meetingSection['button_label'] ?? ''));
+    $meetingStatus = trim((string) ($meetingSection['status'] ?? ''));
+    $heroLabel = trim((string) ($heroSection['subtitle_lead'] ?? ''));
+    $heroHook = trim((string) ($heroSection['intro'] ?? ''));
+    $heroImageAlt = trim((string) ($heroSection['image_alt'] ?? ''));
+    $blogHeadingTitle = trim((string) ($blogSection['title'] ?? ''));
+    $allPostsLabel = trim((string) ($blogSection['all_posts_label'] ?? ''));
+    $postActionLabel = trim((string) ($blogSection['post_action_label'] ?? ''));
     $currentHost = request()->getHost();
     $sameOriginAssetUrl = static function (?string $url) use ($currentHost): string {
         $assetUrl = trim((string) $url);
@@ -68,17 +51,10 @@
     };
     $heroImageUrl = $sameOriginAssetUrl((string) $heroBackgroundUrl);
     $headingWords = static fn (string $heading): array => preg_split('/\s+/u', trim($heading)) ?: [];
-    $overviewLead = $isCroatian
-        ? 'Mirnije poslovanje počinje jasnim i pouzdanim brojkama.'
-        : 'Calmer business operations begin with clear and reliable numbers.';
-    $legacyParagraphHtml = static function (mixed $paragraph, ?string $strongLead = null): string {
+    $legacyParagraphHtml = static function (mixed $paragraph): string {
         $paragraph = trim((string) $paragraph);
         if ($paragraph === '') {
             return '';
-        }
-
-        if ($strongLead !== null && str_starts_with($paragraph, $strongLead)) {
-            return '<p><strong>'.e($strongLead).'</strong>'.nl2br(e(\Illuminate\Support\Str::after($paragraph, $strongLead)), false).'</p>';
         }
 
         return '<p>'.nl2br(e($paragraph), false).'</p>';
@@ -88,18 +64,6 @@
             ->map(static fn ($paragraph): string => $legacyParagraphHtml($paragraph))
             ->filter()
             ->implode('');
-    };
-    $ensureOverviewLeadStrong = static function (string $html, string $lead): string {
-        if ($html === '' || $lead === '') {
-            return $html;
-        }
-
-        return (string) preg_replace_callback(
-            '/<p(\s[^>]*)?>\s*'.preg_quote(e($lead), '/').'/u',
-            static fn (array $matches): string => '<p'.($matches[1] ?? '').'><strong>'.e($lead).'</strong>',
-            $html,
-            1,
-        );
     };
     $normalizeRichHtml = static function (mixed $html): string {
         $html = trim((string) $html);
@@ -121,8 +85,7 @@
     $overviewBodyHtml = array_key_exists('body_html', $overviewSection)
         ? $normalizeRichHtml($overviewSection['body_html'])
         : $legacyParagraphHtml($overviewSection['intro'] ?? '')
-            .$legacyParagraphHtml($legacyOverviewBody[0] ?? '', $overviewLead);
-    $overviewBodyHtml = $ensureOverviewLeadStrong($overviewBodyHtml, $overviewLead);
+            .$legacyParagraphHtml($legacyOverviewBody[0] ?? '');
     $partnerBodyHtml = array_key_exists('partner_body_html', $overviewSection)
         ? $normalizeRichHtml($overviewSection['partner_body_html'])
         : $legacyParagraphsHtml(array_slice($legacyOverviewBody, 1));
@@ -137,14 +100,11 @@
     $partnerBodyBlocks = $richTextBlocks($partnerBodyHtml);
     $approachBodyBlocks = $richTextBlocks($approachBodyHtml);
     $overviewTitle = trim((string) ($overviewSection['title'] ?? ''));
-    $overviewTitleBreakIndex = in_array($overviewTitle, [
-        'Zašto Vam je računovodstvo bitno?',
-        'Why does accounting matter to you?',
-    ], true) ? 3 : null;
+    $overviewTitleBreakIndex = count($headingWords($overviewTitle)) > 3 ? 3 : null;
     $hasAccountingPosts = ($accountingPosts ?? collect())->isNotEmpty();
 @endphp
 
-@section('title', $servicePageMetaTitle !== '' ? $servicePageMetaTitle : ($servicePageTitle ?? $heroLabel))
+@section('title', $servicePageMetaTitle)
 @section('main_class', 'w-full px-0 py-0')
 
 @push('styles')
@@ -208,7 +168,7 @@
         @if ($partnerBodyBlocks !== [])
             <section
                 class="ac-audit-obligors ac-accounting-partner-note"
-                aria-label="{{ $isCroatian ? 'ALPHA CAPITALIS kao računovodstveni partner' : 'ALPHA CAPITALIS as your accounting partner' }}"
+                aria-label="{{ $overviewTitle }}"
             >
                 <div class="ac-audit-wide-shell ac-accounting-partner-note-shell">
                     <blockquote class="ac-accounting-partner-note-quote content-reveal" data-image-reveal>
@@ -298,17 +258,17 @@
                                 $postSlug = trim((string) ($translation?->slug ?? ''));
                                 $postUrl = $postSlug !== '' ? route('blog.show', ['slug' => $postSlug]) : route('blog.index');
                                 $postTitle = trim((string) ($translation?->title ?? $post->code));
-                                $postExcerpt = trim((string) ($translation?->excerpt ?? '')) ?: __('ui.blog.excerpt_fallback');
+                                $postExcerpt = trim((string) ($translation?->excerpt ?? ''));
                                 $postExcerpt = \Illuminate\Support\Str::limit($postExcerpt, 190, '...', true);
                                 $primaryCategory = $post->categories
                                     ->sortByDesc(fn ($category) => (int) ($category->pivot->is_primary ?? false))
                                     ->first();
                                 $categoryTranslation = $primaryCategory?->translations->firstWhere('locale', $locale)
                                     ?? $primaryCategory?->translations->firstWhere('locale', $fallbackLocale);
-                                $categoryLabel = trim((string) ($categoryTranslation?->name ?? ($isCroatian ? 'Novosti' : 'News')));
+                                $categoryLabel = trim((string) ($categoryTranslation?->name ?? $accountingCategoryName ?? ''));
                             @endphp
 
-                            <a class="news-card animation-index-{{ $loop->index }}" data-image-reveal href="{{ $postUrl }}" aria-label="{{ $isCroatian ? 'Otvori blog post' : 'Open blog post' }}: {{ $postTitle }}">
+                            <a class="news-card animation-index-{{ $loop->index }}" data-image-reveal href="{{ $postUrl }}" aria-label="{{ $postTitle }}">
                                 <span class="news-card-category">{{ $categoryLabel }}</span>
                                 <h3>{{ $postTitle }}</h3>
                                 <p>{{ $postExcerpt }}</p>
@@ -336,7 +296,7 @@
                 <div class="contact-cta-card" data-image-reveal>
                     <h3 class="contact-cta-card-heading">{{ $meetingCardTitle }}</h3>
                     <p>{{ $meetingIntro }}</p>
-                    <a class="contact-cta-button" href="{{ route('contact.create') }}">
+                    <a class="contact-cta-button" href="{{ \App\Support\Localization\FrontendRoute::url('contact.create') }}">
                         <span>{{ $meetingButtonLabel }}</span>
                         <i class="fa-duotone fa-thin fa-arrow-right" aria-hidden="true"></i>
                     </a>

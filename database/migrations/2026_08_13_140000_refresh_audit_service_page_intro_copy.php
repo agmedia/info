@@ -50,27 +50,36 @@ return new class extends Migration
                 ->where('locale', $locale)
                 ->first(['id', 'payload']);
 
-            if (! $translation) {
+            // An existing CMS translation is authoritative even when its payload
+            // is intentionally empty. This migration may seed a missing locale,
+            // but it must never re-populate an editor-cleared value.
+            if ($translation) {
                 continue;
             }
 
-            $payload = json_decode((string) ($translation->payload ?? ''), true);
-            $payload = is_array($payload) ? $payload : [];
-            $payload['hero'] = is_array($payload['hero'] ?? null) ? $payload['hero'] : [];
-            $payload['overview'] = is_array($payload['overview'] ?? null) ? $payload['overview'] : [];
+            $slug = ServicePageTemplateRegistry::canonicalStructuralSlug($templateKey, $locale);
+            if (! is_string($slug) || $slug === '') {
+                continue;
+            }
 
-            $payload['hero']['intro'] = $copy['hero_intro'];
-            $payload['overview']['title'] = $copy['overview_title'];
-            $payload['overview']['highlight_title'] = $copy['overview_title'];
-            $payload['overview']['intro'] = '';
-            $payload['overview']['body'] = $copy['overview_body'];
-
-            DB::table('content_service_page_translations')
-                ->where('id', $translation->id)
-                ->update([
-                    'payload' => json_encode($payload, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES),
-                    'updated_at' => now(),
-                ]);
+            DB::table('content_service_page_translations')->insert([
+                'service_page_id' => $servicePageId,
+                'locale' => $locale,
+                'title' => $locale === 'hr' ? 'Revizija' : 'Audit',
+                'slug' => $slug,
+                'meta_title' => null,
+                'meta_description' => null,
+                'payload' => json_encode([
+                    'hero' => ['intro' => $copy['hero_intro']],
+                    'overview' => [
+                        'title' => $copy['overview_title'],
+                        'highlight_title' => $copy['overview_title'],
+                        'body' => $copy['overview_body'],
+                    ],
+                ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES),
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
         }
     }
 

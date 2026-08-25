@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Front;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\Front\Concerns\ResolvesFrontendView;
 use App\Services\Front\SiteSearchService;
+use App\Support\Localization\FrontendLocalePolicy;
+use App\Support\Localization\FrontendRoute;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
@@ -17,7 +19,10 @@ class SearchController extends Controller
     public function index(Request $request, SiteSearchService $siteSearch): View
     {
         $locale = (string) app()->getLocale();
-        $fallbackLocale = (string) config('app.fallback_locale', config('app.locale'));
+        $fallbackLocale = FrontendLocalePolicy::fallbackLocale(
+            $locale,
+            (string) config('app.fallback_locale', config('app.locale'))
+        );
         $query = trim((string) $request->query('q', ''));
         $results = $siteSearch->search($query, $locale, $fallbackLocale);
         $sections = $this->presentSections($results);
@@ -33,7 +38,10 @@ class SearchController extends Controller
     public function suggest(Request $request, SiteSearchService $siteSearch): JsonResponse
     {
         $locale = (string) app()->getLocale();
-        $fallbackLocale = (string) config('app.fallback_locale', config('app.locale'));
+        $fallbackLocale = FrontendLocalePolicy::fallbackLocale(
+            $locale,
+            (string) config('app.fallback_locale', config('app.locale'))
+        );
         $query = trim((string) $request->query('q', ''));
 
         if (mb_strlen($query) < 2) {
@@ -41,7 +49,7 @@ class SearchController extends Controller
                 'query' => $query,
                 'sections' => [],
                 'total_count' => 0,
-                'results_url' => route('search.index', ['q' => $query]),
+                'results_url' => FrontendRoute::url('search.index', ['q' => $query]),
             ]);
         }
 
@@ -52,7 +60,7 @@ class SearchController extends Controller
             'query' => $query,
             'sections' => $sections,
             'total_count' => collect($sections)->sum('total_count'),
-            'results_url' => route('search.index', ['q' => $query]),
+            'results_url' => FrontendRoute::url('search.index', ['q' => $query]),
         ]);
     }
 

@@ -115,7 +115,7 @@
         ],
         'button' => [
             'label' => __('ui.blog.article_cta.button'),
-            'url' => route('contact.create'),
+            'url' => \App\Support\Localization\FrontendRoute::url('contact.create'),
         ],
     ];
     $articleCta['title_lines'] = array_values(array_filter(

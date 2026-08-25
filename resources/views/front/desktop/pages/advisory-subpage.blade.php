@@ -10,9 +10,8 @@
     $sourceModules = (array) ($content['source_modules'] ?? []);
     $pandea = (array) ($content['pandea'] ?? []);
     $pageContent = $type === 'funding' ? $funding : $detail;
-    $meeting = (array) ($pageContent['meeting'] ?? $content['meeting'] ?? []);
-    $blogSection = (array) ($pageContent['blog_section'] ?? $content['blog_section'] ?? []);
-    $isCroatian = str_starts_with(strtolower((string) ($locale ?? app()->getLocale())), 'hr');
+    $meeting = (array) ($pageContent['meeting'] ?? []);
+    $blogSection = (array) ($pageContent['blog_section'] ?? []);
     $richTextBlocks = static function (array $section, string $htmlKey, string $legacyKey): array {
         $html = array_key_exists($htmlKey, $section)
             ? trim((string) ($section[$htmlKey] ?? ''))
@@ -35,9 +34,6 @@
     $servicesTitle = $type === 'funding'
         ? trim((string) ($sourceModules['title'] ?? ''))
         : trim((string) ($detail['services_title'] ?? ''));
-    $servicesTitle = $servicesTitle !== ''
-        ? $servicesTitle
-        : ($isCroatian ? 'Naše usluge' : 'Our services');
     $servicesBlocks = $type === 'funding'
         ? \App\Support\Content\StructuredRichText::blocks(
             \App\Support\Content\StructuredRichText::fromParagraphs([
@@ -61,15 +57,14 @@
 
     $approach = $type === 'funding'
         ? [
-            'title' => $funding['approach_title'] ?? data_get($content, 'approach.title', ''),
-            'body' => $funding['approach_body'] ?? data_get($content, 'approach.body', []),
+            'title' => $funding['approach_title'] ?? '',
+            'body' => $funding['approach_body'] ?? [],
         ]
         : [
             'title' => $detail['approach_title'] ?? '',
             'body' => $detail['approach_body'] ?? [],
         ];
-    $approachTitle = trim((string) ($approach['title'] ?? ''))
-        ?: ($isCroatian ? 'Naš pristup' : 'Our approach');
+    $approachTitle = trim((string) ($approach['title'] ?? ''));
     $approachBlocks = $type === 'funding'
         ? $richTextBlocks($funding, 'approach_body_html', 'approach_body')
         : $richTextBlocks($detail, 'approach_body_html', 'approach_body');
@@ -89,27 +84,16 @@
 
     $heroLabel = trim((string) ($heroSection['subtitle_lead'] ?? $subpage['title'] ?? ''));
     $heroHook = trim((string) ($heroSection['intro'] ?? $subpage['hook'] ?? ''));
-    $heroImageAlt = trim((string) ($subpage['hero_image_alt'] ?? ''))
-        ?: $heroLabel.($isCroatian ? ' — stručna savjetodavna podrška' : ' — expert advisory support');
+    $heroImageAlt = trim((string) ($subpage['hero_image_alt'] ?? ''));
     $heroLabelClass = mb_strlen($heroLabel) > 26 ? 'is-long' : '';
-    $meetingTitle = trim((string) ($meeting['title'] ?? ''))
-        ?: ($isCroatian ? 'Razgovarajmo o vašim poslovnim odlukama' : 'Let’s discuss your business decisions');
-    $meetingIntro = trim((string) ($meeting['intro'] ?? ''))
-        ?: ($isCroatian
-            ? 'Javite nam se i zajedno ćemo procijeniti koji oblik savjetodavne podrške najbolje odgovara vašem cilju.'
-            : 'Contact us and we will assess which form of advisory support best fits your goal.');
-    $meetingCardTitle = trim((string) ($meeting['contact_title'] ?? ''))
-        ?: ($isCroatian ? 'Kontaktirajte nas' : 'Contact us');
-    $meetingButtonLabel = trim((string) ($meeting['button_label'] ?? ''))
-        ?: ($isCroatian ? 'Dogovorite sastanak' : 'Schedule a meeting');
-    $meetingStatus = trim((string) ($meeting['status'] ?? ''))
-        ?: ($isCroatian ? 'Termin razgovora prilagođavamo vama.' : 'We arrange the meeting around your schedule.');
-    $blogHeadingTitle = trim((string) ($blogSection['title'] ?? ''))
-        ?: ($isCroatian ? 'Stručni uvidi u financije, poreze i transakcije' : 'Expert insights into finance, tax and transactions');
-    $allPostsLabel = trim((string) ($blogSection['all_posts_label'] ?? ''))
-        ?: ($isCroatian ? 'Pogledaj sve objave' : 'View all posts');
-    $readMoreLabel = trim((string) ($blogSection['post_action_label'] ?? ''))
-        ?: ($isCroatian ? 'Opširnije' : 'Read more');
+    $meetingTitle = trim((string) ($meeting['title'] ?? ''));
+    $meetingIntro = trim((string) ($meeting['intro'] ?? ''));
+    $meetingCardTitle = trim((string) ($meeting['contact_title'] ?? ''));
+    $meetingButtonLabel = trim((string) ($meeting['button_label'] ?? ''));
+    $meetingStatus = trim((string) ($meeting['status'] ?? ''));
+    $blogHeadingTitle = trim((string) ($blogSection['title'] ?? ''));
+    $allPostsLabel = trim((string) ($blogSection['all_posts_label'] ?? ''));
+    $readMoreLabel = trim((string) ($blogSection['post_action_label'] ?? ''));
 
     $pagePandea = (array) ($detail['pandea'] ?? $pandea);
     $pandeaBlocks = (bool) ($detail['show_pandea'] ?? false)
@@ -137,6 +121,8 @@
     $resolveContentUrl = static function (?string $url): string {
         $target = trim((string) $url);
 
+        $target = \App\Support\Localization\FrontendRoute::localizeUrl($target);
+
         if ($target === '' || str_starts_with($target, '#') || str_starts_with($target, 'http://') || str_starts_with($target, 'https://')) {
             return $target;
         }
@@ -149,7 +135,7 @@
     $hasAdvisoryPosts = ($advisoryPosts ?? collect())->isNotEmpty();
 @endphp
 
-@section('title', $servicePageMetaTitle !== '' ? $servicePageMetaTitle : ($servicePageTitle ?? $heroLabel))
+@section('title', $servicePageMetaTitle)
 @section('main_class', 'w-full px-0 py-0')
 
 @push('styles')
@@ -223,7 +209,7 @@
                             <div class="ac-advisory-network-logo-card content-reveal" data-image-reveal>
                                 <img
                                     src="{{ $networkLogoUrl }}"
-                                    alt="{{ $pagePandea['logo_alt'] ?? 'Pandea Global M&A' }}"
+                                    alt="{{ trim((string) ($pagePandea['logo_alt'] ?? '')) }}"
                                     class="ac-advisory-network-logo"
                                     width="380"
                                     height="100"
@@ -336,17 +322,17 @@
                                 $postSlug = trim((string) ($translation?->slug ?? ''));
                                 $postUrl = $postSlug !== '' ? route('blog.show', ['slug' => $postSlug]) : route('blog.index');
                                 $postTitle = trim((string) ($translation?->title ?? $post->code));
-                                $postExcerpt = trim((string) ($translation?->excerpt ?? '')) ?: __('ui.blog.excerpt_fallback');
+                                $postExcerpt = trim((string) ($translation?->excerpt ?? ''));
                                 $postExcerpt = \Illuminate\Support\Str::limit($postExcerpt, 190, '...', true);
                                 $primaryCategory = $post->categories
                                     ->sortByDesc(fn ($category) => (int) ($category->pivot->is_primary ?? false))
                                     ->first();
                                 $categoryTranslation = $primaryCategory?->translations->firstWhere('locale', $locale)
                                     ?? $primaryCategory?->translations->firstWhere('locale', $fallbackLocale);
-                                $categoryLabel = trim((string) ($categoryTranslation?->name ?? ($isCroatian ? 'Novosti' : 'News')));
+                                $categoryLabel = trim((string) ($categoryTranslation?->name ?? $advisoryCategoryName ?? ''));
                             @endphp
 
-                            <a class="news-card animation-index-{{ $loop->index }}" data-image-reveal href="{{ $postUrl }}" aria-label="{{ $isCroatian ? 'Otvori blog post' : 'Open blog post' }}: {{ $postTitle }}">
+                            <a class="news-card animation-index-{{ $loop->index }}" data-image-reveal href="{{ $postUrl }}" aria-label="{{ $postTitle }}">
                                 <span class="news-card-category">{{ $categoryLabel }}</span>
                                 <h3>{{ $postTitle }}</h3>
                                 <p>{{ $postExcerpt }}</p>
@@ -374,7 +360,7 @@
                 <div class="contact-cta-card" data-image-reveal>
                     <h3 class="contact-cta-card-heading">{{ $meetingCardTitle }}</h3>
                     <p>{{ $meetingIntro }}</p>
-                    <a class="contact-cta-button" href="{{ route('contact.create') }}">
+                    <a class="contact-cta-button" href="{{ \App\Support\Localization\FrontendRoute::url('contact.create') }}">
                         <span>{{ $meetingButtonLabel }}</span>
                         <i class="fa-duotone fa-thin fa-arrow-right" aria-hidden="true"></i>
                     </a>

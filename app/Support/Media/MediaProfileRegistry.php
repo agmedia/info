@@ -21,7 +21,60 @@ class MediaProfileRegistry
     {
         $modelConfig = self::forModel($modelClass);
 
-        return (array) ($modelConfig['collections'] ?? []);
+        return collect((array) ($modelConfig['collections'] ?? []))
+            ->map(function ($collection): array {
+                $collection = (array) $collection;
+
+                if (isset($collection['accept_mime_types'])) {
+                    $collection['accept_mime_types'] = self::supportedImageMimeTypes(
+                        (array) $collection['accept_mime_types']
+                    );
+                }
+
+                return $collection;
+            })
+            ->all();
+    }
+
+    /**
+     * @param  array<int, string>  $mimeTypes
+     * @return array<int, string>
+     */
+    public static function supportedImageMimeTypes(array $mimeTypes): array
+    {
+        return collect($mimeTypes)
+            ->map(fn ($mimeType): string => strtolower(trim((string) $mimeType)))
+            ->filter()
+            ->reject(fn (string $mimeType): bool => $mimeType === 'image/avif' && ! self::supportsAvif())
+            ->unique()
+            ->values()
+            ->all();
+    }
+
+    /**
+     * @param  array<int, string>  $extensions
+     * @return array<int, string>
+     */
+    public static function supportedImageExtensions(array $extensions): array
+    {
+        return collect($extensions)
+            ->map(fn ($extension): string => strtolower(trim((string) $extension)))
+            ->filter()
+            ->reject(fn (string $extension): bool => $extension === 'avif' && ! self::supportsAvif())
+            ->unique()
+            ->values()
+            ->all();
+    }
+
+    public static function supportsAvif(): bool
+    {
+        $driver = strtolower(trim((string) config('media-library.image_driver', 'gd')));
+
+        if ($driver === 'imagick') {
+            return class_exists(\Imagick::class) && \Imagick::queryFormats('AVIF') !== [];
+        }
+
+        return function_exists('imagecreatefromavif');
     }
 
     /**

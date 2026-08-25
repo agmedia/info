@@ -8,6 +8,7 @@ use App\Models\Content\Support\Comment;
 use App\Services\Content\ContentBlockResolver;
 use App\Services\Front\ServiceCardService;
 use App\Services\Front\StoreSettingsService;
+use App\Support\Localization\FrontendLocalePolicy;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Illuminate\View\View;
@@ -18,26 +19,36 @@ class StorefrontController extends Controller
         private readonly ContentBlockResolver $contentBlockResolver,
         private readonly ServiceCardService $serviceCardService,
         private readonly StoreSettingsService $storeSettingsService
-    ) {
-    }
+    ) {}
 
     public function home(Request $request): View
     {
-        $locale = app()->getLocale();
-        $fallbackLocale = (string) config('app.fallback_locale', config('app.locale', 'en'));
+        $locale = (string) app()->getLocale();
+        $requiresExactTranslation = (bool) $request->attributes->get(
+            'front_requires_exact_translation',
+            FrontendLocalePolicy::requiresExactTranslation($locale)
+        );
+        $fallbackLocale = FrontendLocalePolicy::fallbackLocale(
+            $locale,
+            (string) config('app.fallback_locale', config('app.locale', 'en'))
+        );
+        $queryLocales = FrontendLocalePolicy::queryLocales($locale, $fallbackLocale);
         $variant = (string) $request->attributes->get('frontend_variant', 'desktop');
         $homeHeroBlocks = $this->contentBlockResolver->forPlacement('home.hero', $locale, null, null, $variant);
         $homeStatsBlocks = $this->contentBlockResolver->forPlacement('home.stats', $locale, null, null, $variant);
         $homeServicesBlocks = $this->contentBlockResolver->forPlacement('home.services', $locale, null, null, $variant);
         $latestBlogPosts = BlogPost::query()
             ->where('is_active', true)
+            ->when($requiresExactTranslation, static function ($query) use ($locale): void {
+                $query->whereHas('translations', static fn ($translations) => $translations->where('locale', $locale));
+            })
             ->where(function ($q): void {
                 $q->whereNull('published_at')
                     ->orWhere('published_at', '<=', now());
             })
             ->with([
-                'translations' => fn ($q) => $q->whereIn('locale', [$locale, $fallbackLocale]),
-                'categories.translations' => fn ($q) => $q->whereIn('locale', [$locale, $fallbackLocale]),
+                'translations' => fn ($q) => $q->whereIn('locale', $queryLocales),
+                'categories.translations' => fn ($q) => $q->whereIn('locale', $queryLocales),
                 'media',
             ])
             ->orderByDesc('published_at')

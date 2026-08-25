@@ -64,7 +64,7 @@
                     <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('admin.common.locale') }}</label>
                     <select wire:model.live="form.locale" data-tom-select data-tom-no-search="1" class="admin-select w-full rounded-xl border border-slate-300 px-3 py-2 text-sm lowercase">
                         @foreach ($this->localeOptions as $localeOption)
-                            <option value="{{ $localeOption }}">{{ $localeOption }}</option>
+                            <option value="{{ $localeOption }}" @selected(($form['locale'] ?? '') === $localeOption)>{{ $localeOption }}</option>
                         @endforeach
                     </select>
                     @error('form.locale') <p class="mt-1 text-xs text-rose-600">{{ $message }}</p> @enderror
@@ -125,6 +125,14 @@
                     <label for="category-description-html" class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Description') }}</label>
                     <textarea id="category-description-html" rows="6" wire:model.live.debounce.300ms="form.description" data-quill-editor class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm"></textarea>
                 </div>
+
+                @if ($form['scope'] === \App\Models\Catalog\Category\Category::SCOPE_CALL)
+                    <div class="mt-3">
+                        <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Status badge label') }}</label>
+                        <input type="text" wire:model="form.status_label" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+                        @error('form.status_label') <p class="mt-1 text-xs text-rose-600">{{ $message }}</p> @enderror
+                    </div>
+                @endif
             </div>
 
             <div class="admin-panel admin-form-panel p-6">

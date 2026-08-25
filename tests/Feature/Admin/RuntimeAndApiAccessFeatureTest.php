@@ -4,6 +4,7 @@ namespace Tests\Feature\Admin;
 
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Pagination\Paginator;
 use Silber\Bouncer\BouncerFacade as Bouncer;
 use Tests\TestCase;
 
@@ -23,12 +24,13 @@ class RuntimeAndApiAccessFeatureTest extends TestCase
         $this->actingAs($admin)
             ->get('/admin/settings/api')
             ->assertOk()
-            ->assertSee('API Settings');
+            ->assertSee('API postavke');
     }
 
     public function test_editor_cannot_open_runtime_and_api_pages(): void
     {
         $editor = $this->makeUserWithRole('editor');
+        $defaultPaginationView = Paginator::$defaultView;
 
         $this->actingAs($editor)
             ->get('/admin/settings/system/runtime')
@@ -37,6 +39,8 @@ class RuntimeAndApiAccessFeatureTest extends TestCase
         $this->actingAs($editor)
             ->get('/admin/settings/api')
             ->assertForbidden();
+
+        $this->assertSame($defaultPaginationView, Paginator::$defaultView);
     }
 
     private function makeUserWithRole(string $role): User
@@ -52,4 +56,3 @@ class RuntimeAndApiAccessFeatureTest extends TestCase
         return $user;
     }
 }
-

@@ -5,8 +5,8 @@ namespace App\Livewire\Admin\Content\Navigation;
 use App\Models\Content\Page\InfoPage;
 use App\Services\Front\NavigationMenuService;
 use App\Services\Settings\SystemSettingsService;
-use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
 use Livewire\Component;
+use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
 use Livewire\WithFileUploads;
 
 class Manager extends Component
@@ -14,14 +14,22 @@ class Manager extends Component
     use WithFileUploads;
 
     /**
-     * @var array{items: array<int, array<string, mixed>>}
+     * @var array{
+     *     items: array<int, array<string, mixed>>,
+     *     chrome: array<string, string>,
+     *     chrome_translations: array<string, array<string, string>>
+     * }
      */
     public array $form = [
         'items' => [],
+        'chrome' => [],
+        'chrome_translations' => [],
     ];
 
     public string $locale = 'en';
+
     public string $previousLocale = 'en';
+
     /** @var array<int, TemporaryUploadedFile|null> */
     public array $desktopPromoUploads = [];
 
@@ -30,19 +38,24 @@ class Manager extends Component
         $this->locale = (string) (request()->query('locale') ?: app()->getLocale() ?: config('admin_ui.locale.default', 'hr'));
         $this->previousLocale = $this->locale;
 
-        $items = collect(app(NavigationMenuService::class)->configuredItems())
+        $navigation = app(NavigationMenuService::class);
+        $items = collect($navigation->configuredItems())
             ->reject(fn (array $item): bool => (string) ($item['type'] ?? '') === 'category')
             ->values()
             ->all();
 
         $this->form['items'] = $items;
+        $this->form['chrome_translations'] = $navigation->configuredChromeTranslations();
         $this->syncInputsFromLocaleTranslations($this->locale);
+        $this->syncChromeInputsFromLocale($this->locale);
     }
 
     public function updatedLocale(): void
     {
         $this->syncLocaleTranslationsFromInputs($this->previousLocale);
+        $this->syncChromeTranslationsFromInputs($this->previousLocale);
         $this->syncInputsFromLocaleTranslations($this->locale);
+        $this->syncChromeInputsFromLocale($this->locale);
         $this->previousLocale = $this->locale;
     }
 
@@ -118,8 +131,9 @@ class Manager extends Component
     public function save(): void
     {
         $this->syncLocaleTranslationsFromInputs($this->locale);
+        $this->syncChromeTranslationsFromInputs($this->locale);
 
-        $validated = $this->validate([
+        $rules = [
             'form.items' => ['array'],
             'form.items.*.type' => ['required', 'in:page,blog,contact,faq,custom'],
             'form.items.*.label' => ['nullable', 'string', 'max:120'],
@@ -138,8 +152,18 @@ class Manager extends Component
             'form.items.*.desktop_promo_subtitle' => ['nullable', 'string', 'max:255'],
             'form.items.*.desktop_promo_cta_label' => ['nullable', 'string', 'max:80'],
             'form.items.*.desktop_promo_cta_url' => ['nullable', 'string', 'max:2048'],
+            'form.chrome' => ['array'],
+            'form.chrome_translations' => ['array'],
+            'form.chrome_translations.*' => ['array'],
             'desktopPromoUploads.*' => ['nullable', 'image', 'max:4096'],
-        ]);
+        ];
+
+        foreach (NavigationMenuService::CHROME_FIELDS as $field => $maxLength) {
+            $rules['form.chrome.'.$field] = ['nullable', 'string', 'max:'.$maxLength];
+            $rules['form.chrome_translations.*.'.$field] = ['nullable', 'string', 'max:'.$maxLength];
+        }
+
+        $validated = $this->validate($rules);
 
         $normalizedItems = [];
         foreach (($validated['form']['items'] ?? []) as $index => $item) {
@@ -164,7 +188,12 @@ class Manager extends Component
             return;
         }
 
-        app(SystemSettingsService::class)->put(NavigationMenuService::SETTINGS_KEY, $normalizedItems);
+        app(SystemSettingsService::class)->putMany([
+            NavigationMenuService::SETTINGS_KEY => $normalizedItems,
+            NavigationMenuService::CHROME_SETTINGS_KEY => $this->normalizeChromeTranslations(
+                $validated['form']['chrome_translations'] ?? []
+            ),
+        ]);
         $this->desktopPromoUploads = [];
 
         $this->dispatch('notify', type: 'success', message: (string) __('admin.content.navigation.notify_saved'));
@@ -182,7 +211,7 @@ class Manager extends Component
 
     public function render()
     {
-        $fallbackLocale = (string) config('app.locale', 'en');
+        $fallbackLocale = (string) config('app.fallback_locale', 'hr');
         $locales = array_values(array_unique([$this->locale, $fallbackLocale]));
 
         $pageOptions = InfoPage::query()
@@ -212,14 +241,14 @@ class Manager extends Component
     }
 
     /**
-     * @param array<string, mixed> $item
+     * @param  array<string, mixed>  $item
      * @return array<string, mixed>
      */
     private function normalizeItem(array $item, int $index, mixed $desktopPromoUpload = null): array
     {
         $type = (string) ($item['type'] ?? 'custom');
         $locale = strtolower(trim($this->locale));
-        $fallbackLocale = strtolower((string) config('app.locale', 'en'));
+        $fallbackLocale = strtolower((string) config('app.fallback_locale', 'hr'));
         $labelTranslations = $this->normalizeTranslations($item['label_translations'] ?? []);
         $urlTranslations = $this->normalizeTranslations($item['url_translations'] ?? []);
 
@@ -323,24 +352,93 @@ class Manager extends Component
     private function syncInputsFromLocaleTranslations(string $locale): void
     {
         $normalizedLocale = strtolower(trim($locale));
-        $fallbackLocale = strtolower((string) config('app.locale', 'en'));
 
         foreach ($this->form['items'] as $index => $item) {
             $labelTranslations = $this->normalizeTranslations($item['label_translations'] ?? []);
             $urlTranslations = $this->normalizeTranslations($item['url_translations'] ?? []);
 
-            $resolvedLabel = $this->pickTranslationValue($labelTranslations, $normalizedLocale, $fallbackLocale);
-            $resolvedUrl = $this->pickTranslationValue($urlTranslations, $normalizedLocale, $fallbackLocale);
+            $resolvedLabel = trim((string) ($labelTranslations[$normalizedLocale] ?? ''));
+            $resolvedUrl = trim((string) ($urlTranslations[$normalizedLocale] ?? ''));
 
-            $this->form['items'][$index]['label'] = $resolvedLabel !== '' ? $resolvedLabel : trim((string) ($item['label'] ?? ''));
-            $this->form['items'][$index]['url'] = $resolvedUrl !== '' ? $resolvedUrl : trim((string) ($item['url'] ?? ''));
+            $this->form['items'][$index]['label'] = $resolvedLabel;
+            $this->form['items'][$index]['url'] = $resolvedUrl;
             $this->form['items'][$index]['label_translations'] = $labelTranslations;
             $this->form['items'][$index]['url_translations'] = $urlTranslations;
         }
     }
 
+    private function syncChromeTranslationsFromInputs(string $locale): void
+    {
+        $normalizedLocale = strtolower(trim($locale));
+        if ($normalizedLocale === '') {
+            return;
+        }
+
+        $translations = $this->normalizeChromeTranslations($this->form['chrome_translations'] ?? []);
+        $values = [];
+
+        foreach (array_keys(NavigationMenuService::CHROME_FIELDS) as $field) {
+            $value = trim((string) ($this->form['chrome'][$field] ?? ''));
+            if ($value !== '') {
+                $values[$field] = $value;
+            }
+        }
+
+        if ($values === []) {
+            unset($translations[$normalizedLocale]);
+        } else {
+            $translations[$normalizedLocale] = $values;
+        }
+
+        $this->form['chrome_translations'] = $translations;
+    }
+
+    private function syncChromeInputsFromLocale(string $locale): void
+    {
+        $normalizedLocale = strtolower(trim($locale));
+        $translations = $this->normalizeChromeTranslations($this->form['chrome_translations'] ?? []);
+        $values = $translations[$normalizedLocale] ?? [];
+
+        foreach (array_keys(NavigationMenuService::CHROME_FIELDS) as $field) {
+            $this->form['chrome'][$field] = trim((string) ($values[$field] ?? ''));
+        }
+
+        $this->form['chrome_translations'] = $translations;
+    }
+
     /**
-     * @param mixed $translations
+     * @return array<string, array<string, string>>
+     */
+    private function normalizeChromeTranslations(mixed $translations): array
+    {
+        if (! is_array($translations)) {
+            return [];
+        }
+
+        $normalized = [];
+        foreach ($translations as $locale => $values) {
+            $normalizedLocale = strtolower(trim((string) $locale));
+            if ($normalizedLocale === '' || ! is_array($values)) {
+                continue;
+            }
+
+            $normalizedValues = [];
+            foreach (array_keys(NavigationMenuService::CHROME_FIELDS) as $field) {
+                $value = trim((string) ($values[$field] ?? ''));
+                if ($value !== '') {
+                    $normalizedValues[$field] = $value;
+                }
+            }
+
+            if ($normalizedValues !== []) {
+                $normalized[$normalizedLocale] = $normalizedValues;
+            }
+        }
+
+        return $normalized;
+    }
+
+    /**
      * @return array<string, string>
      */
     private function normalizeTranslations(mixed $translations): array
@@ -368,7 +466,7 @@ class Manager extends Component
     }
 
     /**
-     * @param array<string, string> $translations
+     * @param  array<string, string>  $translations
      */
     private function pickTranslationValue(array $translations, string ...$preferredLocales): string
     {

@@ -5,8 +5,11 @@ namespace App\Http\Controllers\Front;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\Front\Concerns\ResolvesFrontendView;
 use App\Models\Content\Support\ContactMessage;
+use App\Services\Content\ContentBlockResolver;
 use App\Services\Front\StoreNotificationService;
 use App\Services\Front\StoreSettingsService;
+use App\Support\Localization\FrontendLocalePolicy;
+use App\Support\Localization\FrontendRoute;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
@@ -19,17 +22,26 @@ class ContactController extends Controller
 
     public function __construct(
         private readonly StoreNotificationService $notifications,
-        private readonly StoreSettingsService $storeSettings
-    ) {
-    }
+        private readonly StoreSettingsService $storeSettings,
+        private readonly ContentBlockResolver $contentBlockResolver,
+    ) {}
 
     public function create(Request $request): View
     {
-        return view($this->frontendView($request, 'contact.create'));
+        $payload = $this->resolveContactPayload($request);
+        $this->abortIfStrictContactTranslationIsMissing($payload);
+
+        return view($this->frontendView($request, 'contact.create'), [
+            'contactPageContent' => (array) ($payload['contact_page'] ?? []),
+            'contactLocationsContent' => (array) ($payload['locations'] ?? []),
+            'contactLocationStats' => collect((array) ($payload['contact_stats'] ?? [])),
+        ]);
     }
 
     public function store(Request $request): RedirectResponse
     {
+        $contactPayload = $this->resolveContactPayload($request);
+        $this->abortIfStrictContactTranslationIsMissing($contactPayload);
         $captchaSettings = $this->storeSettings->captcha();
         $captchaEnabled = (bool) ($captchaSettings['recaptcha_v3_enabled'] ?? false)
             && trim((string) ($captchaSettings['recaptcha_v3_site_key'] ?? '')) !== ''
@@ -59,16 +71,16 @@ class ContactController extends Controller
             ],
             [
                 'name' => __('contact.form.name'),
-                'first_name' => app()->getLocale() === 'hr' ? 'Ime' : 'First name',
-                'last_name' => app()->getLocale() === 'hr' ? 'Prezime' : 'Last name',
-                'company' => app()->getLocale() === 'hr' ? 'Tvrtka' : 'Company',
+                'first_name' => __('contact.validation.attributes.first_name'),
+                'last_name' => __('contact.validation.attributes.last_name'),
+                'company' => __('contact.validation.attributes.company'),
                 'email' => __('contact.form.email'),
                 'phone' => __('contact.form.phone'),
                 'subject' => __('contact.form.subject'),
                 'message' => __('contact.form.message'),
                 'accept_terms' => __('contact.form.accept_terms'),
                 'recaptcha_token' => __('contact.validation.security_check'),
-                'redirect_to' => 'redirect target',
+                'redirect_to' => __('contact.validation.attributes.redirect_to'),
             ]
         );
 
@@ -84,7 +96,7 @@ class ContactController extends Controller
         if ($resolvedName === '') {
             throw ValidationException::withMessages([
                 'first_name' => __('contact.validation.required', [
-                    'attribute' => app()->getLocale() === 'hr' ? 'Ime' : 'First name',
+                    'attribute' => __('contact.validation.attributes.first_name'),
                 ]),
             ]);
         }
@@ -114,7 +126,7 @@ class ContactController extends Controller
             'ip_address' => $request->ip(),
             'user_agent' => (string) $request->userAgent(),
             'payload' => [
-                'form_type' => $sourcePage === '/contact'
+                'form_type' => in_array($sourcePage, ['/kontakt', '/contact'], true)
                     ? ContactMessage::FORM_TYPE_CONTACT
                     : ContactMessage::FORM_TYPE_SERVICE_CONTACT,
                 'locale' => app()->getLocale(),
@@ -128,11 +140,58 @@ class ContactController extends Controller
         ]);
         $this->notifications->sendContactNotification($message);
 
+        $sentStatus = trim((string) data_get(
+            $contactPayload,
+            'contact_page.sent_status',
+            '',
+        ));
+
         if ($redirectTo !== null) {
-            return redirect($redirectTo)->with('status', __('contact.sent_status'));
+            $response = redirect($redirectTo);
+
+            return $sentStatus !== '' ? $response->with('status', $sentStatus) : $response;
         }
 
-        return redirect()->route('contact.create')->with('status', __('contact.sent_status'));
+        $response = redirect()->to(FrontendRoute::url('contact.create'));
+
+        return $sentStatus !== '' ? $response->with('status', $sentStatus) : $response;
+    }
+
+    /**
+     * Resolve contact copy from the exact active-locale CMS translation only.
+     *
+     * @return array<string, mixed>
+     */
+    private function resolveContactPayload(Request $request): array
+    {
+        $locale = strtolower(trim((string) app()->getLocale()));
+        $variant = (string) $request->attributes->get('frontend_variant', 'desktop');
+        $statsItem = $this->contentBlockResolver
+            ->forPlacement('home.stats', $locale, null, null, $variant)
+            ->first(static fn (array $item): bool => (string) (($item['block'] ?? null)?->type ?? '') === 'home_stats');
+        $translation = $statsItem['translation'] ?? null;
+
+        if (strtolower(trim((string) ($translation?->locale ?? ''))) !== $locale) {
+            return [];
+        }
+
+        return is_array($translation?->payload ?? null) ? $translation->payload : [];
+    }
+
+    /**
+     * @param  array<string, mixed>  $payload
+     */
+    private function abortIfStrictContactTranslationIsMissing(array $payload): void
+    {
+        if (! FrontendLocalePolicy::requiresExactTranslation((string) app()->getLocale())) {
+            return;
+        }
+
+        $contactPage = (array) ($payload['contact_page'] ?? []);
+        abort_if(
+            ! collect($contactPage)->contains(fn (mixed $value): bool => trim((string) $value) !== ''),
+            404
+        );
     }
 
     private function assertRecaptchaIsValid(
@@ -213,11 +272,16 @@ class ContactController extends Controller
     private function resolveSourcePage(?string $redirectTo): string
     {
         if ($redirectTo === null) {
-            return '/contact';
+            return $this->localizedContactPath();
         }
 
         $path = (string) parse_url($redirectTo, PHP_URL_PATH);
 
-        return $path !== '' ? $path : '/contact';
+        return $path !== '' ? $path : $this->localizedContactPath();
+    }
+
+    private function localizedContactPath(): string
+    {
+        return (string) parse_url(FrontendRoute::url('contact.create'), PHP_URL_PATH);
     }
 }

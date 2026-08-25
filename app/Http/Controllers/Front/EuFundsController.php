@@ -12,6 +12,8 @@ use App\Models\Content\Service\ServicePage;
 use App\Models\Content\Service\ServicePageTranslation;
 use App\Models\Content\Support\Comment;
 use App\Support\Content\ServicePageTemplateRegistry;
+use App\Support\Localization\FrontendLocalePolicy;
+use App\Support\Localization\FrontendRoute;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
@@ -27,18 +29,15 @@ class EuFundsController extends Controller
     public function show(Request $request): View
     {
         $locale = app()->getLocale();
-        $fallbackLocale = (string) config('app.fallback_locale', config('app.locale', 'en'));
+        $fallbackLocale = FrontendLocalePolicy::fallbackLocale(
+            (string) $locale,
+            (string) config('app.fallback_locale', config('app.locale', 'en'))
+        );
 
         [$servicePage, $servicePageTranslation] = $this->resolveServicePage($locale, $fallbackLocale);
-        $pagePayload = ServicePageTemplateRegistry::mergePagePayload(
-            ServicePageTemplateRegistry::EU_FUNDS,
-            $servicePage?->payload
-        );
-        $translationPayload = ServicePageTemplateRegistry::mergeTranslationPayload(
-            ServicePageTemplateRegistry::EU_FUNDS,
-            $servicePageTranslation?->payload,
-            (string) ($servicePageTranslation?->locale ?: $locale)
-        );
+        abort_if(! $servicePageTranslation, 404);
+        $pagePayload = (array) ($servicePage?->payload ?? []);
+        $translationPayload = (array) ($servicePageTranslation->payload ?? []);
         $serviceVideoPayload = $this->resolveServiceVideoPayload($pagePayload, $translationPayload);
 
         $euFundsCategory = $this->resolveConfiguredBlogCategory(
@@ -49,8 +48,8 @@ class EuFundsController extends Controller
         $categoryTranslation = $euFundsCategory?->translations->firstWhere('locale', $locale)
             ?? $euFundsCategory?->translations->firstWhere('locale', $fallbackLocale)
             ?? $euFundsCategory?->translations->first();
-        $defaultCategoryName = str_starts_with(strtolower($locale), 'hr') ? 'EU fondovi' : 'EU Funds';
-        $categoryName = trim((string) ($categoryTranslation?->name ?? '')) ?: $defaultCategoryName;
+        $servicePageTitle = trim((string) ($servicePageTranslation?->title ?? ''));
+        $categoryName = trim((string) ($categoryTranslation?->name ?? '')) ?: $servicePageTitle;
         $categorySlug = trim((string) ($categoryTranslation?->slug ?? ''));
         $euFundsPosts = $this->resolveEuFundsPosts(
             (array) ($pagePayload['blog_source'] ?? []),
@@ -62,7 +61,7 @@ class EuFundsController extends Controller
         $blogSection = (array) ($translationPayload['blog_section'] ?? []);
         $blogSection['title'] = str_replace(':category', $categoryName, (string) ($blogSection['title'] ?? ''));
         $resourcesSection = $this->pointQuestionnaireCardToInternalPage(
-            $this->resolveCardsSection((array) ($translationPayload['resources'] ?? []))
+            $this->resolveCardsSection((array) ($translationPayload['resources'] ?? []), $locale)
         );
 
         return view($this->frontendView($request, 'pages.eu-funds'), [
@@ -75,7 +74,7 @@ class EuFundsController extends Controller
             'sourceModulesSection' => (array) ($translationPayload['source_modules'] ?? []),
             'callsSection' => $this->resolveCallsSection((array) ($translationPayload['calls'] ?? []), $locale, $fallbackLocale),
             'resourcesSection' => $resourcesSection,
-            'lawsSection' => $this->resolveCardsSection((array) ($translationPayload['laws'] ?? [])),
+            'lawsSection' => $this->resolveCardsSection((array) ($translationPayload['laws'] ?? []), $locale),
             'testimonialsSection' => (array) ($translationPayload['testimonials'] ?? []),
             'serviceVideoSection' => $serviceVideoPayload['section'],
             'serviceVideos' => $serviceVideoPayload['items'],
@@ -87,7 +86,7 @@ class EuFundsController extends Controller
                 ? url('/blog/'.$categorySlug)
                 : route('blog.index'),
             'heroBackgroundUrl' => $this->resolveServiceHeroBackgroundUrl($servicePage),
-            'servicePageTitle' => trim((string) ($servicePageTranslation?->title ?? '')) ?: 'EU fondovi',
+            'servicePageTitle' => $servicePageTitle,
             'servicePageMetaTitle' => trim((string) ($servicePageTranslation?->meta_title ?? '')),
             'servicePageMetaDescription' => trim((string) ($servicePageTranslation?->meta_description ?? '')),
             'servicePageOgImage' => $this->resolveServiceHeroBackgroundUrl($servicePage),
@@ -125,9 +124,7 @@ class EuFundsController extends Controller
             return [null, null];
         }
 
-        $translation = $servicePage->translations->firstWhere('locale', $locale)
-            ?? $servicePage->translations->firstWhere('locale', $fallbackLocale)
-            ?? $servicePage->translations->first();
+        $translation = $servicePage->translations->firstWhere('locale', $locale);
 
         return [$servicePage, $translation];
     }
@@ -141,10 +138,16 @@ class EuFundsController extends Controller
             $category = Category::query()
                 ->where('scope', Category::SCOPE_BLOG)
                 ->where('id', $configuredCategoryId)
+                ->when(
+                    FrontendLocalePolicy::requiresExactTranslation($locale),
+                    fn ($query) => $query->whereHas('translations', fn ($translationQuery) => $translationQuery
+                        ->where('scope', Category::SCOPE_BLOG)
+                        ->where('locale', $locale))
+                )
                 ->with([
                     'translations' => fn ($query) => $query
                         ->where('scope', Category::SCOPE_BLOG)
-                        ->whereIn('locale', [$locale, $fallbackLocale, 'hr', 'en']),
+                        ->whereIn('locale', [$locale, $fallbackLocale]),
                 ])
                 ->first();
 
@@ -170,6 +173,11 @@ class EuFundsController extends Controller
 
         $baseQuery = BlogPost::query()
             ->where('is_active', true)
+            ->when(
+                FrontendLocalePolicy::requiresExactTranslation($locale),
+                fn (Builder $query) => $query->whereHas('translations', fn (Builder $translationQuery) => $translationQuery
+                    ->where('locale', $locale))
+            )
             ->where(function (Builder $query): void {
                 $query->whereNull('published_at')
                     ->orWhere('published_at', '<=', now());
@@ -178,6 +186,12 @@ class EuFundsController extends Controller
                 'translations' => fn ($query) => $query->whereIn('locale', [$locale, $fallbackLocale]),
                 'categories' => fn ($query) => $query
                     ->where('scope', Category::SCOPE_BLOG)
+                    ->when(
+                        FrontendLocalePolicy::requiresExactTranslation($locale),
+                        fn ($categoryQuery) => $categoryQuery->whereHas('translations', fn ($translationQuery) => $translationQuery
+                            ->where('scope', Category::SCOPE_BLOG)
+                            ->where('locale', $locale))
+                    )
                     ->with([
                         'translations' => fn ($translationQuery) => $translationQuery
                             ->where('scope', Category::SCOPE_BLOG)
@@ -230,10 +244,16 @@ class EuFundsController extends Controller
         return Category::query()
             ->where('scope', Category::SCOPE_BLOG)
             ->where('is_active', true)
+            ->when(
+                FrontendLocalePolicy::requiresExactTranslation($locale),
+                fn ($query) => $query->whereHas('translations', fn ($translationQuery) => $translationQuery
+                    ->where('scope', Category::SCOPE_BLOG)
+                    ->where('locale', $locale))
+            )
             ->with([
                 'translations' => fn ($query) => $query
                     ->where('scope', Category::SCOPE_BLOG)
-                    ->whereIn('locale', [$locale, $fallbackLocale, 'hr', 'en']),
+                    ->whereIn('locale', [$locale, $fallbackLocale]),
             ])
             ->get()
             ->map(fn (Category $category): array => [
@@ -271,11 +291,13 @@ class EuFundsController extends Controller
 
             if (in_array($name, $nameCandidates, true)) {
                 $bestScore = min($bestScore, 1);
+
                 continue;
             }
 
             if ((str_contains($slug, 'eu') && str_contains($slug, 'fond')) || str_contains($slug, 'fund')) {
                 $bestScore = min($bestScore, 2);
+
                 continue;
             }
 
@@ -317,7 +339,7 @@ class EuFundsController extends Controller
      */
     private function resolveCallsSection(array $section, string $locale, string $fallbackLocale): array
     {
-        $section['download_link'] = $this->resolveLink($section['download_link'] ?? null);
+        $section['download_link'] = $this->resolveLink($section['download_link'] ?? null, $locale);
 
         $contentGroups = $this->resolveCallGroupsFromContent($locale, $fallbackLocale);
         if ($contentGroups !== []) {
@@ -326,13 +348,18 @@ class EuFundsController extends Controller
             return $section;
         }
 
+        if (FrontendLocalePolicy::requiresExactTranslation($locale)) {
+            $section['groups'] = [];
+
+            return $section;
+        }
+
         $section['groups'] = collect((array) ($section['groups'] ?? []))
-            ->map(function (array $group): array {
+            ->map(function (array $group) use ($locale): array {
                 $group['tone'] = $this->resolveCallGroupTone((string) ($group['tone'] ?? $group['title'] ?? 'pending'));
-                $group['status_label'] = $this->callStatusLabel((string) $group['tone']);
                 $group['items'] = collect((array) ($group['items'] ?? []))
-                    ->map(function (array $item): array {
-                        $item['resolved_link'] = $this->resolveLink($item['link'] ?? null);
+                    ->map(function (array $item) use ($locale): array {
+                        $item['resolved_link'] = $this->resolveLink($item['link'] ?? null, $locale);
                         $item['date_label'] = '';
                         $item['date_value'] = '';
 
@@ -363,19 +390,30 @@ class EuFundsController extends Controller
         $groups = Category::query()
             ->where('scope', Category::SCOPE_CALL)
             ->where('is_active', true)
+            ->when(
+                FrontendLocalePolicy::requiresExactTranslation($locale),
+                fn ($query) => $query->whereHas('translations', fn ($translationQuery) => $translationQuery
+                    ->where('scope', Category::SCOPE_CALL)
+                    ->where('locale', $locale))
+            )
             ->with([
                 'translations' => fn ($query) => $query
                     ->where('scope', Category::SCOPE_CALL)
-                    ->whereIn('locale', array_values(array_unique([$locale, $fallbackLocale, 'hr']))),
+                    ->whereIn('locale', array_values(array_unique([$locale, $fallbackLocale]))),
                 'callPosts' => fn ($query) => $query
                     ->where('is_active', true)
+                    ->when(
+                        FrontendLocalePolicy::requiresExactTranslation($locale),
+                        fn ($callQuery) => $callQuery->whereHas('translations', fn ($translationQuery) => $translationQuery
+                            ->where('locale', $locale))
+                    )
                     ->where(function (Builder $nested): void {
                         $nested->whereNull('published_at')
                             ->orWhere('published_at', '<=', now());
                     })
                     ->with([
                         'translations' => fn ($translationQuery) => $translationQuery
-                            ->whereIn('locale', array_values(array_unique([$locale, $fallbackLocale, 'hr']))),
+                            ->whereIn('locale', array_values(array_unique([$locale, $fallbackLocale]))),
                         'media',
                     ])
                     ->orderBy('content_call_post_category.sort_order')
@@ -420,7 +458,7 @@ class EuFundsController extends Controller
                             'resolved_link' => [
                                 'label' => '',
                                 'url' => $hasContent && $slug !== ''
-                                    ? route('eu-funds.calls.show', ['slug' => $slug])
+                                    ? FrontendRoute::url('eu-funds.calls.show', ['slug' => $slug], $locale)
                                     : '',
                                 'open_in_new_tab' => false,
                                 'rel' => '',
@@ -434,7 +472,7 @@ class EuFundsController extends Controller
                 return [
                     'title' => $groupTitle,
                     'tone' => $groupTone,
-                    'status_label' => $this->callStatusLabel($groupTone),
+                    'status_label' => trim((string) data_get($translation?->payload, 'status_label')) ?: $groupTitle,
                     'items' => $items,
                 ];
             })
@@ -458,20 +496,15 @@ class EuFundsController extends Controller
         return 'pending';
     }
 
-    private function callStatusLabel(string $tone): string
-    {
-        return match ($tone) {
-            'open' => 'Otvoreno',
-            'closed' => 'Zatvoreno',
-            default => 'U najavi',
-        };
-    }
-
     /**
      * @return array{label:string,value:string}
      */
     private function resolveCallDateMeta(CallPost $post, ?\App\Models\Content\Call\CallPostTranslation $translation): array
     {
+        $dateLabels = is_array(data_get($translation?->payload, 'date_labels'))
+            ? (array) data_get($translation?->payload, 'date_labels')
+            : [];
+
         foreach ([$translation?->payload, $post->payload] as $payload) {
             if (! is_array($payload)) {
                 continue;
@@ -482,7 +515,7 @@ class EuFundsController extends Controller
 
                 if ($date !== '') {
                     return [
-                        'label' => 'Rok za prijavu',
+                        'label' => trim((string) ($dateLabels['application_deadline'] ?? '')),
                         'value' => $date,
                     ];
                 }
@@ -493,7 +526,7 @@ class EuFundsController extends Controller
 
                 if ($date !== '') {
                     return [
-                        'label' => 'Ažurirano',
+                        'label' => trim((string) ($dateLabels['updated'] ?? '')),
                         'value' => $date,
                     ];
                 }
@@ -502,14 +535,14 @@ class EuFundsController extends Controller
 
         if ($post->published_at) {
             return [
-                'label' => 'Objavljeno',
+                'label' => trim((string) ($dateLabels['published'] ?? '')),
                 'value' => $post->published_at->translatedFormat('j. n. Y.'),
             ];
         }
 
         if ($post->updated_at) {
             return [
-                'label' => 'Ažurirano',
+                'label' => trim((string) ($dateLabels['updated'] ?? '')),
                 'value' => $post->updated_at->translatedFormat('j. n. Y.'),
             ];
         }
@@ -539,17 +572,17 @@ class EuFundsController extends Controller
      * @param  array<string, mixed>  $section
      * @return array<string, mixed>
      */
-    private function resolveCardsSection(array $section): array
+    private function resolveCardsSection(array $section, string $locale): array
     {
         $section['cards'] = collect((array) ($section['cards'] ?? []))
-            ->map(function (array $card): array {
-                $card['primary_link'] = $this->resolveLink($card['primary_link'] ?? null);
-                $card['secondary_link'] = $this->resolveLink($card['secondary_link'] ?? null);
+            ->map(function (array $card) use ($locale): array {
+                $card['primary_link'] = $this->resolveLink($card['primary_link'] ?? null, $locale);
+                $card['secondary_link'] = $this->resolveLink($card['secondary_link'] ?? null, $locale);
                 $card['groups'] = collect((array) ($card['groups'] ?? []))
-                    ->map(function (array $group): array {
+                    ->map(function (array $group) use ($locale): array {
                         $group['items'] = collect((array) ($group['items'] ?? []))
-                            ->map(function (array $item): array {
-                                $item['resolved_link'] = $this->resolveLink($item['link'] ?? null);
+                            ->map(function (array $item) use ($locale): array {
+                                $item['resolved_link'] = $this->resolveLink($item['link'] ?? null, $locale);
 
                                 return $item;
                             })
@@ -577,20 +610,25 @@ class EuFundsController extends Controller
                 $title = Str::of((string) ($card['title'] ?? ''))->lower()->ascii()->value();
                 $label = Str::of((string) ($card['primary_link']['label'] ?? ''))->lower()->ascii()->value();
                 $url = trim((string) ($card['primary_link']['url'] ?? ''));
+                $urlPath = '/'.trim((string) parse_url($url, PHP_URL_PATH), '/');
                 $looksLikeQuestionnaireCard = str_contains($label, 'upitnik') && (
                     str_contains($title, 'eu fond')
                     || str_contains($title, 'projektni')
                     || str_contains($url, '/eu-fondovi/upitnik')
                 );
                 $targetsLegacyQuestionnaire = str_contains($url, 'alphacapitalis.com/eu-fondovi-upitnik');
+                $targetsQuestionnaireRoute = in_array($urlPath, [
+                    '/eu-fondovi/upitnik',
+                    '/eu-funds/questionnaire',
+                ], true);
 
-                if (! $looksLikeQuestionnaireCard && ! $targetsLegacyQuestionnaire) {
+                if (! $looksLikeQuestionnaireCard && ! $targetsLegacyQuestionnaire && ! $targetsQuestionnaireRoute) {
                     return $card;
                 }
 
                 $card['primary_link'] = [
                     'label' => (string) ($card['primary_link']['label'] ?? ''),
-                    'url' => route('eu-funds.questionnaire.create'),
+                    'url' => FrontendRoute::url('eu-funds.questionnaire.create'),
                     'open_in_new_tab' => false,
                     'rel' => '',
                     'is_external' => false,
@@ -606,7 +644,7 @@ class EuFundsController extends Controller
     /**
      * @return array{label:string,url:string,open_in_new_tab:bool,rel:string,is_external:bool}
      */
-    private function resolveLink(mixed $link): array
+    private function resolveLink(mixed $link, string $locale): array
     {
         if (! is_array($link)) {
             return [
@@ -620,12 +658,20 @@ class EuFundsController extends Controller
 
         $type = trim((string) ($link['type'] ?? 'none'));
         $label = trim((string) ($link['label'] ?? ''));
+        $sourceSlug = trim((string) ($link['slug'] ?? ''));
+        $pdfPath = trim((string) ($link['path'] ?? ''));
+        $normalizedLocale = strtolower((string) preg_split('/[-_]/', $locale, 2)[0]);
+        $pdfLocale = strtolower((string) preg_split('/[-_]/', trim((string) ($link['locale'] ?? '')), 2)[0]);
+        $pdfIsAvailable = $pdfPath !== '' && (
+            ! FrontendLocalePolicy::requiresExactTranslation($locale)
+            || ($pdfLocale !== '' && $pdfLocale === $normalizedLocale)
+        );
 
         return match ($type) {
             'blog' => [
                 'label' => $label,
-                'url' => trim((string) ($link['slug'] ?? '')) !== ''
-                    ? route('blog.show', ['slug' => (string) $link['slug']])
+                'url' => ($blogSlug = $this->localizedBlogSlug($sourceSlug, $locale)) !== ''
+                    ? route('blog.show', ['slug' => $blogSlug])
                     : '',
                 'open_in_new_tab' => false,
                 'rel' => '',
@@ -633,8 +679,8 @@ class EuFundsController extends Controller
             ],
             'call' => [
                 'label' => $label,
-                'url' => trim((string) ($link['slug'] ?? '')) !== ''
-                    ? route('eu-funds.calls.show', ['slug' => (string) $link['slug']])
+                'url' => ($callSlug = $this->localizedCallSlug($sourceSlug, $locale)) !== ''
+                    ? FrontendRoute::url('eu-funds.calls.show', ['slug' => $callSlug])
                     : '',
                 'open_in_new_tab' => false,
                 'rel' => '',
@@ -642,8 +688,8 @@ class EuFundsController extends Controller
             ],
             'pdf' => [
                 'label' => $label,
-                'url' => trim((string) ($link['path'] ?? '')) !== ''
-                    ? $this->versionedAsset((string) $link['path'])
+                'url' => $pdfIsAvailable
+                    ? $this->versionedAsset($pdfPath)
                     : '',
                 'open_in_new_tab' => true,
                 'rel' => 'noopener noreferrer',
@@ -666,6 +712,48 @@ class EuFundsController extends Controller
                 'is_external' => false,
             ],
         };
+    }
+
+    private function localizedBlogSlug(string $sourceSlug, string $locale): string
+    {
+        if ($sourceSlug === '' || ! FrontendLocalePolicy::requiresExactTranslation($locale)) {
+            return $sourceSlug;
+        }
+
+        return (string) (BlogPost::query()
+            ->published()
+            ->whereHas('translations', fn ($query) => $query->where('slug', $sourceSlug))
+            ->with(['translations' => fn ($query) => $query
+                ->where('locale', $locale)
+                ->whereNotNull('slug')
+                ->where('slug', '!=', '')])
+            ->first()
+            ?->translations
+            ->first()
+            ?->slug ?? '');
+    }
+
+    private function localizedCallSlug(string $sourceSlug, string $locale): string
+    {
+        if ($sourceSlug === '' || ! FrontendLocalePolicy::requiresExactTranslation($locale)) {
+            return $sourceSlug;
+        }
+
+        return (string) (CallPost::query()
+            ->where('is_active', true)
+            ->where(function (Builder $query): void {
+                $query->whereNull('published_at')
+                    ->orWhere('published_at', '<=', now());
+            })
+            ->whereHas('translations', fn ($query) => $query->where('slug', $sourceSlug))
+            ->with(['translations' => fn ($query) => $query
+                ->where('locale', $locale)
+                ->whereNotNull('slug')
+                ->where('slug', '!=', '')])
+            ->first()
+            ?->translations
+            ->first()
+            ?->slug ?? '');
     }
 
     private function resolveServiceHeroBackgroundUrl(?ServicePage $servicePage): string

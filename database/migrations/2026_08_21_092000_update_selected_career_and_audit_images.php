@@ -35,7 +35,7 @@ return new class extends Migration
             ->orderByRaw("CASE WHEN code = 'career' THEN 0 ELSE 1 END")
             ->first();
 
-        if (! $page) {
+        if (! $page || $page->getMedia('career_gallery_images')->isNotEmpty()) {
             return;
         }
 
@@ -62,18 +62,6 @@ return new class extends Migration
                 'alt_en' => 'Two ALPHA CAPITALIS specialists working together',
             ],
         ];
-
-        $expectedFileNames = array_column($images, 'file_name');
-        $currentFileNames = $page->getMedia('career_gallery_images')
-            ->pluck('file_name')
-            ->values()
-            ->all();
-
-        if ($currentFileNames === $expectedFileNames) {
-            return;
-        }
-
-        $page->clearMediaCollection('career_gallery_images');
 
         foreach ($images as $image) {
             if (! is_file($image['path'])) {
@@ -121,14 +109,13 @@ return new class extends Migration
 
     private function replaceImage(?ServicePage $page, string $path, string $collection): void
     {
-        if (! $page || $page->getFirstMedia($collection)?->file_name === basename($path)) {
+        if (! $page || $page->getFirstMedia($collection)) {
             return;
         }
 
         $croatianAlt = 'Predaja ALPHA CAPITALIS vizitke na poslovnom sastanku';
         $englishAlt = 'An ALPHA CAPITALIS business card being handed over at a client meeting';
 
-        $page->clearMediaCollection($collection);
         $page->addMedia($path)
             ->preservingOriginal()
             ->usingName($croatianAlt)

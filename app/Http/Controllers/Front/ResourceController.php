@@ -10,6 +10,7 @@ use App\Models\Content\Resource\ResourceDownloadRequest;
 use App\Services\Front\StoreNotificationService;
 use App\Services\Front\StoreSettingsService;
 use App\Support\Content\ResourceDocumentGroupRegistry;
+use App\Support\Localization\FrontendLocalePolicy;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
@@ -24,15 +25,27 @@ class ResourceController extends Controller
     public function __construct(
         private readonly StoreNotificationService $notifications,
         private readonly StoreSettingsService $storeSettings
-    ) {
-    }
+    ) {}
 
     public function index(Request $request): View
     {
         $locale = app()->getLocale();
-        $fallbackLocale = (string) config('app.fallback_locale', config('app.locale', 'en'));
+        $fallbackLocale = $this->fallbackLocale((string) $locale);
+        $requiresExactTranslation = FrontendLocalePolicy::requiresExactTranslation((string) $locale);
+
+        if ($requiresExactTranslation) {
+            $hasLocalizedDocuments = $this->baseDocumentQuery()
+                ->whereHas('translations', fn ($query) => $query->where('locale', $locale))
+                ->exists();
+
+            abort_unless($hasLocalizedDocuments, 404);
+        }
 
         $documents = $this->baseDocumentQuery()
+            ->when(
+                $requiresExactTranslation,
+                fn ($query) => $query->whereHas('translations', fn ($translationQuery) => $translationQuery->where('locale', $locale))
+            )
             ->with(['translations' => fn ($query) => $query->whereIn('locale', [$locale, $fallbackLocale])])
             ->orderBy('sort_order')
             ->orderBy('id')
@@ -69,7 +82,7 @@ class ResourceController extends Controller
     public function show(Request $request, string $slug): View
     {
         $locale = app()->getLocale();
-        $fallbackLocale = (string) config('app.fallback_locale', config('app.locale', 'en'));
+        $fallbackLocale = $this->fallbackLocale((string) $locale);
         $document = $this->findDocumentBySlug($slug, $locale, $fallbackLocale);
         abort_if(! $document, 404);
 
@@ -79,6 +92,10 @@ class ResourceController extends Controller
         $related = $this->baseDocumentQuery()
             ->whereKeyNot($document->getKey())
             ->where('group_code', $document->group_code)
+            ->when(
+                FrontendLocalePolicy::requiresExactTranslation((string) $locale),
+                fn ($query) => $query->whereHas('translations', fn ($translationQuery) => $translationQuery->where('locale', $locale))
+            )
             ->with(['translations' => fn ($query) => $query->whereIn('locale', [$locale, $fallbackLocale])])
             ->orderBy('sort_order')
             ->orderBy('id')
@@ -99,7 +116,7 @@ class ResourceController extends Controller
     public function store(Request $request, string $slug): RedirectResponse
     {
         $locale = app()->getLocale();
-        $fallbackLocale = (string) config('app.fallback_locale', config('app.locale', 'en'));
+        $fallbackLocale = $this->fallbackLocale((string) $locale);
         $document = $this->findDocumentBySlug($slug, $locale, $fallbackLocale);
         abort_if(! $document, 404);
 
@@ -199,6 +216,14 @@ class ResourceController extends Controller
             ->get()
             ->sortBy(fn (ResourceDocument $document): int => $this->matchScore($document, $slug, $locale, $fallbackLocale))
             ->first();
+    }
+
+    private function fallbackLocale(string $locale): string
+    {
+        return FrontendLocalePolicy::fallbackLocale(
+            $locale,
+            (string) config('app.fallback_locale', config('app.locale', 'en'))
+        );
     }
 
     private function mapDocument(

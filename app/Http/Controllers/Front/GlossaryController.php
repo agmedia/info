@@ -8,6 +8,8 @@ use App\Models\Content\Glossary\GlossaryTerm;
 use App\Models\Content\Page\InfoPage;
 use App\Services\Content\ContentBlockResolver;
 use App\Services\Content\GlossaryImportService;
+use App\Support\Localization\FrontendLocalePolicy;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
@@ -20,7 +22,7 @@ class GlossaryController extends Controller
     public function index(Request $request): View
     {
         $locale = (string) app()->getLocale();
-        $fallbackLocale = (string) config('app.locale');
+        $fallbackLocale = FrontendLocalePolicy::fallbackLocale($locale, (string) config('app.locale'));
         $variant = $this->frontendVariant($request);
 
         [$page, $pageTranslation] = $this->resolveGlossaryPage($locale, $fallbackLocale);
@@ -60,7 +62,7 @@ class GlossaryController extends Controller
     public function show(Request $request, string $slug): View
     {
         $locale = (string) app()->getLocale();
-        $fallbackLocale = (string) config('app.locale');
+        $fallbackLocale = FrontendLocalePolicy::fallbackLocale($locale, (string) config('app.locale'));
         $variant = $this->frontendVariant($request);
 
         [$page, $pageTranslation] = $this->resolveGlossaryPage($locale, $fallbackLocale);
@@ -125,11 +127,19 @@ class GlossaryController extends Controller
         $page = InfoPage::query()
             ->where('layout', 'finance_glossary')
             ->where('is_active', true)
+            ->when(
+                FrontendLocalePolicy::requiresExactTranslation($locale),
+                fn (Builder $query) => $query->whereHas('translations', fn (Builder $translationQuery) => $translationQuery
+                    ->where('locale', $locale))
+            )
             ->where(function ($query): void {
                 $query->whereNull('published_at')
                     ->orWhere('published_at', '<=', now());
             })
-            ->with('translations')
+            ->with(['translations' => fn ($query) => $query->when(
+                FrontendLocalePolicy::requiresExactTranslation($locale),
+                fn ($translationQuery) => $translationQuery->whereIn('locale', [$locale, $fallbackLocale])
+            )])
             ->get()
             ->sortBy(function (InfoPage $candidate): int {
                 return $candidate->code === GlossaryImportService::DEFAULT_PAGE_CODE ? 0 : 1;
@@ -141,6 +151,8 @@ class GlossaryController extends Controller
         $translation = $page->translations->firstWhere('locale', $locale)
             ?? $page->translations->firstWhere('locale', $fallbackLocale)
             ?? $page->translations->first();
+
+        abort_if(! $translation, 404);
 
         return [$page, $translation];
     }
@@ -159,6 +171,11 @@ class GlossaryController extends Controller
         $terms = GlossaryTerm::query()
             ->where('is_active', true)
             ->where('collection_code', $this->glossaryCollectionCode($page))
+            ->when(
+                FrontendLocalePolicy::requiresExactTranslation($locale),
+                fn (Builder $query) => $query->whereHas('translations', fn (Builder $translationQuery) => $translationQuery
+                    ->where('locale', $locale))
+            )
             ->with([
                 'translations' => fn ($query) => $query->whereIn('locale', [$locale, $fallbackLocale]),
             ])
@@ -232,7 +249,12 @@ class GlossaryController extends Controller
         $term = GlossaryTerm::query()
             ->where('is_active', true)
             ->where('collection_code', $collectionCode)
-            ->whereHas('translations', fn ($query) => $query->where('slug', $slug))
+            ->whereHas('translations', fn ($query) => $query
+                ->where('slug', $slug)
+                ->when(
+                    FrontendLocalePolicy::requiresExactTranslation($locale),
+                    fn ($translationQuery) => $translationQuery->where('locale', $locale)
+                ))
             ->with([
                 'translations' => fn ($query) => $query->whereIn('locale', [$locale, $fallbackLocale]),
             ])
@@ -298,6 +320,11 @@ class GlossaryController extends Controller
             ->where('is_active', true)
             ->where('collection_code', $collectionCode)
             ->whereKeyNot($currentTermId)
+            ->when(
+                FrontendLocalePolicy::requiresExactTranslation($locale),
+                fn (Builder $query) => $query->whereHas('translations', fn (Builder $translationQuery) => $translationQuery
+                    ->where('locale', $locale))
+            )
             ->with([
                 'translations' => fn ($query) => $query->whereIn('locale', [$locale, $fallbackLocale]),
             ])

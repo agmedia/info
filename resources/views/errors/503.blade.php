@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="hr">
+<html lang="{{ app()->getLocale() }}">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Trenutno offline</title>
+    <title>{{ __('ui.errors.maintenance.title') }}</title>
     <style>
         :root {
             --bg: #f5f6f8;
@@ -94,11 +94,11 @@
         <div class="top"></div>
         <div class="inner">
             <p class="kicker">Maintenance Mode</p>
-            <h1 id="offline-title">Trenutno offline</h1>
-            <p>Stranica je trenutno offline zbog održavanja. Vraćamo se uskoro.</p>
+            <h1 id="offline-title">{{ __('ui.errors.maintenance.title') }}</h1>
+            <p>{{ __('ui.errors.maintenance.body') }}</p>
             <div class="actions">
-                <a class="btn" href="/">Pokušaj ponovno</a>
-                <a class="btn btn-ghost" href="/contact">Kontakt</a>
+                <a class="btn" href="/">{{ __('ui.errors.maintenance.retry') }}</a>
+                <a class="btn btn-ghost" href="{{ \App\Support\Localization\FrontendRoute::url('contact.create') }}">{{ __('ui.errors.maintenance.contact') }}</a>
             </div>
         </div>
     </section>

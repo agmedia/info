@@ -10,6 +10,7 @@ use App\Models\Content\Blog\BlogPostTranslation;
 use App\Models\Content\Page\InfoPage;
 use App\Models\Content\Resource\ResourceDocument;
 use App\Models\Content\Resource\ResourceDocumentTranslation;
+use App\Models\Settings\Local\Language;
 use App\Models\User;
 use App\Services\Settings\SystemSettingsService;
 use DOMDocument;
@@ -574,7 +575,7 @@ class ContentBlogPagesFeatureTest extends TestCase
             ->set('form.career_content.application.title', 'Join us today')
             ->set('form.career_content.application.highlight', 'Custom application highlight copy.')
             ->set('form.career_content.application.body_html', '<p>Custom application editor copy.</p><p><em>One field for the complete text.</em></p>')
-            ->set('form.career_content.form.title', 'Send an open application')
+            ->set('form.career_content.form.title', 'Send us your CV')
             ->set('form.career_content.form.submit', 'Apply now')
             ->call('save')
             ->assertRedirect(route('admin.content.pages.index', ['locale' => 'en']));
@@ -596,8 +597,142 @@ class ContentBlogPagesFeatureTest extends TestCase
         $this->assertSame('a career with impact', (string) data_get($page->translation('en')->first()?->payload, 'career_page.stories.2.list.1'));
         $this->assertSame('Join us today', (string) data_get($page->translation('en')->first()?->payload, 'career_page.application.title'));
         $this->assertSame('<p>Custom application editor copy.</p><p><em>One field for the complete text.</em></p>', (string) data_get($page->translation('en')->first()?->payload, 'career_page.application.body_html'));
-        $this->assertSame('Send an open application', (string) data_get($page->translation('en')->first()?->payload, 'career_page.form.title'));
+        $this->assertSame('Send us your CV', (string) data_get($page->translation('en')->first()?->payload, 'career_page.form.title'));
         $this->assertSame('Apply now', (string) data_get($page->translation('en')->first()?->payload, 'career_page.form.submit'));
+    }
+
+    public function test_direct_english_career_editor_stays_on_missing_locale_and_saves_no_default_copy(): void
+    {
+        $user = $this->makeAdminUser();
+        Language::query()->updateOrCreate(['code' => 'en'], [
+            'locale' => 'en',
+            'name' => 'English',
+            'native_name' => 'English',
+            'direction' => 'ltr',
+            'is_default' => false,
+            'is_active' => true,
+            'sort_order' => 20,
+        ]);
+
+        $page = InfoPage::query()->where('code', 'career')->firstOrFail();
+        $page->translations()->where('locale', 'en')->delete();
+        $croatian = $page->translation('hr')->firstOrFail();
+        $croatianBefore = $croatian->only(['title', 'slug', 'excerpt', 'body_html', 'meta_title', 'meta_description']);
+        $croatianPayloadBefore = $croatian->getRawOriginal('payload');
+
+        Livewire::withQueryParams(['locale' => 'en'])
+            ->actingAs($user)
+            ->test(PageForm::class, ['pageId' => $page->id])
+            ->assertSet('form.locale', 'en')
+            ->assertSet('form.title', '')
+            ->assertSet('form.slug', '')
+            ->assertSet('form.career_content.intro.title', '')
+            ->assertSet('form.career_content.process.steps.0.title', '')
+            ->assertSet('form.career_content.stories.0.title', '')
+            ->set('form.title', 'Careers')
+            ->set('form.slug', 'careers')
+            ->call('save')
+            ->assertHasNoErrors()
+            ->assertRedirect(route('admin.content.pages.index', ['locale' => 'en']));
+
+        $english = $page->fresh()->translation('en')->firstOrFail();
+        $this->assertSame([], (array) data_get($english->payload, 'career_page', []));
+        $this->assertStringNotContainsString(
+            'A place where people and careers grow',
+            json_encode($english->payload, JSON_UNESCAPED_UNICODE) ?: '',
+        );
+
+        $croatian->refresh();
+        $this->assertSame($croatianBefore, $croatian->only(array_keys($croatianBefore)));
+        $this->assertSame($croatianPayloadBefore, $croatian->getRawOriginal('payload'));
+    }
+
+    public function test_noop_save_of_partial_english_career_payload_does_not_expand_defaults(): void
+    {
+        $user = $this->makeAdminUser();
+        Language::query()->updateOrCreate(['code' => 'en'], [
+            'locale' => 'en',
+            'name' => 'English',
+            'native_name' => 'English',
+            'direction' => 'ltr',
+            'is_default' => false,
+            'is_active' => true,
+            'sort_order' => 20,
+        ]);
+
+        $page = InfoPage::query()->where('code', 'career')->firstOrFail();
+        $exactPayload = [
+            'career_page' => [
+                'intro' => ['title' => 'Exact CMS career title'],
+                'custom_extension' => ['preserve' => 'Exact CMS extension'],
+            ],
+        ];
+        $english = $page->translations()->updateOrCreate(['locale' => 'en'], [
+            'title' => 'Careers',
+            'slug' => 'careers',
+            'payload' => $exactPayload,
+        ]);
+        $englishPayloadBefore = $english->getRawOriginal('payload');
+        $croatianPayloadBefore = $page->translation('hr')->firstOrFail()->getRawOriginal('payload');
+
+        Livewire::withQueryParams(['locale' => 'en'])
+            ->actingAs($user)
+            ->test(PageForm::class, ['pageId' => $page->id])
+            ->assertSet('form.locale', 'en')
+            ->assertSet('form.career_content.intro.title', 'Exact CMS career title')
+            ->assertSet('form.career_content.process.steps.0.title', '')
+            ->call('save')
+            ->assertHasNoErrors()
+            ->assertRedirect(route('admin.content.pages.index', ['locale' => 'en']));
+
+        $this->assertSame($exactPayload, $english->fresh()->payload);
+        $this->assertSame($englishPayloadBefore, $english->fresh()->getRawOriginal('payload'));
+        $this->assertSame(
+            $croatianPayloadBefore,
+            $page->fresh()->translation('hr')->firstOrFail()->getRawOriginal('payload'),
+        );
+    }
+
+    public function test_missing_english_academy_translation_uses_blank_editor_structure_without_croatian_copy(): void
+    {
+        $user = $this->makeAdminUser();
+        Language::query()->updateOrCreate(['code' => 'en'], [
+            'locale' => 'en',
+            'name' => 'English',
+            'native_name' => 'English',
+            'direction' => 'ltr',
+            'is_default' => false,
+            'is_active' => true,
+            'sort_order' => 20,
+        ]);
+
+        $page = InfoPage::query()->where('code', 'academy')->firstOrFail();
+        $page->translations()->where('locale', 'en')->delete();
+        $croatianPayloadBefore = $page->translation('hr')->firstOrFail()->getRawOriginal('payload');
+
+        Livewire::withQueryParams(['locale' => 'en'])
+            ->actingAs($user)
+            ->test(PageForm::class, ['pageId' => $page->id])
+            ->assertSet('form.locale', 'en')
+            ->assertSet('form.title', '')
+            ->assertSet('form.academy_programs.0.title', '')
+            ->assertSet('form.academy_programs.0.intro', '')
+            ->assertSet('form.academy_programs.0.items.0.title', '')
+            ->set('form.title', 'Academy')
+            ->set('form.slug', 'academy')
+            ->call('save')
+            ->assertHasNoErrors();
+
+        $englishPayload = $page->fresh()->translation('en')->firstOrFail()->payload;
+        $this->assertSame([], (array) data_get($englishPayload, 'academy_programs', []));
+        $this->assertStringNotContainsString(
+            'Seminari za male i srednje poduzetnike',
+            json_encode($englishPayload, JSON_UNESCAPED_UNICODE) ?: '',
+        );
+        $this->assertSame(
+            $croatianPayloadBefore,
+            $page->fresh()->translation('hr')->firstOrFail()->getRawOriginal('payload'),
+        );
     }
 
     public function test_admin_can_save_about_page_content_without_generic_body_fields(): void
@@ -628,6 +763,73 @@ class ContentBlogPagesFeatureTest extends TestCase
         $this->assertSame('75+', (string) data_get($payload, 'about_page.team.stats.0.value'));
         $this->assertSame('Stvorimo prilike zajedno.', (string) data_get($payload, 'about_page.responsibility.cta_card_title'));
         $this->assertSame('Pogledaj sve reference', (string) data_get($payload, 'about_page.references.button_label'));
+    }
+
+    public function test_admin_can_save_exact_english_about_sections_without_expanding_missing_sections(): void
+    {
+        $user = $this->makeAdminUser();
+        $page = InfoPage::query()->where('code', 'about-us')->firstOrFail();
+        $page->translations()->updateOrCreate(['locale' => 'en'], [
+            'title' => 'Old English about title',
+            'slug' => 'about-us',
+            'payload' => [
+                'about_page' => [
+                    'culture' => ['title' => 'Legacy hardcoded culture copy'],
+                ],
+            ],
+        ]);
+        $croatianPayloadBefore = $page->translation('hr')->firstOrFail()->getRawOriginal('payload');
+
+        Livewire::withQueryParams(['locale' => 'en'])
+            ->actingAs($user)
+            ->test(PageForm::class, ['pageId' => $page->id])
+            ->assertSet('form.locale', 'en')
+            ->set('form.title', 'About us')
+            ->set('form.slug', 'about-us')
+            ->set('form.meta_title', 'About us | ALPHA CAPITALIS')
+            ->set('form.meta_description', 'English description from the CMS.')
+            ->set('form.about_content', [
+                'hero' => [
+                    'title' => 'Our story',
+                    'image_alt' => 'English CMS team photograph',
+                ],
+                'story' => [
+                    'body_html' => '<p>Exact English story from the CMS.</p>',
+                ],
+                'values' => [
+                    'label' => 'Our values',
+                    'title' => 'English CMS values title',
+                    'items' => [[
+                        'title' => 'Learn fast',
+                        'body_html' => '<p>English CMS value copy.</p>',
+                    ]],
+                ],
+                'why' => [
+                    'title' => 'English CMS purpose title',
+                    'body_html' => '<p>English CMS purpose copy.</p>',
+                ],
+                'team' => [
+                    'title' => 'English CMS team title',
+                    'body_html' => '<p>English CMS team copy.</p>',
+                    'button_label' => '',
+                ],
+            ])
+            ->call('save')
+            ->assertHasNoErrors();
+
+        $page->refresh();
+        $englishTranslation = $page->translation('en')->firstOrFail();
+        $aboutPayload = (array) data_get($englishTranslation->payload, 'about_page', []);
+
+        $this->assertEqualsCanonicalizing(
+            ['hero', 'story', 'values', 'why', 'team'],
+            array_keys($aboutPayload),
+        );
+        $this->assertSame('English CMS team photograph', data_get($aboutPayload, 'hero.image_alt'));
+        $this->assertArrayNotHasKey('culture', $aboutPayload);
+        $this->assertArrayNotHasKey('responsibility', $aboutPayload);
+        $this->assertArrayNotHasKey('references', $aboutPayload);
+        $this->assertSame($croatianPayloadBefore, $page->translation('hr')->firstOrFail()->getRawOriginal('payload'));
     }
 
     public function test_admin_can_replace_about_hero_image_from_page_specific_editor(): void

@@ -1,6 +1,5 @@
 <?php
 
-use App\Support\Content\AboutPageDefaults;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
@@ -24,29 +23,19 @@ return new class extends Migration
             return;
         }
 
-        $translation = DB::table('content_info_page_translations')
+        $translationExists = DB::table('content_info_page_translations')
             ->where('page_id', $pageId)
             ->where('locale', 'hr')
-            ->first();
+            ->exists();
 
-        if (! $translation) {
+        if ($translationExists) {
+            // Existing CMS copy is authoritative even when the story body was
+            // deliberately cleared by an editor.
             return;
         }
 
-        $payload = json_decode((string) $translation->payload, true);
-        $payload = is_array($payload) ? $payload : [];
-        $payload['about_page']['story']['body_html'] = (string) data_get(
-            AboutPageDefaults::merge(null, 'hr'),
-            'story.body_html',
-            '',
-        );
-
-        DB::table('content_info_page_translations')
-            ->where('id', $translation->id)
-            ->update([
-                'payload' => json_encode($payload, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES),
-                'updated_at' => now(),
-            ]);
+        // This migration does not have enough structural page data to safely
+        // create a missing translation. It intentionally leaves it untranslated.
     }
 
     public function down(): void

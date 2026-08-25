@@ -33,4 +33,14 @@
             'uploadModel' => 'assetUploads.'.str_replace('.', '_', $basePath.'_path'),
         ])
     </div>
+    <div class="mt-3">
+        <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Jezik PDF dokumenta</label>
+        <select wire:model="form.translation_payload.{{ $basePath }}.locale" data-tom-select data-tom-no-search="1" class="admin-select w-full rounded-xl border border-slate-300 px-3 py-2 text-sm lowercase">
+            <option value="">Nije označeno</option>
+            @foreach ($adminLocaleOptions as $localeOption)
+                <option value="{{ $localeOption }}">{{ $localeOption }}</option>
+            @endforeach
+        </select>
+        <p class="mt-1 text-xs text-slate-500">Obavezno označite jezik PDF-a. Na EN stranici prikazuju se samo dokumenti označeni s <strong>en</strong>.</p>
+    </div>
 </div>

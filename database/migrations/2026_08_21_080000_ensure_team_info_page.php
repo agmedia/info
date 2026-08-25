@@ -36,11 +36,7 @@ return new class extends Migration
             'updated_at' => $now,
         ];
 
-        if ($pageId) {
-            DB::table('content_info_pages')
-                ->where('id', $pageId)
-                ->update($pageData);
-        } else {
+        if (! $pageId) {
             $pageId = DB::table('content_info_pages')->insertGetId($pageData + [
                 'created_by' => null,
                 'created_at' => $now,
@@ -94,8 +90,6 @@ return new class extends Migration
         ];
 
         if ($translation->exists()) {
-            $translation->update($data);
-
             return;
         }
 

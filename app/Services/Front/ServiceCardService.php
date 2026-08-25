@@ -4,6 +4,8 @@ namespace App\Services\Front;
 
 use App\Models\Content\Service\ServicePage;
 use App\Support\Content\ServicePageTemplateRegistry;
+use App\Support\Localization\FrontendLocalePolicy;
+use App\Support\Localization\FrontendRoute;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Schema;
@@ -24,18 +26,20 @@ class ServiceCardService
      */
     public function cards(string $locale, string $fallbackLocale): array
     {
+        $fallbackLocale = FrontendLocalePolicy::fallbackLocale($locale, $fallbackLocale);
         $servicePages = $this->servicePages($locale, $fallbackLocale);
-        $defaults = $this->cardDefaults();
+        $defaults = $this->cardDefaults($locale);
 
         return collect(self::TEMPLATE_ORDER)
-            ->map(function (string $templateKey) use ($servicePages, $defaults, $locale, $fallbackLocale): array {
+            ->map(function (string $templateKey) use ($servicePages, $defaults, $locale): ?array {
                 $servicePage = $servicePages->get($templateKey);
                 $default = $defaults[$templateKey];
-                $translation = $servicePage?->translations->firstWhere('locale', $locale)
-                    ?? $servicePage?->translations->firstWhere('locale', $fallbackLocale)
-                    ?? $servicePage?->translations->first();
+                $translation = $servicePage?->translations->firstWhere('locale', $locale);
 
-                $title = trim((string) ($translation?->title ?? '')) ?: $default['title'];
+                $title = trim((string) ($translation?->title ?? ''));
+                if ($title === '') {
+                    return null;
+                }
 
                 return [
                     'title' => $title,
@@ -44,6 +48,7 @@ class ServiceCardService
                     'template_key' => $templateKey,
                 ];
             })
+            ->filter()
             ->values()
             ->all();
     }
@@ -51,8 +56,20 @@ class ServiceCardService
     /**
      * @return array<int, array<string, mixed>>
      */
-    public function primaryPillars(string $locale, string $fallbackLocale, ?array $overrides = null): array
-    {
+    public function primaryPillars(
+        string $locale,
+        string $fallbackLocale,
+        ?array $overrides = null,
+        bool $useDefaultRoutes = true,
+    ): array {
+        if ($overrides === null) {
+            $servicesIndexPage = $this->servicesIndexPage();
+            $translation = $servicesIndexPage?->translations()
+                ->where('locale', $locale)
+                ->first();
+            $overrides = (array) data_get($translation?->payload, 'primary_pillars', []);
+        }
+
         $cards = collect($this->cards($locale, $fallbackLocale))->keyBy('template_key');
         $card = static fn (string $templateKey): array => (array) ($cards->get($templateKey) ?? []);
 
@@ -63,72 +80,47 @@ class ServiceCardService
         $defaults = [
             [
                 'key' => 'audit',
-                'title' => 'Revizija',
-                'subtitle' => 'sigurnost i povjerenje u brojke',
-                'text' => 'Neovisna provjera financijskih izvještaja koja povećava povjerenje vlasnika, investitora i partnera.',
-                'image_alt' => 'Potpisivanje poslovnog dokumenta za stolom',
-                'bullets' => [
-                    'Pomažemo vlasnicima, investitorima i upravi da imaju potpunu sigurnost u financijske izvještaje.',
-                    'Revizija smanjuje rizik pogrešnih odluka jer potvrđuje da su podaci točni, potpuni i u skladu s propisima.',
-                    'Kroz neovisnu provjeru dobivate jasnu sliku stvarnog financijskog stanja poduzeća, što jača povjerenje banaka, partnera i regulatora.',
-                ],
-                'url' => $audit['url'] ?? route('audit.show'),
+                'title' => '',
+                'subtitle' => '',
+                'text' => '',
+                'image_alt' => '',
+                'bullets' => [],
+                'url' => $audit['url'] ?? FrontendRoute::url('audit.show', locale: $locale),
                 'image_url' => $audit['image_url'] ?? $this->versionedAsset('front-theme/images/services/audit-editorial-3d.svg'),
                 'children' => [],
             ],
             [
                 'key' => 'accounting',
-                'title' => 'Računovodstvo',
-                'subtitle' => 'kontrola i jasnoća poslovanja',
-                'text' => 'Precizno vođenje knjiga i pravovremeno izvještavanje koje oslobađa menadžment za strateške odluke.',
-                'image_alt' => 'Rad na financijskim podacima na prijenosnom računalu',
-                'bullets' => [
-                    'Omogućujemo da vaše poslovanje bude financijski uredno, pregledno i uvijek spremno za odluke.',
-                    'To znači da u svakom trenutku imate točne podatke o prihodima, troškovima i rezultatu, bez kašnjenja i nejasnoća.',
-                    'Umjesto da reagirate na probleme, možete upravljati poslovanjem na temelju pouzdanih informacija.',
-                ],
-                'url' => $accounting['url'] ?? route('accounting.show'),
+                'title' => '',
+                'subtitle' => '',
+                'text' => '',
+                'image_alt' => '',
+                'bullets' => [],
+                'url' => $accounting['url'] ?? FrontendRoute::url('accounting.show', locale: $locale),
                 'image_url' => $accounting['image_url'] ?? $this->versionedAsset('front-theme/images/services/accounting-editorial-3d.svg'),
                 'children' => [],
             ],
             [
                 'key' => 'advisory',
-                'title' => 'Savjetovanje',
-                'subtitle' => 'rast, optimizacija i bolji financijski izbor',
-                'text' => 'Financijsko i porezno savjetovanje te pribavljanje kapitala - sve na jednom mjestu.',
-                'image_alt' => 'Poslovni razgovor tijekom savjetovanja',
-                'bullets' => [
-                    'Pomažemo društvima, investitorima i poduzetnicima u donošenju kvalitetnih odluka, upravljanju rizicima i stvaranju dugoročne vrijednosti.',
-                    'Pružamo podršku u procjenama vrijednosti, due diligence postupcima, M&A procesima i strukturiranju financiranja.',
-                    'EU fondovi, bankovni krediti i porezne olakšice povezani su u okviru pribavljanja financiranja.',
-                ],
-                'url' => route('advisory.show'),
+                'title' => '',
+                'subtitle' => '',
+                'text' => '',
+                'image_alt' => '',
+                'bullets' => [],
+                'url' => FrontendRoute::url('advisory.show', locale: $locale),
                 'image_url' => $advisory['image_url'] ?? $this->versionedAsset('front-theme/images/services/advisory-editorial-3d.svg'),
-                'children' => [
-                    [
-                        'title' => 'Financijsko savjetovanje',
-                        'url' => route('advisory.finance.show'),
-                    ],
-                    [
-                        'title' => 'Porezno savjetovanje',
-                        'url' => route('advisory.tax.show'),
-                    ],
-                    [
-                        'title' => 'Pribavljanje financiranja',
-                        'url' => route('advisory.funding.show'),
-                    ],
-                ],
+                'children' => [],
             ],
         ];
 
         if (! is_array($overrides) || $overrides === []) {
-            return $this->withServicesIndexCardImages($defaults);
+            return [];
         }
 
         $defaultsByKey = collect($defaults)->keyBy('key');
 
         $pillars = collect($overrides)
-            ->map(function ($override) use ($defaultsByKey): ?array {
+            ->map(function ($override) use ($defaultsByKey, $locale, $useDefaultRoutes): ?array {
                 if (! is_array($override)) {
                     return null;
                 }
@@ -139,7 +131,10 @@ class ServiceCardService
                 }
 
                 $default = (array) ($defaultsByKey->get($key) ?? ['key' => $key]);
-                $url = trim((string) ($override['url'] ?? ($default['url'] ?? '')));
+                $url = trim((string) ($override['url'] ?? ''));
+                if ($url === '' && $useDefaultRoutes) {
+                    $url = trim((string) ($default['url'] ?? ''));
+                }
 
                 $merged = array_merge($default, [
                     'key' => $key,
@@ -147,7 +142,7 @@ class ServiceCardService
                     'subtitle' => trim((string) ($override['subtitle'] ?? ($default['subtitle'] ?? ''))),
                     'text' => trim((string) ($override['text'] ?? ($default['text'] ?? ''))),
                     'image_alt' => trim((string) ($override['image_alt'] ?? ($default['image_alt'] ?? ''))),
-                    'url' => $this->normalizeCardUrl($url),
+                    'url' => $this->normalizeCardUrl($url, $locale),
                     'action_label' => trim((string) ($override['action_label'] ?? ($default['action_label'] ?? ''))),
                     'bullets' => collect((array) ($override['bullets'] ?? ($default['bullets'] ?? [])))
                         ->map(fn ($bullet): string => trim((string) $bullet))
@@ -228,9 +223,11 @@ class ServiceCardService
             ->first();
     }
 
-    private function normalizeCardUrl(string $url): string
+    private function normalizeCardUrl(string $url, string $locale): string
     {
         $url = trim($url);
+
+        $url = FrontendRoute::localizeUrl($url, $locale);
 
         if ($url === '' || str_starts_with($url, '#') || preg_match('/^[a-z][a-z0-9+.-]*:/i', $url) === 1) {
             return $url;
@@ -251,6 +248,11 @@ class ServiceCardService
         return ServicePage::query()
             ->whereIn('template_key', self::TEMPLATE_ORDER)
             ->where('is_active', true)
+            ->when(
+                FrontendLocalePolicy::requiresExactTranslation($locale),
+                fn (Builder $query) => $query->whereHas('translations', fn (Builder $translationQuery) => $translationQuery
+                    ->where('locale', $locale))
+            )
             ->where(function (Builder $query): void {
                 $query->whereNull('published_at')
                     ->orWhere('published_at', '<=', now());
@@ -319,37 +321,37 @@ class ServiceCardService
     /**
      * @return array<string, array{title: string, url: string, fallback_image: string}>
      */
-    private function cardDefaults(): array
+    private function cardDefaults(string $locale): array
     {
         return [
             ServicePageTemplateRegistry::ADVISORY => [
-                'title' => 'Savjetovanje',
-                'url' => route('advisory.show'),
+                'title' => '',
+                'url' => FrontendRoute::url('advisory.show', locale: $locale),
                 'fallback_image' => 'front-theme/images/services/advisory-editorial-3d.svg',
             ],
             ServicePageTemplateRegistry::FINANCE => [
-                'title' => 'Financije',
-                'url' => route('advisory.finance.show'),
+                'title' => '',
+                'url' => FrontendRoute::url('advisory.finance.show', locale: $locale),
                 'fallback_image' => 'front-theme/images/services/finance-editorial-3d.svg',
             ],
             ServicePageTemplateRegistry::ACCOUNTING => [
-                'title' => 'Računovodstvo',
-                'url' => route('accounting.show'),
+                'title' => '',
+                'url' => FrontendRoute::url('accounting.show', locale: $locale),
                 'fallback_image' => 'front-theme/images/services/accounting-editorial-3d.svg',
             ],
             ServicePageTemplateRegistry::AUDIT => [
-                'title' => 'Revizija',
-                'url' => route('audit.show'),
+                'title' => '',
+                'url' => FrontendRoute::url('audit.show', locale: $locale),
                 'fallback_image' => 'front-theme/images/services/audit-editorial-3d.svg',
             ],
             ServicePageTemplateRegistry::TAX => [
-                'title' => 'Porezi',
-                'url' => route('advisory.tax.show'),
+                'title' => '',
+                'url' => FrontendRoute::url('advisory.tax.show', locale: $locale),
                 'fallback_image' => 'front-theme/images/services/tax-editorial-3d.svg',
             ],
             ServicePageTemplateRegistry::EU_FUNDS => [
-                'title' => 'EU fondovi',
-                'url' => route('eu-funds.show'),
+                'title' => '',
+                'url' => FrontendRoute::url('eu-funds.show', locale: $locale),
                 'fallback_image' => 'front-theme/images/services/advisory-editorial-3d.svg',
             ],
         ];

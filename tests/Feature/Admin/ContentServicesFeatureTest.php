@@ -6,11 +6,13 @@ use App\Livewire\Admin\Content\Service\Form as ServiceForm;
 use App\Models\Content\Blog\BlogPost;
 use App\Models\Content\Blog\BlogPostTranslation;
 use App\Models\Content\Service\ServicePage;
+use App\Models\Settings\Local\Language;
 use App\Models\User;
 use App\Support\Content\ServicePageTemplateRegistry;
 use App\Support\Content\StructuredRichText;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Livewire\Livewire;
 use Silber\Bouncer\BouncerFacade as Bouncer;
@@ -80,6 +82,100 @@ class ContentServicesFeatureTest extends TestCase
             ->assertSee('Zakon o poticanju ulaganja')
             ->assertDontSee('Obiteljski biznis')
             ->assertSee('Porezi');
+    }
+
+    public function test_direct_english_service_editor_stays_on_missing_locale_and_saves_no_default_copy(): void
+    {
+        $user = $this->makeAdminUser();
+        Language::query()->updateOrCreate(['code' => 'en'], [
+            'locale' => 'en',
+            'name' => 'English',
+            'native_name' => 'English',
+            'direction' => 'ltr',
+            'is_default' => false,
+            'is_active' => true,
+            'sort_order' => 20,
+        ]);
+
+        $page = ServicePage::query()
+            ->where('template_key', ServicePageTemplateRegistry::AUDIT)
+            ->firstOrFail();
+        $page->translations()->where('locale', 'en')->delete();
+        $croatian = $page->translations()->where('locale', 'hr')->firstOrFail();
+        $croatianBefore = $croatian->only(['title', 'slug', 'meta_title', 'meta_description']);
+        $croatianPayloadBefore = $croatian->getRawOriginal('payload');
+
+        Livewire::withQueryParams(['locale' => 'en'])
+            ->actingAs($user)
+            ->test(ServiceForm::class, ['servicePageId' => $page->id])
+            ->assertSet('form.locale', 'en')
+            ->assertSet('form.title', '')
+            ->assertSet('form.slug', '')
+            ->assertSet('form.translation_payload.hero.subtitle_lead', '')
+            ->assertSet('form.translation_payload.services.items.0.title', '')
+            ->set('form.title', 'Audit')
+            ->set('form.slug', 'audit')
+            ->call('save')
+            ->assertHasNoErrors()
+            ->assertRedirect(route('admin.content.services.index', ['locale' => 'en']));
+
+        $english = $page->fresh()->translations()->where('locale', 'en')->firstOrFail();
+        $this->assertSame([], (array) $english->payload);
+        $this->assertStringNotContainsString(
+            'Trust in financial information begins with an independent and expert audit.',
+            json_encode($english->payload, JSON_UNESCAPED_UNICODE) ?: '',
+        );
+
+        $croatian->refresh();
+        $this->assertSame($croatianBefore, $croatian->only(array_keys($croatianBefore)));
+        $this->assertSame($croatianPayloadBefore, $croatian->getRawOriginal('payload'));
+    }
+
+    public function test_noop_save_of_partial_english_service_payload_does_not_expand_defaults(): void
+    {
+        $user = $this->makeAdminUser();
+        Language::query()->updateOrCreate(['code' => 'en'], [
+            'locale' => 'en',
+            'name' => 'English',
+            'native_name' => 'English',
+            'direction' => 'ltr',
+            'is_default' => false,
+            'is_active' => true,
+            'sort_order' => 20,
+        ]);
+
+        $page = ServicePage::query()
+            ->where('template_key', ServicePageTemplateRegistry::AUDIT)
+            ->firstOrFail();
+        $exactPayload = [
+            'hero' => ['intro' => 'Exact English CMS audit introduction.'],
+            'custom_extension' => ['preserve' => 'Exact CMS extension'],
+        ];
+        $english = $page->translations()->updateOrCreate(['locale' => 'en'], [
+            'title' => 'Audit',
+            'slug' => 'audit',
+            'payload' => $exactPayload,
+        ]);
+        $englishPayloadBefore = $english->getRawOriginal('payload');
+        $croatianPayloadBefore = $page->translations()->where('locale', 'hr')->firstOrFail()->getRawOriginal('payload');
+
+        Livewire::withQueryParams(['locale' => 'en'])
+            ->actingAs($user)
+            ->test(ServiceForm::class, ['servicePageId' => $page->id])
+            ->assertSet('form.locale', 'en')
+            ->assertSet('form.translation_payload.hero.intro', 'Exact English CMS audit introduction.')
+            ->assertSet('form.translation_payload.hero.subtitle_lead', '')
+            ->assertSet('form.translation_payload.services.items.0.title', '')
+            ->call('save')
+            ->assertHasNoErrors()
+            ->assertRedirect(route('admin.content.services.index', ['locale' => 'en']));
+
+        $this->assertSame($exactPayload, $english->fresh()->payload);
+        $this->assertSame($englishPayloadBefore, $english->fresh()->getRawOriginal('payload'));
+        $this->assertSame(
+            $croatianPayloadBefore,
+            $page->fresh()->translations()->where('locale', 'hr')->firstOrFail()->getRawOriginal('payload'),
+        );
     }
 
     public function test_admin_can_search_advisory_subpages_on_service_pages_screen(): void
@@ -164,6 +260,8 @@ class ContentServicesFeatureTest extends TestCase
                 ->actingAs($user)
                 ->test(ServiceForm::class, ['servicePageId' => $page->id])
                 ->assertSet('contentSection', $section)
+                ->assertSeeHtml('wire:model="form.translation_payload.'.$section.'.meta_title"')
+                ->assertSeeHtml('wire:model="form.translation_payload.'.$section.'.meta_description"')
                 ->assertSeeHtml('wire:model="form.translation_payload.'.$section.'.meeting.title"')
                 ->assertDontSeeHtml('wire:model="form.translation_payload.meeting.title"')
                 ->assertDontSeeHtml('wire:model="form.translation_payload.hero.subtitle_lead"');
@@ -193,6 +291,10 @@ class ContentServicesFeatureTest extends TestCase
 
                 $this->assertStringNotContainsString(
                     'wire:model="form.translation_payload.'.$otherSection.'.title"',
+                    $component->html()
+                );
+                $this->assertStringNotContainsString(
+                    'wire:model="form.translation_payload.'.$otherSection.'.meta_title"',
                     $component->html()
                 );
             }
@@ -336,7 +438,7 @@ class ContentServicesFeatureTest extends TestCase
         );
     }
 
-    public function test_structured_service_editor_fields_are_hydrated_for_new_pages_and_unsaved_locales(): void
+    public function test_structured_service_editor_fields_keep_shape_but_not_copy_for_unsaved_locales(): void
     {
         $user = $this->makeAdminUser();
 
@@ -344,14 +446,8 @@ class ContentServicesFeatureTest extends TestCase
             ->test(ServiceForm::class)
             ->set('form.template_key', ServicePageTemplateRegistry::AUDIT)
             ->assertSet('form.template_key', ServicePageTemplateRegistry::AUDIT)
-            ->assertSet(
-                'form.translation_payload.overview.body_html',
-                fn ($html): bool => trim((string) $html) !== ''
-            )
-            ->assertSet(
-                'form.translation_payload.approach.body_html',
-                fn ($html): bool => trim((string) $html) !== ''
-            );
+            ->assertSet('form.translation_payload.overview.body_html', '')
+            ->assertSet('form.translation_payload.approach.body_html', '');
 
         $page = ServicePage::query()
             ->where('template_key', ServicePageTemplateRegistry::EU_FUNDS)
@@ -362,21 +458,12 @@ class ContentServicesFeatureTest extends TestCase
             ->test(ServiceForm::class, ['servicePageId' => $page->id])
             ->set('form.locale', 'de')
             ->assertSet('form.locale', 'de')
-            ->assertSet(
-                'form.translation_payload.overview.body_html',
-                fn ($html): bool => trim((string) $html) !== ''
-            )
-            ->assertSet(
-                'form.translation_payload.approach.body_html',
-                fn ($html): bool => trim((string) $html) !== ''
-            )
-            ->assertSet(
-                'form.translation_payload.resources.cards.0.body_html',
-                fn ($html): bool => trim((string) $html) !== ''
-            );
+            ->assertSet('form.translation_payload.overview.body_html', '')
+            ->assertSet('form.translation_payload.approach.body_html', '')
+            ->assertSet('form.translation_payload.resources.cards.0.body_html', '');
     }
 
-    public function test_first_save_of_legacy_audit_and_accounting_payloads_preserves_current_brief_copy(): void
+    public function test_noop_save_of_legacy_croatian_payloads_preserves_only_exact_cms_copy(): void
     {
         config()->set('app.locale', 'hr');
         config()->set('app.fallback_locale', 'hr');
@@ -386,33 +473,30 @@ class ContentServicesFeatureTest extends TestCase
             ->where('template_key', ServicePageTemplateRegistry::AUDIT)
             ->firstOrFail();
         $legacyAuditBody = 'Revizija je neovisna provjera financijskih izvještaja društva s ciljem utvrđivanja daju li izvještaji istinit i pošten prikaz financijskog položaja. Revizor ne zastupa menadžment ni vlasnike - zastupa istinu u brojevima.';
-        $currentAuditBody = [
-            'Revizija pruža neovisnu i objektivnu procjenu financijskih informacija, povećava transparentnost i pouzdanost poslovanja te pomaže u prepoznavanju potencijalnih rizika.',
-            'Neovisna revizija daje Vam sigurnost da odluke donosite na temelju pouzdanih informacija. Uz stručan i objektivan pristup, Vaše poslovanje sagledavamo šire od samih brojki.',
+        $legacyAuditHtml = StructuredRichText::fromParagraphs([$legacyAuditBody]);
+        $legacyAuditPayload = [
+            'hero' => [
+                'intro' => 'Neovisna, stručna provjera vaših financijskih izvještaja. Povećavamo povjerenje, smanjujemo rizike i jačamo kredibilitet vašeg poslovanja.',
+            ],
+            'overview' => [
+                'title' => 'Što je revizija?',
+                'intro' => '',
+                'body' => [$legacyAuditBody],
+            ],
         ];
-        $currentAuditHtml = StructuredRichText::fromParagraphs($currentAuditBody);
 
         $auditPage->translations()
             ->where('locale', 'hr')
             ->firstOrFail()
             ->forceFill([
-                'payload' => [
-                    'hero' => [
-                        'intro' => 'Neovisna, stručna provjera vaših financijskih izvještaja. Povećavamo povjerenje, smanjujemo rizike i jačamo kredibilitet vašeg poslovanja.',
-                    ],
-                    'overview' => [
-                        'title' => 'Što je revizija?',
-                        'intro' => '',
-                        'body' => [$legacyAuditBody],
-                    ],
-                ],
+                'payload' => $legacyAuditPayload,
             ])
             ->save();
 
         Livewire::withQueryParams(['locale' => 'hr'])
             ->actingAs($user)
             ->test(ServiceForm::class, ['servicePageId' => $auditPage->id])
-            ->assertSet('form.translation_payload.overview.body_html', $currentAuditHtml)
+            ->assertSet('form.translation_payload.overview.body_html', $legacyAuditHtml)
             ->call('save')
             ->assertHasNoErrors()
             ->assertRedirect(route('admin.content.services.index', ['locale' => 'hr']));
@@ -422,46 +506,42 @@ class ContentServicesFeatureTest extends TestCase
             ->firstOrFail()
             ->payload;
 
-        $this->assertSame($currentAuditHtml, data_get($savedAuditPayload, 'overview.body_html'));
+        $this->assertSame($legacyAuditPayload, $savedAuditPayload);
+        $this->assertArrayNotHasKey('body_html', $savedAuditPayload['overview']);
         $this->get('/revizija')
             ->assertOk()
-            ->assertSee($currentAuditBody[0])
-            ->assertSee($currentAuditBody[1])
-            ->assertDontSee($legacyAuditBody);
+            ->assertSee($legacyAuditBody)
+            ->assertDontSee('Revizija pruža neovisnu i objektivnu procjenu financijskih informacija');
 
         $accountingPage = ServicePage::query()
             ->where('template_key', ServicePageTemplateRegistry::ACCOUNTING)
             ->firstOrFail();
         $legacyAccountingBody = 'Računovodstvo je sustavan zapis poslovnih transakcija koji osigurava točan prikaz financijskog stanja društva. Dobro računovodstvo nije samo zakonska obveza - to je temelj za donošenje kvalitetnih poslovnih odluka.';
-        $currentAccountingBody = [
-            'Mirnije poslovanje počinje jasnim i pouzdanim brojkama. Ažurne financijske informacije daju Vam kontrolu nad poslovanjem, pomažu prepoznati prilike i rizike te donijeti sigurnije odluke.',
-            'Uz ALPHA CAPITALIS ne dobivate samo računovodstvenu uslugu, već pouzdanog partnera koji razumije Vaše poslovanje i prati Vas kroz svakodnevne izazove i planove rasta.',
+        $legacyAccountingHtml = StructuredRichText::fromParagraphs([$legacyAccountingBody]);
+        $legacyAccountingPayload = [
+            'hero' => [
+                'intro' => 'Precizno, pravovremeno i transparentno - preuzimamo vođenje vaših poslovnih knjiga kako biste se fokusirali na ono što zaista donosi rast.',
+            ],
+            'overview' => [
+                'title' => 'Što je računovodstvo?',
+                'intro' => '',
+                'body' => [$legacyAccountingBody],
+            ],
         ];
-        $currentAccountingMainHtml = StructuredRichText::fromParagraphs([$currentAccountingBody[0]]);
-        $currentAccountingPartnerHtml = StructuredRichText::fromParagraphs([$currentAccountingBody[1]]);
 
         $accountingPage->translations()
             ->where('locale', 'hr')
             ->firstOrFail()
             ->forceFill([
-                'payload' => [
-                    'hero' => [
-                        'intro' => 'Precizno, pravovremeno i transparentno - preuzimamo vođenje vaših poslovnih knjiga kako biste se fokusirali na ono što zaista donosi rast.',
-                    ],
-                    'overview' => [
-                        'title' => 'Što je računovodstvo?',
-                        'intro' => '',
-                        'body' => [$legacyAccountingBody],
-                    ],
-                ],
+                'payload' => $legacyAccountingPayload,
             ])
             ->save();
 
         Livewire::withQueryParams(['locale' => 'hr'])
             ->actingAs($user)
             ->test(ServiceForm::class, ['servicePageId' => $accountingPage->id])
-            ->assertSet('form.translation_payload.overview.body_html', $currentAccountingMainHtml)
-            ->assertSet('form.translation_payload.overview.partner_body_html', $currentAccountingPartnerHtml)
+            ->assertSet('form.translation_payload.overview.body_html', $legacyAccountingHtml)
+            ->assertSet('form.translation_payload.overview.partner_body_html', '')
             ->call('save')
             ->assertHasNoErrors()
             ->assertRedirect(route('admin.content.services.index', ['locale' => 'hr']));
@@ -471,14 +551,139 @@ class ContentServicesFeatureTest extends TestCase
             ->firstOrFail()
             ->payload;
 
-        $this->assertSame($currentAccountingMainHtml, data_get($savedAccountingPayload, 'overview.body_html'));
-        $this->assertSame($currentAccountingPartnerHtml, data_get($savedAccountingPayload, 'overview.partner_body_html'));
+        $this->assertSame($legacyAccountingPayload, $savedAccountingPayload);
+        $this->assertArrayNotHasKey('body_html', $savedAccountingPayload['overview']);
+        $this->assertArrayNotHasKey('partner_body_html', $savedAccountingPayload['overview']);
         $this->get('/racunovodstvo')
             ->assertOk()
-            ->assertSee('Mirnije poslovanje počinje jasnim i pouzdanim brojkama.')
-            ->assertSee('Ažurne financijske informacije daju Vam kontrolu nad poslovanjem')
-            ->assertSee($currentAccountingBody[1])
-            ->assertDontSee($legacyAccountingBody);
+            ->assertSee($legacyAccountingBody)
+            ->assertDontSee('Mirnije poslovanje počinje jasnim i pouzdanim brojkama.');
+    }
+
+    public function test_croatian_service_editor_and_front_keep_explicit_cms_blanks_without_php_defaults(): void
+    {
+        config()->set('app.locale', 'hr');
+        config()->set('app.fallback_locale', 'hr');
+
+        $user = $this->makeAdminUser();
+        $page = ServicePage::query()
+            ->where('template_key', ServicePageTemplateRegistry::AUDIT)
+            ->firstOrFail();
+        $translation = $page->translations()->where('locale', 'hr')->firstOrFail();
+        $payload = [
+            'hero' => [
+                'subtitle_lead' => 'Naslov isključivo iz CMS-a',
+                'intro' => '',
+                'image_alt' => '',
+            ],
+            'meeting' => [
+                'title' => '',
+                'intro' => '',
+                'contact_title' => '',
+                'button_label' => '',
+                'status' => '',
+            ],
+            'blog_section' => [
+                'title' => '',
+                'all_posts_label' => '',
+                'post_action_label' => '',
+            ],
+        ];
+
+        $translation->forceFill(['payload' => $payload])->save();
+
+        Livewire::withQueryParams(['locale' => 'hr'])
+            ->actingAs($user)
+            ->test(ServiceForm::class, ['servicePageId' => $page->id])
+            ->assertSet('form.translation_payload.hero.subtitle_lead', 'Naslov isključivo iz CMS-a')
+            ->assertSet('form.translation_payload.hero.intro', '')
+            ->assertSet('form.translation_payload.hero.image_alt', '')
+            ->assertSet('form.translation_payload.meeting.button_label', '')
+            ->assertSet('form.translation_payload.blog_section.post_action_label', '')
+            ->call('save')
+            ->assertHasNoErrors();
+
+        $this->assertSame($payload, $translation->fresh()->payload);
+
+        $this->get('/revizija')
+            ->assertOk()
+            ->assertSee('Naslov isključivo iz CMS-a')
+            ->assertDontSee('Povjerenje u financijske informacije počinje neovisnom i stručnom revizijom.')
+            ->assertDontSee('Dogovorite sastanak')
+            ->assertDontSee('Pogledaj sve objave')
+            ->assertDontSee('Opširnije');
+    }
+
+    public function test_services_index_keeps_an_explicitly_blank_cms_card_url_without_route_fallback(): void
+    {
+        config()->set('app.locale', 'hr');
+        config()->set('app.fallback_locale', 'hr');
+
+        $user = $this->makeAdminUser();
+        $page = ServicePage::query()
+            ->where('template_key', ServicePageTemplateRegistry::SERVICES_INDEX)
+            ->firstOrFail();
+        $translation = $page->translations()->where('locale', 'hr')->firstOrFail();
+        $payload = (array) $translation->payload;
+        data_set($payload, 'primary_pillars.0.url', '');
+        $translation->forceFill(['payload' => $payload])->save();
+
+        Livewire::withQueryParams(['locale' => 'hr'])
+            ->actingAs($user)
+            ->test(ServiceForm::class, ['servicePageId' => $page->id])
+            ->assertSet('form.translation_payload.primary_pillars.0.url', '')
+            ->call('save')
+            ->assertHasNoErrors();
+
+        $this->assertSame('', data_get($translation->fresh()->payload, 'primary_pillars.0.url'));
+
+        $this->get('/usluge')
+            ->assertOk()
+            ->assertDontSee('data-service-key="audit"', false)
+            ->assertSee('data-service-key="accounting"', false)
+            ->assertSee('data-service-key="advisory"', false);
+    }
+
+    public function test_empty_english_advisory_subpage_saved_in_cms_is_hidden_without_touching_croatian(): void
+    {
+        config()->set('app.locale', 'hr');
+        config()->set('app.fallback_locale', 'hr');
+
+        Language::query()->updateOrCreate(['code' => 'en'], [
+            'locale' => 'en_US',
+            'name' => 'English',
+            'native_name' => 'English',
+            'direction' => 'ltr',
+            'is_default' => false,
+            'is_active' => true,
+            'sort_order' => 2,
+        ]);
+
+        $user = $this->makeAdminUser();
+        $page = ServicePage::query()
+            ->where('template_key', ServicePageTemplateRegistry::ADVISORY)
+            ->firstOrFail();
+        $croatian = $page->translations()->where('locale', 'hr')->firstOrFail();
+        $croatianPayload = (array) $croatian->payload;
+        data_set($croatianPayload, 'zopu.title', 'HR CMS ZoPU sadržaj ostaje');
+        data_set($croatianPayload, 'zopu.hero_intro', 'HR CMS ZoPU uvod ostaje netaknut.');
+        $croatian->forceFill(['payload' => $croatianPayload])->save();
+        $croatianPayloadBefore = $croatian->payload;
+
+        Livewire::withQueryParams(['locale' => 'en', 'section' => 'zopu'])
+            ->actingAs($user)
+            ->test(ServiceForm::class, ['servicePageId' => $page->id])
+            ->assertSet('form.locale', 'en')
+            ->assertSet('contentSection', 'zopu')
+            ->set('form.translation_payload.zopu', [])
+            ->call('save')
+            ->assertHasNoErrors();
+
+        $this->assertSame($croatianPayloadBefore, $croatian->fresh()->payload);
+
+        $this->withSession(['front_locale' => 'en'])
+            ->get('/advisory/raising-finance/investment-incentives')
+            ->assertNotFound();
     }
 
     public function test_explicitly_empty_multiline_service_lists_remain_empty(): void
@@ -530,6 +735,45 @@ class ContentServicesFeatureTest extends TestCase
             ->assertOk()
             ->assertDontSee('Jedinstvena hero poruka samo za financijsko savjetovanje.')
             ->assertDontSee('Jedinstveni kontakt samo za financijsko savjetovanje');
+    }
+
+    public function test_advisory_subpage_seo_is_saved_per_page_without_losing_existing_payload(): void
+    {
+        config()->set('app.locale', 'hr');
+        config()->set('app.fallback_locale', 'hr');
+
+        $user = $this->makeAdminUser();
+        $page = ServicePage::query()
+            ->where('template_key', ServicePageTemplateRegistry::ADVISORY)
+            ->firstOrFail();
+        $translation = $page->translations()->where('locale', 'hr')->firstOrFail();
+        $payload = (array) $translation->payload;
+        data_set($payload, 'custom_extension.preserved_value', 'Ne diraj postojeći CMS payload.');
+        $translation->forceFill(['payload' => $payload])->save();
+
+        foreach ([
+            'financial' => ['Financijski CMS meta naslov', 'Financijski CMS meta opis.'],
+            'funding' => ['Financiranje CMS meta naslov', 'Financiranje CMS meta opis.'],
+        ] as $section => [$metaTitle, $metaDescription]) {
+            Livewire::withQueryParams(['locale' => 'hr', 'section' => $section])
+                ->actingAs($user)
+                ->test(ServiceForm::class, ['servicePageId' => $page->id])
+                ->assertSet('contentSection', $section)
+                ->set('form.locale', 'hr')
+                ->set('form.translation_payload.'.$section.'.meta_title', $metaTitle)
+                ->set('form.translation_payload.'.$section.'.meta_description', $metaDescription)
+                ->call('save')
+                ->assertHasNoErrors()
+                ->assertRedirect(route('admin.content.services.index', ['locale' => 'hr']));
+        }
+
+        $savedPayload = (array) $translation->fresh()->payload;
+
+        $this->assertSame('Financijski CMS meta naslov', data_get($savedPayload, 'financial.meta_title'));
+        $this->assertSame('Financijski CMS meta opis.', data_get($savedPayload, 'financial.meta_description'));
+        $this->assertSame('Financiranje CMS meta naslov', data_get($savedPayload, 'funding.meta_title'));
+        $this->assertSame('Financiranje CMS meta opis.', data_get($savedPayload, 'funding.meta_description'));
+        $this->assertSame('Ne diraj postojeći CMS payload.', data_get($savedPayload, 'custom_extension.preserved_value'));
     }
 
     public function test_admin_can_save_consolidated_main_advisory_content(): void
@@ -909,6 +1153,8 @@ class ContentServicesFeatureTest extends TestCase
         $this->assertStringContainsString('wire:model.live.debounce.300ms="form.translation_payload.approach.body_html"', $component->html());
         $this->assertStringContainsString('wire:model.live.debounce.300ms="form.translation_payload.resources.cards.0.body_html"', $component->html());
         $this->assertStringContainsString('wire:model="form.translation_payload.laws.cards.0.lists.0.items_text"', $component->html());
+        $this->assertStringContainsString('wire:model="form.translation_payload.calls.download_link.locale"', $component->html());
+        $this->assertStringContainsString('wire:model="form.translation_payload.laws.cards.0.secondary_link.locale"', $component->html());
         $this->assertStringNotContainsString('wire:model="form.translation_payload.overview.body.0"', $component->html());
         $this->assertStringNotContainsString('wire:model="form.translation_payload.approach.body.0"', $component->html());
         $this->assertStringNotContainsString('wire:model="form.translation_payload.testimonials.title"', $component->html());
@@ -936,6 +1182,7 @@ class ContentServicesFeatureTest extends TestCase
             ->set('form.translation_payload.approach.body_html', '<p><em>Custom pristup EU fondovima.</em></p>')
             ->set('form.translation_payload.resources.cards.0.body_html', '<p><u>Custom opis programa EU fondova.</u></p>')
             ->set('form.translation_payload.laws.cards.0.lists.0.items_text', "Custom zakonska stavka jedan\nCustom zakonska stavka dva")
+            ->set('form.translation_payload.laws.cards.0.secondary_link.locale', 'hr')
             ->call('save')
             ->assertHasNoErrors()
             ->assertRedirect(route('admin.content.services.index', ['locale' => 'hr']));
@@ -948,6 +1195,24 @@ class ContentServicesFeatureTest extends TestCase
             ->assertSee('<p><u>Custom opis programa EU fondova.</u></p>', false)
             ->assertSee('Custom zakonska stavka jedan')
             ->assertSee('Custom zakonska stavka dva');
+
+        $savedTranslation = $page->translations()->where('locale', 'hr')->firstOrFail();
+        $this->assertSame('hr', data_get($savedTranslation->payload, 'laws.cards.0.secondary_link.locale'));
+    }
+
+    public function test_eu_funds_pdf_language_must_be_an_active_cms_locale(): void
+    {
+        $user = $this->makeAdminUser();
+        $page = ServicePage::query()
+            ->where('template_key', ServicePageTemplateRegistry::EU_FUNDS)
+            ->firstOrFail();
+
+        Livewire::actingAs($user)
+            ->test(ServiceForm::class, ['servicePageId' => $page->id])
+            ->set('form.locale', 'hr')
+            ->set('form.translation_payload.laws.cards.0.secondary_link.locale', 'zz')
+            ->call('save')
+            ->assertHasErrors(['form.translation_payload.laws.cards.0.secondary_link.locale']);
     }
 
     public function test_admin_can_upload_pdf_asset_for_eu_funds_service_page(): void
@@ -975,6 +1240,92 @@ class ContentServicesFeatureTest extends TestCase
         $this->assertNotSame('', $storedPath);
         $this->assertStringStartsWith('service-assets/eu-funds/', $storedPath);
         Storage::disk('public')->assertExists($storedPath);
+    }
+
+    public function test_failed_eu_funds_pdf_save_removes_only_the_new_asset(): void
+    {
+        Storage::fake('public');
+
+        $user = $this->makeAdminUser();
+        $page = ServicePage::query()
+            ->where('template_key', ServicePageTemplateRegistry::EU_FUNDS)
+            ->firstOrFail();
+        $component = Livewire::withQueryParams(['locale' => 'hr'])
+            ->actingAs($user)
+            ->test(ServiceForm::class, ['servicePageId' => $page->id])
+            ->set(
+                'assetUploads.calls_download_link_path',
+                UploadedFile::fake()->create('failed-save.pdf', 80, 'application/pdf'),
+            );
+
+        DB::partialMock()
+            ->shouldReceive('transaction')
+            ->once()
+            ->andThrow(new \RuntimeException('Forced transaction failure after upload.'));
+
+        try {
+            $component->call('save');
+            $this->fail('The forced transaction exception was not thrown.');
+        } catch (\RuntimeException $exception) {
+            $this->assertSame('Forced transaction failure after upload.', $exception->getMessage());
+        }
+
+        $this->assertSame([], Storage::disk('public')->allFiles('service-assets/eu-funds'));
+    }
+
+    public function test_eu_funds_pdf_replacement_preserves_shared_old_asset_then_deletes_it_when_unreferenced(): void
+    {
+        Storage::fake('public');
+
+        $user = $this->makeAdminUser();
+        $page = ServicePage::query()
+            ->where('template_key', ServicePageTemplateRegistry::EU_FUNDS)
+            ->firstOrFail();
+        $sharedPath = 'service-assets/eu-funds/shared-reference.pdf';
+        Storage::disk('public')->put($sharedPath, 'shared PDF');
+
+        $croatian = $page->translations()->where('locale', 'hr')->firstOrFail();
+        $croatianPayload = (array) $croatian->payload;
+        data_set($croatianPayload, 'calls.download_link.path', $sharedPath);
+        $croatian->forceFill(['payload' => $croatianPayload])->save();
+
+        $englishPayload = $croatianPayload;
+        $english = $page->translations()->updateOrCreate(['locale' => 'en'], [
+            'title' => 'EU Funds',
+            'slug' => 'eu-funds',
+            'payload' => $englishPayload,
+        ]);
+
+        Livewire::withQueryParams(['locale' => 'hr'])
+            ->actingAs($user)
+            ->test(ServiceForm::class, ['servicePageId' => $page->id])
+            ->set(
+                'assetUploads.calls_download_link_path',
+                UploadedFile::fake()->create('croatian-replacement.pdf', 80, 'application/pdf'),
+            )
+            ->call('save')
+            ->assertHasNoErrors();
+
+        $croatianNewPath = (string) data_get($croatian->fresh()->payload, 'calls.download_link.path');
+        $this->assertNotSame($sharedPath, $croatianNewPath);
+        Storage::disk('public')->assertExists($croatianNewPath);
+        Storage::disk('public')->assertExists($sharedPath);
+
+        Livewire::withQueryParams(['locale' => 'en'])
+            ->actingAs($user)
+            ->test(ServiceForm::class, ['servicePageId' => $page->id])
+            ->set(
+                'assetUploads.calls_download_link_path',
+                UploadedFile::fake()->create('english-replacement.pdf', 80, 'application/pdf'),
+            )
+            ->call('save')
+            ->assertHasNoErrors();
+
+        $englishNewPath = (string) data_get($english->fresh()->payload, 'calls.download_link.path');
+        $this->assertNotSame($sharedPath, $englishNewPath);
+        Storage::disk('public')->assertExists($croatianNewPath);
+        Storage::disk('public')->assertExists($englishNewPath);
+        Storage::disk('public')->assertMissing($sharedPath);
     }
 
     public function test_admin_can_update_services_index_content_used_on_front(): void

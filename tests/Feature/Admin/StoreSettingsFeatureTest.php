@@ -199,7 +199,6 @@ class StoreSettingsFeatureTest extends TestCase
             'home_hero',
             'blog',
             'footer',
-            'official_entities',
             'captcha',
             'analytics',
             'seo',
@@ -212,6 +211,7 @@ class StoreSettingsFeatureTest extends TestCase
         ], $frontendSettings['captcha']);
         $this->assertSame('Alpha public test', $frontendSettings['branding']['store_name']);
         $this->assertSame('+385 1 555 0101', $frontendSettings['footer']['phone']);
+        $this->assertArrayNotHasKey('official_entities', $frontendSettings);
         $this->assertArrayNotHasKey('email', $frontendSettings);
         $this->assertArrayNotHasKey('newsletter', $frontendSettings);
         $this->assertArrayNotHasKey('announcement', $frontendSettings);
@@ -224,6 +224,9 @@ class StoreSettingsFeatureTest extends TestCase
 
         Livewire::actingAs($admin)
             ->test(StoreSettings::class)
+            ->set('tab', 'branding')
+            ->assertSee('wire:model="form.store_footer_phone"', false)
+            ->assertSee('wire:model="form.store_footer_email_support"', false)
             ->set('form.store_brand_name', 'Alpha frontend contract')
             ->set('form.store_footer_phone', '+385 1 555 0102')
             ->set('form.store_footer_email_sales', 'sales@example.test')

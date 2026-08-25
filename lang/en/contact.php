@@ -14,6 +14,12 @@ return [
         'min_string' => 'The :attribute field must be at least :min characters.',
         'max_string' => 'The :attribute field may not be greater than :max characters.',
         'security_check' => 'security check',
+        'attributes' => [
+            'first_name' => 'first name',
+            'last_name' => 'last name',
+            'company' => 'company',
+            'redirect_to' => 'redirect target',
+        ],
         'inline' => [
             'name_required' => 'Please enter your full name.',
             'email_required' => 'Please enter your email address.',

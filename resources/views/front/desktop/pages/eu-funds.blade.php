@@ -21,31 +21,19 @@
     $callGroups = array_values((array) ($callsSection['groups'] ?? []));
     $resourceCards = array_values((array) ($resourcesSection['cards'] ?? []));
     $lawCards = array_values((array) ($lawsSection['cards'] ?? []));
-    $isCroatian = str_starts_with(strtolower((string) ($locale ?? app()->getLocale())), 'hr');
-    $readMoreLabel = trim((string) ($blogSection['post_action_label'] ?? ''))
-        ?: ($isCroatian ? 'Opširnije' : 'Read more');
-    $allPostsLabel = trim((string) ($blogSection['all_posts_label'] ?? ''))
-        ?: ($isCroatian ? 'Pogledaj sve objave' : 'View all posts');
-    $viewAllCallsLabel = trim((string) ($callsSection['view_all_label'] ?? ''))
-        ?: ($isCroatian ? 'Pogledaj sve natječaje' : 'View all calls');
-    $meetingTitle = trim((string) ($meetingSection['title'] ?? ''))
-        ?: ($isCroatian ? 'Razgovarajmo o vašem projektu' : 'Let’s discuss your project');
-    $meetingIntro = trim((string) ($meetingSection['intro'] ?? ''))
-        ?: ($isCroatian
-            ? 'Javite nam se i zajedno ćemo procijeniti koji su izvori financiranja dostupni za vaš projekt.'
-            : 'Contact us and we will assess which funding sources are available for your project.');
-    $meetingCardTitle = trim((string) ($meetingSection['contact_title'] ?? ''))
-        ?: ($isCroatian ? 'Kontaktirajte nas' : 'Contact us');
-    $meetingButtonLabel = trim((string) ($meetingSection['button_label'] ?? ''))
-        ?: ($isCroatian ? 'Dogovorite sastanak' : 'Schedule a meeting');
-    $meetingStatus = trim((string) ($meetingSection['status'] ?? ''))
-        ?: ($isCroatian ? 'Termin razgovora prilagođavamo vama.' : 'We arrange the meeting around your schedule.');
-    $heroLabel = trim((string) ($heroSection['subtitle_lead'] ?? '')) ?: 'EU fondovi';
+    $readMoreLabel = trim((string) ($blogSection['post_action_label'] ?? ''));
+    $allPostsLabel = trim((string) ($blogSection['all_posts_label'] ?? ''));
+    $viewAllCallsLabel = trim((string) ($callsSection['view_all_label'] ?? ''));
+    $meetingTitle = trim((string) ($meetingSection['title'] ?? ''));
+    $meetingIntro = trim((string) ($meetingSection['intro'] ?? ''));
+    $meetingCardTitle = trim((string) ($meetingSection['contact_title'] ?? ''));
+    $meetingButtonLabel = trim((string) ($meetingSection['button_label'] ?? ''));
+    $meetingStatus = trim((string) ($meetingSection['status'] ?? ''));
+    $heroLabel = trim((string) ($heroSection['subtitle_lead'] ?? ''));
     $heroAccent = trim((string) ($heroSection['subtitle_accent'] ?? ''));
     $heroLabel = trim($heroLabel.' '.$heroAccent);
     $heroHook = trim((string) ($heroSection['intro'] ?? ''));
-    $heroImageAlt = trim((string) ($heroSection['image_alt'] ?? ''))
-        ?: ($isCroatian ? 'Savjetovanje i podrška za EU fondove' : 'EU funds advisory and support');
+    $heroImageAlt = trim((string) ($heroSection['image_alt'] ?? ''));
     $serviceIcons = ['fa-magnifying-glass-chart', 'fa-file-certificate', 'fa-diagram-project', 'fa-wallet', 'fa-badge-percent', 'fa-bullseye-pointer'];
     $sourceIcons = ['fa-folder-open', 'fa-lightbulb-on', 'fa-file-check', 'fa-coins', 'fa-badge-percent', 'fa-landmark-dome'];
     $headingWords = static fn (string $heading): array => preg_split('/\s+/u', trim($heading)) ?: [];
@@ -68,6 +56,8 @@
     $resolveContentUrl = static function (?string $url): string {
         $target = trim((string) $url);
 
+        $target = \App\Support\Localization\FrontendRoute::localizeUrl($target);
+
         if ($target === '' || str_starts_with($target, '#') || str_starts_with($target, 'http://') || str_starts_with($target, 'https://')) {
             return $target;
         }
@@ -76,11 +66,10 @@
     };
     $heroImageUrl = $sameOriginAssetUrl((string) $heroBackgroundUrl);
     $hasEuFundsPosts = ($euFundsPosts ?? collect())->isNotEmpty();
-    $blogHeadingTitle = trim((string) ($blogSection['title'] ?? ''))
-        ?: ($isCroatian ? 'Stručni uvidi u EU fondove i financiranje' : 'Expert insights into EU funds and financing');
+    $blogHeadingTitle = trim((string) ($blogSection['title'] ?? ''));
 @endphp
 
-@section('title', $servicePageMetaTitle !== '' ? $servicePageMetaTitle : ($servicePageTitle ?? $heroLabel))
+@section('title', $servicePageMetaTitle)
 @section('main_class', 'w-full px-0 py-0')
 
 @push('styles')
@@ -218,8 +207,8 @@
                 @if ($callGroups !== [])
                     <div id="eu-funds-calls" class="ac-eu-call-module" aria-labelledby="ac-eu-funds-calls-title">
                         <header class="ac-eu-module-heading">
-                            <p class="ac-eu-module-kicker">{{ $callsSection['kicker'] ?? 'NATJEČAJI' }}</p>
-                            <h3 id="ac-eu-funds-calls-title">{{ $callsSection['title'] ?? 'Natječaji prema statusu' }}</h3>
+                            <p class="ac-eu-module-kicker">{{ trim((string) ($callsSection['kicker'] ?? '')) }}</p>
+                            <h3 id="ac-eu-funds-calls-title">{{ trim((string) ($callsSection['title'] ?? '')) }}</h3>
                             @if (trim((string) ($callsSection['intro'] ?? '')) !== '')
                                 <p>{{ $callsSection['intro'] }}</p>
                             @endif
@@ -232,15 +221,11 @@
                                     $items = array_values((array) ($group['items'] ?? []));
                                     $visibleItems = array_slice($items, 0, 5);
                                     $hiddenItems = array_slice($items, 5);
-                                    $statusLabel = trim((string) ($group['status_label'] ?? '')) ?: match ($tone) {
-                                        'open' => 'Otvoreno',
-                                        'closed' => 'Zatvoreno',
-                                        default => 'U najavi',
-                                    };
+                                    $statusLabel = trim((string) ($group['status_label'] ?? ''));
                                 @endphp
                                 <article id="eu-funds-calls-{{ $tone }}" class="ac-eu-call-group-card content-reveal animation-index-{{ $loop->index }}" data-image-reveal>
                                     <div class="ac-eu-call-group-head">
-                                        <h3>{{ $group['title'] ?? $statusLabel }}</h3>
+                                        <h3>{{ trim((string) ($group['title'] ?? '')) }}</h3>
                                         <span class="ac-eu-status-badge is-{{ $tone }}">{{ $statusLabel }}</span>
                                     </div>
 
@@ -321,7 +306,7 @@
                                         @foreach (['primary_link', 'secondary_link'] as $linkKey)
                                             @if (!empty($card[$linkKey]['url'] ?? ''))
                                                 <a href="{{ $card[$linkKey]['url'] }}" class="ac-eu-editorial-link" @if($card[$linkKey]['open_in_new_tab'] ?? false) target="_blank" rel="{{ $card[$linkKey]['rel'] ?? 'noopener noreferrer' }}" @endif>
-                                                    <span>{{ $card[$linkKey]['label'] ?: $readMoreLabel }}</span>
+                                                    <span>{{ $card[$linkKey]['label'] }}</span>
                                                     <i class="fa-duotone fa-thin fa-arrow-right fa-fw" aria-hidden="true"></i>
                                                 </a>
                                             @endif
@@ -377,7 +362,7 @@
                                         @foreach (['primary_link', 'secondary_link'] as $linkKey)
                                             @if (!empty($card[$linkKey]['url'] ?? ''))
                                                 <a href="{{ $card[$linkKey]['url'] }}" class="ac-eu-editorial-link" @if($card[$linkKey]['open_in_new_tab'] ?? false) target="_blank" rel="{{ $card[$linkKey]['rel'] ?? 'noopener noreferrer' }}" @endif>
-                                                    <span>{{ $card[$linkKey]['label'] ?: $readMoreLabel }}</span>
+                                                    <span>{{ $card[$linkKey]['label'] }}</span>
                                                     <i class="fa-duotone fa-thin fa-arrow-right fa-fw" aria-hidden="true"></i>
                                                 </a>
                                             @endif
@@ -417,17 +402,17 @@
                                 $postSlug = trim((string) ($translation?->slug ?? ''));
                                 $postUrl = $postSlug !== '' ? route('blog.show', ['slug' => $postSlug]) : route('blog.index');
                                 $postTitle = trim((string) ($translation?->title ?? $post->code));
-                                $postExcerpt = trim((string) ($translation?->excerpt ?? '')) ?: __('ui.blog.excerpt_fallback');
+                                $postExcerpt = trim((string) ($translation?->excerpt ?? ''));
                                 $postExcerpt = \Illuminate\Support\Str::limit($postExcerpt, 190, '...', true);
                                 $primaryCategory = $post->categories
                                     ->sortByDesc(fn ($category) => (int) ($category->pivot->is_primary ?? false))
                                     ->first();
                                 $categoryTranslation = $primaryCategory?->translations->firstWhere('locale', $locale)
                                     ?? $primaryCategory?->translations->firstWhere('locale', $fallbackLocale);
-                                $categoryLabel = trim((string) ($categoryTranslation?->name ?? ($isCroatian ? 'Novosti' : 'News')));
+                                $categoryLabel = trim((string) ($categoryTranslation?->name ?? $euFundsCategoryName ?? ''));
                             @endphp
 
-                            <a class="news-card animation-index-{{ $loop->index }}" data-image-reveal href="{{ $postUrl }}" aria-label="{{ $isCroatian ? 'Otvori blog post' : 'Open blog post' }}: {{ $postTitle }}">
+                            <a class="news-card animation-index-{{ $loop->index }}" data-image-reveal href="{{ $postUrl }}" aria-label="{{ $postTitle }}">
                                 <span class="news-card-category">{{ $categoryLabel }}</span>
                                 <h3>{{ $postTitle }}</h3>
                                 <p>{{ $postExcerpt }}</p>
@@ -455,7 +440,7 @@
                 <div class="contact-cta-card" data-image-reveal>
                     <h3 class="contact-cta-card-heading">{{ $meetingCardTitle }}</h3>
                     <p>{{ $meetingIntro }}</p>
-                    <a class="contact-cta-button" href="{{ route('contact.create') }}">
+                    <a class="contact-cta-button" href="{{ \App\Support\Localization\FrontendRoute::url('contact.create') }}">
                         <span>{{ $meetingButtonLabel }}</span>
                         <i class="fa-duotone fa-thin fa-arrow-right" aria-hidden="true"></i>
                     </a>

@@ -5,6 +5,7 @@ namespace App\Livewire\Admin\Content\Call;
 use App\Models\Catalog\Category\Category;
 use App\Models\Content\Call\CallPost;
 use App\Models\Content\Call\CallPostTranslation;
+use App\Models\Settings\Local\Language;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -14,7 +15,9 @@ use Livewire\Component;
 class Form extends Component
 {
     public ?int $postId = null;
+
     public string $activeTab = 'content';
+
     public string $categorySearch = '';
 
     public array $form = [
@@ -37,7 +40,10 @@ class Form extends Component
 
     public function mount(?int $postId = null): void
     {
-        $this->form['locale'] = (string) (request()->query('locale') ?: app()->getLocale() ?: config('admin_ui.locale.default', 'hr'));
+        $requestedLocale = strtolower((string) (request()->query('locale') ?: app()->getLocale() ?: config('admin_ui.locale.default', 'hr')));
+        $this->form['locale'] = in_array($requestedLocale, $this->localeOptions(), true)
+            ? $requestedLocale
+            : $this->resolveDefaultLocale();
 
         if ($postId) {
             $this->postId = $postId;
@@ -60,7 +66,7 @@ class Form extends Component
 
     public function setTab(string $tab): void
     {
-        if (!in_array($tab, ['content', 'seo', 'media'], true)) {
+        if (! in_array($tab, ['content', 'seo', 'media'], true)) {
             return;
         }
 
@@ -77,10 +83,12 @@ class Form extends Component
         $slug = Str::slug($title);
         if ($slug !== '') {
             $this->form['slug'] = $slug;
-            $this->form['code'] = $this->uniqueCodeFromBase($slug);
+            if (! $this->postId) {
+                $this->form['code'] = $this->uniqueCodeFromBase($slug);
+            }
         }
 
-        if (trim((string) ($this->form['meta_title'] ?? '')) === '') {
+        if (! $this->postId && trim((string) ($this->form['meta_title'] ?? '')) === '') {
             $this->form['meta_title'] = Str::limit($title, 255, '');
         }
     }
@@ -133,19 +141,28 @@ class Form extends Component
 
         DB::transaction(function () use ($validated, $payload, $translationPayload, $userId, $wasEditing): void {
             $payload = is_array($payload) ? $payload : [];
+            $post = $this->postId ? CallPost::query()->findOrFail($this->postId) : null;
+            $publishedAt = $validated['form']['published_at'] ?: null;
+
+            if (
+                $post?->published_at
+                && is_string($publishedAt)
+                && $publishedAt === $post->published_at->format('Y-m-d')
+            ) {
+                $publishedAt = $post->published_at;
+            }
 
             $postData = [
                 'code' => trim((string) $validated['form']['code']),
                 'is_active' => (bool) $validated['form']['is_active'],
                 'is_featured' => (bool) $validated['form']['is_featured'],
-                'published_at' => $validated['form']['published_at'] ?: null,
+                'published_at' => $publishedAt,
                 'sort_order' => (int) $validated['form']['sort_order'],
                 'payload' => $payload,
                 'updated_by' => $userId,
             ];
 
-            if ($this->postId) {
-                $post = CallPost::query()->findOrFail($this->postId);
+            if ($post) {
                 $post->fill($postData)->save();
             } else {
                 $post = CallPost::query()->create($postData + ['created_by' => $userId]);
@@ -159,17 +176,26 @@ class Form extends Component
                     'slug' => $validated['form']['slug'],
                     'excerpt' => $validated['form']['excerpt'] ?: null,
                     'body_html' => $validated['form']['body_html'] ?: null,
-                    'meta_title' => $this->resolvedMetaTitle((string) $validated['form']['title'], $validated['form']['meta_title'] ?? null),
+                    'meta_title' => $this->resolvedMetaTitle($validated['form']['meta_title'] ?? null),
                     'meta_description' => $this->resolvedMetaDescription((string) ($validated['form']['body_html'] ?? ''), $validated['form']['meta_description'] ?? null),
                     'payload' => $translationPayload,
                 ]
             );
 
+            $existingPivots = $post->categories()
+                ->get()
+                ->mapWithKeys(fn ($category): array => [
+                    (int) $category->id => [
+                        'sort_order' => (int) $category->pivot->sort_order,
+                        'is_primary' => (bool) $category->pivot->is_primary,
+                    ],
+                ]);
             $syncPayload = [];
             foreach (array_values($validated['form']['category_ids'] ?? []) as $index => $categoryId) {
+                $existingPivot = $existingPivots->get((int) $categoryId);
                 $syncPayload[(int) $categoryId] = [
-                    'sort_order' => $index,
-                    'is_primary' => $index === 0,
+                    'sort_order' => $existingPivot['sort_order'] ?? $index,
+                    'is_primary' => $existingPivot['is_primary'] ?? ($index === 0),
                 ];
             }
             $post->categories()->sync($syncPayload);
@@ -315,7 +341,7 @@ class Form extends Component
             'form.sort_order' => ['nullable', 'integer', 'min:0'],
             'form.payload_text' => ['nullable', 'string'],
 
-            'form.locale' => ['required', 'string', 'max:12'],
+            'form.locale' => ['required', Rule::in($this->localeOptions())],
             'form.title' => ['required', 'string', 'max:255'],
             'form.slug' => [
                 'required',
@@ -341,7 +367,7 @@ class Form extends Component
 
     private function loadPost(): void
     {
-        if (!$this->postId) {
+        if (! $this->postId) {
             return;
         }
 
@@ -350,10 +376,8 @@ class Form extends Component
             ->with(['categories' => fn ($q) => $q->orderBy('content_call_post_category.sort_order')])
             ->findOrFail($this->postId);
 
-        $preferredLocale = $this->form['locale'] ?: config('app.locale', 'en');
-        $translation = $post->translations->firstWhere('locale', $preferredLocale)
-            ?? $post->translations->firstWhere('locale', config('app.locale', 'en'))
-            ?? $post->translations->first();
+        $preferredLocale = $this->form['locale'] ?: $this->resolveDefaultLocale();
+        $translation = $post->translations->firstWhere('locale', $preferredLocale);
 
         $this->form['code'] = $post->code;
         $this->form['is_active'] = (bool) $post->is_active;
@@ -366,7 +390,6 @@ class Form extends Component
         $this->form['category_ids'] = $post->categories->pluck('id')->map(fn ($id) => (int) $id)->all();
 
         if ($translation) {
-            $this->form['locale'] = $translation->locale;
             $this->form['title'] = $translation->title;
             $this->form['slug'] = $translation->slug;
             $this->form['excerpt'] = $translation->excerpt ?? '';
@@ -376,13 +399,16 @@ class Form extends Component
             $this->form['translation_payload_text'] = $translation->payload
                 ? json_encode($translation->payload, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES)
                 : '';
+        } else {
+            $this->clearTranslationFields();
         }
     }
 
     private function loadTranslationForLocale(): void
     {
-        if (!$this->postId) {
+        if (! $this->postId) {
             $this->clearTranslationFields();
+
             return;
         }
 
@@ -391,8 +417,9 @@ class Form extends Component
             ->where('locale', $this->form['locale'])
             ->first();
 
-        if (!$translation) {
+        if (! $translation) {
             $this->clearTranslationFields();
+
             return;
         }
 
@@ -433,12 +460,14 @@ class Form extends Component
         if (json_last_error() !== JSON_ERROR_NONE) {
             $this->addError($field, __('Invalid JSON payload.'));
             $this->dispatch('notify', type: 'danger', message: __('Invalid JSON payload.'));
+
             return false;
         }
 
-        if (!is_array($decoded)) {
+        if (! is_array($decoded)) {
             $this->addError($field, __('JSON payload must decode to object/array.'));
             $this->dispatch('notify', type: 'danger', message: __('JSON payload must decode to object/array.'));
+
             return false;
         }
 
@@ -468,18 +497,15 @@ class Form extends Component
     {
         $plain = preg_replace('/\s+/u', ' ', trim(strip_tags($bodyHtml)));
         $plain = html_entity_decode((string) $plain, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+
         return Str::limit(trim($plain), 160, '...');
     }
 
-    private function resolvedMetaTitle(string $title, ?string $metaTitle): ?string
+    private function resolvedMetaTitle(?string $metaTitle): ?string
     {
         $value = trim((string) $metaTitle);
-        if ($value !== '') {
-            return Str::limit($value, 255, '');
-        }
 
-        $fallback = trim($title);
-        return $fallback === '' ? null : Str::limit($fallback, 255, '');
+        return $value === '' ? null : Str::limit($value, 255, '');
     }
 
     private function resolvedMetaDescription(string $bodyHtml, ?string $metaDescription): ?string
@@ -490,7 +516,40 @@ class Form extends Component
         }
 
         $auto = $this->metaDescriptionFromBody($bodyHtml);
+
         return $auto !== '' ? $auto : null;
     }
 
+    /**
+     * @return array<int, string>
+     */
+    private function localeOptions(): array
+    {
+        $locales = Language::query()
+            ->where('is_active', true)
+            ->orderBy('sort_order')
+            ->pluck('code')
+            ->map(fn ($code): string => strtolower((string) $code))
+            ->all();
+
+        if ($locales === []) {
+            return [strtolower((string) (config('admin_ui.locale.default', 'hr') ?: 'hr'))];
+        }
+
+        return array_values(array_unique($locales));
+    }
+
+    private function resolveDefaultLocale(): string
+    {
+        $default = Language::query()
+            ->where('is_active', true)
+            ->where('is_default', true)
+            ->value('code');
+
+        if (is_string($default) && $default !== '') {
+            return strtolower($default);
+        }
+
+        return $this->localeOptions()[0] ?? 'hr';
+    }
 }

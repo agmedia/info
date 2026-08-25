@@ -117,6 +117,32 @@ class ServicePageTemplateRegistry
         };
     }
 
+    public static function canonicalStructuralSlug(string $templateKey, string $locale): ?string
+    {
+        $locale = strtolower(trim($locale));
+        $locale = (string) preg_split('/[-_]/', $locale, 2)[0];
+
+        return match ($locale) {
+            'hr' => match ($templateKey) {
+                self::SERVICES_INDEX => 'usluge',
+                self::AUDIT => 'revizija',
+                self::ACCOUNTING => 'racunovodstvo',
+                self::ADVISORY => 'savjetovanje',
+                self::EU_FUNDS => 'eu-fondovi',
+                default => null,
+            },
+            'en' => match ($templateKey) {
+                self::SERVICES_INDEX => 'services',
+                self::AUDIT => 'audit',
+                self::ACCOUNTING => 'accounting',
+                self::ADVISORY => 'advisory',
+                self::EU_FUNDS => 'eu-funds',
+                default => null,
+            },
+            default => null,
+        };
+    }
+
     /**
      * @return array<string, mixed>
      */
@@ -442,6 +468,20 @@ class ServicePageTemplateRegistry
         }
 
         return $defaults;
+    }
+
+    /**
+     * Return only the structural shape required by the CMS editor. This is
+     * deliberately copy-free so a missing non-default translation cannot be
+     * populated from PHP defaults merely by opening and saving the form.
+     *
+     * @return array<string, mixed>
+     */
+    public static function blankTranslationPayload(string $templateKey, ?string $locale = null): array
+    {
+        return self::blankEditorValues(
+            self::defaultTranslationPayload($templateKey, $locale)
+        );
     }
 
     /**
@@ -1235,5 +1275,34 @@ class ServicePageTemplateRegistry
         }
 
         return $defaults;
+    }
+
+    /**
+     * @param  array<string|int, mixed>  $values
+     * @return array<string|int, mixed>
+     */
+    private static function blankEditorValues(array $values): array
+    {
+        foreach ($values as $key => $value) {
+            if (is_array($value)) {
+                $values[$key] = self::blankEditorValues($value);
+
+                continue;
+            }
+
+            // Stable card keys are editor structure, not translatable copy.
+            if ($key === 'key') {
+                continue;
+            }
+
+            $values[$key] = match (true) {
+                is_bool($value) => false,
+                is_int($value), is_float($value) => 0,
+                $value === null => null,
+                default => '',
+            };
+        }
+
+        return $values;
     }
 }

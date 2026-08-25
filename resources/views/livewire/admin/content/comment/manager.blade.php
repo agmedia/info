@@ -34,7 +34,7 @@
                         <select wire:model.live="locale" data-tom-select data-tom-no-search="1" class="admin-search-input admin-select w-full rounded-xl border px-3 py-2 text-sm lowercase">
                             <option value="all">{{ __('all') }}</option>
                             @foreach ($adminLocaleOptions as $localeOption)
-                                <option value="{{ $localeOption }}">{{ $localeOption }}</option>
+                                <option value="{{ $localeOption }}" @selected(($form['locale'] ?? '') === $localeOption)>{{ $localeOption }}</option>
                             @endforeach
                         </select>
                     </div>

@@ -3,6 +3,7 @@
 namespace App\Http\Middleware;
 
 use App\Models\Settings\Local\Language;
+use App\Support\Localization\FrontendLocalePolicy;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\App;
@@ -18,11 +19,21 @@ class SetFrontendLocale
         $sessionLocale = $this->normalizeLocale((string) $request->session()->get('front_locale', ''));
         $locale = in_array($sessionLocale, $availableCodes, true) ? $sessionLocale : $defaultLocale;
 
-        App::setLocale($locale);
         $request->attributes->set('front_locale', $locale);
+        $request->attributes->set('front_default_locale', $defaultLocale);
+        $request->attributes->set('front_available_locales', $availableCodes);
+        $requiresExactTranslation = FrontendLocalePolicy::requiresExactTranslation($locale, $defaultLocale);
+        $request->attributes->set(
+            'front_requires_exact_translation',
+            $requiresExactTranslation
+        );
+
+        App::setLocale($locale);
 
         View::share('frontLocale', $locale);
         View::share('frontLanguages', $availableLanguages);
+        View::share('frontDefaultLocale', $defaultLocale);
+        View::share('frontRequiresExactTranslation', $requiresExactTranslation);
 
         return $next($request);
     }

@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Controllers\Front\Concerns\ResolvesFrontendView;
 use App\Models\Content\Page\InfoPage;
 use App\Models\Content\Team\TeamMember;
+use App\Support\Localization\FrontendLocalePolicy;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
@@ -17,21 +18,45 @@ class TeamController extends Controller
     public function index(Request $request): View
     {
         $locale = app()->getLocale();
-        $fallbackLocale = (string) config('app.fallback_locale', config('app.locale', 'en'));
+        $fallbackLocale = FrontendLocalePolicy::fallbackLocale(
+            (string) $locale,
+            (string) config('app.fallback_locale', config('app.locale', 'en'))
+        );
         $teamPage = InfoPage::query()
             ->where('code', 'team-page')
             ->where('is_active', true)
-            ->with('translations')
+            ->where(function ($query): void {
+                $query->whereNull('published_at')
+                    ->orWhere('published_at', '<=', now());
+            })
+            ->with(['translations' => fn ($query) => $query->when(
+                FrontendLocalePolicy::requiresExactTranslation((string) $locale),
+                fn ($translationQuery) => $translationQuery->whereIn('locale', [$locale, $fallbackLocale])
+            )])
             ->first();
         $teamPageTranslation = $teamPage?->translations->firstWhere('locale', $locale)
             ?? $teamPage?->translations->firstWhere('locale', $fallbackLocale)
             ?? $teamPage?->translations->first();
+        abort_if(
+            FrontendLocalePolicy::requiresExactTranslation((string) $locale) && ! $teamPageTranslation,
+            404
+        );
         $teamIntro = trim((string) ($teamPageTranslation?->excerpt ?? ''))
             ?: (string) __('ui.team.subtitle');
 
         $members = TeamMember::query()
             ->where('is_active', true)
-            ->with(['translations', 'media'])
+            ->when(
+                FrontendLocalePolicy::requiresExactTranslation((string) $locale),
+                fn ($query) => $query->whereHas('translations', fn ($translationQuery) => $translationQuery->where('locale', $locale))
+            )
+            ->with([
+                'translations' => fn ($query) => $query->when(
+                    FrontendLocalePolicy::requiresExactTranslation((string) $locale),
+                    fn ($translationQuery) => $translationQuery->whereIn('locale', [$locale, $fallbackLocale])
+                ),
+                'media',
+            ])
             ->orderBy('sort_order')
             ->orderBy('id')
             ->get()

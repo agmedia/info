@@ -60,47 +60,36 @@ return new class extends Migration
                 ->where('locale', $locale)
                 ->first(['id', 'payload']);
 
-            if (! $translation) {
+            // Existing CMS rows are authoritative, including intentionally blank
+            // payloads. Only a completely missing locale may be seeded here.
+            if ($translation) {
                 continue;
             }
 
-            $payload = json_decode((string) ($translation->payload ?? ''), true);
-            $payload = is_array($payload) ? $payload : [];
-            $payload['hero'] = is_array($payload['hero'] ?? null) ? $payload['hero'] : [];
-            $payload['overview'] = is_array($payload['overview'] ?? null) ? $payload['overview'] : [];
-            $changed = false;
-
-            if (trim((string) ($payload['hero']['intro'] ?? '')) === $copy['legacy_hero_intro']) {
-                $payload['hero']['intro'] = $copy['hero_intro'];
-                $changed = true;
-            }
-
-            $overviewBody = array_values(array_map(
-                static fn ($paragraph): string => trim((string) $paragraph),
-                (array) ($payload['overview']['body'] ?? [])
-            ));
-
-            if (
-                trim((string) ($payload['overview']['title'] ?? '')) === $copy['legacy_overview_title']
-                && $overviewBody === $copy['legacy_overview_body']
-            ) {
-                $payload['overview']['title'] = $copy['overview_title'];
-                $payload['overview']['highlight_title'] = $copy['overview_title'];
-                $payload['overview']['intro'] = '';
-                $payload['overview']['body'] = $copy['overview_body'];
-                $changed = true;
-            }
-
-            if (! $changed) {
+            $slug = ServicePageTemplateRegistry::canonicalStructuralSlug($templateKey, $locale);
+            if (! is_string($slug) || $slug === '') {
                 continue;
             }
 
-            DB::table('content_service_page_translations')
-                ->where('id', $translation->id)
-                ->update([
-                    'payload' => json_encode($payload, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES),
-                    'updated_at' => now(),
-                ]);
+            DB::table('content_service_page_translations')->insert([
+                'service_page_id' => $servicePageId,
+                'locale' => $locale,
+                'title' => $locale === 'hr' ? 'Računovodstvo' : 'Accounting',
+                'slug' => $slug,
+                'meta_title' => null,
+                'meta_description' => null,
+                'payload' => json_encode([
+                    'hero' => ['intro' => $copy['hero_intro']],
+                    'overview' => [
+                        'title' => $copy['overview_title'],
+                        'highlight_title' => $copy['overview_title'],
+                        'intro' => '',
+                        'body' => $copy['overview_body'],
+                    ],
+                ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES),
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
         }
     }
 

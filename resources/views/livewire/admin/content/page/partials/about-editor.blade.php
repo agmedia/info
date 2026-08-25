@@ -82,7 +82,7 @@
                 <label class="block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Hero fotografija</label>
                 <span class="admin-chip">{{ ($pageHeroImage['is_custom'] ?? false) ? 'Vlastita slika' : 'Zadana slika' }}</span>
             </div>
-            <input type="file" wire:model="pageHeroImageUpload" accept="image/jpeg,image/png,image/webp,image/avif" class="mt-1 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm file:mr-3 file:rounded-lg file:border-0 file:bg-slate-100 file:px-3 file:py-1.5 file:text-xs file:font-semibold file:text-slate-700 hover:file:bg-slate-200" />
+            <input type="file" wire:model="pageHeroImageUpload" accept="{{ implode(',', \App\Support\Media\MediaProfileRegistry::supportedImageMimeTypes(['image/jpeg', 'image/png', 'image/webp', 'image/avif'])) }}" class="mt-1 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm file:mr-3 file:rounded-lg file:border-0 file:bg-slate-100 file:px-3 file:py-1.5 file:text-xs file:font-semibold file:text-slate-700 hover:file:bg-slate-200" />
             <p class="mt-1 text-xs text-slate-500">Preporučeni omjer je približno 4:3. Nova slika sprema se zajedno sa stranicom.</p>
             @error('pageHeroImageUpload') <p class="mt-1 text-xs text-rose-600">{{ $message }}</p> @enderror
 

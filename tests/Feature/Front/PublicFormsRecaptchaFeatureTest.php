@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Front;
 
+use App\Models\Content\Page\InfoPage;
 use App\Models\Content\Resource\ResourceDocument;
 use App\Models\Content\Resource\ResourceDocumentTranslation;
 use App\Models\Content\Support\ContactMessage;
@@ -18,9 +19,10 @@ class PublicFormsRecaptchaFeatureTest extends TestCase
     {
         $this->enableRecaptcha();
         $this->createResourceDocument();
+        $this->enableCareerApplicationForm();
 
         $forms = [
-            '/contact' => 'contact_form',
+            '/kontakt' => 'contact_form',
             '/karijera' => 'career_application_form',
             '/ac-forma-robot' => 'collaboration_assessment_form',
             '/eu-fondovi/upitnik' => 'eu_funds_questionnaire_form',
@@ -28,13 +30,26 @@ class PublicFormsRecaptchaFeatureTest extends TestCase
         ];
 
         foreach ($forms as $url => $action) {
-            $this->get($url)
+            $content = (string) $this->get($url)
                 ->assertOk()
-                ->assertSee('data-recaptcha-form', false)
-                ->assertSee('data-recaptcha-site-key="public-recaptcha-site-key"', false)
-                ->assertSee('data-recaptcha-action="'.$action.'"', false)
-                ->assertSee('https://www.google.com/recaptcha/api.js?render=public-recaptcha-site-key', false)
-                ->assertDontSee('private-recaptcha-secret-key', false);
+                ->getContent();
+
+            foreach ([
+                'data-recaptcha-form',
+                'data-recaptcha-site-key="public-recaptcha-site-key"',
+                'data-recaptcha-action="'.$action.'"',
+                'https://www.google.com/recaptcha/api.js?render=public-recaptcha-site-key',
+            ] as $expected) {
+                $this->assertTrue(
+                    str_contains($content, $expected),
+                    $url.' is missing '.$expected,
+                );
+            }
+
+            $this->assertFalse(
+                str_contains($content, 'private-recaptcha-secret-key'),
+                $url.' exposed the private reCAPTCHA secret',
+            );
         }
     }
 
@@ -44,7 +59,7 @@ class PublicFormsRecaptchaFeatureTest extends TestCase
         $this->createResourceDocument();
 
         $endpoints = [
-            '/contact',
+            '/kontakt',
             '/karijera/prijava',
             '/ac-forma-robot',
             '/eu-fondovi/upitnik',
@@ -68,7 +83,7 @@ class PublicFormsRecaptchaFeatureTest extends TestCase
             ]),
         ]);
 
-        $this->post('/contact', [
+        $this->post('/kontakt', [
             'name' => 'Sigurnosni test',
             'email' => 'recaptcha@example.test',
             'message' => 'Provjera da token iz druge forme nije prihvaćen.',
@@ -108,5 +123,27 @@ class PublicFormsRecaptchaFeatureTest extends TestCase
             'slug' => 'recaptcha-test-resource',
             'excerpt' => 'Testni dokument za provjeru zaštite javne forme.',
         ]);
+    }
+
+    private function enableCareerApplicationForm(): void
+    {
+        InfoPage::query()
+            ->where('code', 'career')
+            ->firstOrFail()
+            ->translation('hr')
+            ->firstOrFail()
+            ->update([
+                'payload' => [
+                    'career_page' => [
+                        'application' => [
+                            'title' => 'CMS test application',
+                        ],
+                        'form' => [
+                            'title' => 'CMS test application form',
+                            'intro' => 'CMS test form introduction.',
+                        ],
+                    ],
+                ],
+            ]);
     }
 }

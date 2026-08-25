@@ -8,9 +8,14 @@ use App\Models\Content\Blog\BlogPostTranslation;
 use App\Models\Content\Glossary\GlossaryTerm;
 use App\Models\Content\Glossary\GlossaryTermTranslation;
 use App\Models\Content\Page\InfoPage;
+use App\Models\Content\Service\ServicePage;
 use App\Services\Content\GlossaryImportService;
+use App\Support\Content\ServicePageTemplateRegistry;
+use App\Support\Localization\FrontendLocalePolicy;
+use App\Support\Localization\FrontendRoute;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
 
 class SiteSearchService
@@ -20,6 +25,7 @@ class SiteSearchService
      */
     public function search(string $query, string $locale, string $fallbackLocale, ?int $limitPerSection = null): array
     {
+        $fallbackLocale = FrontendLocalePolicy::fallbackLocale($locale, $fallbackLocale);
         $query = trim($query);
         $normalizedQuery = $this->normalize($query);
 
@@ -43,6 +49,10 @@ class SiteSearchService
      */
     private function searchServices(string $normalizedQuery, string $locale, ?int $limit = null): Collection
     {
+        if (FrontendLocalePolicy::requiresExactTranslation($locale)) {
+            return $this->searchTranslatedServices($normalizedQuery, $locale, $limit);
+        }
+
         $isCroatian = Str::startsWith(Str::lower($locale), 'hr');
         $catalog = collect([
             [
@@ -134,7 +144,7 @@ class SiteSearchService
         string $fallbackLocale,
         ?int $limit = null,
     ): Collection {
-        $collectionCode = $this->resolveGlossaryCollectionCode();
+        $collectionCode = $this->resolveGlossaryCollectionCode($locale);
 
         if ($collectionCode === null) {
             return collect();
@@ -143,6 +153,11 @@ class SiteSearchService
         $query = GlossaryTerm::query()
             ->where('is_active', true)
             ->where('collection_code', $collectionCode)
+            ->when(
+                FrontendLocalePolicy::requiresExactTranslation($locale),
+                fn (Builder $query) => $query->whereHas('translations', fn (Builder $translationQuery) => $translationQuery
+                    ->where('locale', $locale))
+            )
             ->whereHas('translations', function (Builder $query) use ($locale, $fallbackLocale, $normalizedQuery): void {
                 $query->whereIn('locale', [$locale, $fallbackLocale]);
                 $this->whereNormalizedContains($query, [
@@ -220,6 +235,11 @@ class SiteSearchService
     ): Collection {
         $query = BlogPost::query()
             ->where('is_active', true)
+            ->when(
+                FrontendLocalePolicy::requiresExactTranslation($locale),
+                fn (Builder $query) => $query->whereHas('translations', fn (Builder $translationQuery) => $translationQuery
+                    ->where('locale', $locale))
+            )
             ->where(function ($query): void {
                 $query->whereNull('published_at')
                     ->orWhere('published_at', '<=', now());
@@ -250,6 +270,12 @@ class SiteSearchService
                 'translations' => fn ($query) => $query->whereIn('locale', [$locale, $fallbackLocale]),
                 'categories' => fn ($query) => $query
                     ->where('scope', Category::SCOPE_BLOG)
+                    ->when(
+                        FrontendLocalePolicy::requiresExactTranslation($locale),
+                        fn ($categoryQuery) => $categoryQuery->whereHas('translations', fn ($translationQuery) => $translationQuery
+                            ->where('scope', Category::SCOPE_BLOG)
+                            ->where('locale', $locale))
+                    )
                     ->with([
                         'translations' => fn ($translationQuery) => $translationQuery
                             ->where('scope', Category::SCOPE_BLOG)
@@ -309,11 +335,16 @@ class SiteSearchService
             });
     }
 
-    private function resolveGlossaryCollectionCode(): ?string
+    private function resolveGlossaryCollectionCode(string $locale): ?string
     {
         $page = InfoPage::query()
             ->where('layout', 'finance_glossary')
             ->where('is_active', true)
+            ->when(
+                FrontendLocalePolicy::requiresExactTranslation($locale),
+                fn (Builder $query) => $query->whereHas('translations', fn (Builder $translationQuery) => $translationQuery
+                    ->where('locale', $locale))
+            )
             ->where(function ($query): void {
                 $query->whereNull('published_at')
                     ->orWhere('published_at', '<=', now());
@@ -343,6 +374,109 @@ class SiteSearchService
         return $post->translations->firstWhere('locale', $locale)
             ?? $post->translations->firstWhere('locale', $fallbackLocale)
             ?? $post->translations->first();
+    }
+
+    /**
+     * @return Collection<int, array<string, mixed>>
+     */
+    private function searchTranslatedServices(string $normalizedQuery, string $locale, ?int $limit = null): Collection
+    {
+        if (! Schema::hasTable('content_service_pages') || ! Schema::hasTable('content_service_page_translations')) {
+            return collect();
+        }
+
+        $routes = [
+            ServicePageTemplateRegistry::SERVICES_INDEX => 'services.index',
+            ServicePageTemplateRegistry::AUDIT => 'audit.show',
+            ServicePageTemplateRegistry::ACCOUNTING => 'accounting.show',
+            ServicePageTemplateRegistry::ADVISORY => 'advisory.show',
+            ServicePageTemplateRegistry::EU_FUNDS => 'eu-funds.show',
+        ];
+
+        $results = ServicePage::query()
+            ->where('is_active', true)
+            ->whereIn('template_key', array_keys($routes))
+            ->where(function (Builder $query): void {
+                $query->whereNull('published_at')
+                    ->orWhere('published_at', '<=', now());
+            })
+            ->whereHas('translations', fn (Builder $query) => $query->where('locale', $locale))
+            ->with(['translations' => fn ($query) => $query->where('locale', $locale)])
+            ->orderBy('sort_order')
+            ->orderBy('id')
+            ->get()
+            ->map(function (ServicePage $page) use ($locale, $routes): ?array {
+                $translation = $page->translations->firstWhere('locale', $locale);
+                $routeName = $routes[(string) $page->template_key] ?? null;
+
+                if (! $translation || ! $routeName) {
+                    return null;
+                }
+
+                $payload = is_array($translation->payload) ? $translation->payload : [];
+                $title = trim((string) $translation->title);
+                $excerpt = $this->firstTranslatedServiceExcerpt($payload);
+                $searchText = $this->normalize(implode(' ', [
+                    $title,
+                    trim((string) $translation->meta_title),
+                    trim((string) $translation->meta_description),
+                    $this->flattenTranslatedPayload($payload),
+                ]));
+
+                return [
+                    'title' => $title,
+                    'eyebrow' => $title,
+                    'excerpt' => $excerpt,
+                    'url' => FrontendRoute::url($routeName, locale: $locale),
+                    'image_url' => null,
+                    'meta' => null,
+                    'search_text' => $searchText,
+                ];
+            })
+            ->filter(fn (?array $item): bool => is_array($item)
+                && $item['title'] !== ''
+                && str_contains((string) $item['search_text'], $normalizedQuery))
+            ->values()
+            ->map(function (array $item): array {
+                unset($item['search_text']);
+
+                return $item;
+            });
+
+        return $limit ? $results->take($limit)->values() : $results;
+    }
+
+    /**
+     * @param  array<string, mixed>  $payload
+     */
+    private function firstTranslatedServiceExcerpt(array $payload): string
+    {
+        foreach ([
+            data_get($payload, 'hero.intro'),
+            data_get($payload, 'hero.subtitle'),
+            data_get($payload, 'hero.hook'),
+            data_get($payload, 'overview.body.0'),
+            data_get($payload, 'overview.intro'),
+        ] as $candidate) {
+            $value = trim((string) $candidate);
+            if ($value !== '') {
+                return Str::limit($this->plainText($value), 180, '...');
+            }
+        }
+
+        return '';
+    }
+
+    private function flattenTranslatedPayload(mixed $value): string
+    {
+        if (is_array($value)) {
+            return collect($value)
+                ->map(fn (mixed $item): string => $this->flattenTranslatedPayload($item))
+                ->filter()
+                ->implode(' ');
+        }
+
+        return is_scalar($value) ? $this->plainText((string) $value) : '';
     }
 
     private function plainText(string $value): string

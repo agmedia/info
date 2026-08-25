@@ -199,6 +199,7 @@ class EuFundsServicePageDefaults
                         'secondary_link' => [
                             'label' => 'Brošura',
                             'type' => 'pdf',
+                            'locale' => 'hr',
                             'path' => 'front-theme/documents/eu-fondovi/zakon-o-poticanju-ulaganja-brosura.pdf',
                         ],
                     ],

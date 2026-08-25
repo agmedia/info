@@ -22,7 +22,7 @@ class SiteSearchFeatureTest extends TestCase
         $this->seedGlossaryTerm('Porezna osnovica', 'porezna-osnovica');
         $this->seedBlogPost('Porezni vodič za vlasnike', 'porezni-vodic');
 
-        $this->get('/search?q=porez')
+        $this->get('/pretraga?q=porez')
             ->assertOk()
             ->assertSee(__('ui.search.results_title'))
             ->assertSee(__('ui.search.sections.services'))

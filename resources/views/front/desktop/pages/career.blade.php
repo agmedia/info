@@ -16,7 +16,7 @@
     $careerApplication = is_array($careerContent['application'] ?? null) ? $careerContent['application'] : [];
     $careerFormContent = is_array($careerContent['form'] ?? null) ? $careerContent['form'] : [];
     $careerStoriesSection = is_array($careerContent['stories_section'] ?? null) ? $careerContent['stories_section'] : [];
-    $isCroatian = str_starts_with(strtolower((string) $locale), 'hr');
+    $careerRequiresExactTranslation = \App\Support\Localization\FrontendLocalePolicy::requiresExactTranslation((string) $locale);
     $careerValuesSource = array_key_exists('values_text', $careerContent)
         ? (preg_split('/\R/u', (string) $careerContent['values_text']) ?: [])
         : (array) ($careerContent['values'] ?? []);
@@ -70,14 +70,11 @@
         ->filter(static fn (array $story): bool => $story['title'] !== '')
         ->values();
 
-    $careerCanonicalTitle = $isCroatian ? 'Karijera' : 'Career';
     $careerTranslationTitle = trim((string) ($translation?->title ?? ''));
-    $careerPageTitle = $careerTranslationTitle !== '' && ! in_array($careerTranslationTitle, ['Ljudski potencijali', 'Human potential'], true)
-        ? $careerTranslationTitle
-        : $careerCanonicalTitle;
-    $careerIntroTitle = trim((string) ($careerIntro['section_title'] ?? '')) ?: ($isCroatian ? 'Karijera u ALPHA CAPITALISU' : 'A career at ALPHA CAPITALIS');
-    $careerHeroTitle = trim((string) ($careerIntro['title'] ?? '')) ?: ($isCroatian ? 'Mjesto gdje karijera stvarno raste' : 'A place where careers truly grow');
-    $careerHeroHighlight = trim((string) ($careerIntro['highlight'] ?? '')) ?: ($isCroatian ? 'Ne tražimo samo zaposlenike.' : 'We are not simply looking for employees.');
+    $careerPageTitle = $careerTranslationTitle;
+    $careerIntroTitle = trim((string) ($careerIntro['section_title'] ?? ''));
+    $careerHeroTitle = trim((string) ($careerIntro['title'] ?? ''));
+    $careerHeroHighlight = trim((string) ($careerIntro['highlight'] ?? ''));
     $careerHeroKicker = trim((string) ($careerIntro['kicker'] ?? ''));
     $careerValuesLabel = trim((string) ($careerIntro['values_label'] ?? ''));
     $careerHeroButtonLabel = trim((string) ($careerIntro['button_label'] ?? ''));
@@ -93,8 +90,7 @@
             trim((string) ($careerProcess['title_line_one'] ?? '')),
             trim((string) ($careerProcess['title_line_two'] ?? '')),
         ])));
-    $careerProcessTitle = $careerProcessTitle !== '' ? $careerProcessTitle : ($isCroatian ? 'Razvoj koji nije samo fraza' : 'Growth that is more than a phrase');
-    $careerApplicationTitle = trim((string) ($careerApplication['title'] ?? '')) ?: ($isCroatian ? 'Otvorene pozicije' : 'Open positions');
+    $careerApplicationTitle = trim((string) ($careerApplication['title'] ?? ''));
     $careerApplicationHighlight = trim((string) ($careerApplication['highlight'] ?? ''));
     $careerApplicationKicker = trim((string) ($careerApplication['kicker'] ?? ''));
     $careerStoriesTitle = trim((string) ($careerStoriesSection['title'] ?? ''));
@@ -103,11 +99,13 @@
     $processIconClasses = ['fa-handshake', 'fa-hands-holding-heart', 'fa-chart-line-up', 'fa-lightbulb-on'];
     $storyIconClasses = ['fa-people-group', 'fa-compass', 'fa-seedling'];
     $careerHeroMedia = $page->getFirstMedia('career_hero_image');
-    $careerHeroMediaAlt = trim((string) (
-        data_get($careerHeroMedia?->custom_properties, 'alt.'.$locale)
-        ?: data_get($careerHeroMedia?->custom_properties, 'alt.'.$fallbackLocale)
-        ?: $careerHeroMedia?->name
-    ));
+    $careerHeroMediaAlt = trim((string) data_get($careerHeroMedia?->custom_properties, 'alt.'.$locale));
+    if (! $careerRequiresExactTranslation && $careerHeroMediaAlt === '') {
+        $careerHeroMediaAlt = trim((string) (
+            data_get($careerHeroMedia?->custom_properties, 'alt.'.$fallbackLocale)
+            ?: $careerHeroMedia?->name
+        ));
+    }
     $careerHeroContentAlt = trim((string) ($careerIntro['image_alt'] ?? ''));
     $careerHeroPhoto = [
         'src' => $careerHeroMedia?->hasGeneratedConversion('career_hero_1440x1059')
@@ -115,9 +113,7 @@
             : ($careerHeroMedia?->getUrl() ?: asset('front-theme/images/career/karijera.png')),
         'alt' => $careerHeroContentAlt !== ''
             ? $careerHeroContentAlt
-            : ($careerHeroMediaAlt !== ''
-                ? $careerHeroMediaAlt
-                : ($isCroatian ? 'ALPHA CAPITALIS tim' : 'ALPHA CAPITALIS team')),
+            : $careerHeroMediaAlt,
     ];
     $careerGallery = $page->getMedia('career_gallery_images')
         ->map(static function ($media) use ($locale, $fallbackLocale): array {
@@ -137,7 +133,24 @@
         ->filter(static fn (array $image): bool => trim((string) $image['src']) !== '')
         ->take(3)
         ->values();
-    $careerFormText = static fn (string $key): string => trim((string) ($careerFormContent[$key] ?? '')) ?: (string) __('career.form.'.$key);
+    $careerFormText = static fn (string $key): string => trim((string) ($careerFormContent[$key] ?? ''))
+        ?: (string) __('career.form.'.$key);
+    $sectionHasContent = static function (mixed $value) use (&$sectionHasContent): bool {
+        if (is_array($value)) {
+            foreach ($value as $child) {
+                if ($sectionHasContent($child)) {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        return is_scalar($value) && trim((string) $value) !== '';
+    };
+    $showCareerIntro = $sectionHasContent($careerIntro);
+    $showCareerDevelopment = $sectionHasContent($careerProcess);
+    $showCareerOpenings = $sectionHasContent($careerApplication) || $sectionHasContent($careerFormContent);
 @endphp
 
 @section('title', $careerPageTitle)
@@ -146,7 +159,7 @@
 
 @section('content')
     <div class="ac-career-page">
-        <section class="ac-career-intro" aria-labelledby="ac-career-intro-title">
+        @if ($showCareerIntro)<section class="ac-career-intro" aria-labelledby="ac-career-intro-title">
             <div class="ac-career-container ac-career-intro-layout">
                 <div class="ac-career-intro-heading">
                     <h1 class="values-title services-index-intro-title ac-career-display-title" id="ac-career-intro-title" data-words-slide-from-right aria-label="{{ $careerIntroTitle }}">
@@ -163,9 +176,10 @@
                     @endif
                 </div>
             </div>
-        </section>
+        </section>@endif
 
-        <section class="ac-career-hero" aria-labelledby="ac-career-hero-title">
+
+        @if ($showCareerIntro)<section class="ac-career-hero" aria-labelledby="ac-career-hero-title">
             <div class="ac-career-container ac-career-hero-grid">
                 <div class="ac-career-hero-copy">
                     @if ($careerHeroKicker !== '')
@@ -235,9 +249,10 @@
                     @endif
                 </div>
             </div>
-        </section>
+        </section>@endif
 
-        <section class="ac-career-development" aria-labelledby="ac-career-development-title">
+
+        @if ($showCareerDevelopment)<section class="ac-career-development" aria-labelledby="ac-career-development-title">
             <div class="ac-career-container">
                 <div class="ac-career-section-intro">
                     <h2 class="values-title services-index-intro-title ac-career-section-title" id="ac-career-development-title" data-words-slide-from-right aria-label="{{ $careerProcessTitle }}">
@@ -274,7 +289,8 @@
                     </div>
                 @endif
             </div>
-        </section>
+        </section>@endif
+
 
         @if ($careerStories->isNotEmpty())
             <section class="ac-career-stories" aria-labelledby="ac-career-stories-title">
@@ -292,7 +308,7 @@
                     </div>
 
                     @if ($careerGallery->isNotEmpty())
-                        <div class="ac-career-gallery" aria-label="{{ $isCroatian ? 'Naše radno okruženje' : 'Our working environment' }}">
+                        <div class="ac-career-gallery" aria-label="{{ $careerStoriesTitle }}">
                             @foreach ($careerGallery as $image)
                                 <figure class="ac-career-gallery-item content-reveal animation-index-{{ $loop->index }}" data-image-reveal>
                                     <div class="ac-career-gallery-image image-reveal-media">
@@ -347,7 +363,7 @@
             </section>
         @endif
 
-        <section id="career-open-positions" class="ac-career-openings" aria-labelledby="ac-career-openings-title">
+        @if ($showCareerOpenings)<section id="career-open-positions" class="ac-career-openings" aria-labelledby="ac-career-openings-title">
             <div class="ac-career-container ac-career-openings-grid">
                 <div class="ac-career-openings-copy">
                     @if ($careerApplicationKicker !== '')
@@ -382,7 +398,7 @@
 
                     <form
                         method="POST"
-                        action="{{ route('career.applications.store') }}"
+                        action="{{ \App\Support\Localization\FrontendRoute::url('career.applications.store') }}"
                         enctype="multipart/form-data"
                         class="ac-career-form"
                         novalidate
@@ -459,7 +475,8 @@
                     </form>
                 </div>
             </div>
-        </section>
+        </section>@endif
+
     </div>
 @endsection
 

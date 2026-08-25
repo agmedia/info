@@ -4,13 +4,16 @@
     $cookieConsentPolicyLabel = $cookieConsentIsEnglish
         ? 'Read the privacy policy'
         : 'Pročitajte politiku privatnosti';
+    $cookieConsentPrivacyUrl = collect(app(\App\Services\Front\NavigationMenuService::class)
+        ->defaultFooterLegalNavigationForLocale((string) app()->getLocale()))
+        ->firstWhere('code', 'privacy-policy')['url'] ?? '';
 @endphp
 
 <div
     hidden
     data-cookie-consent-config
     data-locale="{{ app()->getLocale() }}"
-    data-privacy-url="{{ route('pages.show', ['slug' => 'politika-privatnosti']) }}"
+    data-privacy-url="{{ $cookieConsentPrivacyUrl }}"
     data-policy-label="{{ $cookieConsentPolicyLabel }}"
 ></div>
 

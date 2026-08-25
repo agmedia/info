@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Front;
 
 use App\Http\Controllers\Controller;
+use App\Models\Content\Page\InfoPage;
 use App\Models\Content\Support\CareerApplication;
 use App\Services\Front\StoreSettingsService;
 use Illuminate\Http\RedirectResponse;
@@ -14,8 +15,7 @@ class CareerApplicationController extends Controller
 {
     public function __construct(
         private readonly StoreSettingsService $storeSettings
-    ) {
-    }
+    ) {}
 
     public function store(Request $request): RedirectResponse
     {
@@ -88,8 +88,25 @@ class CareerApplicationController extends Controller
             'user_agent' => (string) $request->userAgent(),
         ]);
 
+        $careerSlug = InfoPage::query()
+            ->where('code', 'career')
+            ->where('is_active', true)
+            ->whereHas('translations', fn ($query) => $query
+                ->where('locale', app()->getLocale())
+                ->whereNotNull('slug')
+                ->where('slug', '!=', ''))
+            ->with(['translations' => fn ($query) => $query->where('locale', app()->getLocale())])
+            ->first()
+            ?->translations
+            ->first()
+            ?->slug;
+
+        $redirectUrl = $careerSlug
+            ? route('pages.show', ['slug' => $careerSlug]).'#career-cta'
+            : route('home');
+
         return redirect()
-            ->to(route('pages.show', ['slug' => 'karijera']).'#career-cta')
+            ->to($redirectUrl)
             ->with('status', __('career.sent_status'));
     }
 

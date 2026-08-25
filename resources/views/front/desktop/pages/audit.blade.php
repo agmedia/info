@@ -1,7 +1,6 @@
 @extends('front.desktop.layouts.store')
 
 @php
-    $isCroatian = str_starts_with(strtolower((string) ($locale ?? app()->getLocale())), 'hr');
     $legacyOverviewBody = array_values(array_filter([
         ($overviewSection['intro'] ?? ''),
         ...(array) ($overviewSection['body'] ?? []),
@@ -53,33 +52,17 @@
         ? trim((string) $approachSection['body_html'])
         : \App\Support\Content\StructuredRichText::fromParagraphs($legacyApproachBody);
     $approachBlocks = \App\Support\Content\StructuredRichText::blocks($approachBodyHtml);
-    $meetingTitle = trim((string) ($meetingSection['title'] ?? ''))
-        ?: ($isCroatian ? 'Razgovarajmo o vašem revizorskom angažmanu' : 'Let’s discuss your audit engagement');
-    $meetingIntro = trim((string) ($meetingSection['intro'] ?? ''))
-        ?: ($isCroatian
-            ? 'Javite nam se - procijenit ćemo vaše potrebe i predložiti pristup koji odgovara veličini i specifičnostima vašeg poslovanja.'
-            : 'Contact us and we will assess your needs and propose an approach suited to the size and specifics of your business.');
-    $meetingCardTitle = trim((string) ($meetingSection['contact_title'] ?? ''))
-        ?: ($isCroatian ? 'Kontaktirajte nas' : 'Contact us');
-    $meetingButtonLabel = trim((string) ($meetingSection['button_label'] ?? ''))
-        ?: ($isCroatian ? 'Dogovorite sastanak' : 'Schedule a meeting');
-    $meetingStatus = trim((string) ($meetingSection['status'] ?? ''))
-        ?: ($isCroatian ? 'Termin razgovora prilagođavamo vama.' : 'We arrange the meeting around your schedule.');
-    $heroLabel = trim((string) ($heroSection['subtitle_lead'] ?? '')) ?: ($isCroatian ? 'Revizija' : 'Audit');
-    $heroHook = trim((string) ($heroSection['intro'] ?? ''))
-        ?: ($isCroatian
-            ? 'Povjerenje u financijske informacije počinje neovisnom i stručnom revizijom.'
-            : 'Trust in financial information begins with an independent and expert audit.');
-    $heroImageAlt = trim((string) ($heroSection['image_alt'] ?? ''))
-        ?: ($isCroatian ? 'Revizija financijskih izvještaja' : 'Financial statement audit');
-    $blogHeadingTitle = trim((string) ($blogSection['title'] ?? ''))
-        ?: ($isCroatian
-            ? 'Stručni uvidi u reviziju, izvještavanje i usklađenost'
-            : 'Expert insights into audit, reporting and compliance');
-    $allPostsLabel = trim((string) ($blogSection['all_posts_label'] ?? ''))
-        ?: ($isCroatian ? 'Pogledaj sve objave' : 'View all posts');
-    $postActionLabel = trim((string) ($blogSection['post_action_label'] ?? ''))
-        ?: ($isCroatian ? 'Opširnije' : 'Read more');
+    $meetingTitle = trim((string) ($meetingSection['title'] ?? ''));
+    $meetingIntro = trim((string) ($meetingSection['intro'] ?? ''));
+    $meetingCardTitle = trim((string) ($meetingSection['contact_title'] ?? ''));
+    $meetingButtonLabel = trim((string) ($meetingSection['button_label'] ?? ''));
+    $meetingStatus = trim((string) ($meetingSection['status'] ?? ''));
+    $heroLabel = trim((string) ($heroSection['subtitle_lead'] ?? ''));
+    $heroHook = trim((string) ($heroSection['intro'] ?? ''));
+    $heroImageAlt = trim((string) ($heroSection['image_alt'] ?? ''));
+    $blogHeadingTitle = trim((string) ($blogSection['title'] ?? ''));
+    $allPostsLabel = trim((string) ($blogSection['all_posts_label'] ?? ''));
+    $postActionLabel = trim((string) ($blogSection['post_action_label'] ?? ''));
     $currentHost = request()->getHost();
     $sameOriginAssetUrl = static function (?string $url) use ($currentHost): string {
         $assetUrl = trim((string) $url);
@@ -102,7 +85,7 @@
     $hasAuditPosts = ($auditPosts ?? collect())->isNotEmpty();
 @endphp
 
-@section('title', $servicePageMetaTitle !== '' ? $servicePageMetaTitle : ($servicePageTitle ?? $heroLabel))
+@section('title', $servicePageMetaTitle)
 @section('main_class', 'w-full px-0 py-0')
 
 @push('styles')
@@ -294,17 +277,17 @@
                                 $postSlug = trim((string) ($translation?->slug ?? ''));
                                 $postUrl = $postSlug !== '' ? route('blog.show', ['slug' => $postSlug]) : route('blog.index');
                                 $postTitle = trim((string) ($translation?->title ?? $post->code));
-                                $postExcerpt = trim((string) ($translation?->excerpt ?? '')) ?: __('ui.blog.excerpt_fallback');
+                                $postExcerpt = trim((string) ($translation?->excerpt ?? ''));
                                 $postExcerpt = \Illuminate\Support\Str::limit($postExcerpt, 190, '...', true);
                                 $primaryCategory = $post->categories
                                     ->sortByDesc(fn ($category) => (int) ($category->pivot->is_primary ?? false))
                                     ->first();
                                 $categoryTranslation = $primaryCategory?->translations->firstWhere('locale', $locale)
                                     ?? $primaryCategory?->translations->firstWhere('locale', $fallbackLocale);
-                                $categoryLabel = trim((string) ($categoryTranslation?->name ?? ($isCroatian ? 'Novosti' : 'News')));
+                                $categoryLabel = trim((string) ($categoryTranslation?->name ?? $auditCategoryName ?? ''));
                             @endphp
 
-                            <a class="news-card animation-index-{{ $loop->index }}" data-image-reveal href="{{ $postUrl }}" aria-label="{{ $isCroatian ? 'Otvori blog post' : 'Open blog post' }}: {{ $postTitle }}">
+                            <a class="news-card animation-index-{{ $loop->index }}" data-image-reveal href="{{ $postUrl }}" aria-label="{{ $postTitle }}">
                                 <span class="news-card-category">{{ $categoryLabel }}</span>
                                 <h3>{{ $postTitle }}</h3>
                                 <p>{{ $postExcerpt }}</p>
@@ -332,7 +315,7 @@
                 <div class="contact-cta-card" data-image-reveal>
                     <h3 class="contact-cta-card-heading">{{ $meetingCardTitle }}</h3>
                     <p>{{ $meetingIntro }}</p>
-                    <a class="contact-cta-button" href="{{ route('contact.create') }}">
+                    <a class="contact-cta-button" href="{{ \App\Support\Localization\FrontendRoute::url('contact.create') }}">
                         <span>{{ $meetingButtonLabel }}</span>
                         <i class="fa-duotone fa-thin fa-arrow-right" aria-hidden="true"></i>
                     </a>

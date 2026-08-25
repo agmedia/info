@@ -2,10 +2,13 @@
 
 namespace Tests\Feature\Front;
 
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 class StorefrontDeviceTemplateTest extends TestCase
 {
+    use RefreshDatabase;
+
     public function test_desktop_user_agent_gets_desktop_storefront_template(): void
     {
         $response = $this
@@ -15,11 +18,11 @@ class StorefrontDeviceTemplateTest extends TestCase
             ->get('/');
 
         $response->assertOk();
-        $response->assertSee('front-theme/scripts/desktop-header-menu.js', false);
+        $response->assertSee('front-theme/scripts/alpha-redesign.js', false);
         $response->assertDontSee('front-theme/styles/bootstrap.css', false);
     }
 
-    public function test_mobile_user_agent_gets_mobile_storefront_template(): void
+    public function test_mobile_user_agent_gets_desktop_storefront_while_mobile_pwa_is_unavailable(): void
     {
         $response = $this
             ->withHeaders([
@@ -28,8 +31,8 @@ class StorefrontDeviceTemplateTest extends TestCase
             ->get('/');
 
         $response->assertOk();
-        $response->assertSee('front-theme/styles/bootstrap.css', false);
-        $response->assertDontSee('front-theme/scripts/desktop-header-menu.js', false);
+        $response->assertSee('front-theme/scripts/alpha-redesign.js', false);
+        $response->assertDontSee('front-theme/styles/bootstrap.css', false);
     }
 
     public function test_storefront_responses_include_vary_user_agent_header(): void
@@ -52,7 +55,7 @@ class StorefrontDeviceTemplateTest extends TestCase
             ->get('/');
 
         $response->assertOk();
-        $response->assertSee('front-theme/scripts/desktop-header-menu.js', false);
+        $response->assertSee('front-theme/scripts/alpha-redesign.js', false);
         $response->assertDontSee('front-theme/styles/bootstrap.css', false);
     }
 }

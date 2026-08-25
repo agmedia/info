@@ -45,16 +45,6 @@ return new class extends Migration
 
     public function down(): void
     {
-        if (! Schema::hasTable('content_info_pages') || ! Schema::hasTable('media')) {
-            return;
-        }
-
-        InfoPage::query()
-            ->where(function ($query): void {
-                $query->where('code', 'about-us')
-                    ->orWhere('layout', 'about');
-            })
-            ->get()
-            ->each(fn (InfoPage $page) => $page->clearMediaCollection('about_hero_image'));
+        // CMS-managed media is intentionally preserved on rollback.
     }
 };

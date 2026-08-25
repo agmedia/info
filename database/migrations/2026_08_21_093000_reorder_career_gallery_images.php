@@ -23,7 +23,15 @@ return new class extends Migration
             return;
         }
 
-        $mediaByFileName = $page->getMedia('career_gallery_images')->keyBy('file_name');
+        $gallery = $page->getMedia('career_gallery_images');
+
+        if ($gallery->isEmpty() || $gallery->contains(
+            static fn ($media): bool => (int) $media->order_column > 0
+        )) {
+            return;
+        }
+
+        $mediaByFileName = $gallery->keyBy('file_name');
         $fileNames = [
             'career-office-detail.jpg',
             'career-office.jpg',

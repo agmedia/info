@@ -21,5 +21,5 @@
 @else
     <a href="{{ route('blog.index') }}" class="front-nav-link inline-flex items-center py-6"><span class="front-nav-link-label border-b pb-0.5 transition">{{ __('ui.front.desktop.nav.blog') }}</span></a>
     <a href="{{ route('faq.index') }}" class="front-nav-link inline-flex items-center py-6"><span class="front-nav-link-label border-b pb-0.5 transition">{{ __('ui.front.desktop.nav.faq') }}</span></a>
-    <a href="{{ route('contact.create') }}" class="front-nav-link inline-flex items-center py-6"><span class="front-nav-link-label border-b pb-0.5 transition">{{ __('ui.front.desktop.nav.contact') }}</span></a>
+    <a href="{{ \App\Support\Localization\FrontendRoute::url('contact.create') }}" class="front-nav-link inline-flex items-center py-6"><span class="front-nav-link-label border-b pb-0.5 transition">{{ __('ui.front.desktop.nav.contact') }}</span></a>
 @endif

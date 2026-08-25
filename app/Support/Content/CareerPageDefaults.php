@@ -9,12 +9,11 @@ class CareerPageDefaults
      */
     public static function merge(mixed $payload, string $locale): array
     {
-        $defaults = self::defaultsForLocale($locale);
+        $isCroatian = self::isCroatian($locale);
+        $defaults = $isCroatian
+            ? self::croatianDefaults()
+            : self::blankEditorStructure(self::englishDefaults());
         $source = is_array($payload) ? $payload : [];
-
-        if (self::looksLikeLegacyDefaultPayload($source)) {
-            $source = [];
-        }
 
         $merged = self::mergeValues($defaults, $source);
         $sourceIntro = is_array($source['intro'] ?? null) ? $source['intro'] : [];
@@ -64,16 +63,6 @@ class CareerPageDefaults
         }
 
         return $merged;
-    }
-
-    /**
-     * @return array<string, mixed>
-     */
-    private static function defaultsForLocale(string $locale): array
-    {
-        return self::isCroatian($locale)
-            ? self::croatianDefaults()
-            : self::englishDefaults();
     }
 
     /**
@@ -362,15 +351,31 @@ class CareerPageDefaults
         return $merged;
     }
 
-    private static function looksLikeLegacyDefaultPayload(array $source): bool
+    /**
+     * Non-Croatian CMS locales use the established editor shape, but never
+     * receive hardcoded copy. Text may only come from that locale's payload.
+     *
+     * @param  array<string|int, mixed>  $values
+     * @return array<string|int, mixed>
+     */
+    private static function blankEditorStructure(array $values): array
     {
-        $intro = is_array($source['intro'] ?? null) ? $source['intro'] : [];
-        $process = is_array($source['process'] ?? null) ? $source['process'] : [];
-        $form = is_array($source['form'] ?? null) ? $source['form'] : [];
+        foreach ($values as $key => $value) {
+            if (is_array($value)) {
+                $values[$key] = self::blankEditorStructure($value);
 
-        return in_array(trim((string) ($intro['title'] ?? '')), ['Postani dio tima', 'Join our team'], true)
-            || in_array(trim((string) ($process['title_line_one'] ?? '')), ['Selekcijski proces u', 'Selection process at'], true)
-            || in_array(trim((string) ($form['title'] ?? '')), ['Pošaljite nam svoj CV', 'Send us your CV'], true);
+                continue;
+            }
+
+            $values[$key] = match (true) {
+                is_bool($value) => false,
+                is_int($value), is_float($value) => 0,
+                $value === null => null,
+                default => '',
+            };
+        }
+
+        return $values;
     }
 
     private static function isCroatian(string $locale): bool

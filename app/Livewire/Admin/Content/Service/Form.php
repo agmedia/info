@@ -8,10 +8,14 @@ use App\Models\Content\Service\ServicePage;
 use App\Models\Content\Service\ServicePageTranslation;
 use App\Models\Content\Support\Faq;
 use App\Models\Content\Team\TeamMember;
+use App\Models\Settings\Local\Language;
+use App\Support\Admin\AdminLocale;
 use App\Support\Content\ServicePageTemplateRegistry;
 use App\Support\Content\YouTubeUrl;
+use App\Support\Media\MediaProfileRegistry;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Livewire\Component;
@@ -102,6 +106,18 @@ class Form extends Component
 
     public ?TemporaryUploadedFile $euFundsHeroImageUpload = null;
 
+    /** @var array<string, mixed> */
+    public array $loadedTranslationPayload = [];
+
+    /** @var array<string, mixed> */
+    public array $translationPayloadBaseline = [];
+
+    /** @var array<int, string> */
+    private array $newEuFundsAssetPaths = [];
+
+    /** @var array<int, string> */
+    private array $replacedEuFundsAssetPaths = [];
+
     /**
      * @var array<string, string>
      */
@@ -142,7 +158,13 @@ class Form extends Component
         $this->contentSection = in_array($requestedSection, self::ADVISORY_CONTENT_SECTIONS, true)
             ? $requestedSection
             : 'main';
-        $this->form['locale'] = (string) (request()->query('locale') ?: app()->getLocale() ?: config('admin_ui.locale.default', 'hr'));
+        $requestedLocale = AdminLocale::normalize((string) (
+            request()->query('locale') ?: app()->getLocale() ?: AdminLocale::default()
+        ));
+        $localeOptions = $this->activeContentLocaleOptions();
+        $this->form['locale'] = in_array($requestedLocale, $localeOptions, true)
+            ? $requestedLocale
+            : ($localeOptions[0] ?? AdminLocale::default());
         $this->initializeTemplateDefaults((string) $this->form['template_key']);
 
         if ($servicePageId) {
@@ -327,54 +349,74 @@ class Form extends Component
             return null;
         }
 
-        $translationPayload = $this->normalizedTranslationPayload(
-            (string) $validated['form']['template_key'],
-            $translationPayloadInput
-        );
+        $this->newEuFundsAssetPaths = [];
+        $this->replacedEuFundsAssetPaths = [];
 
-        DB::transaction(function () use ($validated, $pagePayload, $translationPayload, $userId, $wasEditing, &$savedServicePage): void {
-            $servicePageData = [
-                'code' => trim((string) $validated['form']['code']),
-                'template_key' => trim((string) $validated['form']['template_key']),
-                'is_active' => (bool) $validated['form']['is_active'],
-                'published_at' => $validated['form']['published_at'] ?: null,
-                'sort_order' => (int) $validated['form']['sort_order'],
-                'payload' => $pagePayload,
-                'updated_by' => $userId,
-            ];
-
-            if ($this->servicePageId) {
-                $servicePage = ServicePage::query()->findOrFail($this->servicePageId);
-                $servicePage->fill($servicePageData)->save();
-            } else {
-                $servicePage = ServicePage::query()->create($servicePageData + ['created_by' => $userId]);
-                $this->servicePageId = (int) $servicePage->id;
-            }
-
-            $servicePage->translations()->updateOrCreate(
-                ['locale' => $validated['form']['locale']],
-                [
-                    'title' => trim((string) $validated['form']['title']),
-                    'slug' => trim((string) $validated['form']['slug']),
-                    'meta_title' => trim((string) ($validated['form']['meta_title'] ?? '')) ?: null,
-                    'meta_description' => trim((string) ($validated['form']['meta_description'] ?? '')) ?: null,
-                    'payload' => $translationPayload,
-                ]
+        try {
+            $translationPayload = $this->normalizedTranslationPayload(
+                (string) $validated['form']['template_key'],
+                $translationPayloadInput
             );
 
-            $savedServicePage = $servicePage;
+            DB::transaction(function () use ($validated, $pagePayload, $translationPayload, $userId, $wasEditing, &$savedServicePage): void {
+                $servicePageData = [
+                    'code' => trim((string) $validated['form']['code']),
+                    'template_key' => trim((string) $validated['form']['template_key']),
+                    'is_active' => (bool) $validated['form']['is_active'],
+                    'published_at' => $validated['form']['published_at'] ?: null,
+                    'sort_order' => (int) $validated['form']['sort_order'],
+                    'payload' => $pagePayload,
+                    'updated_by' => $userId,
+                ];
 
-            activity('content_service_pages')
-                ->performedOn($servicePage)
-                ->causedBy(auth()->user())
-                ->event($wasEditing ? 'updated' : 'created')
-                ->withProperties([
-                    'locale' => $validated['form']['locale'],
-                    'slug' => $validated['form']['slug'],
-                    'template_key' => $validated['form']['template_key'],
-                ])
-                ->log('Service page saved');
-        });
+                if ($this->servicePageId) {
+                    $servicePage = ServicePage::query()->findOrFail($this->servicePageId);
+
+                    if ((array) $servicePage->payload == (array) $servicePageData['payload']) {
+                        $servicePageData['payload'] = $servicePage->payload;
+                    }
+
+                    $servicePage->fill($servicePageData);
+
+                    if ($servicePage->isDirty()) {
+                        $servicePage->save();
+                    }
+                } else {
+                    $servicePage = ServicePage::query()->create($servicePageData + ['created_by' => $userId]);
+                    $this->servicePageId = (int) $servicePage->id;
+                }
+
+                $servicePage->translations()->updateOrCreate(
+                    ['locale' => $validated['form']['locale']],
+                    [
+                        'title' => trim((string) $validated['form']['title']),
+                        'slug' => trim((string) $validated['form']['slug']),
+                        'meta_title' => trim((string) ($validated['form']['meta_title'] ?? '')) ?: null,
+                        'meta_description' => trim((string) ($validated['form']['meta_description'] ?? '')) ?: null,
+                        'payload' => $translationPayload,
+                    ]
+                );
+
+                $savedServicePage = $servicePage;
+
+                activity('content_service_pages')
+                    ->performedOn($servicePage)
+                    ->causedBy(auth()->user())
+                    ->event($wasEditing ? 'updated' : 'created')
+                    ->withProperties([
+                        'locale' => $validated['form']['locale'],
+                        'slug' => $validated['form']['slug'],
+                        'template_key' => $validated['form']['template_key'],
+                    ])
+                    ->log('Service page saved');
+            });
+        } catch (\Throwable $exception) {
+            $this->deleteManagedEuFundsAssets($this->newEuFundsAssetPaths);
+
+            throw $exception;
+        }
+
+        $this->deleteUnreferencedReplacedEuFundsAssets();
 
         if ($savedServicePage instanceof ServicePage) {
             $this->storeServicesIndexCardImages($savedServicePage);
@@ -705,7 +747,7 @@ class Form extends Component
             $rules['form.translation_payload.primary_pillars.*.text'] = ['required', 'string'];
             $rules['form.translation_payload.primary_pillars.*.url'] = ['required', 'string', 'max:2048'];
             $rules['form.translation_payload.primary_pillars.*.image_alt'] = ['required', 'string', 'max:255'];
-            $rules['landingImageUploads.*'] = ['nullable', 'file', 'mimes:jpg,jpeg,png,webp,avif', 'max:8192'];
+            $rules['landingImageUploads.*'] = ['nullable', 'file', $this->imageMimesRule(), 'max:8192'];
         }
 
         if ((string) ($this->form['template_key'] ?? '') === ServicePageTemplateRegistry::AUDIT) {
@@ -739,7 +781,7 @@ class Form extends Component
             $rules['form.translation_payload.meeting.intro'] = ['required', 'string'];
             $rules['form.translation_payload.meeting.button_label'] = ['required', 'string', 'max:80'];
             $rules['form.translation_payload.meeting.status'] = ['required', 'string', 'max:255'];
-            $rules['auditHeroImageUpload'] = ['nullable', 'file', 'mimes:jpg,jpeg,png,webp,avif,svg', 'max:8192'];
+            $rules['auditHeroImageUpload'] = ['nullable', 'file', $this->imageMimesRule(includeSvg: true), 'max:8192'];
         }
 
         if ((string) ($this->form['template_key'] ?? '') === ServicePageTemplateRegistry::ACCOUNTING) {
@@ -770,7 +812,7 @@ class Form extends Component
             $rules['form.translation_payload.meeting.intro'] = ['required', 'string'];
             $rules['form.translation_payload.meeting.button_label'] = ['required', 'string', 'max:80'];
             $rules['form.translation_payload.meeting.status'] = ['required', 'string', 'max:255'];
-            $rules['accountingHeroImageUpload'] = ['nullable', 'file', 'mimes:jpg,jpeg,png,webp,avif,svg', 'max:8192'];
+            $rules['accountingHeroImageUpload'] = ['nullable', 'file', $this->imageMimesRule(includeSvg: true), 'max:8192'];
         }
 
         if ((string) ($this->form['template_key'] ?? '') === ServicePageTemplateRegistry::ADVISORY) {
@@ -806,8 +848,8 @@ class Form extends Component
                 $rules['form.translation_payload.meeting.intro'] = ['required', 'string'];
                 $rules['form.translation_payload.meeting.button_label'] = ['required', 'string', 'max:80'];
                 $rules['form.translation_payload.meeting.status'] = ['required', 'string', 'max:255'];
-                $rules['advisoryHeroImageUpload'] = ['nullable', 'file', 'mimes:jpg,jpeg,png,webp,avif,svg', 'max:8192'];
-                $rules['advisoryPandeaLogoUpload'] = ['nullable', 'file', 'mimes:jpg,jpeg,png,webp,avif,svg', 'max:4096'];
+                $rules['advisoryHeroImageUpload'] = ['nullable', 'file', $this->imageMimesRule(includeSvg: true), 'max:8192'];
+                $rules['advisoryPandeaLogoUpload'] = ['nullable', 'file', $this->imageMimesRule(includeSvg: true), 'max:4096'];
             } elseif ($this->contentSection === 'funding') {
                 $rules['form.translation_payload.funding.title'] = ['required', 'string', 'max:255'];
                 $rules['form.translation_payload.funding.intro'] = ['required', 'string'];
@@ -856,6 +898,8 @@ class Form extends Component
 
             if ($this->contentSection !== 'main') {
                 $pageKey = $this->contentSection;
+                $rules['form.translation_payload.'.$pageKey.'.meta_title'] = ['nullable', 'string', 'max:255'];
+                $rules['form.translation_payload.'.$pageKey.'.meta_description'] = ['nullable', 'string', 'max:320'];
                 $rules['form.translation_payload.'.$pageKey.'.blog_section.title'] = ['required', 'string', 'max:255'];
                 $rules['form.translation_payload.'.$pageKey.'.blog_section.all_posts_label'] = ['required', 'string', 'max:80'];
                 $rules['form.translation_payload.'.$pageKey.'.blog_section.post_action_label'] = ['required', 'string', 'max:80'];
@@ -893,6 +937,18 @@ class Form extends Component
             $rules['form.translation_payload.calls.title'] = ['required', 'string', 'max:255'];
             $rules['form.translation_payload.calls.intro'] = ['nullable', 'string'];
             $rules['form.translation_payload.calls.view_all_label'] = ['required', 'string', 'max:80'];
+            $pdfLocaleRule = [
+                'nullable',
+                'string',
+                'max:8',
+                Rule::in($this->activeContentLocaleOptions()),
+            ];
+            $rules['form.translation_payload.calls.download_link.locale'] = $pdfLocaleRule;
+            $rules['form.translation_payload.resources.cards.*.primary_link.locale'] = $pdfLocaleRule;
+            $rules['form.translation_payload.resources.cards.*.secondary_link.locale'] = $pdfLocaleRule;
+            $rules['form.translation_payload.resources.cards.*.groups.*.items.*.link.locale'] = $pdfLocaleRule;
+            $rules['form.translation_payload.laws.cards.*.primary_link.locale'] = $pdfLocaleRule;
+            $rules['form.translation_payload.laws.cards.*.secondary_link.locale'] = $pdfLocaleRule;
             $rules['form.translation_payload.resources.title'] = ['required', 'string', 'max:255'];
             $rules['form.translation_payload.resources.intro'] = ['nullable', 'string'];
             $rules['form.translation_payload.resources.cards.*.body_html'] = ['nullable', 'string'];
@@ -907,7 +963,38 @@ class Form extends Component
             $rules['form.translation_payload.meeting.contact_title'] = ['required', 'string', 'max:255'];
             $rules['form.translation_payload.meeting.button_label'] = ['required', 'string', 'max:80'];
             $rules['form.translation_payload.meeting.status'] = ['required', 'string', 'max:255'];
-            $rules['euFundsHeroImageUpload'] = ['nullable', 'file', 'mimes:jpg,jpeg,png,webp,avif,svg', 'max:8192'];
+            $rules['euFundsHeroImageUpload'] = ['nullable', 'file', $this->imageMimesRule(includeSvg: true), 'max:8192'];
+        }
+
+        return $this->relaxTranslationPayloadRules($rules);
+    }
+
+    /**
+     * Missing or intentionally partial non-default translations may be saved
+     * without PHP defaults filling every section. Present values still retain
+     * their type, length and allow-list validation.
+     *
+     * @param  array<string, array<int, mixed>>  $rules
+     * @return array<string, array<int, mixed>>
+     */
+    private function relaxTranslationPayloadRules(array $rules): array
+    {
+        foreach ($rules as $field => $fieldRules) {
+            if (! str_starts_with($field, 'form.translation_payload.')) {
+                continue;
+            }
+
+            $fieldRules = array_values(array_filter(
+                $fieldRules,
+                static fn ($rule): bool => ! is_string($rule)
+                    || ($rule !== 'required' && ! str_starts_with($rule, 'min:') && ! str_starts_with($rule, 'size:'))
+            ));
+
+            if (! in_array('nullable', $fieldRules, true)) {
+                array_unshift($fieldRules, 'nullable');
+            }
+
+            $rules[$field] = $fieldRules;
         }
 
         return $rules;
@@ -923,11 +1010,8 @@ class Form extends Component
             ->with('translations')
             ->findOrFail($this->servicePageId);
 
-        $fallbackLocale = (string) config('app.fallback_locale', config('app.locale', 'en'));
-        $preferredLocale = $this->form['locale'] ?: $fallbackLocale;
-        $translation = $servicePage->translations->firstWhere('locale', $preferredLocale)
-            ?? $servicePage->translations->firstWhere('locale', $fallbackLocale)
-            ?? $servicePage->translations->first();
+        $preferredLocale = (string) ($this->form['locale'] ?: AdminLocale::default());
+        $translation = $servicePage->translations->firstWhere('locale', $preferredLocale);
 
         $this->form['code'] = $servicePage->code;
         $this->form['template_key'] = $servicePage->template_key;
@@ -947,15 +1031,14 @@ class Form extends Component
         $this->euFundsHeroImageUpload = null;
 
         if ($translation) {
-            $this->form['locale'] = $translation->locale;
             $this->form['title'] = $translation->title;
             $this->form['slug'] = $translation->slug;
             $this->form['meta_title'] = $translation->meta_title ?? '';
             $this->form['meta_description'] = $translation->meta_description ?? '';
-            $this->form['translation_payload'] = ServicePageTemplateRegistry::mergeTranslationPayload(
+            $this->setTranslationPayloadState(
                 $servicePage->template_key,
                 $translation->payload,
-                $translation->locale
+                $preferredLocale,
             );
         } else {
             $this->clearTranslationFields($servicePage->template_key);
@@ -987,10 +1070,10 @@ class Form extends Component
         $this->form['slug'] = $translation->slug;
         $this->form['meta_title'] = $translation->meta_title ?? '';
         $this->form['meta_description'] = $translation->meta_description ?? '';
-        $this->form['translation_payload'] = ServicePageTemplateRegistry::mergeTranslationPayload(
+        $this->setTranslationPayloadState(
             $templateKey,
             $translation->payload,
-            $translation->locale
+            (string) $translation->locale,
         );
         $this->assetUploads = [];
         $this->landingImageUploads = [];
@@ -1010,11 +1093,7 @@ class Form extends Component
         $this->form['slug'] = $defaults['slug'];
         $this->form['meta_title'] = $defaults['meta_title'];
         $this->form['meta_description'] = $defaults['meta_description'];
-        $this->form['translation_payload'] = ServicePageTemplateRegistry::mergeTranslationPayload(
-            $templateKey,
-            null,
-            $locale
-        );
+        $this->setTranslationPayloadState($templateKey, null, $locale);
         $this->assetUploads = [];
         $this->landingImageUploads = [];
         $this->auditHeroImageUpload = null;
@@ -1031,10 +1110,10 @@ class Form extends Component
             ? $this->form['code']
             : ServicePageTemplateRegistry::defaultCode($templateKey);
         $this->form['page_payload'] = ServicePageTemplateRegistry::defaultPagePayload($templateKey);
-        $this->form['translation_payload'] = ServicePageTemplateRegistry::mergeTranslationPayload(
+        $this->setTranslationPayloadState(
             $templateKey,
             null,
-            (string) ($this->form['locale'] ?? config('app.locale', 'en'))
+            (string) ($this->form['locale'] ?? config('app.locale', 'en')),
         );
 
         if (! $this->templateSupportsSources($templateKey) && $this->activeTab === 'sources') {
@@ -1042,119 +1121,121 @@ class Form extends Component
         }
     }
 
+    private function setTranslationPayloadState(string $templateKey, ?array $payload, string $locale): void
+    {
+        $source = is_array($payload) ? $payload : [];
+        $editorPayload = $this->copyFreeEditorPayload($templateKey, $source, $locale);
+
+        $this->loadedTranslationPayload = $source;
+        $this->translationPayloadBaseline = $editorPayload;
+        $this->form['translation_payload'] = $editorPayload;
+    }
+
+    /**
+     * @param  array<string, mixed>  $source
+     * @return array<string, mixed>
+     */
+    private function copyFreeEditorPayload(string $templateKey, array $source, string $locale): array
+    {
+        $structure = ServicePageTemplateRegistry::blankTranslationPayload($templateKey, $locale);
+        $merged = $this->mergeEditorStructure($structure, $source);
+
+        return ServicePageTemplateRegistry::hydrateStructuredEditorFields(
+            $templateKey,
+            $merged,
+            $source,
+        );
+    }
+
+    /**
+     * Merge exact CMS data into the copy-free editor structure, including list
+     * items by index so fixed card editors remain usable.
+     *
+     * @param  array<string|int, mixed>  $structure
+     * @param  array<string|int, mixed>  $source
+     * @return array<string|int, mixed>
+     */
+    private function mergeEditorStructure(array $structure, array $source): array
+    {
+        foreach ($source as $key => $value) {
+            if (array_key_exists($key, $structure) && is_array($structure[$key]) && is_array($value)) {
+                $structure[$key] = $this->mergeEditorStructure($structure[$key], $value);
+
+                continue;
+            }
+
+            $structure[$key] = $value;
+        }
+
+        return $structure;
+    }
+
+    /**
+     * @param  array<string|int, mixed>  $current
+     * @param  array<string|int, mixed>  $baseline
+     * @param  array<string|int, mixed>  $original
+     * @return array<string|int, mixed>
+     */
+    private function applyTranslationArrayChanges(array $current, array $baseline, array $original): array
+    {
+        $result = $original;
+        $keys = array_unique([...array_keys($baseline), ...array_keys($current)]);
+
+        foreach ($keys as $key) {
+            $hasCurrent = array_key_exists($key, $current);
+            $hasBaseline = array_key_exists($key, $baseline);
+            $hasOriginal = array_key_exists($key, $original);
+
+            if (! $hasCurrent) {
+                unset($result[$key]);
+
+                continue;
+            }
+
+            if (! $hasBaseline) {
+                $result[$key] = $current[$key];
+
+                continue;
+            }
+
+            if (is_array($current[$key]) && is_array($baseline[$key])) {
+                if ($hasOriginal || $current[$key] !== $baseline[$key]) {
+                    $result[$key] = $this->applyTranslationArrayChanges(
+                        $current[$key],
+                        $baseline[$key],
+                        $hasOriginal && is_array($original[$key]) ? $original[$key] : [],
+                    );
+                } else {
+                    unset($result[$key]);
+                }
+
+                continue;
+            }
+
+            if ($current[$key] !== $baseline[$key]) {
+                $result[$key] = $current[$key];
+            }
+        }
+
+        if (array_is_list($current) && $result !== []) {
+            $numericKeys = array_filter(array_keys($result), 'is_int');
+            if ($numericKeys !== []) {
+                for ($index = 0, $lastIndex = max($numericKeys); $index <= $lastIndex; $index++) {
+                    $result[$index] ??= [];
+                }
+                ksort($result);
+                $result = array_values($result);
+            }
+        }
+
+        return $result;
+    }
+
     /**
      * @return array{title: string, slug: string, meta_title: string, meta_description: string}
      */
     private function defaultTranslationFields(string $templateKey, string $locale): array
     {
-        if ($templateKey === ServicePageTemplateRegistry::SERVICES_INDEX) {
-            if (str_starts_with(strtolower($locale), 'hr')) {
-                return [
-                    'title' => 'Usluge',
-                    'slug' => 'usluge',
-                    'meta_title' => 'Usluge',
-                    'meta_description' => 'Pregled usluga ALPHA CAPITALISA: revizija, racunovodstvo i poslovno savjetovanje.',
-                ];
-            }
-
-            return [
-                'title' => 'Services',
-                'slug' => 'services',
-                'meta_title' => 'Services',
-                'meta_description' => 'Overview of ALPHA CAPITALIS services: audit, accounting, and business advisory.',
-            ];
-        }
-
-        if ($templateKey === ServicePageTemplateRegistry::AUDIT) {
-            if (str_starts_with(strtolower($locale), 'hr')) {
-                return [
-                    'title' => 'Revizija',
-                    'slug' => 'revizija',
-                    'meta_title' => 'Revizija',
-                    'meta_description' => 'Revizija financijskih izvještaja, konsolidiranih izvještaja, uvidi, ESG i specijalizirani revizorski angažmani.',
-                ];
-            }
-
-            return [
-                'title' => 'Audit',
-                'slug' => 'audit',
-                'meta_title' => 'Audit',
-                'meta_description' => 'Audit of financial statements, consolidated statements, review engagements, ESG, and specialized audit engagements.',
-            ];
-        }
-
-        if ($templateKey === ServicePageTemplateRegistry::ADVISORY) {
-            if (str_starts_with(strtolower($locale), 'hr')) {
-                return [
-                    'title' => 'Savjetovanje',
-                    'slug' => 'savjetovanje',
-                    'meta_title' => 'Savjetovanje',
-                    'meta_description' => 'Financijsko i porezno savjetovanje, pribavljanje financiranja, due diligence, procjene vrijednosti i M&A savjetovanje.',
-                ];
-            }
-
-            return [
-                'title' => 'Advisory',
-                'slug' => 'advisory',
-                'meta_title' => 'Advisory',
-                'meta_description' => 'Financial and tax advisory, financing, due diligence, valuations, and M&A advisory.',
-            ];
-        }
-
-        if ($templateKey === ServicePageTemplateRegistry::ACCOUNTING) {
-            if (str_starts_with(strtolower($locale), 'hr')) {
-                return [
-                    'title' => 'Računovodstvo',
-                    'slug' => 'racunovodstvo',
-                    'meta_title' => 'Računovodstvo',
-                    'meta_description' => 'Računovodstvena podrška, vođenje poslovnih knjiga, obračun plaća i izvještavanje za svakodnevno poslovanje.',
-                ];
-            }
-
-            return [
-                'title' => 'Accounting',
-                'slug' => 'accounting',
-                'meta_title' => 'Accounting',
-                'meta_description' => 'Accounting support, bookkeeping, payroll processing, and reporting for day-to-day business operations.',
-            ];
-        }
-
-        if ($templateKey === ServicePageTemplateRegistry::TAX) {
-            if (str_starts_with(strtolower($locale), 'hr')) {
-                return [
-                    'title' => 'Porezi',
-                    'slug' => 'porezi',
-                    'meta_title' => 'Porezi',
-                    'meta_description' => 'Porezno savjetovanje, tax compliance, porezni pregledi, optimizacija, due diligence i transferne cijene.',
-                ];
-            }
-
-            return [
-                'title' => 'Tax',
-                'slug' => 'tax',
-                'meta_title' => 'Tax',
-                'meta_description' => 'Tax advisory, tax compliance, tax reviews, optimization, due diligence, and transfer pricing.',
-            ];
-        }
-
-        if ($templateKey === ServicePageTemplateRegistry::EU_FUNDS) {
-            if (str_starts_with(strtolower($locale), 'hr')) {
-                return [
-                    'title' => 'EU fondovi',
-                    'slug' => 'eu-fondovi',
-                    'meta_title' => 'EU fondovi',
-                    'meta_description' => 'EU fondovi, natječaji i savjetovanje za pripremu i provedbu projekata.',
-                ];
-            }
-
-            return [
-                'title' => 'EU Funds',
-                'slug' => 'eu-funds',
-                'meta_title' => 'EU Funds',
-                'meta_description' => 'EU funds, grants, and advisory for project preparation and implementation.',
-            ];
-        }
-
         return [
             'title' => '',
             'slug' => '',
@@ -1313,29 +1394,26 @@ class Form extends Component
      */
     private function normalizedTranslationPayload(string $templateKey, array $payload): array
     {
-        $merged = ServicePageTemplateRegistry::mergeTranslationPayload($templateKey, $payload, (string) $this->form['locale']);
-
-        if ($templateKey === ServicePageTemplateRegistry::SERVICES_INDEX) {
-            data_forget($merged, 'showcase.title_accent');
-        }
-
-        if ($templateKey === ServicePageTemplateRegistry::ACCOUNTING) {
-            $detailTitles = collect((array) data_get($merged, 'detail_sections', []))
-                ->map(fn ($section): string => trim((string) data_get($section, 'title', '')))
-                ->filter()
-                ->values()
-                ->all();
-
-            if ($detailTitles !== []) {
-                data_set($merged, 'intro_section.items', $detailTitles);
-            }
-        }
-
         if ($templateKey === ServicePageTemplateRegistry::EU_FUNDS) {
-            $merged = $this->applyEuFundsAssetUploads($merged);
+            $payload = $this->applyEuFundsAssetUploads($payload);
         }
 
-        return $merged;
+        $payload = ServicePageTemplateRegistry::hydrateStructuredEditorFields(
+            $templateKey,
+            $payload,
+            $payload,
+        );
+        $baseline = ServicePageTemplateRegistry::hydrateStructuredEditorFields(
+            $templateKey,
+            $this->translationPayloadBaseline,
+            $this->translationPayloadBaseline,
+        );
+
+        return $this->applyTranslationArrayChanges(
+            $payload,
+            $baseline,
+            $this->loadedTranslationPayload,
+        );
     }
 
     /**
@@ -1779,7 +1857,23 @@ class Form extends Component
             return $payload;
         }
 
-        data_set($payload, $path, $upload->store('service-assets/eu-funds', 'public'));
+        $replacedPath = trim((string) data_get($payload, $path, ''));
+        $storedPath = $upload->storeAs(
+            'service-assets/eu-funds',
+            Str::uuid().'.pdf',
+            'public',
+        );
+
+        if (! is_string($storedPath) || ! $this->isManagedEuFundsAssetPath($storedPath)) {
+            throw new \RuntimeException('EU funds PDF asset could not be stored.');
+        }
+
+        $this->newEuFundsAssetPaths[] = $storedPath;
+        if ($replacedPath !== '' && $replacedPath !== $storedPath && $this->isManagedEuFundsAssetPath($replacedPath)) {
+            $this->replacedEuFundsAssetPaths[] = $replacedPath;
+        }
+
+        data_set($payload, $path, $storedPath);
 
         return $payload;
     }
@@ -1787,5 +1881,119 @@ class Form extends Component
     private function assetUploadKey(string $path): string
     {
         return str_replace('.', '_', $path);
+    }
+
+    private function deleteUnreferencedReplacedEuFundsAssets(): void
+    {
+        $paths = collect($this->replacedEuFundsAssetPaths)
+            ->filter(fn ($path): bool => is_string($path) && $this->isManagedEuFundsAssetPath($path))
+            ->unique()
+            ->reject(fn (string $path): bool => $this->serviceTranslationPayloadReferences($path))
+            ->values()
+            ->all();
+
+        $this->deleteManagedEuFundsAssets($paths);
+    }
+
+    /**
+     * @param  array<int, string>  $paths
+     */
+    private function deleteManagedEuFundsAssets(array $paths): void
+    {
+        $safePaths = collect($paths)
+            ->filter(fn ($path): bool => is_string($path) && $this->isManagedEuFundsAssetPath($path))
+            ->unique()
+            ->values()
+            ->all();
+
+        if ($safePaths !== []) {
+            Storage::disk('public')->delete($safePaths);
+        }
+    }
+
+    private function isManagedEuFundsAssetPath(string $path): bool
+    {
+        return str_starts_with($path, 'service-assets/eu-funds/')
+            && ! str_contains($path, '..')
+            && preg_match('#^service-assets/eu-funds/[A-Za-z0-9][A-Za-z0-9._/-]*$#', $path) === 1;
+    }
+
+    private function serviceTranslationPayloadReferences(string $path): bool
+    {
+        return ServicePageTranslation::query()
+            ->select(['id', 'payload'])
+            ->get()
+            ->contains(fn (ServicePageTranslation $translation): bool => $this->payloadContainsPath(
+                $translation->payload,
+                $path,
+            ));
+    }
+
+    private function payloadContainsPath(mixed $value, string $path): bool
+    {
+        if (is_string($value)) {
+            return hash_equals($path, $value);
+        }
+
+        if (! is_array($value)) {
+            return false;
+        }
+
+        foreach ($value as $child) {
+            if ($this->payloadContainsPath($child, $path)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private function imageMimesRule(bool $includeSvg = false): string
+    {
+        $extensions = ['jpg', 'jpeg', 'png', 'webp', 'avif'];
+        if ($includeSvg) {
+            $extensions[] = 'svg';
+        }
+
+        return 'mimes:'.implode(',', MediaProfileRegistry::supportedImageExtensions($extensions));
+    }
+
+    /**
+     * @return array<int, string>
+     */
+    private function activeContentLocaleOptions(): array
+    {
+        $fallbackOptions = AdminLocale::fallbackOptions();
+
+        try {
+            $activeOptions = Language::query()
+                ->where('is_active', true)
+                ->orderByDesc('is_default')
+                ->orderBy('sort_order')
+                ->orderBy('code')
+                ->pluck('code')
+                ->map(fn ($code): string => AdminLocale::normalize((string) $code))
+                ->filter()
+                ->unique()
+                ->values()
+                ->all();
+        } catch (\Throwable) {
+            $activeOptions = [];
+        }
+
+        if ($activeOptions === []) {
+            return $fallbackOptions;
+        }
+
+        $preferred = array_values(array_filter(
+            $fallbackOptions,
+            static fn (string $locale): bool => in_array($locale, $activeOptions, true)
+        ));
+        $remaining = array_values(array_filter(
+            $activeOptions,
+            static fn (string $locale): bool => ! in_array($locale, $preferred, true)
+        ));
+
+        return array_values(array_unique([...$preferred, ...$remaining]));
     }
 }

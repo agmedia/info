@@ -8,7 +8,7 @@
     $primaryLabel = trim((string) ($translation?->cta_label ?? '')) ?: 'Naše usluge';
     $primaryUrl = trim((string) ($translation?->cta_url ?? '')) ?: route('services.index');
     $secondaryLabel = trim((string) ($payload['secondary_cta_label'] ?? '')) ?: 'Ugovori sastanak';
-    $secondaryUrl = trim((string) ($payload['secondary_cta_url'] ?? '')) ?: route('contact.create');
+    $secondaryUrl = trim((string) ($payload['secondary_cta_url'] ?? '')) ?: \App\Support\Localization\FrontendRoute::url('contact.create');
     $kicker = trim((string) ($payload['kicker'] ?? ''));
     $imageUrl = $block->getFirstMediaUrl('block_background', 'hero_1440x480');
     if ($imageUrl === '') {

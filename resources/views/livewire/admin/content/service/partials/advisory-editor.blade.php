@@ -122,7 +122,7 @@
                 <label class="block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Zajednička hero slika</label>
                 <span class="admin-chip">{{ ($advisoryHeroImage['is_custom'] ?? false) ? 'Vlastita slika' : 'Zadana slika' }}</span>
             </div>
-            <input type="file" wire:model="advisoryHeroImageUpload" accept="image/jpeg,image/png,image/webp,image/avif,image/svg+xml" class="mt-1 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm file:mr-3 file:rounded-lg file:border-0 file:bg-slate-100 file:px-3 file:py-1.5 file:text-xs file:font-semibold file:text-slate-700 hover:file:bg-slate-200" />
+            <input type="file" wire:model="advisoryHeroImageUpload" accept="{{ $serviceImageAccept }}" class="mt-1 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm file:mr-3 file:rounded-lg file:border-0 file:bg-slate-100 file:px-3 file:py-1.5 file:text-xs file:font-semibold file:text-slate-700 hover:file:bg-slate-200" />
             <p class="mt-1 text-xs text-slate-500">Preporučeni omjer 16:9. Promjena vrijedi na svim stranicama Savjetovanja.</p>
             @error('advisoryHeroImageUpload') <p class="mt-1 text-xs text-rose-600">{{ $message }}</p> @enderror
             @if (($advisoryHeroImage['is_custom'] ?? false) && ! $advisoryHeroUpload)
@@ -184,7 +184,7 @@
                 <label class="block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Pandea logotip</label>
                 <span class="admin-chip">{{ ($advisoryPandeaLogo['is_custom'] ?? false) ? 'Vlastiti logotip' : 'Zadani logotip' }}</span>
             </div>
-            <input type="file" wire:model="advisoryPandeaLogoUpload" accept="image/jpeg,image/png,image/webp,image/avif,image/svg+xml" class="mt-1 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm file:mr-3 file:rounded-lg file:border-0 file:bg-slate-100 file:px-3 file:py-1.5 file:text-xs file:font-semibold file:text-slate-700 hover:file:bg-slate-200" />
+            <input type="file" wire:model="advisoryPandeaLogoUpload" accept="{{ $serviceImageAccept }}" class="mt-1 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm file:mr-3 file:rounded-lg file:border-0 file:bg-slate-100 file:px-3 file:py-1.5 file:text-xs file:font-semibold file:text-slate-700 hover:file:bg-slate-200" />
             @error('advisoryPandeaLogoUpload') <p class="mt-1 text-xs text-rose-600">{{ $message }}</p> @enderror
             @if (($advisoryPandeaLogo['is_custom'] ?? false) && ! $advisoryLogoUpload)
                 <button type="button" wire:click="removeAdvisoryPandeaLogo" wire:confirm="Ukloniti vlastiti logotip i vratiti zadani?" class="mt-2 text-xs font-semibold text-rose-600 hover:text-rose-700">Vrati zadani logotip</button>
@@ -524,6 +524,10 @@
 @endif
 
 @if ($contentSection !== 'main')
+    @include('livewire.admin.content.service.partials.advisory-page-seo-editor', [
+        'pageKey' => $contentSection,
+    ])
+
     @include('livewire.admin.content.service.partials.advisory-page-ending-editor', [
         'pageKey' => $contentSection,
     ])

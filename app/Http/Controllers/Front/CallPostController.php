@@ -6,6 +6,9 @@ use App\Http\Controllers\Controller;
 use App\Http\Controllers\Front\Concerns\ResolvesFrontendView;
 use App\Models\Catalog\Category\Category;
 use App\Models\Content\Call\CallPost;
+use App\Models\Content\Service\ServicePage;
+use App\Support\Content\ServicePageTemplateRegistry;
+use App\Support\Localization\FrontendLocalePolicy;
 use DOMDocument;
 use DOMElement;
 use DOMNode;
@@ -21,7 +24,14 @@ class CallPostController extends Controller
     public function show(Request $request, string $slug): View
     {
         $locale = app()->getLocale();
-        $fallbackLocale = (string) config('app.fallback_locale', config('app.locale', 'hr'));
+        $fallbackLocale = FrontendLocalePolicy::fallbackLocale(
+            (string) $locale,
+            (string) config('app.fallback_locale', config('app.locale', 'hr'))
+        );
+        $requiresExactTranslation = FrontendLocalePolicy::requiresExactTranslation((string) $locale);
+        $translationLocales = $requiresExactTranslation
+            ? [(string) $locale]
+            : array_values(array_unique([$locale, $fallbackLocale]));
 
         $callPost = CallPost::query()
             ->where('is_active', true)
@@ -29,15 +39,21 @@ class CallPostController extends Controller
                 $query->whereNull('published_at')
                     ->orWhere('published_at', '<=', now());
             })
-            ->whereHas('translations', function (Builder $query) use ($locale, $fallbackLocale, $slug): void {
+            ->whereHas('translations', function (Builder $query) use ($translationLocales, $slug): void {
                 $query
-                    ->whereIn('locale', array_values(array_unique([$locale, $fallbackLocale])))
+                    ->whereIn('locale', $translationLocales)
                     ->where('slug', $slug);
             })
             ->with([
-                'translations' => fn ($query) => $query->whereIn('locale', array_values(array_unique([$locale, $fallbackLocale]))),
+                'translations' => fn ($query) => $query->whereIn('locale', $translationLocales),
                 'categories' => fn ($query) => $query
                     ->where('scope', Category::SCOPE_CALL)
+                    ->when(
+                        FrontendLocalePolicy::requiresExactTranslation((string) $locale),
+                        fn ($categoryQuery) => $categoryQuery->whereHas('translations', fn ($translationQuery) => $translationQuery
+                            ->where('scope', Category::SCOPE_CALL)
+                            ->where('locale', $locale))
+                    )
                     ->with([
                         'translations' => fn ($translationQuery) => $translationQuery
                             ->where('scope', Category::SCOPE_CALL)
@@ -48,8 +64,9 @@ class CallPostController extends Controller
             ->firstOrFail();
 
         $translation = $callPost->translations->firstWhere('locale', $locale)
-            ?? $callPost->translations->firstWhere('locale', $fallbackLocale)
-            ?? $callPost->translations->first();
+            ?? ($requiresExactTranslation ? null : $callPost->translations->firstWhere('locale', $fallbackLocale))
+            ?? ($requiresExactTranslation ? null : $callPost->translations->first());
+        abort_if($requiresExactTranslation && ! $translation, 404);
         $callPostBodyHtml = $this->removeDuplicateLeadImageFromBody(
             (string) ($translation?->body_html ?? ''),
             (string) ($callPost->getFirstMediaUrl('call_cover') ?: $callPost->getFirstMediaUrl())
@@ -60,7 +77,51 @@ class CallPostController extends Controller
             'callPostBodyHtml' => $callPostBodyHtml,
             'locale' => $locale,
             'fallbackLocale' => $fallbackLocale,
+            'callDetailUi' => $this->resolveCallDetailUi((string) $locale),
         ]);
+    }
+
+    /**
+     * @return array{
+     *     eu_funds_label:string,
+     *     calls_label:string,
+     *     empty_body_copy:string,
+     *     meeting:array{title:string,contact_title:string,intro:string,button_label:string,status:string}
+     * }
+     */
+    private function resolveCallDetailUi(string $locale): array
+    {
+        $servicePage = ServicePage::query()
+            ->where('template_key', ServicePageTemplateRegistry::EU_FUNDS)
+            ->where('is_active', true)
+            ->where(function (Builder $query): void {
+                $query->whereNull('published_at')
+                    ->orWhere('published_at', '<=', now());
+            })
+            ->whereHas('translations', fn (Builder $query) => $query->where('locale', $locale))
+            ->with(['translations' => fn ($query) => $query->where('locale', $locale)])
+            ->orderByRaw('case when code = ? then 0 else 1 end', [ServicePageTemplateRegistry::defaultCode(ServicePageTemplateRegistry::EU_FUNDS)])
+            ->orderBy('sort_order')
+            ->orderBy('id')
+            ->first();
+
+        $translation = $servicePage?->translations->firstWhere('locale', $locale);
+        $payload = is_array($translation?->payload) ? $translation->payload : [];
+        $calls = (array) data_get($payload, 'calls', []);
+        $meeting = (array) data_get($payload, 'meeting', []);
+
+        return [
+            'eu_funds_label' => trim((string) ($translation?->title ?? '')),
+            'calls_label' => trim((string) ($calls['title'] ?? $calls['kicker'] ?? '')),
+            'empty_body_copy' => trim((string) ($calls['intro'] ?? '')),
+            'meeting' => [
+                'title' => trim((string) ($meeting['title'] ?? '')),
+                'contact_title' => trim((string) ($meeting['contact_title'] ?? '')),
+                'intro' => trim((string) ($meeting['intro'] ?? '')),
+                'button_label' => trim((string) ($meeting['button_label'] ?? '')),
+                'status' => trim((string) ($meeting['status'] ?? '')),
+            ],
+        ];
     }
 
     private function removeDuplicateLeadImageFromBody(string $html, ?string $coverImageUrl): string

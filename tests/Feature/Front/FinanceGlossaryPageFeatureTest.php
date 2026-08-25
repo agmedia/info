@@ -7,6 +7,8 @@ use App\Models\Content\Glossary\GlossaryTermTranslation;
 use App\Models\Content\Page\InfoPage;
 use App\Models\Content\Page\InfoPageTranslation;
 use App\Services\Content\GlossaryImportService;
+use App\Services\Front\NavigationMenuService;
+use App\Services\Settings\SystemSettingsService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -170,6 +172,20 @@ class FinanceGlossaryPageFeatureTest extends TestCase
 
     public function test_home_header_links_world_of_finance_navigation_item_to_glossary_page(): void
     {
+        app(SystemSettingsService::class)->putMany([
+            NavigationMenuService::SETTINGS_KEY => [[
+                'type' => 'custom',
+                'label' => 'Svijet financija',
+                'url' => route('glossary.index'),
+                'label_translations' => ['hr' => 'Svijet financija'],
+                'url_translations' => ['hr' => route('glossary.index')],
+                'is_active' => true,
+                'show_dropdown' => false,
+                'open_in_new_tab' => false,
+                'sort_order' => 0,
+            ]],
+        ]);
+
         $this->get('/')
             ->assertOk()
             ->assertSee(route('glossary.index'), false)

@@ -679,7 +679,7 @@
 
                     <form
                         method="POST"
-                        action="{{ route('contact.store') }}"
+                        action="{{ \App\Support\Localization\FrontendRoute::url('contact.store') }}"
                         class="front-contact-form"
                         novalidate
                         data-contact-form

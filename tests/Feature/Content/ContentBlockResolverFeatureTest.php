@@ -22,6 +22,11 @@ class ContentBlockResolverFeatureTest extends TestCase
             'payload' => null,
         ]);
 
+        $fallback->translations()->create([
+            'locale' => 'en',
+            'title' => 'Fallback hero',
+        ]);
+
         $fallback->slots()->create([
             'placement' => 'home.hero',
             'frontend_variant' => 'all',
@@ -37,6 +42,11 @@ class ContentBlockResolverFeatureTest extends TestCase
             'type' => 'mobile_hero_banner',
             'is_active' => true,
             'payload' => null,
+        ]);
+
+        $mobile->translations()->create([
+            'locale' => 'en',
+            'title' => 'Mobile hero',
         ]);
 
         $mobile->slots()->create([
@@ -64,6 +74,11 @@ class ContentBlockResolverFeatureTest extends TestCase
             'type' => 'banner',
             'is_active' => true,
             'payload' => null,
+        ]);
+
+        $fallback->translations()->create([
+            'locale' => 'en',
+            'title' => 'Fallback hero',
         ]);
 
         $fallback->slots()->create([

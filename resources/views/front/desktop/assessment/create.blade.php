@@ -8,8 +8,8 @@
     @php
         $captchaSiteKey = trim((string) ($storeSettings['captcha']['recaptcha_v3_site_key'] ?? ''));
         $captchaEnabled = (bool) ($storeSettings['captcha']['recaptcha_v3_enabled'] ?? false) && $captchaSiteKey !== '';
-        $contactEmail = trim((string) ($storeSettings['footer']['email_support'] ?? '')) ?: 'info@alphacapitalis.com';
-        $contactPhone = trim((string) ($storeSettings['footer']['phone'] ?? '')) ?: '+385 (1) 580 6656';
+        $contactEmail = trim((string) ($storeSettings['footer']['email_support'] ?? ''));
+        $contactPhone = trim((string) ($storeSettings['footer']['phone'] ?? ''));
         $contactPhoneHref = preg_replace('/\s+/', '', $contactPhone);
         $headingWords = static fn (string $title): array => preg_split('/\s+/u', trim($title), -1, PREG_SPLIT_NO_EMPTY) ?: [];
     @endphp
@@ -326,20 +326,24 @@
                                         <strong>{{ __('assessment.sidebar.point_2') }}</strong>
                                     </span>
                                 </li>
-                                <li>
-                                    <i class="fa-light fa-envelope" aria-hidden="true"></i>
-                                    <span>
-                                        <small>{{ __('contact.direct.email') }}</small>
-                                        <a href="mailto:{{ $contactEmail }}">{{ $contactEmail }}</a>
-                                    </span>
-                                </li>
-                                <li>
-                                    <i class="fa-light fa-phone" aria-hidden="true"></i>
-                                    <span>
-                                        <small>{{ __('contact.direct.phone') }}</small>
-                                        <a href="tel:{{ $contactPhoneHref }}">{{ $contactPhone }}</a>
-                                    </span>
-                                </li>
+                                @if ($contactEmail !== '')
+                                    <li>
+                                        <i class="fa-light fa-envelope" aria-hidden="true"></i>
+                                        <span>
+                                            <small>{{ __('contact.direct.email') }}</small>
+                                            <a href="mailto:{{ $contactEmail }}">{{ $contactEmail }}</a>
+                                        </span>
+                                    </li>
+                                @endif
+                                @if ($contactPhone !== '')
+                                    <li>
+                                        <i class="fa-light fa-phone" aria-hidden="true"></i>
+                                        <span>
+                                            <small>{{ __('contact.direct.phone') }}</small>
+                                            <a href="tel:{{ $contactPhoneHref }}">{{ $contactPhone }}</a>
+                                        </span>
+                                    </li>
+                                @endif
                             </ul>
                         </div>
 
