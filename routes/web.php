@@ -18,6 +18,7 @@ use App\Http\Controllers\Front\EuFundsQuestionnaireController;
 use App\Http\Controllers\Front\FaqController;
 use App\Http\Controllers\Front\GlossaryController;
 use App\Http\Controllers\Front\LeaseCalculatorController;
+use App\Http\Controllers\Front\NewsletterSubscriptionController;
 use App\Http\Controllers\Front\PageController;
 use App\Http\Controllers\Front\PublicStorageController;
 use App\Http\Controllers\Front\ResourceController;
@@ -273,6 +274,12 @@ Route::middleware(['front.locale', 'front.device'])
         Route::post('contact', [ContactController::class, 'store'])
             ->middleware(EnsureFrontendRouteLocale::class.':en')
             ->name('contact.store.en');
+        Route::post('newsletter/prijava', NewsletterSubscriptionController::class)
+            ->middleware([EnsureFrontendRouteLocale::class.':hr', 'throttle:newsletter-subscriptions'])
+            ->name('newsletter.subscribe');
+        Route::post('newsletter/subscribe', NewsletterSubscriptionController::class)
+            ->middleware([EnsureFrontendRouteLocale::class.':en', 'throttle:newsletter-subscriptions'])
+            ->name('newsletter.subscribe.en');
         Route::get('resources', [ResourceController::class, 'index'])->name('resources.index');
         Route::get('resources/{slug}', [ResourceController::class, 'show'])->name('resources.show');
         Route::post('resources/{slug}/request', [ResourceController::class, 'store'])->name('resources.request');
@@ -401,6 +408,7 @@ Route::middleware(['admin.locale', 'auth', 'verified', 'admin.access', 'admin.ma
             Route::view('career-cv-form', 'admin.messages.career.index')->name('career.index');
             Route::view('download-requests', 'admin.messages.download-requests.index')->name('download-requests.index');
             Route::view('eu-fondovi-upitnik', 'admin.messages.eu-funds-questionnaire.index')->name('eu-funds-questionnaire.index');
+            Route::view('newsletter', 'admin.messages.newsletter.index')->name('newsletter.index');
             Route::get('career-cv-form/{careerApplication}/download', CareerApplicationDocumentController::class)
                 ->name('career.download');
         });

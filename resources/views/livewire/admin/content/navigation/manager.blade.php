@@ -54,6 +54,7 @@
                         'footer_newsletter_accent',
                         'footer_newsletter_email_placeholder',
                         'footer_newsletter_submit_label',
+                        'footer_newsletter_consent',
                         'footer_tagline',
                         'footer_services_label',
                         'footer_contact_label',
@@ -62,7 +63,7 @@
                         'footer_cookie_settings_label',
                         'footer_back_to_top_label',
                     ] as $field)
-                        <div @class(['sm:col-span-2' => in_array($field, ['footer_newsletter_title', 'footer_tagline', 'footer_copyright_text'], true)])>
+                        <div @class(['sm:col-span-2' => in_array($field, ['footer_newsletter_title', 'footer_newsletter_consent', 'footer_tagline', 'footer_copyright_text'], true)])>
                             <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
                                 {{ __('admin.content.navigation.chrome_fields.'.$field) }}
                             </label>

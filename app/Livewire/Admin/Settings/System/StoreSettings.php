@@ -3,11 +3,13 @@
 namespace App\Livewire\Admin\Settings\System;
 
 use App\Models\Content\Page\InfoPage;
+use App\Services\Newsletter\MailchimpCredentialCodec;
 use App\Services\Settings\SystemSettingsService;
 use App\Support\Front\FontRegistry;
 use App\Support\Front\HeroFontRegistry;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
+use Livewire\Attributes\Locked;
 use Livewire\Component;
 use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
 use Livewire\WithFileUploads;
@@ -80,6 +82,10 @@ class StoreSettings extends Component
         'store_brand_favicon_512_path' => '',
         'store_brand_favicon_ico_path' => '',
 
+        'store_newsletter_provider' => 'none',
+        'store_newsletter_mailchimp_server_prefix' => '',
+        'store_newsletter_mailchimp_list_id' => '',
+
         'store_captcha_recaptcha_v3_enabled' => false,
         'store_captcha_recaptcha_v3_site_key' => '',
         'store_captcha_recaptcha_v3_secret_key' => '',
@@ -150,14 +156,49 @@ class StoreSettings extends Component
 
     public ?TemporaryUploadedFile $homeHeroMobileVideoUpload = null;
 
+    public string $mailchimpApiKey = '';
+
+    public bool $hasMailchimpApiKey = false;
+
+    public bool $clearMailchimpApiKey = false;
+
+    #[Locked]
+    public bool $canManageNewsletter = false;
+
     public function mount(): void
     {
         $this->authorizeAccess();
+        $this->canManageNewsletter = $this->canManageNewsletterSettings();
 
         $settings = app(SystemSettingsService::class);
         $allSettings = $settings->all();
         foreach ($this->form as $key => $default) {
             $this->form[$key] = $settings->get($key, $default);
+        }
+
+        if ($this->canManageNewsletter) {
+            $storedMailchimpApiKey = app(MailchimpCredentialCodec::class)->decode(
+                (string) $settings->get('store_newsletter_mailchimp_api_key', '')
+            );
+            $this->hasMailchimpApiKey = $storedMailchimpApiKey !== '';
+            $this->form['store_newsletter_provider'] = in_array(
+                $this->form['store_newsletter_provider'] ?? null,
+                ['none', 'mailchimp'],
+                true,
+            ) ? $this->form['store_newsletter_provider'] : 'none';
+            $this->form['store_newsletter_mailchimp_server_prefix'] = strtolower(trim(
+                (string) ($this->form['store_newsletter_mailchimp_server_prefix'] ?? '')
+            ));
+
+            if ($this->form['store_newsletter_mailchimp_server_prefix'] === '') {
+                $this->form['store_newsletter_mailchimp_server_prefix'] = $this->mailchimpServerPrefixFromApiKey(
+                    $storedMailchimpApiKey
+                );
+            }
+        } else {
+            $this->form['store_newsletter_provider'] = 'none';
+            $this->form['store_newsletter_mailchimp_server_prefix'] = '';
+            $this->form['store_newsletter_mailchimp_list_id'] = '';
         }
 
         $this->form['store_footer_bottom_link_page_ids'] = $this->normalizeIdList($this->form['store_footer_bottom_link_page_ids'] ?? []);
@@ -189,6 +230,8 @@ class StoreSettings extends Component
     public function save(): void
     {
         $this->authorizeAccess();
+        $canManageNewsletter = $this->canManageNewsletterSettings();
+        $this->canManageNewsletter = $canManageNewsletter;
 
         foreach ([
             'store_analytics_ga4_measurement_id',
@@ -202,11 +245,55 @@ class StoreSettings extends Component
         $this->form['store_analytics_meta_pixel_id'] = trim(
             (string) ($this->form['store_analytics_meta_pixel_id'] ?? '')
         );
+        $this->form['store_newsletter_mailchimp_server_prefix'] = strtolower(trim(
+            (string) ($this->form['store_newsletter_mailchimp_server_prefix'] ?? '')
+        ));
+        $this->form['store_newsletter_mailchimp_list_id'] = trim(
+            (string) ($this->form['store_newsletter_mailchimp_list_id'] ?? '')
+        );
+        $this->mailchimpApiKey = trim($this->mailchimpApiKey);
 
         $validated = $this->validate($this->rules());
         $payload = $validated['form'];
         $payload['store_schema_address_country'] = strtoupper((string) ($payload['store_schema_address_country'] ?? 'HR'));
         $payload['store_footer_bottom_link_page_ids'] = $this->normalizeIdList($payload['store_footer_bottom_link_page_ids'] ?? []);
+
+        $settings = app(SystemSettingsService::class);
+        if ($canManageNewsletter) {
+            $mailchimpCredentialCodec = app(MailchimpCredentialCodec::class);
+            $storedMailchimpApiKeyValue = trim((string) $settings->get('store_newsletter_mailchimp_api_key', ''));
+            $storedMailchimpApiKey = $mailchimpCredentialCodec->decode($storedMailchimpApiKeyValue);
+            $mailchimpApiKey = $this->mailchimpApiKey;
+
+            if (($payload['store_newsletter_provider'] ?? 'none') === 'mailchimp') {
+                if ($this->clearMailchimpApiKey || ($mailchimpApiKey === '' && $storedMailchimpApiKey === '')) {
+                    $this->addError('mailchimpApiKey', __('admin.settings.store.newsletter.api_key_required'));
+
+                    return;
+                }
+
+                $effectiveApiKey = $mailchimpApiKey !== '' ? $mailchimpApiKey : $storedMailchimpApiKey;
+                if ($this->mailchimpServerPrefixFromApiKey($effectiveApiKey) !== $payload['store_newsletter_mailchimp_server_prefix']) {
+                    $this->addError('mailchimpApiKey', __('admin.settings.store.newsletter.api_key_prefix_mismatch'));
+
+                    return;
+                }
+            }
+
+            if ($this->clearMailchimpApiKey) {
+                $payload['store_newsletter_mailchimp_api_key'] = '';
+            } elseif ($mailchimpApiKey !== '') {
+                $payload['store_newsletter_mailchimp_api_key'] = $mailchimpCredentialCodec->encode($mailchimpApiKey);
+            } elseif ($storedMailchimpApiKey !== '' && ! $mailchimpCredentialCodec->isEncrypted($storedMailchimpApiKeyValue)) {
+                $payload['store_newsletter_mailchimp_api_key'] = $mailchimpCredentialCodec->encode($storedMailchimpApiKey);
+            }
+        } else {
+            unset(
+                $payload['store_newsletter_provider'],
+                $payload['store_newsletter_mailchimp_server_prefix'],
+                $payload['store_newsletter_mailchimp_list_id'],
+            );
+        }
 
         if ($this->logoUpload) {
             $payload['store_brand_logo_path'] = $this->logoUpload->store('store-settings', 'public');
@@ -236,8 +323,15 @@ class StoreSettings extends Component
             $payload['store_home_hero_mobile_video_path'] = $this->homeHeroMobileVideoUpload->store('store-settings/home-hero', 'public');
         }
 
-        app(SystemSettingsService::class)->putMany(array_merge($payload, $this->legacyStoreCleanupPayload()));
+        $settings->putMany(array_merge($payload, $this->legacyStoreCleanupPayload()));
         $this->form = array_merge($this->form, $payload);
+
+        if (array_key_exists('store_newsletter_mailchimp_api_key', $payload)) {
+            $this->hasMailchimpApiKey = $payload['store_newsletter_mailchimp_api_key'] !== '';
+        }
+        unset($this->form['store_newsletter_mailchimp_api_key']);
+        $this->mailchimpApiKey = '';
+        $this->clearMailchimpApiKey = false;
 
         $this->logoUpload = null;
         $this->faviconUpload = null;
@@ -345,6 +439,24 @@ class StoreSettings extends Component
             'form.store_footer_social_tiktok_enabled' => ['required', 'boolean'],
             'form.store_footer_social_youtube_enabled' => ['required', 'boolean'],
 
+            'form.store_newsletter_provider' => ['required', 'string', 'in:none,mailchimp'],
+            'form.store_newsletter_mailchimp_server_prefix' => [
+                Rule::requiredIf(fn (): bool => ($this->form['store_newsletter_provider'] ?? 'none') === 'mailchimp'),
+                'nullable',
+                'string',
+                'max:16',
+                'regex:/^us\d{1,3}$/',
+            ],
+            'form.store_newsletter_mailchimp_list_id' => [
+                Rule::requiredIf(fn (): bool => ($this->form['store_newsletter_provider'] ?? 'none') === 'mailchimp'),
+                'nullable',
+                'string',
+                'max:64',
+                'regex:/^[A-Za-z0-9_-]+$/',
+            ],
+            'mailchimpApiKey' => ['nullable', 'string', 'max:255', 'regex:/^[A-Za-z0-9]{16,128}-us\d{1,3}$/i'],
+            'clearMailchimpApiKey' => ['required', 'boolean'],
+
             'form.store_captcha_recaptcha_v3_enabled' => ['required', 'boolean'],
             'form.store_captcha_recaptcha_v3_site_key' => ['nullable', 'string', 'max:255'],
             'form.store_captcha_recaptcha_v3_secret_key' => ['nullable', 'string', 'max:255'],
@@ -437,6 +549,11 @@ class StoreSettings extends Component
             'form.store_analytics_google_ads_conversion_id.regex' => __('Google Ads Conversion ID mora biti oblika AW-123456789.'),
             'form.store_analytics_meta_pixel_id.required' => __('Unesite Meta Pixel ID ako je praćenje uključeno.'),
             'form.store_analytics_meta_pixel_id.regex' => __('Meta Pixel ID mora sadržavati samo 5 do 20 znamenki.'),
+            'form.store_newsletter_mailchimp_server_prefix.required' => __('admin.settings.store.newsletter.server_prefix_required'),
+            'form.store_newsletter_mailchimp_server_prefix.regex' => __('admin.settings.store.newsletter.server_prefix_invalid'),
+            'form.store_newsletter_mailchimp_list_id.required' => __('admin.settings.store.newsletter.list_id_required'),
+            'form.store_newsletter_mailchimp_list_id.regex' => __('admin.settings.store.newsletter.list_id_invalid'),
+            'mailchimpApiKey.regex' => __('admin.settings.store.newsletter.api_key_invalid'),
         ];
     }
 
@@ -482,6 +599,25 @@ class StoreSettings extends Component
         $path = trim($path);
 
         return $path !== '' ? Storage::disk('public')->url($path) : null;
+    }
+
+    private function mailchimpServerPrefixFromApiKey(string $apiKey): string
+    {
+        if (preg_match('/-(us\d{1,3})$/i', trim($apiKey), $matches) !== 1) {
+            return '';
+        }
+
+        return strtolower($matches[1]);
+    }
+
+    private function canManageNewsletterSettings(): bool
+    {
+        $user = auth()->user();
+
+        return (bool) ($user && (
+            Bouncer::is($user)->an('superadmin')
+            || $user->can('settings.system.newsletter.manage')
+        ));
     }
 
     /**

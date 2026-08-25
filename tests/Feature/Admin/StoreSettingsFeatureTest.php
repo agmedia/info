@@ -3,14 +3,18 @@
 namespace Tests\Feature\Admin;
 
 use App\Livewire\Admin\Settings\System\StoreSettings;
+use App\Models\Settings\System\SystemSetting;
 use App\Models\User;
 use App\Services\Front\StoreSettingsService as FrontStoreSettingsService;
+use App\Services\Newsletter\MailchimpCredentialCodec;
 use App\Services\Settings\SystemSettingsService;
+use App\Support\Admin\AdminAclSynchronizer;
 use App\Support\Front\FontRegistry;
 use App\Support\Front\HeroFontRegistry;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
+use Livewire\Features\SupportLockedProperties\CannotUpdateLockedPropertyException;
 use Livewire\Livewire;
 use Silber\Bouncer\BouncerFacade as Bouncer;
 use Tests\TestCase;
@@ -141,18 +145,38 @@ class StoreSettingsFeatureTest extends TestCase
             ->assertHasErrors(['form.store_home_hero_font_weight']);
     }
 
-    public function test_admin_form_omits_settings_that_have_no_public_site_consumer(): void
+    public function test_admin_form_exposes_mailchimp_settings_without_exposing_the_saved_api_key(): void
     {
         $admin = $this->makeAdminUser();
+        $apiKey = 'testmailchimpapikey00000000000001-us21';
+        $encryptedApiKey = app(MailchimpCredentialCodec::class)->encode($apiKey);
+        app(SystemSettingsService::class)->putMany([
+            'store_newsletter_provider' => 'mailchimp',
+            'store_newsletter_mailchimp_server_prefix' => 'us21',
+            'store_newsletter_mailchimp_api_key' => $encryptedApiKey,
+            'store_newsletter_mailchimp_list_id' => 'audience123',
+        ]);
 
         $component = Livewire::actingAs($admin)->test(StoreSettings::class)
-            ->assertDontSee('Newsletter')
+            ->assertSee('Newsletter')
             ->assertDontSee('Announcement bar')
+            ->assertSet('form.store_newsletter_provider', 'mailchimp')
+            ->assertSet('form.store_newsletter_mailchimp_server_prefix', 'us21')
+            ->assertSet('form.store_newsletter_mailchimp_list_id', 'audience123')
+            ->assertSet('mailchimpApiKey', '')
+            ->assertSet('hasMailchimpApiKey', true)
+            ->set('tab', 'newsletter')
+            ->assertSee(__('admin.settings.store.newsletter.title'))
+            ->assertSee(__('admin.settings.store.newsletter.api_key_saved'))
+            ->assertSee(route('admin.messages.newsletter.index'), false)
+            ->assertDontSee($apiKey)
+            ->assertDontSee($encryptedApiKey)
             ->set('tab', 'branding')
             ->assertDontSee('Footer Link Columns');
 
         $form = $component->get('form');
         $this->assertIsArray($form);
+        $this->assertArrayNotHasKey('store_newsletter_mailchimp_api_key', $form);
 
         foreach ([
             'store_footer_col_1_title',
@@ -164,9 +188,6 @@ class StoreSettingsFeatureTest extends TestCase
             'store_footer_col_3_title',
             'store_footer_col_3_page_ids',
             'store_footer_col_3_custom_links',
-            'store_newsletter_provider',
-            'store_newsletter_mailchimp_api_key',
-            'store_newsletter_mailchimp_list_id',
             'store_newsletter_klaviyo_api_key',
             'store_newsletter_klaviyo_list_id',
             'store_announcement_enabled',
@@ -176,6 +197,159 @@ class StoreSettingsFeatureTest extends TestCase
         ] as $unusedKey) {
             $this->assertArrayNotHasKey($unusedKey, $form);
         }
+    }
+
+    public function test_mailchimp_settings_preserve_or_replace_the_saved_api_key_and_legacy_keys(): void
+    {
+        $admin = $this->makeAdminUser();
+        $oldApiKey = 'testmailchimpapikey00000000000001-us21';
+        $newApiKey = 'replacementmailchimpkey0000000001-us21';
+        $settings = app(SystemSettingsService::class);
+        $settings->putMany([
+            'store_newsletter_provider' => 'mailchimp',
+            'store_newsletter_mailchimp_server_prefix' => 'us21',
+            'store_newsletter_mailchimp_api_key' => $oldApiKey,
+            'store_newsletter_mailchimp_list_id' => 'audience123',
+            'store_newsletter_klaviyo_api_key' => 'legacy-klaviyo-key',
+            'store_newsletter_klaviyo_list_id' => 'legacy-klaviyo-list',
+        ]);
+
+        Livewire::actingAs($admin)
+            ->test(StoreSettings::class)
+            ->call('save')
+            ->assertHasNoErrors()
+            ->assertSet('mailchimpApiKey', '')
+            ->assertSet('hasMailchimpApiKey', true);
+
+        $storedOldApiKey = (string) $settings->get('store_newsletter_mailchimp_api_key');
+        $this->assertStringStartsWith(MailchimpCredentialCodec::PREFIX, $storedOldApiKey);
+        $this->assertStringNotContainsString($oldApiKey, $storedOldApiKey);
+        $this->assertSame($oldApiKey, app(MailchimpCredentialCodec::class)->decode($storedOldApiKey));
+
+        $rawDatabaseValue = (string) SystemSetting::query()
+            ->where('key', 'store_newsletter_mailchimp_api_key')
+            ->value('value');
+        $this->assertStringContainsString(MailchimpCredentialCodec::PREFIX, $rawDatabaseValue);
+        $this->assertStringNotContainsString($oldApiKey, $rawDatabaseValue);
+
+        Livewire::actingAs($admin)
+            ->test(StoreSettings::class)
+            ->set('mailchimpApiKey', $newApiKey)
+            ->call('save')
+            ->assertHasNoErrors()
+            ->assertSet('mailchimpApiKey', '')
+            ->assertSet('hasMailchimpApiKey', true);
+
+        $storedNewApiKey = (string) $settings->get('store_newsletter_mailchimp_api_key');
+        $this->assertStringStartsWith(MailchimpCredentialCodec::PREFIX, $storedNewApiKey);
+        $this->assertStringNotContainsString($newApiKey, $storedNewApiKey);
+        $this->assertSame($newApiKey, app(MailchimpCredentialCodec::class)->decode($storedNewApiKey));
+        $this->assertSame('legacy-klaviyo-key', $settings->get('store_newsletter_klaviyo_api_key'));
+        $this->assertSame('legacy-klaviyo-list', $settings->get('store_newsletter_klaviyo_list_id'));
+    }
+
+    public function test_mailchimp_requires_complete_matching_credentials_when_enabled(): void
+    {
+        $admin = $this->makeAdminUser();
+
+        Livewire::actingAs($admin)
+            ->test(StoreSettings::class)
+            ->set('form.store_newsletter_provider', 'mailchimp')
+            ->call('save')
+            ->assertHasErrors([
+                'form.store_newsletter_mailchimp_server_prefix',
+                'form.store_newsletter_mailchimp_list_id',
+            ]);
+
+        Livewire::actingAs($admin)
+            ->test(StoreSettings::class)
+            ->set('form.store_newsletter_provider', 'mailchimp')
+            ->set('form.store_newsletter_mailchimp_server_prefix', 'us21')
+            ->set('form.store_newsletter_mailchimp_list_id', 'audience123')
+            ->call('save')
+            ->assertHasErrors(['mailchimpApiKey']);
+
+        Livewire::actingAs($admin)
+            ->test(StoreSettings::class)
+            ->set('form.store_newsletter_provider', 'mailchimp')
+            ->set('form.store_newsletter_mailchimp_server_prefix', 'us21')
+            ->set('form.store_newsletter_mailchimp_list_id', 'audience123')
+            ->set('mailchimpApiKey', 'testmailchimpapikey00000000000001-us19')
+            ->call('save')
+            ->assertHasErrors(['mailchimpApiKey']);
+    }
+
+    public function test_saved_mailchimp_api_key_can_only_be_cleared_while_provider_is_disabled(): void
+    {
+        $admin = $this->makeAdminUser();
+        $settings = app(SystemSettingsService::class);
+        $settings->putMany([
+            'store_newsletter_provider' => 'mailchimp',
+            'store_newsletter_mailchimp_server_prefix' => 'us21',
+            'store_newsletter_mailchimp_api_key' => 'testmailchimpapikey00000000000001-us21',
+            'store_newsletter_mailchimp_list_id' => 'audience123',
+        ]);
+
+        Livewire::actingAs($admin)
+            ->test(StoreSettings::class)
+            ->set('clearMailchimpApiKey', true)
+            ->call('save')
+            ->assertHasErrors(['mailchimpApiKey']);
+
+        $this->assertNotSame('', $settings->get('store_newsletter_mailchimp_api_key'));
+
+        Livewire::actingAs($admin)
+            ->test(StoreSettings::class)
+            ->set('form.store_newsletter_provider', 'none')
+            ->set('clearMailchimpApiKey', true)
+            ->call('save')
+            ->assertHasNoErrors()
+            ->assertSet('hasMailchimpApiKey', false)
+            ->assertSet('clearMailchimpApiKey', false);
+
+        $this->assertSame('', $settings->get('store_newsletter_mailchimp_api_key'));
+    }
+
+    public function test_editor_cannot_view_or_change_mailchimp_provider_credentials(): void
+    {
+        AdminAclSynchronizer::ensureSynced();
+        $editor = User::factory()->create();
+        Bouncer::assign('editor')->to($editor);
+        $settings = app(SystemSettingsService::class);
+        $originalKey = app(MailchimpCredentialCodec::class)
+            ->encode('testmailchimpapikey00000000000001-us21');
+        $settings->putMany([
+            'store_newsletter_provider' => 'mailchimp',
+            'store_newsletter_mailchimp_server_prefix' => 'us21',
+            'store_newsletter_mailchimp_api_key' => $originalKey,
+            'store_newsletter_mailchimp_list_id' => 'audience123',
+        ]);
+
+        $component = Livewire::actingAs($editor)
+            ->test(StoreSettings::class)
+            ->assertSet('canManageNewsletter', false)
+            ->assertDontSee(__('admin.settings.store.newsletter.title'));
+
+        try {
+            $component->set('canManageNewsletter', true);
+            $this->fail('The newsletter authorization flag must not be client-writable.');
+        } catch (CannotUpdateLockedPropertyException $exception) {
+            $this->assertSame('canManageNewsletter', $exception->property);
+        }
+
+        Livewire::actingAs($editor)
+            ->test(StoreSettings::class)
+            ->set('form.store_newsletter_provider', 'mailchimp')
+            ->set('form.store_newsletter_mailchimp_server_prefix', 'us19')
+            ->set('form.store_newsletter_mailchimp_list_id', 'changed-list')
+            ->set('mailchimpApiKey', 'replacementmailchimpkey0000000001-us19')
+            ->call('save')
+            ->assertHasNoErrors();
+
+        $this->assertSame('mailchimp', $settings->get('store_newsletter_provider'));
+        $this->assertSame('us21', $settings->get('store_newsletter_mailchimp_server_prefix'));
+        $this->assertSame('audience123', $settings->get('store_newsletter_mailchimp_list_id'));
+        $this->assertSame($originalKey, $settings->get('store_newsletter_mailchimp_api_key'));
     }
 
     public function test_saved_public_settings_have_an_exact_frontend_shape_without_secrets_or_legacy_fields(): void
@@ -359,6 +533,7 @@ class StoreSettingsFeatureTest extends TestCase
 
     private function makeAdminUser(): User
     {
+        AdminAclSynchronizer::ensureSynced();
         $user = User::factory()->create();
         Bouncer::assign('admin')->to($user);
 

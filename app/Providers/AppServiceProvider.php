@@ -35,10 +35,10 @@ class AppServiceProvider extends ServiceProvider
 {
     public function register(): void
     {
-        $this->app->singleton(LocalSettingsService::class, fn () => new LocalSettingsService());
-        $this->app->singleton(SystemSettingsService::class, fn () => new SystemSettingsService());
+        $this->app->singleton(LocalSettingsService::class, fn () => new LocalSettingsService);
+        $this->app->singleton(SystemSettingsService::class, fn () => new SystemSettingsService);
         $this->app->singleton(CatalogFeatureService::class, fn ($app) => new CatalogFeatureService($app->make(SystemSettingsService::class)));
-        $this->app->singleton(ContentBlockResolver::class, fn () => new ContentBlockResolver());
+        $this->app->singleton(ContentBlockResolver::class, fn () => new ContentBlockResolver);
         $this->app->singleton(NavigationMenuService::class, fn ($app) => new NavigationMenuService($app->make(SystemSettingsService::class)));
         $this->app->singleton(StoreSettingsService::class, fn ($app) => new StoreSettingsService($app->make(SystemSettingsService::class)));
         $this->app->singleton(UserTrackingService::class, fn ($app) => new UserTrackingService($app->make(SystemSettingsService::class)));
@@ -58,6 +58,34 @@ class AppServiceProvider extends ServiceProvider
 
             return [
                 Limit::perMinute($perMinute)->by('wholesale:'.$key),
+            ];
+        });
+
+        RateLimiter::for('newsletter-subscriptions', static function (Request $request) {
+            $rateLimitedResponse = static function (Request $request, array $headers) {
+                $message = (string) __('newsletter.rate_limited');
+
+                if ($request->expectsJson()) {
+                    return response()->json([
+                        'ok' => false,
+                        'message' => $message,
+                    ], 429, $headers);
+                }
+
+                return redirect()->back()
+                    ->withInput($request->except('website'))
+                    ->with('newsletter_error', $message)
+                    ->withHeaders($headers);
+            };
+            $email = strtolower(trim((string) $request->input('email', '')));
+
+            return [
+                Limit::perMinute(10)
+                    ->by('newsletter:ip:'.hash('sha256', (string) $request->ip()))
+                    ->response($rateLimitedResponse),
+                Limit::perHour(5)
+                    ->by('newsletter:email:'.hash('sha256', $email))
+                    ->response($rateLimitedResponse),
             ];
         });
 

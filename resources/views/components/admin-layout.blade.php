@@ -1073,6 +1073,7 @@
                     $messagesCareerActive = request()->routeIs('admin.messages.career.*');
                     $messagesDownloadRequestsActive = request()->routeIs('admin.messages.download-requests.*');
                     $messagesEuFundsQuestionnaireActive = request()->routeIs('admin.messages.eu-funds-questionnaire.*');
+                    $messagesNewsletterActive = request()->routeIs('admin.messages.newsletter.*');
                     $canViewContactMessages = auth()->user() && (
                         auth()->user()->isA('superadmin')
                         || auth()->user()->can('messages.contact.view')
@@ -1093,7 +1094,11 @@
                         auth()->user()->isA('superadmin')
                         || auth()->user()->can('messages.eu_funds_questionnaire.view')
                     );
-                    $messagesOpen = $messagesContactActive || $messagesCollaborationAssessmentActive || $messagesCareerActive || $messagesDownloadRequestsActive || $messagesEuFundsQuestionnaireActive;
+                    $canViewNewsletterSubscriptions = auth()->user() && (
+                        auth()->user()->isA('superadmin')
+                        || auth()->user()->can('messages.newsletter.view')
+                    );
+                    $messagesOpen = $messagesContactActive || $messagesCollaborationAssessmentActive || $messagesCareerActive || $messagesDownloadRequestsActive || $messagesEuFundsQuestionnaireActive || $messagesNewsletterActive;
                     $settingsOpen = request()->routeIs('admin.settings.*');
                     $settingsSystemOpen = request()->routeIs('admin.settings.system.*');
                     $canManageUsersAccess = auth()->user() && auth()->user()->isA('superadmin');
@@ -1433,7 +1438,7 @@
                         </div>
                     </details>
 
-                    @if ($canViewContactMessages || $canViewCollaborationAssessmentMessages || $canViewCareerMessages || $canViewDownloadRequestMessages || $canViewEuFundsQuestionnaireMessages)
+                    @if ($canViewContactMessages || $canViewCollaborationAssessmentMessages || $canViewCareerMessages || $canViewDownloadRequestMessages || $canViewEuFundsQuestionnaireMessages || $canViewNewsletterSubscriptions)
                         <details class="group rounded-lg" @if($messagesOpen) open @endif>
                             <summary class="sidebar-dropdown-summary flex cursor-pointer list-none items-center justify-between rounded-lg font-medium [&::-webkit-details-marker]:hidden [&::marker]:content-[''] {{ $messagesOpen ? 'bg-slate-900 text-white' : 'text-slate-700 hover:bg-slate-100' }}">
                                 <span class="flex items-center gap-2">
@@ -1497,6 +1502,17 @@
                                         <span class="flex items-center gap-2">
                                             <span class="sidebar-dot"></span>
                                             <span>{{ __('admin.layout.menu.eu_funds_questionnaire') }}</span>
+                                        </span>
+                                    </a>
+                                @endif
+                                @if ($canViewNewsletterSubscriptions)
+                                    <a
+                                        href="{{ route('admin.messages.newsletter.index') }}"
+                                        class="sidebar-dropdown-link block rounded-lg font-medium {{ $messagesNewsletterActive ? 'is-active-leaf' : 'text-slate-700 hover:bg-slate-100' }}"
+                                    >
+                                        <span class="flex items-center gap-2">
+                                            <span class="sidebar-dot"></span>
+                                            <span>{{ __('admin.layout.menu.newsletter') }}</span>
                                         </span>
                                     </a>
                                 @endif

@@ -103,15 +103,18 @@ class ContentNavigationFeatureTest extends TestCase
                 'sort_order' => 0,
             ]])
             ->set('form.chrome.header_primary_cta_label', 'Zatraži testnu ponudu')
+            ->set('form.chrome.footer_newsletter_consent', 'Hrvatska testna privola')
             ->set('form.chrome.footer_tagline', 'Hrvatski testni slogan')
             ->set('locale', 'en')
             ->assertSet('form.items.0.label', '')
             ->assertSet('form.items.0.url', '')
             ->assertSet('form.chrome.header_primary_cta_label', '')
+            ->assertSet('form.chrome.footer_newsletter_consent', '')
             ->assertSet('form.chrome.footer_tagline', '')
             ->set('form.items.0.label', 'English test link')
             ->set('form.items.0.url', '/en-test-link')
             ->set('form.chrome.header_primary_cta_label', 'Request a test proposal')
+            ->set('form.chrome.footer_newsletter_consent', 'English test consent')
             ->set('form.chrome.footer_tagline', 'English test tagline')
             ->call('save')
             ->assertHasNoErrors();
@@ -124,8 +127,10 @@ class ContentNavigationFeatureTest extends TestCase
         $this->assertSame('English test link', $savedNavigation[0]['label_translations']['en']);
         $this->assertSame('/en-test-link', $savedNavigation[0]['url_translations']['en']);
         $this->assertSame('Zatraži testnu ponudu', $saved['hr']['header_primary_cta_label']);
+        $this->assertSame('Hrvatska testna privola', $saved['hr']['footer_newsletter_consent']);
         $this->assertSame('Hrvatski testni slogan', $saved['hr']['footer_tagline']);
         $this->assertSame('Request a test proposal', $saved['en']['header_primary_cta_label']);
+        $this->assertSame('English test consent', $saved['en']['footer_newsletter_consent']);
         $this->assertSame('English test tagline', $saved['en']['footer_tagline']);
     }
 

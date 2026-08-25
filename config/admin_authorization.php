@@ -182,6 +182,9 @@ return [
             'view' => ['messages.eu_funds_questionnaire.view'],
             'mutate' => ['messages.eu_funds_questionnaire.moderate'],
         ],
+        'admin.messages.newsletter.*' => [
+            'view' => ['messages.newsletter.view'],
+        ],
 
         'admin.settings.system.runtime' => [
             'view' => ['settings.system.runtime.manage'],

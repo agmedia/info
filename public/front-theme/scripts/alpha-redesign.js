@@ -55,14 +55,38 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
         const email = form.querySelector('input[type="email"]');
+        const consent = form.querySelector('input[name="consent"]');
         const error = form.querySelector('[data-newsletter-error]');
+        const feedback = form.querySelector('[data-newsletter-feedback]');
+        const submit = form.querySelector('button[type="submit"]');
 
-        if (!(email instanceof HTMLInputElement) || !(error instanceof HTMLElement)) {
+        if (
+            !(email instanceof HTMLInputElement)
+            || !(consent instanceof HTMLInputElement)
+            || !(error instanceof HTMLElement)
+            || !(feedback instanceof HTMLElement)
+            || !(submit instanceof HTMLButtonElement)
+        ) {
             return;
         }
 
+        const defaultSubmitLabel = submit.getAttribute('aria-label') || '';
+
+        const clearFeedback = function () {
+            feedback.textContent = '';
+            feedback.dataset.state = '';
+            feedback.hidden = true;
+        };
+
+        const showFeedback = function (message, state) {
+            feedback.textContent = message;
+            feedback.dataset.state = state;
+            feedback.hidden = message === '';
+        };
+
         const clearError = function () {
             email.setAttribute('aria-invalid', 'false');
+            consent.setAttribute('aria-invalid', 'false');
             error.textContent = '';
             error.hidden = true;
         };
@@ -75,6 +99,8 @@ document.addEventListener('DOMContentLoaded', function () {
                 message = form.dataset.msgEmailRequired || '';
             } else if (!email.validity.valid) {
                 message = form.dataset.msgEmailInvalid || '';
+            } else if (!consent.checked) {
+                message = form.dataset.msgConsentRequired || '';
             }
 
             if (message === '') {
@@ -82,16 +108,103 @@ document.addEventListener('DOMContentLoaded', function () {
                 return true;
             }
 
-            email.setAttribute('aria-invalid', 'true');
+            const invalidField = value === '' || !email.validity.valid ? email : consent;
+
+            email.setAttribute('aria-invalid', 'false');
+            consent.setAttribute('aria-invalid', 'false');
+            invalidField.setAttribute('aria-invalid', 'true');
             error.textContent = message;
             error.hidden = false;
             return false;
         };
 
-        form.addEventListener('submit', function (event) {
+        form.addEventListener('submit', async function (event) {
             if (!validateEmail()) {
                 event.preventDefault();
-                email.focus();
+                const invalidField = email.getAttribute('aria-invalid') === 'true' ? email : consent;
+
+                invalidField.focus();
+
+                return;
+            }
+
+            if (typeof window.fetch !== 'function') {
+                return;
+            }
+
+            event.preventDefault();
+
+            if (form.getAttribute('aria-busy') === 'true') {
+                return;
+            }
+
+            clearFeedback();
+            form.setAttribute('aria-busy', 'true');
+            submit.disabled = true;
+            submit.classList.add('is-submitting');
+            submit.setAttribute('aria-label', form.dataset.msgSubmitting || defaultSubmitLabel);
+
+            let responsePayload = {};
+
+            try {
+                const response = await window.fetch(form.action, {
+                    method: 'POST',
+                    body: new FormData(form),
+                    credentials: 'same-origin',
+                    headers: {
+                        Accept: 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest',
+                    },
+                });
+                const contentType = response.headers.get('content-type') || '';
+
+                if (contentType.includes('application/json')) {
+                    responsePayload = await response.json();
+                }
+
+                if (!response.ok || responsePayload.ok !== true) {
+                    const emailErrors = responsePayload.errors?.email;
+                    const consentErrors = responsePayload.errors?.consent;
+                    const emailValidationMessage = Array.isArray(emailErrors)
+                        ? emailErrors[0]
+                        : emailErrors;
+                    const consentValidationMessage = Array.isArray(consentErrors)
+                        ? consentErrors[0]
+                        : consentErrors;
+
+                    if (emailValidationMessage) {
+                        email.setAttribute('aria-invalid', 'true');
+                    } else if (consentValidationMessage) {
+                        consent.setAttribute('aria-invalid', 'true');
+                    }
+
+                    throw new Error(
+                        emailValidationMessage
+                        || consentValidationMessage
+                        || responsePayload.message
+                        || form.dataset.msgSubmitFailed
+                        || '',
+                    );
+                }
+
+                email.value = '';
+                consent.checked = false;
+                clearError();
+                showFeedback(
+                    responsePayload.message || form.dataset.msgSubmitSuccess || '',
+                    'success',
+                );
+            } catch (requestError) {
+                const message = requestError instanceof Error && requestError.message !== ''
+                    ? requestError.message
+                    : (form.dataset.msgSubmitFailed || '');
+
+                showFeedback(message, 'error');
+            } finally {
+                form.setAttribute('aria-busy', 'false');
+                submit.disabled = false;
+                submit.classList.remove('is-submitting');
+                submit.setAttribute('aria-label', defaultSubmitLabel);
             }
         });
 
@@ -101,7 +214,17 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         });
 
+        consent.addEventListener('change', function () {
+            if (consent.getAttribute('aria-invalid') === 'true') {
+                validateEmail();
+            }
+        });
+
         clearError();
+
+        if (feedback.textContent.trim() === '') {
+            clearFeedback();
+        }
     });
 
     const setSubmenuOpen = function (open, moveFocus) {

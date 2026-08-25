@@ -55,6 +55,7 @@
     $alphaFooterNewsletterAccent = trim((string) ($alphaFooterChrome['footer_newsletter_accent'] ?? ''));
     $alphaFooterEmailPlaceholder = trim((string) ($alphaFooterChrome['footer_newsletter_email_placeholder'] ?? ''));
     $alphaFooterNewsletterSubmitLabel = trim((string) ($alphaFooterChrome['footer_newsletter_submit_label'] ?? ''));
+    $alphaFooterNewsletterConsent = trim((string) ($alphaFooterChrome['footer_newsletter_consent'] ?? ''));
     $alphaFooterTagline = trim((string) ($alphaFooterChrome['footer_tagline'] ?? ''));
     $alphaFooterServicesLabel = trim((string) ($alphaFooterChrome['footer_services_label'] ?? ''));
     $alphaFooterContactLabel = trim((string) ($alphaFooterChrome['footer_contact_label'] ?? ''));
@@ -62,7 +63,14 @@
     $alphaFooterBackToTopLabel = trim((string) ($alphaFooterChrome['footer_back_to_top_label'] ?? ''));
     $alphaShowFooterNewsletter = $alphaFooterNewsletterTitle !== ''
         && $alphaFooterEmailPlaceholder !== ''
-        && $alphaFooterNewsletterSubmitLabel !== '';
+        && $alphaFooterNewsletterSubmitLabel !== ''
+        && $alphaFooterNewsletterConsent !== '';
+    $alphaFooterNewsletterSuccess = trim((string) session('newsletter_success', ''));
+    $alphaFooterNewsletterError = trim((string) session('newsletter_error', ''));
+    $alphaFooterNewsletterFeedback = $alphaFooterNewsletterSuccess !== ''
+        ? $alphaFooterNewsletterSuccess
+        : $alphaFooterNewsletterError;
+    $alphaFooterNewsletterFeedbackState = $alphaFooterNewsletterSuccess !== '' ? 'success' : 'error';
 @endphp
 
 <footer class="site-footer" data-image-reveal>
@@ -78,22 +86,44 @@
                 </h2>
             </div>
             <form
-                action="{{ \App\Support\Localization\FrontendRoute::url('contact.create') }}"
-                method="get"
+                action="{{ \App\Support\Localization\FrontendRoute::url('newsletter.subscribe') }}"
+                method="post"
                 novalidate
                 data-newsletter-form
                 data-msg-email-required="{{ __('contact.validation.inline.email_required') }}"
                 data-msg-email-invalid="{{ __('contact.validation.inline.email_invalid') }}"
+                data-msg-consent-required="{{ __('ui.alpha_chrome.footer.newsletter_consent_required') }}"
+                data-msg-submitting="{{ __('ui.alpha_chrome.footer.newsletter_submitting') }}"
+                data-msg-submit-success="{{ __('ui.alpha_chrome.footer.newsletter_success') }}"
+                data-msg-submit-failed="{{ __('ui.alpha_chrome.footer.newsletter_error') }}"
             >
+                @csrf
+                <div class="footer-newsletter-honeypot" aria-hidden="true">
+                    <label for="newsletter-website">Website</label>
+                    <input id="newsletter-website" name="website" type="text" tabindex="-1" autocomplete="off">
+                </div>
                 <label class="visually-hidden" for="newsletter-email">{{ $alphaFooterEmailPlaceholder }}</label>
                 <div class="footer-newsletter-field">
                     <i class="fa-light fa-envelope" aria-hidden="true"></i>
-                    <input id="newsletter-email" name="newsletter_email" type="email" autocomplete="email" placeholder="{{ $alphaFooterEmailPlaceholder }}" required aria-describedby="newsletter-email-error" aria-invalid="false">
+                    <input id="newsletter-email" name="email" type="email" autocomplete="email" placeholder="{{ $alphaFooterEmailPlaceholder }}" required aria-describedby="newsletter-email-error newsletter-feedback" aria-invalid="false">
                     <button type="submit" aria-label="{{ $alphaFooterNewsletterSubmitLabel }}">
                         <i class="fa-duotone fa-thin fa-arrow-right" aria-hidden="true"></i>
                     </button>
                 </div>
+                <label class="footer-newsletter-consent">
+                    <input name="consent" type="checkbox" value="1" required aria-describedby="newsletter-email-error newsletter-feedback">
+                    <span>{{ $alphaFooterNewsletterConsent }}</span>
+                </label>
                 <p id="newsletter-email-error" class="footer-newsletter-error" data-newsletter-error role="alert" aria-live="polite" hidden></p>
+                <p
+                    id="newsletter-feedback"
+                    class="footer-newsletter-feedback"
+                    data-newsletter-feedback
+                    data-state="{{ $alphaFooterNewsletterFeedbackState }}"
+                    role="status"
+                    aria-live="polite"
+                    @if ($alphaFooterNewsletterFeedback === '') hidden @endif
+                >{{ $alphaFooterNewsletterFeedback }}</p>
             </form>
         </section>
         @endif

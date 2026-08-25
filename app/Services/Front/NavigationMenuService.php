@@ -34,6 +34,7 @@ class NavigationMenuService
         'footer_newsletter_accent' => 80,
         'footer_newsletter_email_placeholder' => 191,
         'footer_newsletter_submit_label' => 191,
+        'footer_newsletter_consent' => 255,
         'footer_tagline' => 255,
         'footer_services_label' => 80,
         'footer_contact_label' => 80,

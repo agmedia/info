@@ -22,6 +22,7 @@ final class FrontendRoute
         'eu-funds.questionnaire.create',
         'eu-funds.questionnaire.store',
         'career.applications.store',
+        'newsletter.subscribe',
         'contact.create',
         'contact.store',
         'search.index',

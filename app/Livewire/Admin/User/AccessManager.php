@@ -142,7 +142,7 @@ class AccessManager extends Component
     public function toggleGroup(string $group): void
     {
         $group = $this->normalizeGroupKey($group);
-        $this->collapsedGroups[$group] = !($this->collapsedGroups[$group] ?? false);
+        $this->collapsedGroups[$group] = ! ($this->collapsedGroups[$group] ?? false);
     }
 
     public function render()
@@ -191,7 +191,7 @@ class AccessManager extends Component
             return [];
         }
 
-        $roleMorph = (new Role())->getMorphClass();
+        $roleMorph = (new Role)->getMorphClass();
 
         $rows = DB::table('permissions')
             ->select(['entity_id', 'ability_id', 'forbidden'])
@@ -204,7 +204,7 @@ class AccessManager extends Component
         foreach ($rows as $row) {
             $abilityId = (int) $row->ability_id;
             $roleId = (int) $row->entity_id;
-            $map[$abilityId][$roleId] = !(bool) $row->forbidden;
+            $map[$abilityId][$roleId] = ! (bool) $row->forbidden;
         }
 
         return $map;
@@ -220,7 +220,7 @@ class AccessManager extends Component
 
         foreach ($abilities as $ability) {
             $groupKey = $this->resolveAbilityGroupKey($ability);
-            if (!isset($groups[$groupKey])) {
+            if (! isset($groups[$groupKey])) {
                 $groups[$groupKey] = [
                     'key' => $groupKey,
                     'label' => $this->groupLabel($groupKey),
@@ -344,6 +344,7 @@ class AccessManager extends Component
             'messages.career' => __('Messages / Career'),
             'messages.download_requests' => __('Messages / Download Requests'),
             'messages.eu_funds_questionnaire' => __('Messages / EU Funds Questionnaire'),
+            'messages.newsletter' => __('Messages / Newsletter'),
             'settings.system' => __('Settings / System'),
             'settings.local' => __('Settings / Local'),
             'settings.user' => __('Settings / User'),
