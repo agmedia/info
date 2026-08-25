@@ -1,5 +1,6 @@
 .front-route-accounting .ac-audit-hero-label {
     max-width: 18ch;
+    margin-inline: auto;
     font-size: clamp(3.2rem, 5.2vw, 6.1rem);
     letter-spacing: 0.005em;
 }
