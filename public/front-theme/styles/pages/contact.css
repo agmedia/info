@@ -294,6 +294,10 @@ body:has(.ac-contact-page) {
     margin-top: 1.75rem;
 }
 
+.front-desktop-shell .ac-contact-page p.front-recaptcha-disclosure {
+    margin-top: 1rem;
+}
+
 .front-desktop-shell .ac-contact-submit {
     --editorial-button-ink: var(--contact-navy);
     --editorial-button-surface: var(--contact-cream);
