@@ -1,2 +1,19 @@
 User-agent: *
-Disallow:
+Allow: /
+
+Disallow: /admin
+Disallow: /login
+Disallow: /dashboard
+Disallow: /profile
+Disallow: /logout
+Disallow: /horizon
+Disallow: /api/
+Disallow: /sanctum/
+Disallow: /newsletter/csrf-token
+Disallow: /locale/
+Disallow: /search/suggest
+Disallow: /livewire/update
+Disallow: /livewire/upload-file
+Disallow: /livewire/preview-file/
+
+Sitemap: https://www.alphacapitalis.com/sitemap.xml

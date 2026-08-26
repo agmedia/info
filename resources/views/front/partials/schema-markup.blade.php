@@ -61,6 +61,11 @@
     if ($businessName === '') {
         $businessName = (string) config('app.name', 'AG Shop');
     }
+    $organizationReference = [
+        '@type' => 'Organization',
+        '@id' => $siteUrl.'#organization',
+        'name' => $businessName,
+    ];
 
     $defaultDescription = $text($seo['default_description'] ?? '', 320);
     $defaultImage = (string) ($og['default_image_url'] ?? '');
@@ -249,6 +254,18 @@
             ];
         }
 
+        if (request()->routeIs('contact.create', 'contact.create.en')) {
+            $contactBreadcrumbName = $text(data_get($contactPageContent ?? [], 'page_title', ''), 191);
+            if ($contactBreadcrumbName !== '') {
+                $breadcrumbItems[] = [
+                    '@type' => 'ListItem',
+                    'position' => $position++,
+                    'name' => $contactBreadcrumbName,
+                    'item' => $currentUrl,
+                ];
+            }
+        }
+
         if (count($breadcrumbItems) > 1) {
             $schemas[] = [
                 '@context' => 'https://schema.org',
@@ -287,6 +304,25 @@
         $schemas[] = $homeSchema;
     }
 
+    if (request()->routeIs('contact.create', 'contact.create.en') && (bool) ($schemaSettings['page_enabled'] ?? true)) {
+        $contactName = $text(data_get($contactPageContent ?? [], 'page_title', ''), 191);
+        $contactDescription = $text(data_get($contactPageContent ?? [], 'intro', ''), 320);
+        $contactSchema = [
+            '@context' => 'https://schema.org',
+            '@type' => 'ContactPage',
+            'name' => $contactName !== '' ? $contactName : $businessName,
+            'url' => $currentUrl,
+            'isPartOf' => ['@id' => $siteUrl.'#website'],
+            'about' => ['@id' => $siteUrl.'#organization'],
+        ];
+
+        if ($contactDescription !== '') {
+            $contactSchema['description'] = $contactDescription;
+        }
+
+        $schemas[] = $contactSchema;
+    }
+
     if (request()->routeIs('blog.show') && isset($post) && (bool) ($schemaSettings['blog_enabled'] ?? true)) {
         $translation = $post->translations->firstWhere('locale', $locale)
             ?? ($requiresExactTranslation ? null : $post->translations->firstWhere('locale', $fallbackLocale));
@@ -295,9 +331,9 @@
         if ($authorName === '') {
             $authorName = trim((string) ($post->creator?->name ?? ''));
         }
-        if ($authorName === '') {
-            $authorName = $businessName;
-        }
+        $normalizedAuthorName = mb_strtolower((string) preg_replace('/\s+/u', ' ', $authorName));
+        $normalizedBusinessName = mb_strtolower((string) preg_replace('/\s+/u', ' ', $businessName));
+        $hasPersonAuthor = $normalizedAuthorName !== '' && $normalizedAuthorName !== $normalizedBusinessName;
 
         $authorUrl = trim((string) ($schemaSettings['blog_author_url'] ?? ''));
         $blogDescription = $text($translation?->meta_description ?: $translation?->excerpt, 320);
@@ -312,15 +348,17 @@
             'datePublished' => optional($post->published_at)->toIso8601String(),
             'dateModified' => optional($post->updated_at)->toIso8601String(),
             'mainEntityOfPage' => $currentUrl,
-            'author' => ['@type' => 'Person', 'name' => $authorName],
-            'publisher' => ['@type' => 'Organization', 'name' => $businessName],
+            'author' => $hasPersonAuthor
+                ? ['@type' => 'Person', 'name' => $authorName]
+                : $organizationReference,
+            'publisher' => $organizationReference,
         ];
 
         if ($blogDescription !== '') {
             $blogSchema['description'] = $blogDescription;
         }
 
-        if ($authorUrl !== '') {
+        if ($hasPersonAuthor && $authorUrl !== '') {
             $blogSchema['author']['url'] = $authorUrl;
         }
 
@@ -384,7 +422,7 @@
             'datePublished' => optional($callPost->published_at)->toIso8601String(),
             'dateModified' => optional($callPost->updated_at)->toIso8601String(),
             'mainEntityOfPage' => $currentUrl,
-            'publisher' => ['@type' => 'Organization', 'name' => $businessName],
+            'publisher' => $organizationReference,
         ];
         if ($callDescription !== '') {
             $callSchema['description'] = $callDescription;
@@ -409,36 +447,8 @@
             '@type' => 'Blog',
             'name' => 'Blog',
             'url' => $currentUrl,
-            'publisher' => ['@type' => 'Organization', 'name' => $businessName],
+            'publisher' => $organizationReference,
         ];
-
-        if (isset($posts) && $posts instanceof \Illuminate\Contracts\Pagination\LengthAwarePaginator) {
-            $items = collect($posts->items())
-                ->map(function ($item) use ($locale, $fallbackLocale, $text) {
-                    $tr = $item->translations->firstWhere('locale', $locale)
-                        ?? $item->translations->firstWhere('locale', $fallbackLocale);
-
-                    if (! $tr) {
-                        return null;
-                    }
-
-                    return [
-                        '@type' => 'ListItem',
-                        'position' => null,
-                        'url' => route('blog.show', ['slug' => $tr->slug ?? $item->id]),
-                        'name' => $text($tr->title, 191),
-                    ];
-                })
-                ->filter()
-                ->values();
-
-            if ($items->isNotEmpty()) {
-                $blogIndex['blogPost'] = $items->map(function (array $entry, int $index): array {
-                    $entry['position'] = $index + 1;
-                    return $entry;
-                })->all();
-            }
-        }
 
         $schemas[] = $blogIndex;
     }
@@ -581,27 +591,23 @@
         $schemas[] = $pageSchema;
     }
 
-    if ((request()->routeIs('home') || request()->routeIs('faq.index')) && (bool) ($schemaSettings['faq_enabled'] ?? true)) {
+    if (request()->routeIs('faq.index') && (bool) ($schemaSettings['faq_enabled'] ?? true)) {
         try {
             $faqLimit = max(1, min(20, (int) ($schemaSettings['faq_limit'] ?? 8)));
             $faqGroup = trim((string) ($schemaSettings['faq_group'] ?? ''));
 
-            $faqs = \App\Models\Content\Support\Faq::query()
-                ->where('is_active', true)
-                ->when($faqGroup !== '', fn ($q) => $q->where('group_code', $faqGroup))
-                ->with(['translations' => fn ($q) => $q->whereIn('locale', [$locale, $fallbackLocale])])
-                ->orderByDesc('is_featured')
-                ->orderBy('sort_order')
-                ->orderBy('id')
-                ->limit($faqLimit)
-                ->get();
+            $schemaFaqs = collect($faqs ?? [])
+                ->when($faqGroup !== '', fn ($items) => $items->where('group_code', $faqGroup))
+                ->take($faqLimit);
 
-            $faqEntities = $faqs->map(function ($faq) use ($locale, $fallbackLocale, $text) {
+            $faqEntities = $schemaFaqs->map(function ($faq) use ($locale, $fallbackLocale, $requiresExactTranslation, $text) {
                 $tr = $faq->translations->firstWhere('locale', $locale)
-                    ?? $faq->translations->firstWhere('locale', $fallbackLocale);
+                    ?? ($requiresExactTranslation ? null : $faq->translations->firstWhere('locale', $fallbackLocale));
 
                 $q = $text($tr?->question, 280);
-                $a = $text($tr?->answer_html, 2000);
+                $answerHtml = preg_replace('/<\s*br\s*\/?\s*>|<\/\s*(?:p|div|li|h[1-6])\s*>/iu', ' ', (string) ($tr?->answer_html ?? ''));
+                $a = trim(html_entity_decode(strip_tags((string) $answerHtml), ENT_QUOTES | ENT_HTML5, 'UTF-8'));
+                $a = preg_replace('/\s+/u', ' ', $a) ?: $a;
 
                 if ($q === '' || $a === '') {
                     return null;

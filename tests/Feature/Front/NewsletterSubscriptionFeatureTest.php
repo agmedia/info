@@ -127,6 +127,7 @@ class NewsletterSubscriptionFeatureTest extends TestCase
         $this->get('/')
             ->assertOk()
             ->assertSee('action="'.route('newsletter.subscribe').'"', false)
+            ->assertSee('data-csrf-refresh-url="'.route('newsletter.csrf-token', [], false).'"', false)
             ->assertSee('method="post"', false)
             ->assertSee('name="email"', false)
             ->assertSee('name="consent"', false)
@@ -142,6 +143,60 @@ class NewsletterSubscriptionFeatureTest extends TestCase
             ->assertSee('Your email address')
             ->assertSee('I want to receive the newsletter')
             ->assertDontSee($apiKey, false);
+    }
+
+    public function test_ajax_signup_can_refresh_a_stale_csrf_token_and_retry_in_the_same_session(): void
+    {
+        $this->app['env'] = 'production';
+        app(SystemSettingsService::class)->put('store_newsletter_provider', 'none');
+        Http::preventStrayRequests();
+
+        $initial = $this->get(route('newsletter.csrf-token'))
+            ->assertOk()
+            ->assertJsonStructure(['token']);
+
+        $sessionCookieName = (string) config('session.cookie');
+        $sessionCookie = collect($initial->headers->getCookies())
+            ->first(static fn ($cookie): bool => $cookie->getName() === $sessionCookieName);
+
+        $this->assertNotNull($sessionCookie);
+
+        $this->withCredentials()
+            ->withUnencryptedCookie($sessionCookieName, $sessionCookie->getValue())
+            ->postJson(route('newsletter.subscribe'), [
+                '_token' => 'stale-token',
+                'email' => 'refreshed@example.com',
+                'consent' => '1',
+            ])
+            ->assertStatus(419);
+
+        $this->assertDatabaseCount('newsletter_subscriptions', 0);
+
+        $refresh = $this->get(route('newsletter.csrf-token'))
+            ->assertOk()
+            ->assertHeader('Cache-Control', 'no-store, private')
+            ->assertJsonStructure(['token']);
+
+        $refreshedToken = $refresh->json('token');
+        $this->assertIsString($refreshedToken);
+        $this->assertNotSame('', $refreshedToken);
+
+        $this->postJson(route('newsletter.subscribe'), [
+            '_token' => $refreshedToken,
+            'email' => 'refreshed@example.com',
+            'consent' => '1',
+        ])
+            ->assertOk()
+            ->assertExactJson([
+                'ok' => true,
+                'message' => __('newsletter.received'),
+            ]);
+
+        $this->assertDatabaseHas('newsletter_subscriptions', [
+            'email' => 'refreshed@example.com',
+            'status' => NewsletterSubscription::STATUS_RECEIVED,
+        ]);
+        Http::assertNothingSent();
     }
 
     public function test_repeated_signup_updates_one_local_record_and_does_not_duplicate_the_member(): void

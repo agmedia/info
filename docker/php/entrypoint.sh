@@ -3,8 +3,16 @@ set -e
 
 cd /var/www/html
 
-if [ ! -f .env ] && [ -f .env.example ]; then
-    cp .env.example .env
+if [ ! -f .env ]; then
+    case "${APP_ENV:-production}" in
+        local|development|dev)
+            if [ -f .env.example ]; then
+                cp .env.example .env
+            elif [ -f .env.docker.example ]; then
+                cp .env.docker.example .env
+            fi
+            ;;
+    esac
 fi
 
 mkdir -p \
@@ -53,7 +61,55 @@ if [ -f package.json ]; then
     fi
 fi
 
-php artisan key:generate --force >/dev/null 2>&1 || true
+if [ -z "${APP_KEY:-}" ]; then
+    unset APP_KEY
+fi
+
+env_file_value() {
+    [ -f .env ] || return 0
+
+    php -r '
+        require "vendor/autoload.php";
+        $values = Dotenv\Dotenv::parse(file_get_contents(".env"));
+        echo (string) ($values[$argv[1]] ?? "");
+    ' "$1"
+}
+
+file_app_env="$(env_file_value APP_ENV)"
+file_app_key="$(env_file_value APP_KEY)"
+
+if [ "${APP_ENV+x}" = x ]; then
+    configured_app_env="${APP_ENV:-production}"
+else
+    configured_app_env="${file_app_env:-production}"
+fi
+
+configured_app_key="${APP_KEY:-$file_app_key}"
+
+if [ -z "$configured_app_key" ]; then
+    case "$configured_app_env" in
+        local|development|dev)
+            if [ ! -f .env ]; then
+                echo 'APP_KEY is missing and no .env file is available for local initialization.' >&2
+                exit 1
+            fi
+
+            php artisan config:clear >/dev/null
+            php artisan key:generate --force >/dev/null
+
+            if [ -z "$(env_file_value APP_KEY)" ]; then
+                echo 'Failed to persist the generated APP_KEY.' >&2
+                exit 1
+            fi
+            ;;
+        *)
+            printf 'APP_KEY must be configured persistently for APP_ENV=%s; refusing to generate one at startup.\n' \
+                "$configured_app_env" >&2
+            exit 1
+            ;;
+    esac
+fi
+
 php artisan migrate --force >/dev/null 2>&1 || true
 
 exec "$@"

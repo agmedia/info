@@ -40,6 +40,9 @@
         ? $sectionDescription
         : ($requiresExactTranslation ? '' : $defaultDescription);
     $robots = trim((string) ($seoSettings['robots'] ?? 'index,follow'));
+    if (request()->routeIs('search.index', 'search.index.en')) {
+        $robots = 'noindex,follow';
+    }
     $canonicalPolicy = (string) ($seoSettings['canonical_policy'] ?? 'self');
     $canonicalUrl = $canonicalPolicy === 'self' ? url()->current() : '';
 

@@ -18,12 +18,14 @@ use App\Http\Controllers\Front\EuFundsQuestionnaireController;
 use App\Http\Controllers\Front\FaqController;
 use App\Http\Controllers\Front\GlossaryController;
 use App\Http\Controllers\Front\LeaseCalculatorController;
+use App\Http\Controllers\Front\NewsletterCsrfTokenController;
 use App\Http\Controllers\Front\NewsletterSubscriptionController;
 use App\Http\Controllers\Front\PageController;
 use App\Http\Controllers\Front\PublicStorageController;
 use App\Http\Controllers\Front\ResourceController;
 use App\Http\Controllers\Front\SearchController;
 use App\Http\Controllers\Front\ServicesController;
+use App\Http\Controllers\Front\SitemapController;
 use App\Http\Controllers\Front\StorefrontController;
 use App\Http\Controllers\Front\TeamController;
 use App\Http\Middleware\EnsureFrontendRouteLocale;
@@ -41,13 +43,28 @@ use App\Models\Content\Support\Faq;
 use App\Models\Content\Team\TeamMember;
 use App\Models\Settings\Local\Language;
 use App\Models\User;
+use Illuminate\Foundation\Http\Middleware\ValidateCsrfToken;
 use Illuminate\Http\Request;
+use Illuminate\Session\Middleware\StartSession;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
+use Illuminate\View\Middleware\ShareErrorsFromSession;
+
+Route::get('sitemap.xml', SitemapController::class)
+    ->withoutMiddleware([
+        StartSession::class,
+        ShareErrorsFromSession::class,
+        ValidateCsrfToken::class,
+    ])
+    ->name('sitemap');
 
 Route::get('storage/{path}', PublicStorageController::class)
     ->where('path', '.*')
     ->name('public-storage.show');
+
+Route::get('newsletter/csrf-token', NewsletterCsrfTokenController::class)
+    ->middleware('throttle:30,1')
+    ->name('newsletter.csrf-token');
 
 Route::middleware(['front.locale', 'front.device'])
     ->group(function (): void {

@@ -118,6 +118,56 @@ document.addEventListener('DOMContentLoaded', function () {
             return false;
         };
 
+        const sendNewsletterRequest = function () {
+            return window.fetch(form.action, {
+                method: 'POST',
+                body: new FormData(form),
+                credentials: 'same-origin',
+                headers: {
+                    Accept: 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest',
+                },
+            });
+        };
+
+        const refreshCsrfToken = async function () {
+            const refreshUrl = form.dataset.csrfRefreshUrl || '';
+            const csrfInput = form.querySelector('input[name="_token"]');
+
+            if (refreshUrl === '' || !(csrfInput instanceof HTMLInputElement)) {
+                return false;
+            }
+
+            try {
+                const response = await window.fetch(refreshUrl, {
+                    method: 'GET',
+                    credentials: 'same-origin',
+                    cache: 'no-store',
+                    headers: {
+                        Accept: 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest',
+                    },
+                });
+
+                if (!response.ok) {
+                    return false;
+                }
+
+                const payload = await response.json();
+                const token = typeof payload.token === 'string' ? payload.token.trim() : '';
+
+                if (token === '') {
+                    return false;
+                }
+
+                csrfInput.value = token;
+
+                return true;
+            } catch {
+                return false;
+            }
+        };
+
         form.addEventListener('submit', async function (event) {
             if (!validateEmail()) {
                 event.preventDefault();
@@ -147,15 +197,16 @@ document.addEventListener('DOMContentLoaded', function () {
             let responsePayload = {};
 
             try {
-                const response = await window.fetch(form.action, {
-                    method: 'POST',
-                    body: new FormData(form),
-                    credentials: 'same-origin',
-                    headers: {
-                        Accept: 'application/json',
-                        'X-Requested-With': 'XMLHttpRequest',
-                    },
-                });
+                let response = await sendNewsletterRequest();
+
+                if (response.status === 419 && await refreshCsrfToken()) {
+                    response = await sendNewsletterRequest();
+                }
+
+                if (response.status === 419) {
+                    throw new Error(form.dataset.msgSubmitFailed || '');
+                }
+
                 const contentType = response.headers.get('content-type') || '';
 
                 if (contentType.includes('application/json')) {

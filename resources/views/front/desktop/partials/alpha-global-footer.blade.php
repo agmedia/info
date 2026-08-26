@@ -90,6 +90,7 @@
                 method="post"
                 novalidate
                 data-newsletter-form
+                data-csrf-refresh-url="{{ route('newsletter.csrf-token', [], false) }}"
                 data-msg-email-required="{{ __('contact.validation.inline.email_required') }}"
                 data-msg-email-invalid="{{ __('contact.validation.inline.email_invalid') }}"
                 data-msg-consent-required="{{ __('ui.alpha_chrome.footer.newsletter_consent_required') }}"

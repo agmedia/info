@@ -115,6 +115,7 @@ class LocalizedServiceRouteFeatureTest extends TestCase
             ->assertOk()
             ->assertSessionHas('front_locale', 'en')
             ->assertSee('action="https://info.test/search"', false)
+            ->assertSee('<meta name="robots" content="noindex,follow">', false)
             ->assertSee('"target":"https://info.test/search?q={search_term_string}"', false);
 
         $this->withSession(['front_locale' => 'en'])
@@ -122,6 +123,7 @@ class LocalizedServiceRouteFeatureTest extends TestCase
             ->assertOk()
             ->assertSessionHas('front_locale', 'hr')
             ->assertSee('action="https://info.test/pretraga"', false)
+            ->assertSee('<meta name="robots" content="noindex,follow">', false)
             ->assertSee('"target":"https://info.test/pretraga?q={search_term_string}"', false);
     }
 

@@ -91,7 +91,9 @@ class LocalizedContactRouteFeatureTest extends TestCase
             ->assertSeeText('English contact title')
             ->assertSee('action="'.route('contact.store.en').'"', false)
             ->assertSee('<meta name="description" content="English contact SEO intro.">', false)
-            ->assertSee('rel="canonical" href="https://info.test/contact"', false);
+            ->assertSee('rel="canonical" href="https://info.test/contact"', false)
+            ->assertSee('"@type":"ContactPage","name":"English contact title"', false)
+            ->assertSee('"@type":"BreadcrumbList"', false);
 
         $this->getFresh('/kontakt')
             ->assertOk()
