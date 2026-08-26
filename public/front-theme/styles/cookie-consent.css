@@ -203,14 +203,14 @@
 @media (min-width: 768px) and (max-width: 1100px) {
   .cookie-consent-trigger,
   .floating-whatsapp-contact {
-    bottom: 7.5rem;
+    bottom: 6.5rem;
   }
 }
 
 @media (min-width: 1101px) {
   .cookie-consent-trigger,
   .floating-whatsapp-contact {
-    bottom: 5rem;
+    bottom: 3.5rem;
   }
 }
 
