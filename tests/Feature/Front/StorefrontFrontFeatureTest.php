@@ -2119,6 +2119,8 @@ class StorefrontFrontFeatureTest extends TestCase
                 ->assertSee('https://www.instagram.com/alpha-capitalis-test', false)
                 ->assertSee('https://www.tiktok.com/@alpha-capitalis-test', false)
                 ->assertSee('https://www.youtube.com/@alpha-capitalis-test', false)
+                ->assertSee('Web by.')
+                ->assertSee('<a href="https://www.agmedia.hr" target="_blank" rel="noopener noreferrer">AG media</a>', false)
                 ->assertSee('class="footer-back-to-top" href="#page-top"', false)
                 ->assertSee('Politika privatnosti')
                 ->assertSee('Uvjeti korištenja');

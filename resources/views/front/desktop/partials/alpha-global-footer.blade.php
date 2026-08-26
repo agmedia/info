@@ -237,7 +237,10 @@
 
         <div class="footer-bottom content-reveal" data-image-reveal>
             @if ($alphaFooterCopyright !== '')
-                <p>© {{ now()->year }} {{ $alphaFooterCopyright }}</p>
+                <p>
+                    © {{ now()->year }} {{ $alphaFooterCopyright }}
+                    Web by. <a href="https://www.agmedia.hr" target="_blank" rel="noopener noreferrer">AG media</a>
+                </p>
             @endif
             <div>
                 @foreach ($alphaFooterLegalLinks as $link)
