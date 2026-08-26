@@ -1,0 +1,314 @@
+.ac-error-page {
+    --ac-error-navy: #061a2b;
+    --ac-error-navy-deep: #03121f;
+    --ac-error-gold: #ad8437;
+    --ac-error-gold-light: #d8b96f;
+    --ac-error-cream: #f2efe7;
+    --ac-error-copy: rgba(3, 18, 31, 0.72);
+    position: relative;
+    overflow: hidden;
+    background:
+        radial-gradient(circle at 17% 52%, rgba(198, 163, 90, 0.12), transparent 31rem),
+        var(--ac-error-cream);
+    color: var(--ac-error-navy-deep);
+}
+
+.ac-error-hero,
+.ac-error-grid {
+    min-height: max(46rem, calc(100svh - var(--header-height, 118px)));
+}
+
+.ac-error-grid {
+    width: min(1600px, calc(100% - 136px));
+    margin-inline: auto;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: stretch;
+}
+
+.ac-error-visual {
+    position: relative;
+    min-width: 0;
+    display: grid;
+    align-content: center;
+    justify-items: start;
+    overflow: hidden;
+    padding: clamp(5rem, 8vw, 8rem) clamp(2rem, 5vw, 6rem) clamp(5rem, 8vw, 8rem) 0;
+}
+
+.ac-error-compass {
+    position: absolute;
+    top: 50%;
+    left: 42%;
+    width: clamp(23rem, 39vw, 43rem);
+    height: auto;
+    opacity: 0.1;
+    transform: translate(-50%, -50%) rotate(-11deg);
+    animation: ac-error-compass-drift 16s ease-in-out infinite alternate;
+}
+
+.ac-error-number {
+    position: relative;
+    z-index: 1;
+    color: var(--ac-error-navy);
+    font-family: "Bodoni Moda Variable", "Times New Roman", serif;
+    font-size: clamp(10rem, 17vw, 21rem);
+    font-weight: 500;
+    letter-spacing: -0.09em;
+    line-height: 0.74;
+}
+
+.ac-error-coordinate {
+    position: relative;
+    z-index: 1;
+    margin-top: clamp(2.5rem, 4vw, 4.5rem);
+    color: rgba(3, 18, 31, 0.48);
+    font-size: 0.72rem;
+    font-weight: 650;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+}
+
+.ac-error-copy {
+    position: relative;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: clamp(5rem, 8vw, 8rem) 0 clamp(5rem, 8vw, 8rem) clamp(4rem, 7vw, 8rem);
+}
+
+.ac-error-copy::before {
+    position: absolute;
+    top: clamp(5rem, 8vw, 8rem);
+    bottom: clamp(5rem, 8vw, 8rem);
+    left: 0;
+    width: 1px;
+    background: linear-gradient(180deg, transparent, rgba(173, 132, 55, 0.68) 18%, rgba(173, 132, 55, 0.68) 82%, transparent);
+    content: "";
+}
+
+.ac-error-eyebrow {
+    margin: 0 0 1.4rem;
+    color: var(--ac-error-gold);
+    font-size: 0.74rem;
+    font-weight: 750;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+}
+
+.front-desktop-shell:not(.front-route-home) .front-content-shell .ac-error-copy h1 {
+    max-width: 10ch;
+    margin: 0;
+    color: var(--ac-error-navy-deep);
+    font-size: clamp(3.25rem, 4.8vw, 6.2rem);
+    font-weight: 430;
+    letter-spacing: -0.045em !important;
+    line-height: 0.98;
+    text-wrap: balance;
+}
+
+.front-desktop-shell:not(.front-route-home) .front-content-shell .ac-error-copy h1 em {
+    color: var(--ac-error-gold);
+    font-family: var(--front-font-family, "Instrument Sans Variable", Arial, sans-serif) !important;
+    font-size: 1em;
+    font-weight: 500;
+    letter-spacing: -0.045em !important;
+}
+
+.ac-error-body {
+    max-width: 36rem;
+    margin: clamp(1.75rem, 3vw, 2.4rem) 0 0;
+    color: var(--ac-error-copy);
+    font-size: clamp(1.03rem, 1.12vw, 1.18rem);
+    line-height: 1.72;
+}
+
+.ac-error-actions {
+    margin-top: clamp(2.25rem, 3.5vw, 3.25rem);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.85rem;
+}
+
+.ac-error-button {
+    min-height: 3.25rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.9rem 1.45rem;
+    border: 1px solid var(--ac-error-navy);
+    border-radius: 24px 3px 24px 3px;
+    font-size: 0.76rem;
+    font-weight: 750;
+    letter-spacing: 0.075em;
+    line-height: 1.2;
+    text-align: center;
+    text-decoration: none;
+    text-transform: uppercase;
+    transition: border-color 220ms ease, background-color 220ms ease, color 220ms ease, transform 220ms ease;
+}
+
+.front-desktop-shell:not(.front-route-home) .front-content-shell .ac-error-button--primary {
+    border-color: var(--ac-error-navy);
+    background: var(--ac-error-navy);
+    color: #ffffff !important;
+}
+
+.front-desktop-shell:not(.front-route-home) .front-content-shell .ac-error-button--secondary {
+    border-color: rgba(173, 132, 55, 0.52);
+    background: transparent;
+    color: var(--ac-error-navy-deep) !important;
+}
+
+.ac-error-button:hover,
+.ac-error-button:focus-visible {
+    transform: translateY(-2px);
+}
+
+.front-desktop-shell:not(.front-route-home) .front-content-shell .ac-error-button--primary:hover,
+.front-desktop-shell:not(.front-route-home) .front-content-shell .ac-error-button--primary:focus-visible {
+    border-color: #0b2b45;
+    background: #0b2b45;
+    color: #ffffff !important;
+}
+
+.front-desktop-shell:not(.front-route-home) .front-content-shell .ac-error-button--secondary:hover,
+.front-desktop-shell:not(.front-route-home) .front-content-shell .ac-error-button--secondary:focus-visible {
+    border-color: var(--ac-error-gold);
+    background: rgba(198, 163, 90, 0.13);
+    color: var(--ac-error-navy-deep) !important;
+}
+
+.ac-error-button:focus-visible,
+.ac-error-support a:focus-visible {
+    outline: 2px solid var(--ac-error-gold-light);
+    outline-offset: 4px;
+}
+
+.ac-error-support {
+    max-width: 38rem;
+    margin: clamp(2rem, 3vw, 2.75rem) 0 0;
+    color: rgba(3, 18, 31, 0.58);
+    font-size: 0.92rem;
+    line-height: 1.65;
+}
+
+.ac-error-support a {
+    position: relative;
+    display: inline-block;
+    margin-left: 0.22rem;
+    color: var(--ac-error-navy-deep);
+    font-weight: 700;
+    text-decoration: none;
+}
+
+.ac-error-support a::after {
+    position: absolute;
+    right: 0;
+    bottom: 0.05rem;
+    left: 0;
+    height: 1px;
+    background: var(--ac-error-gold);
+    content: "";
+    transform: scaleX(0.35);
+    transform-origin: left center;
+    transition: transform 240ms ease;
+}
+
+.ac-error-support a:hover::after,
+.ac-error-support a:focus-visible::after {
+    transform: scaleX(1);
+}
+
+@keyframes ac-error-compass-drift {
+    from {
+        transform: translate(-50%, -50%) rotate(-11deg) scale(0.98);
+    }
+
+    to {
+        transform: translate(-50%, -50%) rotate(-4deg) scale(1.02);
+    }
+}
+
+@media (max-width: 1100px) {
+    .ac-error-grid {
+        width: min(100% - 64px, 900px);
+        grid-template-columns: 0.88fr 1.12fr;
+    }
+
+    .ac-error-copy {
+        padding-left: clamp(3rem, 7vw, 5rem);
+    }
+}
+
+@media (max-width: 767px) {
+    .ac-error-hero,
+    .ac-error-grid {
+        min-height: 0;
+    }
+
+    .ac-error-grid {
+        width: min(100% - 40px, 42rem);
+        grid-template-columns: 1fr;
+    }
+
+    .ac-error-visual {
+        min-height: 17rem;
+        justify-items: center;
+        padding: 4.5rem 0 3.5rem;
+    }
+
+    .ac-error-compass {
+        left: 50%;
+        width: min(25rem, 92vw);
+    }
+
+    .ac-error-number {
+        font-size: clamp(9rem, 43vw, 12.5rem);
+    }
+
+    .ac-error-coordinate {
+        margin-top: 2.2rem;
+    }
+
+    .ac-error-copy {
+        padding: 3.5rem 0 4.5rem;
+    }
+
+    .ac-error-copy::before {
+        top: 0;
+        right: 0;
+        bottom: auto;
+        width: auto;
+        height: 1px;
+        background: linear-gradient(90deg, transparent, rgba(173, 132, 55, 0.68) 18%, rgba(173, 132, 55, 0.68) 82%, transparent);
+    }
+
+    .front-desktop-shell:not(.front-route-home) .front-content-shell .ac-error-copy h1 {
+        max-width: 11ch;
+        font-size: clamp(3rem, 14vw, 4.7rem);
+    }
+}
+
+@media (max-width: 479px) {
+    .ac-error-actions {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .ac-error-button {
+        width: 100%;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .ac-error-compass {
+        animation: none;
+    }
+
+    .ac-error-button,
+    .ac-error-support a::after {
+        transition: none;
+    }
+}

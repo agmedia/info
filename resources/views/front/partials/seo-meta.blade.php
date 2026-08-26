@@ -43,7 +43,14 @@
     if (request()->routeIs('search.index', 'search.index.en')) {
         $robots = 'noindex,follow';
     }
-    $canonicalPolicy = (string) ($seoSettings['canonical_policy'] ?? 'self');
+    $robotsOverride = trim((string) \Illuminate\Support\Facades\View::yieldContent('robots'));
+    if ($robotsOverride !== '') {
+        $robots = $robotsOverride;
+    }
+    $canonicalPolicyOverride = trim((string) \Illuminate\Support\Facades\View::yieldContent('canonical_policy'));
+    $canonicalPolicy = $canonicalPolicyOverride !== ''
+        ? $canonicalPolicyOverride
+        : (string) ($seoSettings['canonical_policy'] ?? 'self');
     $canonicalUrl = $canonicalPolicy === 'self' ? url()->current() : '';
 
     $siteName = trim((string) ($brandSettings['store_name'] ?? ''));

@@ -3073,6 +3073,7 @@ button {
   min-height: 52px;
   padding: 0 25px;
   color: var(--gold-light);
+  text-transform: uppercase;
 }
 
 .search-link {

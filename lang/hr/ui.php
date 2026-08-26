@@ -738,9 +738,14 @@ return [
     'errors' => [
         'not_found' => [
             'title' => 'Stranica nije pronađena',
-            'body' => 'Link koji ste otvorili ne postoji ili je premješten. Vratite se na početnu ili otvorite neku od javnih stranica.',
-            'home' => 'Početna',
-            'contact' => 'Kontakt',
+            'title_lead' => 'Stranica nije',
+            'title_accent' => 'pronađena',
+            'eyebrow' => 'Pogrešan smjer',
+            'body' => 'Stranica koju tražite ne postoji ili je premještena. Vratimo vas na poznati put.',
+            'home' => 'Povratak na početnu',
+            'search' => 'Pretražite stranicu',
+            'support' => 'Još uvijek ne možete pronaći ono što tražite?',
+            'contact' => 'Javite nam se',
         ],
         'maintenance' => [
             'title' => 'Trenutno offline',

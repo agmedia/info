@@ -738,9 +738,14 @@ return [
     'errors' => [
         'not_found' => [
             'title' => 'Page not found',
-            'body' => 'The link you opened does not exist or has been moved. Return to the homepage or open another public page.',
-            'home' => 'Home',
-            'contact' => 'Contact',
+            'title_lead' => 'Page not',
+            'title_accent' => 'found',
+            'eyebrow' => 'Wrong direction',
+            'body' => 'The page you are looking for does not exist or has been moved. Let us guide you back to familiar ground.',
+            'home' => 'Back to homepage',
+            'search' => 'Search the website',
+            'support' => 'Still cannot find what you are looking for?',
+            'contact' => 'Contact us',
         ],
         'maintenance' => [
             'title' => 'Temporarily offline',

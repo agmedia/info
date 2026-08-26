@@ -1,106 +1,48 @@
-<!DOCTYPE html>
-<html lang="{{ app()->getLocale() }}">
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>{{ __('ui.errors.not_found.title') }}</title>
-    <style>
-        :root {
-            --bg: #f5f6f8;
-            --card: #ffffff;
-            --text: #0f172a;
-            --muted: #475569;
-            --line: #dbe2ea;
-            --accent: #111827;
-        }
-        * { box-sizing: border-box; }
-        body {
-            margin: 0;
-            min-height: 100vh;
-            display: grid;
-            place-items: center;
-            padding: 24px;
-            font-family: "Risingsun", Arial, Helvetica, sans-serif;
-            color: var(--text);
-            background:
-                linear-gradient(180deg, rgba(255,255,255,0.95), rgba(245,246,248,0.96)),
-                radial-gradient(1200px 480px at 85% -10%, rgba(15,23,42,0.08), transparent),
-                radial-gradient(900px 400px at 0% 100%, rgba(2,6,23,0.06), transparent),
-                var(--bg);
-        }
-        .panel {
-            width: min(760px, 100%);
-            border: 1px solid var(--line);
-            background: var(--card);
-            box-shadow: 0 24px 70px -42px rgba(15, 23, 42, 0.45);
-        }
-        .top {
-            height: 8px;
-            background: linear-gradient(90deg, #020617 0%, #111827 45%, #1f2937 100%);
-        }
-        .inner {
-            padding: 34px 30px;
-        }
-        .kicker {
-            margin: 0 0 10px;
-            font-size: 12px;
-            letter-spacing: .18em;
-            text-transform: uppercase;
-            color: #64748b;
-        }
-        h1 {
-            margin: 0 0 10px;
-            font-size: clamp(32px, 6vw, 56px);
-            line-height: 1;
-            letter-spacing: .01em;
-        }
-        p {
-            margin: 0;
-            max-width: 56ch;
-            color: var(--muted);
-            font-size: 18px;
-            line-height: 1.5;
-        }
-        .actions {
-            margin-top: 22px;
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-        }
-        .btn {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            min-height: 42px;
-            padding: 0 16px;
-            text-decoration: none;
-            border: 1px solid var(--accent);
-            background: var(--accent);
-            color: #fff;
-            font-size: 14px;
-            font-weight: 700;
-            letter-spacing: .04em;
-            text-transform: uppercase;
-        }
-        .btn-ghost {
-            background: #fff;
-            color: var(--accent);
-            border-color: var(--line);
-        }
-    </style>
-</head>
-<body>
-    <section class="panel" role="main" aria-labelledby="not-found-title">
-        <div class="top"></div>
-        <div class="inner">
-            <p class="kicker">Error 404</p>
-            <h1 id="not-found-title">{{ __('ui.errors.not_found.title') }}</h1>
-            <p>{{ __('ui.errors.not_found.body') }}</p>
-            <div class="actions">
-                <a class="btn" href="/">{{ __('ui.errors.not_found.home') }}</a>
-                <a class="btn btn-ghost" href="{{ \App\Support\Localization\FrontendRoute::url('contact.create') }}">{{ __('ui.errors.not_found.contact') }}</a>
+@extends('front.desktop.layouts.store')
+
+@section('title', __('ui.errors.not_found.title'))
+@section('description', __('ui.errors.not_found.body'))
+@section('robots', 'noindex,follow')
+@section('canonical_policy', 'none')
+@section('main_class', 'w-full px-0 py-0')
+@section('hide_footer_newsletter', '1')
+
+@section('content')
+    <div class="ac-error-page">
+        <section class="ac-error-hero" aria-labelledby="not-found-title">
+            <div class="ac-error-grid">
+                <div class="ac-error-visual" aria-hidden="true">
+                    <img class="ac-error-compass" src="{{ asset('front-theme/images/branding/znak-ac.svg') }}" alt="" width="74" height="74">
+                    <span class="ac-error-number">404</span>
+                    <span class="ac-error-coordinate">45.8150° N · 15.9819° E</span>
+                </div>
+
+                <div class="ac-error-copy">
+                    <p class="ac-error-eyebrow">{{ __('ui.errors.not_found.eyebrow') }}</p>
+                    <h1 id="not-found-title">
+                        {{ __('ui.errors.not_found.title_lead') }} <em>{{ __('ui.errors.not_found.title_accent') }}</em>
+                    </h1>
+                    <p class="ac-error-body">{{ __('ui.errors.not_found.body') }}</p>
+
+                    <div class="ac-error-actions">
+                        <a class="ac-error-button ac-error-button--primary" href="{{ route('home') }}">
+                            {{ __('ui.errors.not_found.home') }}
+                        </a>
+                        <a class="ac-error-button ac-error-button--secondary" href="{{ \App\Support\Localization\FrontendRoute::url('search.index') }}">
+                            {{ __('ui.errors.not_found.search') }}
+                        </a>
+                    </div>
+
+                    <p class="ac-error-support">
+                        {{ __('ui.errors.not_found.support') }}
+                        <a href="{{ \App\Support\Localization\FrontendRoute::url('contact.create') }}">{{ __('ui.errors.not_found.contact') }}</a>
+                    </p>
+                </div>
             </div>
-        </div>
-    </section>
-</body>
-</html>
+        </section>
+    </div>
+@endsection
+
+@push('styles')
+    <link rel="stylesheet" href="{{ asset('front-theme/styles/pages/error-404.css') }}?v={{ filemtime(public_path('front-theme/styles/pages/error-404.css')) }}">
+@endpush
