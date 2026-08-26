@@ -2906,9 +2906,11 @@ class StorefrontFrontFeatureTest extends TestCase
             ->assertDontSee('Tax')
             ->assertSee('team@example.test')
             ->assertSee('https://linkedin.com/company/alpha-team', false)
-            ->assertSee('data-team-lightbox-trigger', false)
-            ->assertSee('data-team-lightbox', false)
-            ->assertSee('front-theme/scripts/team.js', false);
+            ->assertSee('ivana-horvat.jpg', false)
+            ->assertDontSee('data-team-lightbox-trigger', false)
+            ->assertDontSee('data-team-lightbox', false)
+            ->assertDontSee('fa-magnifying-glass-plus', false)
+            ->assertDontSee('front-theme/scripts/team.js', false);
     }
 
     public function test_client_review_keeps_ana_mandic_active_with_public_profile_and_photo(): void

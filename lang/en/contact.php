@@ -9,6 +9,14 @@ return [
     'submitting' => 'Sending message…',
     'submit_failed' => 'The message could not be sent right now. Please try again.',
     'captcha_failed' => 'Security verification failed. Please try again.',
+    'rate_limited' => 'Too many inquiries have been sent. Please wait a few minutes and try again.',
+    'recaptcha_disclosure' => [
+        'protected' => 'This site is protected by reCAPTCHA and the Google',
+        'privacy' => 'Privacy Policy',
+        'and' => 'and',
+        'terms' => 'Terms of Service',
+        'apply' => 'apply.',
+    ],
     'validation' => [
         'required' => 'The :attribute field is required.',
         'email' => 'The :attribute field must be a valid email address.',

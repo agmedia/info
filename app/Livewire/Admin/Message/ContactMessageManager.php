@@ -41,6 +41,23 @@ class ContactMessageManager extends Component
         $this->updateStatus($messageId, ContactMessage::STATUS_RESOLVED);
     }
 
+    public function delete(int $messageId): void
+    {
+        $message = $this->baseQuery()->find($messageId);
+
+        if (! $message) {
+            $this->dispatch('notify', type: 'danger', message: __('admin.messages.contact.manager.notify_not_found'));
+
+            return;
+        }
+
+        $message->delete();
+
+        $this->dispatch(MessageNotifications::REFRESH_EVENT);
+        $this->dispatch('notify', type: 'success', message: __('admin.messages.contact.manager.notify_deleted'));
+        $this->resetPage();
+    }
+
     public function render()
     {
         $perPage = app(SystemSettingsService::class)->getInt(

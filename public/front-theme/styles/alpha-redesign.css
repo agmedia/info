@@ -5320,6 +5320,44 @@ body.alpha-search-is-open {
   overflow: hidden;
 }
 
+.grecaptcha-badge {
+  visibility: hidden;
+}
+
+.front-form-honeypot {
+  position: absolute;
+  overflow: hidden;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  border: 0;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.front-recaptcha-disclosure {
+  margin: 0.75rem 0 0;
+  color: rgba(3, 18, 31, 0.7);
+  font-family: var(--front-font-family, "Instrument Sans Variable", Arial, sans-serif);
+  font-size: 0.75rem;
+  line-height: 1.55;
+}
+
+.front-recaptcha-disclosure a {
+  color: inherit;
+  text-decoration: underline;
+  text-decoration-color: rgba(3, 18, 31, 0.5);
+  text-underline-offset: 0.15em;
+}
+
+.front-recaptcha-disclosure a:hover,
+.front-recaptcha-disclosure a:focus-visible {
+  color: #03121f;
+  text-decoration-color: currentColor;
+}
+
 @media (max-width: 700px) {
   .alpha-search-panel {
     padding: 6rem 1rem 2rem;

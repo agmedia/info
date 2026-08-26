@@ -49,6 +49,10 @@ class ContactController extends Controller
             && trim((string) ($captchaSettings['recaptcha_v3_secret_key'] ?? '')) !== '';
         $redirectTo = $this->safeRedirectTarget((string) $request->input('redirect_to', ''));
 
+        if ($this->honeypotWasFilled($request)) {
+            return $this->successfulSubmissionResponse($request, $contactPayload, $redirectTo);
+        }
+
         $validated = $request->validate(
             [
                 'name' => ['nullable', 'string', 'max:191'],
@@ -141,6 +145,19 @@ class ContactController extends Controller
         ]);
         $this->notifications->sendContactNotification($message);
 
+        return $this->successfulSubmissionResponse($request, $contactPayload, $redirectTo);
+    }
+
+    /**
+     * Return the normal success response for both accepted submissions and honeypot decoys.
+     *
+     * @param  array<string, mixed>  $contactPayload
+     */
+    private function successfulSubmissionResponse(
+        Request $request,
+        array $contactPayload,
+        ?string $redirectTo,
+    ): JsonResponse|RedirectResponse {
         $sentStatus = trim((string) data_get(
             $contactPayload,
             'contact_page.sent_status',
@@ -163,6 +180,15 @@ class ContactController extends Controller
         $response = redirect()->to(FrontendRoute::url('contact.create'));
 
         return $sentStatus !== '' ? $response->with('status', $sentStatus) : $response;
+    }
+
+    private function honeypotWasFilled(Request $request): bool
+    {
+        $website = $request->input('website');
+
+        return is_string($website)
+            ? trim($website) !== ''
+            : $website !== null;
     }
 
     /**

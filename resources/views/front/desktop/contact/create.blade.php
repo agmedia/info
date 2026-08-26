@@ -104,6 +104,10 @@
                 >
                     @csrf
                     <input type="hidden" name="recaptcha_token" value="" data-recaptcha-token>
+                    <div class="front-form-honeypot" aria-hidden="true">
+                        <label for="contact-website">Website</label>
+                        <input id="contact-website" name="website" type="text" tabindex="-1" autocomplete="off">
+                    </div>
 
                     <div class="front-contact-form-head">
                         <h2 id="ac-contact-form-title">{{ $contactFormTitle }}</h2>
@@ -163,6 +167,9 @@
                             <span data-contact-feedback-text>{{ session('status') }}</span>
                         </div>
                     </div>
+                    @if ($captchaEnabled)
+                        @include('front.desktop.partials.recaptcha-disclosure')
+                    @endif
                 </form>
 
                 <aside class="front-contact-sidebar content-reveal animation-index-1" data-image-reveal aria-label="{{ $contactDirectTitle }}">

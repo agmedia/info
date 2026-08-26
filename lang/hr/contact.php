@@ -9,6 +9,14 @@ return [
     'submitting' => 'Slanje poruke…',
     'submit_failed' => 'Poruku trenutačno nije moguće poslati. Pokušajte ponovno.',
     'captcha_failed' => 'Potvrda sigurnosti nije uspjela. Pokušajte ponovno.',
+    'rate_limited' => 'Poslano je previše upita. Pričekajte nekoliko minuta pa pokušajte ponovno.',
+    'recaptcha_disclosure' => [
+        'protected' => 'Ova stranica zaštićena je uslugom reCAPTCHA te se primjenjuju Googleova',
+        'privacy' => 'Pravila privatnosti',
+        'and' => 'i',
+        'terms' => 'Uvjeti pružanja usluge',
+        'apply' => '.',
+    ],
     'validation' => [
         'required' => 'Polje :attribute je obavezno.',
         'email' => 'Polje :attribute mora biti ispravna email adresa.',

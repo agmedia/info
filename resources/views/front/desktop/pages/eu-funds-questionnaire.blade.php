@@ -286,6 +286,9 @@
                                 <i class="fa-light fa-arrow-up-right" aria-hidden="true"></i>
                             </button>
                         </div>
+                        @if ($captchaEnabled)
+                            @include('front.desktop.partials.recaptcha-disclosure')
+                        @endif
                     </form>
 
                     <aside class="front-contact-sidebar content-reveal animation-index-1" data-image-reveal aria-label="{{ __('eu_funds_questionnaire.sidebar.title') }}">

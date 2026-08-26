@@ -696,6 +696,10 @@
                         @csrf
                         <input type="hidden" name="recaptcha_token" value="" data-recaptcha-token>
                         <input type="hidden" name="redirect_to" value="{{ route('finance.show') }}#finance-sastanak">
+                        <div class="front-form-honeypot" aria-hidden="true">
+                            <label for="finance-website">Website</label>
+                            <input id="finance-website" name="website" type="text" tabindex="-1" autocomplete="off">
+                        </div>
 
                         <div class="grid gap-4 md:grid-cols-2">
                             <div>
@@ -765,6 +769,9 @@
                                 <span data-contact-feedback-text>{{ session('status') }}</span>
                             </div>
                         </div>
+                        @if ($captchaEnabled)
+                            @include('front.desktop.partials.recaptcha-disclosure')
+                        @endif
                     </form>
                 </div>
             </section>

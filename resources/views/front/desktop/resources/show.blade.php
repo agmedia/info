@@ -141,6 +141,9 @@
                                     <p class="ac-resource-form-error">{{ $message }}</p>
                                 @enderror
                             </div>
+                            @if ($captchaEnabled)
+                                @include('front.desktop.partials.recaptcha-disclosure')
+                            @endif
                         </form>
                     </div>
                 </div>

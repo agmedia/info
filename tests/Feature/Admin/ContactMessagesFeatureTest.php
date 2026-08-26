@@ -3,6 +3,7 @@
 namespace Tests\Feature\Admin;
 
 use App\Livewire\Admin\Message\ContactMessageManager;
+use App\Livewire\Admin\MessageNotifications;
 use App\Models\Content\Support\ContactMessage;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -65,7 +66,9 @@ class ContactMessagesFeatureTest extends TestCase
             ->assertSee('Dogovor sastanka')
             ->assertDontSee('Procjena primjer')
             ->assertSee('Usluga primjer')
-            ->assertSee('/financije');
+            ->assertSee('/financije')
+            ->assertSee('wire:confirm=', false)
+            ->assertSee(__('admin.messages.contact.manager.actions.delete'));
     }
 
     public function test_admin_can_mark_contact_message_as_read(): void
@@ -83,6 +86,38 @@ class ContactMessagesFeatureTest extends TestCase
         $this->assertSame(ContactMessage::STATUS_READ, $message->status);
         $this->assertSame($user->id, $message->reviewed_by);
         $this->assertNotNull($message->reviewed_at);
+    }
+
+    public function test_admin_can_delete_contact_message_but_cannot_delete_assessment_message(): void
+    {
+        $user = $this->makeAdminUser();
+        $contactMessage = ContactMessage::query()->create($this->messagePayload());
+        $assessmentMessage = ContactMessage::query()->create($this->messagePayload([
+            'email' => 'assessment-delete-guard@example.test',
+            'payload' => [
+                'form_type' => ContactMessage::FORM_TYPE_COLLABORATION_ASSESSMENT,
+            ],
+        ]));
+
+        Livewire::actingAs($user)
+            ->test(ContactMessageManager::class)
+            ->call('delete', $contactMessage->id)
+            ->assertDispatched(MessageNotifications::REFRESH_EVENT)
+            ->assertDispatched('notify', type: 'success', message: __('admin.messages.contact.manager.notify_deleted'));
+
+        $this->assertDatabaseMissing('contact_messages', [
+            'id' => $contactMessage->id,
+        ]);
+
+        Livewire::actingAs($user)
+            ->test(ContactMessageManager::class)
+            ->call('delete', $assessmentMessage->id)
+            ->assertDispatched('notify', type: 'danger', message: __('admin.messages.contact.manager.notify_not_found'));
+
+        $this->assertDatabaseHas('contact_messages', [
+            'id' => $assessmentMessage->id,
+            'form_type' => ContactMessage::FORM_TYPE_COLLABORATION_ASSESSMENT,
+        ]);
     }
 
     public function test_admin_can_expand_the_complete_text_of_a_long_contact_message(): void

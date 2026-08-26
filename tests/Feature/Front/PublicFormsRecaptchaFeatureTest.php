@@ -39,6 +39,9 @@ class PublicFormsRecaptchaFeatureTest extends TestCase
                 'data-recaptcha-site-key="public-recaptcha-site-key"',
                 'data-recaptcha-action="'.$action.'"',
                 'https://www.google.com/recaptcha/api.js?render=public-recaptcha-site-key',
+                'front-recaptcha-disclosure',
+                'https://policies.google.com/privacy',
+                'https://policies.google.com/terms',
             ] as $expected) {
                 $this->assertTrue(
                     str_contains($content, $expected),
@@ -69,6 +72,20 @@ class PublicFormsRecaptchaFeatureTest extends TestCase
         foreach ($endpoints as $endpoint) {
             $this->post($endpoint)->assertSessionHasErrors('recaptcha_token');
         }
+    }
+
+    public function test_career_page_does_not_load_recaptcha_when_the_application_form_is_hidden(): void
+    {
+        $this->enableRecaptcha();
+        $this->disableCareerApplicationForm();
+
+        $content = (string) $this->get('/karijera')
+            ->assertOk()
+            ->getContent();
+
+        $this->assertStringNotContainsString('data-recaptcha-form', $content);
+        $this->assertStringNotContainsString('https://www.google.com/recaptcha/api.js', $content);
+        $this->assertStringNotContainsString('front-recaptcha-disclosure', $content);
     }
 
     public function test_recaptcha_response_must_match_the_expected_form_action(): void
@@ -142,6 +159,23 @@ class PublicFormsRecaptchaFeatureTest extends TestCase
                             'title' => 'CMS test application form',
                             'intro' => 'CMS test form introduction.',
                         ],
+                    ],
+                ],
+            ]);
+    }
+
+    private function disableCareerApplicationForm(): void
+    {
+        InfoPage::query()
+            ->where('code', 'career')
+            ->firstOrFail()
+            ->translation('hr')
+            ->firstOrFail()
+            ->update([
+                'payload' => [
+                    'career_page' => [
+                        'application' => [],
+                        'form' => [],
                     ],
                 ],
             ]);

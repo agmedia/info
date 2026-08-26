@@ -472,6 +472,9 @@
                             </button>
                             <p class="ac-career-form-error {{ $errors->has('recaptcha_token') ? '' : 'hidden' }}" data-field-error="recaptcha_token">@error('recaptcha_token'){{ $message }}@enderror</p>
                         </div>
+                        @if ($careerCaptchaEnabled)
+                            @include('front.desktop.partials.recaptcha-disclosure')
+                        @endif
                     </form>
                 </div>
             </div>
@@ -484,7 +487,7 @@
     <link rel="stylesheet" href="{{ asset('front-theme/styles/pages/career.css') }}?v={{ filemtime(public_path('front-theme/styles/pages/career.css')) }}">
 @endpush
 
-@if ($careerCaptchaEnabled)
+@if ($careerCaptchaEnabled && $showCareerOpenings)
     @push('scripts')
         <script src="https://www.google.com/recaptcha/api.js?render={{ $careerCaptchaSiteKey }}"></script>
     @endpush

@@ -164,6 +164,14 @@
                                     >
                                         {{ __('admin.messages.contact.manager.actions.mark_resolved') }}
                                     </button>
+                                    <button
+                                        type="button"
+                                        wire:click="delete({{ (int) $row->id }})"
+                                        wire:confirm="{{ __('admin.messages.contact.manager.confirm_delete', ['name' => $row->name]) }}"
+                                        class="rounded-lg border border-rose-200 px-2 py-1 text-xs font-semibold text-rose-700 hover:bg-rose-50"
+                                    >
+                                        {{ __('admin.messages.contact.manager.actions.delete') }}
+                                    </button>
                                 </div>
                             </td>
                         </tr>

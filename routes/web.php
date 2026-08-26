@@ -283,13 +283,13 @@ Route::middleware(['front.locale', 'front.device'])
             ->middleware(EnsureFrontendRouteLocale::class.':hr')
             ->name('contact.create');
         Route::post('kontakt', [ContactController::class, 'store'])
-            ->middleware(EnsureFrontendRouteLocale::class.':hr')
+            ->middleware([EnsureFrontendRouteLocale::class.':hr', 'throttle:contact-submissions'])
             ->name('contact.store');
         Route::get('contact', [ContactController::class, 'create'])
             ->middleware(EnsureFrontendRouteLocale::class.':en')
             ->name('contact.create.en');
         Route::post('contact', [ContactController::class, 'store'])
-            ->middleware(EnsureFrontendRouteLocale::class.':en')
+            ->middleware([EnsureFrontendRouteLocale::class.':en', 'throttle:contact-submissions'])
             ->name('contact.store.en');
         Route::post('newsletter/prijava', NewsletterSubscriptionController::class)
             ->middleware([EnsureFrontendRouteLocale::class.':hr', 'throttle:newsletter-subscriptions'])

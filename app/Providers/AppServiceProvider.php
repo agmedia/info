@@ -89,6 +89,33 @@ class AppServiceProvider extends ServiceProvider
             ];
         });
 
+        RateLimiter::for('contact-submissions', static function (Request $request) {
+            $rateLimitedResponse = static function (Request $request, array $headers) {
+                $message = (string) __('contact.rate_limited');
+
+                if ($request->expectsJson()) {
+                    return response()->json([
+                        'ok' => false,
+                        'message' => $message,
+                    ], 429, $headers);
+                }
+
+                return redirect()->back()
+                    ->withInput($request->except(['website', 'recaptcha_token']))
+                    ->withErrors(['message' => $message])
+                    ->withHeaders($headers);
+            };
+
+            return [
+                Limit::perMinute(5)
+                    ->by('contact:ip-minute:'.hash('sha256', (string) $request->ip()))
+                    ->response($rateLimitedResponse),
+                Limit::perHour(20)
+                    ->by('contact:ip-hour:'.hash('sha256', (string) $request->ip()))
+                    ->response($rateLimitedResponse),
+            ];
+        });
+
         View::composer(['livewire.admin.*', 'components.admin-layout'], static function ($view): void {
             static $localeOptions = null;
 
