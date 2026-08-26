@@ -26,6 +26,14 @@ return [
         'chart' => [
             'visitors' => 'Posjetitelji',
             'sessions' => 'Sesije',
+            'render_error' => 'Graf se nije mogao prikazati. Osvježite podatke i pokušajte ponovno.',
+        ],
+        'loading' => [
+            'title' => 'Učitavanje analitike',
+            'description' => 'Dohvaćamo najnovije podatke iz Google Analyticsa. Nadzorna ploča će se automatski ažurirati.',
+            'refreshing' => 'Osvježavanje podataka…',
+            'retry' => 'Pokušaj ponovno',
+            'error_title' => 'Analitika se trenutačno nije mogla učitati',
         ],
         'devices' => [
             'desktop' => 'Računalo',

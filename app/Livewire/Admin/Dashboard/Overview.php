@@ -4,7 +4,10 @@ namespace App\Livewire\Admin\Dashboard;
 
 use App\Services\Analytics\GoogleAnalyticsDataService;
 use Carbon\CarbonImmutable;
+use Illuminate\Support\Facades\Log;
+use Livewire\Attributes\Locked;
 use Livewire\Component;
+use Throwable;
 
 class Overview extends Component
 {
@@ -12,6 +15,16 @@ class Overview extends Component
     private const ALLOWED_RANGES = ['1', '7', '30', '90'];
 
     public string $rangeDays = '7';
+
+    #[Locked]
+    public bool $analyticsLoaded = false;
+
+    /** @var array<string, mixed> */
+    #[Locked]
+    public array $analytics = [];
+
+    #[Locked]
+    public ?string $loadedRangeDays = null;
 
     public function mount(): void
     {
@@ -21,6 +34,45 @@ class Overview extends Component
     public function updatedRangeDays(): void
     {
         $this->normalizeRange();
+        $this->loadAnalytics();
+    }
+
+    public function loadAnalytics(): void
+    {
+        $this->normalizeRange();
+
+        if ($this->analyticsLoaded && $this->loadedRangeDays === $this->rangeDays) {
+            return;
+        }
+
+        $days = (int) $this->rangeDays;
+        $end = CarbonImmutable::now()->endOfDay();
+        $start = $end->startOfDay()->subDays($days - 1);
+
+        try {
+            $report = app(GoogleAnalyticsDataService::class)->runReport($start, $end);
+            $this->analytics = $this->analyticsPayload($report);
+        } catch (Throwable $exception) {
+            Log::warning('Admin dashboard analytics could not be loaded.', [
+                'exception' => $exception,
+                'range_days' => $days,
+            ]);
+
+            $this->analytics = $this->analyticsPayload([
+                'available' => false,
+                'reason' => 'report_request_failed',
+            ]);
+        }
+
+        $this->loadedRangeDays = $this->rangeDays;
+        $this->analyticsLoaded = true;
+    }
+
+    public function reloadAnalytics(): void
+    {
+        $this->analyticsLoaded = false;
+        $this->loadedRangeDays = null;
+        $this->loadAnalytics();
     }
 
     public function render()
@@ -28,16 +80,12 @@ class Overview extends Component
         $days = (int) $this->rangeDays;
         $end = CarbonImmutable::now()->endOfDay();
         $start = $end->startOfDay()->subDays($days - 1);
-        $analyticsReport = app(GoogleAnalyticsDataService::class)->runReport(
-            $start,
-            $end,
-        );
 
         return view('livewire.admin.dashboard.overview', [
             'start' => $start,
             'end' => $end,
             'days' => $days,
-            'analytics' => $this->analyticsPayload($analyticsReport),
+            'analytics' => $this->analytics,
         ]);
     }
 
@@ -64,6 +112,7 @@ class Overview extends Component
             return [
                 'available' => false,
                 'provider' => __('dashboard.analytics.provider'),
+                'reason_key' => $reasonKey,
                 'reason' => __("dashboard.analytics.reasons.{$reasonKey}"),
                 'measurement_instruction' => __('dashboard.analytics.setup.measurement'),
                 'credentials_instruction' => __('dashboard.analytics.setup.credentials'),

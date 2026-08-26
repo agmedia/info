@@ -1516,123 +1516,146 @@ const initAceInline = () => {
     });
 };
 
-const initDashboardCharts = () => {
-    if (!document.body || document.body.dataset.dashboardChartsReady === '1') {
+const dashboardChartSelector = 'canvas[data-dashboard-chart]';
+const dashboardChartInstances = new WeakMap();
+let dashboardChartObserver = null;
+let dashboardChartObserverRoot = null;
+
+const dashboardChartError = (canvas) => canvas.parentElement?.querySelector('[data-dashboard-chart-error]');
+
+const setDashboardChartError = (canvas, visible) => {
+    const error = dashboardChartError(canvas);
+    if (!(error instanceof HTMLElement)) {
         return;
     }
-    document.body.dataset.dashboardChartsReady = '1';
 
-    const selector = 'canvas[data-dashboard-chart]';
-    const instances = new WeakMap();
+    error.classList.toggle('hidden', !visible);
+};
 
-    const parseConfig = (canvas) => {
-        const raw = canvas.getAttribute('data-chart-payload');
-        if (!raw) {
-            return null;
-        }
+const parseDashboardChartConfig = (raw) => {
+    if (!raw) {
+        return null;
+    }
 
-        try {
-            const config = JSON.parse(raw);
-            if (!config || typeof config !== 'object') {
-                return null;
-            }
+    try {
+        const config = JSON.parse(raw);
+        return config && typeof config === 'object' ? config : null;
+    } catch (error) {
+        return null;
+    }
+};
 
-            return config;
-        } catch (error) {
-            return null;
-        }
-    };
+const destroyDashboardChart = (canvas) => {
+    if (!(canvas instanceof HTMLCanvasElement)) {
+        return;
+    }
 
-    const destroyChart = (canvas) => {
-        if (!(canvas instanceof HTMLCanvasElement)) {
-            return;
-        }
-
-        const chart = instances.get(canvas);
-        if (!chart) {
-            return;
-        }
-
+    const chart = dashboardChartInstances.get(canvas)?.chart ?? Chart.getChart(canvas);
+    if (chart) {
         chart.destroy();
-        instances.delete(canvas);
-    };
+    }
 
-    const bindCanvas = (canvas) => {
-        if (!(canvas instanceof HTMLCanvasElement)) {
-            return;
-        }
+    dashboardChartInstances.delete(canvas);
+};
 
-        const config = parseConfig(canvas);
-        if (!config) {
-            destroyChart(canvas);
-            return;
-        }
+const bindDashboardChart = (canvas) => {
+    if (!(canvas instanceof HTMLCanvasElement)) {
+        return;
+    }
 
-        destroyChart(canvas);
+    const payload = canvas.getAttribute('data-chart-payload');
+    const config = parseDashboardChartConfig(payload);
+    if (!config) {
+        destroyDashboardChart(canvas);
+        setDashboardChartError(canvas, true);
+        return;
+    }
 
-        const context = canvas.getContext('2d');
-        if (!context) {
-            return;
-        }
+    const existing = dashboardChartInstances.get(canvas);
+    if (existing?.payload === payload && Chart.getChart(canvas) === existing.chart) {
+        setDashboardChartError(canvas, false);
+        return;
+    }
 
-        try {
-            const chart = new Chart(context, {
-                type: config.type || 'line',
-                data: config.data || { labels: [], datasets: [] },
-                options: config.options || {},
-            });
-            instances.set(canvas, chart);
-        } catch (error) {
-            console.error('Failed to render dashboard chart', error);
-        }
-    };
+    destroyDashboardChart(canvas);
 
-    const bindAll = (root) => {
-        if (!root) {
-            return;
-        }
-        if (root instanceof HTMLCanvasElement && root.matches(selector)) {
-            bindCanvas(root);
-        }
-        root.querySelectorAll?.(selector).forEach(bindCanvas);
-    };
+    const context = canvas.getContext('2d');
+    if (!context) {
+        setDashboardChartError(canvas, true);
+        return;
+    }
 
-    const destroyFromNode = (node) => {
-        if (!node) {
-            return;
-        }
-        if (node instanceof HTMLCanvasElement && node.matches(selector)) {
-            destroyChart(node);
-        }
-        if (node instanceof HTMLElement) {
-            node.querySelectorAll(selector).forEach(destroyChart);
-        }
-    };
+    try {
+        const chart = new Chart(context, {
+            type: config.type || 'line',
+            data: config.data || { labels: [], datasets: [] },
+            options: config.options || {},
+        });
+        dashboardChartInstances.set(canvas, { chart, payload });
+        setDashboardChartError(canvas, false);
+    } catch (error) {
+        setDashboardChartError(canvas, true);
+        console.error('Failed to render dashboard chart', error);
+    }
+};
 
-    bindAll(document);
+const bindDashboardCharts = (root) => {
+    if (!root) {
+        return;
+    }
+    if (root instanceof HTMLCanvasElement && root.matches(dashboardChartSelector)) {
+        bindDashboardChart(root);
+    }
+    root.querySelectorAll?.(dashboardChartSelector).forEach(bindDashboardChart);
+};
 
-    const observer = new MutationObserver((mutations) => {
+const destroyDashboardChartsFromNode = (node) => {
+    if (!node) {
+        return;
+    }
+    if (node instanceof HTMLCanvasElement && node.matches(dashboardChartSelector)) {
+        destroyDashboardChart(node);
+    }
+    if (node instanceof HTMLElement) {
+        node.querySelectorAll(dashboardChartSelector).forEach(destroyDashboardChart);
+    }
+};
+
+const initDashboardCharts = () => {
+    if (!document.body) {
+        return;
+    }
+
+    bindDashboardCharts(document);
+
+    if (dashboardChartObserver && dashboardChartObserverRoot === document.body) {
+        return;
+    }
+
+    dashboardChartObserver?.disconnect();
+    dashboardChartObserver = new MutationObserver((mutations) => {
         mutations.forEach((mutation) => {
             if (mutation.type === 'attributes' && mutation.target instanceof HTMLCanvasElement) {
-                bindCanvas(mutation.target);
+                bindDashboardChart(mutation.target);
                 return;
             }
 
-            mutation.removedNodes.forEach(destroyFromNode);
+            mutation.removedNodes.forEach(destroyDashboardChartsFromNode);
             mutation.addedNodes.forEach((node) => {
                 if (node instanceof HTMLElement || node instanceof HTMLCanvasElement) {
-                    bindAll(node);
+                    bindDashboardCharts(node);
                 }
             });
         });
     });
 
-    observer.observe(document.body, {
+    dashboardChartObserver.observe(document.body, {
         childList: true,
         subtree: true,
         attributes: true,
         attributeFilter: ['data-chart-payload'],
     });
+    dashboardChartObserverRoot = document.body;
 };
 
 const initFrontDesktopHeader = () => {
@@ -2447,6 +2470,7 @@ if (document.readyState === 'loading') {
 
 document.addEventListener('livewire:navigated', () => {
     initTomSelect();
+    initDashboardCharts();
     initFrontSmoothScroll();
     initFrontVisualEffects();
     initFrontDesktopHeader();

@@ -24,8 +24,7 @@ class DashboardFeatureTest extends TestCase
             ->assertSee('Blog objave')
             ->assertSee('Postavke stranice')
             ->assertSee('Otvori web')
-            ->assertSee('Kako povezati GA4')
-            ->assertSee('G-YCD72KQJTC')
+            ->assertSee(__('dashboard.analytics.loading.title'))
             ->assertDontSee('Upiti kroz vrijeme');
     }
 

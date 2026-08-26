@@ -41,6 +41,7 @@
 
     $analyticsData = (array) ($analytics ?? []);
     $analyticsAvailable = (bool) data_get($analyticsData, 'available', false);
+    $analyticsReasonKey = (string) data_get($analyticsData, 'reason_key', '');
     $analyticsProvider = trim((string) (data_get($analyticsData, 'provider') ?? data_get($analyticsData, 'source') ?? 'Google Analytics 4'));
     $analyticsKpiSource = collect((array) data_get($analyticsData, 'kpis', []));
     $analyticsKpiDefinitions = [
@@ -173,7 +174,7 @@
         && \Illuminate\Support\Facades\Route::has('admin.settings.system.store-settings');
 @endphp
 
-<div class="space-y-5 sm:space-y-6">
+<div class="space-y-5 sm:space-y-6" wire:init="loadAnalytics">
     <section class="admin-panel overflow-hidden bg-gradient-to-br from-white via-white to-amber-50/60">
         <div class="h-1 bg-gradient-to-r from-amber-500 via-amber-300 to-transparent"></div>
         <div class="p-5 sm:p-6">
@@ -201,12 +202,16 @@
                     </label>
                     <div class="relative">
                         <i class="fa-light fa-calendar absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" aria-hidden="true"></i>
-                        <select id="dashboard-range" wire:model.live="rangeDays" class="w-full rounded-xl border border-slate-300 bg-white py-2.5 pl-9 pr-3 text-sm text-slate-800">
+                        <select id="dashboard-range" wire:model.live="rangeDays" wire:loading.attr="disabled" wire:target="loadAnalytics,rangeDays,reloadAnalytics" class="w-full rounded-xl border border-slate-300 bg-white py-2.5 pl-9 pr-3 text-sm text-slate-800 disabled:cursor-wait disabled:opacity-60">
                             @foreach ($rangeOptions as $value => $label)
                                 <option value="{{ $value }}">{{ $label }}</option>
                             @endforeach
                         </select>
                     </div>
+                    <p wire:loading.flex wire:target="loadAnalytics,rangeDays,reloadAnalytics" class="mt-2 items-center gap-2 text-xs font-medium text-slate-500" role="status">
+                        <i class="fa-light fa-spinner-third animate-spin text-amber-700" aria-hidden="true"></i>
+                        {{ __('dashboard.analytics.loading.refreshing') }}
+                    </p>
                 </div>
             </div>
 
@@ -231,7 +236,17 @@
         </div>
     </section>
 
-    @if ($analyticsAvailable)
+    @if (! $analyticsLoaded)
+        <section class="admin-panel admin-panel-soft p-6 sm:p-8" data-dashboard-analytics-loading role="status" aria-live="polite">
+            <div class="flex min-h-64 flex-col items-center justify-center text-center">
+                <span class="inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-amber-50 text-amber-700 ring-1 ring-amber-200">
+                    <i class="fa-light fa-spinner-third animate-spin text-xl" aria-hidden="true"></i>
+                </span>
+                <h2 class="mt-5 text-lg font-semibold text-slate-950">{{ __('dashboard.analytics.loading.title') }}</h2>
+                <p class="mt-2 max-w-lg text-sm leading-6 text-slate-600">{{ __('dashboard.analytics.loading.description') }}</p>
+            </div>
+        </section>
+    @elseif ($analyticsAvailable)
         <section aria-labelledby="analytics-kpis-title">
             <div class="mb-3 flex items-center justify-between gap-3">
                 <h2 id="analytics-kpis-title" class="text-sm font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Ključni pokazatelji') }}</h2>
@@ -287,6 +302,9 @@
                         aria-label="{{ __('Graf posjećenosti kroz vrijeme') }}"
                         role="img"
                     ></canvas>
+                    <p data-dashboard-chart-error class="mt-4 hidden text-center text-sm font-medium text-rose-700" role="alert">
+                        {{ __('dashboard.analytics.chart.render_error') }}
+                    </p>
                 </div>
             @else
                 <div class="mt-6 flex min-h-64 flex-col items-center justify-center rounded-2xl border border-dashed border-slate-300 bg-slate-50/70 px-6 text-center">
@@ -346,12 +364,22 @@
                         <span class="inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-white text-amber-700 shadow-sm ring-1 ring-amber-200">
                             <i class="fa-light fa-chart-line-up text-xl" aria-hidden="true"></i>
                         </span>
-                        <h2 id="analytics-empty-title" class="mt-5 text-lg font-semibold text-slate-950">{{ __('Analitika posjeta još nije povezana') }}</h2>
+                        <h2 id="analytics-empty-title" class="mt-5 text-lg font-semibold text-slate-950">
+                            {{ $analyticsReasonKey === 'report_request_failed'
+                                ? __('dashboard.analytics.loading.error_title')
+                                : __('Analitika posjeta još nije povezana') }}
+                        </h2>
                         <p class="mx-auto mt-2 max-w-xl text-sm leading-6 text-slate-600">
                             {{ data_get($analyticsData, 'reason') ?: __('Trenutno ne prikazujemo posjetitelje, uređaje ni lokacije jer nemamo pouzdan izvor podataka. Na taj način izbjegavamo prikaz lažnih nula.') }}
                         </p>
 
                         <div class="mt-6 flex flex-col justify-center gap-2 sm:flex-row" x-data>
+                            @if ($analyticsReasonKey === 'report_request_failed')
+                                <button type="button" wire:click="reloadAnalytics" wire:loading.attr="disabled" wire:target="reloadAnalytics" class="inline-flex items-center justify-center gap-2 rounded-xl border border-amber-300 bg-white px-4 py-2.5 text-sm font-semibold text-amber-800 transition hover:bg-amber-50 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:ring-offset-2 disabled:cursor-wait disabled:opacity-60">
+                                    <i class="fa-light fa-rotate" wire:loading.class="animate-spin" wire:target="reloadAnalytics" aria-hidden="true"></i>
+                                    {{ __('dashboard.analytics.loading.retry') }}
+                                </button>
+                            @endif
                             <button type="button" x-on:click="$dispatch('open-modal', 'ga4-setup-instructions')" class="inline-flex items-center justify-center gap-2 rounded-xl bg-slate-950 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:ring-offset-2">
                                 <i class="fa-light fa-list-check" aria-hidden="true"></i>
                                 {{ __('Kako povezati GA4') }}

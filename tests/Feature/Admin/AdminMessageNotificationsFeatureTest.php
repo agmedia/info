@@ -79,10 +79,20 @@ class AdminMessageNotificationsFeatureTest extends TestCase
 
     public function test_header_hides_message_notifications_without_an_inquiry_view_ability(): void
     {
-        $editor = $this->makeUserWithRole('editor');
+        $contentOnlyRole = Bouncer::role()->firstOrCreate([
+            'name' => 'content-only',
+        ], [
+            'title' => 'Content Only',
+        ]);
+        Bouncer::allow($contentOnlyRole)->to('admin.access');
+        Bouncer::allow($contentOnlyRole)->to('dashboard.view');
+
+        $contentOnlyUser = User::factory()->create();
+        Bouncer::assign($contentOnlyRole)->to($contentOnlyUser);
+        Bouncer::refreshFor($contentOnlyUser);
         $this->createContactMessage(ContactMessage::FORM_TYPE_CONTACT);
 
-        $this->actingAs($editor)
+        $this->actingAs($contentOnlyUser)
             ->get(route('admin.dashboard'))
             ->assertOk()
             ->assertDontSee('class="admin-message-notifications" data-admin-message-notifications', false);

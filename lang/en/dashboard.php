@@ -26,6 +26,14 @@ return [
         'chart' => [
             'visitors' => 'Visitors',
             'sessions' => 'Sessions',
+            'render_error' => 'The chart could not be displayed. Refresh the data and try again.',
+        ],
+        'loading' => [
+            'title' => 'Loading analytics',
+            'description' => 'Fetching the latest data from Google Analytics. The dashboard will update automatically.',
+            'refreshing' => 'Refreshing data…',
+            'retry' => 'Try again',
+            'error_title' => 'Analytics could not be loaded right now',
         ],
         'devices' => [
             'desktop' => 'Desktop',
