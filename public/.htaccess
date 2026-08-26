@@ -35,6 +35,13 @@
     RewriteRule ^ index.php [L]
 </IfModule>
 
+# Video must retain byte-range responses. Compressing MP4/WebM at the server
+# level turns a small Range request into a full 200 response and defeats
+# streaming, without meaningfully reducing already-compressed media.
+<IfModule mod_setenvif.c>
+    SetEnvIfNoCase Request_URI "\.(?:mp4|webm)$" no-gzip=1 no-brotli=1
+</IfModule>
+
 # Prefer Brotli for text responses and fall back to gzip when unavailable.
 <IfModule mod_brotli.c>
     AddOutputFilterByType BROTLI_COMPRESS \

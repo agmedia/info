@@ -662,10 +662,16 @@ document.addEventListener('DOMContentLoaded', function () {
         video.load();
     };
 
+    const scheduleHeroVideo = function () {
+        window.requestAnimationFrame(function () {
+            window.requestAnimationFrame(loadHeroVideo);
+        });
+    };
+
     if (document.readyState === 'complete') {
-        loadHeroVideo();
+        scheduleHeroVideo();
     } else {
-        window.addEventListener('load', loadHeroVideo, { once: true });
+        window.addEventListener('load', scheduleHeroVideo, { once: true });
     }
 
     heroFontReady.then(revealIntro, revealIntro);

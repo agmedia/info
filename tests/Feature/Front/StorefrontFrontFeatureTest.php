@@ -1380,6 +1380,40 @@ class StorefrontFrontFeatureTest extends TestCase
             ->assertDontSee('splide.min.js', false);
     }
 
+    public function test_home_service_fallback_images_keep_their_responsive_webp_sources(): void
+    {
+        $this->seedHomeBlock('home_services', 'home.services', [
+            'title' => 'CMS usluge',
+            'payload' => [
+                'services' => [$this->homeServicePayloadRows()[1]],
+            ],
+        ]);
+
+        ServicePage::query()
+            ->where('template_key', ServicePageTemplateRegistry::SERVICES_INDEX)
+            ->firstOrFail()
+            ->clearMediaCollection('services_index_accounting_image');
+
+        $this->get('/')
+            ->assertOk()
+            ->assertSee('alpha/service-racunovodstvo-480.webp 480w', false)
+            ->assertSee('alpha/service-racunovodstvo-768.webp 768w', false)
+            ->assertSee('alpha/service-racunovodstvo-1080.webp 1080w', false);
+    }
+
+    public function test_home_video_starts_after_the_first_post_load_paint(): void
+    {
+        $script = (string) file_get_contents(public_path('front-theme/scripts/alpha-redesign.js'));
+
+        $this->assertStringContainsString('const scheduleHeroVideo = function () {', $script);
+        $this->assertMatchesRegularExpression(
+            '/requestAnimationFrame\(function \(\) \{\s*window\.requestAnimationFrame\(loadHeroVideo\);/s',
+            $script,
+        );
+        $this->assertStringContainsString("window.addEventListener('load', scheduleHeroVideo, { once: true });", $script);
+        $this->assertStringNotContainsString("window.addEventListener('load', loadHeroVideo, { once: true });", $script);
+    }
+
     public function test_home_service_cards_use_images_from_the_services_cms_page(): void
     {
         Storage::fake('public');

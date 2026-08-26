@@ -133,6 +133,11 @@
             }
 
             $dynamicImage = trim((string) $primaryServiceImages->get($key, ''));
+            $fallbackImage = (string) ($visual['image'] ?? '');
+            $dynamicImagePath = ltrim((string) parse_url($dynamicImage, PHP_URL_PATH), '/');
+            $fallbackImagePath = ltrim((string) parse_url($fallbackImage, PHP_URL_PATH), '/');
+            $usesBundledFallback = $dynamicImage === ''
+                || ($dynamicImagePath !== '' && $dynamicImagePath === $fallbackImagePath);
 
             return [
                 'key' => $key,
@@ -141,8 +146,8 @@
                 'text' => trim((string) ($service['text'] ?? '')),
                 'image_alt' => trim((string) ($service['image_alt'] ?? '')),
                 'action_label' => trim((string) ($service['action_label'] ?? '')),
-                'image' => $dynamicImage !== '' ? $dynamicImage : (string) ($visual['image'] ?? ''),
-                'image_srcset' => $dynamicImage !== '' ? '' : (string) ($visual['image_srcset'] ?? ''),
+                'image' => $dynamicImage !== '' ? $dynamicImage : $fallbackImage,
+                'image_srcset' => $usesBundledFallback ? (string) ($visual['image_srcset'] ?? '') : '',
                 'url' => trim((string) ($service['url'] ?? '')) ?: (string) ($visual['url'] ?? ''),
             ];
         })
