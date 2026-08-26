@@ -1380,6 +1380,26 @@ class StorefrontFrontFeatureTest extends TestCase
             ->assertDontSee('splide.min.js', false);
     }
 
+    public function test_home_response_preloads_critical_stylesheets_before_html_parsing(): void
+    {
+        $response = $this->get('/');
+
+        $response->assertOk();
+
+        $linkHeader = $response->headers->get('Link');
+        $alphaStylesheetPath = 'front-theme/styles/alpha-redesign.css';
+
+        $this->assertIsString($linkHeader);
+        $this->assertStringContainsString(
+            '<'.\Illuminate\Support\Facades\Vite::asset('resources/css/app.css').'>; rel=preload; as=style',
+            $linkHeader,
+        );
+        $this->assertStringContainsString(
+            '<'.asset($alphaStylesheetPath).'?v='.filemtime(public_path($alphaStylesheetPath)).'>; rel=preload; as=style',
+            $linkHeader,
+        );
+    }
+
     public function test_home_service_fallback_images_keep_their_responsive_webp_sources(): void
     {
         $this->seedHomeBlock('home_services', 'home.services', [

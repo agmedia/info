@@ -10,8 +10,9 @@ use App\Services\Front\ServiceCardService;
 use App\Services\Front\StoreSettingsService;
 use App\Support\Localization\FrontendLocalePolicy;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\Support\Collection;
-use Illuminate\View\View;
+use Illuminate\Support\Facades\Vite;
 
 class StorefrontController extends Controller
 {
@@ -21,7 +22,7 @@ class StorefrontController extends Controller
         private readonly StoreSettingsService $storeSettingsService
     ) {}
 
-    public function home(Request $request): View
+    public function home(Request $request): Response
     {
         $locale = (string) app()->getLocale();
         $requiresExactTranslation = (bool) $request->attributes->get(
@@ -57,7 +58,7 @@ class StorefrontController extends Controller
             ->get();
         $clientTestimonials = $this->clientTestimonials($locale, $fallbackLocale);
 
-        return view(
+        $response = response()->view(
             $variant === 'mobile' ? 'front.mobile.home.index' : 'front.desktop.home.index',
             [
                 'storeSettings' => $this->storeSettingsService->all(),
@@ -72,6 +73,14 @@ class StorefrontController extends Controller
                 'fallbackLocale' => $fallbackLocale,
             ]
         );
+
+        $alphaStylesheetPath = 'front-theme/styles/alpha-redesign.css';
+        $response->headers->set('Link', implode(', ', [
+            '<'.Vite::asset('resources/css/app.css').'>; rel=preload; as=style',
+            '<'.asset($alphaStylesheetPath).'?v='.filemtime(public_path($alphaStylesheetPath)).'>; rel=preload; as=style',
+        ]));
+
+        return $response;
     }
 
     /**
