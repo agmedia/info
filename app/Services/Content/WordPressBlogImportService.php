@@ -6,6 +6,7 @@ use App\Models\Catalog\Category\Category;
 use App\Models\Content\Blog\BlogPost;
 use App\Models\Content\Blog\BlogPostTranslation;
 use App\Models\Settings\Local\Language;
+use App\Support\Content\EuFundsLinkedBlogPostRegistry;
 use Carbon\CarbonImmutable;
 use DOMDocument;
 use DOMElement;
@@ -41,6 +42,46 @@ class WordPressBlogImportService
         $this->extendExecutionTime();
 
         return $this->loadPublishedPosts($this->resolveFilePath($filePath));
+    }
+
+    /**
+     * Apply the same structural cleanup used by the regular WordPress importer
+     * after another importer has finished rewriting asset URLs.
+     */
+    public function sanitizeImportedBodyHtml(string $html): string
+    {
+        return $this->finalizeBodyHtml($html, null, null);
+    }
+
+    /**
+     * Import the exact supporting blog posts linked from the Croatian
+     * EU-funds page without overwriting posts that already exist.
+     *
+     * @param  array{locale?:string|null,user_id?:int|null}  $options
+     * @return array<string, mixed>
+     */
+    public function importEuFundsLinkedPosts(string $filePath, array $options = []): array
+    {
+        $locale = $this->resolveLocale($options['locale'] ?? 'hr');
+        if ($locale !== 'hr') {
+            throw new RuntimeException('The EU-funds linked-post profile supports only the Croatian (hr) locale.');
+        }
+
+        $slugs = EuFundsLinkedBlogPostRegistry::slugs($locale);
+        $result = $this->import($filePath, [
+            'locale' => $locale,
+            'category_mode' => 'source',
+            'category_name' => 'EU Fondovi',
+            'category_slug' => 'eu-fondovi',
+            'only_missing' => true,
+            'include_uncategorized' => true,
+            'require_all_slugs' => true,
+            'slugs' => $slugs,
+            'user_id' => isset($options['user_id']) ? (int) $options['user_id'] : null,
+        ]);
+        $result['requested_slug_count'] = count($slugs);
+
+        return $result;
     }
 
     /**
@@ -174,6 +215,8 @@ class WordPressBlogImportService
      *     category_name?:string|null,
      *     category_slug?:string|null,
      *     only_missing?:bool,
+     *     include_uncategorized?:bool,
+     *     require_all_slugs?:bool,
      *     slugs?:array<int, string>,
      *     user_id?:int|null
      * }  $options
@@ -203,11 +246,14 @@ class WordPressBlogImportService
         $locale = $this->resolveLocale($options['locale'] ?? null);
         $categoryMode = ($options['category_mode'] ?? 'single') === 'source' ? 'source' : 'single';
         $onlyMissing = (bool) ($options['only_missing'] ?? false);
+        $includeUncategorized = (bool) ($options['include_uncategorized'] ?? false);
+        $requireAllSlugs = (bool) ($options['require_all_slugs'] ?? false);
         $limit = max(0, (int) ($options['limit'] ?? 0));
         $offset = max(0, (int) ($options['offset'] ?? 0));
         $slugs = collect($options['slugs'] ?? [])
             ->map(fn (mixed $slug): string => $this->normalizeSlug((string) $slug))
             ->filter()
+            ->unique()
             ->values()
             ->all();
         $userId = isset($options['user_id']) ? (int) $options['user_id'] : null;
@@ -219,6 +265,24 @@ class WordPressBlogImportService
         }
 
         $posts = $this->loadPublishedPosts($resolvedPath);
+
+        if ($requireAllSlugs) {
+            if ($slugs === []) {
+                throw new RuntimeException('Strict WordPress slug matching requires at least one requested slug.');
+            }
+
+            $availableSlugs = array_fill_keys(array_column($posts, 'source_slug'), true);
+            $missingSlugs = array_values(array_filter(
+                $slugs,
+                static fn (string $slug): bool => ! isset($availableSlugs[$slug])
+            ));
+
+            if ($missingSlugs !== []) {
+                throw new RuntimeException(
+                    'The WordPress XML export is missing required exact slug(s): '.implode(', ', $missingSlugs)
+                );
+            }
+        }
 
         if ($slugs !== []) {
             $allowedSlugs = array_flip($slugs);
@@ -233,7 +297,9 @@ class WordPressBlogImportService
         }
 
         $skippedUncategorizedCount = 0;
-        [$posts, $skippedUncategorizedCount] = $this->filterPublicBlogPosts($posts);
+        if (! $includeUncategorized) {
+            [$posts, $skippedUncategorizedCount] = $this->filterPublicBlogPosts($posts);
+        }
 
         if ($posts === []) {
             return [

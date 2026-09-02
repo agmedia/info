@@ -944,6 +944,10 @@ class Form extends Component
                 Rule::in($this->activeContentLocaleOptions()),
             ];
             $rules['form.translation_payload.calls.download_link.locale'] = $pdfLocaleRule;
+            $rules['form.translation_payload.calls.other_calls.title'] = ['nullable', 'string', 'max:255'];
+            $rules['form.translation_payload.calls.other_calls.intro'] = ['nullable', 'string'];
+            $rules['form.translation_payload.calls.other_calls.items.*.title'] = ['nullable', 'string', 'max:255'];
+            $rules['form.translation_payload.calls.other_calls.items.*.link.locale'] = $pdfLocaleRule;
             $rules['form.translation_payload.resources.cards.*.primary_link.locale'] = $pdfLocaleRule;
             $rules['form.translation_payload.resources.cards.*.secondary_link.locale'] = $pdfLocaleRule;
             $rules['form.translation_payload.resources.cards.*.groups.*.items.*.link.locale'] = $pdfLocaleRule;
@@ -1334,6 +1338,25 @@ class Form extends Component
                 'title' => '',
                 'text' => '',
                 'url' => '',
+            ],
+            'eu_funds_link_item' => [
+                'title' => '',
+                'link' => [
+                    'label' => '',
+                    'type' => 'none',
+                    'url' => '',
+                    'slug' => '',
+                    'locale' => '',
+                    'path' => '',
+                ],
+            ],
+            'eu_funds_resource_card' => [
+                'eyebrow' => '',
+                'title' => '',
+                'body_html' => '',
+                'groups' => [],
+                'primary_link' => ['label' => '', 'type' => 'none'],
+                'secondary_link' => ['label' => '', 'type' => 'none'],
             ],
             'title_text' => [
                 'title' => '',
@@ -1821,6 +1844,10 @@ class Form extends Component
     private function applyEuFundsAssetUploads(array $payload): array
     {
         $paths = ['calls.download_link.path'];
+
+        foreach ((array) data_get($payload, 'calls.other_calls.items', []) as $itemIndex => $item) {
+            $paths[] = "calls.other_calls.items.$itemIndex.link.path";
+        }
 
         foreach ((array) data_get($payload, 'resources.cards', []) as $cardIndex => $card) {
             $paths[] = "resources.cards.$cardIndex.primary_link.path";

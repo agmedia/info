@@ -28,20 +28,43 @@ Artisan::command('content:import-wordpress-blog
     {--category-name=Novosti : Destination category name when category-mode=single}
     {--category-slug=novosti : Destination category slug when category-mode=single}
     {--only-missing : Skip posts that already exist by WordPress ID or locale slug}
+    {--eu-funds-linked-posts : Import only the exact supporting blog posts linked from the Croatian EU-funds page; existing posts are preserved}
     {--slugs=* : Import only selected WordPress slugs}',
     function (WordPressBlogImportService $importer): int {
         try {
-            $result = $importer->import((string) $this->argument('file'), [
-                'limit' => (int) $this->option('limit'),
-                'offset' => (int) $this->option('offset'),
-                'locale' => (string) $this->option('locale'),
-                'category_mode' => (string) $this->option('category-mode'),
-                'category_name' => (string) $this->option('category-name'),
-                'category_slug' => (string) $this->option('category-slug'),
-                'only_missing' => (bool) $this->option('only-missing'),
-                'slugs' => array_values(array_filter((array) $this->option('slugs'))),
-                'user_id' => auth()->id(),
-            ]);
+            $locale = (string) $this->option('locale');
+            $limit = (int) $this->option('limit');
+            $offset = (int) $this->option('offset');
+            $slugs = array_values(array_filter((array) $this->option('slugs')));
+            $euFundsLinkedPosts = (bool) $this->option('eu-funds-linked-posts');
+
+            if ($euFundsLinkedPosts) {
+                $normalizedLocale = strtolower((string) preg_split('/[-_]/', trim($locale), 2)[0]);
+                if ($normalizedLocale !== 'hr') {
+                    throw new \RuntimeException('The EU-funds linked-post profile supports only the Croatian (hr) locale.');
+                }
+
+                if ($limit !== 0 || $offset !== 0 || $slugs !== []) {
+                    throw new \RuntimeException('Do not combine --eu-funds-linked-posts with --limit, --offset, or --slugs.');
+                }
+            }
+
+            $result = $euFundsLinkedPosts
+                ? $importer->importEuFundsLinkedPosts((string) $this->argument('file'), [
+                    'locale' => $locale,
+                    'user_id' => auth()->id(),
+                ])
+                : $importer->import((string) $this->argument('file'), [
+                    'limit' => $limit,
+                    'offset' => $offset,
+                    'locale' => $locale,
+                    'category_mode' => (string) $this->option('category-mode'),
+                    'category_name' => (string) $this->option('category-name'),
+                    'category_slug' => (string) $this->option('category-slug'),
+                    'only_missing' => (bool) $this->option('only-missing'),
+                    'slugs' => $slugs,
+                    'user_id' => auth()->id(),
+                ]);
         } catch (\Throwable $exception) {
             $this->error($exception->getMessage());
 

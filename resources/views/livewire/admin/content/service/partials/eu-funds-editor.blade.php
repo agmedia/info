@@ -109,6 +109,22 @@
     <div class="mt-5 max-w-2xl">
         @include('livewire.admin.content.service.partials.eu-funds-link-editor', ['heading' => 'Dokument uz natječaje', 'basePath' => 'calls.download_link', 'link' => (array) ($translationPayload['calls']['download_link'] ?? [])])
     </div>
+    <div class="mt-6 border-t border-slate-200 pt-5">
+        <div class="grid gap-4 xl:grid-cols-2">
+            <div><label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Naslov ostalih poziva</label><input type="text" wire:model="form.translation_payload.calls.other_calls.title" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" /></div>
+            <div><label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Uvod ostalih poziva</label><textarea rows="3" wire:model="form.translation_payload.calls.other_calls.intro" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm leading-6"></textarea></div>
+        </div>
+        <div class="mt-5 space-y-4">
+            @foreach (($translationPayload['calls']['other_calls']['items'] ?? []) as $itemIndex => $item)
+                <div class="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                    <div class="flex items-center justify-between gap-3"><p class="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Ostali poziv {{ $itemIndex + 1 }}</p><button type="button" wire:click="removeTranslationListItem('calls.other_calls.items', {{ $itemIndex }})" class="text-xs font-semibold text-rose-600 hover:text-rose-700">Ukloni</button></div>
+                    <div class="mt-3"><label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Naslov</label><input type="text" wire:model="form.translation_payload.calls.other_calls.items.{{ $itemIndex }}.title" class="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm" /></div>
+                    <div class="mt-4">@include('livewire.admin.content.service.partials.eu-funds-link-editor', ['heading' => 'Poveznica', 'basePath' => 'calls.other_calls.items.'.$itemIndex.'.link', 'link' => (array) ($item['link'] ?? [])])</div>
+                </div>
+            @endforeach
+        </div>
+        <button type="button" wire:click="addTranslationListItem('calls.other_calls.items', 'eu_funds_link_item')" class="mt-4 rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-100">Dodaj ostali poziv</button>
+    </div>
 </div>
 
 @include('livewire.admin.content.service.partials.eu-funds-resources-editor')

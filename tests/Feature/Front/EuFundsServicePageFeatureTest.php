@@ -170,14 +170,123 @@ class EuFundsServicePageFeatureTest extends TestCase
             ],
         ]);
 
+        $newerCall = CallPost::query()->create([
+            'code' => 'newer-call',
+            'is_active' => true,
+            'published_at' => now(),
+        ]);
+        CallPostTranslation::query()->create([
+            'post_id' => $newerCall->id,
+            'locale' => 'hr',
+            'title' => 'Noviji poziv koji je drugi po redoslijedu',
+            'slug' => 'noviji-poziv-koji-je-drugi-po-redoslijedu',
+            'body_html' => '<p>Detalji novijeg poziva.</p>',
+        ]);
+        $newerCall->categories()->sync([
+            $openCategory->id => [
+                'sort_order' => 1,
+                'is_primary' => true,
+            ],
+        ]);
+
         $response = $this->get('/eu-fondovi');
 
         $response->assertOk()
             ->assertSeeText('Otvoreni pozivi')
             ->assertSeeText('CMS status otvoreno')
             ->assertSeeText('Integrator')
+            ->assertSeeTextInOrder(['Integrator', 'Noviji poziv koji je drugi po redoslijedu'])
             ->assertSeeText('Objavljeno:')
             ->assertSee('/eu-fondovi/pozivi/integrator', false);
+    }
+
+    public function test_eu_funds_service_page_renders_calls_brochure_other_calls_and_six_resource_cards(): void
+    {
+        $page = ServicePage::query()
+            ->where('template_key', ServicePageTemplateRegistry::EU_FUNDS)
+            ->with('translations')
+            ->firstOrFail();
+        $translation = $page->translations->firstWhere('locale', 'hr');
+        $this->assertNotNull($translation);
+
+        $payload = (array) $translation->payload;
+        data_set($payload, 'calls.download_link', [
+            'label' => 'Preuzmi brošuru natječaja',
+            'type' => 'external',
+            'url' => '/dokumenti/natjecaji.pdf',
+        ]);
+        data_set($payload, 'calls.other_calls', [
+            'title' => 'Ostali pozivi',
+            'intro' => 'Dodatni izvori poziva.',
+            'items' => collect(range(1, 6))->map(fn (int $index): array => [
+                'title' => 'Ostali poziv '.$index,
+                'link' => [
+                    'type' => 'external',
+                    'url' => '/ostali-pozivi/'.$index,
+                ],
+            ])->all(),
+        ]);
+        $resourceCard = (array) data_get($payload, 'resources.cards.0', []);
+        data_set($payload, 'resources.cards', collect(range(1, 6))->map(function (int $index) use ($resourceCard): array {
+            $resourceCard['title'] = 'Program potpore '.$index;
+
+            return $resourceCard;
+        })->all());
+        $translation->update(['payload' => $payload]);
+
+        $response = $this->get('/eu-fondovi');
+
+        $response->assertOk()
+            ->assertSee('href="/dokumenti/natjecaji.pdf"', false)
+            ->assertSeeText('Preuzmi brošuru natječaja')
+            ->assertSeeText('Ostali pozivi')
+            ->assertSeeText('Ostali poziv 6')
+            ->assertSee('href="/ostali-pozivi/6"', false)
+            ->assertSeeText('Program potpore 6');
+
+        $this->assertSame(6, substr_count($response->getContent(), 'Program potpore '));
+    }
+
+    public function test_eu_funds_internal_blog_links_are_plain_text_until_the_published_post_exists(): void
+    {
+        config()->set('app.locale', 'hr');
+        config()->set('app.fallback_locale', 'hr');
+
+        $page = ServicePage::query()
+            ->where('template_key', ServicePageTemplateRegistry::EU_FUNDS)
+            ->with('translations')
+            ->firstOrFail();
+        $translation = $page->translations->firstWhere('locale', 'hr');
+        $this->assertNotNull($translation);
+
+        $payload = (array) $translation->payload;
+        data_set($payload, 'calls.other_calls.items', [[
+            'title' => 'Program koji se tek uvozi',
+            'link' => ['type' => 'blog', 'slug' => 'program-koji-se-tek-uvozi'],
+        ]]);
+        $translation->update(['payload' => $payload]);
+
+        $this->get('/eu-fondovi')
+            ->assertOk()
+            ->assertSeeText('Program koji se tek uvozi')
+            ->assertDontSee('href="'.route('blog.show', ['slug' => 'program-koji-se-tek-uvozi']).'"', false);
+
+        $post = BlogPost::query()->create([
+            'code' => 'program-koji-se-tek-uvozi',
+            'is_active' => true,
+            'published_at' => now(),
+        ]);
+        BlogPostTranslation::query()->create([
+            'post_id' => $post->id,
+            'locale' => 'hr',
+            'title' => 'Program koji se tek uvozi',
+            'slug' => 'program-koji-se-tek-uvozi',
+            'body_html' => '<p>Sadržaj programa.</p>',
+        ]);
+
+        $this->get('/eu-fondovi')
+            ->assertOk()
+            ->assertSee('href="'.route('blog.show', ['slug' => 'program-koji-se-tek-uvozi']).'"', false);
     }
 
     public function test_eu_funds_service_page_renders_service_layout_and_separate_sources(): void
@@ -196,8 +305,15 @@ class EuFundsServicePageFeatureTest extends TestCase
             ->assertSeeText('Otvoreni natječaji')
             ->assertSeeText('Natječaji u najavi')
             ->assertSeeText('Financijski instrumenti')
+            ->assertSeeText('Ostale vrste poziva za trgovačka društva')
+            ->assertSeeText('POC9 – Državne potpore za inovacije')
+            ->assertSeeText('PREGLED NATJEČAJA')
+            ->assertSee('front-theme/documents/eu-fondovi/eu-fondovi-pregled-natjecaja-2026.pdf', false)
             ->assertSeeText('HBOR krediti')
             ->assertSeeText('HAMAG zajmovi')
+            ->assertSeeText('Modernizacijski fond')
+            ->assertSeeText('Program ruralnog razvoja')
+            ->assertSeeText('Poticaji za nova ulaganja')
             ->assertSee('aria-label="Porezne olakšice, zakoni i uredbe"', false)
             ->assertSee('aria-label="Razgovarajmo o vašem projektu"', false)
             ->assertSee(route('eu-funds.questionnaire.create'), false)
@@ -210,6 +326,11 @@ class EuFundsServicePageFeatureTest extends TestCase
             ->assertDontSeeText('poveznice su postavljene samo tamo gdje već postoji lokalni blog zapis ili lokalni dokument')
             ->assertDontSee('ac-eu-process-index', false)
             ->assertDontSee('>01<', false);
+
+        $content = $response->getContent();
+        $programSection = (string) str($content)->between('id="eu-funds-programs"', 'id="eu-funds-laws"');
+
+        $this->assertSame(6, substr_count($programSection, 'ac-eu-program-card'));
     }
 
     public function test_english_eu_funds_links_require_exact_translations_and_use_localized_questionnaire_url(): void

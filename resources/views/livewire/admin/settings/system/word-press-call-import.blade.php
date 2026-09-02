@@ -55,6 +55,20 @@
                     </div>
                 </section>
 
+                <section class="rounded-xl border border-cyan-200 bg-cyan-50/50 p-4">
+                    <label class="inline-flex items-start gap-3 text-sm font-semibold text-slate-800">
+                        <input type="checkbox" wire:model="importLinkedBlogPosts" class="mt-0.5 h-4 w-4 rounded border-slate-300 text-cyan-700 focus:ring-cyan-700">
+                        <span>{{ __('Also import the :count linked EU-funds blog posts', ['count' => $linkedBlogPostTargetCount]) }}</span>
+                    </label>
+                    <p class="mt-2 text-xs text-slate-600">
+                        {{ __('Recommended for the fresh Croatian XML. Only exact approved slugs are imported, and existing blog posts are skipped so manual edits survive every rerun.') }}
+                    </p>
+                    <p class="mt-1 text-xs text-slate-500">
+                        {{ __('This linked-post option is available only for locale hr.') }}
+                    </p>
+                    @error('importLinkedBlogPosts') <p class="mt-1 text-xs text-rose-600">{{ $message }}</p> @enderror
+                </section>
+
                 <section class="rounded-xl border border-slate-200 bg-white p-4">
                     <label class="inline-flex items-center gap-3 text-sm font-medium text-slate-800">
                         <input type="checkbox" wire:model="force" class="h-4 w-4 rounded border-slate-300 text-cyan-700 focus:ring-cyan-700">
@@ -72,7 +86,7 @@
                             {{ __('Reimport / Update Existing') }}
                         </button>
                     @endif
-                    <div wire:loading wire:target="import" class="text-sm text-slate-500">{{ __('Import in progress... this may take a bit while assets are localized.') }}</div>
+                    <div wire:loading wire:target="import" class="text-sm text-slate-500">{{ __('Import in progress... calls and selected linked posts are being prepared.') }}</div>
                     <div wire:loading wire:target="reimport" class="text-sm text-slate-500">{{ __('Reimport in progress... existing imported calls will be updated.') }}</div>
                 </div>
             </form>
@@ -83,8 +97,9 @@
                 <p class="admin-section-title">{{ __('Import behavior') }}</p>
                 <ul class="mt-3 space-y-2 text-sm text-slate-600">
                     <li>{{ __('The importer follows the current frontend groups: Pozivi u najavi, Otvoreni pozivi, and Zatvoreni pozivi.') }}</li>
-                    <li>{{ __('If a frontend item already points to a local blog article, that local article is reused as the primary source for the new call post.') }}</li>
-                    <li>{{ __('If no local blog article exists, the importer falls back to the matching WordPress XML article or creates a stub item that you can complete in admin.') }}</li>
+                    <li>{{ __('The linked-post option imports only the approved EU-funds resource and supporting blog links; call status groupings are not changed.') }}</li>
+                    <li>{{ __('The freshly uploaded WordPress XML is the primary source for call content; an existing local blog article is used only when the XML has no matching post.') }}</li>
+                    <li>{{ __('If neither source contains a matching article, a stub call item is created so you can complete it in admin.') }}</li>
                 </ul>
                 <pre class="mt-4 overflow-x-auto rounded-xl bg-slate-950 px-4 py-3 text-xs text-slate-100"><code>php artisan content:import-wordpress-calls /path/to/export.xml --locale=hr --limit=5</code></pre>
             </div>
@@ -103,6 +118,17 @@
                             <p class="mt-1 text-sm text-slate-600">
                                 {{ __('Processed :count EU funds call item(s) in locale :locale.', ['count' => $result['processed_count'] ?? 0, 'locale' => $result['locale'] ?? $locale]) }}
                             </p>
+                            @if (data_get($result, 'linked_blog_posts.enabled'))
+                                <p class="mt-1 text-sm text-slate-600">
+                                    {{ __('Linked blog posts: :imported new, :existing already present, :target approved targets.', [
+                                        'imported' => data_get($result, 'linked_blog_posts.imported_count', 0),
+                                        'existing' => data_get($result, 'linked_blog_posts.skipped_existing_count', 0),
+                                        'target' => data_get($result, 'linked_blog_posts.target_count', $linkedBlogPostTargetCount),
+                                    ]) }}
+                                </p>
+                            @else
+                                <p class="mt-1 text-sm text-slate-500">{{ __('Linked blog posts were skipped for this run.') }}</p>
+                            @endif
                             @if ($storedXmlName)
                                 <p class="mt-1 text-xs text-slate-500">{{ __('Source XML: :name', ['name' => $storedXmlName]) }}</p>
                             @endif

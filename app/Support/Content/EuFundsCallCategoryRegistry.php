@@ -5,11 +5,13 @@ namespace App\Support\Content;
 class EuFundsCallCategoryRegistry
 {
     public const UPCOMING = 'pozivi-u-najavi';
+
     public const OPEN = 'otvoreni-pozivi';
+
     public const CLOSED = 'zatvoreni-pozivi';
 
     /**
-     * @return array<int, array{key:string,code:string,slug:string,title:string,tone:string}>
+     * @return array<int, array{key:string,code:string,slug:string,title:string,tone:string,status_label:string}>
      */
     public static function definitions(string $locale = 'hr'): array
     {
@@ -22,6 +24,7 @@ class EuFundsCallCategoryRegistry
                 'slug' => self::UPCOMING,
                 'title' => $isCroatian ? 'Pozivi u najavi' : 'Upcoming Calls',
                 'tone' => 'pending',
+                'status_label' => $isCroatian ? 'U NAJAVI' : 'UPCOMING',
             ],
             [
                 'key' => self::OPEN,
@@ -29,6 +32,7 @@ class EuFundsCallCategoryRegistry
                 'slug' => self::OPEN,
                 'title' => $isCroatian ? 'Otvoreni pozivi' : 'Open Calls',
                 'tone' => 'open',
+                'status_label' => $isCroatian ? 'OTVORENO' : 'OPEN',
             ],
             [
                 'key' => self::CLOSED,
@@ -36,6 +40,7 @@ class EuFundsCallCategoryRegistry
                 'slug' => self::CLOSED,
                 'title' => $isCroatian ? 'Zatvoreni pozivi' : 'Closed Calls',
                 'tone' => 'closed',
+                'status_label' => $isCroatian ? 'ZATVORENO' : 'CLOSED',
             ],
         ];
     }
@@ -53,7 +58,7 @@ class EuFundsCallCategoryRegistry
     }
 
     /**
-     * @return array{key:string,code:string,slug:string,title:string,tone:string}|null
+     * @return array{key:string,code:string,slug:string,title:string,tone:string,status_label:string}|null
      */
     public static function definition(string $key, string $locale = 'hr'): ?array
     {

@@ -4,7 +4,9 @@ namespace App\Livewire\Admin\Settings\System;
 
 use App\Models\Settings\Local\Language;
 use App\Services\Content\EuFundsCallImportService;
+use App\Services\Content\WordPressBlogImportService;
 use App\Services\Settings\SystemSettingsService;
+use App\Support\Content\EuFundsLinkedBlogPostRegistry;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Livewire\Component;
@@ -34,6 +36,10 @@ class WordPressCallImport extends Component
 
     public bool $force = false;
 
+    public bool $importLinkedBlogPosts = true;
+
+    public int $linkedBlogPostTargetCount = 0;
+
     /** @var array<string, mixed>|null */
     public ?array $result = null;
 
@@ -43,11 +49,14 @@ class WordPressCallImport extends Component
     {
         $this->authorizeAccess();
         $this->locale = $this->resolveDefaultLocale();
+        $this->linkedBlogPostTargetCount = count(EuFundsLinkedBlogPostRegistry::slugs('hr'));
         $this->loadStoredImportState();
     }
 
-    public function import(EuFundsCallImportService $importer): void
-    {
+    public function import(
+        EuFundsCallImportService $callImporter,
+        WordPressBlogImportService $blogImporter
+    ): void {
         $this->authorizeAccess();
         $this->resetValidation();
         $this->errorMessage = null;
@@ -57,15 +66,17 @@ class WordPressCallImport extends Component
 
         try {
             $filePath = $this->persistUploadedXml();
-            $this->executeImport($importer, $filePath);
+            $this->executeImport($callImporter, $blogImporter, $filePath);
         } catch (\Throwable $exception) {
             $this->errorMessage = $exception->getMessage();
             $this->dispatch('notify', type: 'danger', message: $this->errorMessage);
         }
     }
 
-    public function reimport(EuFundsCallImportService $importer): void
-    {
+    public function reimport(
+        EuFundsCallImportService $callImporter,
+        WordPressBlogImportService $blogImporter
+    ): void {
         $this->authorizeAccess();
         $this->resetValidation();
         $this->errorMessage = null;
@@ -80,7 +91,11 @@ class WordPressCallImport extends Component
         }
 
         try {
-            $this->executeImport($importer, Storage::disk('local')->path($this->storedXmlPath));
+            $this->executeImport(
+                $callImporter,
+                $blogImporter,
+                Storage::disk('local')->path($this->storedXmlPath)
+            );
         } catch (\Throwable $exception) {
             $this->errorMessage = $exception->getMessage();
             $this->dispatch('notify', type: 'danger', message: $this->errorMessage);
@@ -103,6 +118,7 @@ class WordPressCallImport extends Component
             'limit' => ['required', 'integer', 'min:0', 'max:500'],
             'offset' => ['required', 'integer', 'min:0', 'max:500'],
             'force' => ['boolean'],
+            'importLinkedBlogPosts' => ['boolean'],
         ];
     }
 
@@ -126,14 +142,39 @@ class WordPressCallImport extends Component
         ];
     }
 
-    private function executeImport(EuFundsCallImportService $importer, string $filePath): void
-    {
-        $this->result = $importer->import($filePath, $this->buildImportOptions());
+    private function executeImport(
+        EuFundsCallImportService $callImporter,
+        WordPressBlogImportService $blogImporter,
+        string $filePath
+    ): void {
+        $options = $this->buildImportOptions();
+        $linkedResult = $this->importLinkedBlogPosts
+            ? $blogImporter->importEuFundsLinkedPosts($filePath, [
+                'locale' => $options['locale'],
+                'user_id' => $options['user_id'],
+            ])
+            : null;
+        $this->result = $callImporter->import($filePath, $options);
+        $this->result['linked_blog_posts'] = [
+            'enabled' => $this->importLinkedBlogPosts,
+            'target_count' => (int) ($linkedResult['requested_slug_count'] ?? $this->linkedBlogPostTargetCount),
+            'imported_count' => count((array) ($linkedResult['imported'] ?? [])),
+            'skipped_existing_count' => (int) ($linkedResult['skipped_existing_count'] ?? 0),
+        ];
+
+        $callCount = count((array) ($this->result['imported'] ?? []));
+        $notification = $this->importLinkedBlogPosts
+            ? __('Imported :count EU funds call item(s). Linked blog posts: :imported new, :existing already present.', [
+                'count' => $callCount,
+                'imported' => $this->result['linked_blog_posts']['imported_count'],
+                'existing' => $this->result['linked_blog_posts']['skipped_existing_count'],
+            ])
+            : __('Imported :count EU funds call item(s). Linked blog posts were skipped.', ['count' => $callCount]);
 
         $this->dispatch(
             'notify',
             type: 'success',
-            message: __('Imported :count EU funds call item(s).', ['count' => count((array) ($this->result['imported'] ?? []))])
+            message: $notification
         );
     }
 

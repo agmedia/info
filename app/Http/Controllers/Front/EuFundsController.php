@@ -26,6 +26,12 @@ class EuFundsController extends Controller
     use ResolvesFrontendView;
     use ResolvesServiceVideos;
 
+    /** @var array<string, array<string, string>> */
+    private array $publishedBlogSlugMaps = [];
+
+    /** @var array<string, array<string, true>> */
+    private array $checkedBlogSourceSlugs = [];
+
     public function show(Request $request): View
     {
         $locale = app()->getLocale();
@@ -38,6 +44,7 @@ class EuFundsController extends Controller
         abort_if(! $servicePageTranslation, 404);
         $pagePayload = (array) ($servicePage?->payload ?? []);
         $translationPayload = (array) ($servicePageTranslation->payload ?? []);
+        $this->primePublishedBlogLinks($translationPayload, $locale);
         $serviceVideoPayload = $this->resolveServiceVideoPayload($pagePayload, $translationPayload);
 
         $euFundsCategory = $this->resolveConfiguredBlogCategory(
@@ -340,6 +347,14 @@ class EuFundsController extends Controller
     private function resolveCallsSection(array $section, string $locale, string $fallbackLocale): array
     {
         $section['download_link'] = $this->resolveLink($section['download_link'] ?? null, $locale);
+        $section['other_calls']['items'] = collect((array) data_get($section, 'other_calls.items', []))
+            ->filter(static fn (mixed $item): bool => is_array($item))
+            ->map(function (array $item) use ($locale): array {
+                $item['resolved_link'] = $this->resolveLink($item['link'] ?? null, $locale);
+
+                return $item;
+            })
+            ->all();
 
         $contentGroups = $this->resolveCallGroupsFromContent($locale, $fallbackLocale);
         if ($contentGroups !== []) {
@@ -439,7 +454,6 @@ class EuFundsController extends Controller
                 $groupTone = $this->resolveCallGroupTone((string) ($translation?->slug ?? $group->code));
 
                 $items = $group->callPosts
-                    ->sortByDesc(fn (CallPost $post): int => ($post->published_at ?? $post->created_at)?->getTimestamp() ?? 0)
                     ->values()
                     ->map(function (CallPost $post) use ($locale, $fallbackLocale): array {
                         $translation = $post->translations->firstWhere('locale', $locale)
@@ -716,21 +730,96 @@ class EuFundsController extends Controller
 
     private function localizedBlogSlug(string $sourceSlug, string $locale): string
     {
-        if ($sourceSlug === '' || ! FrontendLocalePolicy::requiresExactTranslation($locale)) {
-            return $sourceSlug;
+        if ($sourceSlug === '') {
+            return '';
         }
 
-        return (string) (BlogPost::query()
+        $this->primePublishedBlogSlugs([$sourceSlug], $locale);
+
+        return $this->publishedBlogSlugMaps[$locale][$sourceSlug] ?? '';
+    }
+
+    /**
+     * Prime only the blog links used by this page so resolving them never creates
+     * an N+1 query or loads the entire blog archive into memory.
+     *
+     * @param  array<string, mixed>  $payload
+     */
+    private function primePublishedBlogLinks(array $payload, string $locale): void
+    {
+        $sourceSlugs = [];
+        $walk = function (mixed $value) use (&$walk, &$sourceSlugs): void {
+            if (! is_array($value)) {
+                return;
+            }
+
+            if (($value['type'] ?? null) === 'blog') {
+                $slug = trim((string) ($value['slug'] ?? ''));
+                if ($slug !== '') {
+                    $sourceSlugs[] = $slug;
+                }
+            }
+
+            foreach ($value as $child) {
+                if (is_array($child)) {
+                    $walk($child);
+                }
+            }
+        };
+
+        $walk($payload);
+        $this->primePublishedBlogSlugs($sourceSlugs, $locale);
+    }
+
+    /**
+     * @param  array<int, string>  $sourceSlugs
+     */
+    private function primePublishedBlogSlugs(array $sourceSlugs, string $locale): void
+    {
+        $this->publishedBlogSlugMaps[$locale] ??= [];
+        $this->checkedBlogSourceSlugs[$locale] ??= [];
+
+        $pendingSlugs = collect($sourceSlugs)
+            ->map(static fn (string $slug): string => trim($slug))
+            ->filter()
+            ->unique()
+            ->reject(fn (string $slug): bool => isset($this->checkedBlogSourceSlugs[$locale][$slug]))
+            ->values()
+            ->all();
+
+        if ($pendingSlugs === []) {
+            return;
+        }
+
+        foreach ($pendingSlugs as $slug) {
+            $this->checkedBlogSourceSlugs[$locale][$slug] = true;
+        }
+
+        $requiresExactTranslation = FrontendLocalePolicy::requiresExactTranslation($locale);
+        $posts = BlogPost::query()
             ->published()
-            ->whereHas('translations', fn ($query) => $query->where('slug', $sourceSlug))
-            ->with(['translations' => fn ($query) => $query
-                ->where('locale', $locale)
-                ->whereNotNull('slug')
-                ->where('slug', '!=', '')])
-            ->first()
-            ?->translations
-            ->first()
-            ?->slug ?? '');
+            ->whereHas('translations', fn ($query) => $query->whereIn('slug', $pendingSlugs))
+            ->with(['translations:id,post_id,locale,slug'])
+            ->get(['id']);
+
+        foreach ($posts as $post) {
+            $targetSlug = $requiresExactTranslation
+                ? trim((string) ($post->translations->firstWhere('locale', $locale)?->slug ?? ''))
+                : '';
+
+            foreach ($post->translations as $translation) {
+                $source = trim((string) $translation->slug);
+                if ($source === '' || ! in_array($source, $pendingSlugs, true)) {
+                    continue;
+                }
+
+                if (! $requiresExactTranslation || $targetSlug !== '') {
+                    $this->publishedBlogSlugMaps[$locale][$source] = $requiresExactTranslation
+                        ? $targetSlug
+                        : $source;
+                }
+            }
+        }
     }
 
     private function localizedCallSlug(string $sourceSlug, string $locale): string

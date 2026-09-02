@@ -24,6 +24,15 @@
     $readMoreLabel = trim((string) ($blogSection['post_action_label'] ?? ''));
     $allPostsLabel = trim((string) ($blogSection['all_posts_label'] ?? ''));
     $viewAllCallsLabel = trim((string) ($callsSection['view_all_label'] ?? ''));
+    $callsDownloadLink = (array) ($callsSection['download_link'] ?? []);
+    $otherCallsSection = (array) ($callsSection['other_calls'] ?? []);
+    $otherCallItems = array_values(array_filter(
+        (array) ($otherCallsSection['items'] ?? []),
+        static fn ($item): bool => is_array($item) && (
+            trim((string) ($item['title'] ?? '')) !== ''
+            || trim((string) data_get($item, 'resolved_link.url', '')) !== ''
+        ),
+    ));
     $meetingTitle = trim((string) ($meetingSection['title'] ?? ''));
     $meetingIntro = trim((string) ($meetingSection['intro'] ?? ''));
     $meetingCardTitle = trim((string) ($meetingSection['contact_title'] ?? ''));
@@ -204,7 +213,7 @@
                     @endforeach
                 </div>
 
-                @if ($callGroups !== [])
+                @if ($callGroups !== [] || trim((string) ($callsDownloadLink['url'] ?? '')) !== '' || $otherCallItems !== [])
                     <div id="eu-funds-calls" class="ac-eu-call-module" aria-labelledby="ac-eu-funds-calls-title">
                         <header class="ac-eu-module-heading">
                             <p class="ac-eu-module-kicker">{{ trim((string) ($callsSection['kicker'] ?? '')) }}</p>
@@ -212,42 +221,72 @@
                             @if (trim((string) ($callsSection['intro'] ?? '')) !== '')
                                 <p>{{ $callsSection['intro'] }}</p>
                             @endif
+                            @if (trim((string) ($callsDownloadLink['url'] ?? '')) !== '')
+                                <a href="{{ $callsDownloadLink['url'] }}" class="ac-eu-editorial-link ac-eu-calls-download-link" @if($callsDownloadLink['open_in_new_tab'] ?? false) target="_blank" rel="{{ $callsDownloadLink['rel'] ?? 'noopener noreferrer' }}" @endif>
+                                    <span>{{ $callsDownloadLink['label'] ?? '' }}</span>
+                                    <i class="fa-duotone fa-thin fa-arrow-down-to-line fa-fw" aria-hidden="true"></i>
+                                </a>
+                            @endif
                         </header>
 
-                        <div class="ac-eu-call-group-grid">
-                            @foreach ($callGroups as $group)
-                                @php
-                                    $tone = trim((string) ($group['tone'] ?? 'pending')) ?: 'pending';
-                                    $items = array_values((array) ($group['items'] ?? []));
-                                    $visibleItems = array_slice($items, 0, 5);
-                                    $hiddenItems = array_slice($items, 5);
-                                    $statusLabel = trim((string) ($group['status_label'] ?? ''));
-                                @endphp
-                                <article id="eu-funds-calls-{{ $tone }}" class="ac-eu-call-group-card content-reveal animation-index-{{ $loop->index }}" data-image-reveal>
-                                    <div class="ac-eu-call-group-head">
-                                        <h3>{{ trim((string) ($group['title'] ?? '')) }}</h3>
-                                        <span class="ac-eu-status-badge is-{{ $tone }}">{{ $statusLabel }}</span>
-                                    </div>
+                        @if ($callGroups !== [])
+                            <div class="ac-eu-call-group-grid">
+                                @foreach ($callGroups as $group)
+                                    @php
+                                        $tone = trim((string) ($group['tone'] ?? 'pending')) ?: 'pending';
+                                        $items = array_values((array) ($group['items'] ?? []));
+                                        $visibleItems = array_slice($items, 0, 5);
+                                        $hiddenItems = array_slice($items, 5);
+                                        $statusLabel = trim((string) ($group['status_label'] ?? ''));
+                                    @endphp
+                                    <article id="eu-funds-calls-{{ $tone }}" class="ac-eu-call-group-card content-reveal animation-index-{{ $loop->index }}" data-image-reveal>
+                                        <div class="ac-eu-call-group-head">
+                                            <h3>{{ trim((string) ($group['title'] ?? '')) }}</h3>
+                                            <span class="ac-eu-status-badge is-{{ $tone }}">{{ $statusLabel }}</span>
+                                        </div>
 
-                                    <ul class="ac-eu-call-list">
-                                        @foreach ($visibleItems as $item)
-                                            @include('front.desktop.pages.partials.eu-funds-call-item', ['item' => $item])
-                                        @endforeach
-                                    </ul>
+                                        <ul class="ac-eu-call-list">
+                                            @foreach ($visibleItems as $item)
+                                                @include('front.desktop.pages.partials.eu-funds-call-item', ['item' => $item])
+                                            @endforeach
+                                        </ul>
 
-                                    @if ($hiddenItems !== [])
-                                        <details class="ac-eu-call-details">
-                                            <summary>{{ $viewAllCallsLabel }}</summary>
-                                            <ul class="ac-eu-call-list ac-eu-call-list--details">
-                                                @foreach ($hiddenItems as $item)
-                                                    @include('front.desktop.pages.partials.eu-funds-call-item', ['item' => $item])
-                                                @endforeach
-                                            </ul>
-                                        </details>
-                                    @endif
-                                </article>
-                            @endforeach
-                        </div>
+                                        @if ($hiddenItems !== [])
+                                            <details class="ac-eu-call-details">
+                                                <summary>{{ $viewAllCallsLabel }}</summary>
+                                                <ul class="ac-eu-call-list ac-eu-call-list--details">
+                                                    @foreach ($hiddenItems as $item)
+                                                        @include('front.desktop.pages.partials.eu-funds-call-item', ['item' => $item])
+                                                    @endforeach
+                                                </ul>
+                                            </details>
+                                        @endif
+                                    </article>
+                                @endforeach
+                            </div>
+                        @endif
+                        @if ($otherCallItems !== [])
+                            <div class="ac-eu-other-calls content-reveal" data-image-reveal>
+                                @if (trim((string) ($otherCallsSection['title'] ?? '')) !== '')
+                                    <h3>{{ $otherCallsSection['title'] }}</h3>
+                                @endif
+                                @if (trim((string) ($otherCallsSection['intro'] ?? '')) !== '')
+                                    <p>{{ $otherCallsSection['intro'] }}</p>
+                                @endif
+                                <ul class="ac-eu-other-call-list">
+                                    @foreach ($otherCallItems as $item)
+                                        @php $otherCallLink = (array) ($item['resolved_link'] ?? []); @endphp
+                                        <li>
+                                            @if (trim((string) ($otherCallLink['url'] ?? '')) !== '')
+                                                <a href="{{ $otherCallLink['url'] }}" @if($otherCallLink['open_in_new_tab'] ?? false) target="_blank" rel="{{ $otherCallLink['rel'] ?? 'noopener noreferrer' }}" @endif>{{ $item['title'] ?? ($otherCallLink['label'] ?? '') }}</a>
+                                            @else
+                                                <span>{{ $item['title'] ?? '' }}</span>
+                                            @endif
+                                        </li>
+                                    @endforeach
+                                </ul>
+                            </div>
+                        @endif
                     </div>
                 @endif
             </div>

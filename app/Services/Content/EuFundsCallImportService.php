@@ -10,7 +10,6 @@ use App\Support\Content\EuFundsCallCategoryRegistry;
 use App\Support\Content\EuFundsServicePageDefaults;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -21,8 +20,7 @@ class EuFundsCallImportService
 {
     public function __construct(
         private readonly WordPressBlogImportService $wordPressBlogImportService
-    ) {
-    }
+    ) {}
 
     /**
      * @param  array{
@@ -131,9 +129,9 @@ class EuFundsCallImportService
         $defaults = EuFundsServicePageDefaults::defaultsForLocale($locale);
         $definitions = collect(EuFundsCallCategoryRegistry::definitions($locale))->keyBy('title');
         $manualSourceMap = [
-            'POZIV U NAJAVI: Jačanje strateških partnerstava za inovacije u procesu industrijske tranzicije (SPIN - STEP)' => [
+            'Jačanje strateških partnerstava za inovacije u procesu industrijske tranzicije (SPIN – STEP)' => [
                 'xml_slug_hint' => 'poziv-u-najavi-jacanje-strateskih-partnerstva-za-inovacije-u-procesu-industrijske-tranzicije-faza-ii-spin',
-                'preferred_title' => 'POZIV U NAJAVI: Jačanje strateških partnerstava za inovacije u procesu industrijske tranzicije (SPIN - STEP)',
+                'preferred_title' => 'Jačanje strateških partnerstava za inovacije u procesu industrijske tranzicije (SPIN – STEP)',
             ],
         ];
         $items = [];
@@ -152,6 +150,7 @@ class EuFundsCallImportService
                 }
 
                 $manualSource = $manualSourceMap[$title] ?? [];
+                $preferredTitle = trim((string) ($item['preferred_title'] ?? ''));
 
                 $items[] = [
                     'group_key' => (string) $definition['key'],
@@ -164,7 +163,9 @@ class EuFundsCallImportService
                         ? trim((string) data_get($item, 'link.slug'))
                         : '',
                     'xml_slug_hint' => trim((string) ($manualSource['xml_slug_hint'] ?? '')),
-                    'preferred_title' => trim((string) ($manualSource['preferred_title'] ?? '')),
+                    'preferred_title' => $preferredTitle !== ''
+                        ? $preferredTitle
+                        : trim((string) ($manualSource['preferred_title'] ?? '')),
                 ];
             }
         }
@@ -230,7 +231,10 @@ class EuFundsCallImportService
                     'description' => null,
                     'meta_title' => $name,
                     'meta_description' => null,
-                    'payload' => ['import_source' => 'eu_funds_calls'],
+                    'payload' => [
+                        'import_source' => 'eu_funds_calls',
+                        'status_label' => (string) ($definition['status_label'] ?? $name),
+                    ],
                 ]
             );
 
@@ -329,8 +333,10 @@ class EuFundsCallImportService
         bool $force,
         ?int $userId
     ): array {
-        $blogSource = $this->resolveBlogSource($blueprintItem, $blogSources);
-        $xmlSource = $blogSource === null ? $this->resolveXmlSource($blueprintItem, $xmlPosts) : null;
+        // A newly uploaded WXR file is authoritative for this re-import. The
+        // existing blog copy remains a fallback only when the XML has no match.
+        $xmlSource = $this->resolveXmlSource($blueprintItem, $xmlPosts);
+        $blogSource = $xmlSource === null ? $this->resolveBlogSource($blueprintItem, $blogSources) : null;
 
         $existing = $this->resolveExistingPost($blueprintItem, $locale);
 
@@ -401,9 +407,10 @@ class EuFundsCallImportService
             $resolvedTitle = $preferredTitle !== ''
                 ? $preferredTitle
                 : (trim((string) ($xmlSource['title'] ?? $blueprintItem['title'])) ?: $blueprintItem['title']);
-            $slugBase = $preferredTitle !== ''
-                ? Str::slug($resolvedTitle)
-                : trim((string) ($xmlSource['source_slug'] ?? Str::slug($resolvedTitle)));
+            $existingSlug = trim((string) ($existing?->translations->firstWhere('locale', $locale)?->slug ?? ''));
+            $slugBase = $existingSlug !== ''
+                ? $existingSlug
+                : (trim((string) ($xmlSource['source_slug'] ?? '')) ?: Str::slug($resolvedTitle));
 
             $post->translations()->updateOrCreate(
                 ['locale' => $locale],
@@ -563,6 +570,17 @@ class EuFundsCallImportService
      */
     private function resolveXmlSource(array $blueprintItem, Collection $xmlPosts): ?array
     {
+        $blogSlug = trim((string) ($blueprintItem['blog_slug'] ?? ''));
+        if ($blogSlug !== '') {
+            $match = $xmlPosts->first(
+                static fn (array $row): bool => trim((string) ($row['source_slug'] ?? '')) === $blogSlug
+            );
+
+            if (is_array($match)) {
+                return $match;
+            }
+        }
+
         $xmlSlugHint = trim((string) ($blueprintItem['xml_slug_hint'] ?? ''));
         if ($xmlSlugHint !== '') {
             $match = $xmlPosts->first(function (array $row) use ($xmlSlugHint): bool {
@@ -584,6 +602,7 @@ class EuFundsCallImportService
 
     /**
      * @template T of array
+     *
      * @param  Collection<int, T>  $candidates
      * @param  callable(T):string  $titleResolver
      * @param  callable(T):string  $normalizedResolver
@@ -812,8 +831,10 @@ class EuFundsCallImportService
             }
         }
 
+        $rewrittenBodyHtml = $this->rewriteBodyAssetUrls($bodyHtml, $assetMap);
+
         return [
-            'body_html' => $this->rewriteBodyAssetUrls($bodyHtml, $assetMap),
+            'body_html' => $this->wordPressBlogImportService->sanitizeImportedBodyHtml($rewrittenBodyHtml),
             'localized_count' => max(0, count($assetMap) - count($initialMap)),
         ];
     }

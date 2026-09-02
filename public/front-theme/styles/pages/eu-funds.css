@@ -64,8 +64,53 @@
 
 .front-route-eu-funds .ac-eu-call-group-grid,
 .front-route-eu-funds .ac-eu-program-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: clamp(1.25rem, 2vw, 2rem);
     margin-top: 0;
+}
+
+.front-route-eu-funds .ac-eu-calls-download-link {
+    margin-top: 1.25rem;
+}
+
+.front-route-eu-funds .ac-eu-other-calls {
+    margin-top: clamp(2rem, 3vw, 3rem);
+    padding: clamp(1.5rem, 2.2vw, 2rem);
+    border-top: 1px solid rgba(173, 132, 55, 0.28);
+}
+
+.front-route-eu-funds .ac-eu-other-calls h3 {
+    margin: 0;
+    color: #101820;
+    font-size: clamp(1.35rem, 1.7vw, 1.8rem);
+    font-weight: 600;
+}
+
+.front-route-eu-funds .ac-eu-other-calls > p {
+    margin: 0.75rem 0 0;
+    color: #5a5650;
+    line-height: 1.65;
+}
+
+.front-route-eu-funds .ac-eu-other-call-list {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.8rem 1.5rem;
+    margin: 1.25rem 0 0;
+    padding: 0;
+    list-style: none;
+}
+
+.front-route-eu-funds .ac-eu-other-call-list a,
+.front-route-eu-funds .ac-eu-other-call-list span {
+    color: var(--advisory-navy);
+    font-weight: 600;
+    line-height: 1.45;
+}
+
+.front-route-eu-funds .ac-eu-other-call-list a {
+    text-decoration: none;
 }
 
 .front-route-eu-funds .ac-eu-call-group-card,
@@ -202,6 +247,7 @@
 
 .front-route-eu-funds .ac-eu-editorial-link:focus-visible,
 .front-route-eu-funds .ac-eu-call-list a:focus-visible,
+.front-route-eu-funds .ac-eu-other-call-list a:focus-visible,
 .front-route-eu-funds .ac-eu-call-details summary:focus-visible {
     outline: 2px solid var(--advisory-gold-deep);
     outline-offset: 4px;
@@ -219,6 +265,10 @@
     .front-route-eu-funds .ac-eu-call-group-grid,
     .front-route-eu-funds .ac-eu-program-grid {
         grid-template-columns: minmax(0, 1fr);
+    }
+
+    .front-route-eu-funds .ac-eu-other-call-list {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 }
 
@@ -253,6 +303,10 @@
 
     .front-route-eu-funds .ac-eu-status-badge {
         font-size: 0.66rem;
+    }
+
+    .front-route-eu-funds .ac-eu-other-call-list {
+        grid-template-columns: minmax(0, 1fr);
     }
 }
 

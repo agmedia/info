@@ -1154,6 +1154,9 @@ class ContentServicesFeatureTest extends TestCase
         $this->assertStringContainsString('wire:model.live.debounce.300ms="form.translation_payload.resources.cards.0.body_html"', $component->html());
         $this->assertStringContainsString('wire:model="form.translation_payload.laws.cards.0.lists.0.items_text"', $component->html());
         $this->assertStringContainsString('wire:model="form.translation_payload.calls.download_link.locale"', $component->html());
+        $this->assertStringContainsString('wire:model="form.translation_payload.calls.other_calls.title"', $component->html());
+        $this->assertStringContainsString("addTranslationListItem('calls.other_calls.items', 'eu_funds_link_item')", $component->html());
+        $this->assertStringContainsString("addTranslationListItem('resources.cards', 'eu_funds_resource_card')", $component->html());
         $this->assertStringContainsString('wire:model="form.translation_payload.laws.cards.0.secondary_link.locale"', $component->html());
         $this->assertStringNotContainsString('wire:model="form.translation_payload.overview.body.0"', $component->html());
         $this->assertStringNotContainsString('wire:model="form.translation_payload.approach.body.0"', $component->html());
@@ -1163,6 +1166,34 @@ class ContentServicesFeatureTest extends TestCase
         $component->call('setTab', 'sources');
 
         $this->assertStringContainsString('Auto (trenutna kategorija EU fondova)', $component->html());
+    }
+
+    public function test_admin_can_add_and_save_an_other_call_and_resource_card(): void
+    {
+        $user = $this->makeAdminUser();
+        $page = ServicePage::query()
+            ->where('template_key', ServicePageTemplateRegistry::EU_FUNDS)
+            ->firstOrFail();
+        $payload = (array) $page->translations()->where('locale', 'hr')->firstOrFail()->payload;
+        $otherCallIndex = count((array) data_get($payload, 'calls.other_calls.items', []));
+        $resourceCardIndex = count((array) data_get($payload, 'resources.cards', []));
+
+        Livewire::actingAs($user)
+            ->test(ServiceForm::class, ['servicePageId' => $page->id])
+            ->call('addTranslationListItem', 'calls.other_calls.items', 'eu_funds_link_item')
+            ->set('form.translation_payload.calls.other_calls.title', 'Ostali pozivi')
+            ->set("form.translation_payload.calls.other_calls.items.$otherCallIndex.title", 'Dodatni poziv')
+            ->set("form.translation_payload.calls.other_calls.items.$otherCallIndex.link.type", 'external')
+            ->set("form.translation_payload.calls.other_calls.items.$otherCallIndex.link.url", '/dodatni-poziv')
+            ->call('addTranslationListItem', 'resources.cards', 'eu_funds_resource_card')
+            ->set("form.translation_payload.resources.cards.$resourceCardIndex.title", 'Dodatni program')
+            ->call('save')
+            ->assertHasNoErrors();
+
+        $payload = (array) $page->translations()->where('locale', 'hr')->firstOrFail()->payload;
+        $this->assertSame('Dodatni poziv', data_get($payload, "calls.other_calls.items.$otherCallIndex.title"));
+        $this->assertSame('/dodatni-poziv', data_get($payload, "calls.other_calls.items.$otherCallIndex.link.url"));
+        $this->assertSame('Dodatni program', data_get($payload, "resources.cards.$resourceCardIndex.title"));
     }
 
     public function test_admin_can_save_consolidated_eu_funds_content(): void
