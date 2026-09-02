@@ -40,6 +40,27 @@ return [
             'view' => ['content.blog.view'],
         ],
 
+        'admin.content.job-openings.create' => [
+            'view' => ['content.job_openings.create'],
+            'mutate' => ['content.job_openings.create'],
+        ],
+        'admin.content.job-openings.edit' => [
+            'view' => ['content.job_openings.update'],
+            'mutate' => ['content.job_openings.update'],
+            'delete' => ['content.job_openings.delete'],
+        ],
+        'admin.content.job-openings.preview' => [
+            'view' => ['content.job_openings.view'],
+        ],
+        'admin.content.job-openings.index' => [
+            'view' => ['content.job_openings.view'],
+            'mutate' => ['content.job_openings.create', 'content.job_openings.update'],
+            'delete' => ['content.job_openings.delete'],
+        ],
+        'admin.content.job-openings.*' => [
+            'view' => ['content.job_openings.view'],
+        ],
+
         'admin.content.calls.create' => [
             'view' => ['content.calls.create'],
             'mutate' => ['content.calls.create'],

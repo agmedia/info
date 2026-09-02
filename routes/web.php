@@ -11,6 +11,7 @@ use App\Http\Controllers\Front\AuditController;
 use App\Http\Controllers\Front\BlogController;
 use App\Http\Controllers\Front\CallPostController;
 use App\Http\Controllers\Front\CareerApplicationController;
+use App\Http\Controllers\Front\CareerJobOpeningController;
 use App\Http\Controllers\Front\CollaborationAssessmentController;
 use App\Http\Controllers\Front\ContactController;
 use App\Http\Controllers\Front\EuFundsController;
@@ -33,6 +34,7 @@ use App\Http\Middleware\InferFrontendLocaleFromInfoPageSlug;
 use App\Models\Catalog\Category\Category;
 use App\Models\Content\Blog\BlogPost;
 use App\Models\Content\Call\CallPost;
+use App\Models\Content\Career\JobOpening;
 use App\Models\Content\ContentBlock;
 use App\Models\Content\ContentBlockSlot;
 use App\Models\Content\Glossary\GlossaryTerm;
@@ -303,6 +305,12 @@ Route::middleware(['front.locale', 'front.device'])
         Route::get('ac-forma-robot', [CollaborationAssessmentController::class, 'create'])->name('assessment.create');
         Route::post('ac-forma-robot', [CollaborationAssessmentController::class, 'store'])->name('assessment.store');
         Route::get('leasing-kalkulator', [LeaseCalculatorController::class, 'show'])->name('lease-calculator.show');
+        Route::get('karijera/{slug}', [CareerJobOpeningController::class, 'show'])
+            ->middleware(EnsureFrontendRouteLocale::class.':hr')
+            ->name('career.openings.show');
+        Route::get('careers/{slug}', [CareerJobOpeningController::class, 'show'])
+            ->middleware(EnsureFrontendRouteLocale::class.':en')
+            ->name('career.openings.show.en');
         Route::post('karijera/prijava', [CareerApplicationController::class, 'store'])
             ->middleware(EnsureFrontendRouteLocale::class.':hr')
             ->name('career.applications.store');
@@ -353,6 +361,15 @@ Route::middleware(['admin.locale', 'auth', 'verified', 'admin.access', 'admin.ma
             Route::get('blog/{post}/edit', function (BlogPost $post) {
                 return view('admin.content.blog.edit', compact('post'));
             })->name('blog.edit');
+
+            Route::view('job-openings', 'admin.content.job-openings.index')->name('job-openings.index');
+            Route::view('job-openings/create', 'admin.content.job-openings.create')->name('job-openings.create');
+            Route::get('job-openings/{jobOpening}/preview', [CareerJobOpeningController::class, 'preview'])
+                ->middleware(['front.locale', 'front.device'])
+                ->name('job-openings.preview');
+            Route::get('job-openings/{jobOpening}/edit', function (JobOpening $jobOpening) {
+                return view('admin.content.job-openings.edit', compact('jobOpening'));
+            })->name('job-openings.edit');
 
             Route::view('calls', 'admin.content.calls.index')->name('calls.index');
             Route::view('calls/create', 'admin.content.calls.create')->name('calls.create');

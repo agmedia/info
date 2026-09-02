@@ -11,6 +11,7 @@
     $isAuditRoute = request()->routeIs('audit.show', 'audit.show.en');
     $isEuFundsRoute = request()->routeIs('eu-funds.show', 'eu-funds.show.en');
     $isCallRoute = request()->routeIs('eu-funds.calls.show', 'eu-funds.calls.show.en');
+    $isJobOpeningRoute = request()->routeIs('career.openings.show', 'career.openings.show.en');
     $isServiceContentRoute = $isServicesIndexRoute
         || $isAccountingRoute
         || $isAuditRoute
@@ -238,6 +239,25 @@
             if ($postImage !== '') {
                 $ogImage = $postImage;
             }
+        }
+    }
+
+    if ($isJobOpeningRoute && isset($jobOpening)) {
+        $ogType = 'article';
+        $translation = $jobOpeningTranslation
+            ?? $jobOpening->translations->firstWhere('locale', $locale)
+            ?? ($requiresExactTranslation ? null : $jobOpening->translations->firstWhere('locale', $fallbackLocale));
+        $title = $cleanupText($translation?->meta_title ?: $translation?->title ?: $title, 191);
+        $localizedDescription = $cleanupText(
+            $translation?->meta_description ?: $translation?->excerpt ?: $translation?->body_html,
+            320,
+        );
+        $description = $localizedDescription !== '' || $requiresExactTranslation
+            ? $localizedDescription
+            : $description;
+
+        if (trim((string) ($ogSettings['page_image_url'] ?? '')) !== '') {
+            $ogImage = (string) $ogSettings['page_image_url'];
         }
     }
 

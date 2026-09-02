@@ -4,6 +4,7 @@ namespace Tests\Feature\Front;
 
 use App\Models\Content\Blog\BlogPost;
 use App\Models\Content\Call\CallPost;
+use App\Models\Content\Career\JobOpening;
 use App\Models\Content\ContentBlock;
 use App\Models\Content\Glossary\GlossaryTerm;
 use App\Models\Content\Page\InfoPage;
@@ -82,6 +83,13 @@ class SitemapFeatureTest extends TestCase
             ['locale' => 'en', 'title' => 'English page', 'slug' => 'english-page'],
         ]);
 
+        $careerPage = InfoPage::query()->where('code', 'career')->firstOrFail();
+        $careerPage->update(['is_active' => true, 'published_at' => now()->subDay()]);
+        $careerPage->translations()->updateOrCreate(
+            ['locale' => 'en'],
+            ['title' => 'Careers', 'slug' => 'careers'],
+        );
+
         $searchCollisionPage = InfoPage::query()->create([
             'code' => 'search-collision-page',
             'layout' => 'default',
@@ -102,6 +110,41 @@ class SitemapFeatureTest extends TestCase
         $callPost->translations()->createMany([
             ['locale' => 'hr', 'title' => 'Hrvatski poziv', 'slug' => 'hrvatski-poziv'],
             ['locale' => 'en', 'title' => 'English call', 'slug' => 'english-call'],
+        ]);
+
+        $jobOpening = JobOpening::query()->create([
+            'code' => 'sitemap-job-opening',
+            'is_active' => true,
+            'published_at' => now()->subDay(),
+        ]);
+        $jobOpening->translations()->createMany([
+            [
+                'locale' => 'hr',
+                'title' => 'Sitemap otvorena pozicija',
+                'slug' => 'sitemap-otvorena-pozicija',
+                'locations' => 'Zagreb',
+                'body_html' => '<p>Opis pozicije.</p>',
+            ],
+            [
+                'locale' => 'en',
+                'title' => 'Sitemap job opening',
+                'slug' => 'sitemap-job-opening',
+                'locations' => 'Zagreb',
+                'body_html' => '<p>Job description.</p>',
+            ],
+        ]);
+
+        $inactiveJobOpening = JobOpening::query()->create([
+            'code' => 'inactive-sitemap-job-opening',
+            'is_active' => false,
+            'published_at' => now()->subDay(),
+        ]);
+        $inactiveJobOpening->translations()->create([
+            'locale' => 'hr',
+            'title' => 'Neaktivna sitemap pozicija',
+            'slug' => 'neaktivna-sitemap-pozicija',
+            'locations' => 'Rijeka',
+            'body_html' => '<p>Neaktivan oglas.</p>',
         ]);
 
         $resource = ResourceDocument::query()->create([
@@ -191,6 +234,9 @@ class SitemapFeatureTest extends TestCase
         $this->assertStringNotContainsString('<loc>'.route('search.index.en').'</loc>', $xml);
         $this->assertStringContainsString('<loc>'.route('eu-funds.calls.show', ['slug' => 'hrvatski-poziv']).'</loc>', $xml);
         $this->assertStringContainsString('<loc>'.route('eu-funds.calls.show.en', ['slug' => 'english-call']).'</loc>', $xml);
+        $this->assertStringContainsString('<loc>'.route('career.openings.show', ['slug' => 'sitemap-otvorena-pozicija']).'</loc>', $xml);
+        $this->assertStringContainsString('<loc>'.route('career.openings.show.en', ['slug' => 'sitemap-job-opening']).'</loc>', $xml);
+        $this->assertStringNotContainsString('neaktivna-sitemap-pozicija', $xml);
         $this->assertStringContainsString('<loc>'.route('resources.show', ['slug' => 'objavljeni-resurs']).'</loc>', $xml);
         $this->assertStringContainsString('<loc>'.route('glossary.index').'</loc>', $xml);
         $this->assertStringContainsString('<loc>'.route('glossary.show', ['slug' => 'objavljeni-pojam']).'</loc>', $xml);

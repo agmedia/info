@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Controllers\Front\Concerns\ResolvesFrontendView;
 use App\Models\Catalog\Category\Category;
 use App\Models\Content\Blog\BlogPost;
+use App\Models\Content\Career\JobOpening;
 use App\Models\Content\Glossary\GlossaryTerm;
 use App\Models\Content\Page\InfoPage;
 use App\Models\Content\Resource\ResourceDocument;
@@ -224,11 +225,13 @@ class PageController extends Controller
 
         if ($page->layout === 'career') {
             $careerContent = $this->resolveCareerContent($selectedTranslation?->payload);
+            $careerJobOpenings = $this->resolveCareerJobOpenings((string) $locale);
 
             return view($this->frontendView($request, 'pages.career'), [
                 'page' => $page,
                 'selectedTranslation' => $selectedTranslation,
                 'careerContent' => $careerContent,
+                'careerJobOpenings' => $careerJobOpenings,
                 'topBlocks' => $topBlocks,
                 'bottomBlocks' => $bottomBlocks,
                 'locale' => $locale,
@@ -366,6 +369,21 @@ class PageController extends Controller
         $content = $payload['career_page'] ?? null;
 
         return is_array($content) ? $content : [];
+    }
+
+    /**
+     * @return Collection<int, JobOpening>
+     */
+    private function resolveCareerJobOpenings(string $locale): Collection
+    {
+        return JobOpening::query()
+            ->published()
+            ->whereHas('translations', fn (Builder $query) => $query->where('locale', $locale))
+            ->with(['translations' => fn ($query) => $query->where('locale', $locale)])
+            ->orderBy('sort_order')
+            ->orderByDesc('published_at')
+            ->orderByDesc('id')
+            ->get();
     }
 
     /**

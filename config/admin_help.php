@@ -42,6 +42,22 @@ return [
             'summary' => 'Create and edit blog posts, metadata, and taxonomy links.',
         ],
 
+        'admin.content.job-openings.*' => [
+            'title' => 'Open Positions',
+            'summary' => 'Create and schedule localized job ads shown on the Careers page.',
+            'sections' => [
+                [
+                    'title' => 'Publishing',
+                    'subtitle' => 'Keep shared links stable.',
+                    'explanation' => [
+                        'Choose the language before editing; each language stores its own title, slug, locations, body, and SEO fields.',
+                        'Leave the publication time empty to publish an active position immediately, or choose a future time to schedule it.',
+                        'Avoid changing a slug after sharing the public job link in a campaign.',
+                    ],
+                ],
+            ],
+        ],
+
         'admin.content.calls.*' => [
             'title' => 'Calls',
             'summary' => 'Create and edit EU fund call posts, grouped by current call status.',

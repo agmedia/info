@@ -3,6 +3,16 @@
 return [
     'sent_status' => 'Hvala. Vaša prijava je uspješno poslana.',
     'captcha_failed' => 'Potvrda sigurnosti nije uspjela. Pokušajte ponovno.',
+    'openings' => [
+        'title' => 'Otvorene pozicije',
+        'list_label' => 'Popis otvorenih pozicija',
+        'eyebrow' => 'Otvorena pozicija',
+        'locations' => 'Lokacije',
+        'published' => 'Objavljeno',
+        'career' => 'Karijera',
+        'back' => 'Povratak na otvorene pozicije',
+        'preview_notice' => 'Ovo je spremljena verzija. Oglas možda još nije aktivan ili javno objavljen.',
+    ],
     'validation' => [
         'required' => 'Polje :attribute je obavezno.',
         'email' => 'Polje :attribute mora biti ispravna email adresa.',

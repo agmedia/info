@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Front;
 use App\Http\Controllers\Controller;
 use App\Models\Content\Blog\BlogPostTranslation;
 use App\Models\Content\Call\CallPostTranslation;
+use App\Models\Content\Career\JobOpeningTranslation;
 use App\Models\Content\Glossary\GlossaryTermTranslation;
 use App\Models\Content\Page\InfoPage;
 use App\Models\Content\Page\InfoPageTranslation;
@@ -177,6 +178,37 @@ class SitemapController extends Controller
                     $urls,
                     route($routeName, ['slug' => $translation->slug]),
                     $this->lastModified($translation, $translation->post),
+                );
+            });
+
+        $careerLocales = InfoPageTranslation::query()
+            ->whereIn('locale', array_values(array_intersect($activeLocales, ['hr', 'en'])))
+            ->whereHas('page', function (Builder $query): void {
+                $this->publishedParent($query);
+                $query->where('code', 'career');
+            })
+            ->pluck('locale')
+            ->unique()
+            ->values()
+            ->all();
+
+        JobOpeningTranslation::query()
+            ->whereIn('locale', $careerLocales)
+            ->whereNotNull('slug')
+            ->where('slug', '!=', '')
+            ->whereHas('opening', fn (Builder $query) => $this->publishedParent($query))
+            ->with('opening:id,published_at,updated_at')
+            ->orderBy('id')
+            ->get()
+            ->each(function (JobOpeningTranslation $translation) use ($urls): void {
+                $routeName = $translation->locale === 'en'
+                    ? 'career.openings.show.en'
+                    : 'career.openings.show';
+
+                $this->putUrl(
+                    $urls,
+                    route($routeName, ['slug' => $translation->slug]),
+                    $this->lastModified($translation, $translation->opening),
                 );
             });
 

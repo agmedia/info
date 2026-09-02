@@ -18,6 +18,7 @@
     $fallbackLocale = (string) ($fallbackLocale ?? config('app.locale'));
     $requiresExactTranslation = \App\Support\Localization\FrontendLocalePolicy::requiresExactTranslation($locale);
     $isCallRoute = request()->routeIs('eu-funds.calls.show', 'eu-funds.calls.show.en');
+    $isJobOpeningRoute = request()->routeIs('career.openings.show', 'career.openings.show.en');
     $isEuFundsRoute = request()->routeIs('eu-funds.show', 'eu-funds.show.en');
     $isServiceContentRoute = request()->routeIs(
         'services.index',
@@ -203,6 +204,31 @@
                 '@type' => 'ListItem',
                 'position' => $position++,
                 'name' => (string) ($translation?->title ?? $callPost->code),
+                'item' => $currentUrl,
+            ];
+        }
+
+        if ($isJobOpeningRoute && isset($jobOpening)) {
+            $careerPageName = trim((string) __('career.openings.career'));
+            $careerPageSchemaUrl = trim((string) ($careerPageUrl ?? ''))
+                ?: app(\App\Services\Front\NavigationMenuService::class)->infoPageUrlForLocale('career', $locale)
+                ?: route('home');
+
+            $breadcrumbItems[] = [
+                '@type' => 'ListItem',
+                'position' => $position++,
+                'name' => $careerPageName,
+                'item' => $careerPageSchemaUrl,
+            ];
+
+            $translation = $jobOpeningTranslation
+                ?? $jobOpening->translations->firstWhere('locale', $locale)
+                ?? ($requiresExactTranslation ? null : $jobOpening->translations->firstWhere('locale', $fallbackLocale));
+
+            $breadcrumbItems[] = [
+                '@type' => 'ListItem',
+                'position' => $position++,
+                'name' => (string) ($translation?->title ?? $jobOpening->code),
                 'item' => $currentUrl,
             ];
         }
@@ -439,6 +465,53 @@
         }
 
         $schemas[] = $callSchema;
+    }
+
+    if ($schemaEnabled && $isJobOpeningRoute && isset($jobOpening)) {
+        $translation = $jobOpeningTranslation
+            ?? $jobOpening->translations->firstWhere('locale', $locale)
+            ?? ($requiresExactTranslation ? null : $jobOpening->translations->firstWhere('locale', $fallbackLocale));
+        $jobDescription = trim((string) ($translation?->body_html ?? ''));
+        if ($jobDescription === '') {
+            $jobDescription = $text($translation?->excerpt ?: $translation?->meta_description, 5000);
+        }
+        $datePosted = $jobOpening->published_at
+            ? $jobOpening->published_at->copy()->setTimezone(config('admin_ui.timezone', 'Europe/Zagreb'))->toDateString()
+            : null;
+        $jobLocations = collect(preg_split('/\s*\|\s*/u', (string) ($translation?->locations ?? '')) ?: [])
+            ->map(static fn (string $location): string => trim($location))
+            ->filter()
+            ->unique()
+            ->map(static fn (string $location): array => [
+                '@type' => 'Place',
+                'address' => [
+                    '@type' => 'PostalAddress',
+                    'addressLocality' => $location,
+                    'addressCountry' => 'HR',
+                ],
+            ])
+            ->values()
+            ->all();
+
+        $jobSchema = [
+            '@context' => 'https://schema.org',
+            '@type' => 'JobPosting',
+            'title' => $text($translation?->title ?: $jobOpening->code, 191),
+            'description' => $jobDescription,
+            'datePosted' => $datePosted,
+            'identifier' => [
+                '@type' => 'PropertyValue',
+                'name' => $businessName,
+                'value' => (string) $jobOpening->code,
+            ],
+            'hiringOrganization' => $organizationReference,
+            'jobLocation' => $jobLocations,
+            'mainEntityOfPage' => $currentUrl,
+            'url' => $currentUrl,
+        ];
+
+        $jobSchema = array_filter($jobSchema, static fn (mixed $value): bool => $value !== null && $value !== '' && $value !== []);
+        $schemas[] = $jobSchema;
     }
 
     if (request()->routeIs('blog.index') && (bool) ($schemaSettings['blog_enabled'] ?? true)) {

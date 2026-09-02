@@ -16,6 +16,7 @@
     $careerApplication = is_array($careerContent['application'] ?? null) ? $careerContent['application'] : [];
     $careerFormContent = is_array($careerContent['form'] ?? null) ? $careerContent['form'] : [];
     $careerStoriesSection = is_array($careerContent['stories_section'] ?? null) ? $careerContent['stories_section'] : [];
+    $careerJobOpenings = collect($careerJobOpenings ?? []);
     $careerRequiresExactTranslation = \App\Support\Localization\FrontendLocalePolicy::requiresExactTranslation((string) $locale);
     $careerValuesSource = array_key_exists('values_text', $careerContent)
         ? (preg_split('/\R/u', (string) $careerContent['values_text']) ?: [])
@@ -91,6 +92,9 @@
             trim((string) ($careerProcess['title_line_two'] ?? '')),
         ])));
     $careerApplicationTitle = trim((string) ($careerApplication['title'] ?? ''));
+    if ($careerApplicationTitle === '' && $careerJobOpenings->isNotEmpty()) {
+        $careerApplicationTitle = (string) __('career.openings.title');
+    }
     $careerApplicationHighlight = trim((string) ($careerApplication['highlight'] ?? ''));
     $careerApplicationKicker = trim((string) ($careerApplication['kicker'] ?? ''));
     $careerStoriesTitle = trim((string) ($careerStoriesSection['title'] ?? ''));
@@ -150,7 +154,9 @@
     };
     $showCareerIntro = $sectionHasContent($careerIntro);
     $showCareerDevelopment = $sectionHasContent($careerProcess);
-    $showCareerOpenings = $sectionHasContent($careerApplication) || $sectionHasContent($careerFormContent);
+    $showCareerOpenings = $careerJobOpenings->isNotEmpty()
+        || $sectionHasContent($careerApplication)
+        || $sectionHasContent($careerFormContent);
 @endphp
 
 @section('title', $careerPageTitle)
@@ -216,7 +222,7 @@
 
                     @if ($careerHeroButtonLabel !== '')
                         <div class="ac-career-hero-actions content-reveal animation-index-3" data-image-reveal>
-                            <a href="#career-open-positions" class="button button-gold">
+                            <a href="#career-open-positions" class="button button-gold ac-career-primary-cta">
                                 <span>{{ $careerHeroButtonLabel }}</span>
                             </a>
                         </div>
@@ -377,6 +383,46 @@
 
                     @if ($careerApplicationHighlight !== '')
                         <p class="ac-career-openings-lead">{{ $careerApplicationHighlight }}</p>
+                    @endif
+
+                    @if ($careerJobOpenings->isNotEmpty())
+                        <ul class="ac-career-job-list" aria-label="{{ __('career.openings.list_label') }}">
+                            @foreach ($careerJobOpenings as $jobOpening)
+                                @php
+                                    $jobOpeningTranslation = $jobOpening->translations->firstWhere('locale', $locale)
+                                        ?? $jobOpening->translations->firstWhere('locale', $fallbackLocale);
+                                    $jobOpeningPublishedAt = $jobOpening->published_at
+                                        ?->copy()
+                                        ->setTimezone(config('admin_ui.timezone', 'Europe/Zagreb'));
+                                @endphp
+                                @continue(! $jobOpeningTranslation)
+
+                                <li class="ac-career-job-item content-reveal animation-index-{{ min($loop->index + 1, 3) }}" data-image-reveal>
+                                    <a
+                                        href="{{ \App\Support\Localization\FrontendRoute::url('career.openings.show', ['slug' => $jobOpeningTranslation->slug]) }}"
+                                        class="ac-career-job-link"
+                                    >
+                                        <h3>{{ $jobOpeningTranslation->title }}</h3>
+                                        <div class="ac-career-job-meta">
+                                            <span>
+                                                <i class="fa-duotone fa-thin fa-location-dot" aria-hidden="true"></i>
+                                                <span class="sr-only">{{ __('career.openings.locations') }}:</span>
+                                                {{ $jobOpeningTranslation->locations }}
+                                            </span>
+                                            @if ($jobOpeningPublishedAt)
+                                                <time datetime="{{ $jobOpeningPublishedAt->toDateString() }}">
+                                                    <i class="fa-duotone fa-thin fa-calendar-days" aria-hidden="true"></i>
+                                                    {{ __('career.openings.published') }} {{ \App\Support\Localization\FrontendDate::long($jobOpeningPublishedAt, (string) $locale, config('admin_ui.timezone', 'Europe/Zagreb')) }}
+                                                </time>
+                                            @endif
+                                        </div>
+                                        <span class="ac-career-job-arrow" aria-hidden="true">
+                                            <i class="fa-duotone fa-thin fa-arrow-right"></i>
+                                        </span>
+                                    </a>
+                                </li>
+                            @endforeach
+                        </ul>
                     @endif
 
                     <div class="ac-career-copy-stack">

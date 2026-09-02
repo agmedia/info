@@ -6,6 +6,7 @@ use App\Models\Catalog\Category\Category;
 use App\Models\Catalog\Category\CategoryTranslation;
 use App\Models\Content\Blog\BlogPost;
 use App\Models\Content\Blog\BlogPostTranslation;
+use App\Models\Content\Career\JobOpening;
 use App\Models\Content\ContentBlock;
 use App\Models\Content\ContentBlockSlot;
 use App\Models\Content\Page\InfoPage;
@@ -2538,6 +2539,7 @@ class StorefrontFrontFeatureTest extends TestCase
         $careerPage->translation('hr')->firstOrFail()->update([
             'payload' => ['career_page' => []],
         ]);
+        JobOpening::query()->update(['is_active' => false]);
 
         $this->get('/karijera')
             ->assertOk()

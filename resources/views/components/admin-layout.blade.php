@@ -1056,6 +1056,7 @@
                     $catalogUseApi = app(\App\Services\Catalog\CatalogFeatureService::class)->useApi();
                     $contentCategoriesActive = request()->routeIs('admin.categories*');
                     $contentBlogActive = request()->routeIs('admin.content.blog.*');
+                    $contentJobOpeningsActive = request()->routeIs('admin.content.job-openings.*');
                     $contentCallsActive = request()->routeIs('admin.content.calls.*');
                     $contentTeamActive = request()->routeIs('admin.content.team.*');
                     $contentGlossaryActive = request()->routeIs('admin.content.glossary.*');
@@ -1067,7 +1068,7 @@
                     $contentBlocksActive = request()->routeIs('admin.content.blocks*');
                     $contentNavigationActive = request()->routeIs('admin.content.navigation*');
                     $contentSlotsActive = request()->routeIs('admin.content.slots*');
-                    $contentOpen = $contentCategoriesActive || $contentBlogActive || $contentCallsActive || $contentTeamActive || $contentGlossaryActive || $contentPagesActive || $contentResourcesActive || $contentServicesActive || $contentFaqsActive || $contentCommentsActive || $contentBlocksActive || $contentNavigationActive || $contentSlotsActive;
+                    $contentOpen = $contentCategoriesActive || $contentBlogActive || $contentJobOpeningsActive || $contentCallsActive || $contentTeamActive || $contentGlossaryActive || $contentPagesActive || $contentResourcesActive || $contentServicesActive || $contentFaqsActive || $contentCommentsActive || $contentBlocksActive || $contentNavigationActive || $contentSlotsActive;
                     $messagesContactActive = request()->routeIs('admin.messages.contact.*');
                     $messagesCollaborationAssessmentActive = request()->routeIs('admin.messages.collaboration-assessment.*');
                     $messagesCareerActive = request()->routeIs('admin.messages.career.*');
@@ -1343,6 +1344,15 @@
                                 <span class="flex items-center gap-2">
                                     <span class="sidebar-dot"></span>
                                     <span>{{ __('admin.layout.menu.blog') }}</span>
+                                </span>
+                            </a>
+                            <a
+                                href="{{ route('admin.content.job-openings.index') }}"
+                                class="sidebar-dropdown-link block rounded-lg font-medium {{ $contentJobOpeningsActive ? 'is-active-leaf' : 'text-slate-700 hover:bg-slate-100' }}"
+                            >
+                                <span class="flex items-center gap-2">
+                                    <span class="sidebar-dot"></span>
+                                    <span>{{ __('admin.layout.menu.job_openings') }}</span>
                                 </span>
                             </a>
                             <a

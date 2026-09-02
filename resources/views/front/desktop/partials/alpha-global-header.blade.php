@@ -3,6 +3,7 @@
     $alphaLocale = strtolower((string) app()->getLocale());
     $alphaNavigationService = app(\App\Services\Front\NavigationMenuService::class);
     $alphaServicesUrl = rtrim($alphaNavigationService->servicePageUrlForLocale('services', $alphaLocale), '/');
+    $alphaCareerUrl = rtrim($alphaNavigationService->infoPageUrlForLocale('career', $alphaLocale), '/');
     $alphaChrome = $alphaNavigationService->chromeForLocale($alphaLocale);
     $alphaServiceNavigation = collect($alphaNavigationService->serviceNavigationForLocale($alphaLocale))
         ->map(static function (array $item): array {
@@ -27,10 +28,13 @@
         ->filter(static fn ($item): bool => is_array($item)
             && trim((string) ($item['label'] ?? '')) !== ''
             && trim((string) ($item['url'] ?? '')) !== '')
-        ->map(static function (array $item) use ($alphaCurrentUrl, $alphaServicesUrl, $alphaServiceNavigation): array {
+        ->map(static function (array $item) use ($alphaCurrentUrl, $alphaServicesUrl, $alphaCareerUrl, $alphaServiceNavigation): array {
             $href = trim((string) $item['url']);
             $normalizedHref = rtrim(url($href), '/');
             $isServices = $normalizedHref === $alphaServicesUrl;
+            $isCareerOpening = request()->routeIs('career.openings.show', 'career.openings.show.en')
+                && $alphaCareerUrl !== ''
+                && $normalizedHref === $alphaCareerUrl;
 
             return array_merge($item, [
                 'url' => $href,
@@ -40,6 +44,7 @@
                     && $alphaServiceNavigation->isNotEmpty(),
                 'current' => $normalizedHref !== '' && $normalizedHref === $alphaCurrentUrl,
                 'active' => ($normalizedHref !== '' && $normalizedHref === $alphaCurrentUrl)
+                    || $isCareerOpening
                     || ($isServices && $alphaServiceNavigation->contains('active', true)),
             ]);
         })

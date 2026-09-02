@@ -4,6 +4,7 @@ namespace App\Services\Front;
 
 use App\Models\Content\Blog\BlogPost;
 use App\Models\Content\Call\CallPost;
+use App\Models\Content\Career\JobOpening;
 use App\Models\Content\ContentBlock;
 use App\Models\Content\Glossary\GlossaryTerm;
 use App\Models\Content\Page\InfoPage;
@@ -58,6 +59,11 @@ class NavigationMenuService
      * @var array<string, string>
      */
     private array $resolvedServicePageUrlCache = [];
+
+    /**
+     * @var array<string, string>
+     */
+    private array $resolvedInfoPageUrlCache = [];
 
     /**
      * @var array<string, array<string, string>>
@@ -419,6 +425,47 @@ class NavigationMenuService
     }
 
     /**
+     * Resolve a standard content page's public URL from its exact localized CMS slug.
+     */
+    public function infoPageUrlForLocale(string $code, string $locale): string
+    {
+        $code = trim($code);
+        $locale = strtolower(trim($locale));
+        $cacheKey = $code.'|'.$locale;
+
+        if (array_key_exists($cacheKey, $this->resolvedInfoPageUrlCache)) {
+            return $this->resolvedInfoPageUrlCache[$cacheKey];
+        }
+
+        if ($code === '' || $locale === '') {
+            return $this->resolvedInfoPageUrlCache[$cacheKey] = '';
+        }
+
+        $page = InfoPage::query()
+            ->where('code', $code)
+            ->where('is_active', true)
+            ->where(function ($query): void {
+                $query->whereNull('published_at')
+                    ->orWhere('published_at', '<=', now());
+            })
+            ->with([
+                'translations' => fn ($query) => $query->where('locale', $locale),
+            ])
+            ->first();
+
+        if (! $page instanceof InfoPage) {
+            return $this->resolvedInfoPageUrlCache[$cacheKey] = '';
+        }
+
+        $translation = $page->translations->firstWhere('locale', $locale);
+        $slug = trim((string) ($translation?->slug ?? ''), '/');
+
+        return $this->resolvedInfoPageUrlCache[$cacheKey] = $slug !== ''
+            ? route('pages.show', ['slug' => $slug])
+            : '';
+    }
+
+    /**
      * Return the localized equivalent of the current public URL when one is
      * available. Fixed service sub-pages use their guarded locale route alias;
      * CMS pages and primary services use their exact translated slug.
@@ -524,6 +571,7 @@ class NavigationMenuService
             'resources.show' => [ResourceDocument::class, 'resources.show', true],
             'glossary.show' => [GlossaryTerm::class, 'glossary.show', false],
             'eu-funds.calls.show' => [CallPost::class, 'eu-funds.calls.show', true],
+            'career.openings.show' => [JobOpening::class, 'career.openings.show', true],
         ];
 
         if (isset($translatedRecordRoutes[$baseRouteName])) {
@@ -537,12 +585,22 @@ class NavigationMenuService
             );
 
             if ($localizedSlug === '') {
+                if ($targetBaseRouteName === 'career.openings.show') {
+                    $careerUrl = $this->infoPageUrlForLocale('career', $targetLocale);
+
+                    return $careerUrl !== ''
+                        ? $this->appendCurrentQuery($careerUrl)
+                        : route('home');
+                }
+
                 return route('home');
             }
 
-            $targetRouteName = $targetBaseRouteName === 'eu-funds.calls.show' && $targetLocale !== $this->defaultLocale()
-                ? $targetBaseRouteName.'.'.$targetLocale
-                : $targetBaseRouteName;
+            $targetRouteName = $targetBaseRouteName === 'career.openings.show'
+                ? FrontendRoute::name($targetBaseRouteName, $targetLocale)
+                : ($targetBaseRouteName === 'eu-funds.calls.show' && $targetLocale !== $this->defaultLocale()
+                    ? $targetBaseRouteName.'.'.$targetLocale
+                    : $targetBaseRouteName);
 
             return Route::has($targetRouteName)
                 ? $this->appendCurrentQuery(route($targetRouteName, ['slug' => $localizedSlug]))
@@ -594,7 +652,7 @@ class NavigationMenuService
     }
 
     /**
-     * @param  class-string<BlogPost|CallPost|GlossaryTerm|ResourceDocument>  $modelClass
+     * @param  class-string<BlogPost|CallPost|GlossaryTerm|JobOpening|ResourceDocument>  $modelClass
      */
     private function localizedRecordSlug(
         string $modelClass,

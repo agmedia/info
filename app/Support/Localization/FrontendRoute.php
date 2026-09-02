@@ -6,6 +6,23 @@ use Illuminate\Support\Facades\Route;
 
 final class FrontendRoute
 {
+    /**
+     * Routes whose public path is permanently tied to a language, regardless
+     * of which language is currently configured as the frontend default.
+     *
+     * @var array<string, array<string, string>>
+     */
+    private const FIXED_LOCALE_ROUTE_NAMES = [
+        'career.openings.show' => [
+            'hr' => 'career.openings.show',
+            'en' => 'career.openings.show.en',
+        ],
+        'career.applications.store' => [
+            'hr' => 'career.applications.store',
+            'en' => 'career.applications.store.en',
+        ],
+    ];
+
     private const LOCALIZED_ROUTE_NAMES = [
         'advisory.investment-incentives.show',
         'advisory.bank-loans.show',
@@ -33,6 +50,12 @@ final class FrontendRoute
     public static function name(string $baseName, ?string $locale = null): string
     {
         $locale = strtolower(trim((string) ($locale ?: app()->getLocale())));
+
+        $fixedRouteName = self::FIXED_LOCALE_ROUTE_NAMES[$baseName][$locale] ?? null;
+        if (is_string($fixedRouteName) && Route::has($fixedRouteName)) {
+            return $fixedRouteName;
+        }
+
         $localizedName = $baseName.'.'.$locale;
 
         return FrontendLocalePolicy::requiresExactTranslation($locale) && Route::has($localizedName)

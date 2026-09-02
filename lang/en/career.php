@@ -3,6 +3,16 @@
 return [
     'sent_status' => 'Thanks. Your application has been sent successfully.',
     'captcha_failed' => 'Security verification failed. Please try again.',
+    'openings' => [
+        'title' => 'Open positions',
+        'list_label' => 'Open positions',
+        'eyebrow' => 'Open position',
+        'locations' => 'Locations',
+        'published' => 'Published',
+        'career' => 'Careers',
+        'back' => 'Back to open positions',
+        'preview_notice' => 'This is the saved version. The job opening may still be inactive or unpublished.',
+    ],
     'validation' => [
         'required' => 'The :attribute field is required.',
         'email' => 'The :attribute field must be a valid email address.',
