@@ -10,6 +10,7 @@ use App\Support\Content\EuFundsCallCategoryRegistry;
 use App\Support\Content\EuFundsServicePageDefaults;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -55,7 +56,8 @@ class EuFundsCallImportService
         $force = (bool) ($options['force'] ?? false);
         $userId = isset($options['user_id']) ? (int) $options['user_id'] : null;
 
-        $blueprintItems = collect($this->buildBlueprintItems($locale));
+        $allBlueprintItems = collect($this->buildBlueprintItems($locale));
+        $blueprintItems = $allBlueprintItems;
         if ($offset > 0) {
             $blueprintItems = $blueprintItems->slice($offset)->values();
         }
@@ -77,35 +79,98 @@ class EuFundsCallImportService
             ->values();
 
         $blogSources = $this->loadBlogSourceRows($locale);
-        $categories = $this->ensureCallCategories($locale, $userId);
+        $isFullCroatianImport = str_starts_with(strtolower($locale), 'hr')
+            && $offset === 0
+            && $limit === 0
+            && $blueprintItems->count() === $allBlueprintItems->count();
 
-        $result = [
-            'locale' => $locale,
-            'processed_count' => 0,
-            'localized_asset_count' => 0,
-            'categories' => array_values($categories['summary']),
-            'imported' => [],
-        ];
+        $result = DB::transaction(function () use (
+            $locale,
+            $userId,
+            $blueprintItems,
+            $xmlPosts,
+            $blogSources,
+            $force,
+            $isFullCroatianImport
+        ): array {
+            $categories = $this->ensureCallCategories($locale, $userId);
+            $reconciliation = $isFullCroatianImport
+                ? $this->buildFullReconciliationPlan($blueprintItems, $xmlPosts, $categories['models'], $locale)
+                : null;
 
-        foreach ($blueprintItems as $blueprintItem) {
-            $category = $categories['models'][$blueprintItem['group_key']] ?? null;
-            if (! $category instanceof Category) {
-                continue;
+            if (is_array($reconciliation)) {
+                $this->prepareReconciliationCodes($reconciliation, $blueprintItems);
             }
 
-            $row = $this->importBlueprintItem(
-                blueprintItem: $blueprintItem,
-                category: $category,
-                locale: $locale,
-                blogSources: $blogSources,
+            $result = [
+                'locale' => $locale,
+                'processed_count' => 0,
+                'localized_asset_count' => 0,
+                'categories' => array_values($categories['summary']),
+                'imported' => [],
+            ];
+
+            foreach ($blueprintItems as $blueprintItem) {
+                $category = $categories['models'][$blueprintItem['group_key']] ?? null;
+                if (! $category instanceof Category) {
+                    continue;
+                }
+
+                $plannedPostId = is_array($reconciliation)
+                    ? ($reconciliation['assignments'][$blueprintItem['code']] ?? null)
+                    : null;
+                $row = $this->importBlueprintItem(
+                    blueprintItem: $blueprintItem,
+                    category: $category,
+                    locale: $locale,
+                    blogSources: $blogSources,
+                    xmlPosts: $xmlPosts,
+                    force: $force,
+                    userId: $userId,
+                    plannedPostId: is_numeric($plannedPostId) ? (int) $plannedPostId : null,
+                    hasReconciliationPlan: is_array($reconciliation),
+                    syncAssets: ! $isFullCroatianImport
+                );
+
+                $result['processed_count']++;
+                $result['localized_asset_count'] += (int) ($row['asset_count'] ?? 0);
+                $result['imported'][] = $row;
+            }
+
+            if (is_array($reconciliation)) {
+                $this->completeFullReconciliation(
+                    reconciliation: $reconciliation,
+                    categories: $categories['models'],
+                    blueprintItems: $blueprintItems,
+                    importedRows: $result['imported'],
+                    locale: $locale
+                );
+                $result['reconciliation'] = [
+                    'detached_count' => count($reconciliation['extra_ids']),
+                    'status_counts' => $this->statusCategoryCounts($categories['models']),
+                ];
+            }
+
+            return $result;
+        }, 1);
+
+        if ($isFullCroatianImport) {
+            $assetSync = $this->syncReconciledAssets(
+                blueprintItems: $blueprintItems,
                 xmlPosts: $xmlPosts,
-                force: $force,
-                userId: $userId
+                blogSources: $blogSources,
+                locale: $locale,
+                force: $force
             );
 
-            $result['processed_count']++;
-            $result['localized_asset_count'] += (int) ($row['asset_count'] ?? 0);
-            $result['imported'][] = $row;
+            foreach ($result['imported'] as &$importedRow) {
+                $assetCount = (int) ($assetSync['counts'][$importedRow['code']] ?? 0);
+                $importedRow['asset_count'] = $assetCount;
+                $result['localized_asset_count'] += $assetCount;
+            }
+            unset($importedRow);
+
+            $result['reconciliation']['asset_sync_failed_count'] = count($assetSync['failed_codes']);
         }
 
         return $result;
@@ -331,14 +396,19 @@ class EuFundsCallImportService
         Collection $blogSources,
         Collection $xmlPosts,
         bool $force,
-        ?int $userId
+        ?int $userId,
+        ?int $plannedPostId = null,
+        bool $hasReconciliationPlan = false,
+        bool $syncAssets = true
     ): array {
         // A newly uploaded WXR file is authoritative for this re-import. The
         // existing blog copy remains a fallback only when the XML has no match.
         $xmlSource = $this->resolveXmlSource($blueprintItem, $xmlPosts);
         $blogSource = $xmlSource === null ? $this->resolveBlogSource($blueprintItem, $blogSources) : null;
 
-        $existing = $this->resolveExistingPost($blueprintItem, $locale);
+        $existing = $hasReconciliationPlan
+            ? ($plannedPostId !== null ? $this->loadCallPost($plannedPostId, $locale) : null)
+            : $this->resolveExistingPost($blueprintItem, $locale, $xmlSource);
 
         $attributes = [
             'code' => $blueprintItem['code'],
@@ -346,12 +416,12 @@ class EuFundsCallImportService
             'is_featured' => false,
             'published_at' => $blogSource['post']->published_at ?? ($xmlSource['published_at'] ?? null),
             'sort_order' => (int) $blueprintItem['sort_order'],
-            'payload' => array_filter([
+            'payload' => array_merge((array) ($existing?->payload ?? []), array_filter([
                 'group_key' => $blueprintItem['group_key'],
                 'group_title' => $blueprintItem['group_title'],
                 'source_hint_blog_slug' => $blueprintItem['blog_slug'] !== '' ? $blueprintItem['blog_slug'] : null,
                 'import_source' => $blogSource !== null ? 'blog' : ($xmlSource !== null ? 'xml' : 'blueprint'),
-            ], static fn (mixed $value): bool => $value !== null && $value !== ''),
+            ], static fn (mixed $value): bool => $value !== null && $value !== '')),
             'created_by' => $existing?->created_by ?? $userId,
             'updated_by' => $userId,
         ];
@@ -383,25 +453,34 @@ class EuFundsCallImportService
                     'body_html' => $translation?->body_html,
                     'meta_title' => $translation?->meta_title ?: $resolvedTitle,
                     'meta_description' => $translation?->meta_description,
-                    'payload' => [
+                    'payload' => array_merge((array) ($post->translations->firstWhere('locale', $locale)?->payload ?? []), [
                         'import_source' => 'blog',
                         'source_post_id' => (int) $blogSource['post']->id,
                         'source_slug' => (string) ($translation?->slug ?? ''),
-                    ],
+                    ]),
                 ]
             );
 
             $this->syncCategories($post, $category, (int) $blueprintItem['sort_order']);
-            $this->syncMediaFromBlog($post, $blogSource['post']);
+            if ($syncAssets) {
+                $this->syncMediaFromBlog($post, $blogSource['post']);
+            }
         } elseif ($xmlSource !== null) {
             $sourceType = 'xml';
-            $mediaMap = $this->syncMediaFromXml($post, $xmlSource, $force);
-            $assetLocalization = $this->localizeBodyAssets(
-                code: $blueprintItem['code'],
-                bodyHtml: (string) ($xmlSource['body_html'] ?? ''),
-                initialMap: $mediaMap,
-                force: $force
-            );
+            $mediaMap = $syncAssets ? $this->syncMediaFromXml($post, $xmlSource, $force) : [];
+            $assetLocalization = $syncAssets
+                ? $this->localizeBodyAssets(
+                    code: $blueprintItem['code'],
+                    bodyHtml: (string) ($xmlSource['body_html'] ?? ''),
+                    initialMap: $mediaMap,
+                    force: $force
+                )
+                : [
+                    'body_html' => $this->wordPressBlogImportService->sanitizeImportedBodyHtml(
+                        (string) ($xmlSource['body_html'] ?? '')
+                    ),
+                    'localized_count' => 0,
+                ];
             $assetCount = count($mediaMap) + (int) $assetLocalization['localized_count'];
             $preferredTitle = trim((string) ($blueprintItem['preferred_title'] ?? ''));
             $resolvedTitle = $preferredTitle !== ''
@@ -421,13 +500,13 @@ class EuFundsCallImportService
                     'body_html' => $assetLocalization['body_html'] !== '' ? $assetLocalization['body_html'] : null,
                     'meta_title' => $resolvedTitle,
                     'meta_description' => $xmlSource['meta_description'] ?: null,
-                    'payload' => [
+                    'payload' => array_merge((array) ($post->translations->firstWhere('locale', $locale)?->payload ?? []), [
                         'import_source' => 'xml',
                         'wp_post_id' => $xmlSource['wp_post_id'],
                         'source_slug' => $xmlSource['source_slug'],
                         'legacy_url' => $xmlSource['legacy_url'],
                         'legacy_path' => $xmlSource['legacy_path'],
-                    ],
+                    ]),
                 ]
             );
 
@@ -443,10 +522,10 @@ class EuFundsCallImportService
                     'body_html' => $translation?->body_html,
                     'meta_title' => $translation?->meta_title ?: $blueprintItem['title'],
                     'meta_description' => $translation?->meta_description,
-                    'payload' => [
+                    'payload' => array_merge((array) ($translation?->payload ?? []), [
                         'import_source' => 'blueprint',
                         'needs_content' => true,
-                    ],
+                    ]),
                 ]
             );
 
@@ -479,7 +558,75 @@ class EuFundsCallImportService
      *     blog_slug:string
      * }  $blueprintItem
      */
-    private function resolveExistingPost(array $blueprintItem, string $locale): ?CallPost
+    private function resolveExistingPost(array $blueprintItem, string $locale, ?array $xmlSource = null): ?CallPost
+    {
+        $sourceSlug = trim((string) ($xmlSource['source_slug'] ?? $blueprintItem['blog_slug'] ?? ''));
+        $wpPostId = isset($xmlSource['wp_post_id']) ? (int) $xmlSource['wp_post_id'] : null;
+        $posts = CallPost::query()
+            ->with([
+                'translations' => fn ($query) => $query->where('locale', $locale),
+                'media',
+                'categories',
+            ])
+            ->where(function (Builder $query) use ($blueprintItem, $locale, $sourceSlug, $wpPostId): void {
+                $query->where('code', $blueprintItem['code']);
+
+                if ($sourceSlug !== '') {
+                    $query->orWhereHas('translations', function (Builder $translationQuery) use ($locale, $sourceSlug): void {
+                        $translationQuery
+                            ->where('locale', $locale)
+                            ->where(function (Builder $identityQuery) use ($sourceSlug): void {
+                                $identityQuery
+                                    ->where('slug', $sourceSlug)
+                                    ->orWhere('payload->source_slug', $sourceSlug);
+                            });
+                    });
+                }
+
+                if ($wpPostId !== null && $wpPostId > 0) {
+                    $query->orWhereHas('translations', function (Builder $translationQuery) use ($locale, $wpPostId): void {
+                        $translationQuery
+                            ->where('locale', $locale)
+                            ->where('payload->wp_post_id', $wpPostId);
+                    });
+                }
+            })
+            ->get();
+
+        $publicSlugMatches = $sourceSlug === ''
+            ? collect()
+            : $posts->filter(fn (CallPost $post): bool => trim((string) $post->translations->first()?->slug) === $sourceSlug);
+        if ($publicSlugMatches->count() === 1) {
+            return $publicSlugMatches->first();
+        }
+
+        $identityMatches = $posts->filter(function (CallPost $post) use ($sourceSlug, $wpPostId): bool {
+            $translation = $post->translations->first();
+
+            return ($sourceSlug !== '' && trim((string) data_get($translation?->payload, 'source_slug')) === $sourceSlug)
+                || ($wpPostId !== null && (int) data_get($translation?->payload, 'wp_post_id') === $wpPostId);
+        });
+
+        if ($identityMatches->count() === 1) {
+            return $identityMatches->first();
+        }
+
+        $codeMatches = $posts->where('code', $blueprintItem['code']);
+        if ($codeMatches->count() === 1) {
+            return $codeMatches->first();
+        }
+
+        if ($identityMatches->count() > 1 || $publicSlugMatches->count() > 1) {
+            throw new RuntimeException(sprintf(
+                'Ambiguous EU funds call identity for "%s". No records were changed.',
+                $blueprintItem['title']
+            ));
+        }
+
+        return null;
+    }
+
+    private function loadCallPost(int $postId, string $locale): CallPost
     {
         return CallPost::query()
             ->with([
@@ -487,17 +634,497 @@ class EuFundsCallImportService
                 'media',
                 'categories',
             ])
-            ->where(function (Builder $query) use ($blueprintItem): void {
-                $query
-                    ->where('code', $blueprintItem['code'])
-                    ->orWhere(function (Builder $slotQuery) use ($blueprintItem): void {
-                        $slotQuery
-                            ->where('payload->group_key', $blueprintItem['group_key'])
-                            ->where('sort_order', (int) $blueprintItem['sort_order']);
-                    });
-            })
-            ->orderByRaw('code = ? desc', [$blueprintItem['code']])
-            ->first();
+            ->findOrFail($postId);
+    }
+
+    /**
+     * Build one global identity assignment before changing any call post. A
+     * public slug and the WXR identity are stable; category position is not.
+     *
+     * @param  Collection<int, array<string,mixed>>  $blueprintItems
+     * @param  Collection<int, array<string,mixed>>  $xmlPosts
+     * @param  array<string, Category>  $categories
+     * @return array{
+     *     assignments:array<string,int|null>,
+     *     extra_ids:array<int,int>,
+     *     managed_ids:array<int,int>,
+     *     category_ids:array<int,int>,
+     *     identities:array<string,array{source_slug:string,wp_post_id:int}>
+     * }
+     */
+    private function buildFullReconciliationPlan(
+        Collection $blueprintItems,
+        Collection $xmlPosts,
+        array $categories,
+        string $locale
+    ): array {
+        $categoryIds = collect($categories)
+            ->filter(fn (mixed $category): bool => $category instanceof Category)
+            ->map(fn (Category $category): int => (int) $category->id)
+            ->values()
+            ->all();
+
+        Category::query()->whereKey($categoryIds)->lockForUpdate()->get();
+        DB::table('content_call_post_category')
+            ->whereIn('category_id', $categoryIds)
+            ->lockForUpdate()
+            ->get();
+
+        $posts = CallPost::query()
+            ->with([
+                'translations' => fn ($query) => $query->where('locale', $locale),
+                'categories',
+            ])
+            ->lockForUpdate()
+            ->get();
+
+        if ($posts->isNotEmpty()) {
+            DB::table('content_call_post_translations')
+                ->whereIn('post_id', $posts->modelKeys())
+                ->where('locale', $locale)
+                ->lockForUpdate()
+                ->get();
+        }
+
+        $manifest = $blueprintItems->mapWithKeys(function (array $item) use ($xmlPosts): array {
+            $sourceSlug = trim((string) ($item['blog_slug'] ?? ''));
+            if ($sourceSlug === '') {
+                throw new RuntimeException(sprintf(
+                    'Full EU funds reconciliation is missing a stable source slug for "%s".',
+                    $item['title']
+                ));
+            }
+
+            $matches = $xmlPosts->filter(
+                static fn (array $post): bool => trim((string) ($post['source_slug'] ?? '')) === $sourceSlug
+            )->values();
+            if ($matches->count() !== 1) {
+                throw new RuntimeException(sprintf(
+                    'Full EU funds reconciliation expected one WXR post for "%s" (%s), found %d. No records were changed.',
+                    $item['title'],
+                    $sourceSlug,
+                    $matches->count()
+                ));
+            }
+
+            $xmlSource = $matches->first();
+            $wpPostId = (int) ($xmlSource['wp_post_id'] ?? 0);
+            if ($wpPostId <= 0) {
+                throw new RuntimeException(sprintf(
+                    'Full EU funds reconciliation is missing the WordPress post ID for "%s". No records were changed.',
+                    $item['title']
+                ));
+            }
+
+            return [(string) $item['code'] => [
+                'item' => $item,
+                'source_slug' => $sourceSlug,
+                'wp_post_id' => $wpPostId,
+            ]];
+        });
+
+        if ($manifest->pluck('source_slug')->unique()->count() !== $manifest->count()
+            || $manifest->pluck('wp_post_id')->unique()->count() !== $manifest->count()) {
+            throw new RuntimeException('The EU funds WXR identities are not unique. No records were changed.');
+        }
+
+        $assignments = [];
+        $reservedPostIds = [];
+
+        $this->assignReconciliationTier(
+            manifest: $manifest,
+            posts: $posts,
+            assignments: $assignments,
+            reservedPostIds: $reservedPostIds,
+            matcher: static function (array $target, CallPost $post): bool {
+                return trim((string) $post->translations->first()?->slug) === $target['source_slug'];
+            },
+            failOnMultiple: true,
+            tier: 'public slug'
+        );
+        $this->assignReconciliationTier(
+            manifest: $manifest,
+            posts: $posts,
+            assignments: $assignments,
+            reservedPostIds: $reservedPostIds,
+            matcher: static function (array $target, CallPost $post): bool {
+                $translation = $post->translations->first();
+
+                return trim((string) data_get($translation?->payload, 'source_slug')) === $target['source_slug']
+                    || (int) data_get($translation?->payload, 'wp_post_id') === $target['wp_post_id'];
+            },
+            failOnMultiple: true,
+            tier: 'WXR identity'
+        );
+        $this->assignReconciliationTier(
+            manifest: $manifest,
+            posts: $posts,
+            assignments: $assignments,
+            reservedPostIds: $reservedPostIds,
+            matcher: static fn (array $target, CallPost $post): bool => $post->code === $target['item']['code'],
+            failOnMultiple: true,
+            tier: 'canonical code'
+        );
+
+        foreach ($manifest as $code => $target) {
+            if (array_key_exists($code, $assignments)) {
+                continue;
+            }
+
+            $remainingEvidence = $posts->reject(
+                fn (CallPost $post): bool => isset($reservedPostIds[(int) $post->id])
+            )->filter(function (CallPost $post) use ($target): bool {
+                $translation = $post->translations->first();
+
+                return trim((string) $translation?->slug) === $target['source_slug']
+                    || trim((string) data_get($translation?->payload, 'source_slug')) === $target['source_slug']
+                    || (int) data_get($translation?->payload, 'wp_post_id') === $target['wp_post_id']
+                    || $post->code === $target['item']['code'];
+            });
+
+            if ($remainingEvidence->count() > 1) {
+                throw new RuntimeException(sprintf(
+                    'Ambiguous EU funds call identity for "%s". No records were changed.',
+                    $target['item']['title']
+                ));
+            }
+
+            if ($remainingEvidence->count() === 1) {
+                $postId = (int) $remainingEvidence->first()->id;
+                $assignments[$code] = $postId;
+                $reservedPostIds[$postId] = true;
+            } else {
+                $assignments[$code] = null;
+            }
+        }
+
+        $visiblePostIds = DB::table('content_call_post_category')
+            ->whereIn('category_id', $categoryIds)
+            ->pluck('post_id')
+            ->map(static fn (mixed $id): int => (int) $id)
+            ->unique()
+            ->values();
+        $selectedPostIds = collect($assignments)
+            ->filter(static fn (mixed $id): bool => is_int($id) && $id > 0)
+            ->values();
+        $extraIds = $visiblePostIds->diff($selectedPostIds)->values();
+        $managedIds = $posts
+            ->filter(fn (CallPost $post): bool => $this->isManagedCallPost($post))
+            ->pluck('id')
+            ->map(static fn (mixed $id): int => (int) $id)
+            ->values();
+        $unmanagedExtraIds = $extraIds->diff($managedIds)->values();
+
+        if ($unmanagedExtraIds->isNotEmpty()) {
+            throw new RuntimeException(sprintf(
+                'Full EU funds import found unmanaged call record(s) in a status category: %s. No records were changed.',
+                $unmanagedExtraIds->implode(', ')
+            ));
+        }
+
+        return [
+            'assignments' => $assignments,
+            'extra_ids' => $extraIds->all(),
+            'managed_ids' => $managedIds->all(),
+            'category_ids' => $categoryIds,
+            'identities' => $manifest->map(
+                static fn (array $target): array => [
+                    'source_slug' => (string) $target['source_slug'],
+                    'wp_post_id' => (int) $target['wp_post_id'],
+                ]
+            )->all(),
+        ];
+    }
+
+    /**
+     * @param  Collection<string,array<string,mixed>>  $manifest
+     * @param  Collection<int,CallPost>  $posts
+     * @param  array<string,int|null>  $assignments
+     * @param  array<int,bool>  $reservedPostIds
+     * @param  callable(array<string,mixed>,CallPost):bool  $matcher
+     */
+    private function assignReconciliationTier(
+        Collection $manifest,
+        Collection $posts,
+        array &$assignments,
+        array &$reservedPostIds,
+        callable $matcher,
+        bool $failOnMultiple,
+        string $tier
+    ): void {
+        $proposals = [];
+
+        foreach ($manifest as $code => $target) {
+            if (array_key_exists($code, $assignments)) {
+                continue;
+            }
+
+            $matches = $posts
+                ->reject(fn (CallPost $post): bool => isset($reservedPostIds[(int) $post->id]))
+                ->filter(fn (CallPost $post): bool => $matcher($target, $post))
+                ->values();
+
+            if ($matches->count() > 1) {
+                if ($failOnMultiple) {
+                    throw new RuntimeException(sprintf(
+                        'Ambiguous EU funds %s identity for "%s". No records were changed.',
+                        $tier,
+                        $target['item']['title']
+                    ));
+                }
+
+                continue;
+            }
+
+            if ($matches->count() === 1) {
+                $proposals[$code] = (int) $matches->first()->id;
+            }
+        }
+
+        $collisions = collect($proposals)->groupBy(static fn (int $postId): int => $postId)
+            ->filter(static fn (Collection $codes): bool => $codes->count() > 1);
+        if ($collisions->isNotEmpty()) {
+            throw new RuntimeException(sprintf(
+                'One existing call record matched multiple EU funds targets during %s reconciliation. No records were changed.',
+                $tier
+            ));
+        }
+
+        foreach ($proposals as $code => $postId) {
+            $assignments[$code] = $postId;
+            $reservedPostIds[$postId] = true;
+        }
+    }
+
+    /**
+     * @param  array{assignments:array<string,int|null>,extra_ids:array<int,int>,managed_ids:array<int,int>}  $reconciliation
+     * @param  Collection<int,array<string,mixed>>  $blueprintItems
+     */
+    private function prepareReconciliationCodes(array $reconciliation, Collection $blueprintItems): void
+    {
+        $desiredCodes = $blueprintItems->pluck('code')->all();
+        $assignmentByCode = $reconciliation['assignments'];
+        $selectedPostIds = collect($assignmentByCode)->filter()->map(static fn (mixed $id): int => (int) $id);
+        $mutablePostIds = $selectedPostIds
+            ->merge($reconciliation['extra_ids'])
+            ->unique()
+            ->values();
+
+        $owners = CallPost::query()->whereIn('code', $desiredCodes)->get(['id', 'code']);
+        foreach ($owners as $owner) {
+            $assignedOwnerId = $assignmentByCode[(string) $owner->code] ?? null;
+            if ((int) $assignedOwnerId === (int) $owner->id) {
+                continue;
+            }
+
+            if (! $mutablePostIds->contains((int) $owner->id)) {
+                throw new RuntimeException(sprintf(
+                    'Canonical EU funds code "%s" belongs to an unmanaged record. No records were changed.',
+                    $owner->code
+                ));
+            }
+
+            $temporaryCode = sprintf(
+                'eu-funds-reconcile-%d-%s',
+                (int) $owner->id,
+                substr(sha1((string) $owner->code), 0, 12)
+            );
+            CallPost::query()->whereKey($owner->id)->update(['code' => $temporaryCode]);
+        }
+    }
+
+    /**
+     * @param  array{
+     *     extra_ids:array<int,int>,
+     *     category_ids:array<int,int>,
+     *     identities:array<string,array{source_slug:string,wp_post_id:int}>
+     * }  $reconciliation
+     * @param  array<string,Category>  $categories
+     * @param  Collection<int,array<string,mixed>>  $blueprintItems
+     * @param  array<int,array<string,mixed>>  $importedRows
+     */
+    private function completeFullReconciliation(
+        array $reconciliation,
+        array $categories,
+        Collection $blueprintItems,
+        array $importedRows,
+        string $locale
+    ): void {
+        if ($reconciliation['extra_ids'] !== []) {
+            DB::table('content_call_post_category')
+                ->whereIn('post_id', $reconciliation['extra_ids'])
+                ->whereIn('category_id', $reconciliation['category_ids'])
+                ->delete();
+        }
+
+        $importedIds = collect($importedRows)
+            ->pluck('id')
+            ->map(static fn (mixed $id): int => (int) $id);
+        if ($importedIds->count() !== $blueprintItems->count()
+            || $importedIds->unique()->count() !== $blueprintItems->count()) {
+            throw new RuntimeException('EU funds reconciliation did not produce 32 distinct call records. Changes were rolled back.');
+        }
+
+        $expectedCounts = $blueprintItems->countBy('group_key')->all();
+        $actualCounts = $this->statusCategoryCounts($categories);
+        foreach ($expectedCounts as $groupKey => $expectedCount) {
+            if (($actualCounts[$groupKey] ?? -1) !== $expectedCount) {
+                throw new RuntimeException(sprintf(
+                    'EU funds reconciliation postflight failed for %s: expected %d, found %d. Changes were rolled back.',
+                    $groupKey,
+                    $expectedCount,
+                    $actualCounts[$groupKey] ?? 0
+                ));
+            }
+        }
+
+        $pivotCounts = DB::table('content_call_post_category')
+            ->whereIn('post_id', $importedIds->all())
+            ->whereIn('category_id', $reconciliation['category_ids'])
+            ->select('post_id', DB::raw('COUNT(*) AS aggregate'))
+            ->groupBy('post_id')
+            ->pluck('aggregate', 'post_id');
+        if ($pivotCounts->count() !== $blueprintItems->count()
+            || $pivotCounts->contains(fn (mixed $count): bool => (int) $count !== 1)) {
+            throw new RuntimeException('EU funds reconciliation postflight found an invalid status assignment. Changes were rolled back.');
+        }
+
+        foreach ($blueprintItems as $blueprintItem) {
+            $code = (string) $blueprintItem['code'];
+            $identity = $reconciliation['identities'][$code] ?? null;
+            $category = $categories[$blueprintItem['group_key']] ?? null;
+            $post = CallPost::query()
+                ->with(['translations' => fn ($query) => $query->where('locale', $locale)])
+                ->where('code', $code)
+                ->first();
+            $translation = $post?->translations->first();
+            $expectedTitle = trim((string) ($blueprintItem['preferred_title'] ?? ''))
+                ?: (string) $blueprintItem['title'];
+
+            if (! is_array($identity)
+                || ! $post instanceof CallPost
+                || ! $category instanceof Category
+                || $translation === null
+                || (string) $translation->title !== $expectedTitle
+                || trim((string) data_get($translation->payload, 'source_slug')) !== $identity['source_slug']
+                || (int) data_get($translation->payload, 'wp_post_id') !== $identity['wp_post_id']
+                || trim((string) $translation->body_html) === ''
+                || (int) $post->sort_order !== (int) $blueprintItem['sort_order']) {
+                throw new RuntimeException(sprintf(
+                    'EU funds reconciliation identity postflight failed for "%s". Changes were rolled back.',
+                    $blueprintItem['title']
+                ));
+            }
+
+            $pivot = DB::table('content_call_post_category')
+                ->where('post_id', $post->id)
+                ->where('category_id', $category->id)
+                ->first(['sort_order', 'is_primary']);
+            if ($pivot === null
+                || (int) $pivot->sort_order !== (int) $blueprintItem['sort_order']
+                || ! (bool) $pivot->is_primary) {
+                throw new RuntimeException(sprintf(
+                    'EU funds reconciliation ordering postflight failed for "%s". Changes were rolled back.',
+                    $blueprintItem['title']
+                ));
+            }
+        }
+    }
+
+    /**
+     * Media and storage writes run only after the database identity/status
+     * transaction commits. A failed download therefore cannot cause a DB
+     * retry to repeat filesystem side effects; a later re-import can retry it.
+     *
+     * @param  Collection<int,array<string,mixed>>  $blueprintItems
+     * @param  Collection<int,array<string,mixed>>  $xmlPosts
+     * @param  Collection<int,array<string,mixed>>  $blogSources
+     * @return array{counts:array<string,int>,failed_codes:array<int,string>}
+     */
+    private function syncReconciledAssets(
+        Collection $blueprintItems,
+        Collection $xmlPosts,
+        Collection $blogSources,
+        string $locale,
+        bool $force
+    ): array {
+        $counts = [];
+        $failedCodes = [];
+
+        foreach ($blueprintItems as $blueprintItem) {
+            $code = (string) $blueprintItem['code'];
+
+            try {
+                $post = CallPost::query()
+                    ->with([
+                        'translations' => fn ($query) => $query->where('locale', $locale),
+                        'media',
+                    ])
+                    ->where('code', $code)
+                    ->firstOrFail();
+                $xmlSource = $this->resolveXmlSource($blueprintItem, $xmlPosts);
+
+                if ($xmlSource !== null) {
+                    $mediaMap = $this->syncMediaFromXml($post, $xmlSource, $force);
+                    $localized = $this->localizeBodyAssets(
+                        code: $code,
+                        bodyHtml: (string) ($xmlSource['body_html'] ?? ''),
+                        initialMap: $mediaMap,
+                        force: $force
+                    );
+                    $post->translations()
+                        ->where('locale', $locale)
+                        ->update([
+                            'body_html' => $localized['body_html'] !== '' ? $localized['body_html'] : null,
+                        ]);
+                    $counts[$code] = count($mediaMap) + (int) $localized['localized_count'];
+
+                    continue;
+                }
+
+                $blogSource = $this->resolveBlogSource($blueprintItem, $blogSources);
+                if ($blogSource !== null) {
+                    $this->syncMediaFromBlog($post, $blogSource['post']);
+                }
+                $counts[$code] = 0;
+            } catch (\Throwable $exception) {
+                report($exception);
+                $counts[$code] = 0;
+                $failedCodes[] = $code;
+            }
+        }
+
+        return [
+            'counts' => $counts,
+            'failed_codes' => $failedCodes,
+        ];
+    }
+
+    /** @param array<string,Category> $categories */
+    private function statusCategoryCounts(array $categories): array
+    {
+        $counts = [];
+        foreach ($categories as $groupKey => $category) {
+            if ($category instanceof Category) {
+                $counts[$groupKey] = DB::table('content_call_post_category')
+                    ->where('category_id', $category->id)
+                    ->count();
+            }
+        }
+
+        return $counts;
+    }
+
+    private function isManagedCallPost(CallPost $post): bool
+    {
+        $postSource = trim((string) data_get($post->payload, 'import_source'));
+        $translationSource = trim((string) data_get($post->translations->first()?->payload, 'import_source'));
+        $managedSources = ['eu_funds_calls', 'xml', 'blog', 'blueprint'];
+
+        return str_starts_with((string) $post->code, 'eu-funds-call-')
+            || in_array($postSource, $managedSources, true)
+            || in_array($translationSource, $managedSources, true)
+            || (string) $post->code === 'gs-integrator-2018';
     }
 
     private function syncCategories(CallPost $post, Category $category, int $sortOrder): void
