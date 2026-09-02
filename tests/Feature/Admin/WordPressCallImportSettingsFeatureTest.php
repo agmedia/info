@@ -18,6 +18,11 @@ class WordPressCallImportSettingsFeatureTest extends TestCase
 {
     use RefreshDatabase;
 
+    public function test_livewire_temporary_upload_limit_accepts_the_supported_call_xml_size(): void
+    {
+        $this->assertContains('max:51200', config('livewire.temporary_file_upload.rules', []));
+    }
+
     public function test_default_flow_imports_linked_posts_and_rerun_preserves_manual_blog_edits(): void
     {
         Storage::fake('local');
