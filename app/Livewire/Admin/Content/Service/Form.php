@@ -739,6 +739,12 @@ class Form extends Component
         if ((string) ($this->form['template_key'] ?? '') === ServicePageTemplateRegistry::SERVICES_INDEX) {
             $rules['form.translation_payload.showcase.title_lead'] = ['required', 'string', 'max:255'];
             $rules['form.translation_payload.showcase.intro'] = ['required', 'string'];
+            $rules['form.translation_payload.showcase.value_cards'] = ['required', 'array', 'size:2'];
+            $rules['form.translation_payload.showcase.value_cards.*.key'] = ['required', Rule::in(['how', 'audience'])];
+            $rules['form.translation_payload.showcase.value_cards.*.title'] = ['required', 'string', 'max:255'];
+            $rules['form.translation_payload.showcase.value_cards.*.items'] = ['required', 'array', 'size:5'];
+            $rules['form.translation_payload.showcase.value_cards.*.items.*.title'] = ['required', 'string', 'max:255'];
+            $rules['form.translation_payload.showcase.value_cards.*.items.*.text'] = ['required', 'string', 'max:1000'];
             $rules['form.translation_payload.showcase.card_action_label'] = ['required', 'string', 'max:80'];
             $rules['form.translation_payload.primary_pillars'] = ['required', 'array', 'size:3'];
             $rules['form.translation_payload.primary_pillars.*.key'] = ['required', Rule::in(['audit', 'accounting', 'advisory'])];

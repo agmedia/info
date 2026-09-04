@@ -11,7 +11,7 @@
     ));
     $serviceIcons = [
         'fa-book-copy',
-        'fa-badge-percent',
+        'fa-receipt',
         'fa-user-tie-hair',
         'fa-file-certificate',
         'fa-chart-waterfall',

@@ -199,10 +199,8 @@
     position: relative;
     padding: clamp(4rem, 5vw, 5.5rem) 0;
     overflow: hidden;
-    background:
-        radial-gradient(circle at 88% 14%, rgba(40, 76, 105, 0.38), transparent 34%),
-        linear-gradient(145deg, #061b2d, #03121f 70%);
-    color: var(--white, #f7f7f5);
+    background: var(--advisory-cream);
+    color: #101820;
 }
 
 .front-route-advisory .ac-advisory-network-heading {
@@ -217,7 +215,7 @@
     padding: 1rem 1.35rem;
     border: 1px solid rgba(216, 185, 111, 0.2);
     border-radius: 42px 4px 42px 4px;
-    background: rgba(247, 247, 245, 0.96);
+    background: rgba(255, 253, 249, 0.82);
     align-items: center;
 }
 
@@ -229,7 +227,7 @@
 
 .front-route-advisory .ac-advisory-network-heading h2 {
     max-width: none;
-    color: rgba(247, 247, 245, 0.98);
+    color: #101820;
     font-size: clamp(2.4rem, 2.75vw, 3.5rem);
     line-height: 1.06;
 }
@@ -249,21 +247,21 @@
     columns: auto;
     column-count: 1;
     padding-left: clamp(3rem, 5vw, 6rem);
-    border-left: 1px solid rgba(216, 185, 111, 0.27);
+    border-left: 1px solid rgba(157, 122, 61, 0.3);
     gap: 0.85rem;
 }
 
 .front-route-advisory .ac-advisory-network-copy p {
     max-width: 47rem;
     margin: 0;
-    color: rgba(247, 247, 245, 0.8);
+    color: #4d4a44;
     font-size: clamp(0.94rem, 0.95vw, 1.05rem);
     line-height: 1.62;
     text-wrap: pretty;
 }
 
 .front-route-advisory .ac-advisory-network-copy p:last-child {
-    color: rgba(247, 247, 245, 0.94);
+    color: #18202a;
     font-weight: 600;
 }
 
@@ -757,7 +755,7 @@
     }
 
     .front-route-advisory .ac-advisory-network-copy {
-        border-top-color: rgba(216, 185, 111, 0.27);
+        border-top-color: rgba(157, 122, 61, 0.3);
     }
 
     .front-route-advisory .ac-advisory-network-logo-card {

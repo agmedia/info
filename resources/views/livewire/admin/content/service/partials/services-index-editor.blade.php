@@ -21,8 +21,9 @@
 
     <div class="mt-5 flex flex-wrap gap-2" aria-label="{{ __('Page section navigation') }}">
         <a href="#services-index-editor" class="admin-chip">1. {{ __('Intro section') }}</a>
-        <a href="#services-index-cards-editor" class="admin-chip">2. {{ __('Service cards') }}</a>
-        <a href="#services-index-settings" class="admin-chip">3. {{ __('Page settings') }}</a>
+        <a href="#services-index-value-editor" class="admin-chip">2. {{ __('Value creation') }}</a>
+        <a href="#services-index-cards-editor" class="admin-chip">3. {{ __('Service cards') }}</a>
+        <a href="#services-index-settings" class="admin-chip">4. {{ __('Page settings') }}</a>
     </div>
 </div>
 
@@ -51,10 +52,52 @@
     </div>
 </div>
 
+<div id="services-index-value-editor" class="admin-panel admin-form-panel scroll-mt-24 p-6">
+    <div class="border-b border-slate-200 pb-4">
+        <p class="text-xs font-semibold uppercase tracking-[0.16em] text-cyan-700">2. {{ __('Value creation') }}</p>
+        <h2 class="mt-1 text-lg font-semibold text-slate-900">{{ __('How and for whom we create value') }}</h2>
+        <p class="mt-1 text-sm text-slate-600">{{ __('These two equal cards appear between the introduction and the three main services.') }}</p>
+    </div>
+
+    <div class="mt-5 grid gap-5 xl:grid-cols-2">
+        @foreach (($translationPayload['showcase']['value_cards'] ?? []) as $valueCardIndex => $valueCard)
+            <section class="rounded-2xl border border-slate-200 bg-slate-50 p-4" aria-labelledby="services-value-card-editor-{{ $valueCardIndex }}">
+                <h3 id="services-value-card-editor-{{ $valueCardIndex }}" class="font-semibold text-slate-900">
+                    {{ __('Value card') }} {{ $valueCardIndex + 1 }}
+                </h3>
+
+                <div class="mt-4">
+                    <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Card heading') }}</label>
+                    <input type="text" wire:model="form.translation_payload.showcase.value_cards.{{ $valueCardIndex }}.title" class="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm" />
+                    @error('form.translation_payload.showcase.value_cards.'.$valueCardIndex.'.title') <p class="mt-1 text-xs text-rose-600">{{ $message }}</p> @enderror
+                </div>
+
+                <div class="mt-4 grid gap-4">
+                    @foreach (($valueCard['items'] ?? []) as $itemIndex => $item)
+                        <div class="rounded-xl border border-slate-200 bg-white p-3">
+                            <p class="text-xs font-semibold uppercase tracking-[0.12em] text-cyan-700">{{ __('Item') }} {{ $itemIndex + 1 }}</p>
+                            <div class="mt-3">
+                                <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Title') }}</label>
+                                <input type="text" wire:model="form.translation_payload.showcase.value_cards.{{ $valueCardIndex }}.items.{{ $itemIndex }}.title" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+                                @error('form.translation_payload.showcase.value_cards.'.$valueCardIndex.'.items.'.$itemIndex.'.title') <p class="mt-1 text-xs text-rose-600">{{ $message }}</p> @enderror
+                            </div>
+                            <div class="mt-3">
+                                <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Description') }}</label>
+                                <textarea rows="3" wire:model="form.translation_payload.showcase.value_cards.{{ $valueCardIndex }}.items.{{ $itemIndex }}.text" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm leading-6"></textarea>
+                                @error('form.translation_payload.showcase.value_cards.'.$valueCardIndex.'.items.'.$itemIndex.'.text') <p class="mt-1 text-xs text-rose-600">{{ $message }}</p> @enderror
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
+            </section>
+        @endforeach
+    </div>
+</div>
+
 <div id="services-index-cards-editor" class="admin-panel admin-form-panel scroll-mt-24 p-6">
     <div class="flex flex-col gap-4 border-b border-slate-200 pb-4 lg:flex-row lg:items-start lg:justify-between">
         <div>
-            <p class="text-xs font-semibold uppercase tracking-[0.16em] text-cyan-700">2. {{ __('Service cards') }}</p>
+            <p class="text-xs font-semibold uppercase tracking-[0.16em] text-cyan-700">3. {{ __('Service cards') }}</p>
             <h2 class="mt-1 text-lg font-semibold text-slate-900">{{ __('Three main services') }}</h2>
             <p class="mt-1 text-sm text-slate-600">{{ __('The cards are fixed in the same order as on the frontend: audit, accounting, and advisory.') }}</p>
         </div>

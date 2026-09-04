@@ -36,6 +36,8 @@ class Form extends Component
 
     public ?TemporaryUploadedFile $pageHeroImageUpload = null;
 
+    public ?TemporaryUploadedFile $aboutResponsibilityImageUpload = null;
+
     /** @var array<string, mixed> */
     public array $loadedStructuredContent = [];
 
@@ -92,6 +94,7 @@ class Form extends Component
     public function updatedFormLocale(): void
     {
         $this->pageHeroImageUpload = null;
+        $this->aboutResponsibilityImageUpload = null;
         $this->loadTranslationForLocale();
         $this->academyDocumentPickerId = null;
     }
@@ -436,6 +439,13 @@ class Form extends Component
                     ''
                 ),
             );
+
+            $this->storeAboutResponsibilityImage(
+                $savedPage,
+                (string) $validated['form']['layout'],
+                (string) $validated['form']['locale'],
+                (string) data_get($aboutContent, 'responsibility.image_alt', ''),
+            );
         }
 
         $message = $wasEditing ? __('Info page updated.') : __('Info page created.');
@@ -473,11 +483,29 @@ class Form extends Component
         $this->dispatch('notify', type: 'success', message: 'Vraćena je zadana hero slika.');
     }
 
+    public function removeAboutResponsibilityImage(): void
+    {
+        if ((string) ($this->form['layout'] ?? '') !== 'about' || ! $this->pageId) {
+            return;
+        }
+
+        $page = InfoPage::query()->find($this->pageId);
+        if (! $page || $page->layout !== 'about') {
+            return;
+        }
+
+        $page->clearMediaCollection('about_responsibility_image');
+        $this->aboutResponsibilityImageUpload = null;
+
+        $this->dispatch('notify', type: 'success', message: 'Vraćena je zadana fotografija udruge.');
+    }
+
     public function render()
     {
         return view('livewire.admin.content.page.form', [
             'isEdit' => (bool) $this->pageId,
             'pageHeroImage' => $this->pageHeroImage(),
+            'aboutResponsibilityImage' => $this->aboutResponsibilityImage(),
         ]);
     }
 
@@ -667,6 +695,15 @@ class Form extends Component
 
         if (in_array((string) ($this->form['layout'] ?? ''), ['about', 'career'], true)) {
             $rules['pageHeroImageUpload'] = [
+                'nullable',
+                'file',
+                'mimes:'.implode(',', MediaProfileRegistry::supportedImageExtensions(['jpg', 'jpeg', 'png', 'webp', 'avif'])),
+                'max:8192',
+            ];
+        }
+
+        if ((string) ($this->form['layout'] ?? '') === 'about') {
+            $rules['aboutResponsibilityImageUpload'] = [
                 'nullable',
                 'file',
                 'mimes:'.implode(',', MediaProfileRegistry::supportedImageExtensions(['jpg', 'jpeg', 'png', 'webp', 'avif'])),
@@ -1336,6 +1373,23 @@ class Form extends Component
         ];
     }
 
+    /**
+     * @return array{url:string,is_custom:bool}
+     */
+    private function aboutResponsibilityImage(): array
+    {
+        $media = (string) ($this->form['layout'] ?? '') === 'about' && $this->pageId
+            ? InfoPage::query()->find($this->pageId)?->getFirstMedia('about_responsibility_image')
+            : null;
+
+        return [
+            'url' => $media?->hasGeneratedConversion('about_responsibility_1890x1063')
+                ? $media->getUrl('about_responsibility_1890x1063')
+                : ($media?->getUrl() ?: asset('front-theme/images/about/auxilium-capitalis-udruga.png')),
+            'is_custom' => (bool) $media,
+        ];
+    }
+
     private function hydratePageHeroImageAlt(): void
     {
         $layout = (string) ($this->form['layout'] ?? '');
@@ -1399,6 +1453,36 @@ class Form extends Component
         }
 
         $this->pageHeroImageUpload = null;
+    }
+
+    private function storeAboutResponsibilityImage(InfoPage $page, string $layout, string $locale, string $alt): void
+    {
+        if ($layout !== 'about') {
+            return;
+        }
+
+        if ($this->aboutResponsibilityImageUpload instanceof TemporaryUploadedFile) {
+            $originalName = (string) pathinfo($this->aboutResponsibilityImageUpload->getClientOriginalName(), PATHINFO_FILENAME);
+            $safeBaseName = Str::slug($originalName) ?: 'auxilium-capitalis-udruga';
+            $extension = strtolower($this->aboutResponsibilityImageUpload->getClientOriginalExtension() ?: 'jpg');
+
+            $page->addMedia($this->aboutResponsibilityImageUpload->getRealPath())
+                ->usingName($originalName !== '' ? $originalName : $safeBaseName)
+                ->usingFileName($safeBaseName.'-'.Str::lower(Str::random(6)).'.'.$extension)
+                ->toMediaCollection('about_responsibility_image');
+
+            $page->unsetRelation('media');
+        }
+
+        $media = $page->getFirstMedia('about_responsibility_image');
+        if ($media) {
+            $customProperties = (array) ($media->custom_properties ?? []);
+            data_set($customProperties, 'alt.'.$locale, trim($alt));
+            $media->custom_properties = $customProperties;
+            $media->save();
+        }
+
+        $this->aboutResponsibilityImageUpload = null;
     }
 
     private function heroMediaCollection(string $layout): ?string

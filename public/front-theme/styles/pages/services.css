@@ -1,0 +1,192 @@
+.front-route-services {
+    --services-page-cream: #f4f1ea;
+    --services-page-navy: #03121f;
+    --services-page-gold: #ad8437;
+    --services-page-gold-light: #d8b96f;
+}
+
+.front-route-services .services-value-section {
+    position: relative;
+    overflow: hidden;
+    padding: 0 0 clamp(5.5rem, 7vw, 8.2rem);
+    background: var(--services-page-cream);
+    color: var(--services-page-navy);
+    content-visibility: auto;
+    contain-intrinsic-size: auto 850px;
+}
+
+.front-route-services .services-value-shell {
+    width: min(1600px, calc(100% - 136px));
+    margin-inline: auto;
+}
+
+.front-route-services .services-value-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: clamp(1.5rem, 2.4vw, 2.75rem);
+    align-items: stretch;
+}
+
+.front-route-services .services-value-card {
+    display: grid;
+    min-width: 0;
+    padding: clamp(2rem, 3.2vw, 3.5rem);
+    border: 1px solid rgba(173, 132, 55, 0.3);
+    border-radius: clamp(3.25rem, 4.5vw, 5.5rem) 0.4rem clamp(3.25rem, 4.5vw, 5.5rem) 0.4rem;
+    background: rgba(251, 249, 245, 0.92);
+    grid-template-rows: auto 1fr;
+    row-gap: clamp(2.15rem, 2.6vw, 2.8rem);
+}
+
+.front-route-services .services-value-card:nth-child(even) {
+    border-radius: 0.4rem clamp(3.25rem, 4.5vw, 5.5rem) 0.4rem clamp(3.25rem, 4.5vw, 5.5rem);
+}
+
+.front-desktop-shell.front-route-services .front-content-shell .services-value-card > h2 {
+    max-width: none;
+    margin: 0;
+    color: var(--services-page-navy);
+    font-family: var(--front-font-family, "Instrument Sans Variable", Arial, sans-serif);
+    font-size: clamp(2rem, 2.2vw, 2.65rem);
+    font-weight: 460;
+    letter-spacing: -0.03em;
+    line-height: 1.04;
+    white-space: nowrap;
+}
+
+.front-route-services .services-value-list {
+    display: grid;
+    margin: 0;
+    padding: 0;
+    grid-template-rows: repeat(5, minmax(0, 1fr));
+    row-gap: clamp(0.65rem, 0.9vw, 0.9rem);
+    list-style: none;
+}
+
+.front-route-services .services-value-list li {
+    display: grid;
+    min-height: 0;
+    padding: 0;
+    grid-template-columns: 3rem minmax(0, 1fr);
+    gap: 1.15rem;
+    align-items: start;
+}
+
+.front-route-services .services-value-list li:first-child {
+    padding-top: 0;
+}
+
+.front-route-services .services-value-list li:last-child {
+    padding-bottom: 0;
+}
+
+.front-route-services .services-value-icon {
+    --fa-primary-color: var(--services-page-navy);
+    --fa-primary-opacity: 1;
+    --fa-secondary-color: var(--services-page-gold);
+    --fa-secondary-opacity: 0.72;
+    display: inline-flex;
+    width: 3rem;
+    padding-top: 0.1rem;
+    color: var(--services-page-navy);
+    align-items: flex-start;
+    justify-content: center;
+    font-size: 1.7rem;
+    line-height: 1;
+}
+
+.front-desktop-shell.front-route-services .front-content-shell .services-value-list h3 {
+    margin: 0 0 0.45rem;
+    color: var(--services-page-gold);
+    font-family: var(--front-font-family, "Instrument Sans Variable", Arial, sans-serif);
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    line-height: 1.35;
+    text-transform: uppercase;
+}
+
+.front-route-services .services-value-list p {
+    margin: 0;
+    color: rgba(3, 18, 31, 0.74);
+    font-size: clamp(0.98rem, 1vw, 1.08rem);
+    line-height: 1.58;
+    text-wrap: pretty;
+}
+
+.front-route-services .services-section--index-page .services-index-cards-shell {
+    padding-top: clamp(5.5rem, 7vw, 8.2rem);
+}
+
+@media (max-width: 1100px) {
+    .front-route-services .services-value-shell {
+        width: min(900px, calc(100% - 80px));
+    }
+
+    .front-route-services .services-value-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .front-route-services .services-value-card {
+        border-radius: 3.75rem 0.35rem 3.75rem 0.35rem;
+        row-gap: 2.4rem;
+    }
+
+    .front-route-services .services-value-card:nth-child(even) {
+        border-radius: 0.35rem 3.75rem 0.35rem 3.75rem;
+    }
+
+    .front-desktop-shell.front-route-services .front-content-shell .services-value-card > h2 {
+        white-space: normal;
+    }
+}
+
+@media (max-width: 700px) {
+    .front-route-services .services-value-section {
+        padding-bottom: 4rem;
+    }
+
+    .front-route-services .services-value-shell {
+        width: calc(100% - 40px);
+    }
+
+    .front-route-services .services-value-grid {
+        gap: 1.25rem;
+    }
+
+    .front-route-services .services-value-card,
+    .front-route-services .services-value-card:nth-child(even) {
+        padding: 1.6rem 1.35rem 1.9rem;
+        border-radius: 2.6rem 0.3rem 2.6rem 0.3rem;
+        row-gap: 1.6rem;
+    }
+
+    .front-desktop-shell.front-route-services .front-content-shell .services-value-card > h2 {
+        font-size: clamp(1.9rem, 9vw, 2.5rem);
+    }
+
+    .front-route-services .services-value-list {
+        grid-template-rows: none;
+        row-gap: 0.85rem;
+    }
+
+    .front-route-services .services-value-list li {
+        min-height: 0;
+        padding: 0;
+        grid-template-columns: 2.65rem minmax(0, 1fr);
+        gap: 0.9rem;
+    }
+
+    .front-route-services .services-value-icon {
+        width: 2.65rem;
+        font-size: 1.45rem;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .front-route-services .services-value-card {
+        opacity: 1;
+        transform: none;
+        transition: none;
+    }
+}

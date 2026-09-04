@@ -10,6 +10,45 @@
         $intro = trim((string) ($showcase['intro'] ?? ''));
         $cardActionLabel = trim((string) ($showcase['card_action_label'] ?? ''));
         $introTitleWords = preg_split('/\s+/u', $titleLead, -1, PREG_SPLIT_NO_EMPTY) ?: [];
+        $valueCardIcons = [
+            'how' => [
+                'fa-shield-check',
+                'fa-telescope',
+                'fa-gauge-max',
+                'fa-arrow-up-right-dots',
+                'fa-route-interstate',
+            ],
+            'audience' => [
+                'fa-key-skeleton',
+                'fa-user-crown',
+                'fa-person-chalkboard',
+                'fa-people-roof',
+                'fa-file-chart-pie',
+            ],
+        ];
+        $valueCards = collect((array) ($showcase['value_cards'] ?? []))
+            ->map(static function ($card, int $index): array {
+                $card = is_array($card) ? $card : [];
+                $items = collect((array) ($card['items'] ?? []))
+                    ->map(static function ($item): array {
+                        $item = is_array($item) ? $item : [];
+
+                        return [
+                            'title' => trim((string) ($item['title'] ?? '')),
+                            'text' => trim((string) ($item['text'] ?? '')),
+                        ];
+                    })
+                    ->filter(static fn (array $item): bool => $item['title'] !== '' || $item['text'] !== '')
+                    ->values();
+
+                return [
+                    'key' => trim((string) ($card['key'] ?? '')) ?: ($index === 0 ? 'how' : 'audience'),
+                    'title' => trim((string) ($card['title'] ?? '')),
+                    'items' => $items,
+                ];
+            })
+            ->filter(static fn (array $card): bool => $card['title'] !== '' && $card['items']->isNotEmpty())
+            ->values();
 
         $cardDesign = collect([
             'audit' => [
@@ -73,6 +112,10 @@
         }
     @endphp
 
+    @push('styles')
+        <link rel="stylesheet" href="{{ asset('front-theme/styles/pages/services.css') }}?v={{ filemtime(public_path('front-theme/styles/pages/services.css')) }}">
+    @endpush
+
     <section class="values-section services-index-intro" aria-labelledby="ac-services-index-title">
         <div class="values-inner services-index-intro-layout">
             <div class="values-intro">
@@ -89,6 +132,39 @@
             @endif
         </div>
     </section>
+
+    @if ($valueCards->isNotEmpty())
+        <section class="services-value-section" aria-label="{{ $titleLead }}">
+            <div class="services-value-shell">
+                <div class="services-value-grid">
+                    @foreach ($valueCards as $card)
+                        @php($icons = $valueCardIcons[$card['key']] ?? $valueCardIcons['how'])
+                        <article class="services-value-card content-reveal animation-index-{{ $loop->index }}" data-image-reveal>
+                            <h2>{{ $card['title'] }}</h2>
+
+                            <ul class="services-value-list">
+                                @foreach ($card['items'] as $item)
+                                    <li>
+                                        <span class="services-value-icon" aria-hidden="true">
+                                            <i class="fa-duotone fa-thin fa-fw {{ $icons[$loop->index] ?? 'fa-circle-check' }}"></i>
+                                        </span>
+                                        <div>
+                                            @if ($item['title'] !== '')
+                                                <h3>{{ $item['title'] }}</h3>
+                                            @endif
+                                            @if ($item['text'] !== '')
+                                                <p>{{ $item['text'] }}</p>
+                                            @endif
+                                        </div>
+                                    </li>
+                                @endforeach
+                            </ul>
+                        </article>
+                    @endforeach
+                </div>
+            </div>
+        </section>
+    @endif
 
     <section id="ac-services-index" class="services-section services-section--index-page" aria-labelledby="ac-services-index-title">
         <div class="services-shell services-index-cards-shell">

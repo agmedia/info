@@ -170,27 +170,30 @@
                                     @endphp
 
                                     @if ($itemText !== '')
-                                        <li class="ac-audit-obligor-card {{ $children !== [] ? 'ac-audit-obligor-card--wide' : '' }}">
+                                        <li class="ac-audit-obligor-card">
                                             <span class="ac-audit-obligor-icon" aria-hidden="true">
                                                 <i class="fa-duotone fa-thin fa-fw {{ $obligorIcons[$loop->index] ?? 'fa-circle-check' }}"></i>
                                             </span>
                                             <div class="ac-audit-obligor-copy">
                                                 <span class="ac-audit-obligor-title">{{ $itemText }}</span>
-
-                                                @if ($children !== [])
-                                                    <ul class="ac-audit-obligor-criteria">
-                                                        @foreach ($children as $child)
-                                                            @if (trim((string) $child) !== '')
-                                                                <li>
-                                                                    <i class="fa-duotone fa-thin fa-fw {{ $criteriaIcons[$loop->index] ?? 'fa-badge-check' }}" aria-hidden="true"></i>
-                                                                    <span>{{ $child }}</span>
-                                                                </li>
-                                                            @endif
-                                                        @endforeach
-                                                    </ul>
-                                                @endif
                                             </div>
                                         </li>
+
+                                        @if ($children !== [])
+                                            <li class="ac-audit-obligor-card ac-audit-obligor-card--criteria">
+                                                <span class="visually-hidden">{{ $locale === 'hr' ? 'Kriteriji za:' : 'Criteria for:' }} {{ $itemText }}</span>
+                                                <ul class="ac-audit-obligor-criteria">
+                                                    @foreach ($children as $child)
+                                                        @if (trim((string) $child) !== '')
+                                                            <li>
+                                                                <i class="fa-duotone fa-thin fa-fw {{ $criteriaIcons[$loop->index] ?? 'fa-badge-check' }}" aria-hidden="true"></i>
+                                                                <span>{{ $child }}</span>
+                                                            </li>
+                                                        @endif
+                                                    @endforeach
+                                                </ul>
+                                            </li>
+                                        @endif
                                     @endif
                                 @endforeach
                             </ul>

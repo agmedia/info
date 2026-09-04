@@ -276,10 +276,9 @@
     border-radius: 4px 34px 4px 34px;
 }
 
-:is(.front-route-audit, .front-route-accounting, .front-route-tax) .ac-audit-obligor-card--wide {
-    min-height: 0;
-    grid-column: 1 / -1;
-    align-items: start;
+:is(.front-route-audit, .front-route-accounting, .front-route-tax) .ac-audit-obligor-card--criteria {
+    padding-block: 1rem;
+    grid-template-columns: minmax(0, 1fr);
 }
 
 :is(.front-route-audit, .front-route-accounting, .front-route-tax) .ac-audit-obligor-icon {
@@ -328,26 +327,20 @@
 
 :is(.front-route-audit, .front-route-accounting, .front-route-tax) .ac-audit-obligor-criteria {
     display: grid;
-    margin-top: 1.35rem;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 0;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.35rem;
 }
 
 :is(.front-route-audit, .front-route-accounting, .front-route-tax) .ac-audit-obligor-criteria li {
     display: grid;
-    min-height: 5.5rem;
-    padding: 1rem 1.4rem;
-    border-left: 1px solid rgba(216, 185, 111, 0.16);
+    min-height: 0;
+    padding: 0.35rem 0;
     grid-template-columns: 2.25rem minmax(0, 1fr);
     gap: 0.9rem;
     align-items: center;
     color: rgba(247, 247, 245, 0.86);
     font-size: 0.94rem;
     line-height: 1.55;
-}
-
-:is(.front-route-audit, .front-route-accounting, .front-route-tax) .ac-audit-obligor-criteria li:first-child {
-    border-left: 0;
 }
 
 :is(.front-route-audit, .front-route-accounting, .front-route-tax) .ac-audit-obligor-criteria i {
@@ -639,24 +632,6 @@
         grid-template-columns: minmax(0, 1fr);
     }
 
-    :is(.front-route-audit, .front-route-accounting, .front-route-tax) .ac-audit-obligor-card--wide {
-        grid-column: auto;
-    }
-
-    :is(.front-route-audit, .front-route-accounting, .front-route-tax) .ac-audit-obligor-criteria {
-        grid-template-columns: minmax(0, 1fr);
-    }
-
-    :is(.front-route-audit, .front-route-accounting, .front-route-tax) .ac-audit-obligor-criteria li {
-        min-height: 0;
-        border-top: 1px solid rgba(216, 185, 111, 0.16);
-        border-left: 0;
-    }
-
-    :is(.front-route-audit, .front-route-accounting, .front-route-tax) .ac-audit-obligor-criteria li:first-child {
-        border-top: 0;
-    }
-
     :is(.front-route-audit, .front-route-accounting, .front-route-tax) .ac-audit-services-grid {
         grid-template-columns: repeat(2, minmax(0, 1fr));
     }
@@ -794,10 +769,6 @@
 
     :is(.front-route-audit, .front-route-accounting, .front-route-tax) .ac-audit-obligor-icon {
         margin: 0;
-    }
-
-    :is(.front-route-audit, .front-route-accounting, .front-route-tax) .ac-audit-obligor-criteria {
-        margin-top: 1rem;
     }
 
     :is(.front-route-audit, .front-route-accounting, .front-route-tax) .ac-audit-section-heading {

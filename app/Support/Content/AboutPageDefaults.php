@@ -173,8 +173,9 @@ class AboutPageDefaults
             ],
             'responsibility' => [
                 'kicker' => 'Društveno odgovorno poslovanje',
-                'title' => 'AUXILIUM CAPITALIS - ulaganje u budućnost',
+                'title' => 'Udruga AUXILIUM CAPITALIS - ulaganje u budućnost',
                 'quote' => 'Vjerujemo da uspjeh ima najveću vrijednost kada stvara prilike za druge.',
+                'image_alt' => 'Udruga AUXILIUM CAPITALIS pruža podršku mladima kroz obrazovanje i razvoj.',
                 'paragraphs' => [
                     'Zato smo pokrenuli AUXILIUM CAPITALIS - inicijativu usmjerenu na stipendiranje učenika i pružanje podrške mladima kroz obrazovanje, razvoj i financijsku pismenost.',
                     'Naš cilj je pomoći talentiranim i perspektivnim mladim ljudima da lakše ostvare svoj potencijal, bez obzira na okolnosti iz kojih dolaze.',

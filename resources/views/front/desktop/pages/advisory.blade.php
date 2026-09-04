@@ -133,44 +133,6 @@
             </div>
         </section>
 
-        @if ($pandeaBlocks !== [])
-            <section class="ac-advisory-network" id="advisory-network" aria-labelledby="ac-advisory-network-title">
-                <div class="ac-advisory-wide-shell ac-advisory-network-grid">
-                    <div class="ac-advisory-network-heading">
-                        <h2 id="ac-advisory-network-title" data-words-slide-from-right aria-label="{{ $networkTitle }}">
-                            @foreach ($networkTitleLines as $line)
-                                <span class="ac-advisory-network-title-line">
-                                    @foreach ($headingWords($line) as $word)
-                                        <span class="service-title-word animation-index-{{ $loop->parent->index + $loop->index }} {{ $loop->parent->last && $loop->index > 0 ? 'is-accent' : '' }}" aria-hidden="true">{{ $word }}</span>
-                                    @endforeach
-                                </span>
-                            @endforeach
-                        </h2>
-
-                        @if ($networkLogoUrl !== '')
-                            <div class="ac-advisory-network-logo-card content-reveal" data-image-reveal>
-                                <img
-                                    src="{{ $networkLogoUrl }}"
-                                    alt="{{ trim((string) ($pandea['logo_alt'] ?? '')) }}"
-                                    class="ac-advisory-network-logo"
-                                    width="380"
-                                    height="100"
-                                    loading="lazy"
-                                    decoding="async"
-                                >
-                            </div>
-                        @endif
-                    </div>
-
-                    <div class="ac-advisory-network-copy content-reveal animation-index-1" data-image-reveal>
-                        @foreach ($pandeaBlocks as $block)
-                            {!! $block !!}
-                        @endforeach
-                    </div>
-                </div>
-            </section>
-        @endif
-
         <section class="ac-advisory-services" id="advisory-services" aria-labelledby="ac-advisory-services-title">
             <div class="ac-advisory-wide-shell">
                 <header class="ac-advisory-section-heading">
@@ -221,6 +183,44 @@
                             {!! $block !!}
                         @endforeach
                     </blockquote>
+                </div>
+            </section>
+        @endif
+
+        @if ($pandeaBlocks !== [])
+            <section class="ac-advisory-network" id="advisory-network" aria-labelledby="ac-advisory-network-title">
+                <div class="ac-advisory-wide-shell ac-advisory-network-grid">
+                    <div class="ac-advisory-network-heading">
+                        <h2 id="ac-advisory-network-title" data-words-slide-from-right aria-label="{{ $networkTitle }}">
+                            @foreach ($networkTitleLines as $line)
+                                <span class="ac-advisory-network-title-line">
+                                    @foreach ($headingWords($line) as $word)
+                                        <span class="service-title-word animation-index-{{ $loop->parent->index + $loop->index }} {{ $loop->parent->last && $loop->index > 0 ? 'is-accent' : '' }}" aria-hidden="true">{{ $word }}</span>
+                                    @endforeach
+                                </span>
+                            @endforeach
+                        </h2>
+
+                        @if ($networkLogoUrl !== '')
+                            <div class="ac-advisory-network-logo-card content-reveal" data-image-reveal>
+                                <img
+                                    src="{{ $networkLogoUrl }}"
+                                    alt="{{ trim((string) ($pandea['logo_alt'] ?? '')) }}"
+                                    class="ac-advisory-network-logo"
+                                    width="380"
+                                    height="100"
+                                    loading="lazy"
+                                    decoding="async"
+                                >
+                            </div>
+                        @endif
+                    </div>
+
+                    <div class="ac-advisory-network-copy content-reveal animation-index-1" data-image-reveal>
+                        @foreach ($pandeaBlocks as $block)
+                            {!! $block !!}
+                        @endforeach
+                    </div>
                 </div>
             </section>
         @endif

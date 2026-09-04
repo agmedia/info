@@ -100,6 +100,7 @@
     $careerStoriesTitle = trim((string) ($careerStoriesSection['title'] ?? ''));
     $careerStoriesIntro = trim((string) ($careerStoriesSection['intro'] ?? ''));
     $headingWords = static fn (string $title): array => preg_split('/\s+/u', trim($title), -1, PREG_SPLIT_NO_EMPTY) ?: [];
+    $valueIconClasses = ['fa-handshake', 'fa-hands-holding-heart', 'fa-arrow-trend-up', 'fa-lightbulb', 'fa-people-group'];
     $processIconClasses = ['fa-handshake', 'fa-hands-holding-heart', 'fa-chart-line-up', 'fa-lightbulb-on'];
     $storyIconClasses = ['fa-people-group', 'fa-compass', 'fa-seedling'];
     $careerHeroMedia = $page->getFirstMedia('career_hero_image');
@@ -213,7 +214,7 @@
                         <ul class="ac-career-value-list content-reveal animation-index-2" data-image-reveal aria-label="{{ $careerValuesLabel }}">
                             @foreach ($careerValues as $value)
                                 <li>
-                                    <i class="fa-solid fa-check" aria-hidden="true"></i>
+                                    <i class="fa-duotone fa-thin fa-fw {{ $valueIconClasses[$loop->index] ?? 'fa-circle-check' }}" aria-hidden="true"></i>
                                     <span>{{ $value }}</span>
                                 </li>
                             @endforeach

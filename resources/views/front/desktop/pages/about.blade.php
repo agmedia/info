@@ -20,6 +20,7 @@
     $aboutPreviewTeamMembers = $aboutTeamMembers->take(3)->values();
     $aboutReferenceItems = collect($aboutReferenceItems ?? [])->values();
     $aboutHeroMedia = $page->getFirstMedia('about_hero_image');
+    $aboutResponsibilityMedia = $page->getFirstMedia('about_responsibility_image');
     $aboutHeroMediaAlt = trim((string) data_get($aboutHeroMedia?->custom_properties, 'alt.'.$locale));
     if (! $aboutRequiresExactTranslation && $aboutHeroMediaAlt === '') {
         $aboutHeroMediaAlt = trim((string) (
@@ -36,6 +37,22 @@
         'alt' => $aboutHeroContentAlt !== ''
             ? $aboutHeroContentAlt
             : $aboutHeroMediaAlt,
+    ];
+    $aboutResponsibilityMediaAlt = trim((string) data_get($aboutResponsibilityMedia?->custom_properties, 'alt.'.$locale));
+    if (! $aboutRequiresExactTranslation && $aboutResponsibilityMediaAlt === '') {
+        $aboutResponsibilityMediaAlt = trim((string) (
+            data_get($aboutResponsibilityMedia?->custom_properties, 'alt.'.$fallbackLocale)
+            ?: $aboutResponsibilityMedia?->name
+        ));
+    }
+    $aboutResponsibilityContentAlt = trim((string) ($responsibility['image_alt'] ?? ''));
+    $aboutResponsibilityPhoto = [
+        'src' => $aboutResponsibilityMedia?->hasGeneratedConversion('about_responsibility_1890x1063')
+            ? $aboutResponsibilityMedia->getUrl('about_responsibility_1890x1063')
+            : ($aboutResponsibilityMedia?->getUrl() ?: asset('front-theme/images/about/auxilium-capitalis-udruga.png')),
+        'alt' => $aboutResponsibilityContentAlt !== ''
+            ? $aboutResponsibilityContentAlt
+            : $aboutResponsibilityMediaAlt,
     ];
     $referencePageUrl = route('pages.show', ['slug' => 'reference']);
     $teamButtonLabel = trim((string) ($team['button_label'] ?? ''));
@@ -540,15 +557,23 @@
                 @if ($responsibilityBlocks->isNotEmpty())
                     <div class="ac-about-responsibility-body">
                         <div class="ac-about-responsibility-body-lead content-reveal animation-index-1" data-image-reveal>
-                            @foreach ($responsibilityBlocks->take(2) as $block)
+                            @foreach ($responsibilityBlocks as $block)
                                 {!! $block !!}
                             @endforeach
                         </div>
 
-                        <div class="ac-about-copy-stack ac-about-responsibility-body-copy content-reveal animation-index-2" data-image-reveal>
-                            @foreach ($responsibilityBlocks->skip(2) as $block)
-                                {!! $block !!}
-                            @endforeach
+                        <div class="ac-about-responsibility-media content-reveal animation-index-2" data-image-reveal>
+                            <figure class="ac-about-responsibility-image image-reveal-media">
+                                <img
+                                    src="{{ $aboutResponsibilityPhoto['src'] }}"
+                                    alt="{{ $aboutResponsibilityPhoto['alt'] }}"
+                                    width="1890"
+                                    height="1063"
+                                    loading="lazy"
+                                    decoding="async"
+                                >
+                                <span class="image-reveal-curtain" aria-hidden="true"></span>
+                            </figure>
                         </div>
                     </div>
                 @endif

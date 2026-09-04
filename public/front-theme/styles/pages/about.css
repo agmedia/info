@@ -1505,6 +1505,34 @@
     color: var(--about-copy);
 }
 
+.front-desktop-shell .ac-about-responsibility-media {
+    margin: 0;
+    padding-left: clamp(28px, 3vw, 48px);
+}
+
+.front-desktop-shell .ac-about-responsibility-image {
+    position: relative;
+    overflow: hidden;
+    margin: 0;
+    border: 1px solid var(--about-light-border);
+    border-radius:
+        var(--about-radius-small)
+        var(--about-radius-medium)
+        var(--about-radius-small)
+        var(--about-radius-medium);
+    background: var(--about-navy);
+}
+
+.front-desktop-shell .ac-about-responsibility-image > img {
+    display: block;
+    width: 100%;
+    height: auto;
+}
+
+.front-desktop-shell .ac-about-responsibility-image > .image-reveal-curtain {
+    background: var(--about-cream);
+}
+
 .front-desktop-shell .ac-about-culture-body-lead p,
 .front-desktop-shell .ac-about-culture-body-copy p {
     color: rgba(255, 255, 255, 0.74);
@@ -2089,6 +2117,7 @@
     .front-desktop-shell .ac-about-culture-body-copy,
     .front-desktop-shell .ac-about-responsibility-body-lead,
     .front-desktop-shell .ac-about-responsibility-body-copy,
+    .front-desktop-shell .ac-about-responsibility-media,
     .front-desktop-shell .ac-about-reference-body-lead,
     .front-desktop-shell .ac-about-reference-body-copy {
         padding-right: 0;

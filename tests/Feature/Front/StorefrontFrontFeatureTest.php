@@ -359,7 +359,11 @@ class StorefrontFrontFeatureTest extends TestCase
             ->assertSee('Ljudi zbog kojih ostaješ')
             ->assertSee('Otvorene pozicije')
             ->assertSee('Pošalji nam svoj životopis')
-            ->assertSee('fa-solid fa-check', false)
+            ->assertSee('fa-duotone fa-thin fa-fw fa-handshake', false)
+            ->assertSee('fa-duotone fa-thin fa-fw fa-hands-holding-heart', false)
+            ->assertSee('fa-duotone fa-thin fa-fw fa-arrow-trend-up', false)
+            ->assertSee('fa-duotone fa-thin fa-fw fa-lightbulb', false)
+            ->assertSee('fa-duotone fa-thin fa-fw fa-people-group', false)
             ->assertDontSee('ac-career-card-number', false);
     }
 
@@ -2207,7 +2211,11 @@ class StorefrontFrontFeatureTest extends TestCase
             ->assertOk()
             ->assertSee('Naše usluge')
             ->assertSee('values-section services-index-intro', false)
-            ->assertSee('services-index-inline-link', false)
+            ->assertSee('services-value-grid', false)
+            ->assertSee('Kako stvaramo vrijednost')
+            ->assertSee('Kome stvaramo vrijednost')
+            ->assertSee('Pouzdana podrška za sigurnije poslovanje i donošenje odluka.')
+            ->assertSee('Pouzdane informacije i stručna perspektiva za sigurnije poslovne odnose.')
             ->assertSee('services-index-cards-shell', false)
             ->assertSee('services-grid services-grid--count-3', false)
             ->assertSee('class="service-card"', false)
@@ -2217,7 +2225,7 @@ class StorefrontFrontFeatureTest extends TestCase
             ->assertSee('Neovisna provjera financijskih izvještaja koja povećava povjerenje vlasnika, investitora i partnera.')
             ->assertSee('Precizno vođenje knjiga, pravovremeno izvještavanje i porezno savjetovanje za sigurnije poslovne odluke.')
             ->assertSee('Financijsko i strateško savjetovanje te pribavljanje kapitala - sve na jednom mjestu.')
-            ->assertSeeText('Kroz integrirani pristup reviziji, računovodstvu i financijskom savjetovanju stvaramo dodatnu vrijednost')
+            ->assertSeeText('Stvaramo vrijednost za naše klijente u svim fazama razvoja njihova poslovanja')
             ->assertDontSee('Naša podrška omogućuje bolje upravljanje financijama, kvalitetnije strateško planiranje')
             ->assertDontSee('Tri područja poslovne podrške')
             ->assertDontSee('Saznaj više')
@@ -2236,7 +2244,8 @@ class StorefrontFrontFeatureTest extends TestCase
             ->assertSee('Neovisna revizija daje Vam sigurnost da odluke donosite na temelju pouzdanih informacija.')
             ->assertSee('Obveznici revizije')
             ->assertSee('Revizija je zakonska obveza za:')
-            ->assertSee('ac-audit-obligor-card--wide', false)
+            ->assertSee('ac-audit-obligor-card--criteria', false)
+            ->assertDontSee('ac-audit-obligor-card--wide', false)
             ->assertSee('fa-duotone fa-thin fa-fw fa-city', false)
             ->assertSee('Naše revizijske usluge')
             ->assertSee('Revizija financijskih izvještaja')
@@ -2287,7 +2296,8 @@ class StorefrontFrontFeatureTest extends TestCase
             ->assertSee('ac-accounting-partner-note-quote', false)
             ->assertSee('ac-accounting-partner-note-text', false)
             ->assertSee('fa-duotone fa-thin fa-fw fa-book-copy', false)
-            ->assertSee('fa-duotone fa-thin fa-fw fa-badge-percent', false)
+            ->assertSee('fa-duotone fa-thin fa-fw fa-receipt', false)
+            ->assertDontSee('fa-duotone fa-thin fa-fw fa-badge-percent', false)
             ->assertSee('fa-duotone fa-thin fa-fw fa-user-tie-hair', false)
             ->assertSee('fa-duotone fa-thin fa-fw fa-file-certificate', false)
             ->assertSee('fa-duotone fa-thin fa-fw fa-chart-waterfall', false)
@@ -2360,6 +2370,12 @@ class StorefrontFrontFeatureTest extends TestCase
         $this->assertSame(
             4,
             substr_count((string) $response->getContent(), 'class="ac-advisory-service-card '),
+        );
+
+        $content = (string) $response->getContent();
+        $this->assertTrue(
+            strpos($content, 'ac-advisory-approach') < strpos($content, 'ac-advisory-network'),
+            'The Pandea section should render after the approach section.',
         );
     }
 
@@ -2486,6 +2502,7 @@ class StorefrontFrontFeatureTest extends TestCase
         data_set($croatianPayload, 'about_page.hero.image_alt', '');
         $croatianTranslation?->forceFill(['payload' => $croatianPayload])->save();
         $aboutPage->clearMediaCollection('about_hero_image');
+        $aboutPage->clearMediaCollection('about_responsibility_image');
 
         $this->get('/o-nama')
             ->assertOk()
@@ -2510,6 +2527,9 @@ class StorefrontFrontFeatureTest extends TestCase
             ->assertSee('<strong>snažan multidisciplinarni tim</strong>', false)
             ->assertSee('Tim stručnjaka na jednom mjestu')
             ->assertSee('Uz vas prije, tijekom i nakon svake važne odluke')
+            ->assertSee('Udruga AUXILIUM CAPITALIS - ulaganje u budućnost')
+            ->assertSee('class="ac-about-responsibility-image image-reveal-media"', false)
+            ->assertSee('front-theme/images/about/auxilium-capitalis-udruga.png', false)
             ->assertSee('data-count-target="75"', false)
             ->assertSee('data-count-target="700"', false)
             ->assertDontSee('alt="ALPHA CAPITALIS tim"', false)
@@ -2662,6 +2682,32 @@ class StorefrontFrontFeatureTest extends TestCase
             ->assertSee($expectedHeroUrl, false)
             ->assertSee('alt="Novi portret ALPHA CAPITALIS tima"', false)
             ->assertDontSee('front-theme/images/about/o-nama.jpg', false);
+    }
+
+    public function test_about_page_uses_uploaded_responsibility_image(): void
+    {
+        Storage::fake('public');
+        config()->set('media-library.disk_name', 'public');
+        config()->set('media-library.queue_conversions_by_default', false);
+
+        $this->seedCroatianAboutCmsPayload();
+        $aboutPage = InfoPage::query()->where('code', 'about-us')->firstOrFail();
+        $aboutPage->clearMediaCollection('about_responsibility_image');
+        $media = $aboutPage
+            ->addMedia(UploadedFile::fake()->image('custom-auxilium.jpg', 1890, 1063))
+            ->withCustomProperties([
+                'alt' => ['hr' => 'Prilagođeni vizual Udruge AUXILIUM CAPITALIS'],
+            ])
+            ->toMediaCollection('about_responsibility_image')
+            ->fresh();
+        $expectedImageUrl = $media->hasGeneratedConversion('about_responsibility_1890x1063')
+            ? $media->getUrl('about_responsibility_1890x1063')
+            : $media->getUrl();
+
+        $this->get('/o-nama')
+            ->assertOk()
+            ->assertSee($expectedImageUrl, false)
+            ->assertDontSee('front-theme/images/about/auxilium-capitalis-udruga.png', false);
     }
 
     public function test_navigation_menu_service_resolves_page_and_custom_links(): void

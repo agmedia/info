@@ -6,6 +6,10 @@
     $aboutHeroPreviewUrl = $aboutHeroUpload instanceof \Livewire\Features\SupportFileUploads\TemporaryUploadedFile
         ? $aboutHeroUpload->temporaryUrl()
         : (string) ($pageHeroImage['url'] ?? '');
+    $aboutResponsibilityUpload = $aboutResponsibilityImageUpload ?? null;
+    $aboutResponsibilityPreviewUrl = $aboutResponsibilityUpload instanceof \Livewire\Features\SupportFileUploads\TemporaryUploadedFile
+        ? $aboutResponsibilityUpload->temporaryUrl()
+        : (string) ($aboutResponsibilityImage['url'] ?? '');
 @endphp
 
 <div class="admin-panel admin-form-panel p-6">
@@ -187,6 +191,7 @@
         ></textarea>
         <p class="mt-1 text-xs text-slate-500">Sadržaj se na frontu automatski raspoređuje u dva stupca.</p>
     </div>
+
 </div>
 
 <div id="about-team-admin" class="admin-panel admin-form-panel scroll-mt-24 p-6">
@@ -306,6 +311,36 @@
             class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm leading-6"
         ></textarea>
         <p class="mt-1 text-xs text-slate-500">Sadržaj se na frontu automatski raspoređuje u dva stupca.</p>
+    </div>
+
+    <div class="mt-5 grid gap-5 lg:grid-cols-[minmax(0,1.35fr)_minmax(18rem,0.65fr)]">
+        <div class="overflow-hidden rounded-xl border border-slate-200 bg-slate-100">
+            @if ($aboutResponsibilityPreviewUrl !== '')
+                <img src="{{ $aboutResponsibilityPreviewUrl }}" alt="" class="aspect-[1890/1063] h-auto w-full object-contain" />
+            @endif
+        </div>
+
+        <div>
+            <div class="flex items-center justify-between gap-3">
+                <label class="block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Fotografija udruge</label>
+                <span class="admin-chip">{{ ($aboutResponsibilityImage['is_custom'] ?? false) ? 'Vlastita slika' : 'Zadana slika' }}</span>
+            </div>
+            <input type="file" wire:model="aboutResponsibilityImageUpload" accept="{{ implode(',', \App\Support\Media\MediaProfileRegistry::supportedImageMimeTypes(['image/jpeg', 'image/png', 'image/webp', 'image/avif'])) }}" class="mt-1 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm file:mr-3 file:rounded-lg file:border-0 file:bg-slate-100 file:px-3 file:py-1.5 file:text-xs file:font-semibold file:text-slate-700 hover:file:bg-slate-200" />
+            <p class="mt-1 text-xs text-slate-500">Preporučeni omjer je 16:9. Nova slika sprema se zajedno sa stranicom.</p>
+            @error('aboutResponsibilityImageUpload') <p class="mt-1 text-xs text-rose-600">{{ $message }}</p> @enderror
+
+            @if (($aboutResponsibilityImage['is_custom'] ?? false) && ! $aboutResponsibilityUpload)
+                <button type="button" wire:click="removeAboutResponsibilityImage" wire:confirm="Ukloniti vlastitu fotografiju i vratiti zadanu?" class="mt-2 text-xs font-semibold text-rose-600 hover:text-rose-700">
+                    Vrati zadanu sliku
+                </button>
+            @endif
+
+            <div class="mt-4">
+                <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Alternativni opis fotografije</label>
+                <input type="text" wire:model="form.about_content.responsibility.image_alt" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+                <p class="mt-1 text-xs text-slate-500">Kratko opišite vizual za korisnike čitača ekrana.</p>
+            </div>
+        </div>
     </div>
 </div>
 

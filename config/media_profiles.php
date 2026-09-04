@@ -52,6 +52,13 @@ return [
             'quality' => 86,
             'format' => null,
         ],
+        'about_responsibility_1890x1063' => [
+            'fit' => 'max',
+            'width' => 1890,
+            'height' => 1063,
+            'quality' => 88,
+            'format' => 'webp',
+        ],
         'career_hero_1440x1059' => [
             'fit' => 'crop',
             'width' => 1440,
@@ -122,6 +129,14 @@ return [
                     'max_upload_kb' => 8192,
                     'accept_mime_types' => ['image/jpeg', 'image/png', 'image/webp', 'image/avif'],
                     'conversions' => ['card_360x240', 'about_hero_1440x1059'],
+                    'preview_conversion' => 'card_360x240',
+                ],
+                'about_responsibility_image' => [
+                    'label' => 'Fotografija Udruge AUXILIUM CAPITALIS',
+                    'single_file' => true,
+                    'max_upload_kb' => 8192,
+                    'accept_mime_types' => ['image/jpeg', 'image/png', 'image/webp', 'image/avif'],
+                    'conversions' => ['card_360x240', 'about_responsibility_1890x1063'],
                     'preview_conversion' => 'card_360x240',
                 ],
                 'career_hero_image' => [

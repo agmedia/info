@@ -856,6 +856,31 @@ class ContentBlogPagesFeatureTest extends TestCase
         Storage::disk('public')->assertExists($media->getPathRelativeToRoot());
     }
 
+    public function test_admin_can_replace_about_responsibility_image_from_page_specific_editor(): void
+    {
+        Storage::fake('public');
+        config()->set('media-library.disk_name', 'public');
+        config()->set('media-library.queue_conversions_by_default', false);
+
+        $user = $this->makeAdminUser();
+        $page = InfoPage::query()->where('code', 'about-us')->firstOrFail();
+        $page->clearMediaCollection('about_responsibility_image');
+
+        Livewire::actingAs($user)
+            ->test(PageForm::class, ['pageId' => $page->id])
+            ->set('form.about_content.responsibility.image_alt', 'Vizual Udruge AUXILIUM CAPITALIS')
+            ->set('aboutResponsibilityImageUpload', UploadedFile::fake()->image('auxilium.jpg', 1890, 1063))
+            ->assertSet('form.about_content.responsibility.image_alt', 'Vizual Udruge AUXILIUM CAPITALIS')
+            ->call('save')
+            ->assertRedirect(route('admin.content.pages.index', ['locale' => 'hr']));
+
+        $media = $page->fresh()->getFirstMedia('about_responsibility_image');
+
+        $this->assertNotNull($media);
+        $this->assertSame('Vizual Udruge AUXILIUM CAPITALIS', (string) data_get($media->custom_properties, 'alt.hr'));
+        Storage::disk('public')->assertExists($media->getPathRelativeToRoot());
+    }
+
     public function test_career_editor_uses_large_hero_image_for_its_preview(): void
     {
         Storage::fake('public');
