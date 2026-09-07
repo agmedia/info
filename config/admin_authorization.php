@@ -285,8 +285,9 @@ return [
     ],
 
     'livewire_delete_keywords' => [
+        // "remove" actions only change fields or attached items inside an
+        // editor form. Persisted records use an explicit "delete" action.
         'delete',
-        'remove',
         'spam',
         'reject',
     ],
