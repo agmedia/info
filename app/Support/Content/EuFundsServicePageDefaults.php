@@ -452,12 +452,8 @@ class EuFundsServicePageDefaults
                 'status_label' => 'OTVORENO',
                 'items' => [
                     self::callItem('Inovacije procesa u S3 područjima', 'inovacije-procesa-u-s3-podrucjima'),
-                    self::callItem('Izgradnja i opremanje postrojenja za obradu reciklabilnog otpada', 'izgradnja-i-opremanje-postrojenja-za-obradu-reciklabilnog-otpada-2'),
                     self::callItem('Dokazivanje inovativnog koncepta – Prvi poziv', 'poziv-u-najavi-dokazivanje-inovativnog-koncepta-prvi-poziv'),
                     self::callItem('Program poticanja poduzetništva u kulturnim i kreativnim industrijama u 2026. godini', 'program-poticanja-poduzetnistva-u-kulturnim-i-kreativnim-industrijama-u-2026-godini'),
-                    self::callItem('Postrojenja za skladištenje vlastite proizvodnje električne energije za potrebe odgođene isporuke energije u mrežu', 'postrojenja-za-skladistenje-vlastite-proizvodnje-elektricne-energije-za-potrebe-odgodene-isporuke-energije-u-mrezu'),
-                    self::callItem('Inovacijski vaučeri', 'inovacijski-vauceri-2'),
-                    self::callItem('Podrška uključivanju MSP-ova u lance vrijednosti (Integrator)', 'integrator'),
                 ],
             ],
             [
@@ -465,6 +461,10 @@ class EuFundsServicePageDefaults
                 'tone' => 'closed',
                 'status_label' => 'ZATVORENO',
                 'items' => [
+                    self::callItem('Izgradnja i opremanje postrojenja za obradu reciklabilnog otpada', 'izgradnja-i-opremanje-postrojenja-za-obradu-reciklabilnog-otpada-2'),
+                    self::callItem('Podrška uključivanju MSP-ova u lance vrijednosti (Integrator)', 'integrator'),
+                    self::callItem('Postrojenja za skladištenje vlastite proizvodnje električne energije za potrebe odgođene isporuke energije u mrežu', 'postrojenja-za-skladistenje-vlastite-proizvodnje-elektricne-energije-za-potrebe-odgodene-isporuke-energije-u-mrezu'),
+                    self::callItem('Inovacijski vaučeri', 'inovacijski-vauceri-2'),
                     self::callItem('IRI S3 – Povećanje razvoja novih proizvoda i usluga koji proizlaze iz aktivnosti istraživanja i razvoja', 'iri-s3-povecanje-razvoja-novih-proizvoda-i-usluga-koji-proizlaze-iz-aktivnosti-istrazivanja-i-razvoja'),
                     self::callItem('Kolaborativna znanstvena istraživanja', 'kolaborativna-znanstvena-istrazivanja'),
                     self::callItem('Potpora MSP-ovima Istarske županije u zelenoj tranziciji putem proizvodnih inovacija', 'potpora-msp-ovima-istarske-zupanije-u-zelenoj-tranziciji-putem-proizvodnih-inovacija'),

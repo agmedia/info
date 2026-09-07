@@ -10,6 +10,7 @@ use App\Models\Content\Call\CallPost;
 use App\Models\Content\Call\CallPostTranslation;
 use App\Models\Content\Service\ServicePage;
 use App\Models\Settings\Local\Language;
+use App\Support\Content\EuFundsServicePageDefaults;
 use App\Support\Content\ServicePageTemplateRegistry;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -17,6 +18,25 @@ use Tests\TestCase;
 class EuFundsServicePageFeatureTest extends TestCase
 {
     use RefreshDatabase;
+
+    public function test_requested_september_calls_are_closed_in_the_fallback_content(): void
+    {
+        $groups = collect(data_get(EuFundsServicePageDefaults::defaultsForLocale('hr'), 'calls.groups', []))
+            ->keyBy('tone');
+        $openTitles = collect(data_get($groups->get('open'), 'items', []))->pluck('title');
+        $closedTitles = collect(data_get($groups->get('closed'), 'items', []))->pluck('title');
+        $requestedTitles = [
+            'Izgradnja i opremanje postrojenja za obradu reciklabilnog otpada',
+            'Podrška uključivanju MSP-ova u lance vrijednosti (Integrator)',
+            'Postrojenja za skladištenje vlastite proizvodnje električne energije za potrebe odgođene isporuke energije u mrežu',
+            'Inovacijski vaučeri',
+        ];
+
+        foreach ($requestedTitles as $title) {
+            $this->assertNotContains($title, $openTitles);
+            $this->assertContains($title, $closedTitles);
+        }
+    }
 
     public function test_eu_funds_service_page_renders_three_latest_posts_above_standard_service_cta(): void
     {
