@@ -78,6 +78,11 @@ class Form extends Component
         'team_members' => 'page_payload.team_source.member_ids',
     ];
 
+    private const MANAGED_PDF_ASSET_DIRECTORIES = [
+        'service-assets/eu-funds',
+        'service-assets/audit/transparency-reports',
+    ];
+
     public ?int $servicePageId = null;
 
     public string $contentSection = 'main';
@@ -113,10 +118,10 @@ class Form extends Component
     public array $translationPayloadBaseline = [];
 
     /** @var array<int, string> */
-    private array $newEuFundsAssetPaths = [];
+    private array $newServiceAssetPaths = [];
 
     /** @var array<int, string> */
-    private array $replacedEuFundsAssetPaths = [];
+    private array $replacedServiceAssetPaths = [];
 
     /**
      * @var array<string, string>
@@ -314,6 +319,19 @@ class Form extends Component
         data_set($this->form, 'translation_payload.'.$path, array_values($items));
     }
 
+    public function addAuditTransparencyReport(): void
+    {
+        $items = array_values((array) data_get(
+            $this->form,
+            'translation_payload.transparency_reports.items',
+            [],
+        ));
+
+        array_unshift($items, $this->translationListItemPreset('audit_transparency_report'));
+
+        data_set($this->form, 'translation_payload.transparency_reports.items', $items);
+    }
+
     public function removeTranslationListItem(string $path, int $index): void
     {
         $items = (array) data_get($this->form, 'translation_payload.'.$path, []);
@@ -349,8 +367,8 @@ class Form extends Component
             return null;
         }
 
-        $this->newEuFundsAssetPaths = [];
-        $this->replacedEuFundsAssetPaths = [];
+        $this->newServiceAssetPaths = [];
+        $this->replacedServiceAssetPaths = [];
 
         try {
             $translationPayload = $this->normalizedTranslationPayload(
@@ -411,12 +429,12 @@ class Form extends Component
                     ->log('Service page saved');
             });
         } catch (\Throwable $exception) {
-            $this->deleteManagedEuFundsAssets($this->newEuFundsAssetPaths);
+            $this->deleteManagedServiceAssets($this->newServiceAssetPaths);
 
             throw $exception;
         }
 
-        $this->deleteUnreferencedReplacedEuFundsAssets();
+        $this->deleteUnreferencedReplacedServiceAssets();
 
         if ($savedServicePage instanceof ServicePage) {
             $this->storeServicesIndexCardImages($savedServicePage);
@@ -779,6 +797,12 @@ class Form extends Component
             $rules['form.translation_payload.approach.body'] = ['nullable', 'array'];
             $rules['form.translation_payload.approach.body.*'] = ['nullable', 'string'];
             $rules['form.translation_payload.approach.body_html'] = ['required', 'string'];
+            $rules['form.translation_payload.transparency_reports.title'] = ['required', 'string', 'max:255'];
+            $rules['form.translation_payload.transparency_reports.intro'] = ['required', 'string'];
+            $rules['form.translation_payload.transparency_reports.items'] = ['required', 'array', 'min:1'];
+            $rules['form.translation_payload.transparency_reports.items.*.year'] = ['required', 'digits:4'];
+            $rules['form.translation_payload.transparency_reports.items.*.label'] = ['required', 'string', 'max:255'];
+            $rules['form.translation_payload.transparency_reports.items.*.path'] = ['nullable', 'string', 'max:2048'];
             $rules['form.translation_payload.blog_section.title'] = ['required', 'string', 'max:255'];
             $rules['form.translation_payload.blog_section.all_posts_label'] = ['required', 'string', 'max:80'];
             $rules['form.translation_payload.blog_section.post_action_label'] = ['required', 'string', 'max:80'];
@@ -1372,6 +1396,11 @@ class Form extends Component
                 'text' => '',
                 'children' => [],
             ],
+            'audit_transparency_report' => [
+                'year' => '',
+                'label' => '',
+                'path' => '',
+            ],
             default => '',
         };
     }
@@ -1425,6 +1454,10 @@ class Form extends Component
     {
         if ($templateKey === ServicePageTemplateRegistry::EU_FUNDS) {
             $payload = $this->applyEuFundsAssetUploads($payload);
+        }
+
+        if ($templateKey === ServicePageTemplateRegistry::AUDIT) {
+            $payload = $this->applyAuditAssetUploads($payload);
         }
 
         $payload = ServicePageTemplateRegistry::hydrateStructuredEditorFields(
@@ -1882,7 +1915,28 @@ class Form extends Component
      * @param  array<string, mixed>  $payload
      * @return array<string, mixed>
      */
-    private function storeUploadedAssetAtPath(array $payload, string $path): array
+    private function applyAuditAssetUploads(array $payload): array
+    {
+        foreach ((array) data_get($payload, 'transparency_reports.items', []) as $reportIndex => $report) {
+            $payload = $this->storeUploadedAssetAtPath(
+                $payload,
+                "transparency_reports.items.$reportIndex.path",
+                'service-assets/audit/transparency-reports',
+            );
+        }
+
+        return $payload;
+    }
+
+    /**
+     * @param  array<string, mixed>  $payload
+     * @return array<string, mixed>
+     */
+    private function storeUploadedAssetAtPath(
+        array $payload,
+        string $path,
+        string $directory = 'service-assets/eu-funds',
+    ): array
     {
         $upload = $this->assetUploads[$this->assetUploadKey($path)] ?? null;
 
@@ -1892,18 +1946,22 @@ class Form extends Component
 
         $replacedPath = trim((string) data_get($payload, $path, ''));
         $storedPath = $upload->storeAs(
-            'service-assets/eu-funds',
+            $directory,
             Str::uuid().'.pdf',
             'public',
         );
 
-        if (! is_string($storedPath) || ! $this->isManagedEuFundsAssetPath($storedPath)) {
-            throw new \RuntimeException('EU funds PDF asset could not be stored.');
+        if (
+            ! is_string($storedPath)
+            || ! str_starts_with($storedPath, $directory.'/')
+            || ! $this->isManagedServiceAssetPath($storedPath)
+        ) {
+            throw new \RuntimeException('Service PDF asset could not be stored.');
         }
 
-        $this->newEuFundsAssetPaths[] = $storedPath;
-        if ($replacedPath !== '' && $replacedPath !== $storedPath && $this->isManagedEuFundsAssetPath($replacedPath)) {
-            $this->replacedEuFundsAssetPaths[] = $replacedPath;
+        $this->newServiceAssetPaths[] = $storedPath;
+        if ($replacedPath !== '' && $replacedPath !== $storedPath && $this->isManagedServiceAssetPath($replacedPath)) {
+            $this->replacedServiceAssetPaths[] = $replacedPath;
         }
 
         data_set($payload, $path, $storedPath);
@@ -1916,25 +1974,25 @@ class Form extends Component
         return str_replace('.', '_', $path);
     }
 
-    private function deleteUnreferencedReplacedEuFundsAssets(): void
+    private function deleteUnreferencedReplacedServiceAssets(): void
     {
-        $paths = collect($this->replacedEuFundsAssetPaths)
-            ->filter(fn ($path): bool => is_string($path) && $this->isManagedEuFundsAssetPath($path))
+        $paths = collect($this->replacedServiceAssetPaths)
+            ->filter(fn ($path): bool => is_string($path) && $this->isManagedServiceAssetPath($path))
             ->unique()
             ->reject(fn (string $path): bool => $this->serviceTranslationPayloadReferences($path))
             ->values()
             ->all();
 
-        $this->deleteManagedEuFundsAssets($paths);
+        $this->deleteManagedServiceAssets($paths);
     }
 
     /**
      * @param  array<int, string>  $paths
      */
-    private function deleteManagedEuFundsAssets(array $paths): void
+    private function deleteManagedServiceAssets(array $paths): void
     {
         $safePaths = collect($paths)
-            ->filter(fn ($path): bool => is_string($path) && $this->isManagedEuFundsAssetPath($path))
+            ->filter(fn ($path): bool => is_string($path) && $this->isManagedServiceAssetPath($path))
             ->unique()
             ->values()
             ->all();
@@ -1944,11 +2002,14 @@ class Form extends Component
         }
     }
 
-    private function isManagedEuFundsAssetPath(string $path): bool
+    private function isManagedServiceAssetPath(string $path): bool
     {
-        return str_starts_with($path, 'service-assets/eu-funds/')
+        $usesManagedDirectory = collect(self::MANAGED_PDF_ASSET_DIRECTORIES)
+            ->contains(fn (string $directory): bool => str_starts_with($path, $directory.'/'));
+
+        return $usesManagedDirectory
             && ! str_contains($path, '..')
-            && preg_match('#^service-assets/eu-funds/[A-Za-z0-9][A-Za-z0-9._/-]*$#', $path) === 1;
+            && preg_match('#^[A-Za-z0-9][A-Za-z0-9._/-]*\.pdf$#i', $path) === 1;
     }
 
     private function serviceTranslationPayloadReferences(string $path): bool

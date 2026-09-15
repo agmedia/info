@@ -2253,6 +2253,14 @@ class StorefrontFrontFeatureTest extends TestCase
             ->assertSee('Održivost i ESG')
             ->assertSee('IT revizija')
             ->assertSee('Naš pristup')
+            ->assertSee('Izvješća o transparentnosti')
+            ->assertSee('Pregled izvješća o transparentnosti poslovanja ALPHA CAPITALIS kroz godine.')
+            ->assertSee('Izvješće o transparentnosti poslovanja za 2025.')
+            ->assertSee('Izvješće o transparentnosti poslovanja za 2019.')
+            ->assertSee('front-theme/documents/izvjesca-o-transparentnosti/izvjesce-o-transparentnosti-2025.pdf', false)
+            ->assertSee('front-theme/documents/izvjesca-o-transparentnosti/izvjesce-o-transparentnosti-2019.pdf', false)
+            ->assertSee('ac-audit-transparency-list', false)
+            ->assertSee('fa-duotone fa-thin fa-file-pdf fa-fw', false)
             ->assertSee('Razgovarajmo o vašem revizorskom angažmanu')
             ->assertSee('front-theme/styles/pages/audit.css', false)
             ->assertSee('ac-audit-hero-image', false)
@@ -2266,6 +2274,15 @@ class StorefrontFrontFeatureTest extends TestCase
             ->assertDontSee('--audit-hero-image', false)
             ->assertDontSee('Što revizija donosi društvu')
             ->assertDontSee('ac-audit-service-number', false);
+
+        foreach (range(2019, 2025) as $year) {
+            $path = "front-theme/documents/izvjesca-o-transparentnosti/izvjesce-o-transparentnosti-{$year}.pdf";
+
+            $response
+                ->assertSee("Izvješće o transparentnosti poslovanja za {$year}.")
+                ->assertSee($path, false);
+            $this->assertFileExists(public_path($path));
+        }
     }
 
     public function test_accounting_service_page_renders_redesign_brief_flow(): void

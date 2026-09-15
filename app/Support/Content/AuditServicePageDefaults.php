@@ -122,6 +122,47 @@ class AuditServicePageDefaults
                     'Svaki revizijski angažman počinjemo s razumijevanjem vašeg poslovanja - ne s checklistom. Planiramo reviziju prema specifičnim rizicima vaše industrije i veličine, komuniciramo otvoreno kroz cijeli proces i zaključujemo jasnim mišljenjem bez iznenađenja.',
                 ],
             ],
+            'transparency_reports' => [
+                'title' => 'Izvješća o transparentnosti',
+                'intro' => 'Pregled izvješća o transparentnosti poslovanja ALPHA CAPITALIS kroz godine.',
+                'items' => [
+                    [
+                        'year' => '2025',
+                        'label' => 'Izvješće o transparentnosti poslovanja za 2025.',
+                        'path' => 'front-theme/documents/izvjesca-o-transparentnosti/izvjesce-o-transparentnosti-2025.pdf',
+                    ],
+                    [
+                        'year' => '2024',
+                        'label' => 'Izvješće o transparentnosti poslovanja za 2024.',
+                        'path' => 'front-theme/documents/izvjesca-o-transparentnosti/izvjesce-o-transparentnosti-2024.pdf',
+                    ],
+                    [
+                        'year' => '2023',
+                        'label' => 'Izvješće o transparentnosti poslovanja za 2023.',
+                        'path' => 'front-theme/documents/izvjesca-o-transparentnosti/izvjesce-o-transparentnosti-2023.pdf',
+                    ],
+                    [
+                        'year' => '2022',
+                        'label' => 'Izvješće o transparentnosti poslovanja za 2022.',
+                        'path' => 'front-theme/documents/izvjesca-o-transparentnosti/izvjesce-o-transparentnosti-2022.pdf',
+                    ],
+                    [
+                        'year' => '2021',
+                        'label' => 'Izvješće o transparentnosti poslovanja za 2021.',
+                        'path' => 'front-theme/documents/izvjesca-o-transparentnosti/izvjesce-o-transparentnosti-2021.pdf',
+                    ],
+                    [
+                        'year' => '2020',
+                        'label' => 'Izvješće o transparentnosti poslovanja za 2020.',
+                        'path' => 'front-theme/documents/izvjesca-o-transparentnosti/izvjesce-o-transparentnosti-2020.pdf',
+                    ],
+                    [
+                        'year' => '2019',
+                        'label' => 'Izvješće o transparentnosti poslovanja za 2019.',
+                        'path' => 'front-theme/documents/izvjesca-o-transparentnosti/izvjesce-o-transparentnosti-2019.pdf',
+                    ],
+                ],
+            ],
             'meeting' => [
                 'kicker' => 'KONTAKT',
                 'title' => 'Razgovarajmo o vašem revizorskom angažmanu',
@@ -263,6 +304,47 @@ class AuditServicePageDefaults
                 'intro' => 'Every audit engagement starts with understanding your business - not with a checklist. We plan the audit around the specific risks of your industry and size, communicate openly throughout the process, and conclude with a clear opinion without surprises.',
                 'body' => [
                     'Every audit engagement starts with understanding your business - not with a checklist. We plan the audit around the specific risks of your industry and size, communicate openly throughout the process, and conclude with a clear opinion without surprises.',
+                ],
+            ],
+            'transparency_reports' => [
+                'title' => 'Transparency reports',
+                'intro' => 'An overview of ALPHA CAPITALIS business transparency reports through the years.',
+                'items' => [
+                    [
+                        'year' => '2025',
+                        'label' => 'Business transparency report for 2025',
+                        'path' => 'front-theme/documents/izvjesca-o-transparentnosti/izvjesce-o-transparentnosti-2025.pdf',
+                    ],
+                    [
+                        'year' => '2024',
+                        'label' => 'Business transparency report for 2024',
+                        'path' => 'front-theme/documents/izvjesca-o-transparentnosti/izvjesce-o-transparentnosti-2024.pdf',
+                    ],
+                    [
+                        'year' => '2023',
+                        'label' => 'Business transparency report for 2023',
+                        'path' => 'front-theme/documents/izvjesca-o-transparentnosti/izvjesce-o-transparentnosti-2023.pdf',
+                    ],
+                    [
+                        'year' => '2022',
+                        'label' => 'Business transparency report for 2022',
+                        'path' => 'front-theme/documents/izvjesca-o-transparentnosti/izvjesce-o-transparentnosti-2022.pdf',
+                    ],
+                    [
+                        'year' => '2021',
+                        'label' => 'Business transparency report for 2021',
+                        'path' => 'front-theme/documents/izvjesca-o-transparentnosti/izvjesce-o-transparentnosti-2021.pdf',
+                    ],
+                    [
+                        'year' => '2020',
+                        'label' => 'Business transparency report for 2020',
+                        'path' => 'front-theme/documents/izvjesca-o-transparentnosti/izvjesce-o-transparentnosti-2020.pdf',
+                    ],
+                    [
+                        'year' => '2019',
+                        'label' => 'Business transparency report for 2019',
+                        'path' => 'front-theme/documents/izvjesca-o-transparentnosti/izvjesce-o-transparentnosti-2019.pdf',
+                    ],
                 ],
             ],
             'meeting' => [

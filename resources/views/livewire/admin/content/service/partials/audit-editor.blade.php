@@ -25,9 +25,10 @@
         <a href="#audit-obligors-admin" class="admin-chip">3. {{ __('Audit obligors') }}</a>
         <a href="#audit-services-admin" class="admin-chip">4. {{ __('Audit services') }}</a>
         <a href="#audit-approach-admin" class="admin-chip">5. {{ __('Our approach') }}</a>
-        <a href="#audit-blog-admin" class="admin-chip">6. {{ __('Expert posts') }}</a>
-        <a href="#audit-meeting-admin" class="admin-chip">7. {{ __('Contact CTA') }}</a>
-        <a href="#audit-settings-admin" class="admin-chip">8. {{ __('Page settings') }}</a>
+        <a href="#audit-transparency-reports-admin" class="admin-chip">6. {{ __('Transparency reports') }}</a>
+        <a href="#audit-blog-admin" class="admin-chip">7. {{ __('Expert posts') }}</a>
+        <a href="#audit-meeting-admin" class="admin-chip">8. {{ __('Contact CTA') }}</a>
+        <a href="#audit-settings-admin" class="admin-chip">9. {{ __('Page settings') }}</a>
     </div>
 </div>
 
@@ -256,9 +257,66 @@
     </div>
 </div>
 
+<div id="audit-transparency-reports-admin" class="admin-panel admin-form-panel scroll-mt-24 p-6">
+    <div class="border-b border-slate-200 pb-4">
+        <p class="text-xs font-semibold uppercase tracking-[0.16em] text-cyan-700">6. {{ __('Transparency reports') }}</p>
+        <h2 class="mt-1 text-lg font-semibold text-slate-900">{{ __('Annual PDF report list') }}</h2>
+        <p class="mt-1 text-sm text-slate-600">{{ __('Reports are displayed from newest to oldest. A report is shown on the page only when its public PDF path exists.') }}</p>
+    </div>
+
+    <div class="mt-5 grid gap-4 xl:grid-cols-2">
+        <div>
+            <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Section heading') }}</label>
+            <input type="text" wire:model="form.translation_payload.transparency_reports.title" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+            @error('form.translation_payload.transparency_reports.title') <p class="mt-1 text-xs text-rose-600">{{ $message }}</p> @enderror
+        </div>
+        <div>
+            <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Introductory text') }}</label>
+            <textarea rows="3" wire:model="form.translation_payload.transparency_reports.intro" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm leading-6"></textarea>
+            @error('form.translation_payload.transparency_reports.intro') <p class="mt-1 text-xs text-rose-600">{{ $message }}</p> @enderror
+        </div>
+    </div>
+
+    <div class="mt-5 space-y-4">
+        @foreach (($translationPayload['transparency_reports']['items'] ?? []) as $index => $report)
+            <div class="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                <div class="flex items-center justify-between gap-3">
+                    <p class="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('PDF report') }} {{ $index + 1 }}</p>
+                    <button type="button" wire:click="removeTranslationListItem('transparency_reports.items', {{ $index }})" class="text-xs font-semibold text-rose-600 hover:text-rose-700">{{ __('Remove') }}</button>
+                </div>
+
+                <div class="mt-3 grid gap-4 xl:grid-cols-[8rem_minmax(0,1fr)]">
+                    <div>
+                        <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Year') }}</label>
+                        <input type="text" inputmode="numeric" maxlength="4" wire:model="form.translation_payload.transparency_reports.items.{{ $index }}.year" class="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm" />
+                        @error('form.translation_payload.transparency_reports.items.'.$index.'.year') <p class="mt-1 text-xs text-rose-600">{{ $message }}</p> @enderror
+                    </div>
+                    <div>
+                        <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('Link label') }}</label>
+                        <input type="text" wire:model="form.translation_payload.transparency_reports.items.{{ $index }}.label" class="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm" />
+                        @error('form.translation_payload.transparency_reports.items.'.$index.'.label') <p class="mt-1 text-xs text-rose-600">{{ $message }}</p> @enderror
+                    </div>
+                </div>
+
+                <div class="mt-3">
+                    @include('livewire.admin.content.service.partials.pdf-asset-upload-field', [
+                        'label' => __('PDF document'),
+                        'currentPath' => (string) ($report['path'] ?? ''),
+                        'uploadModel' => 'assetUploads.transparency_reports_items_'.$index.'_path',
+                    ])
+                </div>
+            </div>
+        @endforeach
+    </div>
+
+    <button type="button" wire:click="addAuditTransparencyReport" class="mt-4 rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-100">
+        {{ __('Add PDF report') }}
+    </button>
+</div>
+
 <div id="audit-blog-admin" class="admin-panel admin-form-panel scroll-mt-24 p-6">
     <div class="border-b border-slate-200 pb-4">
-        <p class="text-xs font-semibold uppercase tracking-[0.16em] text-cyan-700">6. {{ __('Expert posts') }}</p>
+        <p class="text-xs font-semibold uppercase tracking-[0.16em] text-cyan-700">7. {{ __('Expert posts') }}</p>
         <h2 class="mt-1 text-lg font-semibold text-slate-900">{{ __('Blog section labels') }}</h2>
         <p class="mt-1 text-sm text-slate-600">{{ __('The category and posts are selected under Sources. This section controls the visible labels.') }}</p>
     </div>
@@ -283,7 +341,7 @@
 
 <div id="audit-meeting-admin" class="admin-panel admin-form-panel scroll-mt-24 p-6">
     <div class="border-b border-slate-200 pb-4">
-        <p class="text-xs font-semibold uppercase tracking-[0.16em] text-cyan-700">7. {{ __('Contact CTA') }}</p>
+        <p class="text-xs font-semibold uppercase tracking-[0.16em] text-cyan-700">8. {{ __('Contact CTA') }}</p>
         <h2 class="mt-1 text-lg font-semibold text-slate-900">{{ __('Final contact section') }}</h2>
     </div>
 

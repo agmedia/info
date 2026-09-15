@@ -9,6 +9,7 @@ use App\Models\Catalog\Category\Category;
 use App\Models\Content\Blog\BlogPost;
 use App\Models\Content\Service\ServicePage;
 use App\Models\Content\Service\ServicePageTranslation;
+use App\Support\Content\AuditServicePageDefaults;
 use App\Support\Content\ServicePageTemplateRegistry;
 use App\Support\Localization\FrontendLocalePolicy;
 use Illuminate\Database\Eloquent\Builder;
@@ -57,6 +58,9 @@ class AuditController extends Controller
 
         $blogSection = (array) ($translationPayload['blog_section'] ?? []);
         $blogSection['title'] = str_replace(':category', $categoryName, (string) ($blogSection['title'] ?? ''));
+        $transparencySection = array_key_exists('transparency_reports', $translationPayload)
+            ? (array) $translationPayload['transparency_reports']
+            : (array) data_get(AuditServicePageDefaults::defaultsForLocale($locale), 'transparency_reports', []);
 
         return view($this->frontendView($request, 'pages.audit'), [
             'auditPosts' => $auditPosts,
@@ -70,6 +74,7 @@ class AuditController extends Controller
             'servicesSection' => (array) ($translationPayload['services'] ?? []),
             'valueSection' => (array) ($translationPayload['value'] ?? []),
             'approachSection' => (array) ($translationPayload['approach'] ?? []),
+            'transparencySection' => $transparencySection,
             'serviceVideoSection' => $serviceVideoPayload['section'],
             'serviceVideos' => $serviceVideoPayload['items'],
             'meetingSection' => (array) ($translationPayload['meeting'] ?? []),

@@ -822,13 +822,17 @@ class ContentServicesFeatureTest extends TestCase
             ->assertSee('3. Obveznici revizije')
             ->assertSee('4. Revizijske usluge')
             ->assertSee('5. Naš pristup')
-            ->assertSee('6. Stručne objave')
-            ->assertSee('7. Kontaktni poziv')
+            ->assertSee('6. Izvješća o transparentnosti')
+            ->assertSee('7. Stručne objave')
+            ->assertSee('8. Kontaktni poziv')
             ->assertSeeHtml('wire:model="auditHeroImageUpload"')
             ->assertSeeHtml('wire:model="form.translation_payload.hero.image_alt"')
             ->assertSeeHtml('wire:model.live.debounce.300ms="form.translation_payload.overview.body_html"')
             ->assertSeeHtml('wire:model="form.translation_payload.obligors.primary_items.2.children_text"')
             ->assertSeeHtml('wire:model.live.debounce.300ms="form.translation_payload.approach.body_html"')
+            ->assertSeeHtml('wire:model="form.translation_payload.transparency_reports.items.0.year"')
+            ->assertSeeHtml('wire:model="form.translation_payload.transparency_reports.items.0.label"')
+            ->assertSeeHtml('wire:model="assetUploads.transparency_reports_items_0_path"')
             ->assertSeeHtml('wire:model="form.translation_payload.blog_section.all_posts_label"')
             ->assertSeeHtml('wire:model="form.translation_payload.meeting.status"')
             ->assertDontSeeHtml('wire:model="form.translation_payload.overview.body.0"')
@@ -1271,6 +1275,43 @@ class ContentServicesFeatureTest extends TestCase
         $this->assertNotSame('', $storedPath);
         $this->assertStringStartsWith('service-assets/eu-funds/', $storedPath);
         Storage::disk('public')->assertExists($storedPath);
+    }
+
+    public function test_admin_can_upload_transparency_report_pdf_for_audit_page(): void
+    {
+        Storage::fake('public');
+
+        $user = $this->makeAdminUser();
+        $page = ServicePage::query()
+            ->where('template_key', ServicePageTemplateRegistry::AUDIT)
+            ->firstOrFail();
+
+        Livewire::actingAs($user)
+            ->test(ServiceForm::class, ['servicePageId' => $page->id])
+            ->set('form.locale', 'hr')
+            ->call('addAuditTransparencyReport')
+            ->set('form.translation_payload.transparency_reports.items.0.year', '2026')
+            ->set('form.translation_payload.transparency_reports.items.0.label', 'Izvješće o transparentnosti poslovanja za 2026.')
+            ->set(
+                'assetUploads.transparency_reports_items_0_path',
+                UploadedFile::fake()->create('izvjesce-o-transparentnosti-2026.pdf', 120, 'application/pdf'),
+            )
+            ->call('save')
+            ->assertHasNoErrors()
+            ->assertRedirect(route('admin.content.services.index', ['locale' => 'hr']));
+
+        $storedPath = (string) data_get(
+            $page->translation('hr')->first()?->payload,
+            'transparency_reports.items.0.path',
+        );
+
+        $this->assertStringStartsWith('service-assets/audit/transparency-reports/', $storedPath);
+        Storage::disk('public')->assertExists($storedPath);
+
+        $this->get('/revizija')
+            ->assertOk()
+            ->assertSee('Izvješće o transparentnosti poslovanja za 2026.')
+            ->assertSee($storedPath, false);
     }
 
     public function test_failed_eu_funds_pdf_save_removes_only_the_new_asset(): void

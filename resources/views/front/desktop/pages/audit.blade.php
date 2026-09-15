@@ -52,6 +52,34 @@
         ? trim((string) $approachSection['body_html'])
         : \App\Support\Content\StructuredRichText::fromParagraphs($legacyApproachBody);
     $approachBlocks = \App\Support\Content\StructuredRichText::blocks($approachBodyHtml);
+    $transparencyTitle = trim((string) ($transparencySection['title'] ?? ''));
+    $transparencyIntro = trim((string) ($transparencySection['intro'] ?? ''));
+    $transparencyReports = collect((array) ($transparencySection['items'] ?? []))
+        ->map(static function ($report): ?array {
+            if (! is_array($report)) {
+                return null;
+            }
+
+            $path = ltrim(trim((string) ($report['path'] ?? '')), '/');
+            $label = trim((string) ($report['label'] ?? ''));
+            $publicDisk = \Illuminate\Support\Facades\Storage::disk('public');
+            $isUploadedAsset = str_starts_with($path, 'service-assets/audit/transparency-reports/');
+            $reportExists = $isUploadedAsset
+                ? $publicDisk->exists($path)
+                : is_file(public_path($path));
+
+            if ($path === '' || $label === '' || ! $reportExists) {
+                return null;
+            }
+
+            return [
+                'year' => trim((string) ($report['year'] ?? '')),
+                'label' => $label,
+                'url' => $isUploadedAsset ? $publicDisk->url($path) : asset($path),
+            ];
+        })
+        ->filter()
+        ->values();
     $meetingTitle = trim((string) ($meetingSection['title'] ?? ''));
     $meetingIntro = trim((string) ($meetingSection['intro'] ?? ''));
     $meetingCardTitle = trim((string) ($meetingSection['contact_title'] ?? ''));
@@ -249,6 +277,39 @@
                             {!! $block !!}
                         @endforeach
                     </blockquote>
+                </div>
+            </section>
+        @endif
+
+        @if ($transparencyTitle !== '' && $transparencyReports->isNotEmpty())
+            <section class="ac-audit-transparency" id="audit-transparency" aria-labelledby="ac-audit-transparency-title">
+                <div class="ac-audit-wide-shell">
+                    <header class="ac-audit-section-heading">
+                        <h2 id="ac-audit-transparency-title" data-words-slide-from-right aria-label="{{ $transparencyTitle }}">
+                            @foreach ($headingWords($transparencyTitle) as $word)
+                                <span class="service-title-word animation-index-{{ $loop->index }} {{ $loop->last ? 'is-accent' : '' }}" aria-hidden="true">{{ $word }}</span>
+                            @endforeach
+                        </h2>
+
+                        @if ($transparencyIntro !== '')
+                            <p>{{ $transparencyIntro }}</p>
+                        @endif
+                    </header>
+
+                    <ul class="ac-audit-transparency-list">
+                        @foreach ($transparencyReports as $report)
+                            <li class="content-reveal animation-index-{{ $loop->index }}" data-image-reveal>
+                                <a href="{{ $report['url'] }}" target="_blank" rel="noopener" aria-label="{{ $report['label'] }} (PDF)">
+                                    <span class="ac-audit-transparency-file" aria-hidden="true">
+                                        <i class="fa-duotone fa-thin fa-file-pdf fa-fw"></i>
+                                        <span>PDF</span>
+                                    </span>
+                                    <span class="ac-audit-transparency-label">{{ $report['label'] }}</span>
+                                    <i class="fa-duotone fa-thin fa-arrow-up-right-from-square fa-fw ac-audit-transparency-arrow" aria-hidden="true"></i>
+                                </a>
+                            </li>
+                        @endforeach
+                    </ul>
                 </div>
             </section>
         @endif
