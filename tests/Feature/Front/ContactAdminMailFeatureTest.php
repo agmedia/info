@@ -119,7 +119,7 @@ class ContactAdminMailFeatureTest extends TestCase
                 'route' => 'admin.messages.contact.index',
             ],
             ContactMessage::FORM_TYPE_COLLABORATION_ASSESSMENT => [
-                'label' => 'Procjena suradnje',
+                'label' => 'Zahtjev za ponudu',
                 'route' => 'admin.messages.collaboration-assessment.index',
             ],
             ContactMessage::FORM_TYPE_EU_FUNDS_QUESTIONNAIRE => [

@@ -55,7 +55,7 @@ return [
         'types' => [
             'contact' => 'Kontakt',
             'service_contact' => 'Upit za uslugu',
-            'collaboration_assessment' => 'Procjena suradnje',
+            'collaboration_assessment' => 'Zahtjev za ponudu',
             'eu_funds_questionnaire' => 'EU fondovi',
         ],
         'labels' => [

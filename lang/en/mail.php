@@ -55,7 +55,7 @@ return [
         'types' => [
             'contact' => 'Contact',
             'service_contact' => 'Service inquiry',
-            'collaboration_assessment' => 'Cooperation assessment',
+            'collaboration_assessment' => 'Proposal request',
             'eu_funds_questionnaire' => 'EU funds',
         ],
         'labels' => [

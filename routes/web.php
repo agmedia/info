@@ -4,6 +4,7 @@ use App\Http\Controllers\Admin\AdminAiController;
 use App\Http\Controllers\Admin\BlogEditorImageController;
 use App\Http\Controllers\Admin\CallEditorImageController;
 use App\Http\Controllers\Admin\CareerApplicationDocumentController;
+use App\Http\Controllers\Admin\CollaborationAssessmentAttachmentController;
 use App\Http\Controllers\Admin\SystemToolsController;
 use App\Http\Controllers\Front\AccountingController;
 use App\Http\Controllers\Front\AdvisoryController;
@@ -303,7 +304,9 @@ Route::middleware(['front.locale', 'front.device'])
         Route::get('resources/{slug}', [ResourceController::class, 'show'])->name('resources.show');
         Route::post('resources/{slug}/request', [ResourceController::class, 'store'])->name('resources.request');
         Route::get('ac-forma-robot', [CollaborationAssessmentController::class, 'create'])->name('assessment.create');
-        Route::post('ac-forma-robot', [CollaborationAssessmentController::class, 'store'])->name('assessment.store');
+        Route::post('ac-forma-robot', [CollaborationAssessmentController::class, 'store'])
+            ->middleware('throttle:contact-submissions')
+            ->name('assessment.store');
         Route::get('leasing-kalkulator', [LeaseCalculatorController::class, 'show'])->name('lease-calculator.show');
         Route::get('karijera/{slug}', [CareerJobOpeningController::class, 'show'])
             ->middleware(EnsureFrontendRouteLocale::class.':hr')
@@ -439,6 +442,9 @@ Route::middleware(['admin.locale', 'auth', 'verified', 'admin.access', 'admin.ma
         Route::prefix('messages')->as('messages.')->group(function (): void {
             Route::view('contact', 'admin.messages.contact.index')->name('contact.index');
             Route::view('procjena-suradnje', 'admin.messages.collaboration-assessment.index')->name('collaboration-assessment.index');
+            Route::get('procjena-suradnje/{contactMessage}/prilozi/{attachment}', CollaborationAssessmentAttachmentController::class)
+                ->whereNumber('attachment')
+                ->name('collaboration-assessment.attachment');
             Route::view('career-cv-form', 'admin.messages.career.index')->name('career.index');
             Route::view('download-requests', 'admin.messages.download-requests.index')->name('download-requests.index');
             Route::view('eu-fondovi-upitnik', 'admin.messages.eu-funds-questionnaire.index')->name('eu-funds-questionnaire.index');

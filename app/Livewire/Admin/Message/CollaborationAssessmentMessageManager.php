@@ -59,10 +59,18 @@ class CollaborationAssessmentMessageManager extends Component
                     $inner->where('name', 'like', $needle)
                         ->orWhere('email', 'like', $needle)
                         ->orWhere('phone', 'like', $needle)
+                        ->orWhere('subject', 'like', $needle)
                         ->orWhere('message', 'like', $needle)
+                        ->orWhere('payload->company', 'like', $needle)
+                        ->orWhere('payload->service', 'like', $needle)
                         ->orWhere('payload->answers->company_name', 'like', $needle)
                         ->orWhere('payload->answers->company_oib', 'like', $needle)
-                        ->orWhere('payload->answers->activity', 'like', $needle);
+                        ->orWhere('payload->answers->activity', 'like', $needle)
+                        ->orWhere('payload->answers->audit_company_name', 'like', $needle)
+                        ->orWhere('payload->answers->audit_company_oib', 'like', $needle)
+                        ->orWhere('payload->answers->advisory_contact_person', 'like', $needle)
+                        ->orWhere('payload->answers->advisory_quote_company_name', 'like', $needle)
+                        ->orWhere('payload->answers->advisory_quote_company_activity', 'like', $needle);
                 });
             })
             ->when($this->status !== 'all', fn ($query) => $query->where('status', $this->status))

@@ -6,6 +6,7 @@ use App\Livewire\Admin\Message\CollaborationAssessmentMessageManager;
 use App\Models\Content\Support\ContactMessage;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Storage;
 use Livewire\Livewire;
 use Silber\Bouncer\BouncerFacade as Bouncer;
 use Tests\TestCase;
@@ -61,6 +62,66 @@ class CollaborationAssessmentMessagesFeatureTest extends TestCase
         $this->assertSame(ContactMessage::STATUS_READ, $message->status);
         $this->assertSame($user->id, $message->reviewed_by);
         $this->assertNotNull($message->reviewed_at);
+    }
+
+    public function test_admin_displays_advisory_answers_and_can_download_a_private_attachment(): void
+    {
+        Storage::fake('local');
+        Storage::disk('local')->put('contact-message-attachments/2026/09/brief.pdf', 'proposal brief');
+
+        $user = $this->makeAdminUser();
+        $message = ContactMessage::query()->create($this->messagePayload([
+            'name' => 'Ivana Horvat, direktorica',
+            'email' => 'advisory@example.test',
+            'subject' => 'Zahtjev za ponudu',
+            'message' => "Usluga: Savjetovanje\nOdabir savjetodavne usluge: Prodaja poduzeća",
+            'payload' => [
+                'form_type' => ContactMessage::FORM_TYPE_COLLABORATION_ASSESSMENT,
+                'service' => 'advisory',
+                'company' => 'Savjetovanje Klijent d.o.o.',
+                'answers' => [
+                    'service' => 'advisory',
+                    'advisory_contact_person' => 'Ivana Horvat, direktorica',
+                    'advisory_contact_email' => 'advisory@example.test',
+                    'advisory_contact_phone' => '+385991234567',
+                    'advisory_quote_company_name' => 'Savjetovanje Klijent d.o.o.',
+                    'advisory_quote_company_activity' => 'Proizvodnja',
+                    'advisory_quote_company_revenue' => '2_5m',
+                    'advisory_quote_company_employees' => '10_50',
+                    'advisory_service' => 'company_sale',
+                    'advisory_reason' => 'Priprema za prodaju.',
+                    'advisory_deadline' => 'three_to_six_months',
+                    'advisory_sale_share' => '75',
+                    'advisory_sale_buyer_identified' => 'no',
+                    'advisory_sale_closing_timeline' => 'Do kraja godine',
+                    'advisory_target_relation' => 'same',
+                ],
+                'attachments' => [[
+                    'disk' => 'local',
+                    'path' => 'contact-message-attachments/2026/09/brief.pdf',
+                    'name' => 'brief.pdf',
+                    'mime' => 'application/pdf',
+                    'size' => 14,
+                ]],
+            ],
+        ]));
+
+        $this->actingAs($user)
+            ->get(route('admin.messages.collaboration-assessment.index'))
+            ->assertOk()
+            ->assertSee(__('assessment.services.advisory'))
+            ->assertSee('Savjetovanje Klijent d.o.o.')
+            ->assertSee(__('assessment.values.advisory_services.company_sale'))
+            ->assertSee('Priprema za prodaju.')
+            ->assertSee('brief.pdf');
+
+        $this->actingAs($user)
+            ->get(route('admin.messages.collaboration-assessment.attachment', [
+                'contactMessage' => $message,
+                'attachment' => 0,
+            ]))
+            ->assertOk()
+            ->assertDownload('brief.pdf');
     }
 
     private function makeAdminUser(): User

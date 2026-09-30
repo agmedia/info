@@ -73,6 +73,31 @@ class ContactSpamProtectionFeatureTest extends TestCase
         ]);
     }
 
+    public function test_assessment_rate_limit_error_is_visible_after_redirect(): void
+    {
+        $ip = '203.0.113.10';
+        $formUrl = '/ac-forma-robot?service=audit';
+
+        for ($attempt = 1; $attempt <= 5; $attempt++) {
+            $this->withServerVariables(['REMOTE_ADDR' => $ip])
+                ->from($formUrl)
+                ->post('/ac-forma-robot', ['service' => 'audit'])
+                ->assertRedirect($formUrl);
+        }
+
+        $this->withServerVariables(['REMOTE_ADDR' => $ip])
+            ->from($formUrl)
+            ->post('/ac-forma-robot', ['service' => 'audit'])
+            ->assertRedirect($formUrl)
+            ->assertSessionHasErrors(['message']);
+
+        $this->withServerVariables(['REMOTE_ADDR' => $ip])
+            ->get($formUrl)
+            ->assertOk()
+            ->assertSee(__('contact.rate_limited'))
+            ->assertSee('role="alert"', false);
+    }
+
     /**
      * @return array<string, string>
      */

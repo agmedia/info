@@ -73,35 +73,23 @@
                     @forelse ($rows as $row)
                         @php
                             $answers = (array) data_get($row->payload, 'answers', []);
-                            $booleanMap = [
-                                'yes' => __('admin.common.yes'),
-                                'no' => __('admin.common.no'),
-                            ];
-                            $detailFields = [
-                                'company_name',
-                                'company_oib',
-                                'activity',
-                                'contact_email',
-                                'contact_phone',
-                                'incoming_invoices_monthly',
-                                'outgoing_invoices_monthly',
-                                'bank_accounts_monthly',
-                                'payroll_calculations_monthly',
-                                'other_calculations_monthly',
-                                'incoming_invoice_payments',
-                                'inventory_bookkeeping',
-                                'travel_orders_monthly',
-                                'cost_centers_tracking',
-                                'intrastat_obligation',
-                                'audit_obligation',
-                                'monthly_reporting',
-                                'vat_status',
-                                'accounting_software',
-                                'tax_issues',
-                                'document_delivery',
-                                'additional_requirements',
-                                'potential_start_date',
-                            ];
+                            $service = \App\Support\AssessmentQuestionnaire::normalizeService(
+                                (string) data_get($row->payload, 'service', $answers['service'] ?? '')
+                            );
+                            $serviceLabel = \App\Support\AssessmentQuestionnaire::serviceLabel($service);
+                            $companyName = \App\Support\AssessmentQuestionnaire::companyName($answers, $service);
+                            $companyOib = \App\Support\AssessmentQuestionnaire::companyOib($answers, $service);
+                            $companyActivity = \App\Support\AssessmentQuestionnaire::companyActivity($answers, $service);
+                            $detailLabels = \App\Support\AssessmentQuestionnaire::fieldLabels($service);
+                            $attachments = (array) data_get($row->payload, 'attachments', []);
+                            $primaryDetail = match ($service) {
+                                \App\Support\AssessmentQuestionnaire::SERVICE_AUDIT => (string) ($answers['audit_message'] ?? ''),
+                                \App\Support\AssessmentQuestionnaire::SERVICE_ADVISORY => \App\Support\AssessmentQuestionnaire::formatAnswer('advisory_service', $answers['advisory_service'] ?? ''),
+                                default => trim(implode(' · ', array_filter([
+                                    (string) ($answers['incoming_invoices_monthly'] ?? ''),
+                                    (string) ($answers['outgoing_invoices_monthly'] ?? ''),
+                                ]))),
+                            };
                             $statusClasses = match ($row->status) {
                                 'read' => 'bg-sky-100 text-sky-800',
                                 'resolved' => 'bg-emerald-100 text-emerald-800',
@@ -119,77 +107,56 @@
                                 @endif
                             </td>
                             <td class="px-3 py-3 text-slate-700">
-                                <div class="font-medium text-slate-900">{{ $answers['company_name'] ?? __('admin.messages.collaboration_assessment.manager.not_provided') }}</div>
-                                <div class="mt-1 text-xs text-slate-500">
-                                    {{ __('admin.messages.collaboration_assessment.manager.labels.company_oib') }}:
-                                    {{ $answers['company_oib'] ?? __('admin.messages.collaboration_assessment.manager.not_provided') }}
-                                </div>
-                                <div class="mt-1 text-xs text-slate-500">
-                                    {{ __('admin.messages.collaboration_assessment.manager.labels.activity') }}:
-                                    {{ $answers['activity'] ?? __('admin.messages.collaboration_assessment.manager.not_provided') }}
-                                </div>
-                                @if (trim((string) ($answers['potential_start_date'] ?? '')) !== '')
+                                <div class="font-medium text-slate-900">{{ $companyName !== '' ? $companyName : __('admin.messages.collaboration_assessment.manager.not_provided') }}</div>
+                                @if ($companyOib !== '')
                                     <div class="mt-1 text-xs text-slate-500">
-                                        {{ __('admin.messages.collaboration_assessment.manager.labels.potential_start_date') }}:
-                                        {{ $answers['potential_start_date'] }}
+                                        {{ __('admin.messages.collaboration_assessment.manager.labels.company_oib') }}: {{ $companyOib }}
+                                    </div>
+                                @endif
+                                @if ($companyActivity !== '')
+                                    <div class="mt-1 text-xs text-slate-500">
+                                        {{ __('admin.messages.collaboration_assessment.manager.labels.activity') }}: {{ $companyActivity }}
                                     </div>
                                 @endif
                             </td>
                             <td class="px-3 py-3 text-slate-700">
-                                <div class="font-medium text-slate-900">
-                                    {{ __('admin.messages.collaboration_assessment.manager.labels.incoming_invoices_monthly') }}:
-                                    {{ $answers['incoming_invoices_monthly'] ?? __('admin.messages.collaboration_assessment.manager.not_provided') }}
-                                </div>
-                                <div class="mt-1 text-xs text-slate-500">
-                                    {{ __('admin.messages.collaboration_assessment.manager.labels.outgoing_invoices_monthly') }}:
-                                    {{ $answers['outgoing_invoices_monthly'] ?? __('admin.messages.collaboration_assessment.manager.not_provided') }}
-                                </div>
-                                <div class="mt-1 text-xs text-slate-500">
-                                    {{ __('admin.messages.collaboration_assessment.manager.labels.bank_accounts_monthly') }}:
-                                    {{ $answers['bank_accounts_monthly'] ?? __('admin.messages.collaboration_assessment.manager.not_provided') }}
-                                </div>
-                                <div class="mt-1 text-xs text-slate-500">
-                                    {{ __('admin.messages.collaboration_assessment.manager.labels.payroll_calculations_monthly') }}:
-                                    {{ $answers['payroll_calculations_monthly'] ?? __('admin.messages.collaboration_assessment.manager.not_provided') }}
-                                </div>
-                                <div class="mt-1 text-xs text-slate-500">
-                                    {{ __('admin.messages.collaboration_assessment.manager.labels.inventory_bookkeeping') }}:
-                                    {{ $booleanMap[(string) ($answers['inventory_bookkeeping'] ?? '')] ?? __('admin.messages.collaboration_assessment.manager.not_provided') }}
-                                </div>
-                                <div class="mt-1 text-xs text-slate-500">
-                                    {{ __('admin.messages.collaboration_assessment.manager.labels.cost_centers_tracking') }}:
-                                    {{ $booleanMap[(string) ($answers['cost_centers_tracking'] ?? '')] ?? __('admin.messages.collaboration_assessment.manager.not_provided') }}
-                                </div>
-                                <div class="mt-1 text-xs text-slate-500">
-                                    {{ __('admin.messages.collaboration_assessment.manager.labels.monthly_reporting') }}:
-                                    {{ $booleanMap[(string) ($answers['monthly_reporting'] ?? '')] ?? __('admin.messages.collaboration_assessment.manager.not_provided') }}
-                                </div>
-                                @if (trim((string) ($answers['additional_requirements'] ?? '')) !== '')
-                                    <div class="mt-1 text-xs text-slate-500">
-                                        {{ __('admin.messages.collaboration_assessment.manager.labels.additional_requirements') }}:
-                                        {{ \Illuminate\Support\Str::limit((string) $answers['additional_requirements'], 120) }}
+                                <div class="font-semibold text-amber-800">{{ $serviceLabel }}</div>
+                                @if (trim($primaryDetail) !== '')
+                                    <div class="mt-1 text-xs text-slate-600">{{ \Illuminate\Support\Str::limit($primaryDetail, 160) }}</div>
+                                @endif
+
+                                @if ($attachments !== [])
+                                    <div class="mt-3 space-y-1.5">
+                                        <div class="text-[11px] font-semibold uppercase tracking-[0.08em] text-slate-500">{{ __('admin.messages.collaboration_assessment.manager.attachments') }}</div>
+                                        @foreach ($attachments as $attachmentIndex => $attachment)
+                                            @if (is_array($attachment) && trim((string) ($attachment['name'] ?? '')) !== '')
+                                                <a
+                                                    href="{{ route('admin.messages.collaboration-assessment.attachment', ['contactMessage' => $row, 'attachment' => $attachmentIndex]) }}"
+                                                    class="flex items-center gap-2 text-xs font-semibold text-amber-700 hover:text-amber-800 hover:underline"
+                                                >
+                                                    <i class="fa-regular fa-download" aria-hidden="true"></i>
+                                                    <span>{{ $attachment['name'] }}</span>
+                                                </a>
+                                            @endif
+                                        @endforeach
                                     </div>
                                 @endif
-                                @if (trim((string) ($answers['tax_issues'] ?? '')) !== '')
-                                    <div class="mt-1 text-xs text-slate-500">
-                                        {{ __('admin.messages.collaboration_assessment.manager.labels.tax_issues') }}:
-                                        {{ \Illuminate\Support\Str::limit((string) $answers['tax_issues'], 120) }}
-                                    </div>
-                                @endif
+
                                 <details class="mt-3 rounded-xl border border-slate-200 bg-white p-3 text-left">
                                     <summary class="flex cursor-pointer list-none items-center gap-2 text-xs font-semibold text-slate-700">
                                         <i class="fa-regular fa-list-check text-amber-700" aria-hidden="true"></i>
                                         <span>{{ __('admin.messages.collaboration_assessment.manager.all_details') }}</span>
                                     </summary>
                                     <dl class="mt-3 space-y-3 border-t border-slate-100 pt-3">
-                                        @foreach ($detailFields as $field)
-                                            @php
-                                                $rawValue = trim((string) ($answers[$field] ?? ''));
-                                                $displayValue = $booleanMap[$rawValue] ?? $rawValue;
-                                            @endphp
+                                        <div>
+                                            <dt class="text-[11px] font-semibold uppercase tracking-[0.08em] text-slate-500">{{ __('assessment.form.service') }}</dt>
+                                            <dd class="mt-1 break-words text-xs text-slate-800">{{ $serviceLabel }}</dd>
+                                        </div>
+                                        @foreach ($detailLabels as $field => $label)
+                                            @php($displayValue = \App\Support\AssessmentQuestionnaire::formatAnswer($field, $answers[$field] ?? null))
                                             @if ($displayValue !== '')
                                                 <div>
-                                                    <dt class="text-[11px] font-semibold uppercase tracking-[0.08em] text-slate-500">{{ __('assessment.form.'.$field) }}</dt>
+                                                    <dt class="text-[11px] font-semibold uppercase tracking-[0.08em] text-slate-500">{{ $label }}</dt>
                                                     <dd class="mt-1 whitespace-pre-line break-words text-xs text-slate-800">{{ $displayValue }}</dd>
                                                 </div>
                                             @endif
@@ -213,25 +180,13 @@
                             </td>
                             <td class="px-3 py-3">
                                 <div class="flex flex-wrap justify-end gap-2">
-                                    <button
-                                        type="button"
-                                        wire:click="markAsNew({{ (int) $row->id }})"
-                                        class="rounded-lg border border-amber-200 px-2 py-1 text-xs font-semibold text-amber-700 hover:bg-amber-50"
-                                    >
+                                    <button type="button" wire:click="markAsNew({{ (int) $row->id }})" class="rounded-lg border border-amber-200 px-2 py-1 text-xs font-semibold text-amber-700 hover:bg-amber-50">
                                         {{ __('admin.messages.collaboration_assessment.manager.actions.mark_new') }}
                                     </button>
-                                    <button
-                                        type="button"
-                                        wire:click="markAsRead({{ (int) $row->id }})"
-                                        class="rounded-lg border border-sky-200 px-2 py-1 text-xs font-semibold text-sky-700 hover:bg-sky-50"
-                                    >
+                                    <button type="button" wire:click="markAsRead({{ (int) $row->id }})" class="rounded-lg border border-sky-200 px-2 py-1 text-xs font-semibold text-sky-700 hover:bg-sky-50">
                                         {{ __('admin.messages.collaboration_assessment.manager.actions.mark_read') }}
                                     </button>
-                                    <button
-                                        type="button"
-                                        wire:click="markAsResolved({{ (int) $row->id }})"
-                                        class="rounded-lg border border-emerald-200 px-2 py-1 text-xs font-semibold text-emerald-700 hover:bg-emerald-50"
-                                    >
+                                    <button type="button" wire:click="markAsResolved({{ (int) $row->id }})" class="rounded-lg border border-emerald-200 px-2 py-1 text-xs font-semibold text-emerald-700 hover:bg-emerald-50">
                                         {{ __('admin.messages.collaboration_assessment.manager.actions.mark_resolved') }}
                                     </button>
                                 </div>

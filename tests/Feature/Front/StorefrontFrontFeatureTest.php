@@ -1187,8 +1187,24 @@ class StorefrontFrontFeatureTest extends TestCase
         $this->get('/ac-forma-robot')
             ->assertOk()
             ->assertSee(__('assessment.heading'))
+            ->assertSee('data-assessment-service-select', false)
+            ->assertSee(__('assessment.services.accounting'))
+            ->assertSee(__('assessment.services.audit'))
+            ->assertSee(__('assessment.services.advisory'))
             ->assertSee(__('assessment.form.company_name'))
-            ->assertSee(__('assessment.form.outgoing_invoices_monthly'));
+            ->assertSee(__('assessment.form.outgoing_invoices_monthly'))
+            ->assertSee(__('assessment.form.audit_message'))
+            ->assertSee(__('assessment.form.audit_company_name_placeholder'))
+            ->assertSee(__('assessment.form.audit_company_oib_placeholder'))
+            ->assertSee(__('assessment.form.audit_contact_email_placeholder'))
+            ->assertSee(__('assessment.form.audit_contact_phone_placeholder'))
+            ->assertSee(__('assessment.form.advisory_service'));
+
+        $this->get('/ac-forma-robot?service=audit')
+            ->assertOk()
+            ->assertSee('option value="audit" selected', false)
+            ->assertSee('id="assessment-panel-audit"', false)
+            ->assertSee('id="assessment-panel-accounting"', false);
     }
 
     public function test_collaboration_assessment_form_stores_structured_message(): void
@@ -1219,6 +1235,119 @@ class StorefrontFrontFeatureTest extends TestCase
         $this->assertSame(ContactMessage::FORM_TYPE_COLLABORATION_ASSESSMENT, $message->payload['form_type'] ?? null);
         $this->assertSame('Alpha Test d.o.o.', $message->payload['answers']['company_name'] ?? null);
         $this->assertSame('18', $message->payload['answers']['outgoing_invoices_monthly'] ?? null);
+        $this->assertSame('accounting', $message->payload['service'] ?? null);
+        $this->assertSame('accounting', $message->payload['answers']['service'] ?? null);
+    }
+
+    public function test_audit_proposal_request_stores_only_the_audit_questionnaire(): void
+    {
+        $this->post('/ac-forma-robot', [
+            'service' => 'audit',
+            'audit_company_name' => 'Audit Klijent d.o.o.',
+            'audit_company_oib' => '98765432109',
+            'audit_contact_email' => 'audit@example.test',
+            'audit_contact_phone' => '+38598111222',
+            'audit_message' => 'Trebamo ponudu za zakonsku reviziju godišnjih financijskih izvještaja.',
+            'company_name' => 'Ne smije se spremiti',
+            'accept_terms' => '1',
+        ])->assertRedirect('/ac-forma-robot?service=audit');
+
+        $message = ContactMessage::query()
+            ->where('email', 'audit@example.test')
+            ->latest('id')
+            ->first();
+
+        $this->assertNotNull($message);
+        $this->assertSame('audit', $message->payload['service'] ?? null);
+        $this->assertSame('Audit Klijent d.o.o.', $message->payload['company'] ?? null);
+        $this->assertSame('Audit Klijent d.o.o.', $message->payload['answers']['audit_company_name'] ?? null);
+        $this->assertSame('98765432109', $message->payload['answers']['audit_company_oib'] ?? null);
+        $this->assertArrayNotHasKey('company_name', $message->payload['answers'] ?? []);
+        $this->assertStringContainsString(__('assessment.form.audit_message'), (string) $message->message);
+    }
+
+    public function test_advisory_proposal_request_stores_conditional_answers_and_private_attachments(): void
+    {
+        Storage::fake('local');
+
+        $this->post('/ac-forma-robot', [
+            'service' => 'advisory',
+            'advisory_contact_person' => 'Ivana Horvat, direktorica',
+            'advisory_contact_email' => 'advisory@example.test',
+            'advisory_contact_phone' => '+385991234567',
+            'advisory_quote_company_name' => 'Savjetovanje Klijent d.o.o.',
+            'advisory_quote_company_activity' => 'Proizvodnja',
+            'advisory_quote_company_revenue' => '2_5m',
+            'advisory_quote_company_employees' => '10_50',
+            'advisory_service' => 'company_sale',
+            'advisory_reason' => 'Priprema vlasnika za prodaju društva.',
+            'advisory_deadline' => 'three_to_six_months',
+            'advisory_additional_information' => 'Proces je povjerljiv.',
+            'advisory_sale_share' => '75',
+            'advisory_sale_buyer_identified' => 'no',
+            'advisory_sale_closing_timeline' => 'Do kraja godine',
+            'advisory_target_relation' => 'different',
+            'advisory_target_company_name' => 'Ciljno društvo d.o.o.',
+            'advisory_target_company_oib' => '12345678901',
+            'advisory_target_company_activity' => 'Distribucija',
+            'advisory_target_company_revenue' => '5_10m',
+            'advisory_target_company_employees' => '50_250',
+            'advisory_target_related_companies' => 'yes',
+            'advisory_target_consolidated_review' => 'yes',
+            'advisory_attachments' => [
+                UploadedFile::fake()->create('informacije.pdf', 180, 'application/pdf'),
+            ],
+            'audit_message' => 'Ne smije se spremiti',
+            'accept_terms' => '1',
+        ])->assertRedirect('/ac-forma-robot?service=advisory');
+
+        $message = ContactMessage::query()
+            ->where('email', 'advisory@example.test')
+            ->latest('id')
+            ->first();
+
+        $this->assertNotNull($message);
+        $this->assertSame('advisory', $message->payload['service'] ?? null);
+        $this->assertSame('Savjetovanje Klijent d.o.o.', $message->payload['company'] ?? null);
+        $this->assertSame('company_sale', $message->payload['answers']['advisory_service'] ?? null);
+        $this->assertSame('75', $message->payload['answers']['advisory_sale_share'] ?? null);
+        $this->assertSame('yes', $message->payload['answers']['advisory_target_consolidated_review'] ?? null);
+        $this->assertArrayNotHasKey('audit_message', $message->payload['answers'] ?? []);
+
+        $attachment = $message->payload['attachments'][0] ?? null;
+        $this->assertIsArray($attachment);
+        $this->assertSame('informacije.pdf', $attachment['name'] ?? null);
+        $this->assertSame('local', $attachment['disk'] ?? null);
+        Storage::disk('local')->assertExists((string) ($attachment['path'] ?? ''));
+    }
+
+    public function test_advisory_proposal_requires_questions_for_the_selected_subservice(): void
+    {
+        $response = $this->from('/ac-forma-robot?service=advisory')->post('/ac-forma-robot', [
+            'service' => 'advisory',
+            'advisory_contact_person' => 'Ivana Horvat',
+            'advisory_contact_email' => 'advisory@example.test',
+            'advisory_contact_phone' => '+385991234567',
+            'advisory_quote_company_name' => 'Savjetovanje Klijent d.o.o.',
+            'advisory_quote_company_activity' => 'Proizvodnja',
+            'advisory_quote_company_revenue' => '2_5m',
+            'advisory_quote_company_employees' => '10_50',
+            'advisory_service' => 'valuation',
+            'advisory_reason' => 'Interna procjena.',
+            'advisory_deadline' => 'urgent',
+            'advisory_target_relation' => 'same',
+            'accept_terms' => '1',
+        ]);
+
+        $response->assertRedirect('/ac-forma-robot?service=advisory')
+            ->assertSessionHasErrors([
+                'advisory_valuation_purpose',
+                'advisory_valuation_date',
+            ]);
+
+        $this->assertDatabaseMissing('contact_messages', [
+            'email' => 'advisory@example.test',
+        ]);
     }
 
     public function test_eu_funds_questionnaire_page_renders(): void

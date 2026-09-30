@@ -51,6 +51,26 @@
         ->values();
     $alphaServicesDropdownEnabled = $alphaNavigation->contains('has_services_dropdown', true);
     $alphaOfferUrl = route('assessment.create');
+    $alphaOfferServices = [
+        [
+            'key' => 'accounting',
+            'label' => __('assessment.services.accounting'),
+            'url' => route('assessment.create', ['service' => 'accounting']),
+        ],
+        [
+            'key' => 'audit',
+            'label' => __('assessment.services.audit'),
+            'url' => route('assessment.create', ['service' => 'audit']),
+        ],
+        [
+            'key' => 'advisory',
+            'label' => __('assessment.services.advisory'),
+            'url' => route('assessment.create', ['service' => 'advisory']),
+        ],
+    ];
+    $alphaSelectedOfferService = request()->routeIs('assessment.*')
+        ? trim((string) request()->query('service', 'accounting'))
+        : '';
     $alphaShowLeaseCalculator = request()->routeIs('accounting.show', 'accounting.show.en');
     $alphaPrimaryCtaUrl = $alphaShowLeaseCalculator ? route('lease-calculator.show') : $alphaOfferUrl;
     $alphaOfferCtaLabel = trim((string) ($alphaChrome['header_primary_cta_label'] ?? ''));
@@ -94,9 +114,43 @@
                 </nav>
             @endif
             @if ($alphaPrimaryCtaLabel !== '')
-                <a @class(['header-cta', 'header-cta--calculator' => $alphaShowLeaseCalculator]) href="{{ $alphaPrimaryCtaUrl }}">
-                    <span>{{ $alphaPrimaryCtaLabel }}</span>
-                </a>
+                @if ($alphaShowLeaseCalculator)
+                    <a class="header-cta header-cta--calculator" href="{{ $alphaPrimaryCtaUrl }}">
+                        <span>{{ $alphaPrimaryCtaLabel }}</span>
+                    </a>
+                @else
+                    <div class="header-offer" data-alpha-offer>
+                        <button
+                            class="header-cta header-offer-toggle"
+                            type="button"
+                            aria-haspopup="menu"
+                            aria-controls="alpha-header-offer-menu"
+                            aria-expanded="false"
+                            data-alpha-offer-toggle
+                        >
+                            <span>{{ $alphaPrimaryCtaLabel }}</span>
+                        </button>
+                        <div
+                            id="alpha-header-offer-menu"
+                            class="header-offer-menu"
+                            role="menu"
+                            aria-label="{{ $alphaPrimaryCtaLabel }}"
+                            aria-hidden="true"
+                            data-alpha-offer-menu
+                        >
+                            @foreach ($alphaOfferServices as $offerService)
+                                <a
+                                    href="{{ $offerService['url'] }}"
+                                    role="menuitem"
+                                    @class(['is-active' => $alphaSelectedOfferService === $offerService['key']])
+                                    @if ($alphaSelectedOfferService === $offerService['key']) aria-current="page" @endif
+                                >
+                                    <span>{{ $offerService['label'] }}</span>
+                                </a>
+                            @endforeach
+                        </div>
+                    </div>
+                @endif
             @endif
             <button class="search-link" type="button" aria-label="{{ __('ui.alpha_chrome.header.search_aria') }}" aria-controls="alpha-header-search-panel" aria-expanded="false" data-header-search-toggle>
                 <i class="fa-light fa-magnifying-glass" aria-hidden="true"></i>
@@ -194,6 +248,19 @@
                                 <a class="mobile-menu-item mobile-menu-link mobile-menu-link--offer" href="{{ $alphaOfferUrl }}">
                                     <span class="mobile-menu-label">{{ $alphaOfferCtaLabel }}</span>
                                 </a>
+                                <div class="mobile-menu-item mobile-menu-offer-group" role="group" aria-label="{{ $alphaOfferCtaLabel }}">
+                                    <div class="mobile-menu-offer-options">
+                                        @foreach ($alphaOfferServices as $offerService)
+                                            <a
+                                                href="{{ $offerService['url'] }}"
+                                                @class(['mobile-menu-offer-link', 'is-active' => $alphaSelectedOfferService === $offerService['key']])
+                                                @if ($alphaSelectedOfferService === $offerService['key']) aria-current="page" @endif
+                                            >
+                                                <span>{{ $offerService['label'] }}</span>
+                                            </a>
+                                        @endforeach
+                                    </div>
+                                </div>
                             @endif
 
                             @if ($alphaShowLeaseCalculator && $alphaCalculatorCtaLabel !== '')

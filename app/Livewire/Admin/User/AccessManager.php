@@ -340,7 +340,7 @@ class AccessManager extends Component
             'content.slots' => __('Content / Slots'),
             'content.media' => __('Content / Media'),
             'messages.contact' => __('Messages / Contact'),
-            'messages.collaboration_assessment' => __('Messages / Collaboration Assessment'),
+            'messages.collaboration_assessment' => __('Messages / Proposal Requests'),
             'messages.career' => __('Messages / Career'),
             'messages.download_requests' => __('Messages / Download Requests'),
             'messages.eu_funds_questionnaire' => __('Messages / EU Funds Questionnaire'),

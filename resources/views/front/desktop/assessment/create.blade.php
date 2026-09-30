@@ -12,6 +12,11 @@
         $contactPhone = trim((string) ($storeSettings['footer']['phone'] ?? ''));
         $contactPhoneHref = preg_replace('/\s+/', '', $contactPhone);
         $headingWords = static fn (string $title): array => preg_split('/\s+/u', trim($title), -1, PREG_SPLIT_NO_EMPTY) ?: [];
+        $serviceOptions = \App\Support\AssessmentQuestionnaire::services();
+        $requestedService = trim((string) old('service', request()->query('service', \App\Support\AssessmentQuestionnaire::SERVICE_ACCOUNTING)));
+        $selectedService = array_key_exists($requestedService, $serviceOptions)
+            ? $requestedService
+            : \App\Support\AssessmentQuestionnaire::SERVICE_ACCOUNTING;
     @endphp
 
     <div class="front-contact-page ac-assessment-page" data-assessment-form-root data-locale="{{ app()->getLocale() }}">
@@ -38,6 +43,7 @@
                     <form
                         method="POST"
                         action="{{ route('assessment.store') }}"
+                        enctype="multipart/form-data"
                         class="front-contact-form ac-assessment-form content-reveal animation-index-0"
                         novalidate
                         data-image-reveal
@@ -58,6 +64,52 @@
                                 <span>{{ session('status') }}</span>
                             </div>
                         @endif
+
+                        @if ($errors->any())
+                            <div class="front-contact-status is-error ac-assessment-error-summary" role="alert" aria-live="assertive">
+                                <i class="fa-light fa-circle-exclamation" aria-hidden="true"></i>
+                                <div>
+                                    <p class="ac-assessment-error-summary-title">{{ __('assessment.validation.summary') }}</p>
+                                    <ul>
+                                        @foreach ($errors->all() as $error)
+                                            <li>{{ $error }}</li>
+                                        @endforeach
+                                    </ul>
+                                </div>
+                            </div>
+                        @endif
+
+                        <div class="ac-assessment-section ac-assessment-service-selector">
+                            <div class="ac-assessment-section-head">
+                                <h3>{{ __('assessment.sections.service') }}</h3>
+                            </div>
+
+                            <div class="ac-assessment-field ac-assessment-field--full">
+                                <label for="assessment-service">{{ __('assessment.form.service') }}</label>
+                                <select
+                                    id="assessment-service"
+                                    name="service"
+                                    class="front-contact-input h-11 w-full text-sm"
+                                    data-assessment-service-select
+                                    aria-controls="assessment-panel-accounting assessment-panel-audit assessment-panel-advisory"
+                                    required
+                                >
+                                    @foreach ($serviceOptions as $serviceKey => $serviceLabel)
+                                        <option value="{{ $serviceKey }}" @selected($selectedService === $serviceKey)>{{ $serviceLabel }}</option>
+                                    @endforeach
+                                </select>
+                                <p class="ac-assessment-field-help">{{ __('assessment.form.service_help') }}</p>
+                                @error('service')<p class="mt-2 text-xs font-semibold text-rose-600">{{ $message }}</p>@enderror
+                            </div>
+                        </div>
+
+                        <div
+                            id="assessment-panel-accounting"
+                            class="ac-assessment-questionnaire"
+                            data-assessment-service-panel="accounting"
+                            aria-hidden="{{ $selectedService === 'accounting' ? 'false' : 'true' }}"
+                            @if ($selectedService !== 'accounting') hidden @endif
+                        >
 
                         <div class="ac-assessment-section">
                             <div class="ac-assessment-section-head">
@@ -289,6 +341,28 @@
                             </div>
                         </div>
 
+                        </div>
+
+                        <div
+                            id="assessment-panel-audit"
+                            class="ac-assessment-questionnaire"
+                            data-assessment-service-panel="audit"
+                            aria-hidden="{{ $selectedService === 'audit' ? 'false' : 'true' }}"
+                            @if ($selectedService !== 'audit') hidden @endif
+                        >
+                            @include('front.desktop.assessment.partials.audit')
+                        </div>
+
+                        <div
+                            id="assessment-panel-advisory"
+                            class="ac-assessment-questionnaire"
+                            data-assessment-service-panel="advisory"
+                            aria-hidden="{{ $selectedService === 'advisory' ? 'false' : 'true' }}"
+                            @if ($selectedService !== 'advisory') hidden @endif
+                        >
+                            @include('front.desktop.assessment.partials.advisory')
+                        </div>
+
                         <div class="front-contact-consent-wrap">
                             <label class="front-contact-consent">
                                 <input type="checkbox" name="accept_terms" value="1" class="front-contact-checkbox mt-0.5 h-4 w-4 border-slate-300 text-slate-900 focus:ring-0" @checked((bool) old('accept_terms'))>
@@ -372,6 +446,7 @@
     @endif
 
     @push('scripts')
+        <script src="{{ asset('front-theme/scripts/assessment.js') }}?v={{ filemtime(public_path('front-theme/scripts/assessment.js')) }}" defer></script>
         <script>
             (function () {
                 const root = document.querySelector('[data-assessment-form-root]');
@@ -703,4 +778,5 @@
 
 @push('styles')
     <link rel="stylesheet" href="{{ asset('front-theme/styles/pages/tool-pages.css') }}?v={{ filemtime(public_path('front-theme/styles/pages/tool-pages.css')) }}">
+    <link rel="stylesheet" href="{{ asset('front-theme/styles/pages/assessment.css') }}?v={{ filemtime(public_path('front-theme/styles/pages/assessment.css')) }}">
 @endpush

@@ -2993,6 +2993,12 @@ button {
   padding-left: 30px;
 }
 
+.header-offer {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
 .header-language-switch,
 .mobile-menu-language-switch {
   display: inline-flex;
@@ -3074,6 +3080,65 @@ button {
   padding: 0 25px;
   color: var(--gold-light);
   text-transform: uppercase;
+}
+
+.header-offer-toggle {
+  appearance: none;
+  cursor: pointer;
+}
+
+.header-offer-menu {
+  position: absolute;
+  z-index: 4;
+  top: calc(100% + 12px);
+  right: 0;
+  display: grid;
+  width: max-content;
+  min-width: 260px;
+  overflow: hidden;
+  border: 1px solid rgba(198, 163, 90, 0.54);
+  border-radius: 22px 3px 22px 3px;
+  background: linear-gradient(145deg, rgba(8, 31, 50, 0.99), rgba(3, 18, 31, 0.99));
+  box-shadow: 0 20px 42px rgba(3, 18, 31, 0.32);
+  opacity: 0;
+  pointer-events: none;
+  transform: translate3d(0, -8px, 0);
+  visibility: hidden;
+  transition: opacity 180ms ease, transform 240ms cubic-bezier(0.16, 1, 0.3, 1), visibility 180ms ease;
+}
+
+.header-offer.is-open .header-offer-menu {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translate3d(0, 0, 0);
+  visibility: visible;
+}
+
+.header-offer-menu a {
+  display: grid;
+  min-height: 54px;
+  align-items: center;
+  padding: 0 20px;
+  border-bottom: 1px solid rgba(198, 163, 90, 0.18);
+  color: rgba(255, 255, 255, 0.88);
+  font-size: 0.72rem;
+  font-weight: 700;
+  grid-template-columns: minmax(0, 1fr);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  transition: background-color 180ms ease, color 180ms ease, padding 220ms ease;
+}
+
+.header-offer-menu a:last-child {
+  border-bottom: 0;
+}
+
+.header-offer-menu a:hover,
+.header-offer-menu a:focus-visible,
+.header-offer-menu a.is-active {
+  padding-left: 25px;
+  background: rgba(216, 185, 111, 0.08);
+  color: var(--gold-light);
 }
 
 .search-link {
@@ -3881,6 +3946,38 @@ button {
 
   .mobile-menu-link--offer {
     color: rgba(255, 255, 255, 0.88);
+  }
+
+  .mobile-menu-offer-group {
+    display: grid;
+    padding: 3px 0;
+    border-bottom: 1px solid rgba(201, 157, 67, 0.2);
+  }
+
+  .mobile-menu-offer-options {
+    display: grid;
+  }
+
+  .mobile-menu-offer-link {
+    display: grid;
+    min-height: 48px;
+    align-items: center;
+    padding: 0 2px;
+    border-top: 1px solid rgba(201, 157, 67, 0.14);
+    color: rgba(255, 255, 255, 0.84);
+    font-size: clamp(0.88rem, 3.5vw, 1rem);
+    font-weight: 500;
+    grid-template-columns: minmax(0, 1fr);
+    letter-spacing: 0.035em;
+    transition: color 220ms ease, border-color 220ms ease, padding 280ms ease;
+  }
+
+  .mobile-menu-offer-link:hover,
+  .mobile-menu-offer-link:focus-visible,
+  .mobile-menu-offer-link.is-active {
+    padding-left: 7px;
+    border-color: rgba(224, 184, 100, 0.5);
+    color: var(--gold-light);
   }
 
   .mobile-menu-parent-row {

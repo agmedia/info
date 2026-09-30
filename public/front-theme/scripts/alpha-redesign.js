@@ -11,6 +11,10 @@ document.addEventListener('DOMContentLoaded', function () {
     const submenuClose = mobileMenu?.querySelector('[data-alpha-submenu-close]');
     const rootMenuPanel = mobileMenu?.querySelector('[data-alpha-menu-panel="root"]');
     const servicesMenuPanel = mobileMenu?.querySelector('[data-alpha-menu-panel="services"]');
+    const offerRoot = document.querySelector('[data-alpha-offer]');
+    const offerToggle = offerRoot?.querySelector('[data-alpha-offer-toggle]');
+    const offerMenu = offerRoot?.querySelector('[data-alpha-offer-menu]');
+    const offerMenuItems = Array.from(offerMenu?.querySelectorAll('[role="menuitem"]') || []);
     const searchToggles = document.querySelectorAll('[data-header-search-toggle]');
     const searchPanel = document.querySelector('[data-header-search-panel]');
     const searchClose = searchPanel?.querySelector('[data-header-search-close]');
@@ -278,6 +282,91 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     });
 
+    const setOfferMenuOpen = function (open, focusTarget = null) {
+        if (!(offerRoot instanceof HTMLElement) || !(offerToggle instanceof HTMLElement) || !(offerMenu instanceof HTMLElement)) {
+            return;
+        }
+
+        offerRoot.classList.toggle('is-open', open);
+        offerToggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+        offerMenu.setAttribute('aria-hidden', open ? 'false' : 'true');
+
+        if (!open) {
+            if (focusTarget === 'toggle') {
+                offerToggle.focus();
+            }
+
+            return;
+        }
+
+        if (focusTarget === 'first' || focusTarget === 'last') {
+            const item = focusTarget === 'last'
+                ? offerMenuItems[offerMenuItems.length - 1]
+                : offerMenuItems[0];
+
+            window.requestAnimationFrame(function () {
+                item?.focus();
+            });
+        }
+    };
+
+    offerToggle?.addEventListener('click', function () {
+        setOfferMenuOpen(offerToggle.getAttribute('aria-expanded') !== 'true');
+    });
+
+    offerToggle?.addEventListener('keydown', function (event) {
+        if (event.key !== 'ArrowDown' && event.key !== 'ArrowUp') {
+            return;
+        }
+
+        event.preventDefault();
+        setOfferMenuOpen(true, event.key === 'ArrowUp' ? 'last' : 'first');
+    });
+
+    offerMenuItems.forEach(function (item, index) {
+        item.addEventListener('click', function () {
+            setOfferMenuOpen(false);
+        });
+
+        item.addEventListener('keydown', function (event) {
+            let nextIndex = null;
+
+            if (event.key === 'ArrowDown') {
+                nextIndex = (index + 1) % offerMenuItems.length;
+            } else if (event.key === 'ArrowUp') {
+                nextIndex = (index - 1 + offerMenuItems.length) % offerMenuItems.length;
+            } else if (event.key === 'Home') {
+                nextIndex = 0;
+            } else if (event.key === 'End') {
+                nextIndex = offerMenuItems.length - 1;
+            } else if (event.key === 'Escape') {
+                event.preventDefault();
+                event.stopPropagation();
+                setOfferMenuOpen(false, 'toggle');
+                return;
+            }
+
+            if (nextIndex !== null) {
+                event.preventDefault();
+                offerMenuItems[nextIndex]?.focus();
+            }
+        });
+    });
+
+    offerRoot?.addEventListener('focusout', function () {
+        window.setTimeout(function () {
+            if (!offerRoot.contains(document.activeElement)) {
+                setOfferMenuOpen(false);
+            }
+        }, 0);
+    });
+
+    document.addEventListener('click', function (event) {
+        if (offerRoot?.classList.contains('is-open') && !offerRoot.contains(event.target)) {
+            setOfferMenuOpen(false);
+        }
+    });
+
     const setSubmenuOpen = function (open, moveFocus) {
         if (!(mobileMenu instanceof HTMLElement)) {
             return;
@@ -304,6 +393,10 @@ document.addEventListener('DOMContentLoaded', function () {
     const setMenuOpen = function (open) {
         if (!(menuToggle instanceof HTMLElement) || !(mobileMenu instanceof HTMLElement)) {
             return;
+        }
+
+        if (open) {
+            setOfferMenuOpen(false);
         }
 
         setSubmenuOpen(open && mobileMenu.dataset.alphaInitialPanel === 'services', false);
@@ -502,6 +595,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         if (open && document.activeElement instanceof HTMLElement) {
             previousSearchFocus = document.activeElement;
+            setOfferMenuOpen(false);
         }
 
         searchPanel.classList.toggle('is-open', open);
@@ -587,6 +681,11 @@ document.addEventListener('DOMContentLoaded', function () {
         if (event.key === 'Escape') {
             if (searchPanel?.classList.contains('is-open')) {
                 setSearchOpen(false);
+                return;
+            }
+
+            if (offerRoot?.classList.contains('is-open')) {
+                setOfferMenuOpen(false, 'toggle');
                 return;
             }
 
