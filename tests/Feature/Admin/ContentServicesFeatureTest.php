@@ -1161,15 +1161,72 @@ class ContentServicesFeatureTest extends TestCase
         $this->assertStringContainsString('wire:model="form.translation_payload.calls.other_calls.title"', $component->html());
         $this->assertStringContainsString("addTranslationListItem('calls.other_calls.items', 'eu_funds_link_item')", $component->html());
         $this->assertStringContainsString("addTranslationListItem('resources.cards', 'eu_funds_resource_card')", $component->html());
+        $this->assertStringContainsString('moveEuFundsResourceItemUp(1, 0, 0)', $component->html());
+        $this->assertStringContainsString('moveEuFundsResourceItemDown(1, 0, 0)', $component->html());
+        $this->assertStringContainsString('aria-label="Pomakni stavku 1 gore"', $component->html());
         $this->assertStringContainsString('wire:model="form.translation_payload.laws.cards.0.secondary_link.locale"', $component->html());
         $this->assertStringNotContainsString('wire:model="form.translation_payload.overview.body.0"', $component->html());
         $this->assertStringNotContainsString('wire:model="form.translation_payload.approach.body.0"', $component->html());
         $this->assertStringNotContainsString('wire:model="form.translation_payload.testimonials.title"', $component->html());
         $this->assertStringNotContainsString('wire:model="form.translation_payload.chart.title"', $component->html());
 
+        $editorHtml = $component->html();
+        $callsPosition = strpos($editorHtml, 'id="eu-funds-calls-admin"');
+        $resourcesPosition = strpos($editorHtml, 'id="eu-funds-resources-admin"');
+        $overviewPosition = strpos($editorHtml, 'id="eu-funds-overview-admin"');
+        $this->assertNotFalse($callsPosition);
+        $this->assertNotFalse($resourcesPosition);
+        $this->assertNotFalse($overviewPosition);
+        $this->assertLessThan($resourcesPosition, $callsPosition);
+        $this->assertLessThan($overviewPosition, $resourcesPosition);
+
         $component->call('setTab', 'sources');
 
         $this->assertStringContainsString('Auto (trenutna kategorija EU fondova)', $component->html());
+    }
+
+    public function test_admin_can_reorder_eu_funds_program_items_and_boundary_moves_are_ignored(): void
+    {
+        $user = $this->makeAdminUser();
+        $page = ServicePage::query()
+            ->where('template_key', ServicePageTemplateRegistry::EU_FUNDS)
+            ->firstOrFail();
+
+        $component = Livewire::actingAs($user)
+            ->test(ServiceForm::class, ['servicePageId' => $page->id]);
+
+        $cards = (array) $component->get('form.translation_payload.resources.cards');
+        $cardIndex = collect($cards)->search(
+            fn (array $card): bool => count((array) data_get($card, 'groups.0.items', [])) >= 2,
+        );
+
+        $this->assertIsInt($cardIndex);
+
+        $itemsPath = "form.translation_payload.resources.cards.$cardIndex.groups.0.items";
+        $items = array_values((array) $component->get($itemsPath));
+        $firstTitle = (string) data_get($items, '0.title');
+        $secondTitle = (string) data_get($items, '1.title');
+        $lastIndex = count($items) - 1;
+        $lastTitle = (string) data_get($items, "$lastIndex.title");
+
+        $component
+            ->call('moveEuFundsResourceItemUp', $cardIndex, 0, 0)
+            ->assertSet("$itemsPath.0.title", $firstTitle)
+            ->call('moveEuFundsResourceItemDown', $cardIndex, 0, $lastIndex)
+            ->assertSet("$itemsPath.$lastIndex.title", $lastTitle)
+            ->call('moveEuFundsResourceItemDown', $cardIndex, 0, 0)
+            ->assertSet("$itemsPath.0.title", $secondTitle)
+            ->assertSet("$itemsPath.1.title", $firstTitle)
+            ->call('save')
+            ->assertHasNoErrors();
+
+        $savedItems = (array) data_get(
+            $page->translations()->where('locale', 'hr')->firstOrFail()->payload,
+            "resources.cards.$cardIndex.groups.0.items",
+        );
+
+        $this->assertSame($secondTitle, data_get($savedItems, '0.title'));
+        $this->assertSame($firstTitle, data_get($savedItems, '1.title'));
     }
 
     public function test_admin_can_add_and_save_an_other_call_and_resource_card(): void

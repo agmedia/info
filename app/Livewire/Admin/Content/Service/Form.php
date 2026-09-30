@@ -311,6 +311,16 @@ class Form extends Component
         $this->moveVideoSource($index, 1);
     }
 
+    public function moveEuFundsResourceItemUp(int $cardIndex, int $groupIndex, int $itemIndex): void
+    {
+        $this->moveEuFundsResourceItem($cardIndex, $groupIndex, $itemIndex, -1);
+    }
+
+    public function moveEuFundsResourceItemDown(int $cardIndex, int $groupIndex, int $itemIndex): void
+    {
+        $this->moveEuFundsResourceItem($cardIndex, $groupIndex, $itemIndex, 1);
+    }
+
     public function addTranslationListItem(string $path, string $preset = 'string'): void
     {
         $items = (array) data_get($this->form, 'translation_payload.'.$path, []);
@@ -1312,6 +1322,48 @@ class Form extends Component
         data_set($this->form, 'page_payload.video_source.items', array_values($rows));
     }
 
+    private function moveEuFundsResourceItem(
+        int $cardIndex,
+        int $groupIndex,
+        int $itemIndex,
+        int $direction,
+    ): void {
+        if (
+            ($this->form['template_key'] ?? null) !== ServicePageTemplateRegistry::EU_FUNDS
+            || ! in_array($direction, [-1, 1], true)
+            || $cardIndex < 0
+            || $groupIndex < 0
+            || $itemIndex < 0
+        ) {
+            return;
+        }
+
+        $cards = (array) data_get($this->form, 'translation_payload.resources.cards', []);
+        if (! array_key_exists($cardIndex, $cards)) {
+            return;
+        }
+
+        $groups = (array) data_get($cards[$cardIndex], 'groups', []);
+        if (! array_key_exists($groupIndex, $groups)) {
+            return;
+        }
+
+        $items = array_values((array) data_get($groups[$groupIndex], 'items', []));
+        $swapIndex = $itemIndex + $direction;
+
+        if (! array_key_exists($itemIndex, $items) || ! array_key_exists($swapIndex, $items)) {
+            return;
+        }
+
+        [$items[$itemIndex], $items[$swapIndex]] = [$items[$swapIndex], $items[$itemIndex]];
+
+        data_set(
+            $this->form,
+            "translation_payload.resources.cards.$cardIndex.groups.$groupIndex.items",
+            $items,
+        );
+    }
+
     private function manualSelectionPath(string $target): ?string
     {
         return self::MANUAL_SELECTION_PATHS[$target] ?? null;
@@ -1936,8 +1988,7 @@ class Form extends Component
         array $payload,
         string $path,
         string $directory = 'service-assets/eu-funds',
-    ): array
-    {
+    ): array {
         $upload = $this->assetUploads[$this->assetUploadKey($path)] ?? null;
 
         if (! $upload instanceof TemporaryUploadedFile) {

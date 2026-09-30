@@ -640,8 +640,13 @@ class EuFundsController extends Controller
                     return $card;
                 }
 
+                $primaryLinkLabel = trim((string) ($card['primary_link']['label'] ?? ''));
+                if (Str::of($primaryLinkLabel)->lower()->ascii()->value() === 'ispuni upitnik') {
+                    $primaryLinkLabel = 'Ispunite upitnik';
+                }
+
                 $card['primary_link'] = [
-                    'label' => (string) ($card['primary_link']['label'] ?? ''),
+                    'label' => $primaryLinkLabel,
                     'url' => FrontendRoute::url('eu-funds.questionnaire.create'),
                     'open_in_new_tab' => false,
                     'rel' => '',

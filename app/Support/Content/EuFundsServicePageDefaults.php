@@ -191,7 +191,7 @@ class EuFundsServicePageDefaults
                             'Prvi korak je razumjeti investicijske i razvojne prioritete projekta. Upitnik nam pomaže procijeniti prihvatljivost ulaganja i povezati ga s dostupnim izvorima financiranja.',
                         ],
                         'primary_link' => [
-                            'label' => 'Ispuni upitnik',
+                            'label' => 'Ispunite upitnik',
                             'type' => 'external',
                             'url' => '/eu-fondovi/upitnik',
                         ],

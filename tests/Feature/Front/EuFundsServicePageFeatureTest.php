@@ -12,6 +12,8 @@ use App\Models\Content\Service\ServicePage;
 use App\Models\Settings\Local\Language;
 use App\Support\Content\EuFundsServicePageDefaults;
 use App\Support\Content\ServicePageTemplateRegistry;
+use DOMDocument;
+use DOMXPath;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -247,6 +249,8 @@ class EuFundsServicePageFeatureTest extends TestCase
             ])->all(),
         ]);
         $resourceCard = (array) data_get($payload, 'resources.cards.0', []);
+        unset($resourceCard['key']);
+        $resourceCard['primary_link'] = [];
         data_set($payload, 'resources.cards', collect(range(1, 6))->map(function (int $index) use ($resourceCard): array {
             $resourceCard['title'] = 'Program potpore '.$index;
 
@@ -350,7 +354,72 @@ class EuFundsServicePageFeatureTest extends TestCase
         $content = $response->getContent();
         $programSection = (string) str($content)->between('id="eu-funds-programs"', 'id="eu-funds-laws"');
 
-        $this->assertSame(6, substr_count($programSection, 'ac-eu-program-card'));
+        $this->assertSame(5, substr_count($programSection, 'ac-eu-program-card'));
+        $this->assertSame(1, substr_count($programSection, 'id="eu-funds-questionnaire"'));
+    }
+
+    public function test_calls_and_programs_precede_overview_and_questionnaire_is_a_separate_cta(): void
+    {
+        $page = ServicePage::query()
+            ->where('template_key', ServicePageTemplateRegistry::EU_FUNDS)
+            ->with('translations')
+            ->firstOrFail();
+        $translation = $page->translations->firstWhere('locale', 'hr');
+        $this->assertNotNull($translation);
+
+        $payload = (array) $translation->payload;
+        data_set($payload, 'resources.cards', [
+            [
+                'key' => 'questionnaire',
+                'eyebrow' => 'ALPHA CAPITALIS',
+                'title' => 'Projektni upitnik regresija',
+                'body' => ['Kratki opis projektnog upitnika.'],
+                'primary_link' => [
+                    'label' => 'Ispuni upitnik',
+                    'type' => 'external',
+                    'url' => '/eu-fondovi/upitnik',
+                ],
+            ],
+            [
+                'key' => 'hbor-test',
+                'eyebrow' => 'HBOR',
+                'title' => 'HBOR testni program',
+                'body' => ['Kratki opis programa.'],
+                'groups' => [],
+            ],
+        ]);
+        $translation->update(['payload' => $payload]);
+
+        $response = $this->get('/eu-fondovi');
+
+        $response->assertOk()
+            ->assertSeeInOrder([
+                'id="vrh"',
+                'id="eu-funds-calls"',
+                'id="eu-funds-programs"',
+                'id="eu-funds-overview"',
+            ], false)
+            ->assertSeeText('Ispunite upitnik')
+            ->assertDontSeeText('Ispuni upitnik')
+            ->assertSee('href="'.route('eu-funds.questionnaire.create').'"', false);
+
+        $content = $response->getContent();
+        $dom = new DOMDocument('1.0', 'UTF-8');
+        @$dom->loadHTML('<?xml encoding="utf-8" ?>'.$content, LIBXML_HTML_NODEFDTD | LIBXML_NONET);
+        $xpath = new DOMXPath($dom);
+        $programGridQuery = '//*[@id="eu-funds-programs"]//*[contains(concat(" ", normalize-space(@class), " "), " ac-eu-program-grid ")]';
+
+        $this->assertSame(1, $xpath->query($programGridQuery.'//h3[normalize-space(.) = "HBOR testni program"]')->length);
+        $this->assertSame(0, $xpath->query($programGridQuery.'//*[contains(normalize-space(.), "Projektni upitnik regresija")]')->length);
+        $this->assertSame(1, $xpath->query('//*[@id="eu-funds-questionnaire" and contains(normalize-space(.), "Projektni upitnik regresija")]')->length);
+        $this->assertSame(1, $xpath->query('//*[@id="eu-funds-questionnaire"]//a[@href="'.route('eu-funds.questionnaire.create').'"]')->length);
+
+        $programGridPosition = strpos($content, 'class="ac-eu-program-grid"');
+        $questionnairePosition = strpos($content, 'id="eu-funds-questionnaire"');
+
+        $this->assertNotFalse($programGridPosition);
+        $this->assertNotFalse($questionnairePosition);
+        $this->assertLessThan($questionnairePosition, $programGridPosition);
     }
 
     public function test_english_eu_funds_links_require_exact_translations_and_use_localized_questionnaire_url(): void
@@ -395,30 +464,38 @@ class EuFundsServicePageFeatureTest extends TestCase
         $payload['resources'] = [
             'title' => 'English resources',
             'intro' => '',
-            'cards' => [[
-                'title' => 'Project questionnaire',
-                'body_html' => '',
-                'primary_link' => [
-                    'type' => 'external',
-                    'label' => 'Complete the questionnaire',
-                    'url' => '/eu-fondovi/upitnik',
+            'cards' => [
+                [
+                    'key' => 'questionnaire',
+                    'title' => 'Project questionnaire',
+                    'body_html' => '',
+                    'primary_link' => [
+                        'type' => 'external',
+                        'label' => 'Complete the questionnaire',
+                        'url' => '/eu-fondovi/upitnik',
+                    ],
                 ],
-                'secondary_link' => [
-                    'type' => 'pdf',
-                    'label' => 'Brochure',
-                    'path' => 'front-theme/documents/eu-fondovi/zakon-o-poticanju-ulaganja-brosura.pdf',
-                ],
-                'groups' => [[
-                    'label' => 'Further reading',
-                    'items' => [[
-                        'title' => 'More information',
-                        'link' => [
-                            'type' => 'blog',
-                            'slug' => 'samo-hrvatski-resurs',
-                        ],
+                [
+                    'key' => 'english-resources',
+                    'title' => 'English support programme',
+                    'body_html' => '',
+                    'secondary_link' => [
+                        'type' => 'pdf',
+                        'label' => 'Brochure',
+                        'path' => 'front-theme/documents/eu-fondovi/zakon-o-poticanju-ulaganja-brosura.pdf',
+                    ],
+                    'groups' => [[
+                        'label' => 'Further reading',
+                        'items' => [[
+                            'title' => 'More information',
+                            'link' => [
+                                'type' => 'blog',
+                                'slug' => 'samo-hrvatski-resurs',
+                            ],
+                        ]],
                     ]],
-                ]],
-            ]],
+                ],
+            ],
         ];
         $translation->update(['payload' => $payload]);
 
@@ -438,7 +515,7 @@ class EuFundsServicePageFeatureTest extends TestCase
             'slug' => 'english-resource',
             'body_html' => '<p>English content.</p>',
         ]);
-        $payload['resources']['cards'][0]['secondary_link']['locale'] = 'en';
+        $payload['resources']['cards'][1]['secondary_link']['locale'] = 'en';
         $translation->update(['payload' => $payload]);
 
         $this->withSession(['front_locale' => 'en'])

@@ -1,5 +1,5 @@
 <div id="eu-funds-resources-admin" class="admin-panel admin-form-panel scroll-mt-24 p-6">
-    <div class="border-b border-slate-200 pb-4"><p class="text-xs font-semibold uppercase tracking-[0.16em] text-cyan-700">7. Programi i instrumenti</p><h2 class="mt-1 text-lg font-semibold text-slate-900">HBOR, HAMAG i ostali izvori potpore</h2></div>
+    <div class="border-b border-slate-200 pb-4"><p class="text-xs font-semibold uppercase tracking-[0.16em] text-cyan-700">3. Programi i instrumenti</p><h2 class="mt-1 text-lg font-semibold text-slate-900">HBOR, HAMAG i ostali izvori potpore</h2></div>
     <div class="mt-5 grid gap-4 xl:grid-cols-2">
         <div><label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Naslov sekcije</label><input type="text" wire:model="form.translation_payload.resources.title" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" /></div>
         <div><label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Uvod sekcije</label><textarea rows="4" wire:model="form.translation_payload.resources.intro" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm leading-6"></textarea></div>
@@ -27,10 +27,37 @@
                     <div class="mt-5 rounded-xl border border-slate-200 bg-white p-4">
                         <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Naslov popisa {{ $groupIndex + 1 }}</label>
                         <input type="text" wire:model="form.translation_payload.resources.cards.{{ $cardIndex }}.groups.{{ $groupIndex }}.label" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+                        @php($groupItems = (array) ($group['items'] ?? []))
                         <div class="mt-4 space-y-3">
-                            @foreach (($group['items'] ?? []) as $itemIndex => $item)
+                            @foreach ($groupItems as $itemIndex => $item)
                                 <div class="rounded-xl bg-slate-50 p-4">
-                                    <label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Stavka {{ $itemIndex + 1 }}</label>
+                                    <div class="mb-1 flex items-center justify-between gap-3">
+                                        <label class="block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Stavka {{ $itemIndex + 1 }}</label>
+                                        <div class="flex items-center gap-1" aria-label="Promjena redoslijeda stavke {{ $itemIndex + 1 }}">
+                                            <button
+                                                type="button"
+                                                wire:click="moveEuFundsResourceItemUp({{ $cardIndex }}, {{ $groupIndex }}, {{ $itemIndex }})"
+                                                @disabled($itemIndex === 0)
+                                                class="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-slate-300 bg-white text-slate-600 transition hover:border-cyan-700 hover:text-cyan-800 focus:outline-none focus:ring-2 focus:ring-cyan-600 focus:ring-offset-2 disabled:pointer-events-none disabled:opacity-40"
+                                                aria-label="Pomakni stavku {{ $itemIndex + 1 }} gore"
+                                                title="Pomakni gore"
+                                            >
+                                                <i class="fa-light fa-arrow-up" aria-hidden="true"></i>
+                                                <span class="sr-only">Pomakni gore</span>
+                                            </button>
+                                            <button
+                                                type="button"
+                                                wire:click="moveEuFundsResourceItemDown({{ $cardIndex }}, {{ $groupIndex }}, {{ $itemIndex }})"
+                                                @disabled($itemIndex === array_key_last($groupItems))
+                                                class="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-slate-300 bg-white text-slate-600 transition hover:border-cyan-700 hover:text-cyan-800 focus:outline-none focus:ring-2 focus:ring-cyan-600 focus:ring-offset-2 disabled:pointer-events-none disabled:opacity-40"
+                                                aria-label="Pomakni stavku {{ $itemIndex + 1 }} dolje"
+                                                title="Pomakni dolje"
+                                            >
+                                                <i class="fa-light fa-arrow-down" aria-hidden="true"></i>
+                                                <span class="sr-only">Pomakni dolje</span>
+                                            </button>
+                                        </div>
+                                    </div>
                                     <input type="text" wire:model="form.translation_payload.resources.cards.{{ $cardIndex }}.groups.{{ $groupIndex }}.items.{{ $itemIndex }}.title" class="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm" />
                                     <div class="mt-3 grid gap-3 md:grid-cols-4">
                                         <div><label class="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Vrsta poveznice</label><select wire:model="form.translation_payload.resources.cards.{{ $cardIndex }}.groups.{{ $groupIndex }}.items.{{ $itemIndex }}.link.type" data-tom-select data-tom-no-search="1" class="admin-select w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm"><option value="none">Bez poveznice</option><option value="external">Web adresa</option><option value="blog">Blog objava</option><option value="call">Natječaj</option><option value="pdf">PDF</option></select></div>

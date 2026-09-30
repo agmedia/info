@@ -20,6 +20,29 @@
     ));
     $callGroups = array_values((array) ($callsSection['groups'] ?? []));
     $resourceCards = array_values((array) ($resourcesSection['cards'] ?? []));
+    $questionnaireCard = null;
+    $programCards = [];
+
+    foreach ($resourceCards as $resourceCard) {
+        $cardKey = strtolower(trim((string) ($resourceCard['key'] ?? '')));
+        $cardIdentity = \Illuminate\Support\Str::of(implode(' ', [
+            (string) ($resourceCard['title'] ?? ''),
+            (string) data_get($resourceCard, 'primary_link.label', ''),
+            (string) data_get($resourceCard, 'primary_link.url', ''),
+        ]))->lower()->ascii()->value();
+        $isQuestionnaireCard = $cardKey === 'questionnaire'
+            || str_contains($cardIdentity, 'upitnik')
+            || str_contains($cardIdentity, 'questionnaire');
+
+        if ($questionnaireCard === null && $isQuestionnaireCard) {
+            $questionnaireCard = $resourceCard;
+
+            continue;
+        }
+
+        $programCards[] = $resourceCard;
+    }
+
     $lawCards = array_values((array) ($lawsSection['cards'] ?? []));
     $readMoreLabel = trim((string) ($blogSection['post_action_label'] ?? ''));
     $allPostsLabel = trim((string) ($blogSection['all_posts_label'] ?? ''));
@@ -114,6 +137,183 @@
                 </div>
             </div>
         </section>
+
+        @if ($callGroups !== [] || trim((string) ($callsDownloadLink['url'] ?? '')) !== '' || $otherCallItems !== [])
+            <section id="eu-funds-calls" class="ac-eu-funds-module-section ac-eu-call-module" aria-labelledby="ac-eu-funds-calls-title">
+                <div class="ac-advisory-wide-shell">
+                    <header class="ac-eu-module-heading">
+                        <p class="ac-eu-module-kicker">{{ trim((string) ($callsSection['kicker'] ?? '')) }}</p>
+                        <h2 id="ac-eu-funds-calls-title">{{ trim((string) ($callsSection['title'] ?? '')) }}</h2>
+                        @if (trim((string) ($callsSection['intro'] ?? '')) !== '')
+                            <p>{{ $callsSection['intro'] }}</p>
+                        @endif
+                        @if (trim((string) ($callsDownloadLink['url'] ?? '')) !== '')
+                            <a href="{{ $callsDownloadLink['url'] }}" class="ac-eu-editorial-link ac-eu-calls-download-link" @if($callsDownloadLink['open_in_new_tab'] ?? false) target="_blank" rel="{{ $callsDownloadLink['rel'] ?? 'noopener noreferrer' }}" @endif>
+                                <span>{{ $callsDownloadLink['label'] ?? '' }}</span>
+                                <i class="fa-duotone fa-thin fa-arrow-down-to-line fa-fw" aria-hidden="true"></i>
+                            </a>
+                        @endif
+                    </header>
+
+                    @if ($callGroups !== [])
+                        <div class="ac-eu-call-group-grid">
+                            @foreach ($callGroups as $group)
+                                @php
+                                    $tone = trim((string) ($group['tone'] ?? 'pending')) ?: 'pending';
+                                    $items = array_values((array) ($group['items'] ?? []));
+                                    $visibleItems = array_slice($items, 0, 5);
+                                    $hiddenItems = array_slice($items, 5);
+                                    $statusLabel = trim((string) ($group['status_label'] ?? ''));
+                                @endphp
+                                <article id="eu-funds-calls-{{ $tone }}" class="ac-eu-call-group-card content-reveal animation-index-{{ $loop->index }}" data-image-reveal>
+                                    <div class="ac-eu-call-group-head">
+                                        <h3>{{ trim((string) ($group['title'] ?? '')) }}</h3>
+                                        <span class="ac-eu-status-badge is-{{ $tone }}">{{ $statusLabel }}</span>
+                                    </div>
+
+                                    <ul class="ac-eu-call-list">
+                                        @foreach ($visibleItems as $item)
+                                            @include('front.desktop.pages.partials.eu-funds-call-item', ['item' => $item])
+                                        @endforeach
+                                    </ul>
+
+                                    @if ($hiddenItems !== [])
+                                        <details class="ac-eu-call-details">
+                                            <summary>{{ $viewAllCallsLabel }}</summary>
+                                            <ul class="ac-eu-call-list ac-eu-call-list--details">
+                                                @foreach ($hiddenItems as $item)
+                                                    @include('front.desktop.pages.partials.eu-funds-call-item', ['item' => $item])
+                                                @endforeach
+                                            </ul>
+                                        </details>
+                                    @endif
+                                </article>
+                            @endforeach
+                        </div>
+                    @endif
+
+                    @if ($otherCallItems !== [])
+                        <div class="ac-eu-other-calls content-reveal" data-image-reveal>
+                            @if (trim((string) ($otherCallsSection['title'] ?? '')) !== '')
+                                <h3>{{ $otherCallsSection['title'] }}</h3>
+                            @endif
+                            @if (trim((string) ($otherCallsSection['intro'] ?? '')) !== '')
+                                <p>{{ $otherCallsSection['intro'] }}</p>
+                            @endif
+                            <ul class="ac-eu-other-call-list">
+                                @foreach ($otherCallItems as $item)
+                                    @php $otherCallLink = (array) ($item['resolved_link'] ?? []); @endphp
+                                    <li>
+                                        @if (trim((string) ($otherCallLink['url'] ?? '')) !== '')
+                                            <a href="{{ $otherCallLink['url'] }}" @if($otherCallLink['open_in_new_tab'] ?? false) target="_blank" rel="{{ $otherCallLink['rel'] ?? 'noopener noreferrer' }}" @endif>{{ $item['title'] ?? ($otherCallLink['label'] ?? '') }}</a>
+                                        @else
+                                            <span>{{ $item['title'] ?? '' }}</span>
+                                        @endif
+                                    </li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    @endif
+                </div>
+            </section>
+        @endif
+
+        @if ($programCards !== [] || $questionnaireCard !== null)
+            <section class="ac-eu-funds-module-section ac-eu-funds-module-section--soft" id="eu-funds-programs" aria-labelledby="ac-eu-funds-programs-title">
+                <div class="ac-advisory-wide-shell">
+                    <header class="ac-advisory-section-heading">
+                        <h2 id="ac-eu-funds-programs-title" data-words-slide-from-right aria-label="{{ $resourcesSection['title'] ?? '' }}">
+                            @foreach ($headingWords((string) ($resourcesSection['title'] ?? '')) as $word)
+                                <span class="service-title-word animation-index-{{ $loop->index }} {{ $loop->last ? 'is-accent' : '' }}" aria-hidden="true">{{ $word }}</span>
+                            @endforeach
+                        </h2>
+                        @if (trim((string) ($resourcesSection['intro'] ?? '')) !== '')
+                            <p>{{ $resourcesSection['intro'] }}</p>
+                        @endif
+                    </header>
+
+                    @if ($programCards !== [])
+                        <div class="ac-eu-program-grid">
+                            @foreach ($programCards as $card)
+                                @php $cardBodyBlocks = $richTextBlocks((array) $card); @endphp
+                                <article class="ac-advisory-text-panel ac-eu-program-card content-reveal animation-index-{{ $loop->index }}" data-image-reveal>
+                                    @if (trim((string) ($card['eyebrow'] ?? '')) !== '')
+                                        <p class="ac-eu-program-eyebrow">{{ $card['eyebrow'] }}</p>
+                                    @endif
+                                    <h3>{{ $card['title'] ?? '' }}</h3>
+
+                                    @foreach ($cardBodyBlocks as $block)
+                                        {!! $block !!}
+                                    @endforeach
+
+                                    @foreach ((array) ($card['groups'] ?? []) as $group)
+                                        <div class="ac-eu-program-list-block">
+                                            <h4>{{ $group['label'] ?? '' }}</h4>
+                                            <ul class="ac-advisory-list">
+                                                @foreach ((array) ($group['items'] ?? []) as $item)
+                                                    @php
+                                                        $resolvedLink = $item['resolved_link'] ?? ['url' => ''];
+                                                        $itemUrl = trim((string) ($resolvedLink['url'] ?? ''));
+                                                    @endphp
+                                                    <li>
+                                                        @if ($itemUrl !== '')
+                                                            <a href="{{ $itemUrl }}" @if($resolvedLink['open_in_new_tab'] ?? false) target="_blank" rel="{{ $resolvedLink['rel'] ?? 'noopener noreferrer' }}" @endif>{{ $item['title'] ?? '' }}</a>
+                                                        @else
+                                                            {{ $item['title'] ?? '' }}
+                                                        @endif
+                                                    </li>
+                                                @endforeach
+                                            </ul>
+                                        </div>
+                                    @endforeach
+
+                                    @if (!empty($card['primary_link']['url'] ?? '') || !empty($card['secondary_link']['url'] ?? ''))
+                                        <div class="ac-eu-program-actions">
+                                            @foreach (['primary_link', 'secondary_link'] as $linkKey)
+                                                @if (!empty($card[$linkKey]['url'] ?? ''))
+                                                    <a href="{{ $card[$linkKey]['url'] }}" class="ac-eu-editorial-link" @if($card[$linkKey]['open_in_new_tab'] ?? false) target="_blank" rel="{{ $card[$linkKey]['rel'] ?? 'noopener noreferrer' }}" @endif>
+                                                        <span>{{ $card[$linkKey]['label'] }}</span>
+                                                        <i class="fa-duotone fa-thin fa-arrow-right fa-fw" aria-hidden="true"></i>
+                                                    </a>
+                                                @endif
+                                            @endforeach
+                                        </div>
+                                    @endif
+                                </article>
+                            @endforeach
+                        </div>
+                    @endif
+
+                    @if ($questionnaireCard !== null)
+                        @php $questionnaireBodyBlocks = $richTextBlocks((array) $questionnaireCard); @endphp
+                        <aside id="eu-funds-questionnaire" class="ac-eu-questionnaire-cta content-reveal" data-image-reveal aria-labelledby="ac-eu-questionnaire-title">
+                            <div class="ac-eu-questionnaire-copy">
+                                @if (trim((string) ($questionnaireCard['eyebrow'] ?? '')) !== '')
+                                    <p class="ac-eu-program-eyebrow">{{ $questionnaireCard['eyebrow'] }}</p>
+                                @endif
+                                <h3 id="ac-eu-questionnaire-title">{{ $questionnaireCard['title'] ?? '' }}</h3>
+                                @foreach ($questionnaireBodyBlocks as $block)
+                                    {!! $block !!}
+                                @endforeach
+                            </div>
+
+                            @if (!empty($questionnaireCard['primary_link']['url'] ?? '') || !empty($questionnaireCard['secondary_link']['url'] ?? ''))
+                                <div class="ac-eu-questionnaire-actions">
+                                    @foreach (['primary_link', 'secondary_link'] as $linkKey)
+                                        @if (!empty($questionnaireCard[$linkKey]['url'] ?? ''))
+                                            <a href="{{ $questionnaireCard[$linkKey]['url'] }}" class="{{ $linkKey === 'primary_link' ? 'contact-cta-button' : 'ac-eu-editorial-link' }}" @if($questionnaireCard[$linkKey]['open_in_new_tab'] ?? false) target="_blank" rel="{{ $questionnaireCard[$linkKey]['rel'] ?? 'noopener noreferrer' }}" @endif>
+                                                <span>{{ $questionnaireCard[$linkKey]['label'] }}</span>
+                                                <i class="fa-duotone fa-thin fa-arrow-right fa-fw" aria-hidden="true"></i>
+                                            </a>
+                                        @endif
+                                    @endforeach
+                                </div>
+                            @endif
+                        </aside>
+                    @endif
+                </div>
+            </section>
+        @endif
 
         <section class="ac-advisory-intro" id="eu-funds-overview" aria-labelledby="ac-eu-funds-overview-title">
             <div class="ac-advisory-wide-shell ac-advisory-intro-grid">
@@ -212,152 +412,8 @@
                         </a>
                     @endforeach
                 </div>
-
-                @if ($callGroups !== [] || trim((string) ($callsDownloadLink['url'] ?? '')) !== '' || $otherCallItems !== [])
-                    <div id="eu-funds-calls" class="ac-eu-call-module" aria-labelledby="ac-eu-funds-calls-title">
-                        <header class="ac-eu-module-heading">
-                            <p class="ac-eu-module-kicker">{{ trim((string) ($callsSection['kicker'] ?? '')) }}</p>
-                            <h3 id="ac-eu-funds-calls-title">{{ trim((string) ($callsSection['title'] ?? '')) }}</h3>
-                            @if (trim((string) ($callsSection['intro'] ?? '')) !== '')
-                                <p>{{ $callsSection['intro'] }}</p>
-                            @endif
-                            @if (trim((string) ($callsDownloadLink['url'] ?? '')) !== '')
-                                <a href="{{ $callsDownloadLink['url'] }}" class="ac-eu-editorial-link ac-eu-calls-download-link" @if($callsDownloadLink['open_in_new_tab'] ?? false) target="_blank" rel="{{ $callsDownloadLink['rel'] ?? 'noopener noreferrer' }}" @endif>
-                                    <span>{{ $callsDownloadLink['label'] ?? '' }}</span>
-                                    <i class="fa-duotone fa-thin fa-arrow-down-to-line fa-fw" aria-hidden="true"></i>
-                                </a>
-                            @endif
-                        </header>
-
-                        @if ($callGroups !== [])
-                            <div class="ac-eu-call-group-grid">
-                                @foreach ($callGroups as $group)
-                                    @php
-                                        $tone = trim((string) ($group['tone'] ?? 'pending')) ?: 'pending';
-                                        $items = array_values((array) ($group['items'] ?? []));
-                                        $visibleItems = array_slice($items, 0, 5);
-                                        $hiddenItems = array_slice($items, 5);
-                                        $statusLabel = trim((string) ($group['status_label'] ?? ''));
-                                    @endphp
-                                    <article id="eu-funds-calls-{{ $tone }}" class="ac-eu-call-group-card content-reveal animation-index-{{ $loop->index }}" data-image-reveal>
-                                        <div class="ac-eu-call-group-head">
-                                            <h3>{{ trim((string) ($group['title'] ?? '')) }}</h3>
-                                            <span class="ac-eu-status-badge is-{{ $tone }}">{{ $statusLabel }}</span>
-                                        </div>
-
-                                        <ul class="ac-eu-call-list">
-                                            @foreach ($visibleItems as $item)
-                                                @include('front.desktop.pages.partials.eu-funds-call-item', ['item' => $item])
-                                            @endforeach
-                                        </ul>
-
-                                        @if ($hiddenItems !== [])
-                                            <details class="ac-eu-call-details">
-                                                <summary>{{ $viewAllCallsLabel }}</summary>
-                                                <ul class="ac-eu-call-list ac-eu-call-list--details">
-                                                    @foreach ($hiddenItems as $item)
-                                                        @include('front.desktop.pages.partials.eu-funds-call-item', ['item' => $item])
-                                                    @endforeach
-                                                </ul>
-                                            </details>
-                                        @endif
-                                    </article>
-                                @endforeach
-                            </div>
-                        @endif
-                        @if ($otherCallItems !== [])
-                            <div class="ac-eu-other-calls content-reveal" data-image-reveal>
-                                @if (trim((string) ($otherCallsSection['title'] ?? '')) !== '')
-                                    <h3>{{ $otherCallsSection['title'] }}</h3>
-                                @endif
-                                @if (trim((string) ($otherCallsSection['intro'] ?? '')) !== '')
-                                    <p>{{ $otherCallsSection['intro'] }}</p>
-                                @endif
-                                <ul class="ac-eu-other-call-list">
-                                    @foreach ($otherCallItems as $item)
-                                        @php $otherCallLink = (array) ($item['resolved_link'] ?? []); @endphp
-                                        <li>
-                                            @if (trim((string) ($otherCallLink['url'] ?? '')) !== '')
-                                                <a href="{{ $otherCallLink['url'] }}" @if($otherCallLink['open_in_new_tab'] ?? false) target="_blank" rel="{{ $otherCallLink['rel'] ?? 'noopener noreferrer' }}" @endif>{{ $item['title'] ?? ($otherCallLink['label'] ?? '') }}</a>
-                                            @else
-                                                <span>{{ $item['title'] ?? '' }}</span>
-                                            @endif
-                                        </li>
-                                    @endforeach
-                                </ul>
-                            </div>
-                        @endif
-                    </div>
-                @endif
             </div>
         </section>
-
-        @if ($resourceCards !== [])
-            <section class="ac-eu-funds-module-section ac-eu-funds-module-section--soft" id="eu-funds-programs" aria-labelledby="ac-eu-funds-programs-title">
-                <div class="ac-advisory-wide-shell">
-                    <header class="ac-advisory-section-heading">
-                        <h2 id="ac-eu-funds-programs-title" data-words-slide-from-right aria-label="{{ $resourcesSection['title'] ?? '' }}">
-                            @foreach ($headingWords((string) ($resourcesSection['title'] ?? '')) as $word)
-                                <span class="service-title-word animation-index-{{ $loop->index }} {{ $loop->last ? 'is-accent' : '' }}" aria-hidden="true">{{ $word }}</span>
-                            @endforeach
-                        </h2>
-                        @if (trim((string) ($resourcesSection['intro'] ?? '')) !== '')
-                            <p>{{ $resourcesSection['intro'] }}</p>
-                        @endif
-                    </header>
-
-                    <div class="ac-eu-program-grid">
-                        @foreach ($resourceCards as $card)
-                            @php $cardBodyBlocks = $richTextBlocks((array) $card); @endphp
-                            <article class="ac-advisory-text-panel ac-eu-program-card content-reveal animation-index-{{ $loop->index }}" data-image-reveal>
-                                @if (trim((string) ($card['eyebrow'] ?? '')) !== '')
-                                    <p class="ac-eu-program-eyebrow">{{ $card['eyebrow'] }}</p>
-                                @endif
-                                <h3>{{ $card['title'] ?? '' }}</h3>
-
-                                @foreach ($cardBodyBlocks as $block)
-                                    {!! $block !!}
-                                @endforeach
-
-                                @foreach ((array) ($card['groups'] ?? []) as $group)
-                                    <div class="ac-eu-program-list-block">
-                                        <h4>{{ $group['label'] ?? '' }}</h4>
-                                        <ul class="ac-advisory-list">
-                                            @foreach ((array) ($group['items'] ?? []) as $item)
-                                                @php
-                                                    $resolvedLink = $item['resolved_link'] ?? ['url' => ''];
-                                                    $itemUrl = trim((string) ($resolvedLink['url'] ?? ''));
-                                                @endphp
-                                                <li>
-                                                    @if ($itemUrl !== '')
-                                                        <a href="{{ $itemUrl }}" @if($resolvedLink['open_in_new_tab'] ?? false) target="_blank" rel="{{ $resolvedLink['rel'] ?? 'noopener noreferrer' }}" @endif>{{ $item['title'] ?? '' }}</a>
-                                                    @else
-                                                        {{ $item['title'] ?? '' }}
-                                                    @endif
-                                                </li>
-                                            @endforeach
-                                        </ul>
-                                    </div>
-                                @endforeach
-
-                                @if (!empty($card['primary_link']['url'] ?? '') || !empty($card['secondary_link']['url'] ?? ''))
-                                    <div class="ac-eu-program-actions">
-                                        @foreach (['primary_link', 'secondary_link'] as $linkKey)
-                                            @if (!empty($card[$linkKey]['url'] ?? ''))
-                                                <a href="{{ $card[$linkKey]['url'] }}" class="ac-eu-editorial-link" @if($card[$linkKey]['open_in_new_tab'] ?? false) target="_blank" rel="{{ $card[$linkKey]['rel'] ?? 'noopener noreferrer' }}" @endif>
-                                                    <span>{{ $card[$linkKey]['label'] }}</span>
-                                                    <i class="fa-duotone fa-thin fa-arrow-right fa-fw" aria-hidden="true"></i>
-                                                </a>
-                                            @endif
-                                        @endforeach
-                                    </div>
-                                @endif
-                            </article>
-                        @endforeach
-                    </div>
-                </div>
-            </section>
-        @endif
 
         @if ($lawCards !== [])
             <section class="ac-eu-funds-module-section" id="eu-funds-laws" aria-labelledby="ac-eu-funds-laws-title">
