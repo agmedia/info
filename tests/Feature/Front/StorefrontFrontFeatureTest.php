@@ -1674,6 +1674,7 @@ class StorefrontFrontFeatureTest extends TestCase
             ->assertDontSee('mobile-menu-subnav-heading', false)
             ->assertDontSee('Sve usluge')
             ->assertSee('class="mobile-menu-item mobile-menu-link mobile-menu-link--offer"', false)
+            ->assertDontSee('mobile-menu-offer-group', false)
             ->assertDontSee('class="mobile-cta', false);
 
         $this->assertSame(3, substr_count((string) $response->getContent(), 'class="mobile-menu-subnav-link"'));

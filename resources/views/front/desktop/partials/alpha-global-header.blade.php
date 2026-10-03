@@ -248,19 +248,6 @@
                                 <a class="mobile-menu-item mobile-menu-link mobile-menu-link--offer" href="{{ $alphaOfferUrl }}">
                                     <span class="mobile-menu-label">{{ $alphaOfferCtaLabel }}</span>
                                 </a>
-                                <div class="mobile-menu-item mobile-menu-offer-group" role="group" aria-label="{{ $alphaOfferCtaLabel }}">
-                                    <div class="mobile-menu-offer-options">
-                                        @foreach ($alphaOfferServices as $offerService)
-                                            <a
-                                                href="{{ $offerService['url'] }}"
-                                                @class(['mobile-menu-offer-link', 'is-active' => $alphaSelectedOfferService === $offerService['key']])
-                                                @if ($alphaSelectedOfferService === $offerService['key']) aria-current="page" @endif
-                                            >
-                                                <span>{{ $offerService['label'] }}</span>
-                                            </a>
-                                        @endforeach
-                                    </div>
-                                </div>
                             @endif
 
                             @if ($alphaShowLeaseCalculator && $alphaCalculatorCtaLabel !== '')
